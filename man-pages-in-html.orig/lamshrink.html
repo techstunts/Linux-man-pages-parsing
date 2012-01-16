@@ -1,0 +1,188 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LAMSHRINK</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LAMSHRINK</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lamshrink - Shrink a LAM universe.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+<DD>lamshrink [-dhv] [-w &lt;delay&gt;] &lt;nodeid&gt;
+
+<BR>
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-d</B>
+
+<DD>
+Print detailed debugging information.
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-v</B>
+
+<DD>
+Be verbose.
+<DT><B>&lt;nodeid&gt;</B>
+
+<DD>
+Remove the LAM node with this ID.
+<DT><B>-w &lt;delay&gt;</B>
+
+<DD>
+Notify processes on the doomed node and pause for &lt;delay&gt; seconds
+before proceeding.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+An existing LAM session, initiated by <A HREF="../man1/lamboot.1.php">lamboot</A>(1), can be shrunk to
+include less nodes with
+<I>lamshrink</I>.
+
+One node is removed for each invocation.  At a minimum, the node ID is
+given on the command line.  Once
+<I>lamshrink</I>
+
+completes, the node ID is invalid across the remaining nodes (as can
+be seen by running <A HREF="../man1/lamnodes.1.php">lamnodes</A>(1)).  
+<P>
+
+Existing application processes on the target node can be warned of
+impending shutdown with the -w option.  A LAM signal (SIGFUSE) will be
+sent to these processes and
+<I>lamshrink</I>
+
+will then pause for the given number of seconds before proceeding with
+removing the node.  By default, SIGFUSE is ignored.  A different
+handler can be installed with <A HREF="../man2/ksignal.2.php">ksignal</A>(2).
+<P>
+
+All application processes on all remaining nodes are always informed
+of the death of a node.  This is also done with a signal (SIGSHRINK),
+which by default causes a process's runtime route cache to be flushed
+(to remove any cached information on the dead node).  If this signal
+is re-vectored for the purpose of fault tolerance, the old handler
+should be called at the beginning of the new handler.  The signal does
+not, by itself, give the process information on which node has been
+removed.  One technique for getting this information is to query the
+router for information on all relevant nodes using <A HREF="../man2/getroute.2.php">getroute</A>(2).  The
+dead node will cause this routine to return an error.
+<A NAME="lbAF">&nbsp;</A>
+<H3>FAULT TOLERANCE</H3>
+
+If enabled with <A HREF="../man1/lamboot.1.php">lamboot</A>(1), LAM will watch for nodes that fail.  The
+procedure for removing a node that has failed is the same as
+<I>lamshrink</I>
+
+after the warning step.  In particular, the SIGSHRINK signal is
+delivered.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>lamshrink -v n1 Remove LAM on n1.  Report about important steps as<DD>
+they are done.
+<DT>lamshrink n30 -w 10<DD>
+Inform all processes on LAM node 30, that the node will be dead in 10
+seconds.  Wait 10 seconds and remove the node.  Operate silently.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/lamboot.1.php">lamboot</A>(1), <A HREF="../man1/lamnodes.1.php">lamnodes</A>(1), <A HREF="../man2/ksignal.2.php">ksignal</A>(2), <A HREF="../man2/getroute.2.php">getroute</A>(2)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">FAULT TOLERANCE</A><DD>
+</DL>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

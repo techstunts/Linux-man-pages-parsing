@@ -1,0 +1,301 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLTRU64</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLTRU64</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.tru64 - Perl version 5 on Tru64 (formerly known as Digital UNIX formerly known as DEC OSF/1) systems
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes various features of <FONT SIZE="-1">HP</FONT>'s (formerly Compaq's,
+formerly Digital's) Unix operating system (Tru64) that will affect
+how Perl version 5 (hereafter just Perl) is configured, compiled
+and/or runs.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Compiling Perl 5 on Tru64</H2>
+
+<A NAME="ixAAD"></A>
+The recommended compiler to use in Tru64 is the native C compiler.
+The native compiler produces much faster code (the speed difference is
+noticeable: several dozen percentages) and also more correct code: if
+you are considering using the <FONT SIZE="-1">GNU</FONT> C compiler you should use at the
+very least the release of 2.95.3 since all older gcc releases are
+known to produce broken code when compiling Perl.  One manifestation
+of this brokenness is the lib/sdbm test dumping core; another is many
+of the op/regexp and op/pat, or ext/Storable tests dumping core
+(the exact pattern of failures depending on the <FONT SIZE="-1">GCC</FONT> release and
+optimization flags).
+<P>
+
+gcc 3.2.1 is known to work okay with Perl 5.8.0.  However, when
+optimizing the toke.c gcc likes to have a lot of memory, 256 megabytes
+seems to be enough.  The default setting of the process data section
+in Tru64 should be one gigabyte, but some sites/setups might have
+lowered that.  The configuration process of Perl checks for too low
+process limits, and lowers the optimization for the toke.c if
+necessary, and also gives advice on how to raise the process limits.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Using Large Files with Perl on Tru64</H2>
+
+<A NAME="ixAAE"></A>
+In Tru64 Perl is automatically able to use large files, that is,
+files larger than 2 gigabytes, there is no need to use the Configure
+-Duselargefiles option as described in <FONT SIZE="-1">INSTALL</FONT> (though using the option
+is harmless).
+<A NAME="lbAF">&nbsp;</A>
+<H2>Threaded Perl on Tru64</H2>
+
+<A NAME="ixAAF"></A>
+If you want to use threads, you should primarily use the new Perl
+5.8.0 threads model by running Configure with -Duseithreads.
+<P>
+
+The old Perl 5.005 threads is obsolete, unmaintained, and its use is
+discouraged.  If you really want it, run Configure with the
+-Dusethreads -Duse5005threads options as described in <FONT SIZE="-1">INSTALL</FONT>.
+<P>
+
+Either thread model is going to work only in Tru64 4.0 and newer
+releases, older operating releases like 3.2 aren't probably going
+to work properly with threads.
+<P>
+
+In Tru64 V5 (at least V5.1A, V5.1B) you cannot build threaded Perl with gcc
+because the system header &lt;<A HREF="file:/usr/include/pthread.h">pthread.h</A>&gt; explicitly checks for supported
+C compilers, gcc (at least 3.2.2) not being one of them.  But the
+system C compiler should work just fine.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Long Doubles on Tru64</H2>
+
+<A NAME="ixAAG"></A>
+You cannot Configure Perl to use long doubles unless you have at least
+Tru64 V5.0, the long double support simply wasn't functional enough
+before that.  Perl's Configure will override attempts to use the long
+doubles (you can notice this by Configure finding out that the <I>modfl()</I>
+function does not work as it should).
+<P>
+
+At the time of this writing (June 2002), there is a known bug in the
+Tru64 libc printing of long doubles when not using ``e'' notation.
+The values are correct and usable, but you only get a limited number
+of digits displayed unless you force the issue by using <TT>&quot;printf
+&quot;%.33e&quot;,$num&quot;</TT> or the like.  For Tru64 versions V5.0A through V5.1A, a
+patch is expected sometime after perl 5.8.0 is released.  If your libc
+has not yet been patched, you'll get a warning from Configure when
+selecting long doubles.
+<A NAME="lbAH">&nbsp;</A>
+<H2>DB_File tests failing on Tru64</H2>
+
+<A NAME="ixAAH"></A>
+The DB_File tests (db-btree.t, db-hash.t, db-recno.t) may fail you
+have installed a newer version of Berkeley <FONT SIZE="-1">DB</FONT> into the system and the
+-I and -L compiler and linker flags introduce version conflicts with
+the <FONT SIZE="-1">DB</FONT> 1.85 headers and libraries that came with the Tru64.  For example, 
+mixing a <FONT SIZE="-1">DB</FONT> v2 library with the <FONT SIZE="-1">DB</FONT> v1 headers is a bad idea.  Watch
+out for Configure options -Dlocincpth and -Dloclibpth, and check your
+/usr/local/include and /usr/local/lib since they are included by default.
+<P>
+
+The second option is to explicitly instruct Configure to detect the
+newer Berkeley <FONT SIZE="-1">DB</FONT> installation, by supplying the right directories with
+<TT>&quot;-Dlocincpth=/some/include&quot;</TT> and <TT>&quot;-Dloclibpth=/some/lib&quot;</TT> <B>and</B> before
+running ``make test'' setting your <FONT SIZE="-1">LD_LIBRARY_PATH</FONT> to <I>/some/lib</I>.
+<P>
+
+The third option is to work around the problem by disabling the
+DB_File completely when build Perl by specifying -Ui_db to Configure,
+and then using the BerkeleyDB module from <FONT SIZE="-1">CPAN</FONT> instead of DB_File.
+The BerkeleyDB works with Berkeley <FONT SIZE="-1">DB</FONT> versions 2.* or greater.
+<P>
+
+The Berkeley <FONT SIZE="-1">DB</FONT> 4.1.25 has been tested with Tru64 V5.1A and found
+to work.  The latest Berkeley <FONT SIZE="-1">DB</FONT> can be found from <I><A HREF="http://www.sleepycat.com">http://www.sleepycat.com</A></I>.
+<A NAME="lbAI">&nbsp;</A>
+<H2>64-bit Perl on Tru64</H2>
+
+<A NAME="ixAAI"></A>
+In Tru64 Perl's integers are automatically 64-bit wide, there is
+no need to use the Configure -Duse64bitint option as described
+in <FONT SIZE="-1">INSTALL</FONT>.  Similarly, there is no need for -Duse64bitall
+since pointers are automatically 64-bit wide.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Warnings about floating-point overflow when compiling Perl on Tru64</H2>
+
+<A NAME="ixAAJ"></A>
+When compiling Perl in Tru64 you may (depending on the compiler
+release) see two warnings like this
+<P>
+
+
+
+<PRE>
+    cc: Warning: numeric.c, line 104: In this statement, floating-point overflow occurs in evaluating the expression &quot;1.8e308&quot;. (floatoverfl)
+        return HUGE_VAL;
+    -----------^
+
+</PRE>
+
+
+<P>
+
+and when compiling the <FONT SIZE="-1">POSIX</FONT> extension
+<P>
+
+
+
+<PRE>
+    cc: Warning: const-c.inc, line 2007: In this statement, floating-point overflow occurs in evaluating the expression &quot;1.8e308&quot;. (floatoverfl)
+                return HUGE_VAL;
+    -------------------^
+
+</PRE>
+
+
+<P>
+
+The exact line numbers may vary between Perl releases.  The warnings
+are benign and can be ignored: in later C compiler releases the warnings
+should be gone.
+<P>
+
+When the file <I>pp_sys.c</I> is being compiled you may (depending on the
+operating system release) see an additional compiler flag being used:
+<TT>&quot;-DNO_EFF_ONLY_OK&quot;</TT>.  This is normal and refers to a feature that is
+relevant only if you use the <TT>&quot;filetest&quot;</TT> pragma.  In older releases of
+the operating system the feature was broken and the <FONT SIZE="-1">NO_EFF_ONLY_OK</FONT>
+instructs Perl not to use the feature.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Testing Perl on Tru64</H2>
+
+<A NAME="ixAAK"></A>
+During ``make test'' the <TT>&quot;comp/cpp&quot;</TT> will be skipped because on Tru64 it
+cannot be tested before Perl has been installed.  The test refers to
+the use of the <TT>&quot;-P&quot;</TT> option of Perl.
+<A NAME="lbAL">&nbsp;</A>
+<H2>ext/ODBM_File/odbm Test Failing With Static Builds</H2>
+
+<A NAME="ixAAL"></A>
+The ext/ODBM_File/odbm is known to fail with static builds
+(Configure -Uusedl) due to a known bug in Tru64's static libdbm
+library.  The good news is that you very probably don't need to ever
+use the ODBM_File extension since more advanced NDBM_File works fine,
+not to mention the even more advanced DB_File.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Perl Fails Because Of Unresolved Symbol sockatmark
+
+</H2>
+
+<A NAME="ixAAM"></A>
+If you get an error like
+<P>
+
+
+
+<PRE>
+    Can't load '.../OSF1/lib/perl5/5.8.0/alpha-dec_osf/auto/IO/IO.so' for module IO: Unresolved symbol in .../lib/perl5/5.8.0/alpha-dec_osf/auto/IO/IO.so: sockatmark at .../lib/perl5/5.8.0/alpha-dec_osf/XSLoader.pm line 75.
+
+</PRE>
+
+
+<P>
+
+you need to either recompile your Perl in Tru64 4.0D or upgrade your
+Tru64 4.0D to at least 4.0F: the <I>sockatmark()</I> system call was
+added in Tru64 4.0F, and the <FONT SIZE="-1">IO</FONT> extension refers that symbol.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAN"></A>
+Jarkko Hietaniemi &lt;<A HREF="mailto:jhi@iki.fi">jhi@iki.fi</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Compiling Perl 5 on Tru64</A><DD>
+<DT><A HREF="#lbAE">Using Large Files with Perl on Tru64</A><DD>
+<DT><A HREF="#lbAF">Threaded Perl on Tru64</A><DD>
+<DT><A HREF="#lbAG">Long Doubles on Tru64</A><DD>
+<DT><A HREF="#lbAH">DB_File tests failing on Tru64</A><DD>
+<DT><A HREF="#lbAI">64-bit Perl on Tru64</A><DD>
+<DT><A HREF="#lbAJ">Warnings about floating-point overflow when compiling Perl on Tru64</A><DD>
+<DT><A HREF="#lbAK">Testing Perl on Tru64</A><DD>
+<DT><A HREF="#lbAL">ext/ODBM_File/odbm Test Failing With Static Builds</A><DD>
+<DT><A HREF="#lbAM">Perl Fails Because Of Unresolved Symbol sockatmark</A><DD>
+<DT><A HREF="#lbAN">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DC_TEST</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DC_TEST</H1>
+Section: distcache (1)<BR>Updated: 2004.03.23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dc_test - Distributed session cache testing and benchmarking tool
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>dc_test</B> -connect &lt;addr&gt; [options]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>dc_test</B> runs a configurable number of session caching operations against a
+given network address using the <I><A HREF="../man8/distcache.8.php">distcache</A></I>(8) protocol. This is typically to
+verify an installation, to help diagnose problems, and to measure latency
+and/or throughput. The given address could be for an instance of <B>dc_client</B>
+or directly to a running instance of <B>dc_server</B>. Note that whenever the
+service is running over TCP/IPv4, use of the <B>-persistent</B> flag is advised
+because many systems will fairly quickly exhaust the limit of available
+file-descriptors and stop allowing new sockets until the closed connections
+finish with the <FONT SIZE="-1">TIME_WAIT</FONT> state.
+<P>
+
+<B>dc_test</B> runs one cache operation at a time, so it provides an accurate
+measurement of latency in the distcache architecture being tested. However if
+one wants to test the potential throughput of the architecture when multiple
+cache operations occur in parallel (and distcache tools are asynchronous to
+scale well in such circumstances), it makes sense to launch multiple instances
+of <B>dc_test</B> in parallel.
+<P>
+
+<B>dc_test</B> attempts to verify correctness of any optimisation caching tricks in
+distcache tools by creating an array of ``sessions'' in advance and then
+sending sending <FONT SIZE="-1">ADD</FONT>, <FONT SIZE="-1">GET</FONT>, and <FONT SIZE="-1">REMOVE</FONT> requests on these sessions chosen
+completely at random. As such, many of these requests <B>should</B> fail, and
+<B>dc_test</B> will itself immediately halt with an error if any operation that
+should succeed fails or any operation that should fail succeeds.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-connect</B> address<DD>
+<A NAME="ixAAF"></A>
+This flag specifies the address <B>dc_test</B> should connect and send cache
+operation requests to.
+<DT><B>-progress</B> num<DD>
+<A NAME="ixAAG"></A>
+Normally <B>dc_test</B> will remain silent while testing is in progress and will
+only produce output when complete (whether it is because an error was detected
+or because the required number of operations have completd). With this flag, a
+line of output is produced each time another <B>num</B> operations have been
+completed. This can be useful for giving an intuitive idea of the latency in
+the architecture and to verify that neither <B>dc_test</B> nor the tools it
+connects to have deadlocked.
+
+
+<P>
+
+
+The default value for this flag is 0, which leaves <B>dc_test</B> silent until it
+has completed.
+<DT><B>-sessions</B> num<DD>
+<A NAME="ixAAH"></A>
+This flag controls the number of sample sessions created by <B>dc_test</B> before
+testing begins. The default value is 10.
+<DT><B>-datamin</B> num<DD>
+<A NAME="ixAAI"></A>
+
+<DT><B>-datamax</B> num<DD>
+<A NAME="ixAAJ"></A>
+
+The sessions created by <B>dc_test</B> during initialisation have random session
+IDs between 10 and 63 bytes in length, and random session data of varying
+length also.  The minimum length of the session data is set by the <B>-datamin</B>
+switch, and the maximum length is set by the <B>-datamax</B> switch. The default
+value for <B>-datamin</B> is 50, and the default for <B>-datamax</B> is 2100.
+<DT><B>-timeout</B> secs<DD>
+<A NAME="ixAAK"></A>
+
+<DT><B>-timevar</B> secs<DD>
+<A NAME="ixAAL"></A>
+
+The sessions created by <B>dc_test</B> during initialisation have random timeouts
+associated with them, so as to better probe for potential expiry-ordering bugs
+in a cache server. Each session addition to a cache server must specify an
+expiry period after which the cache will be automatically removed if it hasn't
+already been removed explicitly or implicitly because of the <FONT SIZE="-1">FIFO</FONT> behaviour of
+a full cache. The <B>-timeout</B> switch specifies the average timeout for creating
+sessions with, and the <B>-timevar</B> switch specifies the range above or below the
+average that session timeouts should be (randomly) chosen from.
+
+
+<P>
+
+
+The default value for <B>-timeout</B> is 60 seconds, and the default value for
+<B>-timevar</B> is 5 seconds.
+
+
+<P>
+
+
+If <B>dc_server</B> is not running as a daemon, then it can also be useful to watch
+it's behaviour after testing has finished (or in the middle of subsequent
+testing) because it should automatically scroll out test sessions as their
+expiry period runs out. See also the <I></I><FONT SIZE="-1"><I>BUGS</I></FONT><I></I> section.
+<DT><B>-ops</B> num<DD>
+<A NAME="ixAAM"></A>
+<B>dc_test</B> does not (yet) support running indefinitely (see the <I></I><FONT SIZE="-1"><I>BUGS</I></FONT><I></I> section
+for the primary reason), so it will run until any error has been observed or
+until it has successfully performed a configurable number of operations. The
+<B>-ops</B> switch can be used to set this number of operations.
+
+
+<P>
+
+
+If <B>-ops</B> is not supplied on the command-line, it's default value will be
+calculated from the number of sessions created (which is itself controlled by
+<B>-sessions</B>). This default is 10*(sessions^2). As the default number of
+sessions is 10, the default number of operations is thus 1000.
+<DT><B>-persistent</B><DD>
+<A NAME="ixAAN"></A>
+The default behaviour of <B>dc_test</B> is to open and close a connection to the
+target address (controlled by <B>-connect</B>) for every operation. This is the
+logical choice when connecting to an instance of <B>dc_client</B> as it is the mode
+of operation employed by most applications that integrate with distcache.
+However, it can be desirable to measure the behaviour of the architecture when
+all operations are taking place over a single established ``persistent''
+connection. This is more certainly the case when connecting directly to an
+instance of <B>dc_server</B> over TCP/IPv4, as <B>dc_server</B> forks a child process
+for each connection and TCP/IPv4 does not react well to thousands of
+connections being opened and closed in a short space of time.
+
+
+<P>
+
+
+Using the <B>-persistent</B> switch, a single connection will be opened to the
+target address when <B>dc_test</B> initialises, and all cache operations will use
+this connection.
+<DT><B>-h</B>, <B>-help</B>, <B>-?</B><DD>
+<A NAME="ixAAO"></A>
+Any of these flags will cause <B>dc_test</B> to display a brief usage summary to
+the console and exit cleanly. Any other flags are ignored.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAP"></A>
+<B>dc_test</B> will monitor each of the sessions it creates during intialisation to
+determine whether it thinks it should already be present in the destination
+session cache or not. Using this state, it determines whether it expects a
+corresponding <FONT SIZE="-1">ADD</FONT>, <FONT SIZE="-1">GET</FONT>, or <FONT SIZE="-1">DELETE</FONT> operation on the session to succeed or fail.
+<FONT SIZE="-1">GET</FONT> and <FONT SIZE="-1">DELETE</FONT> should fail if the session is not supposed to be in the cache
+(if it has never been added or was last seen in a <FONT SIZE="-1">DELETE</FONT> operation). Likewise,
+<FONT SIZE="-1">ADD</FONT> should fail if the session is supposed to be in the cache. None of this
+logic, however, pays any attention to the expiry period in each of these
+sessions and so if a long enough test is run (high value of <B>ops</B> or a slow
+architecture) and/or short session timeouts are used, it becomes possible for
+this state to become incorrect when the cache itself expires sessions that
+<B>dc_test</B> thinks should still be in the cache. This bug should be hard to
+trigger even with long tests or short timeouts, because a session needs to be
+added to the cache and then not <FONT SIZE="-1">DELETE</FONT>'d during a long enough period that the
+server gets a chance to expire it.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAQ"></A>
+<DL COMPACT>
+<DT><I><A HREF="../man1/dc_client.1.php">dc_client</A></I>(1)<DD>
+<A NAME="ixAAR"></A>
+Distributed caching client proxy.
+<DT><I><A HREF="../man1/dc_server.1.php">dc_server</A></I>(1)<DD>
+<A NAME="ixAAS"></A>
+Distributed cache server.
+<DT><I><A HREF="../man1/dc_snoop.1.php">dc_snoop</A></I>(1)<DD>
+<A NAME="ixAAT"></A>
+Distcache protocol analyser and debugging tool.
+<DT><I><A HREF="../man8/distcache.8.php">distcache</A></I>(8)<DD>
+<A NAME="ixAAU"></A>
+Overview of the distcache architecture.
+<DT><I><A HREF="http://www.distcache.org/">http://www.distcache.org/</A></I><DD>
+<A NAME="ixAAV"></A>
+Distcache home page.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAW"></A>
+This toolkit was designed and implemented by Geoff Thorpe for Cryptographic
+Appliances Incorporated. Since the project was released into open source, it
+has a home page and a project environment where development, mailing lists, and
+releases are organised. For problems with the software or this man page please
+check for new releases at the project web-site below, mail the users mailing
+list described there, or contact the author at <I><A HREF="mailto:geoff@geoffthorpe.net">geoff@geoffthorpe.net</A></I>.
+<P>
+
+Home Page: <I><A HREF="http://www.distcache.org">http://www.distcache.org</A></I>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

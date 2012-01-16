@@ -1,0 +1,421 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLBS2000</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLBS2000</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.BS2000 - building and installing Perl for BS2000.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+This document will help you Configure, build, test and install Perl
+on <FONT SIZE="-1">BS2000</FONT> in the <FONT SIZE="-1">POSIX</FONT> subsystem.
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This is a ported perl for the <FONT SIZE="-1">POSIX</FONT> subsystem in <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">VERSION</FONT> <FONT SIZE="-1">OSD</FONT>
+V3.1A or later.  It may work on other versions, but we started porting
+and testing it with 3.1A and are currently using Version V4.0A.
+<P>
+
+You may need the following <FONT SIZE="-1">GNU</FONT> programs in order to install perl:
+<A NAME="lbAE">&nbsp;</A>
+<H2>gzip on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAE"></A>
+We used version 1.2.4, which could be installed out of the box with
+one failure during 'make check'.
+<A NAME="lbAF">&nbsp;</A>
+<H2>bison on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAF"></A>
+The yacc coming with <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">POSIX</FONT> didn't work for us.  So we had to
+use bison.  We had to make a few changes to perl in order to use the
+pure (reentrant) parser of bison.  We used version 1.25, but we had to
+add a few changes due to <FONT SIZE="-1">EBCDIC</FONT>.  See below for more details
+concerning yacc.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Unpacking Perl Distribution on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAG"></A>
+To extract an <FONT SIZE="-1">ASCII</FONT> tar archive on <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">POSIX</FONT> you need an <FONT SIZE="-1">ASCII</FONT>
+filesystem (we used the mountpoint /usr/local/ascii for this).  Now
+you extract the archive in the <FONT SIZE="-1">ASCII</FONT> filesystem without
+I/O-conversion:
+<P>
+
+cd /usr/local/ascii
+export IO_CONVERSION=NO
+gunzip &lt; /usr/local/src/perl.tar.gz | pax -r
+<P>
+
+You may ignore the error message for the first element of the archive
+(this doesn't look like a tar archive / skipping to next file...),
+it's only the directory which will be created automatically anyway.
+<P>
+
+After extracting the archive you copy the whole directory tree to your
+<FONT SIZE="-1">EBCDIC</FONT> filesystem.  <B>This time you use I/O-conversion</B>:
+<P>
+
+cd /usr/local/src
+IO_CONVERSION=YES
+cp -r /usr/local/ascii/perl5.005_02 ./
+<A NAME="lbAH">&nbsp;</A>
+<H2>Compiling Perl on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAH"></A>
+There is a ``hints'' file for <FONT SIZE="-1">BS2000</FONT> called hints.posix-bc (because
+posix-bc is the <FONT SIZE="-1">OS</FONT> name given by `uname`) that specifies the correct
+values for most things.  The major problem is (of course) the <FONT SIZE="-1">EBCDIC</FONT>
+character set.  We have german <FONT SIZE="-1">EBCDIC</FONT> version.
+<P>
+
+Because of our problems with the native yacc we used <FONT SIZE="-1">GNU</FONT> bison to
+generate a pure (=reentrant) parser for perly.y.  So our yacc is
+really the following script:
+<P>
+
+-----8&lt;-----/usr/local/bin/yacc-----8&lt;-----
+#! /usr/bin/sh
+<P>
+
+# Bison as a reentrant yacc:
+<P>
+
+# save parameters:
+params=&quot;``
+while [[ $# -gt 1 ]]; do
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;params=''$params&nbsp;<TT>$1</TT>&quot;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;shift
+done
+<P>
+
+# add flag <TT>%pure_parser:</TT>
+<P>
+
+tmpfile=/tmp/bison.$$.y
+echo <TT>%pure_parser</TT> &gt; <TT>$tmpfile</TT>
+cat <TT>$1</TT> &gt;&gt; <TT>$tmpfile</TT>
+<P>
+
+# call bison:
+<P>
+
+echo ``/usr/local/bin/bison --yacc <TT>$params</TT> <TT>$1</TT>\t\t\t(Pure Parser)''
+/usr/local/bin/bison --yacc <TT>$params</TT> <TT>$tmpfile</TT>
+<P>
+
+# cleanup:
+<P>
+
+rm -f <TT>$tmpfile</TT>
+-----8&lt;----------8&lt;-----
+<P>
+
+We still use the normal yacc for a2p.y though!!!  We made a softlink
+called byacc to distinguish between the two versions:
+<P>
+
+ln -s /usr/bin/yacc /usr/local/bin/byacc
+<P>
+
+We build perl using <FONT SIZE="-1">GNU</FONT> make.  We tried the native make once and it
+worked too.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Testing Perl on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAI"></A>
+We still got a few errors during <TT>&quot;make test&quot;</TT>.  Some of them are the
+result of using bison.  Bison prints <I>parser error</I> instead of <I>syntax
+error</I>, so we may ignore them.  The following list shows
+our errors, your results may differ:
+<P>
+
+op/numconvert.......FAILED tests 1409-1440
+op/regexp...........FAILED tests 483, 496
+op/regexp_noamp.....FAILED tests 483, 496
+pragma/overload.....FAILED tests 152-153, 170-171
+pragma/warnings.....FAILED tests 14, 82, 129, 155, 192, 205, 207
+lib/bigfloat........FAILED tests 351-352, 355
+lib/bigfltpm........FAILED tests 354-355, 358
+lib/complex.........FAILED tests 267, 487
+lib/dumper..........FAILED tests 43, 45
+Failed 11/231 test scripts, 95.24% okay. 57/10595 subtests failed, 99.46% okay.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Installing Perl on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAJ"></A>
+We have no nroff on <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">POSIX</FONT> (yet), so we ignored any errors while
+installing the documentation.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Using Perl in the Posix-Shell of <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAK"></A>
+<FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">POSIX</FONT> doesn't support the shebang notation
+(<TT>&quot;#!/usr/local/bin/perl&quot;</TT>), so you have to use the following lines
+instead:
+<P>
+
+: # use perl
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;eval&nbsp;'exec&nbsp;/usr/local/bin/perl&nbsp;-S&nbsp;<TT>$0</TT>&nbsp;${1+``$@''}'
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;<TT>$running_under_some_shell</TT>;
+<A NAME="lbAL">&nbsp;</A>
+<H2>Using Perl in native <FONT SIZE="-1">BS2000</FONT></H2>
+
+
+
+<A NAME="ixAAL"></A>
+We don't have much experience with this yet, but try the following:
+<P>
+
+Copy your Perl executable to a <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">LLM</FONT> using bs2cp:
+<P>
+
+<TT>&quot;bs2cp /usr/local/bin/perl 'bs2:perl(perl,l)'&quot;</TT>
+<P>
+
+Now you can start it with the following (<FONT SIZE="-1">SDF</FONT>) command:
+<P>
+
+<TT>&quot;/START-PROG FROM-FILE=*MODULE(PERL,PERL),PROG-MODE=*ANY,RUN-MODE=*ADV&quot;</TT>
+<P>
+
+First you get the <FONT SIZE="-1">BS2000</FONT> commandline prompt ('*').  Here you may enter
+your parameters, e.g. <TT>&quot;-e 'print &quot;Hello World!\\n&quot;;'&quot;</TT> (note the
+double backslash!) or <TT>&quot;-w&quot;</TT> and the name of your Perl script.
+Filenames starting with <TT>&quot;/&quot;</TT> are searched in the Posix filesystem,
+others are searched in the <FONT SIZE="-1">BS2000</FONT> filesystem.  You may even use
+wildcards if you put a <TT>&quot;%&quot;</TT> in front of your filename (e.g. <TT>&quot;-w
+checkfiles.pl %*.c&quot;</TT>).  Read your C/C<FONT SIZE="-2">++</FONT> manual for additional
+possibilities of the commandline prompt (look for
+<FONT SIZE="-1">PARAMETER-PROMPTING</FONT>).
+<A NAME="lbAM">&nbsp;</A>
+<H2>Floating point anomalies on <FONT SIZE="-1">BS2000</FONT></H2>
+
+<A NAME="ixAAM"></A>
+There appears to be a bug in the floating point implementation on <FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">POSIX</FONT>
+systems such that calling <I>int()</I> on the product of a number and a small
+magnitude number is not the same as calling <I>int()</I> on the quotient of
+that number and a large magnitude number.  For example, in the following
+Perl code:
+<P>
+
+
+
+<PRE>
+    my $x = 100000.0;
+    my $y = int($x * 1e-5) * 1e5; # '0'
+    my $z = int($x / 1e+5) * 1e5;  # '100000'
+    print &quot;\$y is $y and \$z is $z\n&quot;; # $y is 0 and $z is 100000
+
+</PRE>
+
+
+<P>
+
+Although one would expect the quantities <TT>$y</TT> and <TT>$z</TT> to be the same and equal
+to 100000 they will differ and instead will be 0 and 100000 respectively.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Using PerlIO and different encodings on <FONT SIZE="-1">ASCII</FONT> and <FONT SIZE="-1">EBCDIC</FONT> partitions</H2>
+
+<A NAME="ixAAN"></A>
+Since version 5.8 Perl uses the new PerlIO on <FONT SIZE="-1">BS2000</FONT>.  This enables
+you using different encodings per <FONT SIZE="-1">IO</FONT> channel.  For example you may use
+<P>
+
+
+
+<PRE>
+    use Encode;
+    open($f, &quot;&gt;:encoding(ascii)&quot;, &quot;test.ascii&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(posix-bc)&quot;, &quot;test.ebcdic&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(latin1)&quot;, &quot;test.latin1&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(utf8)&quot;, &quot;test.utf8&quot;);
+    print $f &quot;Hello World!\n&quot;;
+
+</PRE>
+
+
+<P>
+
+to get two files containing ``Hello World!\n'' in <FONT SIZE="-1">ASCII</FONT>, <FONT SIZE="-1">EBCDIC</FONT>, <FONT SIZE="-1">ISO</FONT>
+Latin-1 (in this example identical to <FONT SIZE="-1">ASCII</FONT>) respective UTF-EBCDIC (in
+this example identical to normal <FONT SIZE="-1">EBCDIC</FONT>).  See the documentation of
+Encode::PerlIO for details.
+<P>
+
+As the PerlIO layer uses raw <FONT SIZE="-1">IO</FONT> internally, all this totally ignores
+the type of your filesystem (<FONT SIZE="-1">ASCII</FONT> or <FONT SIZE="-1">EBCDIC</FONT>) and the <FONT SIZE="-1">IO_CONVERSION</FONT>
+environment variable.  If you want to get the old behavior, that the
+<FONT SIZE="-1">BS2000</FONT> <FONT SIZE="-1">IO</FONT> functions determine conversion depending on the filesystem
+PerlIO still is your friend.  You use <FONT SIZE="-1">IO_CONVERSION</FONT> as usual and tell
+Perl, that it should use the native <FONT SIZE="-1">IO</FONT> layer:
+<P>
+
+
+
+<PRE>
+    export IO_CONVERSION=YES
+    export PERLIO=stdio
+
+</PRE>
+
+
+<P>
+
+Now your <FONT SIZE="-1">IO</FONT> would be <FONT SIZE="-1">ASCII</FONT> on <FONT SIZE="-1">ASCII</FONT> partitions and <FONT SIZE="-1">EBCDIC</FONT> on <FONT SIZE="-1">EBCDIC</FONT>
+partitions.  See the documentation of PerlIO (without <TT>&quot;Encode::&quot;</TT>!)
+for further posibilities.
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixAAO"></A>
+Thomas Dorner
+<A NAME="lbAP">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAP"></A>
+<FONT SIZE="-1">INSTALL</FONT>, perlport.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Mailing list</H2>
+
+<A NAME="ixAAQ"></A>
+If you are interested in the <FONT SIZE="-1">VM/ESA</FONT>, z/OS (formerly known as <FONT SIZE="-1">OS/390</FONT>)
+and POSIX-BC (<FONT SIZE="-1">BS2000</FONT>) ports of Perl then see the perl-mvs mailing list.
+To subscribe, send an empty message to <A HREF="mailto:perl-mvs-subscribe@perl.org">perl-mvs-subscribe@perl.org</A>.
+<P>
+
+See also:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://lists.perl.org/showlist.cgi?name=perl-mvs">http://lists.perl.org/showlist.cgi?name=perl-mvs</A>
+
+</PRE>
+
+
+<P>
+
+There are web archives of the mailing list at:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/">http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/</A>
+    <A HREF="http://archive.develooper.com/perl-mvs@perl.org/">http://archive.develooper.com/perl-mvs@perl.org/</A>
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAAR"></A>
+This document was originally written by Thomas Dorner for the 5.005
+release of Perl.
+<P>
+
+This document was podified for the 5.6 release of perl 11 July 2000.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">gzip on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAF">bison on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAG">Unpacking Perl Distribution on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAH">Compiling Perl on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAI">Testing Perl on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAJ">Installing Perl on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAK">Using Perl in the Posix-Shell of <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAL">Using Perl in native <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAM">Floating point anomalies on <FONT SIZE="-1">BS2000</FONT></A><DD>
+<DT><A HREF="#lbAN">Using PerlIO and different encodings on <FONT SIZE="-1">ASCII</FONT> and <FONT SIZE="-1">EBCDIC</FONT> partitions</A><DD>
+<DT><A HREF="#lbAO">AUTHORS</A><DD>
+<DT><A HREF="#lbAP">SEE ALSO</A><DD>
+<DT><A HREF="#lbAQ">Mailing list</A><DD>
+<DT><A HREF="#lbAR">HISTORY</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

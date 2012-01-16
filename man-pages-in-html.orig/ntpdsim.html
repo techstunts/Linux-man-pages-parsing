@@ -1,0 +1,192 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ntpdsim</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ntpdsim</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ntpdsim - Network Time Protocol (NTP) simulator
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>ntpdsim [ -B
+</B><I>bdly</I> ] [ -C
+<I>snse</I> ] [ -O
+<I>clk_time</I> ] [ -S
+<I>sim_time</I> ] [ -T
+<I>ferr</I> ] [ -W
+<I>fsne</I> ] [ -Y 
+<I>
+</I><B>ndly</B>  
+<B>] [ -X</B> 
+<I>
+</I><B>pdly</B>  
+<B>]</B> 
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+The
+<B>ntpdsim</B> program is an adaptation of the
+<B>ntpd</B> operating system daemon. The program operates as a discrete time simulator using specified systematic and random driving sources. It includes all the mitigation and discipline algorithms of the actual daemon, but with the packet I/O and system clock algorithms driven by simulation. Most functions of the real
+<B>ntpd</B> remain intact, including the monitoring, statistics recording, trace and host name resolution features. Further information on the simulator is on the NTP Discrete Event Simulator page.
+
+The simulator is most useful to study NTP behavior in response to time and/or frequency transients under specific conditions of network jitter and oscillator wander. For this purpose the daemon can be driven by pseudorandom jitter and wander sample sequences characteristic of real networks and oscillators. The jitter generator produces samples from a Poisson distribution, while the wander generator produces samples from a Guassian distribution.
+
+The easiest way to use this program is to create a
+<B>ntpstats</B> directory, configuration file
+<B>ntp.conf</B> and frequency file
+<B>ntp.drift</B> and test shell
+<B>test.sh</B> in the base directory. The
+<B>ntp.drift</B> file and
+<B>ntpstats</B> directory can be empty to start. The
+<B>test.sh</B> script can contain something like
+<P>
+
+<PRE>
+rm ./ntpstats/*
+ntpdsim -O 0.1 -C .001 -T 400 -W 1 -c ./ntp.conf,
+</PRE>
+
+
+which starts the simulator with a time offset 100 ms, network jitter 1 ms, frequency offset 400 PPM and oscillator wander 1 PPM/s. These parameters represent typical conditions with modern workstations on a Ethernet LAN. The ntp.conf file should contain something like
+<P>
+
+<PRE>
+disable kernel
+server pogo
+driftfile ./ntp.drift
+statsdir ./ntpstats/
+filegen loopstats type day enable
+filegen peerstats type day enable
+</PRE>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMAND LINE OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>Most of the ntpd command line options apply also to ntpdsim. In addition, the following command line options apply to ntpdsim. -B bdly</B>
+
+<DD>
+Specify beep delay (3600) s.
+<DT><B>-C snse</B>
+
+<DD>
+Specify network jitter parameter (0) s.
+<DT><B>-O clk_time</B>
+
+<DD>
+Specify initial time offset (0) s.
+<DT><B>-S sim_time</B>
+
+<DD>
+Specify simulation duration (86400) s.
+<DT><B>-T ferr</B>
+
+<DD>
+Specify initial frequency offset (0) PPM.
+<DT><B>-W fnse</B>
+
+<DD>
+Specify oscillator wander parameter (0) PPM/s.
+<DT><B>-Y ndly</B>
+
+<DD>
+Specify network propagation delay (.001) s.
+<DT><B>-Z pdly</B>
+
+<DD>
+Specify server processing delay (.001) s.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+<B>/etc/ntp.conf</B> .P
+- the default name of the configuration file
+<P>
+<B>/etc/ntp.drift</B> - the default name of the drift file
+<P>
+<B>/etc/ntp.keys</B> - the default name of the key file
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMAND LINE OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

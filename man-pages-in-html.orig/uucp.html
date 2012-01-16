@@ -1,0 +1,361 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>uucp</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>uucp</H1>
+Section: User Commands  (1)<BR>Updated: Taylor UUCP 1.07<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+uucp - Unix to Unix copy
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>uucp</B>
+
+[ options ] source-file destination-file
+<P>
+
+<B>uucp</B>
+
+[ options ] source-file... destination-directory
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>uucp</I>
+
+command copies files between systems.  Each
+<I>file</I>
+
+argument is either a pathname on the local machine or is of the form
+<DL COMPACT>
+<DT><DD>
+system!path
+</DL>
+<P>
+
+which is interpreted as being on a remote system.
+In the first form, the contents of the first file are copied to the
+second.  In the second form, each source file is copied into the
+destination directory.
+<P>
+A file be transferred to or from
+<I>system2</I>
+
+via
+<I>system1</I>
+
+by using
+<DL COMPACT>
+<DT><DD>
+system1!system2!path.
+</DL>
+<P>
+
+<P>
+Any pathname that does not begin with / or ~ will be appended to the
+current directory (unless the
+<B>-W</B>
+
+or
+<B>--noexpand</B>
+
+option is used); this resulting path will not necessarily exist on a
+remote system.  A pathname beginning with a simple ~ starts at the
+UUCP public directory; a pathname beginning with ~name starts at the
+home directory of the named user.  The ~ is interpreted on the
+appropriate system.  Note that some shells will interpret a simple ~
+to the local home directory before
+<I>uucp</I>
+
+sees it; to avoid this the ~ must be quoted.
+<P>
+Shell metacharacters ? * [ ] are interpreted on the appropriate
+system, assuming they are quoted to prevent the shell from
+interpreting them first.
+<P>
+The copy does not take place immediately, but is queued up for the
+<I>uucico</I>
+
+(8) daemon; the daemon is started immediately unless the 
+<B>-r</B>
+
+or
+<B>--nouucico</B>
+
+switch is given.  In any case, the next time the remote system is called the
+file(s) will be copied.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options may be given to
+<I>uucp.</I>
+
+<DL COMPACT>
+<DT><B>-c, --nocopy</B>
+
+<DD>
+Do not copy local source files to the spool directory.  If they are
+removed before being processed by the
+<I>uucico</I>
+
+(8) daemon, the copy will fail.  The files must be readable by the
+<I>uucico</I>
+
+(8) daemon, and by the invoking user.
+<DT><B>-C, --copy</B>
+
+<DD>
+Copy local source files to the spool directory.  This is the default.
+<DT><B>-d, --directories</B>
+
+<DD>
+Create all necessary directories when doing the copy.  This is the
+default.
+<DT><B>-f, --nodirectories</B>
+
+<DD>
+If any necessary directories do not exist for the destination path,
+abort the copy.
+<DT><B>-R, --recursive</B>
+
+<DD>
+If any of the source file names are directories, copy their contents
+recursively to the destination (which must itself be a directory).
+<DT><B>-g grade, --grade grade</B>
+
+<DD>
+Set the grade of the file transfer command.  Jobs of a higher grade
+are executed first.  Grades run 0 ... 9 A ... Z a ... z from high to
+low.
+<DT><B>-m, --mail</B>
+
+<DD>
+Report completion or failure of the file transfer by
+<I>mail</I>
+
+(1).
+<DT><B>-n user, --notify user</B>
+
+<DD>
+Report completion or failure of the file transfer by
+<I>mail</I>
+
+(1) to the named
+user on the remote system.
+<DT><B>-r, --nouucico</B>
+
+<DD>
+Do not start
+<I>uucico</I>
+
+(8) daemon immediately; merely queue up the file transfer for later
+execution.
+<DT><B>-j, --jobid</B>
+
+<DD>
+Print jobid on standard output.  The job may be
+later cancelled by passing the jobid to the
+<B>-k</B>
+
+switch of
+<I>uustat</I>
+
+(1).
+It is possible for some complex operations to produce more than one
+jobid, in which case each will be printed on a separate line.  For
+example
+<BR>
+
+
+<PRE>
+uucp sys1!~user1/file1 sys2!~user2/file2 ~user3
+</PRE>
+
+
+will generate two separate jobs, one for the system
+<I>sys1</I>
+
+and one for the system
+<I>sys2.</I>
+
+<DT><B>-W, --noexpand</B>
+
+<DD>
+Do not prepend remote relative path names with the current directory.
+<DT><B>-t, --uuto</B>
+
+<DD>
+This option is used by the 
+<I>uuto</I>
+
+shell script.  It causes
+<I>uucp</I>
+
+to interpret the final argument as
+<I>system!user.</I>
+
+The file(s) are sent to
+<I>~/receive/USER/LOCAL</I>
+
+on the remote system, where
+<I>USER</I>
+
+is from the final argument and
+<I>LOCAL</I>
+
+is the local UUCP
+system name.  Also,
+<I>uucp</I>
+
+will act as though
+<I>--notify user</I>
+
+were specified.
+<DT><B>-x type, --debug type</B>
+
+<DD>
+Turn on particular debugging types.  The following types are
+recognized: abnormal, chat, handshake, uucp-proto, proto, port,
+config, spooldir, execute, incoming, outgoing.  Only abnormal, config,
+spooldir and execute are meaningful for
+<I>uucp.</I>
+
+<P>
+Multiple types may be given, separated by commas, and the
+<B>--debug</B>
+
+option may appear multiple times.  A number may also be given, which
+will turn on that many types from the foregoing list; for example,
+<B>--debug 2</B>
+
+is equivalent to
+<B>--debug abnormal,chat.</B>
+
+<DT><B>-I file, --config file</B>
+
+<DD>
+Set configuration file to use.  This option may not be available,
+depending upon how
+<I>uucp</I>
+
+was compiled.
+<DT><B>-v, --version</B>
+
+<DD>
+Report version information and exit.
+<DT><B>--help</B>
+
+<DD>
+Print a help message and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/mail.1.php">mail</A>(1), <A HREF="../man1/uux.1.php">uux</A>(1), <A HREF="../man1/uustat.1.php">uustat</A>(1), <A HREF="../man8/uucico.8.php">uucico</A>(8)
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+Some of the options are dependent on the capabilities of the
+<I>uucico</I>
+
+(8) daemon on the remote system.
+<P>
+The 
+<I>-n</I>
+
+and
+<I>-m</I>
+
+switches do not work when transferring a file from one remote system
+to another.
+<P>
+File modes are not preserved, except for the execute bit.  The
+resulting file is owned by the uucp user.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Ian Lance Taylor
+&lt;<A HREF="mailto:ian@airs.com">ian@airs.com</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

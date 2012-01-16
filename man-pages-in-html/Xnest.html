@@ -1,0 +1,327 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XNEST</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XNEST</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+Xnest - a nested X server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>Xnest</B>
+
+[-options]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Xnest</I> is a client and a server.  <I>Xnest</I> is a client of the
+real server which manages windows and graphics requests on its behalf.
+<I>Xnest</I> is a server to its own clients.  <I>Xnest</I> manages
+windows and graphics requests on their behalf.  To these clients
+<I>Xnest</I> appears to be a conventional server.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<I>Xnest</I> supports all standard options of the sample server
+implementation.  For more details, please see the manual page on your
+system for <I>Xserver</I>.  The following additional arguments are
+supported as well.
+<DL COMPACT>
+<DT><B>-display </B><I>string</I>
+
+<DD>
+This option specifies the display name of the real server that
+<I>Xnest</I> should try to connect with.  If it is not provided on the
+command line <I>Xnest</I> will read the <I>DISPLAY</I> environment
+variable in order to find out the same information.
+<DT><B>-sync</B>
+
+<DD>
+This option tells <I>Xnest</I> to synchronize its window and graphics
+operations with the real server.  This is a useful option for
+debugging, but it will slow down the performance considerably.  It
+should not be used unless absolutely necessary.
+<DT><B>-full</B>
+
+<DD>
+This option tells <I>Xnest</I> to utilize full regeneration of real
+server objects and reopen a new connection to the real server each
+time the nested server regenerates.  The sample server implementation
+regenerates all objects in the server when the last client of this
+server terminates.  When this happens, <I>Xnest</I> by default
+maintains the same top level window and the same real server
+connection in each new generation.  If the user selects full
+regeneration, even the top level window and the connection to the real
+server will be regenerated for each server generation.
+<DT><B>-class </B><I>string</I>
+
+<DD>
+This option specifies the default visual class of the nested server.
+It is similar to the <I>-cc</I> option from the set of standard options
+except that it will accept a string rather than a number for the
+visual class specification.  The string must be one of the following
+six values: <I>StaticGray</I>, <I>GrayScale</I>, <I>StaticColor</I>,
+<I>PseudoColor</I>, <I>TrueColor</I>, or <I>DirectColor</I>.  If both,
+<I>-class</I> and <I>-cc</I> options are specified, the last instance of
+either option assumes precedence.  The class of the default visual of
+the nested server need not be the same as the class of the default
+visual of the real server; although, it has to be supported by the
+real server.  See <I>xdpyinfo</I> for a list of supported visual
+classes on the real server before starting <I>Xnest</I>.  If the user
+chooses a static class, all the colors in the default colormap will be
+preallocated.  If the user chooses a dynamic class, colors in the
+default colormap will be available to individual clients for
+allocation.
+<DT><B>-depth </B><I>int</I>
+
+<DD>
+This option specifies the default visual depth of the nested server.
+The depth of the default visual of the nested server need not be the
+same as the depth of the default visual of the real server; although,
+it has to be supported by the real server.  See <I>xdpyinfo</I> for a
+list of supported visual depths on the real server before starting
+<I>Xnest</I>.
+<DT><B>-sss</B>
+
+<DD>
+This option tells <I>Xnest</I> to use the software screen saver.  By
+default <I>Xnest</I> will use the screen saver that corresponds to the
+hardware screen saver in the real server.  Of course, even this screen
+saver is software generated since <I>Xnest</I> does not control any
+actual hardware.  However, it is treated as a hardware screen saver
+within the sample server code.
+<DT><B>-geometry </B><I>WxH+X+Y</I>
+
+<DD>
+This option specifies geometry parameters for the top level
+<I>Xnest</I> windows.  These windows corresponds to the root windows of
+the nested server.  The width and height specified with this option
+will be the maximum width and height of each top level <I>Xnest</I>
+window.  <I>Xnest</I> will allow the user to make any top level window
+smaller, but it will not actually change the size of the nested server
+root window.  As of yet, there is no mechanism within the sample
+server implementation to change the size of the root window after
+screen initialization.  In order to do so, one would probably need to
+extend the X protocol.  Therefore, it is not likely that this will be
+available any time soon.  If this option is not specified <I>Xnest</I>
+will choose width and height to be 3/4 of the dimensions of the root
+window of the real server.
+<DT><B>-bw </B><I>int</I>
+
+<DD>
+This option specifies the border width of the top level <I>Xnest</I>
+window.  The integer parameter must be a positive number.  The default
+border width is 1.
+<DT><B>-name </B><I>string</I>
+
+<DD>
+This option specifies the name of the top level <I>Xnest</I> window.
+The default value is the program name.
+<DT><B>-scrns </B><I>int</I>
+
+<DD>
+This option specifies the number of screens to create in the nested
+server.  For each screen, <I>Xnest</I> will create a separate top level
+window.  Each screen is referenced by the number after the dot in the
+client display name specification.  For example, <I>xterm -display
+:1.1</I> will open an <I>xterm</I> client in the nested server with the
+display number <I>:1</I> on the second screen.  The number of screens
+is limited by the hard coded constant in the server sample code which
+is usually 3.
+<DT><B>-install</B>
+
+<DD>
+This option tells <I>Xnest</I> to do its own colormap installation by
+bypassing the real window manager.  For it to work properly the user
+will probably have to temporarily quit the real window manager.  By
+default <I>Xnest</I> will keep the nested client window whose colormap
+should be installed in the real server in the
+<I>WM_COLORMAP_WINDOWS</I> property of the top level <I>Xnest</I>
+window.  If this colormap is of the same visual type as the root
+window of the nested server, <I>Xnest</I> will associate this colormap
+with the top level <I>Xnest</I> window as well.  Since this does not
+have to be the case, window managers should look primarily at the
+<I>WM_COLORMAP_WINDOWS</I> property rather than the colormap
+associated with the top level <I>Xnest</I> window.  Unfortunately,
+window managers are not very good at doing that yet so this option
+might come in handy.
+<DT><B>-parent </B><I>window_id</I>
+
+<DD>
+This option tells <I>Xnest</I> to use the <I>window_id</I> as the
+root window instead of creating a window. This option is used
+by the xrx xnestplugin.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>USAGE </H2>
+
+Starting up <I>Xnest</I> is as simple as starting up <I>xclock</I> from
+a terminal emulator.  If a user wishes to run <I>Xnest</I> on the same
+workstation as the real server, it is important that the nested server
+is given its own listening socket address.  Therefore, if there is a
+server already running on the user's workstation, <I>Xnest</I> will
+have to be started up with a new display number.  Since there is
+usually no more than one server running on a workstation, specifying
+<I>Xnest :1</I> on the command line will be sufficient for most users.
+For each server running on the workstation the display number needs to
+be incremented by one.  Thus, if you wish to start another
+<I>Xnest</I>, you will need to type <I>Xnest :2</I> on the command line.
+<P>
+
+To run clients in the nested server each client needs to be given the
+same display number as the nested server.  For example, <I>xterm
+-display :1</I> will start up an <I>xterm</I> in the first nested server
+and <I>xterm -display :2</I> will start an <I>xterm</I> in the second
+nested server from the example above.  Additional clients can be
+started from these <I>xterm</I>s in each nested server.
+<A NAME="lbAG">&nbsp;</A>
+<H2>XNEST AS A CLIENT</H2>
+
+<I>Xnest</I> behaves and looks to the real server and other real
+clients as another real client.  It is a rather demanding client,
+however, since almost any window or graphics request from a nested
+client will result in a window or graphics request from <I>Xnest</I> to
+the real server.  Therefore, it is desirable that <I>Xnest</I> and the
+real server are on a local network, or even better, on the same
+machine.  As of now, <I>Xnest</I> assumes that the real server supports
+the shape extension.  There is no way to turn off this assumption
+dynamically.  <I>Xnest</I> can be compiled without the shape extension
+built in, and in that case the real server need not support it.  The
+dynamic shape extension selection support should be considered in
+further development of <I>Xnest</I>.
+<P>
+
+Since <I>Xnest</I> need not use the same default visual as the the real
+server, the top level window of the <I>Xnest</I> client always has its
+own colormap.  This implies that other windows' colors will not be
+displayed properly while the keyboard or pointer focus is in the
+<I>Xnest</I> window, unless the real server has support for more than
+one installed colormap at any time.  The colormap associated with the
+top window of the <I>Xnest</I> client need not be the appropriate
+colormap that the nested server wants installed in the real server.
+In the case that a nested client attempts to install a colormap of a
+different visual from the default visual of the nested server,
+<I>Xnest</I> will put the top window of this nested client and all
+other top windows of the nested clients that use the same colormap
+into the <I>WM_COLORMAP_WINDOWS</I> property of the top level
+<I>Xnest</I> window on the real server.  Thus, it is important that the
+real window manager that manages the <I>Xnest</I> top level window
+looks at the <I>WM_COLORMAP_WINDOWS</I> property rather than the
+colormap associated with the top level <I>Xnest</I> window.  Since most
+window managers appear to not implement this convention properly as of
+yet, <I>Xnest</I> can optionally do direct installation of colormaps
+into the real server bypassing the real window manager.  If the user
+chooses this option, it is usually necessary to temporarily disable
+the real window manager since it will interfere with the <I>Xnest</I>
+scheme of colormap installation.
+<P>
+
+Keyboard and pointer control procedures of the nested server change
+the keyboard and pointer control parameters of the real server.
+Therefore, after <I>Xnest</I> is started up, it will change the
+keyboard and pointer controls of the real server to its own internal
+defaults.  Perhaps there should be a command line option to tell
+<I>Xnest</I> to inherit the keyboard and pointer control parameters
+from the real server rather than imposing its own.  This is a future
+consideration.
+<A NAME="lbAH">&nbsp;</A>
+<H2>XNEST AS A SERVER</H2>
+
+<I>Xnest</I> as a server looks exactly like a real server to its own
+clients.  For the clients there is no way of telling if they are
+running on a real or a nested server.
+<P>
+
+As already mentioned, <I>Xnest</I> is a very user friendly server when
+it comes to customization.  <I>Xnest</I> will pick up a number of
+command line arguments that can configure its default visual class and
+depth, number of screens, etc.  In the future, <I>Xnest</I> should read
+a customization input file to provide even greater freedom and
+simplicity in selecting the desired layout.  Unfortunately, there is
+no support for backing store and save under as of yet, but this should
+also be considered in the future development of <I>Xnest</I>.
+<P>
+
+The only apparent intricacy from the users' perspective about using
+<I>Xnest</I> as a server is the selection of fonts.  <I>Xnest</I>
+manages fonts by loading them locally and then passing the font name
+to the real server and asking it to load that font remotely.  This
+approach avoids the overload of sending the glyph bits across the
+network for every text operation, although it is really a bug.  The
+proper implementation of fonts should be moved into the <I>os</I>
+layer. The consequence of this approach is that the user will have to
+worry about two different font paths - a local one for the nested
+server and a remote one for the real server - since <I>Xnest</I> does
+not propagate its font path to the real server.  The reason for this
+is because real and nested servers need not run on the same file
+system which makes the two font paths mutually incompatible.  Thus, if
+there is a font in the local font path of the nested server, there is
+no guarantee that this font exists in the remote font path of the real
+server.  <I>Xlsfonts</I> client, if run on the nested server will list
+fonts in the local font path and if run on the real server will list
+fonts in the remote font path.  Before a font can be successfully
+opened by the nested server it has to exist in local and remote font
+paths.  It is the users' responsibility to make sure that this is the
+case.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+Won't run well on servers supporting different visual depths.
+Still crashes randomly.  Probably has some memory leaks.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Davor Matic, MIT X Consortium
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">USAGE </A><DD>
+<DT><A HREF="#lbAG">XNEST AS A CLIENT</A><DD>
+<DT><A HREF="#lbAH">XNEST AS A SERVER</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

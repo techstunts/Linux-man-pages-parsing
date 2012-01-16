@@ -1,0 +1,3352 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>EXPECT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>EXPECT</H1>
+Section: User Commands  (1)<BR>Updated: 29 December 1994<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+expect - programmed dialogue with interactive programs, Version 5
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>expect</B>
+
+[
+<B>-dDinN</B>
+
+]
+[
+<B>-c</B>
+
+<I>cmds</I>
+
+]
+[
+[
+<B>-</B>[<B>f</B>|<B>b</B>]
+
+]
+<I>cmdfile</I>
+
+]
+[
+<I>args</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>INTRODUCTION</H2>
+
+<B>Expect</B>
+
+is a program that &quot;talks&quot; to other interactive programs according to a
+script.  Following the script,
+<B>Expect</B>
+
+knows what can be expected from
+a program and what the correct response should be.  An interpreted
+language provides branching and high-level control structures to
+direct the dialogue.  In addition, the user can take control
+and interact directly when desired, afterward returning control to the
+script.
+<P>
+
+<B>Expectk</B>
+
+is a mixture of
+<B>Expect</B>
+
+and
+<B>Tk</B>.
+
+It behaves just like
+<B>Expect</B>
+
+and
+<B>Tk</B>'s
+
+<B>wish</B>.
+
+<B>Expect</B>
+
+can also be used directly in C or C++ (that is, without Tcl).
+See <A HREF="../man3/libexpect.3.php">libexpect</A>(3).
+<P>
+
+The name &quot;Expect&quot; comes from the idea of
+<I>send/expect</I>
+
+sequences popularized
+by uucp, kermit and other modem control programs.
+However unlike uucp,
+<B>Expect</B>
+
+is generalized so that it can be run as a user-level command
+with any program and task in mind.
+<B>Expect</B>
+
+can actually talk to several programs at the same time.
+<P>
+
+For example, here are some things
+<B>Expect</B>
+
+can do:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+Cause your computer to dial you back,
+so that you can login without paying for the call.
+<DT>*<DD>
+Start a game (e.g., rogue) and if the optimal configuration doesn't appear,
+restart it (again and again) until it does,
+then hand over control to you.
+<DT>*<DD>
+Run fsck, and in response to its questions, answer &quot;yes&quot;, &quot;no&quot; or give control back to you,
+based on predetermined criteria.
+<DT>*<DD>
+Connect to another network or BBS (e.g., MCI Mail, CompuServe) and
+automatically retrieve your mail so that it appears as if
+it was originally sent to your local system.
+<DT>*<DD>
+Carry environment variables, current directory,
+or any kind of information across rlogin, telnet, tip, su, chgrp, etc.
+</DL>
+</DL>
+
+<P>
+
+There are a variety of reasons why the shell cannot perform these tasks.
+(Try, you'll see.)
+All are possible with
+<B>Expect</B>.
+
+<P>
+
+In general,
+<B>Expect</B>
+
+is useful for running any program which requires
+interaction between the program and the user.
+All that is necessary is that the interaction can be characterized
+programmatically.
+<B>Expect</B>
+
+can also give the user back control
+(without halting the program being controlled) if desired.
+Similarly, the user can return control to the script at any time.
+<A NAME="lbAE">&nbsp;</A>
+<H2>USAGE</H2>
+
+<B>Expect</B>
+
+reads
+<I>cmdfile</I>
+
+for a list of commands to execute.
+<B>Expect</B>
+
+may also be invoked implicitly on systems which support the #! notation
+by marking the script executable, and making the first line in your script:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;#!/usr/local/bin/expect&nbsp;-f
+<P>
+Of course, the path must accurately describe where
+<B>Expect</B>
+
+lives.  /usr/local/bin is just an example.
+<P>
+The
+<B>-c</B>
+
+flag prefaces a command to be executed before any in the script.
+The command should be quoted to prevent being broken up by the shell.
+This option may be used multiple times.
+Multiple commands may be
+executed with a single
+<B>-c</B>
+
+by separating them with semicolons.
+Commands are executed in the order they appear.  
+(When using Expectk, this option is specified as
+<B>-command</B>.)
+
+<P>
+
+The
+<B>-d</B>
+
+flag enables some diagnostic output, which
+primarily reports internal activity of commands such as 
+<B>expect</B>
+
+and
+<B>interact</B>.
+
+This flag has the same effect as &quot;exp_internal 1&quot; at the beginning of an Expect
+script, plus the version of
+<B>Expect</B>
+
+is printed.
+(The
+<B>strace</B>
+
+command is useful for tracing statements, and the
+<B>trace</B>
+
+command is useful for tracing variable assignments.)
+(When using Expectk, this option is specified as
+<B>-diag</B>.)
+
+<P>
+
+The
+<B>-D</B>
+
+flag enables an interactive debugger.  An integer value should follow.
+The debugger will take control before the next Tcl procedure
+if the value is non-zero
+or if a ^C is pressed (or a breakpoint is hit, or other appropriate debugger
+command appears in the script).  See the README file or SEE ALSO (below)
+for more information on the debugger.
+(When using Expectk, this option is specified as
+<B>-Debug</B>.)
+
+<P>
+
+The
+<B>-f</B>
+
+flag prefaces a file from which to read commands from.
+The flag itself is optional as it is only useful when using
+the #! notation (see above),
+so that other arguments may be supplied on the command line.
+(When using Expectk, this option is specified as
+<B>-file</B>.)
+
+<P>
+
+By default, the command file is read into memory and executed in its entirety.
+It is occasionally desirable to read files one line at a time.  For example,
+stdin is read this way.  In order to force arbitrary files to be handled this
+way, use the
+<B>-b</B>
+
+flag.
+(When using Expectk, this option is specified as
+<B>-buffer</B>.)<B>Note</B>that<B>stdio-buffering</B>may<B>still</B>take<B>place</B>however<B>this</B>shouldn't<B>cause</B>problems<B>when</B>reading<B>from</B>a<B>fifo</B>stdin.
+
+<P>
+
+If the string &quot;-&quot; is supplied as a filename, standard input is read instead.
+(Use &quot;./-&quot; to read from a file actually named &quot;-&quot;.)
+<P>
+
+The
+<B>-i</B>
+
+flag causes
+<B>Expect</B>
+
+to interactively prompt for commands instead of reading
+them from a file.
+Prompting is terminated via the
+<B>exit</B>
+
+command or upon EOF.
+See
+<B>interpreter</B>
+
+(below) for more information.
+<B>-i</B>
+
+is assumed if neither a command file nor
+<B>-c</B>
+
+is used.
+(When using Expectk, this option is specified as
+<B>-interactive</B>.)
+
+<P>
+
+<B>--</B>
+
+may be used to delimit the end of the options.  This is useful if
+you want to pass an option-like argument to your script without it being
+interpreted by
+<B>Expect</B>.
+
+This can usefully be placed in the #! line to prevent any flag-like
+interpretation by Expect.  For example, the following will leave the
+original arguments (including the script name) in the variable
+<I>argv</I>.
+
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;#!/usr/local/bin/expect&nbsp;--
+<P>
+Note that the usual <A HREF="../man3/getopt.3.php">getopt</A>(3) and <A HREF="../man2/execve.2.php">execve</A>(2) conventions must be observed
+when adding arguments to the #! line.
+<P>
+
+The file $exp_library/expect.rc is sourced automatically if present, unless
+the
+<B>-N</B>
+
+flag is used.  
+(When using Expectk, this option is specified as
+<B>-NORC</B>.)
+
+Immediately after this,
+the file ~/.expect.rc is sourced automatically, unless the
+<B>-n</B>
+
+flag is used.  If the environment variable DOTDIR is defined,
+it is treated as a directory and .expect.rc is read from there.
+(When using Expectk, this option is specified as
+<B>-norc</B>.)
+
+This sourcing occurs only after executing any
+<B>-c</B>
+
+flags.
+<P>
+
+<B>-v</B>
+
+causes Expect to print its version number and exit.  (The corresponding flag
+in Expectk, which uses long flag names, is -version.)
+<P>
+
+Optional
+<I>args</I>
+
+are constructed into a list and stored in the variable named
+<I>argv</I>.
+
+<I>argc</I>
+
+is initialized to the length of argv.
+<P>
+
+<I>argv0</I>
+
+is defined to be the name of the script (or binary if no script is used).
+For example,
+the following prints out the name of the script and the first three arguments:
+<PRE>
+
+    send_user &quot;$argv0 [lrange $argv 0 2]\n&quot;
+
+</PRE>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+<B>Expect</B>
+
+uses
+<I>Tcl</I>
+
+(Tool Command Language).
+Tcl provides control flow (e.g., if, for, break),
+expression evaluation and several other features such as recursion,
+procedure definition, etc.
+Commands used here but not defined (e.g.,
+<B>set</B>,
+
+<B>if</B>,
+
+<B>exec</B>)
+
+are Tcl commands (see <A HREF="../man3/tcl.3.php">tcl</A>(3)).
+<B>Expect</B>
+
+supports additional commands, described below.
+Unless otherwise specified, commands return the empty string.
+<P>
+
+Commands are listed alphabetically so that they can be quickly located.
+However, new users may find it easier to start by reading the descriptions
+of
+<B>spawn</B>,
+
+<B>send</B>,
+
+<B>expect</B>,
+
+and
+<B>interact</B>,
+
+in that order.
+<P>
+Note that the best introduction to the language (both Expect and Tcl)
+is provided in the book &quot;Exploring Expect&quot; (see SEE ALSO below).
+Examples are included in this man page but they are very limited since
+this man page is meant primarily as reference material.
+<P>
+Note that in the text of this man page, &quot;Expect&quot; with an uppercase &quot;E&quot;
+refers to the
+<B>Expect</B>
+
+program while &quot;expect&quot; with a lower-case &quot;e&quot; refers to the
+<B>expect</B>
+
+command within the
+<B>Expect</B>
+
+program.)
+<I><DL COMPACT>
+<DT></I><B>close</B><I> [-slave] [-onexec 0|1] [-i spawn_id]</I>
+
+<DD>
+
+
+closes the connection to the current process.
+Most interactive programs will detect EOF on their stdin and exit;
+thus
+<B>close</B>
+
+usually suffices to kill the process as well.
+The
+<B>-i</B>
+
+flag declares the process to close corresponding to the named spawn_id.
+<P>
+Both
+<B>expect</B>
+
+and
+<B>interact</B>
+
+will detect when the current process exits and implicitly do a
+<B>close</B>.
+
+But if you kill the process by, say, &quot;exec kill $pid&quot;,
+you will need to explicitly call
+<B>close</B>.
+
+<P>
+The
+<B>-onexec</B>
+
+flag determines whether the spawn id will be closed in any new spawned
+processes or if the process is overlayed.  To leave a spawn id open,
+use the value 0.  A non-zero integer value will force the spawn closed
+(the default) in any new processes.
+<P>
+The 
+<B>-slave</B>
+
+flag closes the slave associated with the spawn id.  (See &quot;spawn -pty&quot;.)
+When the connection is closed, the slave is automatically closed as
+well if still open.
+<P>
+No matter whether the connection is closed implicitly or explicitly,
+you should call
+<B>wait</B>
+
+to clear up the corresponding kernel process slot.
+<B>close</B>
+
+does not call
+<B>wait</B>
+
+since there is no guarantee that closing a process connection will cause
+it to exit.
+See
+<B>wait</B>
+
+below for more info.
+<DT><B>debug</B><I> [[-now] 0|1]</I>
+
+<DD>
+controls a Tcl debugger allowing you to step through statements, set
+breakpoints, etc.
+<P>
+With no arguments, a 1 is returned if the debugger is not running, otherwise
+a 0 is returned.
+<P>
+With a 1 argument, the debugger is started.  With a 0 argument, the
+debugger is stopped.  If a 1 argument is preceded by the
+<B>-now</B>
+
+flag, the debugger is started immediately (i.e., in the middle of the
+<B>debug</B>
+
+command itself).  Otherwise, the debugger is started with the next
+Tcl statement.
+<P>
+The
+<B>debug</B>
+
+command does not change any traps.  Compare this to starting Expect with the 
+<B>-D</B>
+
+flag (see above).
+<P>
+See the README file or SEE ALSO (below)
+for more information on the debugger.
+<DT><B>disconnect</B>
+
+<DD>
+disconnects a forked process from the terminal.  It continues running in the
+background.  The process is given its own process group (if possible).
+Standard I/O is redirected to /dev/null.
+<DT><DD>
+The following fragment uses
+<B>disconnect</B>
+
+to continue running the script in the background.  
+<PRE>
+
+    if {[fork]!=0} exit
+    disconnect
+    . . .
+
+</PRE>
+
+The following script reads a password, and then runs a program
+every hour that demands a password each time it is run.  The script supplies
+the password so that you only have to type it once.
+(See the
+<B>stty</B>
+
+command which demonstrates how to turn off password echoing.)
+<PRE>
+
+    send_user &quot;password?\ &quot;
+    expect_user -re &quot;(.*)\n&quot;
+    for {} 1 {} {
+        if {[fork]!=0} {sleep 3600;continue}
+        disconnect
+        spawn priv_prog
+        expect Password:
+        send &quot;$expect_out(1,string)\r&quot;
+        . . .
+        exit
+    }
+
+</PRE>
+
+An advantage to using
+<B>disconnect</B>
+
+over the shell asynchronous process feature (&amp;) is that
+<B>Expect</B>
+
+can
+save the terminal parameters prior to disconnection, and then later
+apply them to new ptys.  With &amp;,
+<B>Expect</B>
+
+does not have a chance
+to read the terminal's parameters since the terminal is already
+disconnected by the time
+<B>Expect</B>
+
+receives control.
+<DT><B>exit</B><I> [-opts] [status]</I>
+
+<DD>
+causes
+<B>Expect</B>
+
+to exit or otherwise prepare to do so.
+<P>
+The
+<B>-onexit</B>
+
+flag causes the next argument to be used as an exit handler.
+Without an argument, the current exit handler is returned.
+<P>
+The
+<B>-noexit</B>
+
+flag causes
+<B>Expect</B>
+
+to prepare to exit but stop short of actually returning control to the
+operating system.  The user-defined exit handler is run as well as Expect's
+own internal handlers.
+No further Expect commands should be executed.
+This is useful if you are running Expect with other Tcl extensions.
+The current interpreter (and main window if in the Tk environment) remain
+so that other Tcl extensions can clean up.  If Expect's
+<B>exit</B>
+
+is called again (however this might occur), the handlers are not rerun.
+<P>
+Upon exiting, 
+all connections to spawned processes are closed.  Closure will be detected
+as an EOF by spawned processes.
+<B>exit</B>
+
+takes no other actions beyond what the normal <A HREF="../man2/_exit.2.php">_exit</A>(2) procedure does.
+Thus, spawned processes that do not check for EOF may continue to run.
+(A variety of conditions are important to determining, for example, what
+signals a spawned process will be sent, but these are system-dependent,
+typically documented under <A HREF="../man3/exit.3.php">exit</A>(3).)
+Spawned processes that continue to run will be inherited by init.
+<P>
+<I>status</I>
+
+(or 0 if not specified) is returned as the exit status of
+<B>Expect</B>.
+
+<B>exit</B>
+
+is implicitly executed if the end of the script is reached.
+<DT><B>exp_continue</B> [-continue_timer]<DD>
+The command
+<B>exp_continue</B>
+
+allows
+<B>expect</B>
+
+itself to continue
+executing rather than returning as it normally would. By
+default
+<B>exp_continue</B>
+
+resets the timeout timer. The
+<I>-continue_timer</I>
+
+flag prevents timer from being restarted. (See
+<B>expect</B>
+
+for more information.)
+<DT><B>exp_internal</B><I> [-f file] value</I>
+
+<DD>
+causes further commands to send diagnostic information internal to
+<B>Expect</B>
+
+to stderr if
+<I>value</I>
+
+is non-zero.  This output is disabled if
+<I>value</I>
+
+is 0.  The diagnostic information includes every character received,
+and every attempt made to match the current output against the patterns.
+<DT><DD>
+If the optional
+<I>file</I>
+
+is supplied, all normal and debugging output is written to that file
+(regardless of the value of
+<I>value</I>).
+
+Any previous diagnostic output file is closed.
+<P>
+The
+<B>-info</B>
+
+flag causes exp_internal to return a description of the
+most recent non-info arguments given.
+<DT><B>exp_open</B><I> [args] [-i spawn_id]</I>
+
+<DD>
+returns a Tcl file identifier that corresponds to the original spawn id.
+The file identifier can then be used as if it were opened by Tcl's
+<B>open</B>
+
+command.  (The spawn id should no longer be used.  A
+<B>wait</B>
+
+should not be executed.
+<P>
+The
+<B>-leaveopen</B>
+
+flag leaves the spawn id open for access through 
+Expect commands.  A
+<B>wait</B>
+
+must be executed on the spawn id.
+<DT><B>exp_pid</B><I> [-i spawn_id]</I>
+
+<DD>
+returns the process id corresponding to the currently spawned process.
+If the
+<B>-i</B>
+
+flag is used, the pid returned corresponds to that of the given spawn id.
+<DT><B>exp_send</B>
+
+<DD>
+is an alias for
+<B>send</B>.
+
+<DT><B>exp_send_error</B>
+
+<DD>
+is an alias for
+<B>send_error</B>.
+
+<DT><B>exp_send_log</B>
+
+<DD>
+is an alias for
+<B>send_log</B>.
+
+<DT><B>exp_send_tty</B>
+
+<DD>
+is an alias for
+<B>send_tty</B>.
+
+<DT><B>exp_send_user</B>
+
+<DD>
+is an alias for
+<B>send_user</B>.
+
+<DT><B>exp_version</B><I> [[-exit] version]</I>
+
+<DD>
+is useful for assuring that the script is compatible with the current
+version of Expect.
+<DT><DD>
+With no arguments, the current version of
+<B>Expect</B>
+
+is returned.  This version
+may then be encoded in your script.  If you actually know that you are not
+using features of recent versions, you can specify an earlier version.
+<DT><DD>
+Versions consist of three numbers separated by dots.  First
+is the major number.  Scripts written for versions of
+<B>Expect</B>
+
+with a
+different major number will almost certainly not work.
+<B>exp_version </B>
+
+returns an error if the major numbers do not match.
+<DT><DD>
+Second is the minor number.  Scripts written for a version with a
+greater minor number than the current version
+may depend upon some new feature and might not run.
+<B>exp_version</B>
+
+returns an error if the major numbers match, but the script minor number
+is greater than that of the running
+<B>Expect</B>.
+
+<DT><DD>
+Third is a number that plays no part in the version comparison.
+However, it is incremented when the
+<B>Expect</B>
+
+software
+distribution is changed in any way, such as by additional documentation
+or optimization.  It is reset to 0 upon each new minor version.
+<DT><DD>
+With the
+<B>-exit</B>
+
+flag,
+<B>Expect</B>
+
+prints an error and exits if the version is out of date.
+<DT><B>expect</B><I> [[-opts] pat1 body1] ... [-opts] patn [bodyn]</I>
+
+<DD>
+waits until one of the patterns matches the output of a spawned process,
+a specified time period has passed, or an end-of-file is seen.
+If the final body is empty, it may be omitted.
+<DT><DD>
+Patterns from the most recent
+<B>expect_before</B>
+
+command are implicitly used before any other patterns.
+Patterns from the most recent
+<B>expect_after</B>
+
+command are implicitly used after any other patterns.
+<DT><DD>
+If the arguments to the entire
+<B>expect</B>
+
+statement require more than one line,
+all the arguments may be &quot;braced&quot; into one so as to avoid terminating each
+line with a backslash.  In this one case, the usual Tcl substitutions will
+occur despite the braces.
+<DT><DD>
+If a pattern is the keyword
+<B>eof</B>,
+
+the corresponding body is executed upon end-of-file.
+If a pattern is the keyword
+<B>timeout</B>,
+
+the corresponding body is executed upon timeout.  If no timeout keyword
+is used, an implicit null action is executed upon timeout.
+The default timeout period is 10 seconds but may be set, for example to 30,
+by the command &quot;set timeout 30&quot;.  An infinite timeout may be designated
+by the value -1.
+If a pattern is the keyword
+<B>default</B>,
+
+the corresponding body is executed upon either timeout or end-of-file.
+<DT><DD>
+If a pattern matches, then the corresponding body is executed.
+<B>expect</B>
+
+returns the result of the body (or the empty string if no pattern matched).
+In the event that multiple patterns match, the one appearing first is
+used to select a body.
+<DT><DD>
+Each time new output arrives, it is compared to each pattern in the order
+they are listed.  Thus, you may test for absence of a match by making
+the last pattern something guaranteed to appear, such as a prompt.
+In situations where there is no prompt, you must use
+<B>timeout</B>
+
+(just like you would if you were interacting manually).
+<DT><DD>
+Patterns are specified in three ways.  By default, 
+patterns are specified as with Tcl's
+<B>string match</B>
+
+command.  (Such patterns are also similar to C-shell regular expressions
+usually referred to as &quot;glob&quot; patterns).  The
+<B>-gl</B>
+
+flag may may
+be used to protect patterns that might otherwise match
+<B>expect</B>
+
+flags from doing so.
+Any pattern beginning with a &quot;-&quot; should be protected this way.  (All strings
+starting with &quot;-&quot; are reserved for future options.)
+<P>
+<DT><DD>
+For example, the following fragment looks for a successful login.
+(Note that
+<B>abort</B>
+
+is presumed to be a procedure defined elsewhere in the script.)
+<PRE>
+
+
+    expect {
+        busy               {puts busy\n ; exp_continue}
+        failed             abort
+        &quot;invalid password&quot; abort
+        timeout            abort
+        connected
+    }
+
+</PRE>
+
+Quotes are necessary on the fourth pattern since it contains a space, which
+would otherwise separate the pattern from the action.
+Patterns with the same action (such as the 3rd and 4th) require listing the
+actions again.  This can be avoid by using regexp-style patterns (see below).
+More information on forming glob-style patterns can be found in the Tcl manual.
+<DT><DD>
+Regexp-style patterns follow the syntax defined by Tcl's
+<B>regexp</B>
+
+(short for &quot;regular expression&quot;) command.
+regexp patterns are introduced with the flag
+<B>-re</B>.
+
+The previous example can be rewritten using a regexp as:
+<PRE>
+
+
+    expect {
+        busy       {puts busy\n ; exp_continue}
+        -re &quot;failed|invalid password&quot; abort
+        timeout    abort
+        connected
+    }
+
+</PRE>
+
+Both types of patterns are &quot;unanchored&quot;.  This means that patterns
+do not have to match the entire string, but can begin and end the
+match anywhere in the string (as long as everything else matches).
+Use ^ to match the beginning of a string, and $ to match the end.
+Note that if you do not wait for the end of a string, your responses
+can easily end up in the middle of the string as they are echoed from
+the spawned process.  While still producing correct results, the output
+can look unnatural.  Thus, use of $ is encouraged if you can exactly
+describe the characters at the end of a string.
+<P>
+Note that in many editors, the ^ and $ match the beginning and end of
+lines respectively. However, because expect is not line oriented,
+these characters match the beginning and end of the data (as opposed
+to lines) currently in the expect matching buffer.  (Also, see the
+note below on &quot;system indigestion.&quot;)
+<P>
+The
+<B>-ex</B>
+
+flag causes the pattern to be matched as an &quot;exact&quot; string.  No
+interpretation of *, ^, etc is made (although the usual Tcl
+conventions must still be observed).
+Exact patterns are always unanchored.
+<P>
+<DT><DD>
+The
+<B>-nocase</B>
+
+flag causes uppercase characters of the output to compare as if they were
+lowercase characters.  The pattern is not affected.
+<DT><DD>
+While reading output,
+more than 2000 bytes can force earlier bytes to be &quot;forgotten&quot;.
+This may be changed with the function
+<B>match_max</B>.
+
+(Note that excessively large values can slow down the pattern matcher.)
+If
+<I>patlist</I>
+
+is
+<B>full_buffer</B>,
+
+the corresponding body is executed if
+<I>match_max</I>
+
+bytes have been received and no other patterns have matched.
+Whether or not the
+<B>full_buffer</B>
+
+keyword is used, the forgotten characters are written to
+expect_out(buffer).
+<P>
+If
+<I>patlist</I>
+
+is the keyword
+<B>null</B>,
+
+and nulls are allowed (via the
+<B>remove_nulls</B>
+
+command), the corresponding body is executed if a single ASCII
+0 is matched.
+It is not possible to
+match 0 bytes via glob or regexp patterns.
+<P>
+Upon matching a pattern (or eof or full_buffer),
+any matching and previously unmatched output is saved in the variable
+<I>expect_out(buffer)</I>.
+
+Up to 9 regexp substring matches are saved in the variables
+<I>expect_out(1,string)</I>
+
+through
+<I>expect_out(9,string)</I>.
+
+If the
+<B>-indices</B>
+
+flag is used before a pattern,
+the starting and ending indices (in a form suitable for
+<B>lrange</B>)
+
+of the
+10 strings are stored in the variables
+<I>expect_out(X,start)</I>
+
+and
+<I>expect_out(X,end)</I>
+
+where X is a digit, corresponds to the substring position in the buffer.
+0 refers to strings which matched the entire pattern
+and is generated for glob patterns as well as regexp patterns.
+For example, if a process has produced output of &quot;abcdefgh\n&quot;, the result of:
+<PRE>
+
+    expect &quot;cd&quot;
+
+</PRE>
+
+is as if the following statements had executed:
+<PRE>
+
+    set expect_out(0,string) cd
+    set expect_out(buffer) abcd
+
+</PRE>
+
+and &quot;efgh\n&quot; is left in the output buffer.
+If a process produced the output &quot;abbbcabkkkka\n&quot;, the result of:
+<PRE>
+
+    expect -indices -re &quot;b(b*).*(k+)&quot;
+
+</PRE>
+
+is as if the following statements had executed:
+<PRE>
+
+    set expect_out(0,start) 1
+    set expect_out(0,end) 10
+    set expect_out(0,string) bbbcabkkkk
+    set expect_out(1,start) 2
+    set expect_out(1,end) 3
+    set expect_out(1,string) bb
+    set expect_out(2,start) 10
+    set expect_out(2,end) 10
+    set expect_out(2,string) k
+    set expect_out(buffer) abbbcabkkkk
+
+</PRE>
+
+and &quot;a\n&quot; is left in the output buffer.  The pattern &quot;*&quot; (and -re &quot;.*&quot;) will
+flush the output buffer without reading any more output from the
+process.
+<DT><DD>
+Normally, the matched output is discarded from Expect's internal buffers.
+This may be prevented by prefixing a pattern with the
+<B>-notransfer</B>
+
+flag.  This flag is especially useful in experimenting (and can be
+abbreviated to &quot;-not&quot; for convenience while experimenting).
+<P>
+The spawn id associated with the matching output (or eof or
+full_buffer) is stored in
+<I>expect_out(spawn_id)</I>.
+
+<P>
+The
+<B>-timeout</B>
+
+flag causes the current expect command to use the following value
+as a timeout instead of using the value of the timeout variable.
+<P>
+By default, 
+patterns are matched against output from the current process, however the
+<B>-i</B>
+
+flag declares the output from the named spawn_id list be matched against
+any following patterns (up to the next
+<B>-i</B>).
+
+The spawn_id list should either be a whitespace separated list of spawn_ids
+or a variable referring to such a list of spawn_ids.
+<P>
+For example, the following example waits for
+&quot;connected&quot; from the current process, or &quot;busy&quot;, &quot;failed&quot; or &quot;invalid
+password&quot; from the spawn_id named by $proc2.
+<PRE>
+
+    expect {
+        -i $proc2 busy {puts busy\n ; exp_continue}
+        -re &quot;failed|invalid password&quot; abort
+        timeout abort
+        connected
+    }
+
+</PRE>
+
+The value of the global variable
+<I>any_spawn_id</I>
+
+may be used to match patterns to any spawn_ids that are named
+with all other
+<B>-i</B>
+
+flags in the current
+<B>expect</B>
+
+command.
+The spawn_id from a
+<B>-i</B>
+
+flag with no associated pattern (i.e., followed immediately
+by another
+<B>-i</B>)
+
+is made available to any other patterns
+in the same
+<B>expect</B>
+
+command associated with
+<I>any_spawn_id.</I>
+
+<P>
+The
+<B>-i</B>
+
+flag may also name a global variable in which case the variable is read
+for a list of spawn ids.  The variable is reread whenever it changes.
+This provides a way of changing the I/O source while the command is in
+execution.  Spawn ids provided this way are called &quot;indirect&quot; spawn ids.
+<P>
+Actions such as
+<B>break</B>
+
+and
+<B>continue</B>
+
+cause control structures (i.e.,
+<B>for</B>,
+
+<B>proc</B>)
+
+to behave in the usual way.
+The command
+<B>exp_continue</B>
+
+allows
+<B>expect</B>
+
+itself to continue
+executing rather than returning as it normally would.
+<DT><DD>
+This is useful for avoiding explicit loops or repeated expect statements.
+The following example is part of a fragment to automate rlogin.  The
+<B>exp_continue</B>
+
+avoids having to write a second
+<B>expect</B>
+
+statement (to look for the prompt again) if the rlogin prompts for a password.
+<PRE>
+
+    expect {
+        Password: {
+            stty -echo
+            send_user &quot;password (for $user) on $host: &quot;
+            expect_user -re &quot;(.*)\n&quot;
+            send_user &quot;\n&quot;
+            send &quot;$expect_out(1,string)\r&quot;
+            stty echo
+            exp_continue
+        } incorrect {
+            send_user &quot;invalid password or account\n&quot;
+            exit
+        } timeout {
+            send_user &quot;connection to $host timed out\n&quot;
+            exit
+        } eof {
+            send_user \
+                &quot;connection to host failed: $expect_out(buffer)&quot;
+            exit
+        } -re $prompt
+    }
+
+</PRE>
+
+For example, the following fragment might help a user guide
+an interaction that is already totally automated.  In this case, the terminal
+is put into raw mode.  If the user presses &quot;+&quot;, a variable is incremented.
+If &quot;p&quot; is pressed, several returns are sent to the process,
+perhaps to poke it in some way, and &quot;i&quot; lets the user interact with the
+process, effectively stealing away control from the script.
+In each case, the
+<B>exp_continue</B>
+
+allows the current
+<B>expect</B>
+
+to continue pattern matching after executing the
+current action.
+<PRE>
+
+    stty raw -echo
+    expect_after {
+        -i $user_spawn_id
+        &quot;p&quot; {send &quot;\r\r\r&quot;; exp_continue}
+        &quot;+&quot; {incr foo; exp_continue}
+        &quot;i&quot; {interact; exp_continue}
+        &quot;quit&quot; exit
+    }
+
+</PRE>
+
+<DT><DD>
+By default,
+<B>exp_continue</B>
+
+resets the timeout timer.  The timer is not restarted, if
+<B>exp_continue</B>
+
+is called with the 
+<B>-continue_timer</B>
+
+flag.
+<DT><B>expect_after</B><I> [expect_args]</I>
+
+<DD>
+works identically to the
+<B>expect_before</B>
+
+except that if patterns from both
+<B>expect</B>
+
+and
+<B>expect_after</B>
+
+can match, the
+<B>expect</B>
+
+pattern is used.  See the
+<B>expect_before</B>
+
+command for more information.
+<DT><B>expect_background</B><I> [expect_args]</I>
+
+<DD>
+takes the same arguments as
+<B>expect</B>,
+
+however it returns immediately.
+Patterns are tested whenever new input arrives.
+The pattern
+<B>timeout</B>
+
+and
+<B>default</B>
+
+are meaningless to
+<B>expect_background</B>
+
+and are silently discarded.
+Otherwise, the
+<B>expect_background</B>
+
+command uses
+<B>expect_before</B>
+
+and
+<B>expect_after</B>
+
+patterns just like
+<B>expect</B>
+
+does.
+<P>
+When
+<B>expect_background</B>
+
+actions are being evaluated, background processing for the same
+spawn id is blocked.  Background processing is unblocked when
+the action completes.  While background processing is blocked,
+it is possible to do a (foreground)
+<B>expect</B>
+
+on the same spawn id.
+<P>
+It is not possible to execute an
+<B>expect</B>
+
+while an
+<B>expect_background</B>
+
+is unblocked.
+<B>expect_background</B>
+
+for a particular spawn id is deleted by
+declaring a new expect_background with the same spawn id.  Declaring
+<B>expect_background</B>
+
+with no pattern removes the given spawn id
+from the ability to match patterns in the background.
+<DT><B>expect_before</B><I> [expect_args]</I>
+
+<DD>
+takes the same arguments as
+<B>expect</B>,
+
+however it returns immediately.
+Pattern-action pairs from the most recent
+<B>expect_before</B>
+
+with the same spawn id are implicitly added to any following
+<B>expect</B>
+
+commands.  If a pattern matches, it is treated as if it had been
+specified in the
+<B>expect</B>
+
+command itself, and the associated body is executed in the context
+of the
+<B>expect</B>
+
+command.
+If patterns from both
+<B>expect_before</B>
+
+and
+<B>expect</B>
+
+can match, the
+<B>expect_before</B>
+
+pattern is used.
+<P>
+If no pattern is specified, the spawn id is not checked for any patterns.
+<P>
+Unless overridden by a
+<B>-i</B>
+
+flag,
+<B>expect_before</B>
+
+patterns match against the spawn id defined at the time that the 
+<B>expect_before</B>
+
+command was executed (not when its pattern is matched).
+<P>
+The -info flag causes
+<B>expect_before</B>
+
+to return the current specifications of what patterns it will match.
+By default, it reports on the current spawn id.  An optional spawn id specification may be given for information on that spawn id.  For example
+<PRE>
+
+    expect_before -info -i $proc
+
+</PRE>
+
+At most one spawn id specification may be given.  The flag -indirect
+suppresses direct spawn ids that come only from indirect specifications.
+<P>
+Instead of a spawn id specification, the flag &quot;-all&quot; will cause
+&quot;-info&quot; to report on all spawn ids.
+<P>
+The output of the -info flag can be reused as the argument to expect_before.
+<DT><B>expect_tty</B><I> [expect_args]</I>
+
+<DD>
+is like
+<B>expect</B>
+
+but it reads characters from /dev/tty (i.e. keystrokes from the user).
+By default, reading is performed in cooked mode.
+Thus, lines must end with a return in order for
+<B>expect</B>
+
+to see them.
+This may be changed via
+<B>stty</B>
+
+(see the
+<B>stty</B>
+
+command below).
+<DT><B>expect_user</B><I> [expect_args]</I>
+
+<DD>
+is like
+<B>expect</B>
+
+but it reads characters from stdin (i.e. keystrokes from the user).
+By default, reading is performed in cooked mode.
+Thus, lines must end with a return in order for
+<B>expect</B>
+
+to see them.
+This may be changed via
+<B>stty</B>
+
+(see the
+<B>stty</B>
+
+command below).
+<DT><B>fork</B>
+
+<DD>
+creates a new process.  The new process is an exact copy of the current
+<B>Expect</B>
+
+process.  On success,
+<B>fork</B>
+
+returns 0 to the new (child) process and returns the process ID of the child
+process to the parent process.
+On failure (invariably due to lack of resources, e.g., swap space, memory),
+<B>fork</B>
+
+returns -1 to the parent process, and no child process is created.
+<DT><DD>
+Forked processes exit via the
+<B>exit</B>
+
+command, just like the original process.
+Forked processes are allowed to write to the log files.  If you do not
+disable debugging or logging in most of the processes, the result can be
+confusing.
+<DT><DD>
+Some pty implementations may be confused by multiple readers and writers,
+even momentarily.  Thus, it is safest to
+<B>fork</B>
+
+before spawning processes.
+<DT><B>interact</B><I> [string1 body1] ... [stringn [bodyn]]</I>
+
+<DD>
+gives control of the current process to the user, so that
+keystrokes are sent to the current process,
+and the stdout and stderr of the current process are returned.
+<DT><DD>
+String-body pairs may be specified as arguments, in which case the
+body is executed when the corresponding string is entered.  (By default, the
+string is not sent to the current process.)   The
+<B>interpreter</B>
+
+command is assumed, if the final body is missing.
+<DT><DD>
+If the arguments to the entire
+<B>interact</B>
+
+statement require more than one line,
+all the arguments may be &quot;braced&quot; into one so as to avoid terminating each
+line with a backslash.  In this one case, the usual Tcl substitutions will
+occur despite the braces.
+<DT><DD>
+For example, the following command runs interact with the following
+string-body pairs defined:  When ^Z is pressed,
+<B>Expect</B>
+
+is suspended.
+(The
+<B>-reset</B>
+
+flag restores the terminal modes.)
+When ^A is pressed, the user sees &quot;you typed a control-A&quot; and the
+process is sent a ^A.  When $ is pressed, the user sees the date.
+When ^C is pressed,
+<B>Expect</B>
+
+exits.  If &quot;foo&quot; is entered, the user sees &quot;bar&quot;.
+When ~~ is pressed, the
+<B>Expect</B>
+
+interpreter runs interactively.
+<PRE>
+
+
+    set CTRLZ \032
+    interact {
+        -reset $CTRLZ {exec kill -STOP [pid]}
+        \001   {send_user &quot;you typed a control-A\n&quot;;
+                send &quot;\001&quot;
+               }
+        $      {send_user &quot;The date is [exec date].&quot;}
+        \003   exit
+        foo    {send_user &quot;bar&quot;}
+        ~~
+    }
+
+</PRE>
+
+<DT><DD>
+In string-body pairs, strings are matched in the order they are listed
+as arguments.  Strings that partially match are not sent to the
+current process in anticipation of the remainder coming.  If
+characters are then entered such that there can no longer possibly be
+a match, only the part of the string will be sent to the process that cannot
+possibly begin another match.  Thus, strings that are substrings of
+partial matches can match later, if the original strings that was attempting
+to be match ultimately fails.
+<DT><DD>
+By default, string matching is exact with no wild cards.  (In contrast,
+the
+<B>expect</B>
+
+command uses glob-style patterns by default.)  The
+<B>-ex</B>
+
+flag may be used to protect patterns that might otherwise match
+<B>interact</B>
+
+flags from doing so.
+Any pattern beginning with a &quot;-&quot; should be protected this way.    (All strings
+starting with &quot;-&quot; are reserved for future options.)
+<P>
+The
+<B>-re</B>
+
+flag forces the string to be interpreted as a regexp-style pattern.  In this
+case, matching substrings are stored in the variable
+<I>interact_out</I>
+
+similarly to the way
+<B>expect</B>
+
+stores its output in the variable
+<B>expect_out</B>.
+
+The
+<B>-indices</B>
+
+flag is similarly supported.
+<P>
+The pattern
+<B>eof</B>
+
+introduces an action that is 
+executed upon end-of-file.  A separate
+<B>eof</B>
+
+pattern may also follow the
+<B>-output</B>
+
+flag in which case it is matched if an eof is detected while writing output.
+The default
+<B>eof</B>
+
+action is &quot;return&quot;, so that
+<B>interact</B>
+
+simply returns upon any EOF.
+<P>
+The pattern
+<B>timeout</B>
+
+introduces a timeout (in seconds) and action that is executed
+after no characters have been read for a given time.
+The
+<B>timeout</B>
+
+pattern applies to the most recently specified process.
+There is no default timeout.
+The special variable &quot;timeout&quot; (used by the
+<B>expect</B>
+
+command) has no affect on this timeout.
+<P>
+For example, the following statement could be used to autologout users who have
+not typed anything for an hour but who still get frequent system
+messages:
+<PRE>
+
+    interact -input $user_spawn_id timeout 3600 return -output \
+        $spawn_id 
+
+</PRE>
+
+<P>
+If the pattern is the keyword
+<B>null</B>,
+
+and nulls are allowed (via the
+<B>remove_nulls</B>
+
+command), the corresponding body is executed if a single ASCII
+0 is matched.
+It is not possible to
+match 0 bytes via glob or regexp patterns.
+<P>
+Prefacing a pattern with the flag
+<B>-iwrite</B>
+
+causes the variable
+<I>interact_out(spawn_id)</I>
+
+to be set to the spawn_id which matched the pattern
+(or eof).
+<P>
+Actions such as
+<B>break</B>
+
+and
+<B>continue</B>
+
+cause control structures (i.e.,
+<B>for</B>,
+
+<B>proc</B>)
+
+to behave in the usual way.
+However
+<B>return</B>
+
+causes interact to return to its caller, while
+<B>inter_return</B>
+
+causes
+<B>interact</B>
+
+to cause a return in its caller.  For example, if &quot;proc foo&quot; called
+<B>interact</B>
+
+which then executed the action
+<B>inter_return</B>,
+
+<B>proc foo</B>
+
+would return.  (This means that if
+<B>interact</B>
+
+calls
+<B>interpreter</B>
+
+interactively typing
+<B>return</B>
+
+will cause the interact to continue, while
+<B>inter_return</B>
+
+will cause the interact to return to its caller.)
+<DT><DD>
+During
+<B>interact</B>,
+
+raw mode is used so that all characters may be passed to the current process.
+If the current process does not catch job control signals,
+it will stop if sent a stop signal (by default ^Z).
+To restart it, send a continue signal (such as by &quot;kill -CONT &lt;pid&gt;&quot;).
+If you really want to send a SIGSTOP to such a process (by ^Z),
+consider spawning csh first and then running your program.
+On the other hand, if you want to send a SIGSTOP to
+<B>Expect</B>
+
+itself, first call interpreter (perhaps by using an escape character), and then press ^Z.
+<DT><DD>
+String-body pairs can be used as a shorthand for avoiding having
+to enter the interpreter and execute commands interactively.  The previous
+terminal mode is used while the body of a string-body pair is being executed.
+<DT><DD>
+For speed, actions execute in raw mode by default.  The
+<B>-reset</B>
+
+flag resets the terminal to the mode it had before
+<B>interact</B>
+
+was executed (invariably, cooked mode).
+Note that characters entered when the mode is being switched may be lost
+(an unfortunate feature of the terminal driver on some systems).
+The only reason to use
+<B>-reset</B>
+
+is if your action
+depends on running in cooked mode.
+<DT><DD>
+The
+<B>-echo</B>
+
+flag sends characters that match the following pattern back to the process
+that generated them as each character is read.  This may be useful
+when the user needs to see feedback from partially typed patterns.
+<DT><DD>
+If a pattern is being echoed but eventually fails to match,
+the characters are sent to the spawned process.  If the spawned
+process then echoes them, the user will see the characters twice.
+<B>-echo</B>
+
+is probably only appropriate in situations where the user is
+unlikely to not complete the pattern.  For example, the following
+excerpt is from rftp, the recursive-ftp script, where the user is
+prompted to enter ~g, ~p, or ~l, to get, put, or list the current
+directory recursively.  These are so far away from the normal ftp
+commands, that the user is unlikely to type ~ followed by anything
+else, except mistakenly, in which case, they'll probably just ignore
+the result anyway.
+<PRE>
+
+    interact {
+        -echo ~g {getcurdirectory 1}
+        -echo ~l {getcurdirectory 0}
+        -echo ~p {putcurdirectory}
+    }
+
+</PRE>
+
+The
+<B>-nobuffer</B>
+
+flag sends characters that match the following pattern on to
+the output process as characters are read.
+<P>
+This is useful when you wish to let a program echo back the pattern.
+For example, the following might be used to monitor where a person is
+dialing (a Hayes-style modem).  Each time &quot;atd&quot; is seen the script
+logs the rest of the line.
+<PRE>
+
+    proc lognumber {} {
+        interact -nobuffer -re &quot;(.*)\r&quot; return
+        puts $log &quot;[exec date]: dialed $interact_out(1,string)&quot;
+    }
+
+    interact -nobuffer &quot;atd&quot; lognumber
+
+</PRE>
+
+<DT><DD>
+During
+<B>interact</B>,
+
+previous use of
+<B>log_user</B>
+
+is ignored.  In particular,
+<B>interact</B>
+
+will force its output to be logged (sent to the standard output)
+since it is presumed the user doesn't wish to interact blindly.
+<DT><DD>
+The
+<B>-o</B>
+
+flag causes any following key-body pairs to be applied to the output of
+the current process.
+This can be useful, for example, when dealing with hosts that
+send unwanted characters during a telnet session.  
+<DT><DD>
+By default, 
+<B>interact</B>
+
+expects the user to be writing stdin and reading stdout of the
+<B>Expect</B>
+
+process
+itself.
+The
+<B>-u</B>
+
+flag (for &quot;user&quot;) makes
+<B>interact</B>
+
+look for the user as the process named by its argument
+(which must be a spawned id).  
+<DT><DD>
+This allows two unrelated processes to be joined
+together without using an explicit loop.  To aid in debugging, Expect
+diagnostics always go to stderr (or stdout for certain logging and
+debugging information).  For the same reason, the
+<B>interpreter</B>
+
+command will read interactively from stdin.
+<DT><DD>
+For example, the following fragment creates a login process.
+Then it dials the user (not shown), and finally connects the two together.
+Of course, any process may be substituted for login.
+A shell, for example, would allow the user to work without supplying an
+account and password.
+<PRE>
+
+    spawn login
+    set login $spawn_id
+    spawn tip modem
+    # dial back out to user
+    # connect user to login
+    interact -u $login
+
+</PRE>
+
+To send output to multiple processes, list each spawn id list prefaced by a
+<B>-output</B>
+
+flag.  Input for a group of output spawn ids may be determined
+by a spawn id list prefaced by a
+<B>-input</B>
+
+flag.  (Both
+<B>-input</B>
+
+and
+<B>-output</B>
+
+may take lists in the same form as the
+<B>-i</B>
+
+flag in the
+<B>expect</B>
+
+command, except that any_spawn_id is not meaningful in
+<B>interact</B>.)
+
+All following flags and
+strings (or patterns) apply to this input until another -input flag appears.
+If no
+<B>-input</B>
+
+appears,
+<B>-output</B>
+
+implies &quot;-input $user_spawn_id -output&quot;.
+(Similarly, with patterns that do not have
+<B>-input</B>.)
+
+If one
+<B>-input</B>
+
+is specified, it overrides $user_spawn_id.  If a second
+<B>-input</B>
+
+is specified,
+it overrides $spawn_id.  Additional
+<B>-input</B>
+
+flags may be specified.
+<P>
+The two implied input processes default to having their outputs specified as
+$spawn_id and $user_spawn_id (in reverse).  
+If a
+<B>-input</B>
+
+flag appears
+with no
+<B>-output</B>
+
+flag, characters from that process are discarded.
+<P>
+The
+<B>-i</B>
+
+flag introduces a replacement for the current spawn_id when no
+other
+<B>-input</B>
+
+or
+<B>-output</B>
+
+flags are used.  A -i flag implies a -o flag.
+<P>
+It is possible to change the processes that are being interacted with
+by using indirect spawn ids.  (Indirect spawn ids are described in the
+section on the expect command.)  Indirect spawn ids may be specified
+with the -i, -u, -input, or -output flags.
+<DT><B>interpreter  [args]</B>
+
+<DD>
+causes the user to be interactively prompted for
+<B>Expect</B>
+
+and Tcl commands.
+The result of each command is printed.
+<DT><DD>
+Actions such as
+<B>break</B>
+
+and
+<B>continue</B>
+
+cause control structures (i.e.,
+<B>for</B>,
+
+<B>proc</B>)
+
+to behave in the usual way.
+However
+<B>return</B>
+
+causes interpreter to return to its caller, while
+<B>inter_return</B>
+
+causes
+<B>interpreter</B>
+
+to cause a return in its caller.  For example, if &quot;proc foo&quot; called
+<B>interpreter</B>
+
+which then executed the action
+<B>inter_return</B>,
+
+<B>proc foo</B>
+
+would return.
+Any other command causes
+<B>interpreter</B>
+
+to continue prompting for new commands.
+<DT><DD>
+By default, the prompt contains two integers.
+The first integer describes the depth of
+the evaluation stack (i.e., how many times Tcl_Eval has been called).  The
+second integer is the Tcl history identifier.  The prompt can be set by
+defining a procedure called &quot;prompt1&quot; whose return value becomes the next
+prompt.  If a statement has open quotes, parens, braces, or brackets, a
+secondary prompt (by default &quot;+&gt; &quot;) is issued upon newline.  The secondary
+prompt may be set by defining a procedure called &quot;prompt2&quot;.
+<DT><DD>
+During
+<B>interpreter</B>,
+
+cooked mode is used, even if the its caller was using raw mode.
+<DT><DD>
+If stdin is closed,
+<B>interpreter</B>
+
+will return unless the
+<B>-eof</B>
+
+flag is used, in which case the subsequent argument is invoked.
+<DT><B>log_file</B><I> [args] [[-a] file]</I>
+
+<DD>
+If a filename is provided,
+<B>log_file</B>
+
+will record a transcript of the session (beginning at that point) in the file.
+<B>log_file</B>
+
+will stop recording if no argument is given.  Any previous log file is closed.
+<P>
+Instead of a filename, a Tcl file identifier may be provided by using the
+<B>-open</B>
+
+or
+<B>-leaveopen</B>
+
+flags.  This is similar to the
+<B>spawn</B>
+
+command.  (See
+<B>spawn</B>
+
+for more info.)
+<P>
+The
+<B>-a</B>
+
+flag forces output to be logged that was suppressed by the
+<B>log_user</B>
+
+command.
+<P>
+By default, the
+<B>log_file</B>
+
+command
+<I>appends</I>
+
+to old files rather than truncating them,
+for the convenience of being able to turn logging off and on multiple
+times in one session.
+To truncate files, use the
+<B>-noappend</B>
+
+flag.
+<P>
+The
+<B>-info</B>
+
+flag causes log_file to return a description of the
+most recent non-info arguments given.
+<DT><B>log_user</B><I> -info|0|1</I>
+
+<DD>
+By default, the send/expect dialogue is logged to stdout
+(and a logfile if open).
+The logging to stdout is disabled by the command &quot;log_user 0&quot;
+and reenabled by &quot;log_user 1&quot;.  Logging to the logfile is unchanged.
+<P>
+The
+<B>-info</B>
+
+flag causes log_user to return a description of the
+most recent non-info arguments given.
+<DT><B>match_max</B><I> [-d] [-i spawn_id] [size]</I>
+
+<DD>
+defines the size of the buffer (in bytes) used internally by
+<B>expect</B>.
+
+With no
+<I>size</I>
+
+argument, the current size is returned.
+<DT><DD>
+With the
+<B>-d</B>
+
+flag, the default size is set.  (The initial default is 2000.)
+With the
+<B>-i</B>
+
+flag, the size is set for the named spawn id, otherwise it is set for
+the current process.
+<DT><B>overlay</B><I> [-# spawn_id] [-# spawn_id] [...] program [args]</I>
+
+<DD>
+executes
+<I>program args</I>
+
+in place of the current
+<B>Expect</B>
+
+program, which terminates.
+A bare hyphen argument forces a hyphen in front of the command name as if
+it was a login shell.
+All spawn_ids are closed except for those named as arguments.  These
+are mapped onto the named file identifiers.
+<DT><DD>
+Spawn_ids are mapped to file identifiers for the new program to inherit.
+For example, the following line runs chess and allows it to be
+controlled by the current process - say, a chess master.
+<PRE>
+
+    overlay -0 $spawn_id -1 $spawn_id -2 $spawn_id chess
+
+</PRE>
+
+This is more efficient than
+&quot;interact -u&quot;, however, it sacrifices the ability to do programmed
+interaction since the
+<B>Expect</B>
+
+process is no longer in control.
+<DT><DD>
+Note that no controlling terminal is provided.  Thus, if you
+disconnect or remap standard input, programs that do
+job control (shells, login, etc) will not function properly.
+<DT><B>parity</B><I> [-d] [-i spawn_id] [value]</I>
+
+<DD>
+defines whether parity should be retained or stripped from the output of
+spawned processes.  If
+<I>value</I>
+
+is zero, parity is stripped, otherwise it is not stripped.
+With no
+<I>value</I>
+
+argument, the current value is returned.
+<DT><DD>
+With the
+<B>-d</B>
+
+flag, the default parity value is set.  (The initial default is 1, i.e., 
+parity is not stripped.)
+With the
+<B>-i</B>
+
+flag, the parity value is set for the named spawn id, otherwise it is set for
+the current process.
+<DT><B>remove_nulls</B><I> [-d] [-i spawn_id] [value]</I>
+
+<DD>
+defines whether nulls are retained or removed from the output of
+spawned processes before pattern matching
+or storing in the variable
+<I>expect_out </I>
+
+or
+<I>interact_out</I>.
+
+If
+<I>value</I>
+
+is 1, nulls are removed.  If
+<I>value</I>
+
+is 0, nulls are not removed.
+With no
+<I>value</I>
+
+argument, the current value is returned.
+<DT><DD>
+With the
+<B>-d</B>
+
+flag, the default value is set.  (The initial default is 1, i.e., 
+nulls are removed.)
+With the
+<B>-i</B>
+
+flag, the value is set for the named spawn id, otherwise it is set for
+the current process.
+<P>
+Whether or not nulls are removed,
+<B>Expect</B>
+
+will record null bytes to the log and stdout.
+<DT><B>send</B><I> [-flags] string</I>
+
+<DD>
+Sends
+<I>string</I>
+
+to the current process.
+For example, the command
+<PRE>
+
+    send &quot;hello world\r&quot;
+
+</PRE>
+
+sends the characters, h e l l o &lt;blank&gt; w o r l d &lt;return&gt; to the 
+current process.  
+(Tcl includes a printf-like command (called
+<B>format</B>)
+
+which can build arbitrarily complex strings.)
+<DT><DD>
+Characters are sent immediately although programs with line-buffered input
+will not read the characters until a return character is sent.  A return
+character is denoted &quot;\r&quot;.
+<P>
+The
+<B>--</B>
+
+flag forces the next argument to be interpreted as a string rather than a flag.
+Any string can be preceded by &quot;--&quot; whether or not it actually looks
+like a flag.  This provides a reliable mechanism to specify variable strings
+without being tripped up by those that accidentally look like flags.
+(All strings starting with &quot;-&quot; are reserved for future options.)
+<P>
+The
+<B>-i</B>
+
+flag declares that the string be sent to the named spawn_id.
+If the spawn_id is
+<I>user_spawn_id</I>,
+
+and the terminal is in raw mode, newlines in the string are translated
+to return-newline
+sequences so that they appear as if the terminal was in cooked mode.
+The
+<B>-raw</B>
+
+flag disables this translation.
+<P>
+The
+<B>-null</B>
+
+flag sends null characters (0 bytes).  By default, one null is sent.
+An integer may follow the
+<B>-null</B>
+
+to indicate how many nulls to send.
+<P>
+The
+<B>-break</B>
+
+flag generates a break condition.  This only makes sense if the spawn
+id refers to a tty device opened via &quot;spawn -open&quot;.  If you have
+spawned a process such as tip, you should use tip's convention for
+generating a break.
+<P>
+The
+<B>-s</B>
+
+flag forces output to be sent &quot;slowly&quot;, thus avoid the common situation
+where a computer outtypes an input buffer that was designed for a
+human who would never outtype the same buffer.  This output is
+controlled by the value of the variable &quot;send_slow&quot; which takes a two
+element list.  The first element is an integer that describes the
+number of bytes to send atomically.  The second element is a real
+number that describes the number of seconds by which the atomic sends
+must be separated.  For example, &quot;set send_slow {10 .001}&quot; would force
+&quot;send -s&quot; to send strings with 1 millisecond in between each 10
+characters sent.
+<P>
+The
+<B>-h</B>
+
+flag forces output to be sent (somewhat) like a human actually typing.
+Human-like delays appear between the characters.  (The algorithm is
+based upon a Weibull distribution, with modifications to suit this
+particular application.)  This output is controlled by the value of
+the variable &quot;send_human&quot; which takes a five element list.  The first
+two elements are average interarrival time of characters in seconds.
+The first is used by default.  The second is used at word endings, to
+simulate the subtle pauses that occasionally occur at such
+transitions.  The third parameter is a measure of variability where .1
+is quite variable, 1 is reasonably variable, and 10 is quite
+invariable.  The extremes are 0 to infinity.  The last two parameters
+are, respectively, a minimum and maximum interarrival time.
+The minimum and maximum are used last and &quot;clip&quot; the final time.
+The ultimate average can be quite different from the given average
+if the minimum and maximum clip enough values.
+<P>
+As an
+example, the following command emulates a fast and
+consistent typist:
+<PRE>
+
+    set send_human {.1 .3 1 .05 2}
+    send -h &quot;I'm hungry.  Let's do lunch.&quot;
+
+</PRE>
+
+while the following might be more suitable after a hangover:
+<PRE>
+
+    set send_human {.4 .4 .2 .5 100}
+    send -h &quot;Goodd party lash night!&quot;
+
+</PRE>
+
+Note that errors are not simulated, although you can set up error
+correction situations yourself by embedding mistakes and corrections
+in a send argument.
+<P>
+The flags for sending null characters, for sending breaks, for forcing slow
+output and for human-style output are mutually exclusive. Only the one
+specified last will be used. Furthermore, no
+<I>string</I>
+
+argument can be specified with the flags for sending null characters or breaks.
+<P>
+It is a good idea to precede the first
+<B>send</B>
+
+to a process by an
+<B>expect</B>.
+
+<B>expect</B>
+
+will wait for the process to start, while
+<B>send</B>
+
+cannot.
+In particular, if the first
+<B>send</B>
+
+completes before the process starts running,
+you run the risk of having your data ignored.
+In situations where interactive programs offer no initial prompt,
+you can precede
+<B>send</B>
+
+by a delay as in:
+<PRE>
+
+    # To avoid giving hackers hints on how to break in,
+    # this system does not prompt for an external password.
+    # Wait for 5 seconds for exec to complete
+    spawn telnet very.secure.gov
+    sleep 5
+    send password\r
+
+</PRE>
+
+<B>exp_send</B>
+
+is an alias for
+<B>send</B><I>.</I>
+
+If you are using Expectk or some other variant of Expect in the Tk environment,
+<B>send</B>
+
+is defined by Tk for an entirely different purpose.
+<B>exp_send</B>
+
+is provided for compatibility between environments.
+Similar aliases are provided for other Expect's other send commands.
+<DT><B>send_error</B><I> [-flags] string</I>
+
+<DD>
+is like
+<B>send</B>,
+
+except that the output is sent to stderr rather than the current
+process.
+<DT><B>send_log</B><I> [--] string</I>
+
+<DD>
+is like
+<B>send</B>,
+
+except that the string is only sent to the log file (see
+<B>log_file</B>.)
+
+The arguments are ignored if no log file is open.
+<DT><B>send_tty</B><I> [-flags] string</I>
+
+<DD>
+is like
+<B>send</B>,
+
+except that the output is sent to /dev/tty rather than the current
+process.
+<DT><B>send_user</B><I> [-flags] string</I>
+
+<DD>
+is like
+<B>send</B>,
+
+except that the output is sent to stdout rather than the current
+process.
+<DT><B>sleep</B><I> seconds</I>
+
+<DD>
+causes the script to sleep for the given number of seconds.
+Seconds may be a decimal number.  Interrupts (and Tk events if you
+are using Expectk) are processed while Expect sleeps.
+<DT><B>spawn</B><I> [args] program [args]</I>
+
+<DD>
+creates a new process running
+<I>program args</I>.
+
+Its stdin, stdout and stderr are connected to Expect,
+so that they may be read and written by other
+<B>Expect</B>
+
+commands.
+The connection is broken by
+<B>close</B>
+
+or if the process itself closes any of the file identifiers.
+<DT><DD>
+When a process is started by
+<B>spawn</B>,
+
+the variable
+<I>spawn_id</I>
+
+is set to a descriptor referring to that process.
+The process described by
+<I>spawn_id</I>
+
+is considered the
+<I>current process</I>.
+
+<I>spawn_id</I>
+
+may be read or written, in effect providing job control.
+<DT><DD>
+<I>user_spawn_id</I>
+
+is a global variable containing a descriptor which refers to the user.
+For example, when
+<I>spawn_id</I>
+
+is set to this value,
+<B>expect</B>
+
+behaves like
+<B>expect_user</B>.
+
+<P>
+<I>error_spawn_id</I>
+
+
+
+is a global variable containing a descriptor which refers to the standard
+error.
+For example, when
+<I>spawn_id</I>
+
+is set to this value,
+<B>send</B>
+
+behaves like
+<B>send_error</B>.
+
+<DT><DD>
+<I>tty_spawn_id</I>
+
+is a global variable containing a descriptor which refers to /dev/tty.
+If /dev/tty does not exist (such as in a cron, at, or batch script), then
+<I>tty_spawn_id</I>
+
+is not defined.  This may be tested as:
+<PRE>
+
+    if {[info vars tty_spawn_id]} {
+        # /dev/tty exists
+    } else {
+        # /dev/tty doesn't exist
+        # probably in cron, batch, or at script
+    }
+
+</PRE>
+
+<DT><DD>
+<B>spawn</B>
+
+returns the UNIX process id.  If no process is spawned, 0 is returned.
+The variable
+<I>spawn_out(slave,name)</I>
+
+is set to the name of the pty slave device.
+<DT><DD>
+By default,
+<B>spawn</B>
+
+echoes the command name and arguments.  The
+<B>-noecho</B>
+
+flag stops
+<B>spawn</B>
+
+from doing this.
+<DT><DD>
+The
+<B>-console</B>
+
+flag causes console output to be redirected to the spawned process.
+This is not supported on all systems.
+<P>
+Internally,
+<B>spawn</B>
+
+uses a pty, initialized the same way as the user's tty.  This is further
+initialized so that all settings are &quot;sane&quot; (according to <A HREF="../man1/stty.1.php">stty</A>(1)).
+If the variable
+<I>stty_init</I>
+
+is defined, it is interpreted in the style of stty arguments
+as further configuration.
+For example, &quot;set stty_init raw&quot; will cause further spawned processes's
+terminals to start in raw mode.
+<B>-nottycopy</B>
+
+skips the initialization based on the user's tty.
+<B>-nottyinit</B>
+
+skips the &quot;sane&quot; initialization.
+<DT><DD>
+Normally,
+<B>spawn</B>
+
+takes little time to execute.  If you notice spawn taking a
+significant amount of time, it is probably encountering ptys that are
+wedged.  A number of tests are run on ptys to avoid entanglements with
+errant processes.  (These take 10 seconds per wedged pty.)  Running
+Expect with the
+<B>-d</B>
+
+option will show if
+<B>Expect</B>
+
+is encountering many ptys in odd states.  If you cannot kill
+the processes to which these ptys are attached, your only recourse may
+be to reboot.
+<P>
+If
+<I>program</I>
+
+cannot be spawned successfully because <A HREF="../man2/exec.2.php">exec</A>(2) fails (e.g. when
+<I>program</I>
+
+doesn't exist), an error message will be returned by the next
+<B>interact</B>
+
+or
+<B>expect</B>
+
+command as if
+<I>program</I>
+
+had run and produced the error message as output.
+This behavior is a natural consequence of the implementation of
+<B>spawn</B>.
+
+Internally, spawn forks, after which the spawned process has no
+way to communicate with the original
+<B>Expect</B>
+
+process except by communication
+via the spawn_id.
+<P>
+The
+<B>-open</B>
+
+flag causes the next argument to be interpreted as a Tcl file identifier
+(i.e., returned by
+<B>open</B>.)
+
+The spawn id can then be used as if it were a spawned process.  (The file
+identifier should no longer be used.)
+This lets you treat raw devices, files, and
+pipelines as spawned processes without using a pty.  0 is returned to
+indicate there is no associated process.  When the connection to
+the spawned process is closed, so is the Tcl file identifier.
+The
+<B>-leaveopen</B>
+
+flag is similar to
+<B>-open</B>
+
+except that
+<B>-leaveopen</B>
+
+causes the file identifier to be left open even after the spawn id is closed.
+<P>
+The
+<B>-pty</B>
+
+flag causes a pty to be opened but no process spawned.  0 is returned
+to indicate there is no associated process.  Spawn_id is set as usual.
+<P>
+The variable
+<I>spawn_out(slave,fd)</I>
+
+is set to a file identifier corresponding to the pty slave.
+It can be closed using &quot;close -slave&quot;.
+<P>
+The
+<B>-ignore</B>
+
+flag names a signal to be ignored in the spawned process.
+Otherwise, signals get the default behavior.
+Signals are named as in the
+<B>trap</B>
+
+command, except that each signal requires a separate flag.
+<DT><B>strace</B><I> level</I>
+
+<DD>
+causes following statements to be printed before being executed.
+(Tcl's trace command traces variables.)
+<I>level</I>
+
+indicates how far down in the call stack to trace.
+For example,
+the following command runs
+<B>Expect</B>
+
+while tracing the first 4 levels of calls,
+but none below that.
+<PRE>
+
+    expect -c &quot;strace 4&quot; script.exp
+
+</PRE>
+
+<P>
+The
+<B>-info</B>
+
+flag causes strace to return a description of the
+most recent non-info arguments given.
+<DT><B>stty</B><I> args</I>
+
+<DD>
+changes terminal modes similarly to the external stty command.
+<P>
+By default, the controlling terminal is accessed.  Other terminals can
+be accessed by appending &quot;&lt; /dev/tty...&quot; to the command.  (Note that
+the arguments should not be grouped into a single argument.)
+<P>
+Requests for status return it as the result of the command.  If no status
+is requested and the controlling terminal is accessed, the previous
+status of the raw and echo attributes are returned in a form which can
+later be used by the command.
+<P>
+For example, the arguments
+<B>raw</B>
+
+or
+<B>-cooked</B>
+
+put the terminal into raw mode.
+The arguments
+<B>-raw</B>
+
+or
+<B>cooked</B>
+
+put the terminal into cooked mode.
+The arguments
+<B>echo</B>
+
+and
+<B>-echo</B>
+
+put the terminal into echo and noecho mode respectively.
+<DT><DD>
+The following example illustrates how to temporarily disable echoing.
+This could be used in otherwise-automatic
+scripts to avoid embedding passwords in them.
+(See more discussion on this under EXPECT HINTS below.)
+<PRE>
+
+    stty -echo
+    send_user &quot;Password: &quot;
+    expect_user -re &quot;(.*)\n&quot;
+    set password $expect_out(1,string)
+    stty echo
+
+</PRE>
+
+<DT><B>system</B><I> args</I>
+
+<DD>
+gives
+<I>args</I>
+
+to <A HREF="../man1/sh.1.php">sh</A>(1) as input,
+just as if it had been typed as a command from a terminal.
+<B>Expect</B>
+
+waits until the shell terminates.
+The return status from sh is handled the same way that
+<B>exec</B>
+
+handles its return status.
+<DT><DD>
+In contrast to
+<B>exec</B>
+
+which redirects stdin and stdout to the script,
+<B>system</B>
+
+performs no redirection
+(other than that indicated by the string itself).
+Thus, it is possible to use programs which must talk directly to /dev/tty.
+For the same reason, the results of
+<B>system</B>
+
+are not recorded in the log.
+<DT><B>timestamp</B><I> [args]</I>
+
+<DD>
+returns a timestamp.
+With no arguments, the number of
+seconds since the epoch is returned.
+<P>
+The
+<B>-format</B>
+
+flag introduces a string which is returned but with 
+substitutions made according to the
+POSIX rules for strftime.  For example %a is replaced by an abbreviated
+weekday name (i.e., Sat).  Others are:
+<PRE>
+    %a      abbreviated weekday name
+    %A      full weekday name
+    %b      abbreviated month name
+    %B      full month name
+    %c      date-time as in: Wed Oct  6 11:45:56 1993
+    %d      day of the month (01-31)
+    %H      hour (00-23)
+    %I      hour (01-12)
+    %j      day (001-366)
+    %m      month (01-12)
+    %M      minute (00-59)
+    %p      am or pm
+    %S      second (00-61)
+    %u      day (1-7, Monday is first day of week)
+    %U      week (00-53, first Sunday is first day of week one)
+    %V      week (01-53, ISO 8601 style)
+    %w      day (0-6)
+    %W      week (00-53, first Monday is first day of week one)
+    %x      date-time as in: Wed Oct  6 1993
+    %X      time as in: 23:59:59
+    %y      year (00-99)
+    %Y      year as in: 1993
+    %Z      timezone (or nothing if not determinable)
+    %%      a bare percent sign
+
+</PRE>
+
+Other % specifications are undefined.  Other characters will be passed
+through untouched.  Only the C locale is supported.
+<P>
+The
+<B>-seconds</B>
+
+flag introduces a number of seconds since the epoch to be used as a source
+from which to format.  Otherwise, the current time is used.
+<P>
+The
+<B>-gmt</B>
+
+flag forces timestamp output to use the GMT timezone.  With no flag,
+the local timezone is used.
+<DT><B>trap</B><I> [[command] signals]</I>
+
+<DD>
+causes the given 
+<I>command</I>
+
+to be executed upon future receipt of any of the given signals.
+The command is executed in the global scope.
+If
+<I>command</I>
+
+is absent, the signal action is returned.
+If
+<I>command </I>
+
+is the string SIG_IGN, the signals are ignored.
+If
+<I>command</I>
+
+is the string SIG_DFL, the signals are result to the system default.
+<I>signals</I>
+
+is either a single signal or a list of signals.  Signals may be specified
+numerically or symbolically as per <A HREF="../man3/signal.3.php">signal</A>(3).  The &quot;SIG&quot; prefix may be omitted.
+<P>
+With no arguments (or the argument -number),
+<B>trap</B>
+
+returns the signal number of the trap command currently being executed.
+<P>
+The
+<B>-code</B>
+
+flag uses the return code of the command in place of whatever code Tcl
+was about to return when the command originally started running.
+<P>
+The
+<B>-interp</B>
+
+flag causes the command to be evaluated using the interpreter
+active at the time the command started running
+rather than when the trap was declared.
+<P>
+The
+<B>-name</B>
+
+flag causes the
+<B>trap</B>
+
+command to return the signal name of the trap command currently being executed.
+<P>
+The
+<B>-max</B>
+
+flag causes the
+<B>trap</B>
+
+command to return the largest signal number that can be set.
+<P>
+For example, the command &quot;trap {send_user &quot;Ouch!&quot;} SIGINT&quot; will print &quot;Ouch!&quot;
+each time the user presses ^C.
+<P>
+By default, SIGINT (which can usually be generated by pressing ^C) and 
+SIGTERM cause Expect to exit.  This is due to the following trap, created
+by default when Expect starts.
+<PRE>
+
+    trap exit {SIGINT SIGTERM}
+
+</PRE>
+
+If you use the -D flag to start the debugger, SIGINT is redefined
+to start the interactive debugger.  This is due to the following trap:
+<PRE>
+
+    trap {exp_debug 1} SIGINT
+
+</PRE>
+
+The debugger trap can be changed by setting the environment variable
+EXPECT_DEBUG_INIT to a new trap command.  
+<P>
+You can, of course, override both of these just by adding trap
+commands to your script.  In particular, if you have your own &quot;trap
+exit SIGINT&quot;, this will override the debugger trap.  This is useful
+if you want to prevent users from getting to the debugger at all.
+<P>
+If you want to define your own trap on SIGINT but still trap to the
+debugger when it is running, use:
+<PRE>
+
+    if {![exp_debug]} {trap mystuff SIGINT}
+
+</PRE>
+
+Alternatively, you can trap to the debugger using some other signal.
+<P>
+<B>trap</B>
+
+will not let you override the action for SIGALRM as this is used internally
+to
+<B>Expect</B>.
+
+The disconnect command sets SIGALRM to SIG_IGN (ignore).  You can reenable
+this as long as you disable it during subsequent spawn commands.
+<P>
+See <A HREF="../man3/signal.3.php">signal</A>(3) for more info.
+<DT><B>wait</B><I> [args]</I>
+
+<DD>
+delays until a spawned process (or
+the current process if none is named) terminates.
+<DT><DD>
+<B>wait</B>
+
+normally returns a list of four integers.
+The first integer is the pid of the process that was waited upon.
+The second integer is the corresponding spawn id.
+The third integer is -1 if an operating system error occurred, or 0 otherwise.
+If the third integer was 0, the fourth integer is the status returned by
+the spawned process.  If the third integer was -1, the fourth integer is
+the value of errno set by the operating system.  The global variable
+errorCode is also set.
+<P>
+Additional elements may appear at the end of the return value from
+<B>wait</B>.
+
+An optional fifth element identifies a class of information.
+Currently, the only possible value for this element is CHILDKILLED in
+which case the next two values are the C-style signal name and a short
+textual description.
+<DT><DD>
+The
+<B>-i</B>
+
+flag declares the process to wait corresponding to the named spawn_id
+(NOT the process id).
+Inside a SIGCHLD handler,
+it is possible to wait for any spawned process by using the spawn id -1.
+<P>
+The
+<B>-nowait</B>
+
+flag causes the wait to return immediately with the indication of a
+successful wait.  When the process exits (later), it will automatically
+disappear without the need for an explicit wait.
+<P>
+The
+<B>wait</B>
+
+command may also be used wait for a forked process using the arguments
+&quot;-i -1&quot;.  Unlike its use with spawned processes, this command can be
+executed at any time.  There is no control over which process is
+reaped.  However, the return value can be checked for the process id.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>LIBRARIES</H2>
+
+Expect automatically knows about two built-in libraries for Expect scripts.
+These are defined by the directories named in the variables
+exp_library and exp_exec_library.  Both are meant to contain utility
+files that can be used by other scripts.
+<P>
+exp_library contains architecture-independent files.  exp_exec_library
+contains architecture-dependent files.  Depending on your system, both
+directories may be totally empty.  The existence of the file
+$exp_exec_library/cat-buffers describes whether your /bin/cat buffers
+by default.
+<A NAME="lbAH">&nbsp;</A>
+<H2>PRETTY-PRINTING</H2>
+
+A vgrind definition is available for pretty-printing
+<B>Expect</B>
+
+scripts.
+Assuming the vgrind definition supplied with the
+<B>Expect</B>
+
+distribution is
+correctly installed, you can use it as:
+<PRE>
+
+    vgrind -lexpect file
+
+</PRE>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+It many not be apparent how to put everything together that the man page
+describes.  I encourage you to read and try out the examples in
+the example directory of the
+<B>Expect</B>
+
+distribution.
+Some of them are real programs.  Others are simply illustrative
+of certain techniques, and of course, a couple are just quick hacks.
+The INSTALL file has a quick overview of these programs.
+<P>
+
+The
+<B>Expect</B>
+
+papers (see SEE ALSO) are also useful.  While some papers
+use syntax corresponding to earlier versions of Expect, the accompanying
+rationales are still valid and go into a lot more detail than this
+man page.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+Extensions may collide with Expect's command names.  For example, 
+<B>send</B>
+
+is defined by Tk for an entirely different purpose.
+For this reason, most of the
+<B>Expect</B>
+
+commands are also available as &quot;exp_XXXX&quot;.
+Commands and variables beginning with &quot;exp&quot;, &quot;inter&quot;, &quot;spawn&quot;,
+and &quot;timeout&quot; do not have aliases.
+Use the extended command names if you need this compatibility between environments.
+<P>
+<B>Expect</B>
+
+takes a rather liberal view of scoping.
+In particular, variables read by commands specific to the
+<B>Expect</B>
+
+program will be sought first from the local scope, and if not found, in the
+global scope.  For example, this
+obviates the need to place &quot;global timeout&quot; in every
+procedure you write that uses
+<B>expect</B>.
+
+On the other hand, variables written are always in the local scope (unless
+a &quot;global&quot; command has been issued).  The most common problem this causes
+is when spawn is executed in a procedure.  Outside the procedure, 
+<I>spawn_id</I>
+
+no longer exists, so the spawned process is no longer accessible
+simply because of scoping.  Add a &quot;global spawn_id&quot; to such a procedure.
+<P>
+If you cannot enable the multispawning capability
+(i.e., your system supports neither select (BSD *.*), poll (SVR&gt;2),
+nor something equivalent),
+<B>Expect</B>
+
+will only be able to control a single process at a time.
+In this case, do not attempt to set
+<I>spawn_id</I>,
+
+nor should you execute processes via exec while a spawned process
+is running.  Furthermore, you will not be able to
+<B>expect</B>
+
+from multiple processes (including the user as one) at the same time.
+<P>
+Terminal parameters can have a big effect on scripts.  For example, if
+a script is written to look for echoing, it will misbehave if echoing
+is turned off.  For this reason, Expect forces sane terminal
+parameters by default.  Unfortunately, this can make things unpleasant
+for other programs.  As an example, the emacs shell wants to change
+the &quot;usual&quot; mappings: newlines get mapped to newlines instead of
+carriage-return newlines, and echoing is disabled.  This allows one to
+use emacs to edit the input line.  Unfortunately, Expect cannot
+possibly guess this.
+<P>
+You can request that Expect not override its default setting of
+terminal parameters, but you must then be very careful when writing
+scripts for such environments.  In the case of emacs, avoid depending
+upon things like echoing and end-of-line mappings.
+<P>
+The commands that accepted arguments braced into a single list (the
+<B>expect</B>
+
+variants and
+<B>interact</B>)
+
+use a heuristic to decide if the list is actually one argument or
+many.  The heuristic can fail only in the case when the list actually
+does represent a single argument which has multiple embedded \n's
+with non-whitespace characters between them.  This seems sufficiently
+improbable, however the argument &quot;-nobrace&quot; can be used to force a
+single argument to be handled as a single argument.  This could
+conceivably be used with machine-generated Expect code.  Similarly,
+-brace forces a single argument to be handle as multiple patterns/actions.
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+It was really tempting to name the program &quot;sex&quot; (for either &quot;Smart EXec&quot;
+or &quot;Send-EXpect&quot;), but good sense (or perhaps just Puritanism) prevailed.
+<P>
+On some systems, when a shell is spawned, it complains about not being
+able to access the tty but runs anyway.  This means your system has a
+mechanism for gaining the controlling tty that
+<B>Expect</B>
+
+doesn't know about.  Please find out what it is, and send this information
+back to me.
+<P>
+Ultrix 4.1 (at least the latest versions around here) considers
+timeouts of above 1000000 to be equivalent to 0.
+<P>
+Digital UNIX 4.0A (and probably other versions) refuses to allocate
+ptys if you define a SIGCHLD handler.  See grantpt page for more info.
+<P>
+IRIX 6.0 does not handle pty permissions correctly so that if Expect
+attempts to allocate a pty previously used by someone else, it fails.
+Upgrade to IRIX 6.1.
+<P>
+Telnet (verified only under SunOS 4.1.2) hangs if TERM is not set.
+This is a problem under cron, at and in cgi scripts, which do not
+define TERM.  Thus, you must set it explicitly - to what type is
+usually irrelevant.  It just has to be set to something!  The
+following probably suffices for most cases.
+<PRE>
+
+    set env(TERM) vt100
+
+</PRE>
+
+<P>
+Tip (verified only under BSDI BSD/OS 3.1 i386) hangs if SHELL and HOME
+are not set.  This is a problem under cron, at and in cgi scripts,
+which do not define these environment variables.  Thus, you must set
+them explicitly - to what type is usually irrelevant.  It just has to
+be set to something!  The following probably suffices for most cases.
+<PRE>
+
+    set env(SHELL) /bin/sh
+    set env(HOME) /usr/local/bin
+
+</PRE>
+
+<P>
+<P>
+Some implementations of ptys are designed so that the kernel throws
+away any unread output after 10 to 15 seconds (actual number is
+implementation-dependent) after the process has closed the file
+descriptor.  Thus
+<B>Expect</B>
+
+programs such as
+<PRE>
+
+    spawn date
+    sleep 20
+    expect
+
+</PRE>
+
+will fail.  To avoid this, invoke non-interactive programs with
+<B>exec</B>
+
+rather than
+<B>spawn</B>.
+
+While such situations are conceivable, in practice I have never
+encountered a situation in which the final output of a truly
+interactive program would be lost due to this behavior.
+<P>
+On the other hand, Cray UNICOS ptys throw away any unread output
+immediately after the process has closed the file descriptor.  I have
+reported this to Cray and they are working on a fix.
+<P>
+Sometimes a delay is required between a prompt and a response, such as
+when a tty interface is changing UART settings or matching baud rates
+by looking for start/stop bits.  Usually, all this is require is to
+sleep for a second or two.  A more robust technique is to retry until
+the hardware is ready to receive input.  The following example uses
+both strategies:
+<PRE>
+
+    send &quot;speed 9600\r&quot;;
+    sleep 1
+    expect {
+        timeout {send &quot;\r&quot;; exp_continue}
+        $prompt
+    }
+
+</PRE>
+
+<P>
+trap -code will not work with any command that sits in Tcl's event
+loop, such as sleep.  The problem is that in the event loop, Tcl
+discards the return codes from async event handlers.  A workaround is
+to set a flag in the trap code.  Then check the flag immediately after
+the command (i.e., sleep).
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>EXPECT HINTS</H2>
+
+There are a couple of things about
+<B>Expect</B>
+
+that may be non-intuitive.
+This section attempts to address some of these things with a couple of
+suggestions.
+<P>
+A common expect problem is how to recognize shell prompts.  Since
+these are customized differently by differently people and different
+shells, portably automating rlogin can be difficult without knowing
+the prompt.  A reasonable convention is to have users store a regular
+expression describing their prompt (in particular, the end of it) in
+the environment variable EXPECT_PROMPT.  Code like the following
+can be used.  If EXPECT_PROMPT doesn't exist, the code still has a good chance of functioning correctly.
+<PRE>
+
+    set prompt &quot;(%|#|\\$) $&quot;          ;# default prompt
+    catch {set prompt $env(EXPECT_PROMPT)}
+
+    expect -re $prompt
+
+</PRE>
+
+I encourage you to write
+<B>expect</B>
+
+patterns that include the end of whatever
+you expect to see.  This avoids the possibility of answering a question
+before seeing the entire thing.  In addition, while you may well be
+able to answer questions before seeing them entirely, if you answer
+early,  your answer may appear echoed back in the middle of the question.
+In other words, the resulting dialogue will be correct but look scrambled.
+<P>
+Most prompts include a space character at the end.
+For example, the prompt from ftp is 'f', 't', 'p', '&gt;' and &lt;blank&gt;.
+To match this prompt, you must account for each of these characters.
+It is a common mistake not to include the blank.
+Put the blank in explicitly.
+<P>
+If you use a pattern of the form X*, the * will match all the output
+received from the end of X to the last thing received.
+This sounds intuitive but can be somewhat confusing because the phrase
+&quot;last thing received&quot; can vary depending upon the speed of the computer
+and the processing of I/O both by the kernel and the device driver.
+<P>
+
+In particular, humans tend to see program output arriving in huge chunks
+(atomically) when in reality most programs produce output one
+line at a time.  Assuming this is the case, the * in the pattern of the
+previous paragraph may only match the end of the current line even though
+there seems to be more, because at the time of the match that was all
+the output that had been received.
+<P>
+
+<B>expect</B>
+
+has no way of knowing that further output is coming unless your
+pattern specifically accounts for it.
+<P>
+
+Even depending on line-oriented buffering is unwise.  Not only do programs
+rarely make promises about the type of buffering they do, but system
+indigestion can break output lines up so that lines break at seemingly
+random places.  Thus, if you can express the last few characters
+of a prompt when writing patterns, it is wise to do so.
+<P>
+If you are waiting for a pattern in the last output of a program
+and the program emits something else instead, you will not be able to
+detect that with the
+<B>timeout</B>
+
+keyword.  The reason is that
+<B>expect</B>
+
+will not timeout - instead it will get an
+<B>eof</B>
+
+indication.
+Use that instead.  Even better, use both.  That way if that line
+is ever moved around, you won't have to edit the line itself.
+<P>
+Newlines are usually converted to carriage return, linefeed sequences
+when output by the terminal driver.  Thus, if you want a pattern that
+explicitly matches the two lines, from, say, printf(&quot;foo\nbar&quot;),
+you should use the pattern &quot;foo\r\nbar&quot;.
+<P>
+
+A similar translation occurs when reading from the user, via
+<B>expect_user</B>.
+
+In this case, when you press return, it will be
+translated to a newline.  If
+<B>Expect</B>
+
+then passes that to a program
+which sets its terminal to raw mode (like telnet), there is going to
+be a problem, as the program expects a true return.  (Some programs
+are actually forgiving in that they will automatically translate
+newlines to returns, but most don't.)  Unfortunately, there is no way to find
+out that a program put its terminal into raw mode.
+<P>
+
+Rather than manually replacing newlines with returns, the solution is to
+use the command &quot;stty raw&quot;, which will stop the translation.
+Note, however, that this means that you will no longer get the cooked
+line-editing features.
+<P>
+
+<B>interact</B>
+
+implicitly sets your terminal to raw mode so this problem will not arise then.
+<P>
+It is often useful to store passwords (or other private information)
+in
+<B>Expect</B>
+
+scripts.  This is not recommended since anything that is
+stored on a computer is susceptible to being accessed by anyone.
+Thus, interactively prompting for passwords from a script is a smarter
+idea than embedding them literally.  Nonetheless, sometimes such embedding
+is the only possibility.
+<P>
+
+Unfortunately, the UNIX file system has no direct way of creating
+scripts which are executable but unreadable.  Systems which support
+setgid shell scripts may indirectly simulate this as follows:
+<P>
+
+Create the
+<B>Expect</B>
+
+script (that contains the secret data) as usual.
+Make its permissions be 750 (-rwxr-x---) and owned by a trusted group,
+i.e., a group which is allowed to read it.  If necessary, create a new
+group for this purpose.  Next, create a /bin/sh script with
+permissions 2751 (-rwxr-s--x) owned by the same group as before.
+<P>
+
+The result is a script which may be executed (and read) by anyone.
+When invoked, it runs the
+<B>Expect</B>
+
+script.
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man3/Tcl.3.php">Tcl</A></B>(3),
+
+<B><A HREF="../man3/libexpect.3.php">libexpect</A></B>(3)
+
+<BR>
+
+<I>&quot;Exploring Expect: A Tcl-Based Toolkit for Automating Interactive Programs&quot;</I>
+
+by Don Libes, pp. 602, ISBN 1-56592-090-2, O'Reilly and Associates, 1995.
+<BR>
+
+<I>&quot;expect: Curing Those Uncontrollable Fits of Interactivity&quot; </I>by Don Libes,
+
+Proceedings of the Summer 1990 USENIX Conference,
+Anaheim, California, June 11-15, 1990.
+<BR>
+
+<I>&quot;Using</I>
+
+<B>expect</B>
+
+to Automate System Administration Tasks&quot; by Don Libes,
+Proceedings of the 1990 USENIX Large Installation Systems Administration
+Conference, Colorado Springs, Colorado, October 17-19, 1990.
+<BR>
+
+<I>&quot;Tcl: An Embeddable Command Language&quot; </I>by John Ousterhout,
+
+Proceedings of the Winter 1990 USENIX Conference,
+Washington, D.C., January 22-26, 1990.
+<BR>
+
+<I>&quot;expect: Scripts for Controlling Interactive Programs&quot; </I>by Don Libes,
+
+Computing Systems, Vol. 4, No. 2, University of California Press Journals,
+November 1991.
+<BR>
+
+<I>&quot;Regression Testing and Conformance Testing Interactive Programs&quot;, </I>by Don
+
+Libes, Proceedings of the Summer 1992 USENIX Conference, pp. 135-144,
+San Antonio, TX, June 12-15, 1992.
+<BR>
+
+<I>&quot;Kibitz - Connecting Multiple Interactive Programs Together&quot;, </I>by Don Libes,
+
+Software - Practice &amp; Experience, John Wiley &amp; Sons, West Sussex, England,
+Vol. 23, No. 5, May, 1993.
+<BR>
+
+<I>&quot;A Debugger for Tcl Applications&quot;, </I>by Don Libes,
+
+Proceedings of the 1993 Tcl/Tk Workshop, Berkeley, CA, June 10-11, 1993.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Don Libes, National Institute of Standards and Technology
+<A NAME="lbAO">&nbsp;</A>
+<H2>ACKNOWLEDGMENTS</H2>
+
+Thanks to John Ousterhout for Tcl, and Scott Paisley for inspiration.
+Thanks to Rob Savoye for Expect's autoconfiguration code.
+<P>
+
+The HISTORY file documents much of the evolution of
+<B>expect</B>.
+
+It makes interesting reading and might give you further insight to this
+software.  Thanks to the people mentioned in it who sent me bug fixes
+and gave other assistance.
+<P>
+
+Design and implementation of
+<B>Expect</B>
+
+was paid for in part by the U.S. government and is therefore in the public
+domain.
+However the author and NIST would like credit
+if this program and documentation or portions of them are used.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">INTRODUCTION</A><DD>
+<DT><A HREF="#lbAE">USAGE</A><DD>
+<DT><A HREF="#lbAF">COMMANDS</A><DD>
+<DT><A HREF="#lbAG">LIBRARIES</A><DD>
+<DT><A HREF="#lbAH">PRETTY-PRINTING</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">CAVEATS</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+<DT><A HREF="#lbAL">EXPECT HINTS</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+<DT><A HREF="#lbAN">AUTHOR</A><DD>
+<DT><A HREF="#lbAO">ACKNOWLEDGMENTS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

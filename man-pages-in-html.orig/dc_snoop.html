@@ -1,0 +1,220 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DC_SNOOP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DC_SNOOP</H1>
+Section: distcache (1)<BR>Updated: 2004.03.23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dc_snoop - Distributed session cache traffic analysis
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>dc_snoop</B> -listen &lt;address&gt; -server &lt;address&gt; [options]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>dc_snoop</B> runs as a transparent proxy supporting the <I><A HREF="../man8/distcache.8.php">distcache</A></I>(8) protocol
+and (in theory) should work when inserted between any compliant tools. Ie. this
+can be used to monitor cache operation requests and responses between
+applications and <B>dc_client</B>, or between <B>dc_client</B> and <B>dc_server</B>.
+<P>
+
+This tool is still in early stages of development and is provided very much
+``as-is''. It is intended to be used by developers with access to the source
+code - for now, most configurable behaviour of <B>dc_snoop</B> is set in source
+code and can not be manipulated on the command-line.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-listen</B> address<DD>
+<A NAME="ixAAF"></A>
+Configures the address on which <B>dc_snoop</B> should listen for incoming
+connections.  The syntax is that defined by the <I>libnal</I> <FONT SIZE="-1">API</FONT>.
+<DT><B>-server</B> address<DD>
+<A NAME="ixAAG"></A>
+
+<DT><B>-connect</B> address<DD>
+<A NAME="ixAAH"></A>
+
+These flags are identical, and specify the address <B>dc_snoop</B> should
+transparently proxy all incoming connections to. For each connection accepted
+by <B>dc_snoop</B> (on the address specified by <B>-listen</B>) a corresponding
+connection is opened to the address specified by these flags. When either
+connection is closed, <B>dc_snoop</B> will correspondingly close the other
+connection.
+<DT><B>-h</B>, <B>-help</B>, <B>-?</B><DD>
+<A NAME="ixAAI"></A>
+Any of these flags will cause <B>dc_snoop</B> to display a brief usage summary to
+the console and exit cleanly. Any other flags are ignored.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAJ"></A>
+This example demonstrates the use of <B>dc_snoop</B> to monitor communications
+between an instance of <B>dc_client</B> and <B>dc_server</B> both running on the same
+machine using only unix domain sockets. Suppose the tools are started and tested
+using the following commands;
+<P>
+
+
+
+<PRE>
+    # Start services
+    dc_server -daemon -listen UNIX:/tmp/cacheserver
+    dc_client -deamon -listen UNIX:/tmp/cacheclient \
+              -server UNIX:/tmp/cacheserver
+    # Run some tests
+    dc_test -connect UNIX:/tmp/cacheclient
+
+</PRE>
+
+
+<P>
+
+The following modification should be functionally equivalent (ignoring the
+additional latency and overhead of <B>dc_snoop</B>'s involvement) and should
+generate a log file of all cache transactions to <I>logfile</I>. Note the change to
+the <B>-server</B> flag in <B>dc_client</B>;
+<P>
+
+
+
+<PRE>
+    # Start services
+    dc_server -daemon -listen UNIX:/tmp/cacheserver
+    dc_client -deamon -listen UNIX:/tmp/cacheclient \
+              -server UNIX:/tmp/cachesnoop
+    # Start dc_snoop logging to logfile in the background
+    dc_snoop -listen UNIX:/tmp/cachesnoop \
+             -server UNIX:/tmp/cacheserver &gt; logfile &amp;
+    # Run some tests
+    dc_test -connect UNIX:/tmp/cacheclient
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAK"></A>
+This program is incomplete and not at all configurable on the command-line.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAL"></A>
+<DL COMPACT>
+<DT><I><A HREF="../man1/dc_client.1.php">dc_client</A></I>(1)<DD>
+<A NAME="ixAAM"></A>
+Distributed caching client proxy.
+<DT><I><A HREF="../man1/dc_server.1.php">dc_server</A></I>(1)<DD>
+<A NAME="ixAAN"></A>
+Distributed cache server.
+<DT><I><A HREF="../man8/distcache.8.php">distcache</A></I>(8)<DD>
+<A NAME="ixAAO"></A>
+Overview of the distcache architecture.
+<DT><I><A HREF="http://www.distcache.org/">http://www.distcache.org/</A></I><DD>
+<A NAME="ixAAP"></A>
+Distcache home page.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAQ"></A>
+This toolkit was designed and implemented by Geoff Thorpe for Cryptographic
+Appliances Incorporated. Since the project was released into open source, it
+has a home page and a project environment where development, mailing lists, and
+releases are organised. For problems with the software or this man page please
+check for new releases at the project web-site below, mail the users mailing
+list described there, or contact the author at <I><A HREF="mailto:geoff@geoffthorpe.net">geoff@geoffthorpe.net</A></I>.
+<P>
+
+Home Page: <I><A HREF="http://www.distcache.org">http://www.distcache.org</A></I>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

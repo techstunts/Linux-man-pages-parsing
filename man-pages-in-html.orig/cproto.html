@@ -1,0 +1,743 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CPROTO</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CPROTO</H1>
+Section: User Commands  (1)<BR>Updated: March 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cproto - generate C function prototypes and convert function definitions
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cproto</B>
+
+[ 
+<I>option </I>...<I></I>
+
+] [
+<I>file </I>...<I></I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Cproto</B>
+
+generates function prototypes for
+functions defined in the specified C source files to the standard output.
+The function definitions may be in the old style or ANSI C style.
+Optionally,
+<B>cproto</B>
+
+also outputs declarations for variables defined in the files.
+If no
+<I>file</I>
+
+argument is given,
+<B>cproto</B>
+
+reads its input from the standard input.
+<P>
+
+By giving a command line option,
+<B>cproto</B>
+
+will also convert function definitions in the specified files from the
+old style to the ANSI C style.
+The original source files along with files specified by
+
+
+<P>
+
+
+<PRE>
+#include &quot;file&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+directives appearing in the source code will be overwritten
+with the converted code.
+If no file names are given on the command line, then the program reads
+the source code from the standard input and outputs the converted source
+to the standard output.
+<P>
+
+If any comments appear in the parameter declarations for a function definition,
+such as in the example,
+
+
+<P>
+
+
+<PRE>
+main (argc, argv)
+int argc;       /* number of arguments */
+char *argv[];   /* arguments */
+{
+}
+
+</PRE>
+
+
+<P>
+
+
+
+then the converted function definition will have the form
+
+
+<P>
+
+
+<PRE>
+int
+main (
+    int argc,       /* number of arguments */
+    char *argv[]   /* arguments */
+)
+{
+}
+
+</PRE>
+
+
+<P>
+
+
+
+Otherwise, the converted function definition will look like
+
+
+<P>
+
+
+<PRE>
+int
+main (int argc, char *argv[])
+{
+}
+
+</PRE>
+
+
+<P>
+
+
+
+<P>
+
+<B>Cproto</B>
+
+can optionally convert function definitions from the ANSI style to the old
+style.
+In this mode, the program also converts function declarators and prototypes
+that appear outside function bodies.
+This is not a complete ANSI C to old C conversion.
+The program does not change anything within function bodies.
+<P>
+
+<B>Cproto</B>
+
+can optionally generate source in lint-library format.
+This is useful in environments where the <B>lint</B> utility is
+used to supplement prototype checking of your program.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-e</B>
+
+<DD>
+Output the keyword
+<B>extern</B>
+
+in front of every generated prototype or declaration that has global scope.
+<DT><B>-f</B><I> n</I>
+
+<DD>
+Set the style of generated function prototypes where
+<I>n</I>
+
+is a number from 0 to 3.
+For example, consider the function definition
+
+
+<P>
+
+
+<PRE>
+main (argc, argv)
+int argc;
+char *argv[];
+{
+}
+
+</PRE>
+
+
+<P>
+
+
+
+If the value is 0, then no prototypes are generated.
+When set to 1, the output is:
+
+
+<P>
+
+
+<PRE>
+int main(/*int argc, char *argv[]*/);
+
+</PRE>
+
+
+<P>
+
+
+
+For a value of 2, the output has the form:
+
+
+<P>
+
+
+<PRE>
+int main(int /*argc*/, char */*argv*/[]);
+
+</PRE>
+
+
+<P>
+
+
+
+The default value is 3.
+It produces the full function prototype:
+
+
+<P>
+
+
+<PRE>
+int main(int argc, char *argv[]);
+
+</PRE>
+
+
+<P>
+
+
+
+<DT><B>-l</B>
+
+<DD>
+Generate text for a lint-library (overrides the &quot;<B>-f</B>&quot; option).
+The output includes the comment
+
+
+<P>
+
+
+<PRE>
+/* LINTLIBRARY */
+
+</PRE>
+
+
+<P>
+
+
+
+Special comments LINT_EXTERN and LINT_PREPRO (a la &quot;VARARGS&quot;)
+respectively turn on the &quot;-x&quot;
+option and copy comment-text to the output (for preprocessing in <B>lint</B>).
+Use the comment
+
+
+<P>
+
+
+<PRE>
+/* LINT_EXTERN2 */
+
+</PRE>
+
+
+<P>
+
+
+
+to include externs defined in the first level of include-files.
+Use the comment
+
+
+<P>
+
+
+<PRE>
+/* LINT_SHADOWED */
+
+</PRE>
+
+
+<P>
+
+
+
+to cause 
+<B>cproto</B>
+
+to put &quot;#undef&quot; directives before each lint library declaration
+(i.e., to avoid conflicts with macros that happen to have to have
+the same name as the functions, thus causing syntax errors).
+
+Note that these special comments
+are not supported under VAX/VMS, since there is no
+equivalent for the &quot;-C&quot; option of cpp with VAX-C.
+<DT><B>-c</B>
+
+<DD>
+The parameter comments in the prototypes generated by
+the -f1 and -f2 options are omitted by default.
+Use this option to enable the output of these comments.
+<DT><B>-m</B>
+
+<DD>
+Put a macro around the parameter list of every generated prototype.
+For example:
+
+
+<P>
+
+
+<PRE>
+int main P_((int argc, char *argv[]));
+
+</PRE>
+
+
+<P>
+
+
+
+<DT><B>-M</B><I> name</I>
+
+<DD>
+Set the name of the macro used to surround prototype parameter lists
+when option -m is selected.
+The default is &quot;P_&quot;.
+<DT><B>-d</B>
+
+<DD>
+Omit the definition of the prototype macro used by the -m option.
+<DT><B>-o</B><I> file</I>
+
+<DD>
+Specify the name of the output file (default: standard output).
+<DT><B>-O</B><I> file</I>
+
+<DD>
+Specify the name of the error file (default: standard error).
+<DT><B>-p</B>
+
+<DD>
+Disable promotion of formal parameters in old style function definitions.
+By default, parameters of type
+<B>char</B>
+
+or
+<B>short</B>
+
+in old style function definitions are promoted to type
+<B>int</B>
+
+in the function prototype or converted ANSI C function definition.
+Parameters of type
+<B>float</B>
+
+get promoted to 
+<B>double</B>
+
+as well.
+<DT><B>-q</B>
+
+<DD>
+Do not output any error messages when the program cannot read the
+file specified in an
+<I>#include</I>
+
+directive.
+<DT><B>-s</B>
+
+<DD>
+By default,
+<B>cproto</B>
+
+only generates declarations for functions and variables having global scope.
+This option will output
+<B>static</B>
+
+declarations as well.
+<DT><B>-S</B>
+
+<DD>
+Output only static declarations.
+<DT><B>-i</B>
+
+<DD>
+By default,
+<B>cproto</B>
+
+only generates declarations for functions and variables having global scope.
+This option will output
+<B>inline</B>
+
+declarations as well.
+<DT><B>-T</B>
+
+<DD>
+Copy type definitions from each file.
+(Definitions in included-files are copied, unlike the &quot;-l&quot; option).
+<DT><B>-v</B>
+
+<DD>
+Also output declarations for variables defined in the source.
+<DT><B>-x</B>
+
+<DD>
+This option causes procedures and variables which are declared &quot;extern&quot;
+to be included in the output.
+<DT><B>-X</B><I> level</I>
+
+<DD>
+This option limits the include-file level from which declarations are extracted
+by examining the preprocessor output.
+<DT><B>-a</B>
+
+<DD>
+Convert function definitions from the old style to the ANSI C style.
+<DT><B>-t</B>
+
+<DD>
+Convert function definitions from the ANSI C style to the traditional style.
+<DT><B>-b</B>
+
+<DD>
+Rewrite function definition heads to include both old style and new style
+declarations separated by a conditional compilation directive.
+For example, the program can generate this function definition:
+
+
+<P>
+
+
+<PRE>
+#ifdef ANSI_FUNC
+
+int
+main (int argc, char *argv[])
+#else
+
+int
+main (argc, argv)
+int argc;
+char *argv[]
+#endif
+{
+}
+
+</PRE>
+
+
+<P>
+
+
+
+<DT><B>-B</B><I> directive</I>
+
+<DD>
+Set the conditional compilation directive to output at the beginning of
+function definitions generated by the -b option.
+The default is
+
+
+<P>
+
+
+<PRE>
+#ifdef ANSI_FUNC
+
+</PRE>
+
+
+<P>
+
+
+
+</DL>
+<P>
+
+<PRE>
+<B>-P</B><I> template</I>
+<B>-F</B><I> template</I>
+<B>-C</B><I> template</I>
+</PRE>
+
+
+Set the output format for generated prototypes, function definitions,
+and function definitions with parameter comments respectively.
+The format is specified by a template in the form
+
+
+<P>
+
+
+<PRE>
+&quot; int f ( a, b )&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+but you may replace each space in this string with any number of
+whitespace characters.
+For example, the option
+
+
+<P>
+
+
+<PRE>
+-F&quot;int f(\n\ta,\n\tb\n\t)&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+will produce
+
+
+<P>
+
+
+<PRE>
+int main(
+        int argc,
+        char *argv[]
+        )
+
+</PRE>
+
+
+<P>
+
+
+
+<DL COMPACT>
+<DT><B>-D</B><I> name[=value]</I>
+
+<DD>
+This option is passed through to the preprocessor and is used to define 
+symbols for use with conditionals such as
+<I>#ifdef.</I>
+
+<DT><B>-U</B><I> name</I>
+
+<DD>
+This option is passed through to the preprocessor and is used to remove
+any definitions of this symbol.
+<DT><B>-I</B><I> directory</I>
+
+<DD>
+This option is passed through to the preprocessor and is used to specify
+a directory to search for files that are referenced with 
+<I>#include.</I>
+
+<DT><B>-E</B><I> cpp</I>
+
+<DD>
+Pipe the input files through the specified C preprocessor command
+when generating prototypes.
+By default, the program uses /lib/cpp.
+<DT><B>-E</B><I> 0</I>
+
+<DD>
+Do not run the C preprocessor.
+<DT><B>-V</B>
+
+<DD>
+Print version information.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+The environment variable CPROTO is scanned for
+a list of options in the same format as the command line options.
+Options given on the command line override any corresponding
+environment option.
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+If an un-tagged struct, union or enum declaration appears in
+a generated function prototype or converted function definition,
+the content of the declaration between the braces is empty.
+<P>
+
+The program does not pipe the source files through the C preprocessor when
+it is converting function definitions.
+Instead, it tries to handle preprocessor directives and macros itself
+and can be confused by tricky macro expansions.
+The conversion also discards some comments in the function definition
+head.
+<P>
+
+The -v option does not generate declarations for variables defined with the
+<B>extern</B>
+
+specifier.
+This doesn't strictly conform to the C language standard but this rule
+was implemented because include files commonly declare variables this way.
+<P>
+
+When the program encounters an error, it usually outputs the not very
+descriptive message &quot;syntax error&quot;.
+(Your configuration may allow the extended error reporting in yyerror.c).
+<P>
+
+Options that take string arguments only interpret the following
+character escape sequences:
+
+
+<P>
+
+
+<PRE>
+\n      newline
+\s      space
+\t      tab
+
+</PRE>
+
+
+<P>
+
+
+
+<P>
+
+VARARGS comments don't get passed through on systems whose C preprocessors
+don't support this (e.g., VAX/VMS, MS-DOS).
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<PRE>
+Chin Huang
+<A HREF="mailto:cthuang@vex.net">cthuang@vex.net</A>
+<A HREF="mailto:cthuang@interlog.com">cthuang@interlog.com</A>
+
+Thomas Dickey
+<A HREF="mailto:dickey@invisible-island.net">dickey@invisible-island.net</A>
+modifications to support lint library, type-copying, and port to VAX/VMS.
+</PRE>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/cc.1.php">cc</A>(1),
+<A HREF="../man1/cpp.1.php">cpp</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

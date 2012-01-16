@@ -1,0 +1,322 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLNUMBER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLNUMBER</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlnumber - semantics of numbers and numeric operations in Perl
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+    $n = 1234;              # decimal integer
+    $n = 0b1110011;         # binary integer
+    $n = 01234;             # octal integer
+    $n = 0x1234;            # hexadecimal integer
+    $n = 12.34e-56;         # exponential notation
+    $n = &quot;-12.34e56&quot;;       # number specified as a string
+    $n = &quot;1234&quot;;            # number specified as a string
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This document describes how Perl internally handles numeric values.
+<P>
+
+Perl's operator overloading facility is completely ignored here.  Operator
+overloading allows user-defined behaviors for numbers, such as operations
+over arbitrarily large integers, floating points numbers with arbitrary
+precision, operations over ``exotic'' numbers such as modular arithmetic or
+p-adic arithmetic, and so on.  See overload for details.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Storing numbers</H2>
+
+<A NAME="ixAAE"></A>
+Perl can internally represent numbers in 3 different ways: as native
+integers, as native floating point numbers, and as decimal strings.
+Decimal strings may have an exponential notation part, as in <TT>&quot;12.34e-56&quot;</TT>.
+<I>Native</I> here means ``a format supported by the C compiler which was used
+to build perl''.
+<P>
+
+The term ``native'' does not mean quite as much when we talk about native
+integers, as it does when native floating point numbers are involved.
+The only implication of the term ``native'' on integers is that the limits for
+the maximal and the minimal supported true integral quantities are close to
+powers of 2.  However, ``native'' floats have a most fundamental
+restriction: they may represent only those numbers which have a relatively
+``short'' representation when converted to a binary fraction.  For example,
+0.9 cannot be represented by a native float, since the binary fraction
+for 0.9 is infinite:
+<P>
+
+
+
+<PRE>
+  binary0.1110011001100...
+
+</PRE>
+
+
+<P>
+
+with the sequence <TT>1100</TT> repeating again and again.  In addition to this
+limitation,  the exponent of the binary number is also restricted when it
+is represented as a floating point number.  On typical hardware, floating
+point values can store numbers with up to 53 binary digits, and with binary
+exponents between -1024 and 1024.  In decimal representation this is close
+to 16 decimal digits and decimal exponents in the range of -304..304.
+The upshot of all this is that Perl cannot store a number like
+12345678901234567 as a floating point number on such architectures without
+loss of information.
+<P>
+
+Similarly, decimal strings can represent only those numbers which have a
+finite decimal expansion.  Being strings, and thus of arbitrary length, there
+is no practical limit for the exponent or number of decimal digits for these
+numbers.  (But realize that what we are discussing the rules for just the
+<I>storage</I> of these numbers.  The fact that you can store such ``large'' numbers
+does not mean that the <I>operations</I> over these numbers will use all
+of the significant digits.
+See ``Numeric operators and numeric conversions'' for details.)
+<P>
+
+In fact numbers stored in the native integer format may be stored either
+in the signed native form, or in the unsigned native form.  Thus the limits
+for Perl numbers stored as native integers would typically be -2**31..2**32-1,
+with appropriate modifications in the case of 64-bit integers.  Again, this
+does not mean that Perl can do operations only over integers in this range:
+it is possible to store many more integers in floating point format.
+<P>
+
+Summing up, Perl numeric values can store only those numbers which have
+a finite decimal expansion or a ``short'' binary expansion.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Numeric operators and numeric conversions</H2>
+
+<A NAME="ixAAF"></A>
+As mentioned earlier, Perl can store a number in any one of three formats,
+but most operators typically understand only one of those formats.  When
+a numeric value is passed as an argument to such an operator, it will be
+converted to the format understood by the operator.
+<P>
+
+Six such conversions are possible:
+<P>
+
+
+
+<PRE>
+  native integer        --&gt; native floating point       (*)
+  native integer        --&gt; decimal string
+  native floating_point --&gt; native integer              (*)
+  native floating_point --&gt; decimal string              (*)
+  decimal string        --&gt; native integer
+  decimal string        --&gt; native floating point       (*)
+
+</PRE>
+
+
+<P>
+
+These conversions are governed by the following general rules:
+<DL COMPACT>
+<DT>*<DD>
+If the source number can be represented in the target form, that
+representation is used.
+<DT>*<DD>
+If the source number is outside of the limits representable in the target form,
+a representation of the closest limit is used.  (<I>Loss of information</I>)
+<DT>*<DD>
+If the source number is between two numbers representable in the target form,
+a representation of one of these numbers is used.  (<I>Loss of information</I>)
+<DT>*<DD>
+In <TT>&quot;native floating point --&gt; native integer&quot;</TT> conversions the magnitude
+of the result is less than or equal to the magnitude of the source.
+(<I>``Rounding to zero''.</I>)
+<DT>*<DD>
+If the <TT>&quot;decimal string --&gt; native integer&quot;</TT> conversion cannot be done
+without loss of information, the result is compatible with the conversion
+sequence <TT>&quot;decimal_string --&gt; native_floating_point --&gt; native_integer&quot;</TT>.
+In particular, rounding is strongly biased to 0, though a number like
+<TT>&quot;0.99999999999999999999&quot;</TT> has a chance of being rounded to 1.
+</DL>
+<P>
+
+<B></B><FONT SIZE="-1"><B>RESTRICTION</B></FONT><B></B>: The conversions marked with <TT>&quot;(*)&quot;</TT> above involve steps
+performed by the C compiler.  In particular, bugs/features of the compiler
+used may lead to breakage of some of the above rules.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Flavors of Perl numeric operations</H2>
+
+<A NAME="ixAAG"></A>
+Perl operations which take a numeric argument treat that argument in one
+of four different ways: they may force it to one of the integer/floating/
+string formats, or they may behave differently depending on the format of
+the operand.  Forcing a numeric value to a particular format does not
+change the number stored in the value.
+<P>
+
+All the operators which need an argument in the integer format treat the
+argument as in modular arithmetic, e.g., <TT>&quot;mod 2**32&quot;</TT> on a 32-bit
+architecture.  <TT>&quot;sprintf &quot;%u&quot;, -1&quot;</TT> therefore provides the same result as
+<TT>&quot;sprintf &quot;%u&quot;, ~0&quot;</TT>.
+<DL COMPACT>
+<DT>Arithmetic operators<DD>
+<A NAME="ixAAH"></A>
+The binary operators <TT>&quot;+&quot;</TT> <TT>&quot;-&quot;</TT> <TT>&quot;*&quot;</TT> <TT>&quot;/&quot;</TT> <TT>&quot;%&quot;</TT> <TT>&quot;==&quot;</TT> <TT>&quot;!=&quot;</TT> <TT>&quot;&gt;&quot;</TT> <TT>&quot;&lt;&quot;</TT>
+<TT>&quot;&gt;=&quot;</TT> <TT>&quot;&lt;=&quot;</TT> and the unary operators <TT>&quot;-&quot;</TT> <TT>&quot;abs&quot;</TT> and <TT>&quot;--&quot;</TT> will
+attempt to convert arguments to integers.  If both conversions are possible
+without loss of precision, and the operation can be performed without
+loss of precision then the integer result is used.  Otherwise arguments are
+converted to floating point format and the floating point result is used.
+The caching of conversions (as described above) means that the integer
+conversion does not throw away fractional parts on floating point numbers.
+<DT>++<DD>
+<TT>&quot;++&quot;</TT> behaves as the other operators above, except that if it is a string
+matching the format <TT>&quot;/^[a-zA-Z]*[0-9]*\z/&quot;</TT> the string increment described
+in perlop is used.
+<DT>Arithmetic operators during use integer<DD>
+
+
+<A NAME="ixAAI"></A>
+In scopes where <TT>&quot;use integer;&quot;</TT> is in force, nearly all the operators listed
+above will force their argument(s) into integer format, and return an integer
+result.  The exceptions, <TT>&quot;abs&quot;</TT>, <TT>&quot;++&quot;</TT> and <TT>&quot;--&quot;</TT>, do not change their
+behavior with <TT>&quot;use integer;&quot;</TT>
+<DT>Other mathematical operators<DD>
+<A NAME="ixAAJ"></A>
+Operators such as <TT>&quot;**&quot;</TT>, <TT>&quot;sin&quot;</TT> and <TT>&quot;exp&quot;</TT> force arguments to floating point
+format.
+<DT>Bitwise operators<DD>
+<A NAME="ixAAK"></A>
+Arguments are forced into the integer format if not strings.
+<DT>Bitwise operators during use integer<DD>
+
+
+<A NAME="ixAAL"></A>
+forces arguments to integer format. Also shift operations internally use
+signed integers rather than the default unsigned.
+<DT>Operators which expect an integer<DD>
+<A NAME="ixAAM"></A>
+force the argument into the integer format.  This is applicable
+to the third and fourth arguments of <TT>&quot;sysread&quot;</TT>, for example.
+<DT>Operators which expect a string<DD>
+<A NAME="ixAAN"></A>
+force the argument into the string format.  For example, this is
+applicable to <TT>&quot;printf &quot;%s&quot;, $value&quot;</TT>.
+</DL>
+<P>
+
+Though forcing an argument into a particular form does not change the
+stored number, Perl remembers the result of such conversions.  In
+particular, though the first such conversion may be time-consuming,
+repeated operations will not need to redo the conversion.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAO"></A>
+Ilya Zakharevich <TT>&quot;<A HREF="mailto:ilya@math.ohio-state.edu">ilya@math.ohio-state.edu</A>&quot;</TT>
+<P>
+
+Editorial adjustments by Gurusamy Sarathy &lt;<A HREF="mailto:gsar@ActiveState.com">gsar@ActiveState.com</A>&gt;
+<P>
+
+Updates for 5.8.0 by Nicholas Clark &lt;<A HREF="mailto:nick@ccl4.org">nick@ccl4.org</A>&gt;
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAP"></A>
+overload, perlop
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Storing numbers</A><DD>
+<DT><A HREF="#lbAF">Numeric operators and numeric conversions</A><DD>
+<DT><A HREF="#lbAG">Flavors of Perl numeric operations</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

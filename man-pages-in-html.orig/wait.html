@@ -1,0 +1,3538 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>BASH_BUILTINS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>BASH_BUILTINS</H1>
+Section: User Commands  (1)<BR>Updated: 2004 Apr 20<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+bash, :, ., [, alias, bg, bind, break, builtin, cd, command, compgen, complete, 
+continue, declare, dirs, disown, echo, enable, eval, exec, exit,
+export, fc, fg, getopts, hash, help, history, jobs, kill,
+let, local, logout, popd, printf, pushd, pwd, read, readonly, return, set,
+shift, shopt, source, suspend, test, times, trap, type, typeset,
+ulimit, umask, unalias, unset, wait - bash built-in commands, see <B><A HREF="../man1/bash.1.php">bash</A></B>(1)
+<A NAME="lbAC">&nbsp;</A>
+<H2>BASH BUILTIN COMMANDS</H2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<P>
+
+Unless otherwise noted, each builtin command documented in this
+section as accepting options preceded by
+<B>-</B>
+
+accepts
+<B>--</B>
+
+to signify the end of the options.
+<P>
+
+<DL COMPACT>
+<DT><B>:</B> [<I>arguments</I>]<DD>
+
+No effect; the command does nothing beyond expanding
+<I>arguments</I>
+
+and performing any specified
+redirections.  A zero exit code is returned.
+<DT><B> . </B> <I>filename</I> [<I>arguments</I>]<DD>
+
+<DT><B>source</B> <I>filename</I> [<I>arguments</I>]<DD>
+
+Read and execute commands from
+<I>filename</I>
+
+in the current
+shell environment and return the exit status of the last command
+executed from
+<I>filename</I>.
+
+If
+<I>filename</I>
+
+does not contain a slash, file names in
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+are used to find the directory containing
+<I>filename</I>.
+
+The file searched for in
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+need not be executable.
+When <B>bash</B> is not in <I>posix mode</I>, the current directory is
+searched if no file is found in
+<FONT SIZE="-1"><B>PATH</B>.
+
+</FONT>
+If the
+<B>sourcepath</B>
+
+option to the
+<B>shopt</B>
+
+builtin command is turned off, the
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+is not searched.
+If any <I>arguments</I> are supplied, they become the positional
+parameters when <I>filename</I> is executed.  Otherwise the positional
+parameters are unchanged.
+The return status is the status of the last command exited within
+the script (0 if no commands are executed), and false if
+<I>filename</I>
+
+is not found or cannot be read.
+<DT><B>alias</B> [<B>-p</B>] [<I>name</I>[=<I>value</I>] ...]<DD>
+<B>Alias</B> with no arguments or with the
+<B>-p</B>
+
+option prints the list of aliases in the form
+<B>alias</B> <I>name</I>=<I>value</I> on standard output.
+When arguments are supplied, an alias is defined for
+each <I>name</I> whose <I>value</I> is given.
+A trailing space in  <I>value</I> causes the next word to be
+checked for alias substitution when the alias is expanded.
+For each <I>name</I> in the argument list for which no <I>value</I>
+is supplied, the name and value of the alias is printed.
+<B>Alias</B> returns true unless a <I>name</I> is given for which
+no alias has been defined.
+<DT><B>bg</B> [<I>jobspec</I>]<DD>
+Resume the suspended job <I>jobspec</I> in the background, as if it
+had been started with
+<B>&amp;</B>.
+
+If <I>jobspec</I> is not present, the shell's notion of the
+<I>current job</I> is used.
+<B>bg</B>
+
+<I>jobspec</I>
+
+returns 0 unless run when job control is disabled or, when run with
+job control enabled, if <I>jobspec</I> was not found or started without
+job control.
+<DT><B>bind</B> [<B>-m</B> <I>keymap</I>] [<B>-lpsvPSV</B>]<DD>
+
+<DT><B>bind</B> [<B>-m</B> <I>keymap</I>] [<B>-q</B> <I>function</I>] [<B>-u</B> <I>function</I>] [<B>-r</B> <I>keyseq</I>]<DD>
+<DT><B>bind</B> [<B>-m</B> <I>keymap</I>] <B>-f</B> <I>filename</I><DD>
+<DT><B>bind</B> [<B>-m</B> <I>keymap</I>] <B>-x</B> <I>keyseq</I>:<I>shell-command</I><DD>
+<DT><B>bind</B> [<B>-m</B> <I>keymap</I>] <I>keyseq</I>:<I>function-name</I><DD>
+<DT><B>bind</B> <I>readline-command</I><DD>
+
+Display current
+<B>readline</B>
+
+key and function bindings, bind a key sequence to a
+<B>readline</B>
+
+function or macro, or set a
+<B>readline</B>
+
+variable.
+Each non-option argument is a command as it would appear in
+<I>.inputrc</I>,
+
+but each binding or command must be passed as a separate argument;
+e.g., '&quot;\C-x\C-r&quot;: re-read-init-file'.
+Options, if supplied, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-m </B><I>keymap</I>
+
+<DD>
+Use
+<I>keymap</I>
+
+as the keymap to be affected by the subsequent bindings.
+Acceptable
+<I>keymap</I>
+
+names are
+<I>emacs, emacs-standard, emacs-meta, emacs-ctlx, vi,
+vi-move, vi-command</I>, and
+<I>vi-insert</I>.
+
+<I>vi</I> is equivalent to <I>vi-command</I>; <I>emacs</I> is
+equivalent to <I>emacs-standard</I>.
+<DT><B>-l</B>
+
+<DD>
+List the names of all <B>readline</B> functions.
+<DT><B>-p</B>
+
+<DD>
+Display <B>readline</B> function names and bindings in such a way
+that they can be re-read.
+<DT><B>-P</B>
+
+<DD>
+List current <B>readline</B> function names and bindings.
+<DT><B>-v</B>
+
+<DD>
+Display <B>readline</B> variable names and values in such a way that they
+can be re-read.
+<DT><B>-V</B>
+
+<DD>
+List current <B>readline</B> variable names and values.
+<DT><B>-s</B>
+
+<DD>
+Display <B>readline</B> key sequences bound to macros and the strings
+they output in such a way that they can be re-read.
+<DT><B>-S</B>
+
+<DD>
+Display <B>readline</B> key sequences bound to macros and the strings
+they output.
+<DT><B>-f </B><I>filename</I>
+
+<DD>
+Read key bindings from <I>filename</I>.
+<DT><B>-q </B><I>function</I>
+
+<DD>
+Query about which keys invoke the named <I>function</I>.
+<DT><B>-u </B><I>function</I>
+
+<DD>
+Unbind all keys bound to the named <I>function</I>.
+<DT><B>-r </B><I>keyseq</I>
+
+<DD>
+Remove any current binding for <I>keyseq</I>.
+<DT><B>-x </B><I>keyseq</I>:<I>shell-command</I>
+
+<DD>
+Cause <I>shell-command</I> to be executed whenever <I>keyseq</I> is
+entered.
+
+</DL>
+<P>
+
+The return value is 0 unless an unrecognized option is given or an
+error occurred.
+</DL>
+
+<DT><B>break</B> [<I>n</I>]<DD>
+Exit from within a
+<B>for</B>,
+
+<B>while</B>,
+
+<B>until</B>,
+
+or
+<B>select</B>
+
+loop.  If <I>n</I> is specified, break <I>n</I> levels.
+<I>n</I>
+
+must be &gt; 1.  If
+<I>n</I>
+
+is greater than the number of enclosing loops, all enclosing loops
+are exited.  The return value is 0 unless the shell is not executing
+a loop when
+<B>break</B>
+
+is executed.
+<DT><B>builtin</B> <I>shell-builtin</I> [<I>arguments</I>]<DD>
+Execute the specified shell builtin, passing it
+<I>arguments</I>,
+
+and return its exit status.
+This is useful when defining a
+function whose name is the same as a shell builtin,
+retaining the functionality of the builtin within the function.
+The <B>cd</B> builtin is commonly redefined this way.
+The return status is false if
+<I>shell-builtin</I>
+
+is not a shell builtin command.
+<DT><B>cd</B> [<B>-L|-P</B>] [<I>dir</I>]<DD>
+Change the current directory to <I>dir</I>.  The variable
+<FONT SIZE="-1"><B>HOME</B>
+
+</FONT>
+is the
+default
+<I>dir</I>.
+
+The variable
+<FONT SIZE="-1"><B>CDPATH</B>
+
+</FONT>
+defines the search path for the directory containing
+<I>dir</I>.
+
+Alternative directory names in
+<FONT SIZE="-1"><B>CDPATH</B>
+
+</FONT>
+are separated by a colon (:).  A null directory name in
+<FONT SIZE="-1"><B>CDPATH</B>
+
+</FONT>
+is the same as the current directory, i.e., ``<B>.</B>''.  If
+<I>dir</I>
+
+begins with a slash (/),
+then
+<FONT SIZE="-1"><B>CDPATH</B>
+
+</FONT>
+is not used. The
+<B>-P</B>
+
+option says to use the physical directory structure instead of
+following symbolic links (see also the
+<B>-P</B>
+
+option to the
+<B>set</B>
+
+builtin command); the
+<B>-L</B>
+
+option forces symbolic links to be followed.  An argument of
+<B>-</B>
+
+is equivalent to
+<FONT SIZE="-1"><B>$OLDPWD</B>.
+
+</FONT>
+If a non-empty directory name from <B>CDPATH</B> is used, or if
+<B>-</B> is the first argument, and the directory change is
+successful, the absolute pathname of the new working directory is
+written to the standard output.
+The return value is true if the directory was successfully changed;
+false otherwise.
+<DT><B>caller</B> [<I>expr</I>]<DD>
+Returns the context of any active subroutine call (a shell function or
+a script executed with the <B>.</B> or <B>source</B> builtins.
+Without <I>expr</I>, <B>caller</B> displays the line number and source
+filename of the current subroutine call.
+If a non-negative integer is supplied as <I>expr</I>, <B>caller</B> 
+displays the line number, subroutine name, and source file corresponding
+to that position in the current execution call stack.  This extra
+information may be used, for example, to print a stack trace.  The
+current frame is frame 0.
+The return value is 0 unless the shell is not executing a subroutine
+call or <I>expr</I> does not correspond to a valid position in the
+call stack.
+<DT><B>command</B> [<B>-pVv</B>] <I>command</I> [<I>arg</I> ...]<DD>
+Run
+<I>command</I>
+
+with
+<I>args</I>
+
+suppressing the normal shell function lookup. Only builtin
+commands or commands found in the
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+are executed.  If the
+<B>-p</B>
+
+option is given, the search for
+<I>command</I>
+
+is performed using a default value for
+<B>PATH</B>
+
+that is guaranteed to find all of the standard utilities.
+If either the
+<B>-V</B>
+
+or
+<B>-v</B>
+
+option is supplied, a description of
+<I>command</I>
+
+is printed.  The
+<B>-v</B>
+
+option causes a single word indicating the command or file name
+used to invoke
+<I>command</I>
+
+to be displayed; the
+<B>-V</B>
+
+option produces a more verbose description.
+If the
+<B>-V</B>
+
+or
+<B>-v</B>
+
+option is supplied, the exit status is 0 if
+<I>command</I>
+
+was found, and 1 if not.  If neither option is supplied and
+an error occurred or
+<I>command</I>
+
+cannot be found, the exit status is 127.  Otherwise, the exit status of the
+<B>command</B>
+
+builtin is the exit status of
+<I>command</I>.
+
+<DT><B>compgen</B> [<I>option</I>] [<I>word</I>]<DD>
+Generate possible completion matches for <I>word</I> according to
+the <I>option</I>s, which may be any option accepted by the
+<B>complete</B>
+
+builtin with the exception of <B>-p</B> and <B>-r</B>, and write
+the matches to the standard output.
+When using the <B>-F</B> or <B>-C</B> options, the various shell variables
+set by the programmable completion facilities, while available, will not
+have useful values.
+<P>
+The matches will be generated in the same way as if the programmable
+completion code had generated them directly from a completion specification
+with the same flags.
+If <I>word</I> is specified, only those completions matching <I>word</I>
+will be displayed.
+<P>
+The return value is true unless an invalid option is supplied, or no
+matches were generated.
+<DT><B>complete</B> [<B>-abcdefgjksuv</B>] [<B>-o</B> <I>comp-option</I>] [<B>-A</B> <I>action</I>] [<B>-G</B> <I>globpat</I>] [<B>-W</B> <I>wordlist</I>] [<B>-P</B> <I>prefix</I>] [<B>-S</B> <I>suffix</I>]<DD>
+<BR>
+
+[<B>-X</B> <I>filterpat</I>] [<B>-F</B> <I>function</I>] [<B>-C</B> <I>command</I>] <I>name</I> [<I>name ...</I>]
+
+<DT><B>complete</B> <B>-pr</B> [<I>name</I> ...]<DD>
+
+Specify how arguments to each <I>name</I> should be completed.
+If the <B>-p</B> option is supplied, or if no options are supplied,
+existing completion specifications are printed in a way that allows
+them to be reused as input.
+The <B>-r</B> option removes a completion specification for
+each <I>name</I>, or, if no <I>name</I>s are supplied, all
+completion specifications.
+<P>
+The process of applying these completion specifications when word completion
+is attempted is described above under <B>Programmable Completion</B>.
+<P>
+Other options, if specified, have the following meanings.
+The arguments to the <B>-G</B>, <B>-W</B>, and <B>-X</B> options
+(and, if necessary, the <B>-P</B> and <B>-S</B> options)
+should be quoted to protect them from expansion before the
+<B>complete</B>
+
+builtin is invoked.
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-o</B> <I>comp-option</I><DD>
+The <I>comp-option</I> controls several aspects of the compspec's behavior
+beyond the simple generation of completions.
+<I>comp-option</I> may be one of:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>bashdefault</B>
+
+<DD>
+Perform the rest of the default <B>bash</B> completions if the compspec
+generates no matches.
+<DT><B>default</B>
+
+<DD>
+Use readline's default filename completion if the compspec generates
+no matches.
+<DT><B>dirnames</B>
+
+<DD>
+Perform directory name completion if the compspec generates no matches.
+<DT><B>filenames</B>
+
+<DD>
+Tell readline that the compspec generates filenames, so it can perform any
+filename-specific processing (like adding a slash to directory names or
+suppressing trailing spaces).  Intended to be used with shell functions.
+<DT><B>nospace</B>
+
+<DD>
+Tell readline not to append a space (the default) to words completed at
+the end of the line.
+</DL>
+</DL>
+
+<DT><B>-A</B> <I>action</I><DD>
+The <I>action</I> may be one of the following to generate a list of possible
+completions:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>alias</B>
+
+<DD>
+Alias names.  May also be specified as <B>-a</B>.
+<DT><B>arrayvar</B>
+
+<DD>
+Array variable names.
+<DT><B>binding</B>
+
+<DD>
+<B>Readline</B> key binding names.
+<DT><B>builtin</B>
+
+<DD>
+Names of shell builtin commands.  May also be specified as <B>-b</B>.
+<DT><B>command</B>
+
+<DD>
+Command names.  May also be specified as <B>-c</B>.
+<DT><B>directory</B>
+
+<DD>
+Directory names.  May also be specified as <B>-d</B>.
+<DT><B>disabled</B>
+
+<DD>
+Names of disabled shell builtins.
+<DT><B>enabled</B>
+
+<DD>
+Names of enabled shell builtins.
+<DT><B>export</B>
+
+<DD>
+Names of exported shell variables.  May also be specified as <B>-e</B>.
+<DT><B>file</B>
+
+<DD>
+File names.  May also be specified as <B>-f</B>.
+<DT><B>function</B>
+
+<DD>
+Names of shell functions.
+<DT><B>group</B>
+
+<DD>
+Group names.  May also be specified as <B>-g</B>.
+<DT><B>helptopic</B>
+
+<DD>
+Help topics as accepted by the <B>help</B> builtin.
+<DT><B>hostname</B>
+
+<DD>
+Hostnames, as taken from the file specified by the
+<FONT SIZE="-1"><B>HOSTFILE</B>
+
+</FONT>
+shell variable.
+<DT><B>job</B>
+
+<DD>
+Job names, if job control is active.  May also be specified as <B>-j</B>.
+<DT><B>keyword</B>
+
+<DD>
+Shell reserved words.  May also be specified as <B>-k</B>.
+<DT><B>running</B>
+
+<DD>
+Names of running jobs, if job control is active.
+<DT><B>service</B>
+
+<DD>
+Service names.  May also be specified as <B>-s</B>.
+<DT><B>setopt</B>
+
+<DD>
+Valid arguments for the <B>-o</B> option to the <B>set</B> builtin.
+<DT><B>shopt</B>
+
+<DD>
+Shell option names as accepted by the <B>shopt</B> builtin.
+<DT><B>signal</B>
+
+<DD>
+Signal names.
+<DT><B>stopped</B>
+
+<DD>
+Names of stopped jobs, if job control is active.
+<DT><B>user</B>
+
+<DD>
+User names.  May also be specified as <B>-u</B>.
+<DT><B>variable</B>
+
+<DD>
+Names of all shell variables.  May also be specified as <B>-v</B>.
+</DL>
+</DL>
+
+<DT><B>-G</B> <I>globpat</I><DD>
+The filename expansion pattern <I>globpat</I> is expanded to generate
+the possible completions.
+<DT><B>-W</B> <I>wordlist</I><DD>
+The <I>wordlist</I> is split using the characters in the
+<FONT SIZE="-1"><B>IFS</B>
+
+</FONT>
+special variable as delimiters, and each resultant word is expanded.
+The possible completions are the members of the resultant list which
+match the word being completed.
+<DT><B>-C</B> <I>command</I><DD>
+<I>command</I> is executed in a subshell environment, and its output is
+used as the possible completions.
+<DT><B>-F</B> <I>function</I><DD>
+The shell function <I>function</I> is executed in the current shell
+environment.
+When it finishes, the possible completions are retrieved from the value
+of the
+<FONT SIZE="-1"><B>COMPREPLY</B>
+
+</FONT>
+array variable.
+<DT><B>-X</B> <I>filterpat</I><DD>
+<I>filterpat</I> is a pattern as used for filename expansion.
+It is applied to the list of possible completions generated by the
+preceding options and arguments, and each completion matching
+<I>filterpat</I> is removed from the list.
+A leading <B>!</B> in <I>filterpat</I> negates the pattern; in this
+case, any completion not matching <I>filterpat</I> is removed.
+<DT><B>-P</B> <I>prefix</I><DD>
+<I>prefix</I> is added at the beginning of each possible completion
+after all other options have been applied.
+<DT><B>-S</B> <I>suffix</I><DD>
+<I>suffix</I> is appended to each possible completion
+after all other options have been applied.
+
+</DL>
+<P>
+
+The return value is true unless an invalid option is supplied, an option
+other than <B>-p</B> or <B>-r</B> is supplied without a <I>name</I>
+argument, an attempt is made to remove a completion specification for
+a <I>name</I> for which no specification exists, or
+an error occurs adding a completion specification.
+</DL>
+
+<DT><B>continue</B> [<I>n</I>]<DD>
+Resume the next iteration of the enclosing
+<B>for</B>,
+
+<B>while</B>,
+
+<B>until</B>,
+
+or
+<B>select</B>
+
+loop.
+If
+<I>n</I>
+
+is specified, resume at the <I>n</I>th enclosing loop.
+<I>n</I>
+
+must be &gt; 1.  If
+<I>n</I>
+
+is greater than the number of enclosing loops, the last enclosing loop
+(the ``top-level'' loop) is resumed.  The return value is 0 unless the
+shell is not executing a loop when
+<B>continue</B>
+
+is executed.
+<DT><B>declare</B> [<B>-afFirtx</B>] [<B>-p</B>] [<I>name</I>[=<I>value</I>] ...]<DD>
+
+<DT><B>typeset</B> [<B>-afFirtx</B>] [<B>-p</B>] [<I>name</I>[=<I>value</I>] ...]<DD>
+
+Declare variables and/or give them attributes.
+If no <I>name</I>s are given then display the values of variables.
+The
+<B>-p</B>
+
+option will display the attributes and values of each
+<I>name</I>.
+
+When
+<B>-p</B>
+
+is used, additional options are ignored.
+The
+<B>-F</B>
+
+option inhibits the display of function definitions; only the
+function name and attributes are printed.
+If the <B>extdebug</B> shell option is enabled using <B>shopt</B>,
+the source file name and line number where the function is defined
+are displayed as well.  The
+<B>-F</B>
+
+option implies
+<B>-f</B>.
+
+The following options can
+be used to restrict output to variables with the specified attribute or
+to give variables attributes:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+Each <I>name</I> is an array variable (see
+<B>Arrays</B>
+
+above).
+<DT><B>-f</B>
+
+<DD>
+Use function names only.
+<DT><B>-i</B>
+
+<DD>
+The variable is treated as an integer; arithmetic evaluation (see
+<FONT SIZE="-1"><B>ARITHMETIC EVALUATION ) </B>
+
+</FONT>
+is performed when the variable is assigned a value.
+<DT><B>-r</B>
+
+<DD>
+Make <I>name</I>s readonly.  These names cannot then be assigned values
+by subsequent assignment statements or unset.
+<DT><B>-t</B>
+
+<DD>
+Give each <I>name</I> the <I>trace</I> attribute.
+Traced functions inherit the <B>DEBUG</B> trap from the calling shell.
+The trace attribute has no special meaning for variables.
+<DT><B>-x</B>
+
+<DD>
+Mark <I>name</I>s for export to subsequent commands via the environment.
+
+</DL>
+<P>
+
+Using `+' instead of `-'
+turns off the attribute instead, with the exception that <B>+a</B>
+may not be used to destroy an array variable.  When used in a function,
+makes each
+<I>name</I> local, as with the 
+<B>local</B>
+
+command.
+If a variable name is followed by =<I>value</I>, the value of
+the variable is set to <I>value</I>.
+The return value is 0 unless an invalid option is encountered,
+an attempt is made to define a function using
+``-f foo=bar'',
+
+an attempt is made to assign a value to a readonly variable,
+an attempt is made to assign a value to an array variable without
+using the compound assignment syntax (see
+<B>Arrays</B>
+
+above), one of the <I>names</I> is not a valid shell variable name,
+an attempt is made to turn off readonly status for a readonly variable,
+an attempt is made to turn off array status for an array variable,
+or an attempt is made to display a non-existent function with <B>-f</B>.
+</DL>
+
+<DT><B>dirs [-clpv</B>] [+<I>n</I>] [-<I>n</I>]
+
+<DD>
+Without options, displays the list of currently remembered directories.
+The default display is on a single line with directory names separated
+by spaces.
+Directories are added to the list with the 
+<B>pushd</B>
+
+command; the
+<B>popd</B>
+
+command removes entries from the list.
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>+</B><I>n</I><DD>
+Displays the <I>n</I>th entry counting from the left of the list
+shown by
+<B>dirs</B>
+
+when invoked without options, starting with zero.
+<DT><B>-</B><I>n</I><DD>
+Displays the <I>n</I>th entry counting from the right of the list
+shown by
+<B>dirs</B>
+
+when invoked without options, starting with zero.
+<DT><B>-c</B>
+
+<DD>
+Clears the directory stack by deleting all of the entries.
+<DT><B>-l</B>
+
+<DD>
+Produces a longer listing; the default listing format uses a 
+tilde to denote the home directory.
+<DT><B>-p</B>
+
+<DD>
+Print the directory stack with one entry per line.
+<DT><B>-v</B>
+
+<DD>
+Print the directory stack with one entry per line,
+prefixing each entry with its index in the stack.
+
+</DL>
+<P>
+
+The return value is 0 unless an
+invalid option is supplied or <I>n</I> indexes beyond the end
+of the directory stack.
+</DL>
+
+<DT><B>disown</B> [<B>-ar</B>] [<B>-h</B>] [<I>jobspec</I> ...]<DD>
+Without options, each
+<I>jobspec</I>
+
+is removed from the table of active jobs.
+If the <B>-h</B> option is given, each
+<I>jobspec</I>
+
+is not removed from the table, but is marked so that
+<FONT SIZE="-1"><B>SIGHUP</B>
+
+</FONT>
+is not sent to the job if the shell receives a
+<FONT SIZE="-1"><B>SIGHUP</B>.
+
+</FONT>
+If no
+<I>jobspec</I>
+
+is present, and neither the
+<B>-a</B>
+
+nor the
+<B>-r</B>
+
+option is supplied, the <I>current job</I> is used.
+If no
+<I>jobspec</I>
+
+is supplied, the
+<B>-a</B>
+
+option means to remove or mark all jobs; the
+<B>-r</B>
+
+option without a
+<I>jobspec</I>
+
+argument restricts operation to running jobs.
+The return value is 0 unless a
+<I>jobspec</I>
+
+does not specify a valid job.
+<DT><B>echo</B> [<B>-neE</B>] [<I>arg</I> ...]<DD>
+Output the <I>arg</I>s, separated by spaces, followed by a newline.
+The return status is always 0.
+If <B>-n</B> is specified, the trailing newline is
+suppressed.  If the <B>-e</B> option is given, interpretation of
+the following backslash-escaped characters is enabled.  The
+<B>-E</B>
+
+option disables the interpretation of these escape characters,
+even on systems where they are interpreted by default.
+The <B>xpg_echo</B> shell option may be used to
+dynamically determine whether or not <B>echo</B> expands these
+escape characters by default.
+<B>echo</B>
+
+does not interpret
+<B>--</B>
+
+to mean the end of options.
+<B>echo</B>
+
+interprets the following escape sequences:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>\a</B>
+
+<DD>
+alert (bell)
+<DT><B>\b</B>
+
+<DD>
+backspace
+<DT><B>\c</B>
+
+<DD>
+suppress trailing newline
+<DT><B>\e</B>
+
+<DD>
+an escape character
+<DT><B>\f</B>
+
+<DD>
+form feed
+<DT><B>\n</B>
+
+<DD>
+new line
+<DT><B>\r</B>
+
+<DD>
+carriage return
+<DT><B>\t</B>
+
+<DD>
+horizontal tab
+<DT><B>\v</B>
+
+<DD>
+vertical tab
+<DT><B>\\</B>
+
+<DD>
+backslash
+<DT><B>\0</B><I>nnn</I>
+
+<DD>
+the eight-bit character whose value is the octal value <I>nnn</I>
+(zero to three octal digits)
+<DT><B>\</B><I>nnn</I>
+
+<DD>
+the eight-bit character whose value is the octal value <I>nnn</I>
+(one to three octal digits)
+<DT><B>\x</B><I>HH</I>
+
+<DD>
+the eight-bit character whose value is the hexadecimal value <I>HH</I>
+(one or two hex digits)
+
+</DL>
+</DL>
+
+<DT><B>enable</B> [<B>-adnps</B>] [<B>-f</B> <I>filename</I>] [<I>name</I> ...]<DD>
+Enable and disable builtin shell commands.
+Disabling a builtin allows a disk command which has the same name
+as a shell builtin to be executed without specifying a full pathname,
+even though the shell normally searches for builtins before disk commands.
+If <B>-n</B> is used, each <I>name</I>
+is disabled; otherwise,
+<I>names</I> are enabled.  For example, to use the
+<B>test</B>
+
+binary found via the
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+instead of the shell builtin version, run
+
+``enable -n test''.
+The
+<B>-f</B>
+
+option means to load the new builtin command
+<I>name</I>
+
+from shared object
+<I>filename</I>,
+
+on systems that support dynamic loading.  The
+<B>-d</B>
+
+option will delete a builtin previously loaded with
+<B>-f</B>.
+
+If no <I>name</I> arguments are given, or if the
+<B>-p</B>
+
+option is supplied, a list of shell builtins is printed.
+With no other option arguments, the list consists of all enabled
+shell builtins.
+If <B>-n</B> is supplied, only disabled builtins are printed.
+If <B>-a</B> is supplied, the list printed includes all builtins, with an
+indication of whether or not each is enabled.
+If <B>-s</B> is supplied, the output is restricted to the POSIX
+<I>special</I> builtins.
+The return value is 0 unless a
+<I>name</I>
+
+is not a shell builtin or there is an error loading a new builtin
+from a shared object.
+<DT><B>eval</B> [<I>arg</I> ...]<DD>
+The <I>arg</I>s are read and concatenated together into a single
+command.  This command is then read and executed by the shell, and
+its exit status is returned as the value of
+<B>eval</B>.
+
+If there are no
+<I>args</I>,
+
+or only null arguments,
+<B>eval</B>
+
+returns 0.
+<DT><B>exec</B> [<B>-cl</B>] [<B>-a</B> <I>name</I>] [<I>command</I> [<I>arguments</I>]]<DD>
+If
+<I>command</I>
+
+is specified, it replaces the shell.
+No new process is created.  The
+<I>arguments</I>
+
+become the arguments to <I>command</I>.
+If the
+<B>-l</B>
+
+option is supplied,
+the shell places a dash at the beginning of the zeroth arg passed to 
+<I>command</I>.
+
+This is what
+<I><A HREF="../man1/login.1.php">login</A></I>(1)
+
+does.  The
+<B>-c</B>
+
+option causes
+<I>command</I>
+
+to be executed with an empty environment.  If
+<B>-a</B>
+
+is supplied, the shell passes
+<I>name</I>
+
+as the zeroth argument to the executed command.  If
+<I>command</I>
+
+cannot be executed for some reason, a non-interactive shell exits,
+unless the shell option
+<B>execfail</B>
+
+is enabled, in which case it returns failure.
+An interactive shell returns failure if the file cannot be executed.
+If
+<I>command</I>
+
+is not specified, any redirections take effect in the current shell,
+and the return status is 0.  If there is a redirection error, the
+return status is 1.
+<DT><B>exit</B> [<I>n</I>]<DD>
+Cause the shell to exit
+with a status of <I>n</I>.  If
+<I>n</I>
+
+is omitted, the exit status
+is that of the last command executed.
+A trap on
+<FONT SIZE="-1"><B>EXIT</B>
+
+</FONT>
+is executed before the shell terminates.
+<DT><B>export</B> [<B>-fn</B>] [<I>name</I>[=<I>word</I>]] ...<DD>
+
+<DT><B>export -p</B>
+
+<DD>
+
+The supplied
+<I>names</I>
+
+are marked for automatic export to the environment of
+subsequently executed commands.  If the 
+<B>-f</B>
+
+option is given,
+the 
+<I>names</I>
+
+refer to functions.
+If no
+<I>names</I>
+
+are given, or if the
+<B>-p</B>
+
+option is supplied, a list
+of all names that are exported in this shell is printed.
+The
+<B>-n</B>
+
+option causes the export property to be removed from each
+<I>name</I>.
+If a variable name is followed by =<I>word</I>, the value of
+the variable is set to <I>word</I>.
+<B>export</B>
+
+returns an exit status of 0 unless an invalid option is
+encountered,
+one of the <I>names</I> is not a valid shell variable name, or
+<B>-f</B>
+
+is supplied with a
+<I>name</I>
+
+that is not a function.
+<DT><B>fc</B> [<B>-e</B> <I>ename</I>] [<B>-nlr</B>] [<I>first</I>] [<I>last</I>]<DD>
+
+<DT><B>fc</B> <B>-s</B> [<I>pat</I>=<I>rep</I>] [<I>cmd</I>]<DD>
+
+Fix Command.  In the first form, a range of commands from
+<I>first</I>
+
+to
+<I>last</I>
+
+is selected from the history list.
+<I>First</I>
+
+and
+<I>last</I>
+
+may be specified as a string (to locate the last command beginning
+with that string) or as a number (an index into the history list,
+where a negative number is used as an offset from the current
+command number).  If 
+<I>last</I>
+
+is not specified it is set to
+the current command for listing (so that
+``fc -l -10''
+
+prints the last 10 commands) and to
+<I>first</I>
+
+otherwise.
+If
+<I>first</I>
+
+is not specified it is set to the previous
+command for editing and -16 for listing.
+<P>
+The
+<B>-n</B>
+
+option suppresses
+the command numbers when listing.  The
+<B>-r</B>
+
+option reverses the order of
+the commands.  If the
+<B>-l</B>
+
+option is given,
+the commands are listed on
+standard output.  Otherwise, the editor given by
+<I>ename</I>
+
+is invoked
+on a file containing those commands.  If
+<I>ename</I>
+
+is not given, the
+value of the
+<FONT SIZE="-1"><B>FCEDIT</B>
+
+</FONT>
+variable is used, and
+the value of
+<FONT SIZE="-1"><B>EDITOR</B>
+
+</FONT>
+if
+<FONT SIZE="-1"><B>FCEDIT</B>
+
+</FONT>
+is not set.  If neither variable is set,
+
+is used.  When editing is complete, the edited commands are
+echoed and executed.
+<P>
+In the second form, <I>command</I> is re-executed after each instance
+of <I>pat</I> is replaced by <I>rep</I>.
+A useful alias to use with this is
+``r=&quot;fc -s&quot;'',
+
+so that typing
+``r cc''
+
+runs the last command beginning with
+``cc''
+
+and typing
+``r''
+
+re-executes the last command.
+<P>
+If the first form is used, the return value is 0 unless an invalid
+option is encountered or
+<I>first</I>
+
+or
+<I>last</I>
+
+specify history lines out of range.
+If the
+<B>-e</B>
+
+option is supplied, the return value is the value of the last
+command executed or failure if an error occurs with the temporary
+file of commands.  If the second form is used, the return status
+is that of the command re-executed, unless
+<I>cmd</I>
+
+does not specify a valid history line, in which case
+<B>fc</B>
+
+returns failure.
+<DT><B>fg</B> [<I>jobspec</I>]<DD>
+Resume
+<I>jobspec</I>
+
+in the foreground, and make it the current job.
+If
+<I>jobspec</I>
+
+is not present, the shell's notion of the <I>current job</I> is used.
+The return value is that of the command placed into the foreground,
+or failure if run when job control is disabled or, when run with
+job control enabled, if
+<I>jobspec</I>
+
+does not specify a valid job or
+<I>jobspec</I>
+
+specifies a job that was started without job control.
+<DT><B>getopts</B> <I>optstring</I> <I>name</I> [<I>args</I>]<DD>
+<B>getopts</B>
+
+is used by shell procedures to parse positional parameters.
+<I>optstring</I>
+
+contains the option characters to be recognized; if a character
+is followed by a colon, the option is expected to have an
+argument, which should be separated from it by white space.
+The colon and question mark characters may not be used as
+option characters.
+Each time it is invoked,
+<B>getopts</B>
+
+places the next option in the shell variable
+<I>name</I>,
+
+initializing
+<I>name</I>
+
+if it does not exist,
+and the index of the next argument to be processed into the
+variable
+<FONT SIZE="-1"><B>OPTIND</B>.
+
+</FONT>
+<FONT SIZE="-1"><B>OPTIND</B>
+
+</FONT>
+is initialized to 1 each time the shell or a shell script
+is invoked.  When an option requires an argument,
+<B>getopts</B>
+
+places that argument into the variable
+<FONT SIZE="-1"><B>OPTARG</B>.
+
+</FONT>
+The shell does not reset
+<FONT SIZE="-1"><B>OPTIND</B>
+
+</FONT>
+automatically; it must be manually reset between multiple
+calls to
+<B>getopts</B>
+
+within the same shell invocation if a new set of parameters
+is to be used.
+<P>
+When the end of options is encountered, <B>getopts</B> exits with a
+return value greater than zero.
+<B>OPTIND</B> is set to the index of the first non-option argument,
+and <B>name</B> is set to ?.
+<P>
+<B>getopts</B>
+
+normally parses the positional parameters, but if more arguments are
+given in
+<I>args</I>,
+
+<B>getopts</B>
+
+parses those instead.
+<P>
+<B>getopts</B>
+
+can report errors in two ways.  If the first character of
+<I>optstring</I>
+
+is a colon,
+<I>silent</I>
+
+error reporting is used.  In normal operation diagnostic messages
+are printed when invalid options or missing option arguments are
+encountered.
+If the variable
+<FONT SIZE="-1"><B>OPTERR</B>
+
+</FONT>
+is set to 0, no error messages will be displayed, even if the first
+character of 
+<I>optstring</I>
+
+is not a colon.
+<P>
+If an invalid option is seen,
+<B>getopts</B>
+
+places ? into
+<I>name</I>
+
+and, if not silent,
+prints an error message and unsets
+<FONT SIZE="-1"><B>OPTARG</B>.
+
+</FONT>
+If
+<B>getopts</B>
+
+is silent,
+the option character found is placed in
+<FONT SIZE="-1"><B>OPTARG</B>
+
+</FONT>
+and no diagnostic message is printed.
+<P>
+If a required argument is not found, and
+<B>getopts</B>
+
+is not silent,
+a question mark (<B>?</B>) is placed in
+<I>name</I>,
+
+<FONT SIZE="-1"><B>OPTARG</B>
+
+</FONT>
+is unset, and a diagnostic message is printed.
+If
+<B>getopts</B>
+
+is silent, then a colon (<B>:</B>) is placed in
+<I>name</I>
+
+and
+<FONT SIZE="-1"><B>OPTARG</B>
+
+</FONT>
+is set to the option character found.
+<P>
+<B>getopts</B>
+
+returns true if an option, specified or unspecified, is found.
+It returns false if the end of options is encountered or an
+error occurs.
+<DT><B>hash</B> [<B>-lr</B>] [<B>-p</B> <I>filename</I>] [<B>-dt</B>] [<I>name</I>]<DD>
+For each
+<I>name</I>,
+
+the full file name of the command is determined by searching
+the directories in
+<B>$PATH</B>
+
+and remembered.
+If the
+<B>-p</B>
+
+option is supplied, no path search is performed, and
+<I>filename</I>
+
+is used as the full file name of the command.
+The
+<B>-r</B>
+
+option causes the shell to forget all
+remembered locations.
+The
+<B>-d</B>
+
+option causes the shell to forget the remembered location of each <I>name</I>.
+If the
+<B>-t</B>
+
+option is supplied, the full pathname to which each <I>name</I> corresponds
+is printed.  If multiple <I>name</I> arguments are supplied with <B>-t</B>,
+the <I>name</I> is printed before the hashed full pathname.
+The
+<B>-l</B>
+
+option causes output to be displayed in a format that may be reused as input.
+If no arguments are given, or if only <B>-l</B> is supplied,
+information about remembered commands is printed.
+The return status is true unless a
+<I>name</I>
+
+is not found or an invalid option is supplied.
+<DT><B>help</B> [<B>-s</B>] [<I>pattern</I>]<DD>
+Display helpful information about builtin commands.  If
+<I>pattern</I>
+
+is specified,
+<B>help</B>
+
+gives detailed help on all commands matching
+<I>pattern</I>;
+
+otherwise help for all the builtins and shell control structures
+is printed.
+The <B>-s</B> option restricts the information displayed to a short
+usage synopsis.
+The return status is 0 unless no command matches
+<I>pattern</I>.
+
+<DT><B>history [</B><I>n</I>]<DD>
+
+<DT><B>history</B> <B>-c</B><DD>
+<DT><B>history -d</B> <I>offset</I><DD>
+<DT><B>history</B> <B>-anrw</B> [<I>filename</I>]<DD>
+<DT><B>history</B> <B>-p</B> <I>arg</I> [<I>arg ...</I>]<DD>
+<DT><B>history</B> <B>-s</B> <I>arg</I> [<I>arg ...</I>]<DD>
+
+With no options, display the command
+history list with line numbers.  Lines listed
+with a 
+<B>*</B>
+
+have been modified.  An argument of
+<I>n</I>
+
+lists only the last
+<I>n</I>
+
+lines.
+If the shell variable <B>HISTTIMEFORMAT</B> is set and not null,
+it is used as a format string for <I><A HREF="../man3/strftime.3.php">strftime</A></I>(3) to display
+the time stamp associated with each displayed history entry.
+No intervening blank is printed between the formatted time stamp
+and the history line.
+If <I>filename</I> is supplied, it is used as the
+name of the history file; if not, the value of
+<FONT SIZE="-1"><B>HISTFILE</B>
+
+</FONT>
+is used.  Options, if supplied, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-c</B>
+
+<DD>
+Clear the history list by deleting all the entries.
+<DT><B>-d</B> <I>offset</I><DD>
+Delete the history entry at position <I>offset</I>.
+<DT><B>-a</B>
+
+<DD>
+Append the ``new'' history lines (history lines entered since the
+beginning of the current <B>bash</B> session) to the history file.
+<DT><B>-n</B>
+
+<DD>
+Read the history lines not already read from the history
+file into the current history list.  These are lines
+appended to the history file since the beginning of the
+current <B>bash</B> session.
+<DT><B>-r</B>
+
+<DD>
+Read the contents of the history file
+and use them as the current history.
+<DT><B>-w</B>
+
+<DD>
+Write the current history to the history file, overwriting the
+history file's contents.
+<DT><B>-p</B>
+
+<DD>
+Perform history substitution on the following <I>args</I> and display
+the result on the standard output.
+Does not store the results in the history list.
+Each <I>arg</I> must be quoted to disable normal history expansion.
+<DT><B>-s</B>
+
+<DD>
+Store the
+<I>args</I>
+
+in the history list as a single entry.  The last command in the
+history list is removed before the
+<I>args</I>
+
+are added.
+
+</DL>
+<P>
+
+If the <B>HISTTIMEFORMAT</B> is set, the time stamp information
+associated with each history entry is written to the history file.
+The return value is 0 unless an invalid option is encountered, an
+error occurs while reading or writing the history file, an invalid
+<I>offset</I> is supplied as an argument to <B>-d</B>, or the
+history expansion supplied as an argument to <B>-p</B> fails.
+</DL>
+
+<DT><B>jobs</B> [<B>-lnprs</B>] [ <I>jobspec</I> ... ]<DD>
+
+<DT><B>jobs</B> <B>-x</B> <I>command</I> [ <I>args</I> ... ]<DD>
+
+The first form lists the active jobs.  The options have the following
+meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-l</B>
+
+<DD>
+List process IDs
+in addition to the normal information.
+<DT><B>-p</B>
+
+<DD>
+List only the process ID of the job's process group
+leader.
+<DT><B>-n</B>
+
+<DD>
+Display information only about jobs that have changed status since
+the user was last notified of their status.
+<DT><B>-r</B>
+
+<DD>
+Restrict output to running jobs.
+<DT><B>-s</B>
+
+<DD>
+Restrict output to stopped jobs.
+
+</DL>
+<P>
+
+If
+<I>jobspec</I>
+
+is given, output is restricted to information about that job.
+The return status is 0 unless an invalid option is encountered
+or an invalid
+<I>jobspec</I>
+
+is supplied.
+<P>
+
+If the
+<B>-x</B>
+
+option is supplied,
+<B>jobs</B>
+
+replaces any
+<I>jobspec</I>
+
+found in
+<I>command</I>
+
+or
+<I>args</I>
+
+with the corresponding process group ID, and executes
+<I>command</I>
+
+passing it
+<I>args</I>,
+
+returning its exit status.
+</DL>
+
+<DT><B>kill</B> [<B>-s</B> <I>sigspec</I> | <B>-n</B> <I>signum</I> | <B>-</B><I>sigspec</I>] [<I>pid</I> | <I>jobspec</I>] ...<DD>
+
+<DT><B>kill</B> <B>-l</B> [<I>sigspec</I> | <I>exit_status</I>]<DD>
+
+Send the signal named by
+<I>sigspec</I>
+
+or
+<I>signum</I>
+
+to the processes named by
+<I>pid</I>
+
+or
+<I>jobspec</I>.
+
+<I>sigspec</I>
+
+is either a case-insensitive signal name such as
+<FONT SIZE="-1"><B>SIGKILL</B>
+
+</FONT>
+(with or without the
+<FONT SIZE="-1"><B>SIG</B>
+
+</FONT>
+prefix) or a signal number;
+<I>signum</I>
+
+is a signal number.
+If
+<I>sigspec</I>
+
+is not present, then
+<FONT SIZE="-1"><B>SIGTERM</B>
+
+</FONT>
+is assumed.
+An argument of
+<B>-l</B>
+
+lists the signal names.
+If any arguments are supplied when
+<B>-l</B>
+
+is given, the names of the signals corresponding to the arguments are
+listed, and the return status is 0.
+The <I>exit_status</I> argument to
+<B>-l</B>
+
+is a number specifying either a signal number or the exit status of
+a process terminated by a signal.
+<B>kill</B>
+
+returns true if at least one signal was successfully sent, or false
+if an error occurs or an invalid option is encountered.
+<DT><B>let</B> <I>arg</I> [<I>arg</I> ...]<DD>
+Each
+<I>arg</I>
+
+is an arithmetic expression to be evaluated (see
+<FONT SIZE="-1"><B>ARITHMETIC</B>EVALUATION<B>).</B>
+
+</FONT>
+If the last
+<I>arg</I>
+
+evaluates to 0,
+<B>let</B>
+
+returns 1; 0 is returned otherwise.
+<DT><B>local</B> [<I>option</I>] [<I>name</I>[=<I>value</I>] ...]<DD>
+For each argument, a local variable named
+<I>name </I>
+
+is created, and assigned
+<I>value</I>.
+
+The <I>option</I> can be any of the options accepted by <B>declare</B>.
+When
+<B>local</B>
+
+is used within a function, it causes the variable
+<I>name</I>
+
+to have a visible scope restricted to that function and its children.
+With no operands,
+<B>local</B>
+
+writes a list of local variables to the standard output.  It is
+an error to use
+<B>local</B>
+
+when not within a function.  The return status is 0 unless
+<B>local</B>
+
+is used outside a function, an invalid
+<I>name</I>
+
+is supplied, or
+<I>name</I> is a readonly variable.
+<DT><B>logout</B>
+
+<DD>
+Exit a login shell.
+<DT><B>popd</B> [-<B>n</B>] [+<I>n</I>] [-<I>n</I>]<DD>
+Removes entries from the directory stack.  With no arguments,
+removes the top directory from the stack, and performs a
+<B>cd</B>
+
+to the new top directory.
+Arguments, if supplied, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>+</B><I>n</I><DD>
+Removes the <I>n</I>th entry counting from the left of the list
+shown by
+<B>dirs</B>,
+
+starting with zero.  For example:
+``popd +0''
+
+removes the first directory,
+``popd +1''
+
+the second.
+<DT><B>-</B><I>n</I><DD>
+Removes the <I>n</I>th entry counting from the right of the list
+shown by
+<B>dirs</B>,
+
+starting with zero.  For example:
+``popd -0''
+
+removes the last directory,
+``popd -1''
+
+the next to last.
+<DT><B>-n</B>
+
+<DD>
+Suppresses the normal change of directory when removing directories
+from the stack, so that only the stack is manipulated.
+
+</DL>
+<P>
+
+If the
+<B>popd</B>
+
+command is successful, a 
+<B>dirs</B>
+
+is performed as well, and the return status is 0.
+<B>popd</B>
+
+returns false if an invalid option is encountered, the directory stack
+is empty, a non-existent directory stack entry is specified, or the
+directory change fails.
+</DL>
+
+<DT><B>printf</B> <I>format</I> [<I>arguments</I>]<DD>
+Write the formatted <I>arguments</I> to the standard output under the
+control of the <I>format</I>.
+The <I>format</I> is a character string which contains three types of objects:
+plain characters, which are simply copied to standard output, character
+escape sequences, which are converted and copied to the standard output, and
+format specifications, each of which causes printing of the next successive
+<I>argument</I>.
+In addition to the standard <I><A HREF="../man1/printf.1.php">printf</A></I>(1) formats, <B>%b</B> causes
+<B>printf</B> to expand backslash escape sequences in the corresponding
+<I>argument</I> (except that <B>\c</B> terminates output, backslashes in
+<B>\'</B>, <B>\&quot;</B>, and <B>\?</B> are not removed, and octal escapes
+beginning with <B>\0</B> may contain up to four digits),
+and <B>%q</B> causes <B>printf</B> to output the corresponding
+<I>argument</I> in a format that can be reused as shell input.
+<P>
+The <I>format</I> is reused as necessary to consume all of the <I>arguments</I>.
+If the <I>format</I> requires more <I>arguments</I> than are supplied, the
+extra format specifications behave as if a zero value or null string, as
+appropriate, had been supplied.  The return value is zero on success,
+non-zero on failure.
+<DT><B>pushd</B> [<B>-n</B>] [<I>dir</I>]<DD>
+
+<DT><B>pushd</B> [<B>-n</B>] [+<I>n</I>] [-<I>n</I>]<DD>
+
+Adds a directory to the top of the directory stack, or rotates
+the stack, making the new top of the stack the current working
+directory.  With no arguments, exchanges the top two directories
+and returns 0, unless the directory stack is empty.
+Arguments, if supplied, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>+</B><I>n</I><DD>
+Rotates the stack so that the <I>n</I>th directory
+(counting from the left of the list shown by
+<B>dirs</B>,
+
+starting with zero)
+is at the top.
+<DT><B>-</B><I>n</I><DD>
+Rotates the stack so that the <I>n</I>th directory
+(counting from the right of the list shown by
+<B>dirs</B>,
+
+starting with zero) is at the top.
+<DT><B>-n</B>
+
+<DD>
+Suppresses the normal change of directory when adding directories
+to the stack, so that only the stack is manipulated.
+<DT><I>dir</I>
+
+<DD>
+Adds
+<I>dir</I>
+
+to the directory stack at the top, making it the
+new current working directory.
+
+</DL>
+<P>
+
+If the
+<B>pushd</B>
+
+command is successful, a 
+<B>dirs</B>
+
+is performed as well.
+If the first form is used,
+<B>pushd</B>
+
+returns 0 unless the cd to
+<I>dir</I>
+
+fails.  With the second form,
+<B>pushd</B>
+
+returns 0 unless the directory stack is empty,
+a non-existent directory stack element is specified,
+or the directory change to the specified new current directory
+fails.
+</DL>
+
+<DT><B>pwd</B> [<B>-LP</B>]<DD>
+Print the absolute pathname of the current working directory.
+The pathname printed contains no symbolic links if the
+<B>-P</B>
+
+option is supplied or the 
+<B>-o physical</B>
+
+option to the
+<B>set</B>
+
+builtin command is enabled.
+If the
+<B>-L</B>
+
+option is used, the pathname printed may contain symbolic links.
+The return status is 0 unless an error occurs while
+reading the name of the current directory or an
+invalid option is supplied.
+<DT><B>read</B> [<B>-ers</B>] [<B>-u</B> <I>fd</I>] [<B>-t</B> <I>timeout</I>] [<B>-a</B> <I>aname</I>] [<B>-p</B> <I>prompt</I>] [<B>-n</B> <I>nchars</I>] [<B>-d</B> <I>delim</I>] [<I>name</I> ...]<DD>
+One line is read from the standard input, or from the file descriptor
+<I>fd</I> supplied as an argument to the <B>-u</B> option, and the first word
+is assigned to the first
+<I>name</I>,
+
+the second word to the second
+<I>name</I>,
+
+and so on, with leftover words and their intervening separators assigned
+to the last
+<I>name</I>.
+
+If there are fewer words read from the input stream than names,
+the remaining names are assigned empty values.
+The characters in 
+<FONT SIZE="-1"><B>IFS</B>
+
+</FONT>
+are used to split the line into words.
+The backslash character (<B>\</B>) may be used to remove any special
+meaning for the next character read and for line continuation.
+Options, if supplied, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-a </B><I>aname</I>
+
+<DD>
+The words are assigned to sequential indices
+of the array variable
+<I>aname</I>,
+
+starting at 0.
+<I>aname</I>
+
+is unset before any new values are assigned.
+Other <I>name</I> arguments are ignored.
+<DT><B>-d </B><I>delim</I>
+
+<DD>
+The first character of <I>delim</I> is used to terminate the input line,
+rather than newline.
+<DT><B>-e</B>
+
+<DD>
+If the standard input
+is coming from a terminal,
+<B>readline</B>
+
+(see
+<FONT SIZE="-1"><B>READLINE</B>
+
+</FONT>
+above) is used to obtain the line.
+<DT><B>-n </B><I>nchars</I>
+
+<DD>
+<B>read</B> returns after reading <I>nchars</I> characters rather than
+waiting for a complete line of input.
+<DT><B>-p </B><I>prompt</I>
+
+<DD>
+Display <I>prompt</I> on standard error, without a
+trailing newline, before attempting to read any input.  The prompt
+is displayed only if input is coming from a terminal.
+<DT><B>-r</B>
+
+<DD>
+Backslash does not act as an escape character.
+The backslash is considered to be part of the line.
+In particular, a backslash-newline pair may not be used as a line
+continuation.
+<DT><B>-s</B>
+
+<DD>
+Silent mode.  If input is coming from a terminal, characters are
+not echoed.
+<DT><B>-t </B><I>timeout</I>
+
+<DD>
+Cause <B>read</B> to time out and return failure if a complete line of
+input is not read within <I>timeout</I> seconds.
+This option has no effect if <B>read</B> is not reading input from the
+terminal or a pipe.
+<DT><B>-u </B><I>fdFP</I>
+
+<DD>
+Read input from file descriptor <I>fd</I>.
+
+</DL>
+<P>
+
+If no
+<I>names</I>
+
+are supplied, the line read is assigned to the variable
+<FONT SIZE="-1"><B>REPLY</B>.
+
+</FONT>
+The return code is zero, unless end-of-file is encountered, <B>read</B>
+times out, or an invalid file descriptor is supplied as the argument to
+<B>-u</B>.
+</DL>
+
+<DT><B>readonly</B> [<B>-apf</B>] [<I>name</I>[=<I>word</I>] ...]<DD>
+
+The given
+<I>names</I> are marked readonly; the values of these
+<I>names</I>
+
+may not be changed by subsequent assignment.
+If the
+<B>-f</B>
+
+option is supplied, the functions corresponding to the
+<I>names</I> are so
+marked.
+The
+<B>-a</B>
+
+option restricts the variables to arrays.
+If no
+<I>name</I>
+
+arguments are given, or if the
+<B>-p</B>
+
+option is supplied, a list of all readonly names is printed.
+The
+<B>-p</B>
+
+option causes output to be displayed in a format that
+may be reused as input.
+If a variable name is followed by =<I>word</I>, the value of
+the variable is set to <I>word</I>.
+The return status is 0 unless an invalid option is encountered,
+one of the
+<I>names</I>
+
+is not a valid shell variable name, or
+<B>-f</B>
+
+is supplied with a
+<I>name</I>
+
+that is not a function.
+<DT><B>return</B> [<I>n</I>]<DD>
+Causes a function to exit with the return value specified by
+<I>n</I>.
+
+If 
+<I>n</I>
+
+is omitted, the return status is that of the last command
+executed in the function body.  If used outside a function,
+but during execution of a script by the 
+<B>.</B>
+
+(<B>source</B>) command, it causes the shell to stop executing
+that script and return either
+<I>n</I>
+
+or the exit status of the last command executed within the
+script as the exit status of the script.  If used outside a
+function and not during execution of a script by <B>.</B>,
+the return status is false.
+Any command associated with the <B>RETURN</B> trap is executed
+before execution resumes after the function or script.
+<DT><B>set</B> [<B>--abefhkmnptuvxBCHP</B>] [<B>-o</B> <I>option</I>] [<I>arg</I> ...]<DD>
+Without options, the name and value of each shell variable are displayed
+in a format that can be reused as input.
+The output is sorted according to the current locale.
+When options are specified, they set or unset shell attributes.
+Any arguments remaining after the options are processed are treated
+as values for the positional parameters and are assigned, in order, to 
+<B>$1</B>,
+
+<B>$2</B>,
+
+<B>...</B>
+
+<B>$</B><I>n</I>.
+
+Options, if specified, have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+Automatically mark variables and functions which are modified or
+created for export to the environment of subsequent commands.
+<DT><B>-b</B>
+
+<DD>
+Report the status of terminated background jobs
+immediately, rather than before the next primary prompt.  This is
+effective only when job control is enabled.
+<DT><B>-e</B>
+
+<DD>
+Exit immediately if a <I>simple command</I> (see
+<FONT SIZE="-1"><B>SHELL GRAMMAR</B>
+
+</FONT>
+above) exits with a non-zero status.
+The shell does not exit if the
+command that fails is part of the command list immediately following a
+<B>while</B>
+
+or
+<B>until</B>
+
+keyword, 
+part of the test in an
+<I>if</I>
+
+statement, part of a
+<B>&amp;&amp;</B>
+
+or
+<B>||</B>
+
+list, or if the command's return value is
+being inverted via
+<B>!</B>.
+
+A trap on <B>ERR</B>, if set, is executed before the shell exits.
+<DT><B>-f</B>
+
+<DD>
+Disable pathname expansion.
+<DT><B>-h</B>
+
+<DD>
+Remember the location of commands as they are looked up for execution.
+This is enabled by default.
+<DT><B>-k</B>
+
+<DD>
+All arguments in the form of assignment statements
+are placed in the environment for a command, not just
+those that precede the command name.
+<DT><B>-m</B>
+
+<DD>
+Monitor mode.  Job control is enabled.  This option is on
+by default for interactive shells on systems that support
+it (see
+<FONT SIZE="-1"><B>JOB CONTROL</B>
+
+</FONT>
+above).  Background processes run in a separate process
+group and a line containing their exit status is printed
+upon their completion.
+<DT><B>-n</B>
+
+<DD>
+Read commands but do not execute them.  This may be used to 
+check a shell script for syntax errors.  This is ignored by
+interactive shells.
+<DT><B>-o </B><I>option-name</I>
+
+<DD>
+The <I>option-name</I> can be one of the following:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>allexport</B>
+
+<DD>
+Same as
+<B>-a</B>.
+
+<DT><B>braceexpand</B>
+
+<DD>
+Same as
+<B>-B</B>.
+
+<DT><B>emacs</B>
+
+<DD>
+Use an emacs-style command line editing interface.  This is enabled
+by default when the shell is interactive, unless the shell is started
+with the
+<B>--noediting</B>
+
+option.
+<DT><B>errtrace</B>
+
+<DD>
+Same as
+<B>-E</B>.
+
+<DT><B>functrace</B>
+
+<DD>
+Same as
+<B>-T</B>.
+
+<DT><B>errexit</B>
+
+<DD>
+Same as
+<B>-e</B>.
+
+<DT><B>hashall</B>
+
+<DD>
+Same as
+<B>-h</B>.
+
+<DT><B>histexpand</B>
+
+<DD>
+Same as
+<B>-H</B>.
+
+<DT><B>history</B>
+
+<DD>
+Enable command history, as described above under
+<FONT SIZE="-1"><B>HISTORY</B>.
+
+</FONT>
+This option is on by default in interactive shells.
+<DT><B>ignoreeof</B>
+
+<DD>
+The effect is as if the shell command
+
+``IGNOREEOF=10''
+had been executed
+(see
+<B>Shell Variables</B>
+
+above).
+<DT><B>keyword</B>
+
+<DD>
+Same as
+<B>-k</B>.
+
+<DT><B>monitor</B>
+
+<DD>
+Same as
+<B>-m</B>.
+
+<DT><B>noclobber</B>
+
+<DD>
+Same as
+<B>-C</B>.
+
+<DT><B>noexec</B>
+
+<DD>
+Same as
+<B>-n</B>.
+
+<DT><B>noglob</B>
+
+<DD>
+Same as
+<B>-f</B>.
+
+<B>nolog</B>
+
+Currently ignored.
+<DT><B>notify</B>
+
+<DD>
+Same as
+<B>-b</B>.
+
+<DT><B>nounset</B>
+
+<DD>
+Same as
+<B>-u</B>.
+
+<DT><B>onecmd</B>
+
+<DD>
+Same as
+<B>-t</B>.
+
+<DT><B>physical</B>
+
+<DD>
+Same as
+<B>-P</B>.
+
+<DT><B>pipefail</B>
+
+<DD>
+If set, the return value of a pipeline is the value of the last
+(rightmost) command to exit with a non-zero status, or zero if all
+commands in the pipeline exit successfully.
+This option is disabled by default.
+<DT><B>posix</B>
+
+<DD>
+Change the behavior of
+<B>bash</B>
+
+where the default operation differs
+from the POSIX 1003.2 standard to match the standard (<I>`posix mode</I>).
+<DT><B>privileged</B>
+
+<DD>
+Same as
+<B>-p</B>.
+
+<DT><B>verbose</B>
+
+<DD>
+Same as
+<B>-v</B>.
+
+<DT><B>vi</B>
+
+<DD>
+Use a vi-style command line editing interface.
+<DT><B>xtrace</B>
+
+<DD>
+Same as
+<B>-x</B>.
+
+<P>
+</DL>
+<P>
+
+If
+<B>-o</B>
+
+is supplied with no <I>option-name</I>, the values of the current options are
+printed.
+If
+<B>+o</B>
+
+is supplied with no <I>option-name</I>, a series of
+<B>set</B>
+
+commands to recreate the current option settings is displayed on
+the standard output.
+</DL>
+
+<DT><B>-p</B>
+
+<DD>
+Turn on
+<I>privileged</I>
+
+mode.  In this mode, the
+<FONT SIZE="-1"><B>$ENV</B>
+
+</FONT>
+and
+<FONT SIZE="-1"><B>$BASH_ENV</B>
+
+</FONT>
+files are not processed, shell functions are not inherited from the
+environment, and the
+<FONT SIZE="-1"><B>SHELLOPTS</B>
+
+</FONT>
+variable, if it appears in the environment, is ignored.
+If the shell is started with the effective user (group) id not equal to the
+real user (group) id, and the <B>-p</B> option is not supplied, these actions
+are taken and the effective user id is set to the real user id.
+If the <B>-p</B> option is supplied at startup, the effective user id is
+not reset.
+Turning this option off causes the effective user
+and group ids to be set to the real user and group ids.
+<DT><B>-t</B>
+
+<DD>
+Exit after reading and executing one command.
+<DT><B>-u</B>
+
+<DD>
+Treat unset variables as an error when performing
+parameter expansion.  If expansion is attempted on an
+unset variable, the shell prints an error message, and,
+if not interactive, exits with a non-zero status.
+<DT><B>-v</B>
+
+<DD>
+Print shell input lines as they are read.
+<DT><B>-x</B>
+
+<DD>
+After expanding each <I>simple command</I>,
+<B>for</B> command, <B>case</B> command, <B>select</B> command, or
+arithmetic <B>for</B> command, display the expanded value of
+<FONT SIZE="-1"><B>PS4</B>,
+
+</FONT>
+followed by the command and its expanded arguments
+or associated word list.
+<DT><B>-B</B>
+
+<DD>
+The shell performs brace expansion (see
+<B>Brace Expansion</B>
+
+above).  This is on by default.
+<DT><B>-C</B>
+
+<DD>
+If set,
+<B>bash</B>
+
+does not overwrite an existing file with the
+<B>&gt;</B>,
+
+<B>&gt;&amp;</B>,
+
+and
+<B>&lt;&gt;</B>
+
+redirection operators.  This may be overridden when 
+creating output files by using the redirection operator
+<B>&gt;|</B>
+
+instead of
+<B>&gt;</B>.
+
+<DT><B>-E</B>
+
+<DD>
+If set, any trap on <B>ERR</B> is inherited by shell functions, command
+substitutions, and commands executed in a subshell environment.
+The <B>ERR</B> trap is normally not inherited in such cases.
+<DT><B>-H</B>
+
+<DD>
+Enable
+<B>!</B>
+
+style history substitution.  This option is on by
+default when the shell is interactive.
+<DT><B>-P</B>
+
+<DD>
+If set, the shell does not follow symbolic links when executing
+commands such as
+<B>cd</B>
+
+that change the current working directory.  It uses the
+physical directory structure instead.  By default,
+<B>bash</B>
+
+follows the logical chain of directories when performing commands
+which change the current directory.
+<DT><B>-T</B>
+
+<DD>
+If set, any trap on <B>DEBUG</B> is inherited by shell functions, command
+substitutions, and commands executed in a subshell environment.
+The <B>DEBUG</B> trap is normally not inherited in such cases.
+<DT><B>--</B>
+
+<DD>
+If no arguments follow this option, then the positional parameters are
+unset.  Otherwise, the positional parameters are set to the
+<I>arg</I>s, even if some of them begin with a
+<B>-</B>.
+
+<DT><B>-</B>
+
+<DD>
+Signal the end of options, cause all remaining <I>arg</I>s to be
+assigned to the positional parameters.  The
+<B>-x</B>
+
+and
+<B>-v</B>
+
+options are turned off.
+If there are no <I>arg</I>s,
+the positional parameters remain unchanged.
+
+</DL>
+<P>
+
+The options are off by default unless otherwise noted.
+Using + rather than - causes these options to be turned off.
+The options can also be specified as arguments to an invocation of
+the shell.
+The current set of options may be found in
+<B>$-</B>.
+
+The return status is always true unless an invalid option is encountered.
+</DL>
+
+<DT><B>shift</B> [<I>n</I>]<DD>
+The positional parameters from <I>n</I>+1 ... are renamed to
+<B>$1</B>
+
+<B>....</B>
+
+Parameters represented by the numbers <B>$#</B>
+down to <B>$#</B>-<I>n</I>+1 are unset.
+<I>n</I>
+
+must be a non-negative number less than or equal to <B>$#</B>.
+If
+<I>n</I>
+
+is 0, no parameters are changed.
+If
+<I>n </I>
+
+is not given, it is assumed to be 1.
+If
+<I>n</I>
+
+is greater than <B>$#</B>, the positional parameters are not changed.
+The return status is greater than zero if
+<I>n</I>
+
+is greater than
+<B>$#</B>
+
+or less than zero; otherwise 0.
+<DT><B>shopt</B> [<B>-pqsu</B>] [<B>-o</B>] [<I>optname</I> ...]<DD>
+Toggle the values of variables controlling optional shell behavior.
+With no options, or with the
+<B>-p</B>
+
+option, a list of all settable options is displayed, with
+an indication of whether or not each is set.
+The <B>-p</B> option causes output to be displayed in a form that
+may be reused as input.
+Other options have the following meanings:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-s</B>
+
+<DD>
+Enable (set) each <I>optname</I>.
+<DT><B>-u</B>
+
+<DD>
+Disable (unset) each <I>optname</I>.
+<DT><B>-q</B>
+
+<DD>
+Suppresses normal output (quiet mode); the return status indicates
+whether the <I>optname</I> is set or unset.
+If multiple <I>optname</I> arguments are given with
+<B>-q</B>,
+
+the return status is zero if all <I>optnames</I> are enabled; non-zero
+otherwise.
+<DT><B>-o</B>
+
+<DD>
+Restricts the values of <I>optname</I> to be those defined for the
+<B>-o</B>
+
+option to the
+<B>set</B>
+
+builtin.
+
+</DL>
+<P>
+
+If either
+<B>-s</B>
+
+or
+<B>-u</B>
+
+is used with no <I>optname</I> arguments, the display is limited to
+those options which are set or unset, respectively.
+Unless otherwise noted, the <B>shopt</B> options are disabled (unset)
+by default.
+<P>
+
+The return status when listing options is zero if all <I>optnames</I>
+are enabled, non-zero otherwise.  When setting or unsetting options,
+the return status is zero unless an <I>optname</I> is not a valid shell
+option.
+<P>
+
+The list of <B>shopt</B> options is:
+
+<P>
+
+
+<DL COMPACT>
+<DT><B>cdable_vars</B>
+
+<DD>
+If set, an argument to the
+<B>cd</B>
+
+builtin command that
+is not a directory is assumed to be the name of a variable whose
+value is the directory to change to.
+<DT><B>cdspell</B>
+
+<DD>
+If set, minor errors in the spelling of a directory component in a
+<B>cd</B>
+
+command will be corrected.
+The errors checked for are transposed characters,
+a missing character, and one character too many.
+If a correction is found, the corrected file name is printed,
+and the command proceeds.
+This option is only used by interactive shells.
+<DT><B>checkhash</B>
+
+<DD>
+If set, <B>bash</B> checks that a command found in the hash
+table exists before trying to execute it.  If a hashed command no
+longer exists, a normal path search is performed.
+<DT><B>checkwinsize</B>
+
+<DD>
+If set, <B>bash</B> checks the window size after each command
+and, if necessary, updates the values of
+<FONT SIZE="-1"><B>LINES</B>
+
+</FONT>
+and
+<FONT SIZE="-1"><B>COLUMNS</B>.
+
+</FONT>
+<DT><B>cmdhist</B>
+
+<DD>
+If set,
+<B>bash</B>
+
+attempts to save all lines of a multiple-line
+command in the same history entry.  This allows
+easy re-editing of multi-line commands.
+<DT><B>dotglob</B>
+
+<DD>
+If set, 
+<B>bash</B>
+
+includes filenames beginning with a `.' in the results of pathname
+expansion.
+<DT><B>execfail</B>
+
+<DD>
+If set, a non-interactive shell will not exit if
+it cannot execute the file specified as an argument to the
+<B>exec</B>
+
+builtin command.  An interactive shell does not exit if
+<B>exec</B>
+
+fails.
+<DT><B>expand_aliases</B>
+
+<DD>
+If set, aliases are expanded as described above under
+<FONT SIZE="-1"><B>ALIASES</B>.
+
+</FONT>
+This option is enabled by default for interactive shells.
+<DT><B>extdebug</B>
+
+<DD>
+If set, behavior intended for use by debuggers is enabled:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1.</B>
+
+<DD>
+The <B>-F</B> option to the <B>declare</B> builtin displays the source
+file name and line number corresponding to each function name supplied
+as an argument.
+<DT><B>2.</B>
+
+<DD>
+If the command run by the <B>DEBUG</B> trap returns a non-zero value, the
+next command is skipped and not executed.
+<DT><B>3.</B>
+
+<DD>
+If the command run by the <B>DEBUG</B> trap returns a value of 2, and the
+shell is executing in a subroutine (a shell function or a shell script
+executed by the <B>.</B> or <B>source</B> builtins), a call to
+<B>return</B> is simulated.
+</DL>
+</DL>
+
+<DT><B>extglob</B>
+
+<DD>
+If set, the extended pattern matching features described above under
+<B>Pathname Expansion</B> are enabled.
+<DT><B>extquote</B>
+
+<DD>
+If set, <B>$</B>'<I>string</I>' and <B>$</B>&quot;<I>string</I>&quot; quoting is
+performed within <B>${</B><I>parameter</I><B>}</B> expansions
+enclosed in double quotes.  This option is enabled by default.
+<DT><B>failglob</B>
+
+<DD>
+If set, patterns which fail to match filenames during pathname expansion
+result in an expansion error.
+<DT><B>force_fignore</B>
+
+<DD>
+If set, the suffixes specified by the <B>FIGNORE</B> shell variable
+cause words to be ignored when performing word completion even if
+the ignored words are the only possible completions.
+See
+<FONT SIZE="-1"><B>SHELL VARIABLES</B></FONT>
+above for a description of <B>FIGNORE</B>.
+This option is enabled by default.
+<DT><B>gnu_errfmt</B>
+
+<DD>
+If set, shell error messages are written in the standard GNU error
+message format.
+<DT><B>histappend</B>
+
+<DD>
+If set, the history list is appended to the file named by the value
+of the
+<B>HISTFILE</B>
+
+variable when the shell exits, rather than overwriting the file.
+<DT><B>histreedit</B>
+
+<DD>
+If set, and
+<B>readline</B>
+
+is being used, a user is given the opportunity to re-edit a
+failed history substitution.
+<DT><B>histverify</B>
+
+<DD>
+If set, and 
+<B>readline</B>
+
+is being used, the results of history substitution are not immediately
+passed to the shell parser.  Instead, the resulting line is loaded into
+the <B>readline</B> editing buffer, allowing further modification.
+<DT><B>hostcomplete</B>
+
+<DD>
+If set, and
+<B>readline</B>
+
+is being used, <B>bash</B> will attempt to perform hostname completion when a
+word containing a <B>@</B> is being completed (see
+<B>Completing</B>
+
+under
+<FONT SIZE="-1"><B>READLINE</B>
+
+</FONT>
+above).
+This is enabled by default.
+<DT><B>huponexit</B>
+
+<DD>
+If set, <B>bash</B> will send
+<FONT SIZE="-1"><B>SIGHUP</B>
+
+</FONT>
+to all jobs when an interactive login shell exits.
+<DT><B>interactive_comments</B>
+
+<DD>
+If set, allow a word beginning with
+<B>#</B>
+
+to cause that word and all remaining characters on that
+line to be ignored in an interactive shell (see
+<FONT SIZE="-1"><B>COMMENTS</B>
+
+</FONT>
+above).  This option is enabled by default.
+<DT><B>lithist</B>
+
+<DD>
+If set, and the
+<B>cmdhist</B>
+
+option is enabled, multi-line commands are saved to the history with
+embedded newlines rather than using semicolon separators where possible.
+<DT><B>login_shell</B>
+
+<DD>
+The shell sets this option if it is started as a login shell (see
+<FONT SIZE="-1"><B>INVOCATION</B>
+
+</FONT>
+above).
+The value may not be changed.
+<DT><B>mailwarn</B>
+
+<DD>
+If set, and a file that <B>bash</B> is checking for mail has been  
+accessed since the last time it was checked, the message ``The mail in
+<I>mailfile</I> has been read'' is displayed.
+<DT><B>no_empty_cmd_completion</B>
+
+<DD>
+If set, and
+<B>readline</B>
+
+is being used,
+<B>bash</B>
+
+will not attempt to search the <B>PATH</B> for possible completions when
+completion is attempted on an empty line.
+<DT><B>nocaseglob</B>
+
+<DD>
+If set,
+<B>bash</B>
+
+matches filenames in a case-insensitive fashion when performing pathname
+expansion (see
+<B>Pathname Expansion</B>
+
+above).
+<DT><B>nullglob</B>
+
+<DD>
+If set,
+<B>bash</B>
+
+allows patterns which match no
+files (see
+<B>Pathname Expansion</B>
+
+above)
+to expand to a null string, rather than themselves.
+<DT><B>progcomp</B>
+
+<DD>
+If set, the programmable completion facilities (see
+<B>Programmable Completion</B> above) are enabled.
+This option is enabled by default.
+<DT><B>promptvars</B>
+
+<DD>
+If set, prompt strings undergo
+parameter expansion, command substitution, arithmetic
+expansion, and quote removal after being expanded as described in
+<FONT SIZE="-1"><B>PROMPTING</B>
+
+</FONT>
+above.  This option is enabled by default.
+<DT><B>restricted_shell</B>
+
+<DD>
+The shell sets this option if it is started in restricted mode (see
+<FONT SIZE="-1"><B>RESTRICTED SHELL</B>
+
+</FONT>
+below).
+The value may not be changed.
+This is not reset when the startup files are executed, allowing
+the startup files to discover whether or not a shell is restricted.
+<DT><B>shift_verbose</B>
+
+<DD>
+If set, the
+<B>shift</B>
+
+builtin prints an error message when the shift count exceeds the
+number of positional parameters.
+<DT><B>sourcepath</B>
+
+<DD>
+If set, the
+<B>source</B> (<B>.</B>) builtin uses the value of
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+to find the directory containing the file supplied as an argument.
+This option is enabled by default.
+<DT><B>xpg_echo</B>
+
+<DD>
+If set, the <B>echo</B> builtin expands backslash-escape sequences
+by default.
+</DL>
+</DL>
+
+<DT><B>suspend</B> [<B>-f</B>]<DD>
+Suspend the execution of this shell until it receives a
+<FONT SIZE="-1"><B>SIGCONT</B>
+
+</FONT>
+signal.  The
+<B>-f</B>
+
+option says not to complain if this is 
+a login shell; just suspend anyway.  The return status is 0 unless
+the shell is a login shell and
+<B>-f</B>
+
+is not supplied, or if job control is not enabled.
+<DT><B>test</B> <I>expr</I><DD>
+
+<DT><B>[</B> <I>expr</I> <B>]</B><DD>
+Return a status of 0 or 1 depending on
+the evaluation of the conditional expression
+<I>expr</I>.
+
+Each operator and operand must be a separate argument.
+Expressions are composed of the primaries described above under
+<FONT SIZE="-1"><B>CONDITIONAL</B>EXPRESSIONS<B>.</B>
+
+</FONT>
+
+<P>
+
+Expressions may be combined using the following operators, listed
+in decreasing order of precedence.
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>! </B><I>expr</I>
+
+<DD>
+True if
+<I>expr</I>
+
+is false.
+<DT><B>( </B><I>expr</I> )
+
+<DD>
+Returns the value of <I>expr</I>.
+This may be used to override the normal precedence of operators.
+<DT><I>expr1</I> -<B>a</B> <I>expr2</I><DD>
+True if both
+<I>expr1</I>
+
+and
+<I>expr2</I>
+
+are true.
+<DT><I>expr1</I> -<B>o</B> <I>expr2</I><DD>
+True if either
+<I>expr1</I>
+
+or
+<I>expr2</I>
+
+is true.
+
+</DL>
+<P>
+
+<B>test</B> and <B>[</B> evaluate conditional
+expressions using a set of rules based on the number of arguments.
+
+<P>
+
+
+<DL COMPACT>
+<DT>0 arguments<DD>
+The expression is false.
+<DT>1 argument<DD>
+The expression is true if and only if the argument is not null.
+<DT>2 arguments<DD>
+If the first argument is <B>!</B>, the expression is true if and
+only if the second argument is null.
+If the first argument is one of the unary conditional operators listed above
+under
+<FONT SIZE="-1"><B>CONDITIONAL</B>EXPRESSIONS<B>,</B>
+
+</FONT>
+the expression is true if the unary test is true.
+If the first argument is not a valid unary conditional operator, the expression
+is false.
+<DT>3 arguments<DD>
+If the second argument is one of the binary conditional operators listed above
+under
+<FONT SIZE="-1"><B>CONDITIONAL</B>EXPRESSIONS<B>,</B>
+
+</FONT>
+the result of the expression is the result of the binary test using
+the first and third arguments as operands.
+If the first argument is <B>!</B>, the value is the negation of
+the two-argument test using the second and third arguments.
+If the first argument is exactly <B>(</B> and the third argument is
+exactly <B>)</B>, the result is the one-argument test of the second
+argument.
+Otherwise, the expression is false.
+The <B>-a</B> and <B>-o</B> operators are considered binary operators
+in this case.  
+<DT>4 arguments<DD>
+If the first argument is <B>!</B>, the result is the negation of
+the three-argument expression composed of the remaining arguments.
+Otherwise, the expression is parsed and evaluated according to 
+precedence using the rules listed above.
+<DT>5 or more arguments<DD>
+The expression is parsed and evaluated according to precedence
+using the rules listed above.
+</DL>
+</DL>
+
+
+<DT><B>times</B>
+
+<DD>
+Print the accumulated user and system times for the shell and
+for processes run from the shell.  The return status is 0.
+<DT><B>trap</B> [<B>-lp</B>] [[<I>arg</I>] <I>sigspec</I> ...]<DD>
+The command
+<I>arg</I>
+
+is to be read and executed when the shell receives
+signal(s)
+<I>sigspec</I>.
+
+If
+<I>arg</I>
+
+is absent (and there is a single <I>sigspec</I>) or
+<B>-</B>,
+
+each specified signal is
+reset to its original disposition (the value it had
+upon entrance to the shell).
+If 
+<I>arg</I>
+
+is the null string the signal specified by each
+<I>sigspec</I>
+
+is ignored by the shell and by the commands it invokes.
+If
+<I>arg</I>
+
+is not present and
+<B>-p</B>
+
+has been supplied, then the trap commands associated with each
+<I>sigspec</I>
+
+are displayed.
+If no arguments are supplied or if only
+<B>-p</B>
+
+is given,
+<B>trap</B>
+
+prints the list of commands associated with each signal.
+The
+<B>-l</B>
+
+option causes the shell to print a list of signal names and
+their corresponding numbers.
+Each
+<I>sigspec</I>
+
+is either
+a signal name defined in &lt;<I>signal.h</I>&gt;, or a signal number.
+Signal names are case insensitive and the SIG prefix is optional.
+If a
+<I>sigspec</I>
+
+is
+<FONT SIZE="-1"><B>EXIT</B>
+
+</FONT>
+(0) the command
+<I>arg</I>
+
+is executed on exit from the shell.
+If a
+<I>sigspec</I>
+
+is
+<FONT SIZE="-1"><B>DEBUG</B>,
+
+</FONT>
+the command
+<I>arg</I>
+
+is executed before every <I>simple command</I>, <I>for</I> command,
+<I>case</I> command, <I>select</I> command, every arithmetic <I>for</I>
+command, and before the first command executes in a shell function (see
+<FONT SIZE="-1"><B>SHELL GRAMMAR</B>
+
+</FONT>
+above).
+Refer to the description of the <B>extglob</B> option to the
+<B>shopt</B> builtin for details of its effect on the <B>DEBUG</B> trap.
+If a
+<I>sigspec</I>
+
+is
+<FONT SIZE="-1"><B>ERR</B>,
+
+</FONT>
+the command
+<I>arg</I>
+
+is executed whenever a simple command has a non-zero exit status,
+subject to the following conditions.
+The
+<FONT SIZE="-1"><B>ERR</B>
+
+</FONT>
+trap is not executed if the failed
+command is part of the command list immediately following a
+<B>while</B>
+
+or
+<B>until</B>
+
+keyword, 
+part of the test in an
+<I>if</I>
+
+statement, part of a
+<B>&amp;&amp;</B>
+
+or
+<B>||</B>
+
+list, or if the command's return value is
+being inverted via
+<B>!</B>.
+
+These are the same conditions obeyed by the <B>errexit</B> option.
+If a
+<I>sigspec</I>
+
+is
+<FONT SIZE="-1"><B>RETURN</B>,
+
+</FONT>
+the command
+<I>arg</I>
+
+is executed each time a shell function or a script executed with the
+<B>.</B> or <B>source</B> builtins finishes executing.
+Signals ignored upon entry to the shell cannot be trapped or reset.
+Trapped signals are reset to their original values in a child
+process when it is created.
+The return status is false if any
+<I>sigspec</I>
+
+is invalid; otherwise
+<B>trap</B>
+
+returns true.
+<DT><B>type</B> [<B>-aftpP</B>] <I>name</I> [<I>name</I> ...]<DD>
+With no options, 
+indicate how each
+<I>name</I>
+
+would be interpreted if used as a command name.
+If the
+<B>-t</B>
+
+option is used,
+<B>type</B>
+
+prints a string which is one of
+<I>alias</I>,
+
+<I>keyword</I>,
+
+<I>function</I>,
+
+<I>builtin</I>,
+
+or
+<I>file </I>
+
+if
+<I>name</I>
+
+is an alias, shell reserved word, function, builtin, or disk file,
+respectively.
+If the
+<I>name</I>
+
+is not found, then nothing is printed, and an exit status of false
+is returned.
+If the
+<B>-p</B>
+
+option is used,
+<B>type</B>
+
+either returns the name of the disk file
+that would be executed if
+<I>name</I>
+
+were specified as a command name,
+or nothing if
+
+``type -t name''
+would not return
+<I>file</I>.
+
+The
+<B>-P</B>
+
+option forces a
+<FONT SIZE="-1"><B>PATH</B>
+
+</FONT>
+search for each <I>name</I>, even if
+
+``type -t name''
+would not return
+<I>file</I>.
+
+If a command is hashed,
+<B>-p</B>
+
+and
+<B>-P</B>
+
+print the hashed value, not necessarily the file that appears
+first in 
+<FONT SIZE="-1"><B>PATH</B>.
+
+</FONT>
+If the
+<B>-a</B>
+
+option is used, 
+<B>type</B>
+
+prints all of the places that contain
+an executable named 
+<I>name</I>.
+
+This includes aliases and functions,
+if and only if the 
+<B>-p</B>
+
+option is not also used.
+The table of hashed commands is not consulted
+when using
+<B>-a</B>.
+
+The
+<B>-f</B>
+
+option suppresses shell function lookup, as with the <B>command</B> builtin.
+<B>type</B>
+
+returns true if any of the arguments are found, false if
+none are found.
+<DT><B>ulimit</B> [<B>-SHacdflmnpstuv</B> [<I>limit</I>]]<DD>
+Provides control over the resources available to the shell and to
+processes started by it, on systems that allow such control.
+The <B>-H</B> and <B>-S</B> options specify that the hard or soft limit is
+set for the given resource.  A hard limit cannot be increased once it
+is set; a soft limit may be increased up to the value of the hard limit.
+If neither <B>-H</B> nor <B>-S</B> is specified, both the soft and hard
+limits are set.
+The value of
+<I>limit</I>
+
+can be a number in the unit specified for the resource
+or one of the special values
+<B>hard</B>,
+
+<B>soft</B>,
+
+or
+<B>unlimited</B>,
+
+which stand for the current hard limit, the current soft limit, and
+no limit, respectively.
+If
+<I>limit</I>
+
+is omitted, the current value of the soft limit of the resource is
+printed, unless the <B>-H</B> option is given.  When more than one
+resource is specified, the limit name and unit are printed before the value.
+Other options are interpreted as follows:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+All current limits are reported
+<DT><B>-c</B>
+
+<DD>
+The maximum size of core files created
+<DT><B>-d</B>
+
+<DD>
+The maximum size of a process's data segment
+<DT><B>-f</B>
+
+<DD>
+The maximum size of files created by the shell
+<DT><B>-l</B>
+
+<DD>
+The maximum size that may be locked into memory
+<DT><B>-m</B>
+
+<DD>
+The maximum resident set size
+<DT><B>-n</B>
+
+<DD>
+The maximum number of open file descriptors (most systems do not
+allow this value to be set)
+<DT><B>-p</B>
+
+<DD>
+The pipe size in 512-byte blocks (this may not be set)
+<DT><B>-s</B>
+
+<DD>
+The maximum stack size
+<DT><B>-t</B>
+
+<DD>
+The maximum amount of cpu time in seconds
+<DT><B>-u</B>
+
+<DD>
+The maximum number of processes available to a single user
+<DT><B>-v</B>
+
+<DD>
+The maximum amount of virtual memory available to the shell
+
+</DL>
+<P>
+
+If
+<I>limit</I>
+
+is given, it is the new value of the specified resource (the
+<B>-a</B>
+
+option is display only).
+If no option is given, then
+<B>-f</B>
+
+is assumed.  Values are in 1024-byte increments, except for
+<B>-t</B>,
+
+which is in seconds,
+<B>-p</B>,
+
+which is in units of 512-byte blocks,
+and
+<B>-n</B>
+
+and
+<B>-u</B>,
+
+which are unscaled values.
+The return status is 0 unless an invalid option or argument is supplied,
+or an error occurs while setting a new limit.
+</DL>
+
+<DT><B>umask</B> [<B>-p</B>] [<B>-S</B>] [<I>mode</I>]<DD>
+The user file-creation mask is set to 
+<I>mode</I>.
+
+If
+<I>mode</I>
+
+begins with a digit, it
+is interpreted as an octal number; otherwise
+it is interpreted as a symbolic mode mask similar
+to that accepted by
+<I><A HREF="../man1/chmod.1.php">chmod</A></I>(1).
+
+If
+<I>mode</I>
+
+is omitted, the current value of the mask is printed.
+The
+<B>-S</B>
+
+option causes the mask to be printed in symbolic form; the
+default output is an octal number.
+If the
+<B>-p</B>
+
+option is supplied, and
+<I>mode</I>
+
+is omitted, the output is in a form that may be reused as input.
+The return status is 0 if the mode was successfully changed or if
+no <I>mode</I> argument was supplied, and false otherwise.
+<DT><B>unalias</B> [-<B>a</B>] [<I>name</I> ...]<DD>
+Remove each <I>name</I> from the list of defined aliases.  If
+<B>-a</B>
+
+is supplied, all alias definitions are removed.  The return
+value is true unless a supplied
+<I>name</I>
+
+is not a defined alias.
+<DT><B>unset</B> [-<B>fv</B>] [<I>name</I> ...]<DD>
+For each
+<I>name</I>,
+
+remove the corresponding variable or function.
+If no options are supplied, or the
+<B>-v</B>
+
+option is given, each
+<I>name</I>
+
+refers to a shell variable.
+Read-only variables may not be unset.
+If
+<B>-f</B>
+
+is specifed, 
+each
+<I>name</I>
+
+refers to a shell function, and the function definition
+is removed.
+Each unset variable or function is removed from the environment
+passed to subsequent commands.
+If any of
+<FONT SIZE="-1"><B>RANDOM</B>,
+
+</FONT>
+<FONT SIZE="-1"><B>SECONDS</B>,
+
+</FONT>
+<FONT SIZE="-1"><B>LINENO</B>,
+
+</FONT>
+<FONT SIZE="-1"><B>HISTCMD</B>,
+
+</FONT>
+<FONT SIZE="-1"><B>FUNCNAME</B>,
+
+</FONT>
+<FONT SIZE="-1"><B>GROUPS</B>,
+
+</FONT>
+or
+<FONT SIZE="-1"><B>DIRSTACK</B>
+
+</FONT>
+are unset, they lose their special properties, even if they are
+subsequently reset.  The exit status is true unless a
+<I>name</I>
+
+is readonly.
+<DT><B>wait</B> [<I>n</I>]<DD>
+Wait for the specified process and return its termination
+status.
+<I>n</I>
+
+may be a process
+ID or a job specification; if a job spec is given, all processes
+in that job's pipeline are waited for.  If
+<I>n</I>
+
+is not given, all currently active child processes
+are waited for, and the return status is zero.  If
+<I>n</I>
+
+specifies a non-existent process or job, the return status is
+127.  Otherwise, the return status is the exit status of the last
+process or job waited for.
+
+
+
+
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/bash.1.php">bash</A>(1), <A HREF="../man1/sh.1.php">sh</A>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">BASH BUILTIN COMMANDS</A><DD>
+<DT><A HREF="#lbAD">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

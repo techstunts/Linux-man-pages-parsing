@@ -1,0 +1,243 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PR3287</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PR3287</H1>
+Section: User Commands  (1)<BR>Updated: 29 November 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pr3287 -
+<FONT SIZE="-1">IBM</FONT>
+host printing tool
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>pr3287</B>
+[ <I>options</I> ]       
+[ L: ] [[ <I>LUname</I> [, <I>LUname</I> ...]@] <I>hostname</I> [: <I>port</I> ]] 
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>pr3287</B>
+opens a telnet connection to an
+<FONT SIZE="-1">IBM</FONT>
+host, and emulates an <FONT SIZE="-1">IBM</FONT> 3287 printer.
+It implements RFCs 2355 (TN3270E), 1576 (TN3270) and 1646 (LU name selection).
+<P>
+
+If the <I>hostname</I> is prefixed with <B>L:</B>, the connection will be made
+through an SSL tunnel.
+<B>pr3287</B> also supports TELNET START-TLS option negotiation without any
+need for command-line options.
+<P>
+
+A specific LU name to use may be specified by prepending it to the
+<I>hostname</I>
+with an
+`<B>@</B>'.
+Multiple LU names to try can be separated by commas.
+An empty LU can be placed in the list with an extra comma.
+<P>
+
+The port to connect to defaults to
+<B>telnet</B>.
+This can be overridden by appending a
+<I>port</I>
+to the
+<I>hostname</I>
+with a colon
+`<B>:</B>'.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>pr3287</B>
+understands the following options:
+<DL COMPACT>
+<DT><B>-assoc</B> <I>LUname</I><DD>
+Causes the session to be associated with the specified
+<I>LUname</I>.
+<DT><B>-blanklines</B><DD>
+In LU3 formatted mode, print blank lines even if they are all NULLs or control
+characters.
+(This is a violation of the 3270 printer protocol, but some hosts require it.)
+<DT><B>-charset</B> <I>name</I><DD>
+Specifies an alternate <FONT SIZE="-1">EBCDIC</FONT>-to-<FONT SIZE="-1">ASCII</FONT> mapping.
+The default maps the EBCDIC U.S. English character set to <FONT SIZE="-1">ISO</FONT> 8859-1.
+Other built-in character sets are <B>bracket</B>, which corresponds to
+many older <FONT SIZE="-1">IBM</FONT> hosts' mapping of the <B>[</B> and <B>]</B> characters,
+and the non-U.S. character sets <B>german</B>, <B>finnish</B>, <B>uk</B>,
+<B>norwegian</B>, <B>french</B>, <B>icelandic</B> and <B>belgian</B>.
+These correspond to the <B>x3270</B> character sets of the same names.
+<DT><DD>
+If <I>name</I> begins with an <B>@</B>, then the balance is intepreted as
+the name of a file containing character mappings.
+The file contains whitespace-separated tokens.
+Each token is a number specifying an EBCDIC code, an <B>=</B> character,
+and a number specifying the 8-bit ASCII character used to print that code.
+Blank lines and lines beginning with <B>#</B> are ignored.
+<DT><DD>
+If <I>name</I> begins with an <B>=</B>, then the balance is intepreted as
+a string containing mapping tokens, as in a file.
+<DT><DD>
+For example, a file defining the <B>uk</B> character set would look like
+this:
+<DT><DD>
+<DL COMPACT><DT><DD>
+<BR>
+
+# UK character set
+<BR>
+
+0x4a=0x24 0x5b=0xa3 0xa1=0xaf
+<BR>
+
+0xb0=0xa2 0xb1=0x5b 0xba=0x5e
+<BR>
+
+0xbc=0x7e
+</DL>
+
+<DT><B>-command</B> <I>command</I><DD>
+Specifies the command to run for each print job.
+The default is
+<B>lpr</B>.
+<DT><B>-crlf</B><DD>
+Causes newline characters in the output to be expanded to
+carriage-return/linefeed sequences.
+<DT><B>-daemon</B><DD>
+Causes
+<I>pr3287</I>
+to become a daemon (background) process.
+<DT><B>-eojtimeout</B> <I>seconds</I><DD>
+Causes <I>pr3287</I> to flush the print job after <I>seconds</I> seconds
+of inactivity.
+<DT><B>-ignoreeoj</B><DD>
+Ignore TN3270E PRINT-EOJ commands, relying on UNBIND commands to indicate
+the ends of print jobs.
+<DT><B>-ffskip</B><DD>
+Causes <I>pr3287</I> to ignore a FF (formfeed) order if it occurs
+at the top of a page.
+<DT><B>-ffthru</B><DD>
+In SCS mode, causes <I>pr3287</I> to pass FF (formfeed) orders through to the
+printer as ASCII formfeed characters, rather than simulating them based on the
+values of the MPL (maximum presentation line) and TM (top margin) parameters.
+<DT><B>-reconnect</B><DD>
+Causes <I>pr3287</I> to reconnect to the host, whenever the connection is
+broken.
+There is a 5-second delay between reconnect attempts, to reduce network
+thrashing for down or misconfigured hosts.
+<DT><B>-trace</B><DD>
+Turns on data stream tracing.
+Trace information is usually saved in the file
+<B>/tmp/x3trc.</B><I>pid</I>.
+<DT><B>-tracedir</B> <I>dir</I><DD>
+Specifies the directory to save trace files in, instead of <B>/tmp</B>.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SIGNALS</H2>
+
+SIGINT, SIGHUP and SIGTERM cause the current print job to be flushed (any
+pending data to be printed) and <I>pr3287</I> to exit.
+<P>
+
+SIGUSR1 causes the current print job to be flushed without otherwise
+affecting the <I>pr3287</I> process.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/x3270.1.php">x3270</A>(1), <A HREF="../man1/telnet.1.php">telnet</A>(1), <A HREF="../man1/tn3270.1.php">tn3270</A>(1)
+<BR>
+
+Data Stream Programmer's Reference, IBM GA23-0059
+<BR>
+
+Character Set Reference, IBM GA27-3831
+<BR>
+
+3174 Establishment Controller Functional Description, IBM GA23-0218
+<BR>
+
+RFC 1576, TN3270 Current Practices
+<BR>
+
+RFC 1646, TN3270 Extensions for LUname and Printer Selection
+<BR>
+
+RFC 2355, TN3270 Enhancements
+<A NAME="lbAH">&nbsp;</A>
+<H2>COPYRIGHTS</H2>
+
+<P>
+
+Modifications Copyright  1993-1996, 1997, 1999-2003 by Paul Mattes.
+<BR>
+
+Original X11 Port Copyright 1990 by Jeff Sparkes.
+<DL COMPACT><DT><DD>
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.
+</DL>
+
+Copyright 1989 by Georgia Tech Research Corporation, Atlanta, GA 30332.
+<DL COMPACT><DT><DD>
+All Rights Reserved.  GTRC hereby grants public use of this software.
+Derivative works based on this software must incorporate this copyright
+notice.
+</DL>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>VERSION</H2>
+
+pr3287 3.3.2
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SIGNALS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">COPYRIGHTS</A><DD>
+<DT><A HREF="#lbAI">VERSION</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

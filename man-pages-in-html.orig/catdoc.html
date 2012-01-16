@@ -1,0 +1,494 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>catdoc</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>catdoc</H1>
+Section: User Commands  (1)<BR>Updated: Version 0.93.3<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+catdoc - reads MS-Word file and puts its content as plain text on standard output
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>catdoc</B> [<B>-vlu8btawxV</B>] [<B>-m</B> 
+
+<I>number</I>]
+
+[
+<B>-s</B>
+
+<I>charset</I>]
+
+[
+<B>-d </B>
+
+<I>charset</I>]
+
+[ 
+<B>-f</B>
+
+<I>output-format</I>]
+
+<I>file</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<B>catdoc</B>
+
+behaves much like
+<B><A HREF="../man1/cat.1.php">cat</A></B>(1)
+
+but it reads MS-Word file and produces human-readable text on standard output.
+Optionally it can use 
+<B><A HREF="../man1/latex.1.php">latex</A></B>(1)
+
+escape sequenses for characters which have special meaning for LaTeX.
+It also makes some effort to recognize MS-Word tables, although it never
+tries to write correct headers for LaTeX tabular environment. Additional
+output formats, such is HTML can be easily defined. 
+<P>
+
+<B>catdoc</B>
+
+doesn't attempt to extract formatting information other than tables from
+MS-Word document, so different output modes means mainly that different
+charachers should be escaped and different ways used to represent characters,
+missing from output charset. See CHARACTER SUBSTITUTION below 
+<P>
+<P>
+
+<B>catdoc</B>
+
+uses internal 
+<B><A HREF="../man4/unicode.4.php">unicode</A></B>(4)
+
+representation of text, so it is able to convert texts when charset in
+source document doesn't match charset on target system.
+See CHARACTER SETS below.
+<P>
+
+If no file names supplied, 
+<B>catdoc</B>
+
+processes its standard input unless it is terminal. It is unlikely that 
+somebody could type Word document from keyboard, so if 
+<B>catdoc </B>
+
+invoked without arguments and stdin is not redirected, it prints brief
+usage message and exits. 
+Processing of standard input (even among other files) can be forced using
+dash '-' as file name.
+<P>
+
+By default, 
+<B>catdoc</B>
+
+wraps lines which are more than 72 chars long and separates paragraphs by
+blank lines. This behavoir can be turned of by 
+<B>-w</B>
+
+switch. In 
+<I>wide</I>
+
+mode 
+<B>catdoc prints each paragraph as one long line, suitable for import into</B>
+
+word processors which perform word wrapping theirselves.
+<BR>&nbsp;
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a </B>
+
+<DD>
+- shortcut for -f ascii. Produces ASCII text as output.
+Separates table columns with TAB
+<DT><B>-b</B>
+
+<DD>
+- process broken MS-Word file. Normally,
+<B>catdoc checks if first 8 bytes</B>
+
+of file is Microsoft OLE signature. If so, it processes file, otherwise
+it just copies it to stdin. It is intended to use 
+<B>catdoc </B>
+
+as filter for viewing all files with 
+<I>.doc</I>
+
+extension.
+<DT><B>-d</B><I>charset</I>
+
+<DD>
+- specifies destination charset name. Charset file has format described in
+CHARACTER SETS below and should have 
+<B>.txt</B>
+
+extension  and reside in 
+<B>catdoc library directory ( ${exec_prefix}/lib/catdoc).</B>
+
+<DT><B>-f</B><I>format</I>
+
+<DD>
+- specifies output format as described in CHARACTER SUBSTITUTION below.
+<B>catdoc</B>
+
+comes with two output formats - ascii and tex. You can add your own if you
+wish.
+<DT><B>-l</B>
+
+<DD>
+Causes 
+<B>catdoc</B>
+
+to list names of available charsets to the stdout and exit successfully.
+<DT><B>-m</B><I>number</I>
+
+<DD>
+Specifies right margin for text  (default 72). 
+<B>-m 0</B>
+
+is equivalent to
+<B>-w</B>
+
+<DT><B>-s</B><I>charset</I>
+
+<DD>
+Specifies source charset. (one used in Word document), if Word document
+doesn't contain UTF-16  text.
+<DT><B>-t</B>
+
+<DD>
+- shortcut for 
+<B>-f tex</B>
+
+<BR>&nbsp;converts&nbsp;all&nbsp;printable&nbsp;chars,&nbsp;which&nbsp;have&nbsp;special&nbsp;meaning&nbsp;for&nbsp;
+<B><A HREF="../man1/LaTeX.1.php">LaTeX</A></B>(1)
+
+into appropriate control sequences. Separates table columns by 
+<B>&amp;.</B>
+
+<DT><B>-u</B>
+
+<DD>
+- declares that Word  document  contain  UNICODE   (UTF-16) represntation
+of text (as some Word-97 documents). If catdoc fails to correct  Word document
+with  default charset,   try    this  option.
+<DT><B>-8</B>
+
+<DD>
+- declares is Word document is 8 bit. Just in case that catdoc
+<BR>&nbsp;recognizes&nbsp;file&nbsp;format&nbsp;incorrectly.
+<DT><B>-w</B>
+
+<DD>
+disables word wrapping. By default 
+<B>catdoc</B>
+
+output is splitted into lines not longer than 72 (or  number, specified by
+-m  option)   characters and paragraphs
+are separated by blank line. With this option each paragraph is one
+long line. 
+<DT><B>-x</B>
+
+<DD>
+causes catdoc to output unknown UNICODE characher as \xNNNN, instead
+of question marks.
+<DT><B>-v</B>
+
+<DD>
+causes catdoc to print some useless information about word document
+structure to stdout before actual start of text.
+<DT><B>-V</B>
+
+<DD>
+outputs catdoc version
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>CHARACTER SETS</H2>
+
+When processing MS-Word file 
+<B>catdoc</B>
+
+uses information about two character sets, typically different
+<BR>&nbsp;-&nbsp;&nbsp;input&nbsp;and&nbsp;output.&nbsp;They&nbsp;are&nbsp;stored&nbsp;in&nbsp;plain&nbsp;text&nbsp;files&nbsp;in&nbsp;
+<B>catdoc</B>
+
+library directory. Character set files should contain two whitespace-separated
+hexadecimal numbers - 8-bit code in character set and 16-bit unicode code.
+Anything from hash mark to end of line is ignored, as well as blank lines.
+<P>
+<B>catdoc </B>
+
+distribution includes some of these character sets. Additional character set
+definitions, directly usable by 
+<B>catdoc </B>
+
+can be obtained from <A HREF="ftp://ftp.unicode.org">ftp.unicode.org</A>. Charset files have
+<B>.txt</B>
+
+suffix, which shouldn't be specified in command-line or configuration
+files.  
+<P>
+
+Note that
+<B>catdoc </B>
+
+is distributed with Cyrillic charsets as default. If you are not
+Russian, you probably don't want it, an should reconfigure catdoc at 
+compile time or in runtime configuration file.
+<P>
+
+When dealing with documents with charsets other than default, remember
+that Microsoft never uses ISO charsets. While letters in, say cp1252 are
+at the same position as in ISO-8859-1, some punctuation signs would be
+lost, if you specify ISO-8859-1 as input charset. If you use cp1252,
+catdoc would deal with those signs as described in CHARACTER
+SUBSTITUTION below.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CHARACTER SUBSTITUTION </H2>
+
+<B>catdoc</B>
+
+converts  MS-Word file into following internal unicode representation:
+<DL COMPACT>
+<DT>1. Paragraphs are separated by ASCII Line Feed symbol (0x000A)<DD>
+<DT>2. Table cells within row are separated by ASCII Field Separator symbol<DD>
+(0x001C)
+<DT>3. Table rows are separated by ASCII Record Separator (0x001E) <DD>
+<DT>4. All printable characters, including whitespace are represented with their<DD>
+respective UNICODE codes.
+</DL>
+<P>
+
+This UNICODE representation is subsequentely converted into 8-bit text in
+target character set using following four-step algorithm:
+<DL COMPACT>
+<DT>1. List of special characters is searched for given unicode character.<DD>
+If found, then appropriate multi-character sequence is output instead of
+character. 
+<DT>2. If there is an equivalent in target character set, it is output.<DD>
+<DT>3. Otherwise, replacement list is searched and, if there is multi-character<DD>
+substitution for this UNICODE char, it is output.
+<DT>4. If all above fails, &quot;Unknown char&quot; symbol (question mark) is output.<DD>
+</DL>
+<P>
+
+Lists of special characters and list of substitution are character
+set-independent, becouse special chars should be escaped regardless of their
+existense in target character set  (usially, they are parts of US-ASCII, and
+therefore exist in any character set) and replacement list is searched only
+for those characters, which are not found in target character set.
+<P>
+
+These lists are stored in
+<B>catdoc </B>
+
+library directory in files with prefix of format name. These files have
+following format:
+<P>
+
+Each line can be either comment (starting with hash mark) or contain
+hexadecimal UNICODE value, separated by whitespace from string, which
+would be substituted instead of it. If string contain no whitespace it 
+can be used as is, otherwise it should be enclosed in single or double
+quotes. Usial backslash sequences like 
+<I>'\n'</I>,<I>'\t'</I>
+
+can be used in these string.
+<P>
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>RUNTIME CONFIGURATION</H2>
+
+Upon startup catdoc reads its system-wide configuration file (
+<B>catdocrc in </B>
+
+<B>catdoc</B>
+
+library directory) and then
+user-specific configuration file
+<B>${HOME}/.catdocrc.</B>
+
+<P>
+
+These files can contain following directives:
+<DL COMPACT>
+<DT><B>source_charset = </B><I>charset-name</I>
+
+<DD>
+Sets default source charset, which would be used if no 
+<B>-s</B>
+
+option specified. Consult configuration of nearby windows
+workstation to find one you need.
+<DT><B>target_charset = </B><I>charset-name</I>
+
+<DD>
+<BR>&nbsp;Sets&nbsp;default&nbsp;output&nbsp;charset.&nbsp;You&nbsp;probably&nbsp;know,&nbsp;which&nbsp;one&nbsp;you&nbsp;use.
+<DT><B>charset_path = </B><I>directory-list</I>
+
+<DD>
+colon-separated list of directories, which are searched for charset files.
+This allows you to install additional charsets in your home directory.
+<DT><B>map_path = </B><I>directory-list</I>
+
+<DD>
+colon-separated list of directories, which are searched for special character
+map and replacement map.
+<DT><B>format = </B><I>format name</I>
+
+<DD>
+Output format which would be used by default.
+<B>catdoc</B>
+
+comes with two formats - 
+<B>ascii</B> and <B>tex</B>
+
+but nothing prevents you from writing your own format (set two map files -
+special character map and replacement map).
+<DT><B>unknown_char = </B><I>character specification</I>
+
+<DD>
+sets characher to output instead of unknown unicode character (default '?')
+Character specification can have one of two form - character enclosed in
+single quotes or hexadecimal code.
+<DT><B>use_locale =</B><I>(yes|no)</I>
+
+<DD>
+Enables or disables automatic selection of output charset (default 
+<B>yes</B>),
+
+<BR>&nbsp;based&nbsp;on
+system locale settings (if enabled at compile time). If automatic
+detection is enabled, than output charset settings in the configuration
+files (but not in the command line) are ignored, and current system
+locale charset is used instead. There are no automatic choice of input
+charset, based of locale language, because most modern Word files (since
+Word 97) are Unicode anyway
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+Doesn't handle
+fast-saves properly. Prints footnotes as separate paragraphs at the end of
+file, instead of producing correct LaTeX commands. Cannot distinguish
+between empty table cell and end of table row.
+<P>
+<P>
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<B><A HREF="../man1/xls2csv.1.php">xls2csv</A></B>(1),
+
+<B><A HREF="../man1/cat.1.php">cat</A></B>(1),
+
+<B><A HREF="../man1/strings.1.php">strings</A></B>(1),
+
+<B><A HREF="../man4/utf.4.php">utf</A></B>(4),
+
+<B><A HREF="../man4/unicode.4.php">unicode</A></B>(4)
+
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+V.B.Wagner &lt;<A HREF="mailto:vitus@ice.ru">vitus@ice.ru</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">CHARACTER SETS</A><DD>
+<DT><A HREF="#lbAG">CHARACTER SUBSTITUTION </A><DD>
+<DT><A HREF="#lbAH">RUNTIME CONFIGURATION</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

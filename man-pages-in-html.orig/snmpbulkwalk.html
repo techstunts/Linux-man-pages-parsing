@@ -1,0 +1,242 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SNMPBULKWALK</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SNMPBULKWALK</H1>
+Section: Net-SNMP (1)<BR>Updated: 17 Jun 1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+snmpbulkwalk - communicates with a network entity using SNMP BULK Requests.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>snmpbulkwalk</B>
+
+[APPLICATION OPTIONS] [COMMON OPTIONS] [OID]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>snmpbulkwalk</B>
+
+is an SNMP application that uses SNMP GETBULK requests to query a
+network entity efficiently for a tree of information.
+<P>
+
+An object identifier (OID) may be given on the command line.  This OID
+specifies which portion of the object identifier space will be
+searched using GETBULK requests.  All variables in the subtree below
+the given OID are queried and their values presented to the user.
+Each variable name is given in the format specified in
+<I><A HREF="../man5/variables.5.php">variables</A>(5)</I>.
+
+If no OID argument is present,
+<B>snmpbulkwalk</B>
+
+will search MIB-2.
+<P>
+
+If the network entity has an error processing the request packet, an
+error packet will be returned and a message will be shown, helping to
+pinpoint why the request was malformed.
+<P>
+
+If the tree search causes attempts to search beyond the end of the
+MIB, the message &quot;End of MIB&quot; will be displayed.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-Cc</B>
+
+<DD>
+Do not check whether the returned OIDs are increasing.  Some agents
+(LaserJets are an example) return OIDs out of order, but can
+complete the walk anyway.  Other agents return OIDs that are out of
+order and can cause
+<B>snmpbulkwalk</B>
+
+to loop indefinitely.  By default,
+<B>snmpbulkwalk</B>
+
+tries to detect this behavior and warns you when it hits an agent
+acting illegally.  Use
+<B>-Cc</B>
+
+to turn off this behaviour.
+<DT><B>-Ci</B>
+
+<DD>
+Include the given OID in the search range.  Normally
+<B>snmpbulkwalk</B>
+
+uses GETBULK requests starting with the OID you specified and returns
+all results in the MIB tree after that OID.  Sometimes, you may wish
+to include the OID specified on the command line in the printed
+results if it is a valid OID in the tree itself.  This option lets you
+do this.
+<DT><B>-Cn</B><I>&lt;NUM&gt;</I>
+
+<DD>
+Set the
+<I>non-repeaters</I>
+
+field in the GETBULK PDUs.  This specifies the number of supplied
+variables that should not be iterated over.  The default is 0.
+<DT><B>-Cp</B>
+
+<DD>
+Upon completion of the walk, print the number of variables found.
+<DT><B>-Cr</B><I>&lt;NUM&gt;</I>
+
+<DD>
+Set the
+<I>max-repetitions</I>
+
+field in the GETBULK PDUs.  This specifies the maximum number of
+iterations over the repeating variables.  The default is 10.
+</DL>
+<P>
+
+In addition to these options,
+<B>snmpbulkwalk</B>
+
+takes the common options described in the 
+<I><A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1)</I>
+
+manual page.
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+The command:
+<P>
+
+snmpbulkwalk -v2c -Os -c public zeus system
+<P>
+
+will retrieve all of the variables under system:
+<P>
+
+sysDescr.0 = STRING: &quot;SunOS zeus.net.cmu.edu 4.1.3_U1 1 sun4m&quot;
+<BR>
+
+sysObjectID.0 = OID: enterprises.hp.nm.hpsystem.10.1.1
+<BR>
+
+sysUpTime.0 = Timeticks: (155274552) 17 days, 23:19:05
+<BR>
+
+sysContact.0 = STRING: &quot;&quot;
+<BR>
+
+sysName.0 = STRING: &quot;zeus.net.cmu.edu&quot;
+<BR>
+
+sysLocation.0 = STRING: &quot;&quot;
+<BR>
+
+sysServices.0 = INTEGER: 72
+<P>
+
+In contrast to
+<B>snmpwalk</B>,
+
+this information will typically be gathered in a single transaction
+with the agent, rather than one transaction per variable found.
+<B>snmpbulkwalk</B>
+
+is thus more efficient in terms of network utilisation, which may be
+especially important when retrieving large tables.
+<A NAME="lbAG">&nbsp;</A>
+<H2>NOTE</H2>
+
+As the name implies,
+<B>snmpbulkwalk</B>
+
+utilizes the SNMP GETBULK message, which is not available in SNMP v1.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1), <A HREF="../man5/variables.5.php">variables</A>(5).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLE</A><DD>
+<DT><A HREF="#lbAG">NOTE</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

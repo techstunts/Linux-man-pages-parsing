@@ -1,0 +1,359 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>IMAKE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>IMAKE</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+imake - C preprocessor interface to the make utility
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>imake</B> [ <B>-D</B><I>define</I> ] [ <B>-I</B><I>dir</I> ]
+[ <B>-U</B><I>define</I> ] 
+[ <B>-T</B><I>template</I> ]
+[ <B>-f</B> <I>filename</I> ] [ <B>-C</B> <I>filename</I> ]
+[ <B>-s</B> <I>filename</I> ] [ <B>-e</B> ]
+[ <B>-v</B> ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Imake</I>
+
+is used to 
+generate <I>Makefiles</I> from a template, a set of <I>cpp</I> macro functions,
+and a per-directory input file called an <I>Imakefile</I>.  This allows machine
+dependencies (such as compiler options, alternate command names, and special
+<I>make</I> rules) to be kept separate from the descriptions of the
+various items to be built.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following command line options may be passed to <I>imake</I>:
+<DL COMPACT>
+<DT><B>-D</B><I>define</I>
+
+<DD>
+This option is passed directly to <I>cpp</I>.  It is typically used to set
+directory-specific variables.  For example, the X Window System uses this
+flag to set <I>TOPDIR</I> to the name of the directory containing the top
+of the core distribution and <I>CURDIR</I> to the name of the current 
+directory, relative to the top.
+<DT><B>-I</B><I>directory</I>
+
+<DD>
+This option is passed directly to <I>cpp</I>.  It is typically used to 
+indicate the directory in which the <I>imake</I> template and configuration
+files may be found.
+<DT><B>-U</B><I>define</I>
+
+<DD>
+This option is passed directly to <I>cpp</I>.  It is typically used to
+unset variables when debugging <I>imake</I> configuration files.
+<DT><B>-T</B><I>template</I>
+
+<DD>
+This option specifies the name of the master template file (which is usually
+located in the directory specified with <I>-I</I>) used by <I>cpp</I>.
+The default is <I>Imake.tmpl</I>.
+<DT><B>-f </B><I>filename</I>
+
+<DD>
+This option specifies the name of the per-directory input file.  The default
+is <I>Imakefile</I>.
+<DT><B>-C </B><I>filename</I>
+
+<DD>
+This option specifies the name of the .c file that is constructed in the
+current directory.  The default is <I>Imakefile.c</I>.
+<DT><B>-s </B><I>filename</I>
+
+<DD>
+This option specifies the name of the <I>make</I> description file to be 
+generated but <I>make</I> should not be invoked.
+If the <I>filename</I> is a dash (-), the 
+output is written to <I>stdout</I>.  The default is to generate, but
+not execute, a <I>Makefile</I>.
+<DT><B>-e</B>
+
+<DD>
+This option indicates the <I>imake</I> should execute the generated
+<I>Makefile</I>.  The default is to leave this to the user.
+<DT><B>-v</B>
+
+<DD>
+This option indicates that <I>imake</I> should print the <I>cpp</I> command line 
+that it is using to generate the <I>Makefile</I>.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>HOW IT WORKS</H2>
+
+<I>Imake</I> invokes <I>cpp</I> with any <I>-I</I> or <I>-D</I> flags passed
+on the command line and passes the name of a file containing the
+following 3 lines:
+<P>
+<PRE>
+                #define IMAKE_TEMPLATE &quot;Imake.tmpl&quot;
+                #define INCLUDE_IMAKEFILE &lt;Imakefile&gt;
+                #include IMAKE_TEMPLATE
+</PRE>
+
+<P>
+where <I>Imake.tmpl</I> and <I>Imakefile</I> may be overridden by the 
+<I>-T</I> and <I>-f</I> command options, respectively.
+<P>
+
+The IMAKE_TEMPLATE typically
+reads in a file containing machine-dependent parameters 
+(specified as <I>cpp</I> symbols), a site-specific parameters file,
+a file defining variables,
+a file
+containing <I>cpp</I> macro functions for generating <I>make</I> rules, and
+finally the <I>Imakefile</I> (specified by INCLUDE_IMAKEFILE) in the current 
+directory.  The <I>Imakefile</I> uses the macro functions to indicate what
+targets should be built; <I>imake</I> takes care of generating the appropriate
+rules.
+<P>
+
+<I>Imake</I>
+
+configuration files contain two types of variables, imake variables
+and make variables.  The imake variables are interpreted by cpp when
+<I>imake</I>
+
+is run.  By convention they are mixed case.  The make variables are
+written into the
+<I>Makefile</I>
+
+for later interpretation by
+<I>make.</I>
+
+By convention make variables are upper case.
+<P>
+
+The rules file (usually named <I>Imake.rules</I> in the configuration
+directory) contains a variety of <I>cpp</I> macro functions that are
+configured according to the current platform.  <I>Imake</I> replaces 
+any occurrences of the string ``@@'' with a newline to allow macros that
+generate more than one line of <I>make</I> rules.  
+For example, the macro
+
+
+<PRE>
+
+ #define  program_target(program, objlist)        @@\
+ program: objlist                                 @@\
+          $(CC)  -o  $@  objlist  $(LDFLAGS)
+
+</PRE>
+
+when called with
+<I>program_target(foo, foo1.o  foo2.o)</I>
+
+will expand to
+<PRE>
+
+ foo:     foo1.o  foo2.o
+          $(CC)  -o  $@  foo1.o  foo2.o  $(LDFLAGS)
+
+</PRE>
+
+<P>
+
+<I>Imake</I> also replaces any occurrences of the word ``XCOMM'' with
+the character ``#'' to permit placing comments in the Makefile without
+causing ``invalid directive'' errors from the preprocessor.
+<P>
+
+Some complex <I>imake</I> macros require generated <I>make</I> variables
+local to each invocation of the macro, often because their value
+depends on parameters passed to the macro.
+Such variables can be created by using an <I>imake</I> variable
+of the form <B>XVARdef</B><I>n</I>, where <I>n</I> is a single digit.
+A unique <I>make</I> variable will be substituted.  Later occurrences
+of the variable <B>XVARuse</B><I>n</I> will
+be replaced by the variable created by the corresponding
+<B>XVARdef</B><I>n</I>.
+<P>
+
+On systems whose <I>cpp</I> reduces multiple tabs and spaces to a single
+space, <I>imake</I> attempts to put back any necessary tabs (<I>make</I> is
+very picky about the difference between tabs and spaces).  For this reason,
+colons (:) in command lines must be preceded by a backslash (\).
+<A NAME="lbAG">&nbsp;</A>
+<H2>USE WITH THE X WINDOW SYSTEM</H2>
+
+The X Window System uses <I>imake</I> extensively, for both full builds within
+the source tree and external software.  As mentioned above, two special
+variables, <I>TOPDIR</I> and <I>CURDIR,</I> are set to make referencing files
+using relative path names easier.  For example, the following command is
+generated automatically to build the <I>Makefile</I> in the directory
+<I>lib/X/</I> (relative to the top of the sources):
+<P>
+<PRE>
+          %  ../.././config/imake  -I../.././config  	-DTOPDIR=../../.   -DCURDIR=./lib/X
+
+</PRE>
+
+<P>
+When building X programs outside the source tree, a special symbol
+<I>UseInstalled</I> is defined and <I>TOPDIR</I> and
+<I>CURDIR</I> are omitted.  If the configuration files have been
+properly installed, the script <I><A HREF="../man1/xmkmf.1.php">xmkmf</A></I>(1) may be used.
+<A NAME="lbAH">&nbsp;</A>
+<H2>INPUT FILES</H2>
+
+Here is a summary of the files read by
+<I>imake</I>
+
+as used by X.
+The indentation shows what files include what other files.
+<PRE>
+
+
+    Imake.tmpl                generic variables
+        site.def              site-specific, BeforeVendorCF defined
+        *.cf                  machine-specific
+            *Lib.rules        shared library rules
+        site.def              site-specific, AfterVendorCF defined
+        Imake.rules           rules
+        Project.tmpl          X-specific variables
+            *Lib.tmpl         shared library variables
+        Imakefile
+            Library.tmpl      library rules
+            Server.tmpl       server rules
+            Threads.tmpl      multi-threaded rules
+</PRE>
+
+<P>
+
+Note that <I>site.def</I> gets included twice, once before the
+<I>*.cf</I> file and once after.  Although most site customizations
+should be specified after the <I>*.cf</I> file, some, such as the
+choice of compiler, need to be specified before, because other
+variable settings may depend on them.
+<P>
+
+The first time <I>site.def</I> is included, the variable BeforeVendorCF
+is defined, and the second time, the variable AfterVendorCF is
+defined.  All code in <I>site.def</I> should be inside an #ifdef for
+one of these symbols.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+
+
+Imakefile.c<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>temporary input file for cpp<BR>
+<BR>
+
+/tmp/Imf.XXXXXX<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>temporary Makefile for -s<BR>
+<BR>
+
+/tmp/IIf.XXXXXX<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>temporary Imakefile if specified Imakefile uses # comments<BR>
+<BR>
+
+&quot;cpp&quot;<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>default C preprocessor<BR>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/make.1.php">make</A>(1), <A HREF="../man1/xmkmf.1.php">xmkmf</A>(1)
+<BR>
+
+S. I. Feldman,
+<I>Make --- A Program for Maintaining Computer Programs</I>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+The following environment variables may be set, however their use is not
+recommended as they introduce dependencies that are not readily apparent
+when <I>imake</I> is run:
+<DL COMPACT>
+<DT><B>IMAKEINCLUDE</B>
+
+<DD>
+If defined, this specifies a ``-I'' include argument to pass to the
+C preprocessor.  E.g., ``-I/usr/X11/config''.
+<DT><B>IMAKECPP</B>
+
+<DD>
+If defined, this should be a valid path to a preprocessor program.
+E.g., ``/usr/local/cpp''.
+By default,
+<I>imake</I>
+
+will use cc -E or &quot;cpp&quot;, depending on the OS specific configuration.
+<DT><B>IMAKEMAKE</B>
+
+<DD>
+If defined, this should be a valid path to a make program,
+such as ``/usr/local/make''.
+By default,
+<I>imake</I>
+
+will use whatever
+<I>make</I>
+
+program is found using
+<I><A HREF="../man3/execvp.3.php">execvp</A>(3).</I>
+
+This variable is only used if the ``-e'' option is specified.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Todd Brunhoff, Tektronix and MIT Project Athena; Jim Fulton, MIT X Consortium
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">HOW IT WORKS</A><DD>
+<DT><A HREF="#lbAG">USE WITH THE X WINDOW SYSTEM</A><DD>
+<DT><A HREF="#lbAH">INPUT FILES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

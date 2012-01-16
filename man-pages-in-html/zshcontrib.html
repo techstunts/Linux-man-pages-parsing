@@ -1,0 +1,2039 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ZSHCONTRIB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ZSHCONTRIB</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: March 19, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+zshcontrib - user contributions to zsh
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The Zsh source distribution includes a number of items contributed by the
+user community.  These are not inherently a part of the shell, and some
+may not be available in every zsh installation.  The most significant of
+these are documented here.  For documentation on other contributed items
+such as shell functions, look for comments in the function source files.
+<P>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>UTILITIES</H2>
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Accessing On-Line Help</H3>
+
+<P>
+
+The key sequence <B>ESC h</B> is normally bound by ZLE to execute the
+<B>run-help</B> widget (see
+<I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1)).  This invokes the <B>run-help</B> command with the command word from the
+current input line as its argument.  By default, <B>run-help</B> is an alias
+for the <B>man</B> command, so this often fails when the command word is a
+shell builtin or a user-defined function.  By redefining the <B>run-help</B>
+alias, one can improve the on-line help provided by the shell.
+<P>
+
+The <B>helpfiles</B> utility, found in the <B>Util</B> directory of the
+distribution, is a Perl program that can be used to process the zsh manual
+to produce a separate help file for each shell builtin and for many other
+shell features as well.  The autoloadable <B>run-help</B> function, found in
+<B>Functions/Misc</B>, searches for these helpfiles and performs several
+other tests to produce the most complete help possible for the command.
+<P>
+
+There may already be a directory of help files on your system; look in
+<B>/usr/share/zsh</B> or <B>/usr/local/share/zsh</B> and subdirectories below
+those, or ask your system administrator.
+<P>
+
+To create your own help files with <B>helpfiles</B>, choose or create a
+directory where the individual command help files will reside.  For
+example, you might choose <B>~/zsh_help</B>.  If you unpacked the zsh
+distribution in your home directory, you would use the commands:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>mkdir ~/zsh_help
+cd ~/zsh_help
+man zshall | colcrt - | \ 
+perl ~/zsh-4.2.0/Util/helpfiles</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Next, to use the <B>run-help</B> function, you need to add lines something
+like the following to your <B>.zshrc</B> or equivalent startup file:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>unalias run-help
+autoload run-help
+HELPDIR=~/zsh_help</B>
+</PRE>
+
+</DL>
+
+<P>
+
+The <B>HELPDIR</B> parameter tells <B>run-help</B> where to look for the help
+files.  If your system already has a help file directory installed, set
+<B>HELPDIR</B> to the path of that directory instead.
+<P>
+
+Note that in order for `<B>autoload run-help</B>' to work, the <B>run-help</B>
+file must be in one of the directories named in your <B>fpath</B> array (see
+<I><A HREF="../man1/zshparam.1.php">zshparam</A></I>(1)).  This should already be the case if you have a standard zsh
+installation; if it is not, copy <B>Functions/Misc/run-help</B> to an
+appropriate directory.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Recompiling Functions</H3>
+
+<P>
+
+If you frequently edit your zsh functions, or periodically update your zsh
+installation to track the latest developments, you may find that function
+digests compiled with the <B>zcompile</B> builtin are frequently out of date
+with respect to the function source files.  This is not usually a problem,
+because zsh always looks for the newest file when loading a function, but
+it may cause slower shell startup and function loading.  Also, if a digest
+file is explicitly used as an element of <B>fpath</B>, zsh won't check whether
+any of its source files has changed.
+<P>
+
+The <B>zrecompile</B> autoloadable function, found in <B>Functions/Misc</B>, can
+be used to keep function digests up to date.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zrecompile</B> [ <B>-qt</B> ] [ <I>name</I> ... ]
+<DT>
+<DD>
+<B>zrecompile</B> [ <B>-qt</B> ] <B>-p</B> <I>args</I> [ <B>-</B><B>-</B> <I>args</I> ... ]
+This tries to find <B>*.zwc</B> files and automatically re-compile them if at
+least one of the original files is newer than the compiled file.  This
+works only if the names stored in the compiled files are full paths or are
+relative to the directory that contains the <B>.zwc</B> file.
+<DL COMPACT><DT><DD>
+<P>
+
+In the first form, each <I>name</I> is the name of a compiled file or a
+directory containing <B>*.zwc</B> files that should be checked.  If no
+arguments are given, the directories and <B>*.zwc</B> files in <B>fpath</B> are
+used.
+<P>
+
+When <B>-t</B> is given, no compilation is performed, but a return status of
+zero (true) is set if there are files that need to be re-compiled and
+non-zero (false) otherwise.  The <B>-q</B> option quiets the chatty output
+that describes what <B>zrecompile</B> is doing.
+<P>
+
+Without the <B>-t</B> option, the return status is zero if all files that
+needed re-compilation could be compiled and non-zero if compilation for at
+least one of the files failed.
+<P>
+
+If the <B>-p</B> option is given, the <I>args</I> are interpreted as one
+or more sets of arguments for <B>zcompile</B>, separated by `<B>-</B><B>-</B>'.
+For example:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zrecompile -p \ 
+           -R ~/.zshrc -- \ 
+           -M ~/.zcompdump -- \ 
+           ~/zsh/comp.zwc ~/zsh/Completion/*/_*</B>
+</PRE>
+
+</DL>
+
+<P>
+
+This compiles <B>~/.zshrc</B> into <B>~/.zshrc.zwc</B> if that doesn't exist or
+if it is older than <B>~/.zshrc</B>. The compiled file will be marked for
+reading instead of mapping. The same is done for <B>~/.zcompdump</B> and
+<B>~/.zcompdump.zwc</B>, but this compiled file is marked for mapping. The
+last line re-creates the file <B>~/zsh/comp.zwc</B> if any of the files
+matching the given pattern is newer than it.
+<P>
+
+Without the <B>-p</B> option, <B>zrecompile</B> does not create function digests
+that do not already exist, nor does it add new functions to the digest.
+</DL>
+
+
+</DL>
+<P>
+
+The following shell loop is an example of a method for creating function
+digests for all functions in your <B>fpath</B>, assuming that you have write
+permission to the directories:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>for ((i=1; i &lt;= $#fpath; ++i)); do
+  dir=$fpath[i]
+  zwc=${dir:t}.zwc
+  if [[ $dir == (.|..) || $dir == (.|..)/* ]]; then
+    continue
+  fi
+  files=($dir/*(N-.))
+  if [[ -w $dir:h &amp;&amp; -n $files ]]; then
+    files=(${${(M)files%/*/*}#/})
+    if ( cd $dir:h &amp;&amp;
+         zrecompile -p -U -z $zwc $files ); then
+      fpath[i]=$fpath[i].zwc
+    fi
+  fi
+done</B>
+</PRE>
+
+</DL>
+
+<P>
+
+The <B>-U</B> and <B>-z</B> options are appropriate for functions in the default
+zsh installation <B>fpath</B>; you may need to use different options for your
+personal function directories.
+<P>
+
+Once the digests have been created and your <B>fpath</B> modified to refer to
+them, you can keep them up to date by running <B>zrecompile</B> with no
+arguments.
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Keyboard Definition</H3>
+
+<P>
+
+The large number of possible combinations of keyboards, workstations,
+terminals, emulators, and window systems makes it impossible for zsh to
+have built-in key bindings for every situation.  The <B>zkbd</B> utility,
+found in Functions/Misc, can help you quickly create key bindings for your
+configuration.
+<P>
+
+Run <B>zkbd</B> either as an autoloaded function, or as a shell script:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zsh -f ~/zsh-4.2.0/Functions/Misc/zkbd</B>
+</PRE>
+
+</DL>
+
+<P>
+
+When you run <B>zkbd</B>, it first asks you to enter your terminal type; if
+the default it offers is correct, just press return.  It then asks you to
+press a number of different keys to determine characteristics of your
+keyboard and terminal; <B>zkbd</B> warns you if it finds anything out of the
+ordinary, such as a Delete key that sends neither <B>^H</B> nor <B>^?</B>.
+<P>
+
+The keystrokes read by <B>zkbd</B> are recorded as a definition for an
+associative array named <B>key</B>, written to a file in the subdirectory
+<B>.zkbd</B> within either your <B>HOME</B> or <B>ZDOTDIR</B> directory.  The name
+of the file is composed from the <B>TERM</B>, <B>VENDOR</B> and <B>OSTYPE</B>
+parameters, joined by hyphens.
+<P>
+
+You may read this file into your <B>.zshrc</B> or another startup file with
+the &quot;source&quot; or &quot;.&quot; commands, then reference the <B>key</B> parameter in
+bindkey commands, like this:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>source ${ZDOTDIR:-$HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE
+[[ -n ${key[Left]} ]] &amp;&amp; bindkey &quot;${key[Left]}&quot; backward-char
+[[ -n ${key[Right]} ]] &amp;&amp; bindkey &quot;${key[Right]}&quot; forward-char
+# etc.</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Note that in order for `<B>autoload zkbd</B>' to work, the <B>zkdb</B> file must
+be in one of the directories named in your <B>fpath</B> array (see
+<I><A HREF="../man1/zshparam.1.php">zshparam</A></I>(1)).  This should already be the case if you have a standard zsh
+installation; if it is not, copy <B>Functions/Misc/zkbd</B> to an
+appropriate directory.
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Dumping Shell State</H3>
+
+<P>
+
+Occasionally you may encounter what appears to be a bug in the shell,
+particularly if you are using a beta version of zsh or a development
+release.  Usually it is sufficient to send a description of the
+problem to one of the zsh mailing lists (see
+<I><A HREF="../man1/zsh.1.php">zsh</A></I>(1)), but sometimes one of the zsh developers will need to recreate your
+environment in order to track the problem down.
+<P>
+
+The script named <B>reporter</B>, found in the <B>Util</B> directory of the
+distribution, is provided for this purpose.  (It is also possible to
+<B>autoload reporter</B>, but <B>reporter</B> is not installed in <B>fpath</B>
+by default.)  This script outputs a detailed dump of the shell state,
+in the form of another script that can be read with `<B>zsh -f</B>' to
+recreate that state.
+<P>
+
+To use <B>reporter</B>, read the script into your shell with the `<B>.</B>'
+command and redirect the output into a file:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>. ~/zsh-4.2.0/Util/reporter &gt; zsh.report</B>
+</PRE>
+
+</DL>
+
+<P>
+
+You should check the <B>zsh.report</B> file for any sensitive information
+such as passwords and delete them by hand before sending the script to the
+developers.  Also, as the output can be voluminous, it's best to wait for
+the developers to ask for this information before sending it.
+<P>
+
+You can also use <B>reporter</B> to dump only a subset of the shell state.
+This is sometimes useful for creating startup files for the first time.
+Most of the output from reporter is far more detailed than usually is
+necessary for a startup file, but the <B>aliases</B>, <B>options</B>, and
+<B>zstyles</B> states may be useful because they include only changes from
+the defaults.  The <B>bindings</B> state may be useful if you have created
+any of your own keymaps, because <B>reporter</B> arranges to dump the keymap
+creation commands as well as the bindings for every keymap.
+<P>
+
+As is usual with automated tools, if you create a startup file with
+<B>reporter</B>, you should edit the results to remove unnecessary commands.
+Note that if you're using the new completion system, you should <I>not</I>
+dump the <B>functions</B> state to your startup files with <B>reporter</B>; use
+the <B>compdump</B> function instead (see
+<I><A HREF="../man1/zshcompsys.1.php">zshcompsys</A></I>(1)).
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>reporter</B> [ <I>state</I> ... ]
+Print to standard output the indicated subset of the current shell state.
+The <I>state</I> arguments may be one or more of:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT><B>all</B><DD>
+Output everything listed below.
+<DT><B>aliases</B><DD>
+Output alias definitions.
+<DT><B>bindings</B><DD>
+Output ZLE key maps and bindings.
+<DT><B>completion</B><DD>
+Output old-style <B>compctl</B> commands.
+New completion is covered by <B>functions</B> and <B>zstyles</B>.
+<DT><B>functions</B><DD>
+Output autoloads and function definitions.
+<DT><B>limits</B><DD>
+Output <B>limit</B> commands.
+<DT><B>options</B><DD>
+Output <B>setopt</B> commands.
+<DT><B>styles</B><DD>
+Same as <B>zstyles</B>.
+<DT><B>variables</B><DD>
+Output shell parameter assignments, plus <B>export</B>
+commands for any environment variables.
+<DT><B>zstyles</B><DD>
+Output <B>zstyle</B> commands.
+
+</DL>
+<P>
+
+If the <I>state</I> is omitted, <B>all</B> is assumed.
+</DL>
+
+</DL>
+<P>
+
+With the exception of `<B>all</B>', every <I>state</I> can be abbreviated by
+any prefix, even a single letter; thus <B>a</B> is the same as <B>aliases</B>,
+<B>z</B> is the same as <B>zstyles</B>, etc.
+
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>PROMPT THEMES</H2>
+
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Installation</H3>
+
+<P>
+
+You should make sure all the functions from the <B>Functions/Prompts</B>
+directory of the source distribution are available; they all begin with
+the string `<B>prompt_</B>' except for the special function`<B>promptinit</B>'.
+You also need the `<B>colors</B>' function from <B>Functions/Misc</B>.  All of
+these functions may already have been installed on your system; if not,
+you will need to find them and copy them.  The directory should appear as
+one of the elements of the <B>fpath</B> array (this should already be the
+case if they were installed), and at least the function <B>promptinit</B>
+should be autoloaded; it will autoload the rest.  Finally, to initialize
+the use of the system you need to call the <B>promptinit</B> function.  The
+following code in your <B>.zshrc</B> will arrange for this; assume the
+functions are stored in the directory <B>~/myfns</B>:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>fpath=(~/myfns $fpath)
+autoload -U promptinit
+promptinit</B>
+</PRE>
+
+</DL>
+
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>Theme Selection</H3>
+
+<P>
+
+Use the <B>prompt</B> command to select your preferred theme.  This command
+may be added to your <B>.zshrc</B> following the call to <B>promptinit</B> in
+order to start zsh with a theme already selected.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>prompt</B> [ <B>-c</B> | <B>-l</B> ]
+<DT>
+<DD>
+<B>prompt</B> [ <B>-p</B> | <B>-h</B> ] [ <I>theme</I> ... ]
+<DT>
+<DD>
+<B>prompt</B> [ <B>-s</B> ] <I>theme</I> [ <I>arg</I> ... ]
+Set or examine the prompt theme.  With no options and a <I>theme</I>
+argument, the theme with that name is set as the current theme.  The
+available themes are determined at run time; use the <B>-l</B> option to see
+a list.  The special <I>theme</I> `<B>random</B>' selects at random one of the
+available themes and sets your prompt to that.
+<DL COMPACT><DT><DD>
+<P>
+
+In some cases the <I>theme</I> may be modified by one or more arguments,
+which should be given after the theme name.  See the help for each theme
+for descriptions of these arguments.
+<P>
+
+Options are:
+<P>
+
+
+<DL COMPACT>
+<DT><B>-c</B><DD>
+Show the currently selected theme and its parameters, if any.
+<DT><B>-l</B><DD>
+List all available prompt themes.
+<DT><B>-p</B><DD>
+Preview the theme named by <I>theme</I>, or all themes if no
+<I>theme</I> is given.
+<DT><B>-h</B><DD>
+Show help for the theme named by <I>theme</I>, or for the
+<B>prompt</B> function if no <I>theme</I> is given.
+<DT><B>-s</B><DD>
+Set <I>theme</I> as the current theme and save state.
+
+</DL>
+</DL>
+
+<DT><B>prompt_</B><I>theme</I><B>_setup</B><DD>
+Each available <I>theme</I> has a setup function which is called by the
+<B>prompt</B> function to install that theme.  This function may define
+other functions as necessary to maintain the prompt, including functions
+used to preview the prompt or provide help for its use.  You should not
+normally call a theme's setup function directly.
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>ZLE FUNCTIONS</H2>
+
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H3>Widgets</H3>
+
+<P>
+
+These functions all implement user-defined ZLE widgets (see
+<I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1)) which can be bound to keystrokes in interactive shells.  To use them,
+your <B>.zshrc</B> should contain lines of the form
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>autoload </B><I>function</I>
+zle -N <I>function</I>
+</PRE>
+
+</DL>
+
+<P>
+
+followed by an appropriate <B>bindkey</B> command to associate the function
+with a key sequence.  Suggested bindings are described below.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+bash-style word functions
+If you are looking for functions to implement moving over and editing
+words in the manner of bash, where only alphanumeric characters are
+considered word characters, you can use the functions described in
+the next section.  The following is sufficient:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>autoload -U select-word-style
+select-word-style bash</B>
+</PRE>
+
+</DL>
+
+<P>
+
+</DL>
+
+<DT>
+<DD>
+<B>forward-word-match</B>, <B>backward-word-match</B>
+<DT>
+<DD>
+<B>kill-word-match</B>, <B>backward-kill-word-match</B>
+<DT>
+<DD>
+<B>transpose-words-match</B>, <B>capitalize-word-match</B>
+<DT>
+<DD>
+<B>up-case-word-match</B>, <B>down-case-word-match</B>
+<DT>
+<DD>
+<B>select-word-style</B>, <B>match-words-by-style</B>
+The eight `<B>-match</B>' functions are drop-in replacements for the
+builtin widgets without the suffix.  By default they behave in a similar
+way.  However, by the use of styles and the function <B>select-word-style</B>,
+the way words are matched can be altered.
+<DL COMPACT><DT><DD>
+<P>
+
+The simplest way of configuring the functions is to use
+<B>select-word-style</B>, which can either be called as a normal function with
+the appropriate argument, or invoked as a user-defined widget that will
+prompt for the first character of the word style to be used.  The first
+time it is invoked, the eight <B>-match</B> functions will automatically
+replace the builtin versions, so they do not need to be loaded explicitly.
+<P>
+
+The word styles available are as follows.  Only the first character
+is examined.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>bash</B>
+Word characters are alphanumeric characters only.
+<DT><B>normal</B><DD>
+As in normal shell operation:  word characters are alphanumeric characters
+plus any characters present in the string given by the parameter
+<B>$WORDCHARS</B>.
+<DT><B>shell</B><DD>
+Words are complete shell command arguments, possibly including complete
+quoted strings, or any tokens special to the shell.
+<DT><B>whitespace</B><DD>
+Words are any set of characters delimited by whitespace.
+<DT><B>default</B><DD>
+Restore the default settings; this is usually the same as `<B>normal</B>'.
+</DL>
+<P>
+
+More control can be obtained using the <B>zstyle</B> command, as described in
+<I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).  Each style is looked up in the
+context <B>:zle:</B><I>widget</I> where <I>widget</I> is the name of the
+user-defined widget, not the name of the function implementing it, so in
+the case of the definitions supplied by <B>select-word-style</B> the
+appropriate contexts are <B>:zle:forward-word</B>, and so on.  The function
+<B>select-word-style</B> itself always defines styles for the context
+`<B>:zle:*</B>' which can be overridden by more specific (longer) patterns as
+well as explicit contexts.
+<P>
+
+The style <B>word-style</B> specifies the rules to use.  This may have the
+following values.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>normal</B>
+Use the standard shell rules, i.e. alphanumerics and <B>$WORDCHARS</B>, unless
+overridden by the styles <B>word-chars</B> or <B>word-class</B>.
+<DT><B>specified</B><DD>
+Similar to <B>normal</B>, but <I>only</I> the specified characters, and not also
+alphanumerics, are considered word characters.
+<DT><B>unspecified</B><DD>
+The negation of specified.  The given characters are those which will
+<I>not</I> be considered part of a word.
+<DT><B>shell</B><DD>
+Words are obtained by using the syntactic rules for generating shell
+command arguments.  In addition, special tokens which are never command
+arguments such as `<B>()</B>' are also treated as words.
+<DT><B>whitespace</B><DD>
+Words are whitespace-delimited strings of characters.
+</DL>
+<P>
+
+The first three of those styles usually use <B>$WORDCHARS</B>, but the value
+in the parameter can be overridden by the style <B>word-chars</B>, which works
+in exactly the same way as <B>$WORDCHARS</B>.  In addition, the style
+<B>word-class</B> uses character class syntax to group characters and takes
+precedence over <B>word-chars</B> if both are set.  The <B>word-class</B> style
+does not include the surrounding brackets of the character class; for
+example, `<B>-:[:alnum:]</B>' is a valid <B>word-class</B> to include all
+alphanumerics plus the characters `<B>-</B>' and `<B>:</B>'.  Be careful
+including `<B>]</B>', `<B>^</B>' and `<B>-</B>' as these are special inside
+character classes.
+<P>
+
+The final style is <B>skip-chars</B>.  This is mostly useful for
+<B>transpose-words</B> and similar functions.  If set, it gives a count of
+characters starting at the cursor position which will not be considered
+part of the word and are treated as space, regardless of what they actually
+are.  For example, if
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle ':zle:transpose-words' skip-chars 1</B>
+</PRE>
+
+</DL>
+
+<P>
+
+has been set, and <B>transpose-words-match</B> is called with the cursor on
+the <I>X</I> of <B>foo</B><I>X</I><B>bar</B>, where <I>X</I> can be any character, then
+the resulting expression is <B>bar</B><I>X</I><B>foo</B>.
+<P>
+
+Here are some examples of use of the styles, actually taken from the
+simplified interface in <B>select-word-style</B>:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle ':zle:*' word-style standard
+zstyle ':zle:*' word-chars ''</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Implements bash-style word handling for all widgets, i.e. only
+alphanumerics are word characters; equivalent to setting
+the parameter <B>WORDCHARS</B> empty for the given context.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>style ':zle:*kill*' word-style space</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Uses space-delimited words for widgets with the word `kill' in the name.
+Neither of the styles <B>word-chars</B> nor <B>word-class</B> is used in this case.
+<P>
+
+The word matching and all the handling of <B>zstyle</B> settings is actually
+implemented by the function <B>match-words-by-style</B>.  This can be used to
+create new user-defined widgets.  The calling function should set the local
+parameter <B>curcontext</B> to <B>:zle:</B><I>widget</I>, create the local
+parameter <B>matched_words</B> and call <B>match-words-by-style</B> with no
+arguments.  On return, <B>matched_words</B> will be set to an array with the
+elements: (1) the start of the line (2) the word before the cursor (3) any
+non-word characters between that word and the cursor (4) any non-word
+character at the cursor position plus any remaining non-word characters
+before the next word, including all characters specified by the
+<B>skip-chars</B> style, (5) the word at or following the cursor (6) any
+non-word characters following that word (7) the remainder of the line.  Any
+of the elements may be an empty string; the calling function should test
+for this to decide whether it can perform its function.
+</DL>
+
+<DT><B>delete-whole-word-match</B><DD>
+This is another function which works like the <B>-match</B> functions
+described immediately above, i.e. using styles to decide the word
+boundaries.  However, it is not a replacement for any existing function.
+<DL COMPACT><DT><DD>
+<P>
+
+The basic behaviour is to delete the word around the cursor.  There is no
+numeric prefix handling; only the single word around the cursor is
+considered.  If the widget contains the string <B>kill</B>, the removed text
+will be placed in the cutbuffer for future yanking.  This can be obtained
+by defining <B>kill-whole-word-match</B> as follows:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zle -N kill-whole-word-match delete-whole-word-match</B>
+</PRE>
+
+</DL>
+
+<P>
+
+and then binding the widget <B>kill-whole-word-match</B>.
+</DL>
+
+<DT><B>copy-earlier-word</B><DD>
+This widget works like a combination of <B>insert-last-word</B> and
+<B>copy-prev-shell-word</B>.  Repeated invocations of the widget retrieve
+earlier words on the relevant history line.  With a numeric argument
+<I>N</I>, insert the <I>N</I>th word from the history line; <I>N</I> may be
+negative to count from the end of the line.
+<DL COMPACT><DT><DD>
+<P>
+
+If <B>insert-last-word</B> has been used to retrieve the last word on a
+previous history line, repeated invocations will replace that word with
+earlier words from the same line.
+<P>
+
+Otherwise, the widget applies to words on the line currently being edited.
+The <B>widget</B> style can be set to the name of another widget that should
+be called to retrieve words.  This widget must accept the same three
+arguments as <B>insert-last-word</B>.
+</DL>
+
+<DT><B>cycle-completion-positions</B><DD>
+After inserting an unambiguous string into the command line, the new
+function based completion system may know about multiple places in
+this string where characters are missing or differ from at least one
+of the possible matches.  It will then place the cursor on the
+position it considers to be the most interesting one, i.e. the one
+where one can disambiguate between as many matches as possible with as 
+little typing as possible.
+<DL COMPACT><DT><DD>
+<P>
+
+This widget allows the cursor to be easily moved to the other interesting
+spots.  It can be invoked repeatedly to cycle between all positions
+reported by the completion system.
+</DL>
+
+<DT><B>edit-command-line</B><DD>
+Edit the command line using your visual editor, as in <B>ksh</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>bindkey -M vicmd v edit-command-line</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>history-search-end</B><DD>
+This function implements the widgets
+<B>history-beginning-search-backward-end</B> and
+<B>history-beginning-search-forward-end</B>.  These commands work by first
+calling the corresponding builtin widget (see
+`History Control' in <I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1)) and then moving the cursor to the end of the line.  The original cursor
+position is remembered and restored before calling the builtin widget a
+second time, so that the same search is repeated to look farther through
+the history.
+<DL COMPACT><DT><DD>
+<P>
+
+Although you <B>autoload</B> only one function, the commands to use it are
+slightly different because it implements two widgets.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zle -N history-beginning-search-backward-end \ 
+       history-search-end
+zle -N history-beginning-search-forward-end \ 
+       history-search-end
+bindkey '\e^P' history-beginning-search-backward-end
+bindkey '\e^N' history-beginning-search-forward-end</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>up-line-or-beginning-search</B>, <B>down-line-or-beginning-search</B><DD>
+These widgets are similar to the builtin functions <B>up-line-or-search</B>
+and <B>down-line-or-search</B>:  if in a multiline buffer they move up or
+down within the buffer, otherwise they search for a history line matching
+the start of the current line.  In this case, however, they search for
+a line which matches the current line up to the current cursor position, in
+the manner of <B>history-beginning-search-backward</B> and <B>-forward</B>, rather
+than the first word on the line.
+<DT><B>incarg</B><DD>
+Typing the keystrokes for this widget with the cursor placed on or to the
+left of an integer causes that integer to be incremented by one.  With a
+numeric prefix argument, the number is incremented by the amount of the
+argument (decremented if the prefix argument is negative).  The shell
+parameter <B>incarg</B> may be set to change the default increment something
+other than one.
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>bindkey '^X+' incarg</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>incremental-complete-word</B><DD>
+This allows incremental completion of a word.  After starting this
+command, a list of completion choices can be shown after every character
+you type, which you can delete with <B>^H</B> or <B>DEL</B>.  Pressing return
+accepts the completion so far and returns you to normal editing (that is,
+the command line is <I>not</I> immediately executed).  You can hit <B>TAB</B> to
+do normal completion, <B>^G</B> to abort back to the state when you started,
+and <B>^D</B> to list the matches.
+<DL COMPACT><DT><DD>
+<P>
+
+This works only with the new function based completion system.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>bindkey '^Xi' incremental-complete-word</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>insert-files</B><DD>
+This function allows you type a file pattern, and see the results of the
+expansion at each step.  When you hit return, all expansions are inserted
+into the command line.
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>bindkey '^Xf' insert-files</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT>
+<DD>
+<B>narrow-to-region [ -p</B> <I>pre</I> <B>] [ -P</B> <I>post</I> <B>]</B>
+<DT>
+<DD>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>[&nbsp;-S</B>&nbsp;<I>statepm</I>&nbsp;<B>|&nbsp;-R</B>&nbsp;<I>statepm</I>&nbsp;<B>]&nbsp;[&nbsp;-n&nbsp;]&nbsp;[</B>&nbsp;<I>start</I>&nbsp;<I>end</I>&nbsp;<B>]</B>)
+<DT>
+<DD>
+<B>narrow-to-region-invisible</B>
+Narrow the editable portion of the buffer to the region between the cursor
+and the mark, which may be in either order.  The region may not be empty.
+<DL COMPACT><DT><DD>
+<P>
+
+<B>narrow-to-region</B> may be used as a widget or called as a function from a
+user-defined widget; by default, the text outside the editable area remains
+visible.  A <B>recursive-edit</B> is performed and the original widening
+status is then restored.  Various options and arguments are available when
+it is called as a function.
+<P>
+
+The options <B>-p</B> <I>pretext</I> and <B>-P</B> <I>posttext</I> may be
+used to replace the text before and after the display for the duration of
+the function; either or both may be an empty string.
+<P>
+
+If the option <B>-n</B> is also given, <I>pretext</I> or <I>posttext</I> will only
+be inserted if there is text before or after the region respectively which
+will be made invisible.
+<P>
+
+Two numeric arguments may be given which will be used instead of the cursor
+and mark positions.
+<P>
+
+The option <B>-S</B> <I>statepm</I> is used to narrow according to the other
+options while saving the original state in the parameter with name
+<I>statepm</I>, while the option <B>-R</B> <I>statepm</I> is used to restore the
+state from the parameter; note in both cases the <I>name</I> of the parameter
+is required.  In the second case, other options and arguments are
+irrelevant.  When this method is used, no <B>recursive-edit</B> is performed;
+the calling widget should call this function with the option <B>-S</B>,
+perform its own editing on the command line or pass control to the user
+via `<B>zle recursive-edit</B>', then call this function with the option
+<B>-R</B>.  The argument <I>statepm</I> must be a suitable name for an ordinary
+parameter, except that parameters beginning with the prefix <B>_ntr_</B> are
+reserved for use within <B>narrow-to-region</B>.  Typically the parameter will
+be local to the calling function.
+<P>
+
+<B>narrow-to-region-invisible</B> is a simple widget which calls
+<B>narrow-to-region</B> with arguments which replace any text outside the
+region with `<B>...</B>'.
+<P>
+
+The display is restored (and the widget returns) upon any zle command
+which would usually cause the line to be accepted or aborted.  Hence an
+additional such command is required to accept or abort the current line.
+<P>
+
+The return status of both widgets is zero if the line was accepted, else
+non-zero.
+<P>
+
+Here is a trivial example of a widget using this feature.
+<DL COMPACT><DT><DD>
+<PRE>
+<B>local state
+narrow-to-region -p $'Editing restricted region\n' \ 
+  -P '' -S state
+zle recursive-edit
+narrow-to-region -R state</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>predict-on</B><DD>
+This set of functions implements predictive typing using history search.
+After <B>predict-on</B>, typing characters causes the editor to look backward
+in the history for the first line beginning with what you have typed so
+far.  After <B>predict-off</B>, editing returns to normal for the line found.
+In fact, you often don't even need to use <B>predict-off</B>, because if the
+line doesn't match something in the history, adding a key performs
+standard completion, and then inserts itself if no completions were found.
+However, editing in the middle of a line is liable to confuse prediction;
+see the <B>toggle</B> style below.
+<DL COMPACT><DT><DD>
+<P>
+
+With the function based completion system (which is needed for this), you
+should be able to type <B>TAB</B> at almost any point to advance the cursor
+to the next ``interesting'' character position (usually the end of the
+current word, but sometimes somewhere in the middle of the word).  And of
+course as soon as the entire line is what you want, you can accept with
+return, without needing to move the cursor to the end first.
+<P>
+
+The first time <B>predict-on</B> is used, it creates several additional
+widget functions:
+<P>
+
+
+<DL COMPACT>
+<DT><B>delete-backward-and-predict</B><DD>
+Replaces the <B>backward-delete-char</B>
+widget.  You do not need to bind this yourself.
+<DT><B>insert-and-predict</B><DD>
+Implements predictive typing by replacing the
+<B>self-insert</B> widget.  You do not need to bind this yourself.
+<DT><B>predict-off</B><DD>
+Turns off predictive typing.
+
+</DL>
+<P>
+
+Although you <B>autoload</B> only the <B>predict-on</B> function, it is
+necessary to create a keybinding for <B>predict-off</B> as well.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zle -N predict-on
+zle -N predict-off
+bindkey '^X^Z' predict-on
+bindkey '^Z' predict-off</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>read-from-minibuffer</B><DD>
+This is most useful when called as a function from inside a widget, but will
+work correctly as a widget in its own right.  It prompts for a value
+below the current command line; a value may be input using all of the
+standard zle operations (and not merely the restricted set available
+when executing, for example, <B>execute-named-cmd</B>).  The value is then
+returned to the calling function in the parameter <B>$REPLY</B> and the
+editing buffer restored to its previous state.  If the read was aborted
+by a keyboard break (typically <B>^G</B>), the function returns status 1
+and <B>$REPLY</B> is not set.  If an argument is supplied to the function
+it is taken as a prompt, otherwise `<B>? </B>' is used.
+<DL COMPACT><DT><DD>
+<P>
+
+One option is available: `<B>-k</B> <I>num</I>' specifies that <I>num</I>
+characters are to be read instead of a whole line.  The line editor is not
+invoked recursively in this case.  Note that unlike the <B>read</B> builtin
+<I>num</I> must be given; there is no default.
+<P>
+
+The name is a slight misnomer, as in fact the shell's own minibuffer is
+not used.  Hence it is still possible to call <B>executed-named-cmd</B> and
+similar functions while reading a value.
+</DL>
+
+<DT><B>replace-string</B>, <B>replace-pattern</B><DD>
+The function <B>replace-string</B> implements two widgets.
+If defined under the same name as the function, it prompts for two
+strings; the first (source) string will be replaced by the second
+everywhere it occurs in the line editing buffer.
+<DL COMPACT><DT><DD>
+<P>
+
+If the widget name contains the word `<B>pattern</B>', for example by
+defining the widget using the command `<B>zle -N replace-pattern
+replace-string</B>', then the replacement is done by pattern matching.  All
+zsh extended globbing patterns can be used in the source string; note
+that unlike filename generation the pattern does not need to match an
+entire word, nor do glob qualifiers have any effect.  In addition, the
+replacement string can contain parameter or command substitutions.
+Furthermore, a `<B>&amp;</B>' in the replacement string will be replaced with
+the matched source string, and a backquoted digit `<B>\</B><I>N</I>' will be
+replaced by the <I>N</I>th parenthesised expression matched.  The form
+`<B>\{</B><I>N</I><B>}</B>' may be used to protect the digit from following
+digits.
+<P>
+
+For example, starting from the line:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>print This line contains fan and fond</B>
+</PRE>
+
+</DL>
+
+<P>
+
+and invoking <B>replace-pattern</B> with the source string `<B>f(?)n</B>' and
+the replacment string `<B>c\1r</B>' produces the not very useful line:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>print This line contains car and cord</B>
+</PRE>
+
+</DL>
+
+<P>
+
+The range of the replacement string can be limited by using the
+<B>narrow-to-region-invisible</B> widget.  One limitation of the current
+version is that <B>undo</B> will cycle through changes to the replacement
+and source strings before undoing the replacement itself.
+</DL>
+
+<DT><B>smart-insert-last-word</B><DD>
+This function may replace the <B>insert-last-word</B> widget, like so:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zle -N insert-last-word smart-insert-last-word</B>
+</PRE>
+
+</DL>
+
+<P>
+
+With a numeric prefix, or when passed command line arguments in a call
+from another widget, it behaves like <B>insert-last-word</B>, except that
+words in comments are ignored when <B>INTERACTIVE_COMMENTS</B> is set.
+<P>
+
+Otherwise, the rightmost ``interesting'' word from the previous command is
+found and inserted.  The default definition of ``interesting'' is that the
+word contains at least one alphabetic character, slash, or backslash.
+This definition may be overridden by use of the <B>match</B> style.  The
+context used to look up the style is the widget name, so usually the
+context is <B>:insert-last-word</B>.  However, you can bind this function to
+different widgets to use different patterns:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zle -N insert-last-assignment smart-insert-last-word
+zstyle :insert-last-assignment match '[[:alpha:]][][[:alnum:]]#=*'
+bindkey '\e=' insert-last-assignment</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H3>Styles</H3>
+
+<P>
+
+The behavior of several of the above widgets can be controlled by the use
+of the <B>zstyle</B> mechanism.  In particular, widgets that interact with
+the completion system pass along their context to any completions that
+they invoke.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>break-keys</B>
+This style is used by the <B>incremental-complete-word</B> widget. Its value
+should be a pattern, and all keys matching this pattern will cause the
+widget to stop incremental completion without the key having any further
+effect. Like all styles used directly by
+<B>incremental-complete-word</B>, this style is looked up using the
+context `<B>:incremental</B>'.
+<DT><B>completer</B><DD>
+The <B>incremental-complete-word</B> and <B>insert-and-predict</B> widgets set
+up their top-level context name before calling completion.  This allows
+one to define different sets of completer functions for normal completion
+and for these widgets.  For example, to use completion, approximation and
+correction for normal completion, completion and correction for
+incremental completion and only completion for prediction one could use:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle ':completion:*' completer \ 
+        _complete _correct _approximate
+zstyle ':completion:incremental:*' completer \ 
+        _complete _correct
+zstyle ':completion:predict:*' completer \ 
+        _complete</B>
+</PRE>
+
+</DL>
+
+<P>
+
+It is a good idea to restrict the completers used in prediction, because
+they may be automatically invoked as you type.  The <B>_list</B> and
+<B>_menu</B> completers should never be used with prediction.  The
+<B>_approximate</B>, <B>_correct</B>, <B>_expand</B>, and <B>_match</B> completers may
+be used, but be aware that they may change characters anywhere in the word
+behind the cursor, so you need to watch carefully that the result is what
+you intended.
+</DL>
+
+<DT><B>cursor</B><DD>
+The <B>insert-and-predict</B> widget uses this style, in the context
+`<B>:predict</B>', to decide where to place the cursor after completion has
+been tried.  Values are:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>complete</B>
+The cursor is left where it was when completion finished, but only if
+it is after a character equal to the one just inserted by the user.  If 
+it is after another character, this value is the same as `<B>key</B>'.
+<DT><B>key</B><DD>
+The cursor is left
+after the <I>n</I>th occurrence of the character just inserted, where
+<I>n</I> is the number of times that character appeared in the word
+before completion was attempted.  In short, this has the effect of
+leaving the cursor after the character just typed even if the
+completion code found out that no other characters need to be inserted 
+at that position.
+</DL>
+<P>
+
+Any other value for this style unconditionally leaves the cursor at the
+position where the completion code left it.
+</DL>
+
+<DT><B>list</B><DD>
+When using the <B>incremental-complete-word</B> widget, this style says
+if the matches should be listed on every key press (if they fit on the 
+screen).  Use the context prefix `<B>:completion:incremental</B>'.
+<DL COMPACT><DT><DD>
+<P>
+
+The <B>insert-and-predict</B> widget uses this style to decide if the
+completion should be shown even if there is only one possible completion.
+This is done if the value of this style is the string <B>always</B>.  In this
+case the context is `<B>:predict</B>' (<I>not</I> `<B>:completion:predict</B>').
+</DL>
+
+<DT><B>match</B><DD>
+This style is used by <B>smart-insert-last-word</B> to provide a pattern
+(using full <B>EXTENDED_GLOB</B> syntax) that matches an interesting word.
+The context is the name of the widget to which <B>smart-insert-last-word</B>
+is bound (see above).  The default behavior of <B>smart-insert-last-word</B>
+is equivalent to:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle :insert-last-word match '*[[:alpha:]/\\]*'</B>
+</PRE>
+
+</DL>
+
+<P>
+
+However, you might want to include words that contain spaces:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle :insert-last-word match '*[[:alpha:][:space:]/\\]*'</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Or include numbers as long as the word is at least two characters long:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle :insert-last-word match '*([[:digit:]]?|[[:alpha:]/\\])*'</B>
+</PRE>
+
+</DL>
+
+<P>
+
+The above example causes redirections like &quot;2&gt;&quot; to be included.
+</DL>
+
+<DT><B>prompt</B><DD>
+The <B>incremental-complete-word</B> widget shows the value of this
+style in the status line during incremental completion.  The string
+value may contain any of the following substrings in the manner of
+the <B>PS1</B> and other prompt parameters:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>%c</B>
+Replaced by the name of the completer function that generated the
+matches (without the leading underscore).
+<DT><B>%l</B><DD>
+When the <B>list</B> style is set,
+replaced by `<B>...</B>' if the list of matches is too long to fit on the
+screen and with an empty string otherwise.  If the <B>list</B> style is
+`false' or not set, `<B>%l</B>' is always removed.
+<DT><B>%n</B><DD>
+Replaced by the number of matches generated.
+<DT><B>%s</B><DD>
+Replaced by `<B>-no match-</B>', `<B>-no prefix-</B>', or an empty string
+if there is no completion matching the word on the line, if the
+matches have no common prefix different from the word on the line, or
+if there is such a common prefix, respectively.
+<DT><B>%u</B><DD>
+Replaced by the unambiguous part of all matches, if there
+is any, and if it is different from the word on the line.
+</DL>
+<P>
+
+Like `<B>break-keys</B>', this uses the `<B>:incremental</B>' context.
+</DL>
+
+<DT><B>stop-keys</B><DD>
+This style is used by the <B>incremental-complete-word</B> widget.  Its value
+is treated similarly to the one for the <B>break-keys</B> style (and uses 
+the same context: `<B>:incremental</B>').  However, in
+this case all keys matching the pattern given as its value will stop
+incremental completion and will then execute their usual function.
+<DT><B>toggle</B><DD>
+This boolean style is used by <B>predict-on</B> and its related widgets in
+the context `<B>:predict</B>'.  If set to one of the standard `true' values,
+predictive typing is automatically toggled off in situations where it is
+unlikely to be useful, such as when editing a multi-line buffer or after
+moving into the middle of a line and then deleting a character.  The
+default is to leave prediction turned on until an explicit call to
+<B>predict-off</B>.
+<DT><B>verbose</B><DD>
+This boolean style is used by <B>predict-on</B> and its related widgets in
+the context `<B>:predict</B>'.  If set to one of the standard `true' values,
+these widgets display a message below the prompt when the predictive state
+is toggled.  This is most useful in combination with the <B>toggle</B> style.
+The default does not display these messages.
+<DT><B>widget</B><DD>
+This style is similar to the <B>command</B> style: For widget functions that
+use <B>zle</B> to call other widgets, this style can sometimes be used to
+override the widget which is called.  The context for this style is the
+name of the calling widget (<I>not</I> the name of the calling function,
+because one function may be bound to multiple widget names).
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle :copy-earlier-word widget smart-insert-last-word</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Check the documentation for the calling widget or function to determine
+whether the <B>widget</B> style is used.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>MIME FUNCTIONS</H2>
+
+<P>
+
+Three functions are available to provide handling of files recognised by
+extension, for example to dispatch a file <B>text.ps</B> when executed as a
+command to an appropriate viewer.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zsh-mime-setup [-flv]</B>
+<DT>
+<DD>
+<B>zsh-mime-handler</B>
+These two functions use the files <B>~/.mime.types</B> and <B>/etc/mime.types</B>,
+which associate types and extensions, as well as <B>~/.mailcap</B> and
+<B>/etc/mailcap</B> files, which associate types and the programs that
+handle them.  These are provided on many systems with the Multimedia
+Internet Mail Extensions.
+<DL COMPACT><DT><DD>
+<P>
+
+To enable the system, the function <B>zsh-mime-setup</B> should be
+autoloaded and run.  This allows files with extensions to be treated
+as executable; such files be completed by the function completion system.
+The function <B>zsh-mime-handler</B> should not need to be called by the
+user.
+<P>
+
+The system works by setting up suffix aliases with `<B>alias -s</B>'.
+Suffix aliases already installed by the user will not be overwritten.
+<P>
+
+Repeated calls to <B>zsh-mime-setup</B> do not override the existing
+mapping between suffixes and executable files unless the option <B>-f</B>
+is given.  Note, however, that this does not override existing suffix
+aliases assigned to handlers other than <B>zsh-mime-handler</B>.
+Calling <B>zsh-mime-setup</B> with the option <B>-l</B> lists the existing
+mapping without altering it.  Calling <B>zsh-mime-setup</B> with the option
+<B>-v</B> causes verbose output to be shown during the setup operation.
+<P>
+
+The system respects the <B>mailcap</B> flags <B>needsterminal</B> and
+<B>copiousoutput</B>, see <I><A HREF="../man4/mailcap.4.php">mailcap</A></I>(4).
+<P>
+
+The functions use the following styles, which are defined with the
+<B>zstyle</B> builtin command (see <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1)).  They should be defined
+before <B>zsh-mime-setup</B> is run.  The contexts used all
+start with <B>:mime:</B>, with additional components in some cases.
+It is recommended that a trailing <B>*</B> (suitably quoted) be appended
+to style patterns in case the system is extended in future.  Some
+examples are given below.
+
+<DL COMPACT>
+<DT>
+<DD>
+mime-types
+A list of files in the format of <B>~/.mime.types</B> and
+<B>/etc/mime.types</B> to be read during setup, replacing the default list
+which consists of those two files.  The context is <B>:mime:</B>.
+<DT>mailcap<DD>
+A list of files in the format of <B>~/.mailcap</B> and
+<B>/etc/mailcap</B> to be read during setup, replacing the default list
+which consists of those two files.  The context is <B>:mime:</B>.
+<DT>handler<DD>
+Specifies a handler for a suffix; the suffix is given by the context as
+<B>:mime:.</B><I>suffix</I><B>:</B>, and the format of the handler is exactly
+that in <B>mailcap</B>.  Note in particular the `<B>.</B>' and trailing colon
+to distinguish this use of the context.  This overrides any handler
+specified by the <B>mailcap</B> files.  If the handler requires a terminal,
+the <B>flags</B> style should be set to include the word <B>needsterminal</B>,
+or if the output is to be displayed through a pager (but not if the
+handler is itself a pager), it should include <B>copiousoutput</B>.
+<DT>flags<DD>
+Defines flags to go with a handler; the context is as for the
+<B>handler</B> style, and the format is as for the flags in <B>mailcap</B>.
+<DT>pager<DD>
+If set, will be used instead of <B>$PAGER</B> or <B>more</B> to handle
+suffixes where the <B>copiousoutput</B> flag is set.  The context is
+as for <B>handler</B>, i.e. <B>:mime:.</B><I>suffix</I><B>:</B> for handling
+a file with the given <I>suffix</I>.
+</DL>
+<P>
+
+Examples:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle ':mime:*' mailcap ~/.mailcap /usr/local/etc/mailcap
+zstyle ':mime:.txt' handler less %s
+zstyle ':mime:.txt' flags needsterminal</B>
+</PRE>
+
+</DL>
+
+<P>
+
+When <B>zsh-mime-setup</B> is subsequently run, it will look for
+<B>mailcap</B> entries in the two files given.  Files of suffix <B>.txt</B>
+will be handled by running `<B>less</B> <I>file.txt</I>'.  The flag
+<B>needsterminal</B> is set to show that this program must run attached to a
+terminal.
+<P>
+
+As there are several steps to dispatching a command, the following
+should be checked if attempting to execute a file by extension
+<B>.</B><I>ext</I> does not have the expected effect.
+starteit()
+eit()(
+The command `<B>alias -s</B> <I>ext</I>' should show
+`<B>ps=zsh-mime-handler</B>'.  If it shows something else, another suffix
+alias was already installed and was not overwritten.  If it shows
+nothing, no handler was installed:  this is most likely because no
+handler was found in the <B>.mime.types</B> and <B>mailcap</B> combination for
+<B>.ext</B> files.  In that case, appropriate handling should be added to
+<B>~/.mime.types</B> and <B>mailcap</B>.
+)
+eit()(
+If the extension is handled by <B>zsh-mime-handler</B> but the file is
+not opened correctly, either the handler defined for the type is
+incorrect, or the flags associated with it are in appropriate.  Running
+<B>zsh-mime-setup -l</B> will show the handler and, if there are any, the
+flags.  A <B>%s</B> in the handler is replaced by the file (suitably quoted
+if necessary).  Check that the handler program listed lists and can
+be run in the way shown.  Also check that the flags <B>needsterminal</B> or
+<B>copiousoutput</B> are set if the handler needs to be run under a
+terminal; the second flag is used if the output should be sent to a pager.
+An example of a suitable <B>mailcap</B> entry for such a program is:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>text/html; /usr/bin/lynx '%s'; needsterminal</B>
+</PRE>
+
+</DL>
+
+)
+endeit()
+</DL>
+
+<DT><B>pick-web-browser</B><DD>
+This function is separate from the two MIME functions described above
+and can be assigned directly to a suffix:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>autoload -U pick-web-browser
+alias -s html=pick-web-browser</B>
+</PRE>
+
+</DL>
+
+<P>
+
+It is provided as an intelligent front end to dispatch a web browser.
+It will check if an X Windows display is available, and if so
+if there is already a browser running which can accept a remote
+connection.  In that case, the file will be displayed in that browser;
+you should check explicitly if it has appeared in the running browser's
+window.  Otherwise, it will start a new browser according to a builtin
+set of preferences.
+<P>
+
+Alternatively, <B>pick-web-browser</B> can be run as a zsh script.
+<P>
+
+Two styles are available to customize the choice of browsers:
+<B>x-browsers</B> when running under the X Windows System, and
+<B>tty-browsers</B> otherwise.  These are arrays in decreasing order
+of preference consiting of the command name under which to start the
+browser.  They are looked up in the context <B>:mime:</B> (which may
+be extended in future, so appending `<B>*</B>' is recommended).  For
+example,
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle ':mime:*' x-browsers opera konqueror netscape</B>
+</PRE>
+
+</DL>
+
+<P>
+
+specifies that <B>pick-web-browser</B> should first look for a runing
+instance of Opera, Konqueror or Netscape, in that order, and if it
+fails to find any should attempt to start Opera.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>OTHER FUNCTIONS</H2>
+
+<P>
+
+There are a large number of helpful functions in the <B>Functions/Misc</B>
+directory of the zsh distribution.  Most are very simple and do not
+require documentation here, but a few are worthy of special mention.
+<P>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Descriptions</H3>
+
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>colors</B>
+This function initializes several associative arrays to map color names to
+(and from) the ANSI standard eight-color terminal codes.  These are used
+by the prompt theme system (see above).  You seldom should need to run
+<B>colors</B> more than once.
+<DL COMPACT><DT><DD>
+<P>
+
+The eight base colors are: black, red, green, yellow, blue, magenta, cyan,
+and white.  Each of these has codes for foreground and background.  In
+addition there are eight intensity attributes: bold, faint, standout,
+underline, blink, reverse, and conceal.  Finally, there are six codes used
+to negate attributes: none (reset all attributes to the defaults), normal
+(neither bold nor faint), no-standout, no-underline, no-blink, and
+no-reverse.
+<P>
+
+Some terminals do not support all combinations of colors and intensities.
+<P>
+
+The associative arrays are:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+color
+<DT>
+<DD>
+colour
+Map all the color names to their integer codes, and integer codes to the
+color names.  The eight base names map to the foreground color codes, as
+do names prefixed with `<B>fg-</B>', such as `<B>fg-red</B>'.  Names prefixed
+with `<B>bg-</B>', such as `<B>bg-blue</B>', refer to the background codes.  The
+reverse mapping from code to color yields base name for foreground codes
+and the <B>bg-</B> form for backgrounds.
+<DL COMPACT><DT><DD>
+<P>
+
+Although it is a misnomer to call them `colors', these arrays also map the
+other fourteen attributes from names to codes and codes to names.
+</DL>
+
+<DT>
+<DD>
+fg
+<DT>
+<DD>
+fg_bold
+<DT>
+<DD>
+fg_no_bold
+Map the eight basic color names to ANSI terminal escape sequences that set
+the corresponding foreground text properties.  The <B>fg</B> sequences change
+the color without changing the eight intensity attributes.
+<DT>
+<DD>
+bg
+<DT>
+<DD>
+bg_bold
+<DT>
+<DD>
+bg_no_bold
+Map the eight basic color names to ANSI terminal escape sequences that set
+the corresponding background properties.  The <B>bg</B> sequences change the
+color without changing the eight intensity attributes.
+</DL>
+<P>
+
+In addition, the scalar parameters <B>reset_color</B> and <B>bold_color</B> are
+set to the ANSI terminal escapes that turn off all attributes and turn on
+bold intensity, respectively.
+</DL>
+
+<DT><B>fned</B> <I>name</I><DD>
+Same as <B>zed -f</B>.  This function does not appear in the zsh
+distribution, but can be created by linking <B>zed</B> to the name <B>fned</B>
+in some directory in your <B>fpath</B>.
+<DT><B>is-at-least</B> <I>needed</I> [ <I>present</I> ]<DD>
+Perform a greater-than-or-equal-to comparison of two strings having the
+format of a zsh version number; that is, a string of numbers and text with
+segments separated by dots or dashes.  If the <I>present</I> string is not
+provided, <B>$ZSH_VERSION</B> is used.  Segments are paired left-to-right in
+the two strings with leading non-number parts ignored.  If one string has
+fewer segments than the other, the missing segments are considered zero.
+<DL COMPACT><DT><DD>
+<P>
+
+This is useful in startup files to set options and other state that are
+not available in all versions of zsh.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>is-at-least 3.1.6-15 &amp;&amp; setopt NO_GLOBAL_RCS
+is-at-least 3.1.0 &amp;&amp; setopt HIST_REDUCE_BLANKS
+is-at-least 2.6-17 || print &quot;You can't use is-at-least here.&quot;</B>
+</PRE>
+
+</DL>
+
+</DL>
+
+<DT><B>nslookup</B> [ <I>arg</I> ... ]<DD>
+This wrapper function for the <B>nslookup</B> command requires the
+<B>zsh/zpty</B> module (see
+<I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1)).  It behaves exactly like the standard <B>nslookup</B>
+except that it provides customizable prompts (including a right-side
+prompt) and completion of nslookup commands, host names, etc. (if you use
+the function-based completion system).  Completion styles may be set with
+the context prefix `<B>:completion:nslookup</B>'.
+<DL COMPACT><DT><DD>
+<P>
+
+See also the <B>pager</B>, <B>prompt</B> and <B>rprompt</B> styles below.
+</DL>
+
+<DT><B>run-help</B><DD>
+See `Accessing On-Line Help'
+above.
+<DT><B>tetris</B><DD>
+Zsh was once accused of not being as complete as Emacs,
+because it lacked a Tetris game.  This function was written to
+refute this vicious slander.
+<DL COMPACT><DT><DD>
+<P>
+
+This function must be used as a ZLE widget:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>autoload -U tetris
+zle -N tetris
+bindkey </B><I>keys</I> tetris
+</PRE>
+
+</DL>
+
+<P>
+
+To start a game, execute the widget by typing the <I>keys</I>.  Whatever command
+line you were editing disappears temporarily, and your keymap is also
+temporarily replaced by the Tetris control keys.  The previous editor state
+is restored when you quit the game (by pressing `<B>q</B>') or when you lose.
+<P>
+
+If you quit in the middle of a game, the next invocation of the <B>tetris</B>
+widget will continue where you left off.  If you lost, it will start a new
+game.
+</DL>
+
+<DT><B>zcalc</B> [ <I>expression</I> ... ]<DD>
+A reasonably powerful calculator based on zsh's arithmetic evaluation
+facility.  The syntax is similar to that of formulae in most programming
+languages; see
+the section `Arithmetic Evaluation' in <I><A HREF="../man1/zshmisc.1.php">zshmisc</A></I>(1) for details.  The mathematical
+library <B>zsh/mathfunc</B> will be loaded if it is available; see
+the section `The zsh/mathfunc Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).  The mathematical functions
+correspond to the raw system libraries, so trigonometric functions are
+evaluated using radians, and so on.
+<DL COMPACT><DT><DD>
+<P>
+
+Each line typed is evaluated as an expression.  The prompt shows a number,
+which corresponds to a positional parameter where the result of that
+calculation is stored.  For example, the result of the calculation on the
+line preceded by `<B>4&gt; </B>' is available as <B>$4</B>.  Full command line
+editing, including the history of previous calculations, is available; the
+history is saved in the file <B>~/.zcalc_history</B>.  To exit, enter a blank
+line or type `<B>q</B>' on its own.
+<P>
+
+If arguments are given to <B>zcalc</B> on start up, they are used to prime the
+first few positional parameters.  A visual indication of this is given when
+the calculator starts.
+<P>
+
+The constants <B>PI</B> (3.14159...) and <B>E</B> (2.71828...) are provided.
+Parameter assignment is possible, but note that all parameters will be put
+into the global namespace.
+<P>
+
+An extra facility is provided for changing the default output base.  Use,
+for example, `<B>[#16]</B>' to display hexadecimal output preceded by an
+indication of the base, or `<B>[##16]</B>' just to display the raw number in
+the given base.  Bases themselves are always specified in decimal.
+`<B>[#]</B>' restores the normal output format.
+<P>
+
+The output base can be initialised by passing the option `<B>-#</B><I>base</I>',
+for example `<B>zcalc -#16</B>' (the `<B>#</B>' may have to be quoted, depending
+on the globbing options set).
+<P>
+
+The prompt is configurable via the parameter <B>ZCALCPROMPT</B>, which
+undergoes standard prompt expansion.  The index of the current entry is
+stored locally in the first element of the array <B>psvar</B>, which can be
+referred to in <B>ZCALCPROMPT</B> as `<B>%1v</B>'.  The default prompt is
+`<B>%1v&gt; </B>'.
+<P>
+
+See the comments in the function for a few extra tips.
+</DL>
+
+<DT><B>zed</B> [ <B>-f</B> ] <I>name</I><DD>
+This function uses the ZLE editor to edit a file or function.  It rebinds
+the return key to insert a line break, and adds bindings for `<B>^X^W</B>' in
+the <B>emacs</B> keymap and `<B>ZZ</B>' in the <B>vicmd</B> keymap to accept (and
+therefore write, in the case of a file) the edited file or function.
+Keybindings are otherwise the standard ones; completion is available, and
+styles may be set with the context prefix `<B>:completion:zed</B>'.
+<DL COMPACT><DT><DD>
+<P>
+
+Only one <I>name</I> argument is recognized (additional arguments are
+ignored).  If the <B>-f</B> option is given, the name is taken to be that of
+a function; if the function is marked for autoloading, <B>zed</B> searches
+for it in the <B>fpath</B> and loads it.  Note that functions edited this way
+are installed into the current shell, but <I>not</I> written back to the
+autoload file.
+<P>
+
+Without <B>-f</B>, <I>name</I> is the path name of the file to edit, which need
+not exist; it is created on write, if necessary.
+</DL>
+
+<DT>
+<DD>
+<B>zcp</B> [ <B>-finqQvwW</B> ] <I>srcpat</I> <I>dest</I>
+<DT>
+<DD>
+<B>zln</B> [ <B>-finqQsvwW</B> ] <I>srcpat</I> <I>dest</I>
+Same as <B>zmv -C</B> and <B>zmv -L</B>, respectively.  These functions do not
+appear in the zsh distribution, but can be created by linking <B>zmv</B> to
+the names <B>zcp</B> and <B>zln</B> in some directory in your <B>fpath</B>.
+<DT><B>zkbd</B><DD>
+See `Keyboard Definition'
+above.
+<DT><B>zmv</B> [ <B>-finqQsvwW</B> ] [ -C | -L | -M | -p <I>program</I> ] [ -o <I>optstring</I> ] <I>srcpat</I> <I>dest</I> <DD>
+Move (usually, rename) files matching the pattern <I>srcpat</I> to
+corresponding files having names of the form given by <I>dest</I>, where
+<I>srcpat</I> contains parentheses surrounding patterns which will be
+replaced in turn by $1, $2, ... in <I>dest</I>.  For example,
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zmv '(*).lis' '$1.txt'</B>
+</PRE>
+
+</DL>
+
+<P>
+
+renames `<B>foo.lis</B>' to `<B>foo.txt</B>', `<B>my.old.stuff.lis</B>' to
+`<B>my.old.stuff.txt</B>', and so on.
+<P>
+
+The pattern is always treated as an <B>EXTENDED_GLOB</B> pattern.  Any file
+whose name is not changed by the substitution is simply ignored.  Any
+error (a substitution resulted in an empty string, two substitutions gave
+the same result, the destination was an existing regular file and <B>-f</B>
+was not given) causes the entire function to abort without doing anything.
+<P>
+
+Options:
+<P>
+
+
+<DL COMPACT>
+<DT><B>-f</B><DD>
+Force overwriting of destination files.  Not currently
+passed down to the <B>mv</B>/<B>cp</B>/<B>ln</B> command due to vagaries of
+implementations (but you can use <B>-o-f</B> to do that).
+<DT><B>-i</B><DD>
+Interactive: show each line to be executed and ask the user
+whether to execute it.  `Y' or `y' will execute it, anything else will
+skip it.  Note that you just need to type one character.
+<DT><B>-n</B><DD>
+No execution: print what would happen, but don't do it.
+<DT><B>-q</B><DD>
+Turn bare glob qualifiers off: now assumed by default, so
+this has no effect.
+<DT><B>-Q</B><DD>
+Force bare glob qualifiers on.  Don't turn this on unless
+you are actually using glob qualifiers in a pattern.
+<DT><B>-s</B><DD>
+Symbolic, passed down to <B>ln</B>; only works with <B>-L</B>.
+<DT><B>-v</B><DD>
+Verbose: print each command as it's being executed.
+<DT><B>-w</B><DD>
+Pick out wildcard parts of the pattern, as described above,
+and implicitly add parentheses for referring to them.
+<DT><B>-W</B><DD>
+Just like <B>-w</B>, with the addition of turning wildcards in
+the replacement pattern into sequential ${1} .. ${N} references.
+<DT><B>-C</B><DD>
+<DT><B>-L</B><DD>
+<DT><B>-M</B><DD>
+Force <B>cp</B>, <B>ln</B> or <B>mv</B>, respectively, regardless of
+the name of the function.
+<DT><B>-p</B> <I>program</I><DD>
+Call <I>program</I> instead of <B>cp</B>, <B>ln</B> or
+<B>mv</B>.  Whatever it does, it should at least understand the form
+`<I>program</I> <B>-</B><B>-</B> <I>oldname</I> <I>newname</I>'
+where <I>oldname</I> and <I>newname</I> are filenames generated by <B>zmv</B>.
+<DT><B>-o</B> <I>optstring</I><DD>
+The <I>optstring</I> is split into words and
+passed down verbatim to the <B>cp</B>, <B>ln</B> or <B>mv</B> command called to
+perform the work.  It should probably begin with a `<B>-</B>'.
+
+</DL>
+<P>
+
+For more complete examples and other implementation details, see the
+<B>zmv</B> source file, usually located in one of the directories named in
+your <B>fpath</B>, or in <B>Functions/Misc/zmv</B> in the zsh distribution.
+</DL>
+
+<DT><B>zrecompile</B><DD>
+See `Recompiling Functions'
+above.
+<DT><B>zstyle+</B> <I>context</I> <I>style</I> <I>value</I> [ + <I>subcontext</I> <I>style</I> <I>value</I> ... ]<DD>
+This makes defining styles a bit simpler by using a single `<B>+</B>' as a
+special token that allows you to append a context name to the previously
+used context name.  Like this:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>zstyle+ ':foo:bar' style1 value1 \ 
+      + ':baz'     style2 value2 \ 
+      + ':frob'    style3 value3</B>
+</PRE>
+
+</DL>
+
+<P>
+
+This defines `style1' with `value1' for the context <B>:foo:bar</B> as usual,
+but it also defines `style2' with `value2' for the context
+<B>:foo:bar:baz</B> and `style3' with `value3' for <B>:foo:bar:frob</B>.  Any
+<I>subcontext</I> may be the empty string to re-use the first context
+unchanged.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAR">&nbsp;</A>
+<H3>Styles</H3>
+
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>insert-tab</B>
+The <B>zed</B> function <I>sets</I> this style in context `<B>:completion:zed:*</B>'
+to turn off completion when <B>TAB</B> is typed at the beginning of a line.
+You may override this by setting your own value for this context and style.
+<DT><B>pager</B><DD>
+The <B>nslookup</B> function looks up this style in the context
+`<B>:nslookup</B>' to determine the program used to display output that does
+not fit on a single screen.
+<DT>
+<DD>
+<B>prompt</B>
+<DT>
+<DD>
+<B>rprompt</B>
+The <B>nslookup</B> function looks up this style in the context
+`<B>:nslookup</B>' to set the prompt and the right-side prompt, respectively.
+The usual expansions for the <B>PS1</B> and <B>RPS1</B> parameters may be used
+(see
+<I><A HREF="../man1/zshmisc.1.php">zshmisc</A></I>(1)).
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">UTILITIES</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Accessing On-Line Help</A><DD>
+<DT><A HREF="#lbAF">Recompiling Functions</A><DD>
+<DT><A HREF="#lbAG">Keyboard Definition</A><DD>
+<DT><A HREF="#lbAH">Dumping Shell State</A><DD>
+</DL>
+<DT><A HREF="#lbAI">PROMPT THEMES</A><DD>
+<DL>
+<DT><A HREF="#lbAJ">Installation</A><DD>
+<DT><A HREF="#lbAK">Theme Selection</A><DD>
+</DL>
+<DT><A HREF="#lbAL">ZLE FUNCTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAM">Widgets</A><DD>
+<DT><A HREF="#lbAN">Styles</A><DD>
+</DL>
+<DT><A HREF="#lbAO">MIME FUNCTIONS</A><DD>
+<DT><A HREF="#lbAP">OTHER FUNCTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAQ">Descriptions</A><DD>
+<DT><A HREF="#lbAR">Styles</A><DD>
+</DL>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

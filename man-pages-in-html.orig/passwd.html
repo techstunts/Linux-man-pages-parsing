@@ -1,0 +1,330 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PASSWD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PASSWD</H1>
+Section: User utilities (1)<BR>Updated: Aug 23 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+passwd - update a user's authentication tokens(s)
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>passwd [-k] [-l] [-u [-f]] [-d] [-n mindays] [-x maxdays] [-w warndays] [-i inactivedays] [-S] [--stdin] [username]</B>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Passwd is used to update a user's authentication token(s).
+<P>
+Passwd is configured to work through the
+<B>Linux-PAM API</B>. 
+
+Essentially, it initializes itself as a &quot;passwd&quot; service with
+<I>Linux-PAM</I>
+
+and utilizes configured
+<I>password</I>
+
+modules to authenticate and then update a user's password.
+<P>
+<P>
+A simple entry in the
+<I>Linux-PAM</I>
+
+configuration file for this service would be:
+<BR>
+
+<BR>&nbsp;&nbsp;
+<BR>
+
+<BR>&nbsp;#
+<BR>
+
+<BR>&nbsp;#&nbsp;passwd&nbsp;service&nbsp;entry&nbsp;that&nbsp;does&nbsp;strength&nbsp;checking&nbsp;of
+<BR>
+
+<BR>&nbsp;#&nbsp;a&nbsp;proposed&nbsp;password&nbsp;before&nbsp;updating&nbsp;it.
+<BR>
+
+<BR>&nbsp;#
+<BR>
+
+<BR>&nbsp;passwd&nbsp;password&nbsp;requisite&nbsp;\
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/usr/lib/security/pam_cracklib.so&nbsp;retry=3
+<BR>
+
+<BR>&nbsp;passwd&nbsp;password&nbsp;required&nbsp;\
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/usr/lib/security/pam_unix.so&nbsp;use_authtok
+<BR>
+
+<BR>&nbsp;#
+<P>
+<P>
+Note, other module-types are not required for this application to
+function correctly.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>-k</B><DD>
+The option,
+<B>-k</B>, 
+
+is used to indicate that the update should only be for expired
+authentication tokens (passwords); the user wishes to keep their
+non-expired tokens as before.
+<P>
+<DT><B>-l</B><DD>
+This option is used to lock the specified account and it is available
+to root only. The locking is performed by rendering the encrypted
+password into an invalid string (by prefixing the encrypted string
+with an !).
+<P>
+<DT><B>--stdin</B><DD>
+This option is used to indicate that <B>passwd</B> should read the new
+password from standard input, which can be a pipe.
+<P>
+<DT><B>-u</B><DD>
+This is the reverse of the -l option - it will unlock the account
+password by removing the ! prefix. This option is available to root
+only. By default passwd will refuse to create a passwordless account 
+(it will not unlock an account that has only &quot;!&quot; as a password). The 
+force option <B>-f</B> will override this protection.
+<P>
+<DT><B>-d</B><DD>
+This is a quick way to disable a password for an account. It will set
+the named account passwordless. Available to root only.
+<P>
+<DT><B>-n</B><DD>
+This will set the minimum password lifetime, in days, if the user's
+account supports password lifetimes.  Available to root only.
+<P>
+<DT><B>-x</B><DD>
+This will set the maximum password lifetime, in days, if the user's
+account supports password lifetimes.  Available to root only.
+<P>
+<DT><B>-w</B><DD>
+This will set the number of days in advance the user will begin receiving
+warnings that her password will expire, if the user's account supports
+password lifetimes.  Available to root only.
+<P>
+<DT><B>-i</B><DD>
+This will set the number of days which will pass before an expired password
+for this account will be taken to mean that the account is inactive and should
+be disabled, if the user's account supports password lifetimes.  Available to
+root only.
+<P>
+<DT><B>-S</B><DD>
+This will output a short information about the status of the password
+for a given account. Available to root user only.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Remember the following two principles</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>Protect&nbsp;your&nbsp;password.</B><DD>
+Don't write down your password - memorize it.
+In particular, don't write it down and leave it anywhere, and don't
+place it in an unencrypted file!  Use unrelated passwords for
+systems controlled by different organizations.  Don't give or share your
+password, in particular to someone claiming to be from
+computer support or a vendor.  Don't let anyone watch you enter your
+password.  Don't enter your password to a computer you don't trust or
+if things Use the password for a limited time and change it periodically.
+<P>
+<DT><B>Choose&nbsp;a&nbsp;hard-to-guess&nbsp;password.</B><DD>
+<I>passwd</I>
+
+will try to prevent you from choosing a really bad password,
+but it isn't foolproof; create your password wisely.
+Don't use something you'd find in a dictionary (in any language or jargon).
+Don't use a name (including that of a spouse, parent, child, pet,
+fantasy character, famous person, and location) or any
+variation of your personal or account name.  Don't use accessible
+information about you (such as your phone number, license plate, or
+social security number) or your environment.  Don't use a birthday or a
+simple pattern (such as backwards, followed by a digit, or preceded by a digit. Instead, use
+a mixture of upper and lower case letters, as well as digits or
+punctuation.  When choosing a new password, make sure it's unrelated
+to any previous password. Use long passwords (say 8 characters
+long).  You might use a word pair with punctuation inserted, a
+passphrase (an understandable sequence of words), or the first
+letter of each word in a passphrase.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2></H2>
+
+These principles are partially enforced by the system, but only partly so.
+Vigilence on your part will make the system much more secure.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXIT CODE</H2>
+
+<P>
+On successful completion of its task,
+<B>passwd</B>
+
+will complete with exit code 0.  An exit code of 1 indicates an error
+occurred.  Textual errors are written to the standard error stream.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>CONFORMING TO</H2>
+
+<BR>
+
+<B>Linux-PAM</B>
+
+(Pluggable Authentication modules for Linux).
+<BR>
+
+Note, if your distribution of Linux-PAM conforms to the Linux
+Filesystem Standard, you may find the modules in
+<I>/lib/security/</I>
+
+instead of /usr/lib/security/, as indicated in the example.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<BR>
+
+<B>/etc/pam.d/passwd</B>
+
+- the
+<B>Linux-PAM</B>
+
+configuration file
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+None known.
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<B><A HREF="../man8/pam.8.php">pam</A></B>(8), 
+
+and
+<B><A HREF="../man2/pam_chauthok.2.php">pam_chauthok</A></B>(2). 
+
+<P>
+<P>
+For more complete information on how to configure this application
+with
+<B>Linux-PAM</B>, 
+
+see the
+<B>Linux-PAM System Administrators' Guide</B> at 
+
+<BR>
+
+<I>&lt;<A HREF="http://parc.power.net/morgan/Linux-PAM/index.php">http://parc.power.net/morgan/Linux-PAM/index.html</A>&gt;</I>
+
+<P>
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Cristian Gafton &lt;<A HREF="mailto:gafton@redhat.com">gafton@redhat.com</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">Remember the following two principles</A><DD>
+<DT><A HREF="#lbAG"></A><DD>
+<DT><A HREF="#lbAH">EXIT CODE</A><DD>
+<DT><A HREF="#lbAI">CONFORMING TO</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+<DT><A HREF="#lbAM">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

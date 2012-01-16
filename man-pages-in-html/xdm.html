@@ -1,0 +1,1692 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XDM</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XDM</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xdm - X Display Manager with support for XDMCP, host chooser
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xdm</B>
+
+[
+<B>-config</B>
+
+<I>configuration_file</I>
+
+] [
+<B>-nodaemon</B>
+
+] [
+<B>-debug</B>
+
+<I>debug_level</I>
+
+] [
+<B>-error</B>
+
+<I>error_log_file</I>
+
+] [
+<B>-resources</B>
+
+<I>resource_file</I>
+
+] [
+<B>-server</B>
+
+<I>server_entry</I>
+
+] [
+<B>-session</B>
+
+<I>session_program</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Xdm</I>
+
+manages a collection of X displays, which may be on the local host
+or remote servers.  The design of
+<I>xdm</I>
+
+was guided by the needs of X terminals as well as The Open Group standard
+XDMCP, the <I>X Display Manager Control Protocol</I>.
+<I>Xdm</I>
+
+provides services similar to those provided by <I>init</I>, <I>getty</I>
+and <I>login</I> on character terminals: prompting for login name and password,
+authenticating the user, and running a ``session.''
+<P>
+
+A ``session'' is defined by the lifetime of a particular process; in the
+traditional character-based terminal world, it is the user's login shell.
+In the
+<I>xdm</I>
+
+context, it is an arbitrary session manager.  This is because in a windowing
+environment, a user's login shell process does not necessarily have any
+terminal-like interface with which to connect.
+When a real session manager is not available, a window manager or terminal
+emulator is typically used as the ``session manager,'' meaning that
+termination of this process terminates the user's session.
+<P>
+
+When the session is terminated, <I>xdm</I>
+resets the X server and (optionally) restarts the whole process.
+<P>
+
+When <I>xdm</I> receives an Indirect query via XDMCP, it can run a
+<I>chooser</I> process to
+perform an XDMCP BroadcastQuery (or an XDMCP Query to specified hosts)
+on behalf of the display and
+offer a menu of possible hosts that offer XDMCP display management.
+This feature is useful with X terminals that do not offer a host
+menu themselves.
+<P>
+
+<I>Xdm</I>
+
+can be configured to ignore BroadcastQuery messages from selected hosts.
+This is useful when you don't want the host to appear in menus produced
+by
+<I>chooser</I>
+
+or X terminals themselves.
+<P>
+
+Because
+<I>xdm</I>
+
+provides the first interface that users will see, it is designed to be
+simple to use and easy to customize to the needs of a particular site.
+<I>Xdm</I>
+
+has many options, most of which have reasonable defaults.  Browse through the
+various sections of this manual,
+picking and choosing the things you want to change.
+Pay particular attention to the
+<B>Session Program</B>
+
+section, which will describe how to
+set up the style of session desired.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OVERVIEW</H2>
+
+<I>xdm</I> is highly configurable, and most of its behavior can be
+controlled by resource files and shell scripts.  The names of these
+files themselves are resources read from the file <I>xdm-config</I> or
+the file named by the <B>-config</B> option.
+<P>
+
+<I>xdm</I> offers display management two different ways.  It can manage
+X servers running on the local machine and specified in
+<I>Xservers</I>, and it can manage remote X servers (typically X
+terminals) using XDMCP (the XDM Control Protocol)
+as specified in the <I>Xaccess</I> file.
+<P>
+
+The resources of the X clients run by <I>xdm</I> outside the user's
+session, including <I>xdm</I>'s own login window, can be
+affected by setting resources in the <I>Xresources</I> file.
+<P>
+
+For X terminals that do not offer a menu of hosts to get display
+management from, <I>xdm</I> can collect willing hosts and run the
+<I>chooser</I> program to offer the user a menu.
+For X displays attached to a host, this step is typically not used, as
+the local host does the display management.
+<P>
+
+After resetting the X server, <I>xdm</I> runs the <I>Xsetup</I> script
+to assist in setting up the screen the user sees along with the
+<I>xlogin</I> widget.
+<P>
+
+The <I>xlogin</I> widget, which <I>xdm</I> presents,
+offers the familiar login and password prompts.
+<P>
+
+After the user logs in, <I>xdm</I> runs the <I>Xstartup</I> script as
+root.
+<P>
+
+Then <I>xdm</I> runs the <I>Xsession</I> script as the user.  This
+system session file may do some additional startup and typically runs
+the <I>.xsession</I> script in the user's home directory.
+When the <I>Xsession</I> script exits, the session is over.
+<P>
+
+At the end of the session, the <I>Xreset</I> script is run to clean up,
+the X server is reset, and the cycle starts over.
+<P>
+
+The file <I> /var/log/xdm.log</I> will contain error
+messages from
+<I>xdm</I>
+
+and anything output to stderr by <I>Xsetup, Xstartup, Xsession</I>
+or <I>Xreset</I>.
+When you have trouble getting
+<I>xdm</I>
+
+working, check this file to see if
+<I>xdm</I>
+
+has any clues to the trouble.
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+All of these options, except <B>-config</B> itself,
+specify values that can also be specified in the configuration file
+as resources.
+<DL COMPACT>
+<DT><B>-config</B> <I>configuration_file</I><DD>
+Names the configuration file, which specifies resources to control
+the behavior of
+<I>xdm.</I>
+
+<I>/usr/X11R6/lib/X11/xdm/xdm-config</I>
+
+is the default.
+See the section <B>Configuration File</B>.
+<DT><B>-nodaemon</B><DD>
+Specifies ``false'' as the value for the <B>DisplayManager.daemonMode</B>
+resource.
+This suppresses the normal daemon behavior, which is for
+<I>xdm</I>
+
+to close all file descriptors, disassociate itself from
+the controlling terminal, and put
+itself in the background when it first starts up.
+<DT><B>-debug</B> <I>debug_level</I><DD>
+Specifies the numeric value for the <B>DisplayManager.debugLevel</B>
+resource.  A non-zero value causes
+<I>xdm</I>
+
+to print lots of debugging statements to the terminal; it also disables the
+<B>DisplayManager.daemonMode</B> resource, forcing
+<I>xdm</I>
+
+to run synchronously.  To interpret these debugging messages, a copy
+of the source code for
+<I>xdm</I>
+
+is almost a necessity.  No attempt has been
+made to rationalize or standardize the output.
+<DT><B>-error</B> <I>error_log_file</I><DD>
+Specifies the value for the <B>DisplayManager.errorLogFile</B> resource.
+This file contains errors from
+<I>xdm</I>
+
+as well as anything written to stderr by the various scripts and programs
+run during the progress of the session.
+<DT><B>-resources</B> <I>resource_file</I><DD>
+Specifies the value for the <B>DisplayManager*resources</B> resource.  This file
+is loaded using
+<I>xrdb</I>
+
+to specify configuration parameters for the
+authentication widget.
+<DT><B>-server</B> <I>server_entry</I><DD>
+Specifies the value for the <B>DisplayManager.servers</B> resource.
+See the section
+<B>Local Server Specification</B>
+
+for a description of this resource.
+<DT><B>-udpPort</B> <I>port_number</I><DD>
+Specifies the value for the <B>DisplayManager.requestPort</B> resource.  This
+sets the port-number which
+<I>xdm</I>
+
+will monitor for XDMCP requests.  As XDMCP
+uses the registered well-known UDP port 177, this resource should
+not be changed except for debugging. If set to 0 xdm will not listen
+for XDMCP or Chooser requests.
+<DT><B>-session</B> <I>session_program</I><DD>
+Specifies the value for the <B>DisplayManager*session</B> resource.  This
+indicates the program to run as the session after the user has logged in.
+<DT><B>-xrm</B> <I>resource_specification</I><DD>
+Allows an arbitrary resource to be specified, as in most
+X Toolkit applications.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>RESOURCES</H2>
+
+At many stages the actions of
+<I>xdm</I>
+
+can be controlled through the use of its configuration file, which is in the
+X resource format.
+Some resources modify the behavior of
+<I>xdm</I>
+
+on all displays,
+while others modify its behavior on a single display.  Where actions relate
+to a specific display,
+the display name is inserted into the resource name between
+``DisplayManager'' and the final resource name segment.
+<P>
+
+For local displays, the resource name and class are as read from the
+<I>Xservers</I> file.
+<P>
+
+For remote displays, the resource name is what the network address of
+the display resolves to.  See the <B>removeDomain</B> resource.  The
+name must match exactly; <I>xdm</I> is not aware of
+all the network aliases that might reach a given display.
+If the name resolve fails, the address is
+used.  The resource class is as sent by the display in the XDMCP
+Manage request.
+<P>
+
+Because the resource
+manager uses colons to separate the name of the resource from its value and
+dots to separate resource name parts,
+<I>xdm</I>
+
+substitutes underscores for both dots and colons when generating the resource
+name.
+For example, <B>DisplayManager.expo_x_org_0.startup</B> is the name of the
+resource which defines the startup shell file for the ``expo.x.org:0'' display.
+
+<DL COMPACT>
+<DT><B>DisplayManager.servers</B><DD>
+This resource either specifies a file name full of server entries, one per
+line (if the value starts with a slash), or a single server entry.
+See the section <B>Local Server Specification</B> for the details.
+<DT><B>DisplayManager.requestPort</B><DD>
+This indicates the UDP port number which
+<I>xdm</I>
+
+uses to listen for incoming XDMCP requests.  Unless you need to debug the
+system, leave this with its default value of 177.
+<DT><B>DisplayManager.errorLogFile</B><DD>
+Error output is normally directed at the system console.  To redirect it,
+set this resource to a file name.  A method to send these messages to
+<I>syslog</I>
+
+should be developed for systems which support it; however, the
+wide variety of interfaces precludes any system-independent
+implementation.  This file also contains any output directed to stderr
+by the <I>Xsetup, Xstartup, Xsession</I> and <I>Xreset</I> files,
+so it will contain descriptions
+of problems in those scripts as well.
+<DT><B>DisplayManager.debugLevel</B><DD>
+If the integer value of this resource is greater than zero,
+reams of
+debugging information will be printed.  It also disables daemon mode, which
+would redirect the information into the bit-bucket, and
+allows non-root users to run
+<I>xdm,</I>
+
+which would normally not be useful.
+<DT><B>DisplayManager.daemonMode</B><DD>
+Normally,
+<I>xdm</I>
+
+attempts to make itself into a daemon process unassociated with any terminal.
+This is
+accomplished by forking and leaving the parent process to exit, then closing
+file descriptors and releasing the controlling terminal.  In some
+environments this is not desired (in particular, when debugging).  Setting
+this resource to ``false'' will disable this feature.
+<DT><B>DisplayManager.pidFile</B><DD>
+The filename specified will be created to contain an ASCII
+representation of the process-id of the main
+<I>xdm</I>
+
+process.
+<I>Xdm</I>
+
+also uses file locking on this file
+to attempt to eliminate multiple daemons running on
+the same machine, which would cause quite a bit of havoc.
+<DT><B>DisplayManager.lockPidFile</B><DD>
+This is the resource which controls whether
+<I>xdm</I>
+
+uses file locking to keep multiple display managers from running amok.
+On System V, this
+uses the <I>lockf</I> library call, while on BSD it uses <I>flock.</I>
+<DT><B>DisplayManager.authDir</B><DD>
+This names a directory under which
+<I>xdm</I>
+
+stores authorization files while initializing the session.  The
+default value is <I> /usr/X11R6/lib/X11/xdm.</I>
+Can be overridden for specific displays by
+DisplayManager.<I>DISPLAY</I>.authFile.
+<DT><B>DisplayManager.autoRescan</B><DD>
+This boolean controls whether
+<I>xdm</I>
+
+rescans the configuration, servers, access control and authentication keys
+files after a session terminates and the files have changed.  By default it
+is ``true.''  You can force
+<I>xdm</I>
+
+to reread these files by sending a SIGHUP to the main process.
+<DT><B>DisplayManager.removeDomainname</B><DD>
+When computing the display name for XDMCP clients, the name resolver will
+typically create a fully qualified host name for the terminal.  As this is
+sometimes confusing,
+<I>xdm</I>
+
+will remove the domain name portion of the host name if it is the same as the
+domain name of the local host when this variable is set.  By default the
+value is ``true.''
+<DT><B>DisplayManager.keyFile</B><DD>
+XDM-AUTHENTICATION-1 style XDMCP authentication requires that a private key
+be shared between
+<I>xdm</I>
+
+and the terminal.  This resource specifies the file containing those
+values.  Each entry in the file consists of a display name and the shared
+key.  By default,
+<I>xdm</I>
+
+does not include support for XDM-AUTHENTICATION-1, as it requires DES which
+is not generally distributable because of United States export restrictions.
+<DT><B>DisplayManager.accessFile</B><DD>
+To prevent unauthorized XDMCP service and to allow forwarding of XDMCP
+IndirectQuery requests, this file contains a database of hostnames which are
+either allowed direct access to this machine, or have a list of hosts to
+which queries should be forwarded to.  The format of this file is described
+in the section
+<B>XDMCP Access Control.</B>
+
+<DT><B>DisplayManager.exportList</B><DD>
+A list of additional environment variables, separated by white space,
+to pass on to the <I>Xsetup</I>,
+<I>Xstartup</I>, <I>Xsession</I>, and <I>Xreset</I> programs.
+<DT><B>DisplayManager.randomFile</B><DD>
+A file to checksum to generate the seed of authorization keys.
+This should be a file that changes frequently.
+The default is <I>/dev/mem</I>.
+<P>
+<DT><B>DisplayManager.randomDevice</B><DD>
+A file to read 8 bytes from to generate the seed of authorization keys.
+The default is <I> &quot;/dev/random&quot; </I>. If this file cannot be read, or if a
+read blocks for more than 5 seconds, xdm falls back to using a checksum
+of <B>DisplayManager.randomFile</B> to generate the seed.
+<P>
+<P>
+<DT><B>DisplayManager.prngdSocket</B><DD>
+<DT><B>DisplayManager.prngPort</B><DD>
+A UNIX domain socket name or a TCP socket port number on local host on
+which a Pseudo-Random Number Generator Daemon, like EGD
+(<A HREF="http://egd.sourceforge.net)">http://egd.sourceforge.net)</A> is listening, in order to generate the
+autorization keys. Either a non null port or a valid socket name must
+be specified. The default is to use the Unix-domain socket
+<I>/tmp/entropy</I>.
+</DL>
+<P>
+
+On systems that don't have such a daemon, a fall-back entropy
+gathering system, based on various log file contents hashed by the MD5
+algorithm is used instead.
+<P>
+<DL COMPACT>
+<DT><B>DisplayManager.greeterLib</B><DD>
+On systems that support a dynamically-loadable greeter library, the
+name of the library.  The default is
+<I> /usr/X11R6/lib/X11/xdm/libXdmGreet.so</I>.
+<DT><B>DisplayManager.choiceTimeout</B><DD>
+Number of seconds to wait for display to respond after user has
+selected a host from the chooser.  If the display sends an XDMCP
+IndirectQuery within this time, the request is forwarded to the chosen
+host.  Otherwise, it is assumed to be from a new session and the
+chooser is offered again.
+Default is 15.
+<DT><B>DisplayManager.sourceAddress</B><DD>
+Use the numeric IP address of the incoming connection on multihomed hosts
+instead of the host name. This is to avoid trying to connect on the wrong
+interface which might be down at this time.
+<DT><B>DisplayManager.willing</B><DD>
+This specifies a program which is run (as) root when an an XDMCP
+BroadcastQuery is received and this host is configured to offer XDMCP
+display management. The output of this program may be displayed on a chooser
+window.  If no program is specified, the string <I>Willing to manage</I> is
+sent.
+</DL>
+<P>
+
+
+<DL COMPACT>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.resources</B><DD>
+This resource specifies the name of the file to be loaded by <I>xrdb</I>
+as the resource database onto the root window of screen 0 of the display.
+The <I>Xsetup</I> program, the Login widget, and <I>chooser</I> will use
+the resources set in this file.
+This resource data base is loaded just before the authentication procedure
+is started, so it can control the appearance of the login window.  See the
+section
+<B>Authentication Widget,</B>
+
+which describes the various
+resources that are appropriate to place in this file.
+There is no default value for this resource, but
+<I> /usr/X11R6/lib/X11/xdm/Xresources</I>
+is the conventional name.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.chooser</B><DD>
+Specifies the program run to offer a host menu for Indirect queries
+redirected to the special host name CHOOSER.
+<I> /etc/X11/xdm/chooser </I> is the default.
+See the sections <B>XDMCP Access Control</B> and <B>Chooser</B>.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.xrdb</B><DD>
+Specifies the program used to load the resources.  By default,
+<I>xdm</I>
+
+uses <I> /usr/X11R6/bin/xrdb</I>.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.cpp</B><DD>
+This specifies the name of the C preprocessor which is used by <I>xrdb</I>.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.setup</B><DD>
+This specifies a program which is run (as root) before offering the
+Login window.  This may be used to change the appearance of the screen
+around the Login window or to put up other windows (e.g., you may want
+to run <I>xconsole</I> here).
+By default, no program is run.  The conventional name for a
+file used here is <I>Xsetup</I>.
+See the section <B>Setup Program.</B>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.startup</B><DD>
+This specifies a program which is run (as root) after the authentication
+process succeeds.  By default, no program is run.  The conventional name for a
+file used here is <I>Xstartup</I>.
+See the section <B>Startup Program.</B>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.session</B><DD>
+This specifies the session to be executed (not running as root).
+By default, <I> /usr/X11R6/bin/xterm</I> is
+run.  The conventional name is <I>Xsession</I>.
+See the section
+<B>Session Program.</B>
+
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.reset</B><DD>
+This specifies a program which is run (as root) after the session terminates.
+By default, no program is run.
+The conventional name is <I>Xreset</I>.
+See the section
+<B>Reset Program.</B>
+
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.openDelay</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.openRepeat</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.openTimeout</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.startAttempts</B><DD>
+These numeric resources control the behavior of
+<I>xdm</I>
+
+when attempting to open intransigent servers.  <B>openDelay</B> is
+the length of the
+pause (in seconds) between successive attempts, <B>openRepeat</B> is the
+number of attempts to make, <B>openTimeout</B> is the amount of time
+to wait while actually
+attempting the open (i.e., the maximum time spent in the
+<I><A HREF="../man2/connect.2.php">connect</A></I>(2)
+
+system call) and <B>startAttempts</B> is the number of times this entire process
+is done before giving up on the server.  After <B>openRepeat</B> attempts have been made,
+or if <B>openTimeout</B> seconds elapse in any particular attempt,
+<I>xdm</I>
+
+terminates and restarts the server, attempting to connect again.
+This
+process is repeated <B>startAttempts</B> times, at which point the display is
+declared dead and disabled.  Although
+this behavior may seem arbitrary, it has been empirically developed and
+works quite well on most systems.  The default values are
+5 for <B>openDelay</B>, 5 for <B>openRepeat</B>, 30 for <B>openTimeout</B> and
+4 for <B>startAttempts</B>.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.pingInterval</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.pingTimeout</B><DD>
+To discover when remote displays disappear,
+<I>xdm</I>
+
+occasionally pings them, using an X connection and <I>XSync</I>
+calls.  <B>pingInterval</B> specifies the time (in minutes) between each
+ping attempt, <B>pingTimeout</B> specifies the maximum amount of time (in
+minutes) to wait for the terminal to respond to the request.  If the
+terminal does not respond, the session is declared dead and terminated.  By
+default, both are set to 5 minutes.  If you frequently use X terminals which
+can become isolated from the managing host, you may wish to increase this
+value.  The only worry is that sessions will continue to exist after the
+terminal has been accidentally disabled.
+<I>xdm</I>
+
+will not ping local displays.  Although it would seem harmless, it is
+unpleasant when the workstation session is terminated as a result of the
+server hanging for NFS service and not responding to the ping.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.terminateServer</B><DD>
+This boolean resource specifies whether the X server should be terminated
+when a session terminates (instead of resetting it).  This option can be
+used when the server tends to grow without bound over time, in order to limit
+the amount of time the server is run.  The default value is ``false.''
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.userPath</B><DD>
+<I>Xdm</I>
+
+sets the PATH environment variable for the session to this value.  It should
+be a colon separated list of directories; see
+<I><A HREF="../man1/sh.1.php">sh</A></I>(1)
+
+for a full description.
+``:/bin:/usr/bin:/usr/X11R6/bin:/usr/ucb''
+is a common setting.
+The default value can be specified at build time in the X system
+configuration file with DefaultUserPath.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.systemPath</B><DD>
+<I>Xdm</I>
+
+sets the PATH environment variable for the startup and reset scripts to the
+value of this resource.  The default for this resource is specified
+at build time by the DefaultSystemPath entry in the system configuration file;
+``/etc:/bin:/usr/bin:/usr/X11R6/bin:/usr/ucb'' is a common choice.
+Note the absence of ``.'' from this entry.  This is a good practice to
+follow for root; it avoids many common Trojan Horse system penetration
+schemes.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.systemShell</B><DD>
+<I>Xdm</I>
+
+sets the SHELL environment variable for the startup and reset scripts to the
+value of this resource.  It is <I>/bin/sh</I> by default.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.failsafeClient</B><DD>
+If the default session fails to execute,
+<I>xdm</I>
+
+will fall back to this program.  This program is executed with no
+arguments, but executes using the same environment variables as
+the session would have had (see the section <B>Session Program</B>).
+By default, <I> /usr/X11R6/bin/xterm</I> is used.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.grabServer</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.grabTimeout</B><DD>
+To improve security,
+<I>xdm</I>
+
+grabs the server and keyboard while reading the login name and password.
+The
+<B>grabServer</B> resource specifies if the server should be held for the
+duration of the name/password reading.  When ``false,'' the server is ungrabbed
+after the keyboard grab succeeds, otherwise the server is grabbed until just
+before the session begins.  The default is ``false.''
+The <B>grabTimeout</B> resource specifies the maximum time
+<I>xdm</I>
+
+will wait for the grab to succeed.  The grab may fail if some other
+client has the server grabbed, or possibly if the network latencies
+are very high.  This resource has a default value of 3 seconds; you
+should be cautious when raising it, as a user can be spoofed by a
+look-alike window on the display.  If the grab fails,
+<I>xdm</I>
+
+kills and restarts the server (if possible) and the session.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.authorize</B><DD>
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.authName</B><DD>
+<B>authorize</B> is a boolean resource which controls whether
+<I>xdm</I>
+
+generates and uses authorization for the local server connections.  If
+authorization is used, <B>authName</B> is a list
+of authorization mechanisms to use, separated by white space.
+XDMCP connections dynamically specify which
+authorization mechanisms are supported, so
+<B>authName</B> is ignored in this case.  When <B>authorize</B> is set for a
+display and authorization is not available, the user is informed by having a
+different message displayed in the login widget.  By default, <B>authorize</B>
+is ``true.''  <B>authName</B> is ``MIT-MAGIC-COOKIE-1,'' or, if
+XDM-AUTHORIZATION-1 is available, ``XDM-AUTHORIZATION-1&nbsp;MIT-MAGIC-COOKIE-1.''
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.authFile</B><DD>
+This file is used to communicate the authorization data from
+<I>xdm</I>
+
+to the server, using the <B>-auth</B> server command line option.
+It should be
+kept in a directory which is not world-writable as it could easily be
+removed, disabling the authorization mechanism in the server.
+If not specified, a name is generated from DisplayManager.authDir and
+the name of the display.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.authComplain</B><DD>
+If set to ``false,'' disables the use of the <B>unsecureGreeting</B>
+in the login window.
+See the section <B>Authentication Widget.</B>
+The default is ``true.''
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.resetSignal</B><DD>
+The number of the signal <I>xdm</I> sends to reset the server.
+See the section <B>Controlling the Server.</B>
+The default is 1 (SIGHUP).
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.termSignal</B><DD>
+The number of the signal <I>xdm</I> sends to terminate the server.
+See the section <B>Controlling the Server.</B>
+The default is 15 (SIGTERM).
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.resetForAuth</B><DD>
+The original implementation of authorization in the sample server reread the
+authorization file at server reset time, instead of when checking the
+initial connection.  As
+<I>xdm</I>
+
+generates the authorization information just before connecting to the
+display, an old server would not get up-to-date authorization information.
+This resource causes
+<I>xdm</I>
+
+to send SIGHUP to the server after setting up the file, causing an
+additional server reset to occur, during which time the new authorization
+information will be read.
+The default is ``false,'' which will work for all MIT servers.
+<DT><B>DisplayManager.</B><I>DISPLAY</I><B>.userAuthDir</B><DD>
+When
+<I>xdm</I>
+
+is unable to write to the usual user authorization file ($HOME/.Xauthority),
+it creates a unique file name in this directory and points the environment
+variable XAUTHORITY at the created file.  It uses <I>/tmp</I> by default.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFIGURATION FILE</H2>
+
+First, the
+<I>xdm</I>
+
+configuration file should be set up.
+Make a directory (usually <I> /usr/X11R6/lib/X11/xdm</I>) to contain all
+of the relevant files.
+<P>
+
+Here is a reasonable configuration file, which could be
+named <I>xdm-config</I>:
+<PRE>
+
+
+
+     DisplayManager.servers:            /usr/X11R6/lib/X11/xdm/Xservers
+     DisplayManager.errorLogFile:       /var/log/xdm.log
+     DisplayManager*resources:          /usr/X11R6/lib/X11/xdm/Xresources
+     DisplayManager*startup:            /usr/X11R6/lib/X11/xdm/Xstartup
+     DisplayManager*session:            /usr/X11R6/lib/X11/xdm/Xsession
+     DisplayManager.pidFile:            /usr/X11R6/lib/X11/xdm/xdm-pid
+     DisplayManager._0.authorize:       true
+     DisplayManager*authorize:          false
+
+</PRE>
+
+<P>
+
+Note that this file mostly contains references to other files.  Note also
+that some of the resources are specified with ``*'' separating the
+components.  These resources can be made unique for each different display,
+by replacing the ``*'' with the display-name, but normally this is not very
+useful.  See the <B>Resources</B> section for a complete discussion.
+<A NAME="lbAI">&nbsp;</A>
+<H2>XDMCP ACCESS CONTROL</H2>
+
+<P>
+
+The database file specified by the <B>DisplayManager.accessFile</B> provides
+information which
+<I>xdm</I>
+
+uses to control access from displays requesting XDMCP service.  This file
+contains three types of entries:  entries which control the response to
+Direct and Broadcast queries, entries which control the response to
+Indirect queries, and macro definitions.
+<P>
+
+The format of the Direct entries is simple, either a host name or a
+pattern, which is distinguished from a host name by the inclusion of
+one or more meta characters (`*' matches any sequence of 0 or more
+characters, and `?' matches any single character) which are compared against
+the host name of the display device.
+If the entry is a host name, all comparisons are done using
+network addresses, so any name which converts to the correct network address
+may be used.
+For patterns, only canonical host names are used
+in the comparison, so ensure that you do not attempt to match
+aliases.
+Preceding either a host name or a pattern with a `!' character
+causes hosts which
+match that entry to be excluded.
+<P>
+
+To only respond to Direct queries for a host or pattern,
+it can be followed by the optional ``NOBROADCAST'' keyword.
+This can be used to prevent an xdm server from appearing on
+menus based on Broadcast queries.
+<P>
+
+An Indirect entry also contains a host name or pattern,
+but follows it with a list of
+host names or macros to which indirect queries should be sent.
+<P>
+
+A macro definition contains a macro name and a list of host names and
+other macros that
+the macro expands to.  To distinguish macros from hostnames, macro
+names start with a `%' character.  Macros may be nested.
+<P>
+
+Indirect entries
+may also specify to have <I>xdm</I> run <I>chooser</I> to offer a menu
+of hosts to connect to.  See the section <B>Chooser</B>.
+<P>
+
+When checking access for a particular display host, each entry is scanned in
+turn and the first matching entry determines the response.  Direct and
+Broadcast
+entries are ignored when scanning for an Indirect entry and vice-versa.
+<P>
+
+Blank lines are ignored, `#' is treated as a comment
+delimiter causing the rest of that line to be ignored,
+and `\<I>newline</I>'
+causes the newline to be ignored, allowing indirect host lists to span
+multiple lines.
+<P>
+
+Here is an example Xaccess file:
+<P>
+
+
+
+<PRE>
+#
+# Xaccess - XDMCP access control file
+#
+
+#
+# Direct/Broadcast query entries
+#
+
+!xtra.lcs.mit.edu   # disallow direct/broadcast service for xtra
+bambi.ogi.edu       # allow access from this particular display
+*.lcs.mit.edu       # allow access from any display in LCS
+
+*.deshaw.com        NOBROADCAST         # allow only direct access
+*.gw.com                                # allow direct and broadcast
+
+#
+# Indirect query entries
+#
+
+%HOSTS              expo.lcs.mit.edu xenon.lcs.mit.edu 	excess.lcs.mit.edu kanga.lcs.mit.edu
+
+
+extract.lcs.mit.edu xenon.lcs.mit.edu   #force extract to contact xenon
+!xtra.lcs.mit.edu   dummy               #disallow indirect access
+*.lcs.mit.edu       %HOSTS              #all others get to choose
+</PRE>
+
+<P>
+
+If compiled with IPv6 support, multicast address groups may also be included
+in the list of addresses indirect queries are set to.  Multicast addresses
+may be followed by an optional / character and hop count. If no hop count is
+specified, the multicast hop count defaults to 1, keeping the packet on the
+local network. For IPv4 multicasting, the hop count is used as the TTL.
+<P>
+
+Examples:
+<P>
+
+
+
+<PRE>
+rincewind.sample.net ff02::1                 #IPv6 Multicast to ff02::1
+                                             #with a hop count of 1
+ponder.sample.net    CHOOSER 239.192.1.1/16  #Offer a menu of hosts
+                                             #who respond to IPv4 Multicast
+                                             # to 239.192.1.1 with a TTL of 16
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>CHOOSER</H2>
+
+<P>
+
+For X terminals that do not offer a host menu for use with Broadcast
+or Indirect queries, the <I>chooser</I> program can do this for them.
+In the <I>Xaccess</I> file, specify ``CHOOSER'' as the first entry in
+the Indirect host list.  <I>Chooser</I> will send a Query request to
+each of the remaining host names in the list and offer a menu of all
+the hosts that respond.
+<P>
+
+The list may consist of the word ``BROADCAST,'' in which case
+<I>chooser</I> will send a Broadcast instead, again offering a menu of
+all hosts that respond.  Note that on some operating systems, UDP
+packets cannot be broadcast, so this feature will not work.
+<P>
+
+Example <I>Xaccess</I> file using <I>chooser</I>:
+<P>
+<PRE>
+extract.lcs.mit.edu  CHOOSER %HOSTS          #offer a menu of these hosts
+xtra.lcs.mit.edu     CHOOSER BROADCAST       #offer a menu of all hosts
+</PRE>
+
+<P>
+
+The program to use for <I>chooser</I> is specified by the
+<B>DisplayManager.</B><I>DISPLAY</I><B>.chooser</B> resource.  For more
+flexibility at this step, the chooser could be a shell script.
+<I>Chooser</I> is the session manager here; it is run instead of a
+child <I>xdm</I> to manage the display.
+<P>
+
+Resources for this program
+can be put into the file named by
+<B>DisplayManager.</B><I>DISPLAY</I><B>.resources</B>.
+<P>
+
+When the user selects a host, <I>chooser</I> prints the host chosen,
+which is read by the parent <I>xdm</I>, and exits.
+<I>xdm</I> closes its connection to the X server, and the server resets
+and sends another <B>Indirect</B> XDMCP request.
+<I>xdm</I> remembers the user's choice (for
+<B>DisplayManager.choiceTimeout</B> seconds) and forwards the request
+to the chosen host, which starts a session on that display.
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>LISTEN</H2>
+
+The following configuration directive is also defined for the Xaccess
+configuration file:
+<DL COMPACT>
+<DT><B>LISTEN</B> <I>interface</I> <I>[list of multicast group addresses]</I><DD>
+<I>interface</I> may be a hostname or IP addresss representing a
+network interface on this machine, or the wildcard * to represent all
+available network interfaces.
+</DL>
+<P>
+
+If one or more LISTEN lines are specified, xdm only listens for XDMCP
+connections on the specified interfaces. If multicast group addresses
+are listed on a listen line, xdm joins the multicast groups on the
+given interface.
+<P>
+
+If no LISTEN lines are given, the original behavior of listening on
+all interfaces is preserved for backwards compatibility.
+Additionally, if no LISTEN is specified, xdm joins the default XDMCP
+IPv6 multicast group, when compiled with IPv6 support.
+<P>
+
+To disable listening for XDMCP connections altogther, a line of LISTEN
+with no addresses may be specified, or the previously supported method
+of setting DisplayManager.requestPort to 0 may be used.
+<P>
+
+Examples:
+
+
+<PRE>
+LISTEN * ff02::1    # Listen on all interfaces and to the
+                    # ff02::1 IPv6 multicast group.
+LISTEN 10.11.12.13  # Listen only on this interface, as long
+                    # as no other listen directives appear in
+                    # file.
+</PRE>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>IPv6 MULTICAST ADDRESS SPECIFICATION</H2>
+
+<P>
+
+The Internet Assigned Numbers Authority has has assigned 
+ff0<I>X</I>:0:0:0:0:0:0:12b as the permanently assigned range of 
+multicast addresses for XDMCP. The <I>X</I> in the prefix may be replaced
+by any valid scope identifier, such as 1 for Node-Local, 2 for Link-Local,
+5 for Site-Local, and so on.  (See IETF RFC 2373 or its replacement for 
+further details and scope definitions.)  xdm defaults to listening on the
+Link-Local scope address ff02:0:0:0:0:0:0:12b to most closely match the 
+old IPv4 subnet broadcast behavior.
+<A NAME="lbAM">&nbsp;</A>
+<H2>LOCAL SERVER SPECIFICATION</H2>
+
+<P>
+
+The resource <B>DisplayManager.servers</B> gives a server specification
+or, if the values starts with a slash (/), the name of a file
+containing server specifications, one per line.
+<P>
+
+Each specification
+indicates a display which should constantly be managed and which is
+not using XDMCP.
+This method is used typically for local servers only.  If the resource
+or the file named by the resource is empty, <I>xdm</I> will offer XDMCP
+service only.
+<P>
+
+Each specification consists of at least three parts:  a display
+name, a display class, a display type, and (for local servers) a command
+line to start the server.  A typical entry for local display number 0 would
+be:
+<PRE>
+
+  :0 Digital-QV local /usr/X11R6/bin/X :0
+
+</PRE>
+
+The display types are:
+
+
+<PRE>
+
+local     local display: <I>xdm</I> must run the server
+foreign   remote display: <I>xdm</I> opens an X connection to a running server
+
+</PRE>
+
+<P>
+
+The display name must be something that can be passed in the <B>-display</B>
+option to an X program.  This string is used to generate the display-specific
+resource names, so be careful to match the
+names (e.g., use ``:0 Sun-CG3 local /usr/X11R6/bin/X :0'' instead of
+``localhost:0 Sun-CG3 local /usr/X11R6/bin/X :0''
+if your other resources are specified as
+``DisplayManager._0.session'').  The display class portion is also used in the
+display-specific resources, as the class of the resource.  This is
+useful if you have a large collection of similar displays (such as a corral of
+X terminals) and would like to set resources for groups of them.  When using
+XDMCP, the display is required to specify the display class, so the manual
+for your particular X terminal should document the display class
+string for your device.  If it doesn't, you can run
+<I>xdm</I>
+
+in debug mode and
+look at the resource strings which it generates for that device, which will
+include the class string.
+<P>
+
+When <I>xdm</I> starts a session, it sets up authorization data for the
+server.  For local servers, <I>xdm</I> passes
+``<B>-auth</B> <I>filename</I>'' on the server's command line to point
+it at its authorization data.
+For XDMCP servers, <I>xdm</I> passes the
+authorization data to the server via the <B>Accept</B> XDMCP request.
+<A NAME="lbAN">&nbsp;</A>
+<H2>RESOURCES FILE</H2>
+
+The <I>Xresources</I> file is
+loaded onto the display as a resource database using
+<I>xrdb.</I>
+
+As the authentication
+widget reads this database before starting up, it usually contains
+parameters for that widget:
+<PRE>
+
+
+     xlogin*login.translations: #override	Ctrl&lt;Key&gt;R: abort-display()\n	&lt;Key&gt;F1: set-session-argument(failsafe) finish-field()\n	&lt;Key&gt;Return: set-session-argument() finish-field()
+
+
+
+     xlogin*borderWidth: 3
+     xlogin*greeting: CLIENTHOST
+     #ifdef COLOR
+     xlogin*greetColor: CadetBlue
+     xlogin*failColor: red
+     #endif
+
+</PRE>
+
+<P>
+
+Please note the translations entry; it specifies
+a few new translations for the widget which allow users to escape from the
+default session (and avoid troubles that may occur in it).  Note that if
+#override is not specified, the default translations are removed and replaced
+by the new value, not a very useful result as some of the default translations
+are quite useful (such as ``&lt;Key&gt;: insert-char ()'' which responds to normal
+typing).
+<P>
+
+This file may also contain resources for the setup program and <I>chooser</I>.
+<A NAME="lbAO">&nbsp;</A>
+<H2>SETUP PROGRAM</H2>
+
+The <I>Xsetup</I> file is run after
+the server is reset, but before the Login window is offered.
+The file is typically a shell script.
+It is run as root, so should be careful about security.
+This is the place to change the root background or bring up other
+windows that should appear on the screen along with the Login widget.
+<P>
+
+In addition to any specified by <B>DisplayManager.exportList</B>,
+the following environment variables are passed:
+<PRE>
+
+
+     DISPLAY        the associated display name
+     PATH           the value of <B>DisplayManager.</B><I>DISPLAY</I><B>.systemPath</B>
+     SHELL          the value of <B>DisplayManager.</B><I>DISPLAY</I><B>.systemShell</B>
+     XAUTHORITY     may be set to an authority file
+</PRE>
+
+<P>
+
+Note that since <I>xdm</I> grabs the keyboard, any other windows will not be
+able to receive keyboard input.  They will be able to interact with
+the mouse, however; beware of potential security holes here.
+If <B>DisplayManager.</B><I>DISPLAY</I><B>.grabServer</B> is set,
+<I>Xsetup</I> will not be able to connect
+to the display at all.
+Resources for this program
+can be put into the file named by
+<B>DisplayManager.</B><I>DISPLAY</I><B>.resources</B>.
+<P>
+
+Here is a sample <I>Xsetup</I> script:
+<PRE>
+
+     #!/bin/sh
+     # Xsetup_0 - setup script for one workstation
+     xcmsdb &lt; /usr/X11R6/lib/monitors/alex.0
+     xconsole&nbsp;-geometry&nbsp;480x130-0-0&nbsp;-notify&nbsp;-verbose&nbsp;-exitOnFail &amp;
+
+</PRE>
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>AUTHENTICATION WIDGET</H2>
+
+The authentication widget reads a name/password pair
+from the keyboard.  Nearly every imaginable
+parameter can be controlled with a resource.  Resources for this widget
+should be put into the file named by
+<B>DisplayManager.</B><I>DISPLAY</I><B>.resources</B>.  All of these have reasonable
+default values, so it is not necessary to specify any of them.
+<DL COMPACT>
+<DT><B>xlogin.Login.width, xlogin.Login.height, xlogin.Login.x, xlogin.Login.y</B><DD>
+The geometry of the Login widget is normally computed automatically.  If you
+wish to position it elsewhere, specify each of these resources.
+<DT><B>xlogin.Login.foreground</B><DD>
+The color used to display the typed-in user name.
+<DT><B>xlogin.Login.font</B><DD>
+The font used to display the typed-in user name.
+<DT><B>xlogin.Login.greeting</B><DD>
+A string which identifies this window.
+The default is ``X Window System.''
+<DT><B>xlogin.Login.unsecureGreeting</B><DD>
+When X authorization is requested in the configuration file for this
+display and none is in use, this greeting replaces the standard
+greeting.  The default is ``This is an unsecure session''
+<DT><B>xlogin.Login.greetFont</B><DD>
+The font used to display the greeting.
+<DT><B>xlogin.Login.greetColor</B><DD>
+The color used to display the greeting.
+<DT><B>xlogin.Login.namePrompt</B><DD>
+The string displayed to prompt for a user name.
+<I>Xrdb</I>
+
+strips trailing white space from resource values, so to add spaces at
+the end of the prompt (usually a nice thing), add spaces escaped with
+backslashes.  The default is ``Login:  ''
+<DT><B>xlogin.Login.passwdPrompt</B><DD>
+The string displayed to prompt for a password.
+The default is ``Password:  ''
+<DT><B>xlogin.Login.promptFont</B><DD>
+The font used to display both prompts.
+<DT><B>xlogin.Login.promptColor</B><DD>
+The color used to display both prompts.
+<DT><B>xlogin.Login.fail</B><DD>
+A message which is displayed when the authentication fails.
+The default is ``Login incorrect''
+<DT><B>xlogin.Login.failFont</B><DD>
+The font used to display the failure message.
+<DT><B>xlogin.Login.failColor</B><DD>
+The color used to display the failure message.
+<DT><B>xlogin.Login.failTimeout</B><DD>
+The number of seconds that the failure message is displayed.
+The default is 30.
+<DT><B>xlogin.Login.allowRootLogin</B><DD>
+If set to ``false'', don't allow root (and any other user with uid = 0) to
+log in directly.
+The default is ``true''.
+<DT><B>xlogin.Login.allowNullPasswd</B><DD>
+If set to ``true'', allow an otherwise failing password match to succeed
+if the account does not require a password at all.
+The default is ``false'', so only users that have passwords assigned can
+log in.
+<DT><B>xlogin.Login.translations</B><DD>
+This specifies the translations used for the login widget.  Refer to the X
+Toolkit documentation for a complete discussion on translations.  The default
+translation table is:
+<PRE>
+
+
+     Ctrl&lt;Key&gt;H:    delete-previous-character() \n	Ctrl&lt;Key&gt;D:delete-character() \n	Ctrl&lt;Key&gt;B:move-backward-character() \n	Ctrl&lt;Key&gt;F:move-forward-character() \n	Ctrl&lt;Key&gt;A:move-to-begining() \n	Ctrl&lt;Key&gt;E:move-to-end() \n	Ctrl&lt;Key&gt;K:erase-to-end-of-line() \n	Ctrl&lt;Key&gt;U:erase-line() \n	Ctrl&lt;Key&gt;X:erase-line() \n	Ctrl&lt;Key&gt;C:restart-session() \n	Ctrl&lt;Key&gt;\\:abort-session() \n	&lt;Key&gt;BackSpace:delete-previous-character() \n	&lt;Key&gt;Delete:delete-previous-character() \n	&lt;Key&gt;Return:finish-field() \n	&lt;Key&gt;:insert-char() </PRE>
+
+</DL>
+<P>
+
+The actions which are supported by the widget are:<BR>
+<DL COMPACT>
+<DT>delete-previous-character<DD>
+Erases the character before the cursor.
+<DT>delete-character<DD>
+Erases the character after the cursor.
+<DT>move-backward-character<DD>
+Moves the cursor backward.
+<DT>move-forward-character<DD>
+Moves the cursor forward.
+<DT>move-to-begining<DD>
+(Apologies about the spelling error.)
+Moves the cursor to the beginning of the editable text.
+<DT>move-to-end<DD>
+Moves the cursor to the end of the editable text.
+<DT>erase-to-end-of-line<DD>
+Erases all text after the cursor.
+<DT>erase-line<DD>
+Erases the entire text.
+<DT>finish-field<DD>
+If the cursor is in the name field, proceeds to the password field; if the
+cursor is in the password field, checks the current name/password pair.  If
+the name/password pair is valid, <I>xdm</I>
+starts the session.  Otherwise the failure message is displayed and
+the user is prompted again.
+<DT>abort-session<DD>
+Terminates and restarts the server.
+<DT>abort-display<DD>
+Terminates the server, disabling it.  This action
+is not accessible in the default configuration.
+There are various reasons to stop <I>xdm</I> on a system console, such as
+when shutting the system down, when using <I>xdmshell</I>,
+to start another type of server, or to generally access the console.
+Sending <I>xdm</I> a SIGHUP will restart the display.  See the section
+<B>Controlling XDM</B>.
+<DT>restart-session<DD>
+Resets the X server and starts a new session.  This can be used when
+the resources have been changed and you want to test them or when
+the screen has been overwritten with system messages.
+<DT>insert-char<DD>
+Inserts the character typed.
+<DT>set-session-argument<DD>
+Specifies a single word argument which is passed to the session at startup.
+See the section <B>Session Program</B>.
+<DT>allow-all-access<DD>
+Disables access control in the server.  This can be used when
+the .Xauthority file cannot be created by
+<I>xdm.</I>
+
+Be very careful using this;
+it might be better to disconnect the machine from the network
+before doing this.
+</DL>
+<P>
+
+On some systems (OpenBSD) the user's shell must be listed in
+<I>/etc/shells</I>
+
+to allow login through xdm. The normal password and account expiration
+dates are enforced too.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>STARTUP PROGRAM</H2>
+
+<P>
+
+The <I>Xstartup</I> program is run as
+root when the user logs in.
+It is typically a shell script.
+Since it is run as root, <I>Xstartup</I> should be
+very careful about security.  This is the place to put commands which add
+entries to <I>/etc/utmp</I>
+(the <I>sessreg</I> program may be useful here),
+mount users' home directories from file servers,
+or abort the session if logins are not
+allowed.
+<P>
+
+In addition to any specified by <B>DisplayManager.exportList</B>,
+the following environment variables are passed:
+<PRE>
+
+
+     DISPLAY        the associated display name
+     HOME           the initial working directory of the user
+     LOGNAME        the user name
+     USER           the user name
+     PATH           the value of <B>DisplayManager.</B><I>DISPLAY</I><B>.systemPath</B>
+     SHELL          the value of <B>DisplayManager.</B><I>DISPLAY</I><B>.systemShell</B>
+     XAUTHORITY     may be set to an authority file
+
+</PRE>
+
+<P>
+
+No arguments are passed to the script.
+<I>Xdm</I>
+
+waits until this script exits before starting the user session.  If the
+exit value of this script is non-zero,
+<I>xdm</I>
+
+discontinues the session and starts another authentication
+cycle.
+<P>
+
+The sample <I>Xstartup</I> file shown here prevents login while the
+file <I>/etc/nologin</I>
+exists.
+Thus this is not a complete example, but
+simply a demonstration of the available functionality.
+<P>
+
+Here is a sample <I>Xstartup</I> script:
+<PRE>
+
+
+     #!/bin/sh
+     #
+     # Xstartup
+     #
+     # This program is run as root after the user is verified
+     #
+     if [ -f /etc/nologin ]; then
+          xmessage&nbsp;-file /etc/nologin&nbsp;-timeout 30&nbsp;-center
+          exit 1
+     fi
+     sessreg&nbsp;-a&nbsp;-l $DISPLAY&nbsp;-x /usr/X11R6/lib/xdm/Xservers $LOGNAME
+     /usr/X11R6/lib/xdm/GiveConsole
+     exit 0
+</PRE>
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>SESSION PROGRAM</H2>
+
+<P>
+
+The <I>Xsession</I> program is the command which is run as the user's session.
+It is run with
+the permissions of the authorized user.
+<P>
+
+In addition to any specified by <B>DisplayManager.exportList</B>,
+the following environment variables are passed:
+<PRE>
+
+
+     DISPLAY        the associated display name
+     HOME           the initial working directory of the user
+     LOGNAME        the user name
+     USER           the user name
+     PATH           the value of <B>DisplayManager.</B><I>DISPLAY</I><B>.userPath</B>
+     SHELL          the user's default shell (from <I>getpwnam</I>)
+     XAUTHORITY     may be set to a non-standard authority file
+     KRB5CCNAME     may be set to a Kerberos credentials cache name
+
+</PRE>
+
+<P>
+
+At most installations, <I>Xsession</I> should look in $HOME for
+a file <I>.xsession,</I>
+which contains commands that each user would like to use as a session.
+<I>Xsession</I> should also
+implement a system default session if no user-specified session exists.
+See the section <B>Typical Usage</B>.
+<P>
+
+An argument may be passed to this program from the authentication widget
+using the `set-session-argument' action.  This can be used to select
+different styles of session.  One good use of this feature is to allow
+the user to escape from the ordinary session when it fails.  This
+allows users to repair their own <I>.xsession</I> if it fails,
+without requiring administrative intervention.
+The example following
+demonstrates this feature.
+<P>
+
+This example recognizes
+the special
+``failsafe'' mode, specified in the translations
+in the <I>Xresources</I> file, to provide an escape
+from the ordinary session.  It also requires that the .xsession file
+be executable so we don't have to guess what shell it wants to use.
+<PRE>
+
+
+     #!/bin/sh
+     #
+     # Xsession
+     #
+     # This is the program that is run as the client
+     # for the display manager.
+
+     case $# in
+     1)
+          case $1 in
+          failsafe)
+               exec xterm -geometry 80x24-0-0
+               ;;
+          esac
+     esac
+
+     startup=$HOME/.xsession
+     resources=$HOME/.Xresources
+
+     if [ -f &quot;$startup&quot; ]; then
+          exec &quot;$startup&quot;
+     else
+          if [ -f &quot;$resources&quot; ]; then
+               xrdb -load &quot;$resources&quot;
+          fi
+          twm &amp;
+          xman -geometry +10-10 &amp;
+          exec xterm -geometry 80x24+10+10 -ls
+     fi
+
+</PRE>
+
+<P>
+
+The user's <I>.xsession</I> file might look something like this
+example.  Don't forget that the file must have execute permission.
+<PRE>
+     #! /bin/csh
+     # no -f in the previous line so .cshrc gets run to set $PATH
+     twm &amp;
+     xrdb -merge &quot;$HOME/.Xresources&quot;
+     emacs -geometry +0+50 &amp;
+     xbiff -geometry -430+5 &amp;
+     xterm -geometry -0+50 -ls
+</PRE>
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>RESET PROGRAM</H2>
+
+<P>
+
+Symmetrical with <I>Xstartup</I>,
+the <I>Xreset</I> script is run after the user session has
+terminated.  Run as root, it should contain commands that undo
+the effects of commands in <I>Xstartup,</I> removing entries
+from <I>/etc/utmp</I>
+or unmounting directories from file servers.  The environment
+variables that were passed to <I>Xstartup</I> are also
+passed to <I>Xreset</I>.
+<P>
+
+A sample <I>Xreset</I> script:
+<PRE>
+
+     #!/bin/sh
+     #
+     # Xreset
+     #
+     # This program is run as root after the session ends
+     #
+     sessreg&nbsp;-d&nbsp;-l $DISPLAY&nbsp;-x /usr/X11R6/lib/xdm/Xservers $LOGNAME
+     /usr/X11R6/lib/xdm/TakeConsole
+     exit 0
+</PRE>
+
+<A NAME="lbAT">&nbsp;</A>
+<H2>CONTROLLING THE SERVER</H2>
+
+<I>Xdm</I>
+
+controls local servers using POSIX signals.  SIGHUP is expected to reset the
+server, closing all client connections and performing other cleanup
+duties.  SIGTERM is expected to terminate the server.
+If these signals do not perform the expected actions,
+the resources <B>DisplayManager.</B><I>DISPLAY</I><B>.resetSignal</B> and
+<B>DisplayManager.</B><I>DISPLAY</I><B>.termSignal</B> can specify alternate signals.
+<P>
+
+To control remote terminals not using XDMCP,
+<I>xdm</I>
+
+searches the window hierarchy on the display and uses the protocol request
+KillClient in an attempt to clean up the terminal for the next session.  This
+may not actually kill all of the clients, as only those which have created
+windows will be noticed.  XDMCP provides a more sure mechanism; when
+<I>xdm</I>
+
+closes its initial connection, the session is over and the terminal is
+required to close all other connections.
+<A NAME="lbAU">&nbsp;</A>
+<H2>CONTROLLING XDM</H2>
+
+<P>
+
+<I>Xdm</I>
+
+responds to two signals: SIGHUP and SIGTERM.  When sent a SIGHUP,
+<I>xdm</I>
+
+rereads the configuration file, the access control file, and the servers
+file.  For the servers file, it notices if entries have been added or
+removed.  If a new entry has been added,
+<I>xdm</I>
+
+starts a session on the associated display.  Entries which have been removed
+are disabled immediately, meaning that any session in progress will be
+terminated without notice and no new session will be started.
+<P>
+
+When sent a SIGTERM,
+<I>xdm</I>
+
+terminates all sessions in progress and exits.  This can be used when
+shutting down the system.
+<P>
+
+<I>Xdm</I>
+
+attempts to mark its various sub-processes for
+<I><A HREF="../man1/ps.1.php">ps</A></I>(1)
+
+by editing the
+command line argument list in place.  Because
+<I>xdm</I>
+
+can't allocate additional
+space for this task, it is useful to start
+<I>xdm</I>
+
+with a reasonably long
+command line (using the full path name should be enough).
+Each process which is
+servicing a display is marked <B>-</B><I>display.</I>
+<A NAME="lbAV">&nbsp;</A>
+<H2>ADDITIONAL LOCAL DISPLAYS</H2>
+
+<P>
+
+To add an additional local display, add a line for it to the
+<I>Xservers</I> file.
+(See the section <B>Local Server Specification</B>.)
+<P>
+
+Examine the display-specific resources in <I>xdm-config</I>
+(e.g., <B>DisplayManager._0.authorize</B>)
+and consider which of them should be copied for the new display.
+The default <I>xdm-config</I> has all the appropriate lines for
+displays <B>:0</B> and <B>:1</B>.
+<A NAME="lbAW">&nbsp;</A>
+<H2>OTHER POSSIBILITIES</H2>
+
+<P>
+
+You can use <I>xdm</I>
+to run a single session at a time, using the 4.3 <I>init</I>
+options or other suitable daemon by specifying the server on the command
+line:
+<PRE>
+
+
+     xdm -server lq:0 SUN-3/60CG4 local /usr/X11R6/bin/X :0rq
+
+</PRE>
+
+<P>
+
+Or, you might have a file server and a collection of X terminals.  The
+configuration for this is identical to the sample above,
+except the <I>Xservers</I> file would look like
+<PRE>
+
+
+     extol:0 VISUAL-19 foreign
+     exalt:0 NCD-19 foreign
+     explode:0 NCR-TOWERVIEW3000 foreign
+
+</PRE>
+
+<P>
+
+This directs
+<I>xdm</I>
+
+to manage sessions on all three of these terminals.  See the section
+<B>Controlling Xdm</B> for a description of using signals to enable
+and disable these terminals in a manner reminiscent of
+<I><A HREF="../man8/init.8.php">init</A></I>(8).
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>LIMITATIONS</H2>
+
+One thing that
+<I>xdm</I>
+
+isn't very good at doing is coexisting with other window systems.  To use
+multiple window systems on the same hardware, you'll probably be more
+interested in
+<I>xinit.</I>
+
+<A NAME="lbAY">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/usr/X11R6/lib/X11/xdm/xdm-config</I>
+
+<DD>
+the default configuration file
+<DT><I>$HOME/.Xauthority</I>
+
+<DD>
+user authorization file where <I>xdm</I> stores keys for clients to read
+<DT><I>/etc/X11/xdm/chooser</I>
+
+<DD>
+the default chooser
+<DT><I>/usr/X11R6/bin/xrdb</I>
+
+<DD>
+the default resource database loader
+<DT><I>/usr/X11R6/bin/X</I>
+
+<DD>
+the default server
+<DT><I>/usr/X11R6/bin/xterm</I>
+
+<DD>
+the default session program and failsafe client
+<DT><I>/usr/X11R6/lib/X11/xdm/A&lt;display&gt;-&lt;suffix&gt;</I>
+
+<DD>
+the default place for authorization files
+<DT><I>/tmp/K5C&lt;display&gt;</I>
+
+<DD>
+Kerberos credentials cache
+</DL>
+<A NAME="lbAZ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man7/X.7x.php">X</A></I>(7x),
+
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1),
+
+<I><A HREF="../man1/xauth.1.php">xauth</A></I>(1),
+
+<I><A HREF="../man7/Xsecurity.7x.php">Xsecurity</A></I>(7x),
+
+<I><A HREF="../man1/sessreg.1.php">sessreg</A></I>(1),
+
+<I><A HREF="../man1/Xserver.1.php">Xserver</A></I>(1),
+
+
+
+<BR>
+
+<I>X Display Manager Control Protocol</I>
+
+<A NAME="lbBA">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Keith Packard, MIT X Consortium
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OVERVIEW</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">RESOURCES</A><DD>
+<DT><A HREF="#lbAH">CONFIGURATION FILE</A><DD>
+<DT><A HREF="#lbAI">XDMCP ACCESS CONTROL</A><DD>
+<DT><A HREF="#lbAJ">CHOOSER</A><DD>
+<DT><A HREF="#lbAK">LISTEN</A><DD>
+<DT><A HREF="#lbAL">IPv6 MULTICAST ADDRESS SPECIFICATION</A><DD>
+<DT><A HREF="#lbAM">LOCAL SERVER SPECIFICATION</A><DD>
+<DT><A HREF="#lbAN">RESOURCES FILE</A><DD>
+<DT><A HREF="#lbAO">SETUP PROGRAM</A><DD>
+<DT><A HREF="#lbAP">AUTHENTICATION WIDGET</A><DD>
+<DT><A HREF="#lbAQ">STARTUP PROGRAM</A><DD>
+<DT><A HREF="#lbAR">SESSION PROGRAM</A><DD>
+<DT><A HREF="#lbAS">RESET PROGRAM</A><DD>
+<DT><A HREF="#lbAT">CONTROLLING THE SERVER</A><DD>
+<DT><A HREF="#lbAU">CONTROLLING XDM</A><DD>
+<DT><A HREF="#lbAV">ADDITIONAL LOCAL DISPLAYS</A><DD>
+<DT><A HREF="#lbAW">OTHER POSSIBILITIES</A><DD>
+<DT><A HREF="#lbAX">LIMITATIONS</A><DD>
+<DT><A HREF="#lbAY">FILES</A><DD>
+<DT><A HREF="#lbAZ">SEE ALSO</A><DD>
+<DT><A HREF="#lbBA">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

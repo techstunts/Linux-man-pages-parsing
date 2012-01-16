@@ -1,0 +1,333 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RSAUTL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RSAUTL</H1>
+Section: OpenSSL (1)<BR>Updated: 2001-04-25<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+rsautl - RSA utility
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>openssl</B> <B>rsautl</B>
+[<B>-in file</B>]
+[<B>-out file</B>]
+[<B>-inkey file</B>]
+[<B>-pubin</B>]
+[<B>-certin</B>]
+[<B>-sign</B>]
+[<B>-verify</B>]
+[<B>-encrypt</B>]
+[<B>-decrypt</B>]
+[<B>-pkcs</B>]
+[<B>-ssl</B>]
+[<B>-raw</B>]
+[<B>-hexdump</B>]
+[<B>-asn1parse</B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The <B>rsautl</B> command can be used to sign, verify, encrypt and decrypt
+data using the <FONT SIZE="-1">RSA</FONT> algorithm.
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMAND OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-in filename</B><DD>
+<A NAME="ixAAF"></A>
+This specifies the input filename to read data from or standard input
+if this option is not specified.
+<DT><B>-out filename</B><DD>
+<A NAME="ixAAG"></A>
+specifies the output filename to write to or standard output by
+default.
+<DT><B>-inkey file</B><DD>
+<A NAME="ixAAH"></A>
+the input key file, by default it should be an <FONT SIZE="-1">RSA</FONT> private key.
+<DT><B>-pubin</B><DD>
+<A NAME="ixAAI"></A>
+the input file is an <FONT SIZE="-1">RSA</FONT> public key. 
+<DT><B>-certin</B><DD>
+<A NAME="ixAAJ"></A>
+the input is a certificate containing an <FONT SIZE="-1">RSA</FONT> public key. 
+<DT><B>-sign</B><DD>
+<A NAME="ixAAK"></A>
+sign the input data and output the signed result. This requires
+and <FONT SIZE="-1">RSA</FONT> private key.
+<DT><B>-verify</B><DD>
+<A NAME="ixAAL"></A>
+verify the input data and output the recovered data.
+<DT><B>-encrypt</B><DD>
+<A NAME="ixAAM"></A>
+encrypt the input data using an <FONT SIZE="-1">RSA</FONT> public key.
+<DT><B>-decrypt</B><DD>
+<A NAME="ixAAN"></A>
+decrypt the input data using an <FONT SIZE="-1">RSA</FONT> private key.
+<DT><B>-pkcs, -oaep, -ssl, -raw</B><DD>
+<A NAME="ixAAO"></A>
+the padding to use: PKCS#1 v1.5 (the default), PKCS#1 <FONT SIZE="-1">OAEP</FONT>,
+special padding used in <FONT SIZE="-1">SSL</FONT> v2 backwards compatible handshakes,
+or no padding, respectively.
+For signatures, only <B>-pkcs</B> and <B>-raw</B> can be used.
+<DT><B>-hexdump</B><DD>
+<A NAME="ixAAP"></A>
+hex dump the output data.
+<DT><B>-asn1parse</B><DD>
+<A NAME="ixAAQ"></A>
+asn1parse the output data, this is useful when combined with the
+<B>-verify</B> option.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixAAR"></A>
+<B>rsautl</B> because it uses the <FONT SIZE="-1">RSA</FONT> algorithm directly can only be
+used to sign or verify small pieces of data.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAS"></A>
+Sign some data using a private key:
+<P>
+
+
+
+<PRE>
+ openssl rsautl -sign -in file -inkey key.pem -out sig
+
+</PRE>
+
+
+<P>
+
+Recover the signed data
+<P>
+
+
+
+<PRE>
+ openssl rsautl -verify -in sig -inkey key.pem
+
+</PRE>
+
+
+<P>
+
+Examine the raw signed data:
+<P>
+
+
+
+<PRE>
+ openssl rsautl -verify -in file -inkey key.pem -raw -hexdump
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ 0000 - 00 01 ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0010 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0020 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0030 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0040 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0050 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0060 - ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff   ................
+ 0070 - ff ff ff ff 00 68 65 6c-6c 6f 20 77 6f 72 6c 64   .....hello world
+
+</PRE>
+
+
+<P>
+
+The PKCS#1 block formatting is evident from this. If this was done using
+encrypt and decrypt the block would have been of type 2 (the second byte)
+and random padding data visible instead of the 0xff bytes.
+<P>
+
+It is possible to analyse the signature of certificates using this
+utility in conjunction with <B>asn1parse</B>. Consider the self signed
+example in certs/pca-cert.pem . Running <B>asn1parse</B> as follows yields:
+<P>
+
+
+
+<PRE>
+ openssl asn1parse -in pca-cert.pem
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    0:d=0  hl=4 l= 742 cons: SEQUENCE          
+    4:d=1  hl=4 l= 591 cons:  SEQUENCE          
+    8:d=2  hl=2 l=   3 cons:   cont [ 0 ]        
+   10:d=3  hl=2 l=   1 prim:    INTEGER           :02
+   13:d=2  hl=2 l=   1 prim:   INTEGER           :00
+   16:d=2  hl=2 l=  13 cons:   SEQUENCE          
+   18:d=3  hl=2 l=   9 prim:    OBJECT            :md5WithRSAEncryption
+   29:d=3  hl=2 l=   0 prim:    NULL              
+   31:d=2  hl=2 l=  92 cons:   SEQUENCE          
+   33:d=3  hl=2 l=  11 cons:    SET               
+   35:d=4  hl=2 l=   9 cons:     SEQUENCE          
+   37:d=5  hl=2 l=   3 prim:      OBJECT            :countryName
+   42:d=5  hl=2 l=   2 prim:      PRINTABLESTRING   :AU
+  ....
+  599:d=1  hl=2 l=  13 cons:  SEQUENCE          
+  601:d=2  hl=2 l=   9 prim:   OBJECT            :md5WithRSAEncryption
+  612:d=2  hl=2 l=   0 prim:   NULL              
+  614:d=1  hl=3 l= 129 prim:  BIT STRING
+
+</PRE>
+
+
+<P>
+
+The final <FONT SIZE="-1">BIT</FONT> <FONT SIZE="-1">STRING</FONT> contains the actual signature. It can be extracted with:
+<P>
+
+
+
+<PRE>
+ openssl asn1parse -in pca-cert.pem -out sig -noout -strparse 614
+
+</PRE>
+
+
+<P>
+
+The certificate public key can be extracted with:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in test/testx509.pem -pubout -noout &gt;pubkey.pem
+
+</PRE>
+
+
+<P>
+
+The signature can be analysed with:
+<P>
+
+
+
+<PRE>
+ openssl rsautl -in sig -verify -asn1parse -inkey pubkey.pem -pubin
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    0:d=0  hl=2 l=  32 cons: SEQUENCE          
+    2:d=1  hl=2 l=  12 cons:  SEQUENCE          
+    4:d=2  hl=2 l=   8 prim:   OBJECT            :md5
+   14:d=2  hl=2 l=   0 prim:   NULL              
+   16:d=1  hl=2 l=  16 prim:  OCTET STRING      
+      0000 - f3 46 9e aa 1a 4a 73 c9-37 ea 93 00 48 25 08 b5   .F...Js.7...H%..
+
+</PRE>
+
+
+<P>
+
+This is the parsed version of an <FONT SIZE="-1">ASN1</FONT> DigestInfo structure. It can be seen that
+the digest used was md5. The actual part of the certificate that was signed can
+be extracted with:
+<P>
+
+
+
+<PRE>
+ openssl asn1parse -in pca-cert.pem -out tbs -noout -strparse 4
+
+</PRE>
+
+
+<P>
+
+and its digest computed with:
+<P>
+
+
+
+<PRE>
+ openssl md5 -c tbs
+ MD5(tbs)= f3:46:9e:aa:1a:4a:73:c9:37:ea:93:00:48:25:08:b5
+
+</PRE>
+
+
+<P>
+
+which it can be seen agrees with the recovered value above.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAT"></A>
+<I><A HREF="../man1/dgst.1.php">dgst</A></I>(1), <I><A HREF="../man1/rsa.1.php">rsa</A></I>(1), <I><A HREF="../man1/genrsa.1.php">genrsa</A></I>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMAND OPTIONS</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

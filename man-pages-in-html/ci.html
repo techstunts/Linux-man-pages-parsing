@@ -1,0 +1,1291 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CI</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CI</H1>
+Section: User Commands  (1)<BR>Updated: 1995/06/16<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ci - check in RCS revisions
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ci</B>
+
+[<I>options</I>]<I> file </I>...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>ci</B>
+
+stores new revisions into <FONT SIZE="-1">RCS</FONT> files.
+Each pathname matching an <FONT SIZE="-1">RCS</FONT> suffix
+is taken to be an <FONT SIZE="-1">RCS</FONT> file.
+All others
+are assumed to be working files containing new revisions.
+<B>ci</B>
+
+deposits the contents of each working file
+into the corresponding <FONT SIZE="-1">RCS</FONT> file.
+If only a working file is given,
+<B>ci</B>
+
+tries to find the corresponding <FONT SIZE="-1">RCS</FONT> file in an <FONT SIZE="-1">RCS</FONT> subdirectory
+and then in the working file's directory.
+For more details, see
+<FONT SIZE="-1">FILE NAMING</FONT>
+below.
+<P>
+
+For
+<B>ci</B>
+
+to work, the caller's login must be on the access list,
+except if the access list is empty or the caller is the superuser or the
+owner of the file.
+To append a new revision to an existing branch, the tip revision on
+that branch must be locked by the caller.  Otherwise, only a
+new branch can be created.  This restriction is not enforced
+for the owner of the file if non-strict locking is used
+(see
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1)).
+
+A lock held by someone else can be broken with the
+<B>rcs</B>
+
+command.
+<P>
+
+Unless the
+<B>-f</B>
+
+option is given,
+<B>ci</B>
+
+checks whether the revision to be deposited differs from the preceding one.
+If not, instead of creating a new revision
+<B>ci</B>
+
+reverts to the preceding one.
+To revert, ordinary
+<B>ci</B>
+
+removes the working file and any lock;
+<B>ci&nbsp;-l</B>
+
+keeps and
+<B>ci&nbsp;-u</B>
+
+removes any lock, and then they both generate a new working file much as if
+<B>co&nbsp;-l</B>
+
+or
+<B>co&nbsp;-u</B>
+
+had been applied to the preceding revision.
+When reverting, any
+<B>-n</B>
+
+and
+<B>-s</B>
+
+options apply to the preceding revision.
+<P>
+
+For each revision deposited,
+<B>ci</B>
+
+prompts for a log message.
+The log message should summarize the change and must be terminated by
+end-of-file or by a line containing
+<B>.</B>&nbsp;by
+
+itself.
+If several files are checked in
+<B>ci</B>
+
+asks whether to reuse the
+previous log message.
+If the standard input is not a terminal,
+<B>ci</B>
+
+suppresses the prompt
+and uses the same log message for all files.
+See also
+<B>-m</B>.
+
+<P>
+
+If the <FONT SIZE="-1">RCS</FONT> file does not exist,
+<B>ci</B>
+
+creates it and
+deposits the contents of the working file as the initial revision
+(default number:
+<B>1.1</B>).
+
+The access list is initialized to empty.
+Instead of the log message,
+<B>ci</B>
+
+requests descriptive text (see
+<B>-t</B>
+
+below).
+<P>
+
+The number
+<I>rev</I>
+
+of the deposited revision can be given by any of the options
+<B>-f</B>,
+
+<B>-i</B>,
+
+<B>-I</B>,
+
+<B>-j</B>,
+
+<B>-k</B>,
+
+<B>-l</B>,
+
+<B>-M</B>,
+
+<B>-q</B>,
+
+<B>-r</B>,
+
+or
+<B>-u</B>.
+
+<I>rev</I>
+
+can be symbolic, numeric, or mixed.
+Symbolic names in
+<I>rev</I>
+
+must already be defined;
+see the
+<B>-n</B>
+
+and
+<B>-N</B>
+
+options for assigning names during checkin.
+If
+<I>rev</I>
+
+is
+<B>$</B>,
+
+<B>ci</B>
+
+determines the revision number from keyword values in the working file.
+<P>
+
+If
+<I>rev</I>
+
+begins with a period,
+then the default branch (normally the trunk) is prepended to it.
+If
+<I>rev</I>
+
+is a branch number followed by a period,
+then the latest revision on that branch is used.
+<P>
+
+If
+<I>rev</I>
+
+is a revision number, it must be higher than the latest
+one on the branch to which
+<I>rev</I>
+
+belongs, or must start a new branch.
+<P>
+
+If
+<I>rev</I>
+
+is a branch rather than a revision number,
+the new revision is appended to that branch.  The level number is obtained
+by incrementing the tip revision number of that branch.
+If
+<I>rev</I>
+
+indicates a non-existing branch,
+that branch is created with the initial revision numbered
+<I>rev</I><B>.1</B>.
+
+<BR>
+
+
+<P>
+
+If
+<I>rev</I>
+
+is omitted,
+<B>ci</B>
+
+tries to derive the new revision number from
+the caller's last lock.  If the caller has locked the tip revision of a branch,
+the new revision is appended to that branch.
+The new revision number is obtained
+by incrementing the tip revision number.
+If the caller locked a non-tip revision, a new branch is started at
+that revision by incrementing the highest branch number at that revision.
+The default initial branch and level numbers are
+<B>1</B>.
+
+<P>
+
+If
+<I>rev</I>
+
+is omitted and the caller has no lock, but owns
+the file and locking
+is not set to
+<I>strict</I>,
+
+then the revision is appended to the
+default branch (normally the trunk; see the
+<B>-b</B>
+
+option of
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1)).
+
+<P>
+
+Exception: On the trunk, revisions can be appended to the end, but
+not inserted.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-r</B><I>rev</I>
+
+<DD>
+Check in revision
+<I>rev</I>.
+
+<DT><B>-r</B>
+
+<DD>
+The bare
+<B>-r</B>
+
+option (without any revision) has an unusual meaning in
+<B>ci</B>.
+
+With other <FONT SIZE="-1">RCS</FONT> commands, a bare
+<B>-r</B>
+
+option specifies the most recent revision on the default branch,
+but with
+<B>ci</B>,
+
+a bare
+<B>-r</B>
+
+option reestablishes the default behavior of releasing a lock and
+removing the working file, and is used to override any default
+<B>-l</B>
+
+or
+<B>-u</B>
+
+options established by shell aliases or scripts.
+<DT><B>-l</B>[<I>rev</I>]
+
+<DD>
+works like
+<B>-r</B>,
+
+except it performs an additional
+<B>co&nbsp;-l</B>
+
+for the
+deposited revision.  Thus, the deposited revision is immediately
+checked out again and locked.
+This is useful for saving a revision although one wants to continue
+editing it after the checkin.
+<DT><B>-u</B>[<I>rev</I>]
+
+<DD>
+works like
+<B>-l</B>,
+
+except that the deposited revision is not locked.
+This lets one read the working file
+immediately after checkin.
+<DL COMPACT><DT><DD>
+<P>
+
+The
+<B>-l</B>,
+
+bare
+<B>-r</B>,
+
+and
+<B>-u</B>
+
+options are mutually exclusive and silently override each other.
+For example,
+<B>ci&nbsp;-u&nbsp;-r</B>
+
+is equivalent to
+<B>ci&nbsp;-r</B>
+
+because bare
+<B>-r</B>
+
+overrides
+<B>-u</B>.
+
+</DL>
+
+<DT><B>-f</B>[<I>rev</I>]
+
+<DD>
+forces a deposit; the new revision is deposited even it is not different
+from the preceding one.
+<DT><B>-k</B>[<I>rev</I>]
+
+<DD>
+searches the working file for keyword values to determine its revision number,
+creation date, state, and author (see
+<B><A HREF="../man1/co.1.php">co</A></B>(1)),
+
+and assigns these
+values to the deposited revision, rather than computing them locally.
+It also generates a default login message noting the login of the caller
+and the actual checkin date.
+This option is useful for software distribution.  A revision that is sent to
+several sites should be checked in with the
+<B>-k</B>
+
+option at these sites to
+preserve the original number, date, author, and state.
+The extracted keyword values and the default log message can be overridden
+with the options
+<B>-d</B>,
+
+<B>-m</B>,
+
+<B>-s</B>,
+
+<B>-w</B>,
+
+and any option that carries a revision number.
+<DT><B>-q</B>[<I>rev</I>]
+
+<DD>
+quiet mode; diagnostic output is not printed.
+A revision that is not different from the preceding one is not deposited,
+unless
+<B>-f</B>
+
+is given.
+<DT><B>-i</B>[<I>rev</I>]
+
+<DD>
+initial checkin; report an error if the <FONT SIZE="-1">RCS</FONT> file already exists.
+This avoids race conditions in certain applications.
+<DT><B>-j</B>[<I>rev</I>]
+
+<DD>
+just checkin and do not initialize;
+report an error if the <FONT SIZE="-1">RCS</FONT> file does not already exist.
+<DT><B>-I</B>[<I>rev</I>]
+
+<DD>
+interactive mode;
+the user is prompted and questioned
+even if the standard input is not a terminal.
+<DT><B>-d</B>[<I>date</I>]
+
+<DD>
+uses
+<I>date</I>
+
+for the checkin date and time.
+The
+<I>date</I>
+
+is specified in free format as explained in
+<B><A HREF="../man1/co.1.php">co</A></B>(1).
+
+This is useful for lying about the checkin date, and for
+<B>-k</B>
+
+if no date is available.
+If
+<I>date</I>
+
+is empty, the working file's time of last modification is used.
+<DT><B>-M</B>[<I>rev</I>]
+
+<DD>
+Set the modification time on any new working file
+to be the date of the retrieved revision.
+For example,
+<B>ci&nbsp;-d&nbsp;-M&nbsp;-u</B><I>&nbsp;f</I>
+
+does not alter
+<I>f</I>'s
+
+modification time, even if
+<I>f</I>'s
+
+contents change due to keyword substitution.
+Use this option with care; it can confuse
+<B><A HREF="../man1/make.1.php">make</A></B>(1).
+
+<DT><B>-m</B><I>msg</I>
+
+<DD>
+uses the string
+<I>msg</I>
+
+as the log message for all revisions checked in.
+By convention, log messages that start with
+<B>#</B>
+
+are comments and are ignored by programs like GNU Emacs's
+<B>vc</B>
+
+package.
+Also, log messages that start with
+<B>{</B><I>clumpname</I><B>}</B>
+
+(followed by white space) are meant to be clumped together if possible,
+even if they are associated with different files; the
+<B>{</B><I>clumpname</I><B>}</B>
+
+label is used only for clumping,
+and is not considered to be part of the log message itself.
+<DT><B>-n</B><I>name</I>
+
+<DD>
+assigns the symbolic name
+<I>name</I>
+
+to the number of the checked-in revision.
+<B>ci</B>
+
+prints an error message if
+<I>name</I>
+
+is already assigned to another
+number.
+<DT><B>-N</B><I>name</I>
+
+<DD>
+same as
+<B>-n</B>,
+
+except that it overrides a previous assignment of
+<I>name</I>.
+
+<DT><B>-s</B><I>state</I>
+
+<DD>
+sets the state of the checked-in revision to the identifier
+<I>state</I>.
+
+The default state is
+<B>Exp</B>.
+
+<DT><B>-t</B><I>file</I>
+
+<DD>
+writes descriptive text from the contents of the named
+<I>file</I>
+
+into the <FONT SIZE="-1">RCS</FONT> file,
+deleting the existing text.
+The
+<I>file</I>
+
+cannot begin with
+<B>-</B>.
+
+<DT><B>-t-</B><I>string</I>
+
+<DD>
+Write descriptive text from the
+<I>string</I>
+
+into the <FONT SIZE="-1">RCS</FONT> file, deleting the existing text.
+<DL COMPACT><DT><DD>
+<P>
+
+The
+<B>-t</B>
+
+option, in both its forms, has effect only during an initial checkin;
+it is silently ignored otherwise.
+<P>
+
+During the initial checkin, if
+<B>-t</B>
+
+is not given,
+<B>ci</B>
+
+obtains the text from standard input,
+terminated by end-of-file or by a line containing
+<B>.</B>&nbsp;by
+
+itself.
+The user is prompted for the text if interaction is possible; see
+<B>-I</B>.
+
+<P>
+
+For backward compatibility with older versions of <FONT SIZE="-1">RCS</FONT>, a bare
+<B>-t</B>
+
+option is ignored.
+</DL>
+
+<DT><B>-T</B>
+
+<DD>
+Set the <FONT SIZE="-1">RCS</FONT> file's modification time to the new revision's time
+if the former precedes the latter and there is a new revision;
+preserve the <FONT SIZE="-1">RCS</FONT> file's modification time otherwise.
+If you have locked a revision,
+<B>ci</B>
+
+usually updates the <FONT SIZE="-1">RCS</FONT> file's modification time to the current time,
+because the lock is stored in the <FONT SIZE="-1">RCS</FONT> file
+and removing the lock requires changing the <FONT SIZE="-1">RCS</FONT> file.
+This can create an <FONT SIZE="-1">RCS</FONT> file newer than the working file in one of two ways:
+first,
+<B>ci&nbsp;-M</B>
+
+can create a working file with a date before the current time;
+second, when reverting to the previous revision
+the <FONT SIZE="-1">RCS</FONT> file can change while the working file remains unchanged.
+These two cases can cause excessive recompilation caused by a
+<B><A HREF="../man1/make.1.php">make</A></B>(1)
+
+dependency of the working file on the <FONT SIZE="-1">RCS</FONT> file.
+The
+<B>-T</B>
+
+option inhibits this recompilation by lying about the <FONT SIZE="-1">RCS</FONT> file's date.
+Use this option with care; it can suppress recompilation even when
+a checkin of one working file should affect
+another working file associated with the same <FONT SIZE="-1">RCS</FONT> file.
+For example, suppose the <FONT SIZE="-1">RCS</FONT> file's time is 01:00,
+the (changed) working file's time is 02:00,
+some other copy of the working file has a time of 03:00,
+and the current time is 04:00.
+Then
+<B>ci&nbsp;-d&nbsp;-T</B>
+
+sets the <FONT SIZE="-1">RCS</FONT> file's time to 02:00 instead of the usual 04:00;
+this causes
+<B><A HREF="../man1/make.1.php">make</A></B>(1)
+
+to think (incorrectly) that the other copy is newer than the <FONT SIZE="-1">RCS</FONT> file.
+<DT><B>-w</B><I>login</I>
+
+<DD>
+uses
+<I>login</I>
+
+for the author field of the deposited revision.
+Useful for lying about the author, and for
+<B>-k</B>
+
+if no author is available.
+<DT><B>-V</B>
+
+<DD>
+Print <FONT SIZE="-1">RCS</FONT>'s version number.
+<DT><B>-V</B><I>n</I>
+
+<DD>
+Emulate <FONT SIZE="-1">RCS</FONT> version
+<I>n</I>.
+
+See
+<B><A HREF="../man1/co.1.php">co</A></B>(1)
+
+for details.
+<DT><B>-x</B><I>suffixes</I>
+
+<DD>
+specifies the suffixes for <FONT SIZE="-1">RCS</FONT> files.
+A nonempty suffix matches any pathname ending in the suffix.
+An empty suffix matches any pathname of the form
+<B>RCS/</B><I>path</I>
+
+or
+<I>path1</I><B>/RCS/</B><I>path2.</I>
+
+The
+<B>-x</B>
+
+option can specify a list of suffixes
+separated by
+<B>/</B>.
+
+For example,
+<B>-x,v/</B>
+
+specifies two suffixes:
+<B>,v</B>
+
+and the empty suffix.
+If two or more suffixes are specified,
+they are tried in order when looking for an <FONT SIZE="-1">RCS</FONT> file;
+the first one that works is used for that file.
+If no <FONT SIZE="-1">RCS</FONT> file is found but an <FONT SIZE="-1">RCS</FONT> file can be created,
+the suffixes are tried in order
+to determine the new <FONT SIZE="-1">RCS</FONT> file's name.
+The default for
+<I>suffixes</I>
+
+is installation-dependent; normally it is
+<B>,v/</B>
+
+for hosts like Unix that permit commas in filenames,
+and is empty (i.e. just the empty suffix) for other hosts.
+<DT><B>-z</B><I>zone</I>
+
+<DD>
+specifies the date output format in keyword substitution,
+and specifies the default time zone for
+<I>date</I>
+
+in the
+<B>-d</B><I>date</I>
+
+option.
+The
+<I>zone</I>
+
+should be empty, a numeric <FONT SIZE="-1">UTC</FONT> offset, or the special string
+<B>LT</B>
+
+for local time.
+The default is an empty
+<I>zone</I>,
+
+which uses the traditional <FONT SIZE="-1">RCS</FONT> format of <FONT SIZE="-1">UTC</FONT> without any time zone indication
+and with slashes separating the parts of the date;
+otherwise, times are output in <FONT SIZE="-1">ISO</FONT> 8601 format with time zone indication.
+For example, if local time is January 11, 1990, 8pm Pacific Standard Time,
+eight hours west of <FONT SIZE="-1">UTC</FONT>,
+then the time is output as follows:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<I>option</I>      <I>time output</I>
+<B>-z</B>          <B>1990/01/12 04:00:00</B>          <I>(default)</I>
+<B>-zLT</B>        <B>1990-01-11 20:00:00-08</B>
+<B>-z+05:30</B>    <B>1990-01-12 09:30:00+05:30</B>
+
+</PRE>
+
+</DL>
+
+<P>
+
+The
+<B>-z</B>
+
+option does not affect dates stored in <FONT SIZE="-1">RCS</FONT> files,
+which are always <FONT SIZE="-1">UTC</FONT>.
+</DL>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILE NAMING</H2>
+
+Pairs of <FONT SIZE="-1">RCS</FONT> files and working files can be specified in three ways
+(see also the
+example section).
+<P>
+
+1) Both the <FONT SIZE="-1">RCS</FONT> file and the working file are given.  The <FONT SIZE="-1">RCS</FONT> pathname is of
+the form
+<I>path1</I><B>/</B><I>workfileX</I>
+
+and the working pathname is of the form
+<I>path2</I><B>/</B><I>workfile</I>
+
+where
+<I>path1</I><B>/</B>
+
+and
+<I>path2</I><B>/</B>
+
+are (possibly different or empty) paths,
+<I>workfile</I>
+
+is a filename, and
+<I>X</I>
+
+is an <FONT SIZE="-1">RCS</FONT> suffix.
+If
+<I>X</I>
+
+is empty,
+<I>path1</I><B>/</B>
+
+must start with
+<B>RCS/</B>
+
+or must contain
+<B>/RCS/</B>.
+
+<P>
+
+2) Only the <FONT SIZE="-1">RCS</FONT> file is given.  Then the working file is created in the current
+directory and its name is derived from the name of the <FONT SIZE="-1">RCS</FONT> file
+by removing
+<I>path1</I><B>/</B>
+
+and the suffix
+<I>X</I>.
+
+<P>
+
+3) Only the working file is given.
+Then
+<B>ci</B>
+
+considers each <FONT SIZE="-1">RCS</FONT> suffix
+<I>X</I>
+
+in turn, looking for an <FONT SIZE="-1">RCS</FONT> file of the form
+<I>path2</I><B>/RCS/</B><I>workfileX</I>
+
+or (if the former is not found and
+<I>X</I>
+
+is nonempty)
+<I>path2</I><B>/</B><I>workfileX.</I>
+
+<P>
+
+If the <FONT SIZE="-1">RCS</FONT> file is specified without a path in 1) and 2),
+<B>ci</B>
+
+looks for the <FONT SIZE="-1">RCS</FONT> file first in the directory
+<B>./RCS</B>
+
+and then in the current
+directory.
+<P>
+
+<B>ci</B>
+
+reports an error if an attempt to open an <FONT SIZE="-1">RCS</FONT> file fails for an unusual reason,
+even if the <FONT SIZE="-1">RCS</FONT> file's pathname is just one of several possibilities.
+For example, to suppress use of <FONT SIZE="-1">RCS</FONT> commands in a directory
+<I>d</I>,
+
+create a regular file named
+<I>d</I><B>/RCS</B>
+
+so that casual attempts to use <FONT SIZE="-1">RCS</FONT> commands in
+<I>d</I>
+
+fail because
+<I>d</I><B>/RCS</B>
+
+is not a directory.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Suppose
+<B>,v</B>
+
+is an <FONT SIZE="-1">RCS</FONT> suffix and the current directory contains a subdirectory
+<B>RCS</B>
+
+with an <FONT SIZE="-1">RCS</FONT> file
+<B>io.c,v</B>.
+
+Then each of the following commands check in a copy of
+<B>io.c</B>
+
+into
+<B>RCS/io.c,v</B>
+
+as the latest revision, removing
+<B>io.c</B>.
+
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>ci  io.c;    ci  RCS/io.c,v;   ci  io.c,v;
+ci  io.c  RCS/io.c,v;    ci  io.c  io.c,v;
+ci  RCS/io.c,v  io.c;    ci  io.c,v  io.c;
+</B></PRE>
+
+</DL>
+
+<P>
+
+Suppose instead that the empty suffix
+is an <FONT SIZE="-1">RCS</FONT> suffix and the current directory contains a subdirectory
+<B>RCS</B>
+
+with an <FONT SIZE="-1">RCS</FONT> file
+<B>io.c</B>.
+
+The each of the following commands checks in a new revision.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>ci  io.c;    ci  RCS/io.c;
+ci  io.c  RCS/io.c;
+ci  RCS/io.c  io.c;
+</B></PRE>
+
+</DL>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILE MODES</H2>
+
+An <FONT SIZE="-1">RCS</FONT> file created by
+<B>ci</B>
+
+inherits the read and execute permissions
+from the working file.  If the <FONT SIZE="-1">RCS</FONT> file exists already,
+<B>ci</B>
+
+preserves its read and execute permissions.
+<B>ci</B>
+
+always turns off all write permissions of <FONT SIZE="-1">RCS</FONT> files.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+Temporary files are created in the directory containing
+the working file, and also in the temporary directory (see
+<B></B><FONT SIZE="-1"><B>TMPDIR</B></FONT><B></B>
+
+under
+<B></B><FONT SIZE="-1"><B>ENVIRONMENT</B></FONT><B></B>).
+
+A semaphore file or files are created in the directory containing the <FONT SIZE="-1">RCS</FONT> file.
+With a nonempty suffix, the semaphore names begin with
+the first character of the suffix; therefore, do not specify an suffix
+whose first character could be that of a working filename.
+With an empty suffix, the semaphore names end with
+<B>_</B>
+
+so working filenames should not end in
+<B>_</B>.
+
+<P>
+
+<B>ci</B>
+
+never changes an <FONT SIZE="-1">RCS</FONT> or working file.
+Normally,
+<B>ci</B>
+
+unlinks the file and creates a new one;
+but instead of breaking a chain of one or more symbolic links to an <FONT SIZE="-1">RCS</FONT> file,
+it unlinks the destination file instead.
+Therefore,
+<B>ci</B>
+
+breaks any hard or symbolic links to any working file it changes;
+and hard links to <FONT SIZE="-1">RCS</FONT> files are ineffective,
+but symbolic links to <FONT SIZE="-1">RCS</FONT> files are preserved.
+<P>
+
+The effective user must be able to
+search and write the directory containing the <FONT SIZE="-1">RCS</FONT> file.
+Normally, the real user must be able to
+read the <FONT SIZE="-1">RCS</FONT> and working files
+and to search and write the directory containing the working file;
+however, some older hosts
+cannot easily switch between real and effective users,
+so on these hosts the effective user is used for all accesses.
+The effective user is the same as the real user
+unless your copies of
+<B>ci</B>
+
+and
+<B>co</B>
+
+have setuid privileges.
+As described in the next section,
+these privileges yield extra security if
+the effective user owns all <FONT SIZE="-1">RCS</FONT> files and directories,
+and if only the effective user can write <FONT SIZE="-1">RCS</FONT> directories.
+<P>
+
+Users can control access to <FONT SIZE="-1">RCS</FONT> files by setting the permissions
+of the directory containing the files; only users with write access
+to the directory can use <FONT SIZE="-1">RCS</FONT> commands to change its <FONT SIZE="-1">RCS</FONT> files.
+For example, in hosts that allow a user to belong to several groups,
+one can make a group's <FONT SIZE="-1">RCS</FONT> directories writable to that group only.
+This approach suffices for informal projects,
+but it means that any group member can arbitrarily change the group's <FONT SIZE="-1">RCS</FONT> files,
+and can even remove them entirely.
+Hence more formal projects sometimes distinguish between an <FONT SIZE="-1">RCS</FONT> administrator,
+who can change the <FONT SIZE="-1">RCS</FONT> files at will, and other project members,
+who can check in new revisions but cannot otherwise change the <FONT SIZE="-1">RCS</FONT> files.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SETUID USE</H2>
+
+To prevent anybody but their <FONT SIZE="-1">RCS</FONT> administrator from deleting revisions,
+a set of users can employ setuid privileges as follows.
+
+
+
+<DL COMPACT>
+<DT>*<DD>
+Check that the host supports <FONT SIZE="-1">RCS</FONT> setuid use.
+Consult a trustworthy expert if there are any doubts.
+It is best if the
+<B>seteuid</B>
+
+system call works as described in Posix 1003.1a Draft 5,
+because <FONT SIZE="-1">RCS</FONT> can switch back and forth easily
+between real and effective users, even if the real user is
+<B>root</B>.
+
+If not, the second best is if the
+<B>setuid</B>
+
+system call supports saved setuid
+(the {<FONT SIZE="-1">_POSIX_SAVED_IDS</FONT>} behavior of Posix 1003.1-1990);
+this fails only if the real or effective user is
+<B>root</B>.
+
+If <FONT SIZE="-1">RCS</FONT> detects any failure in setuid, it quits immediately.
+<DT>*<DD>
+Choose a user
+<I>A</I>
+
+to serve as <FONT SIZE="-1">RCS</FONT> administrator for the set of users.
+Only
+<I>A</I>
+
+can invoke the
+<B>rcs</B>
+
+command on the users' <FONT SIZE="-1">RCS</FONT> files.
+<I>A</I>
+
+should not be
+<B>root</B>
+
+or any other user with special powers.
+Mutually suspicious sets of users should use different administrators.
+<DT>*<DD>
+Choose a pathname
+<I>B</I>
+
+to be a directory of files to be executed by the users.
+<DT>*<DD>
+Have
+<I>A</I>
+
+set up
+<I>B</I>
+
+to contain copies of
+<B>ci</B>
+
+and
+<B>co</B>
+
+that are setuid to
+<I>A</I>
+
+by copying the commands from their standard installation directory
+<I>D</I>
+
+as follows:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>mkdir</B>  <I>B</I>
+<B>cp</B>  <I>D</I><B>/c[io]</B>  <I>B</I>
+<B>chmod  go-w,u+s</B>  <I>B</I><B>/c[io]</B>
+</PRE>
+
+</DL>
+
+<DL COMPACT>
+<DT>*<DD>
+Have each user prepend
+<I>B</I>
+
+to their path as follows:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>PATH=</B><I>B</I><B>:$PATH;  export  PATH</B>  # ordinary shell
+<B>set  path=(</B><I>B</I>  <B>$path)</B>  # C shell
+</PRE>
+
+</DL>
+
+<DL COMPACT>
+<DT>*<DD>
+Have
+<I>A</I>
+
+create each <FONT SIZE="-1">RCS</FONT> directory
+<I>R</I>
+
+with write access only to
+<I>A</I>
+
+as follows:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>mkdir</B>  <I>R</I>
+<B>chmod  go-w</B>  <I>R</I>
+</PRE>
+
+</DL>
+
+<DL COMPACT>
+<DT>*<DD>
+If you want to let only certain users read the <FONT SIZE="-1">RCS</FONT> files,
+put the users into a group
+<I>G</I>,
+
+and have
+<I>A</I>
+
+further protect the <FONT SIZE="-1">RCS</FONT> directory as follows:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>chgrp</B>  <I>G  R</I>
+<B>chmod  g-w,o-rwx</B>  <I>R</I>
+</PRE>
+
+</DL>
+
+<DL COMPACT>
+<DT>*<DD>
+Have
+<I>A</I>
+
+copy old <FONT SIZE="-1">RCS</FONT> files (if any) into
+<I>R</I>,
+
+to ensure that
+<I>A</I>
+
+owns them.
+<DT>*<DD>
+An <FONT SIZE="-1">RCS</FONT> file's access list limits who can check in and lock revisions.
+The default access list is empty,
+which grants checkin access to anyone who can read the <FONT SIZE="-1">RCS</FONT> file.
+If you want limit checkin access,
+have
+<I>A</I>
+
+invoke
+<B>rcs&nbsp;-a</B>
+
+on the file; see
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1).
+
+In particular,
+<B>rcs&nbsp;-e&nbsp;-a</B><I>A</I>
+
+limits access to just
+<I>A</I>.
+
+<DT>*<DD>
+Have
+<I>A</I>
+
+initialize any new <FONT SIZE="-1">RCS</FONT> files with
+<B>rcs&nbsp;-i</B>
+
+before initial checkin, adding the
+<B>-a</B>
+
+option if you want to limit checkin access.
+<DT>*<DD>
+Give setuid privileges only to
+<B>ci</B>,
+
+<B>co</B>,
+
+and
+<B>rcsclean</B>;
+
+do not give them to
+<B>rcs</B>
+
+or to any other command.
+<DT>*<DD>
+Do not use other setuid commands to invoke <FONT SIZE="-1">RCS</FONT> commands;
+setuid is trickier than you think!
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B></B><FONT SIZE="-1"><B>RCSINIT</B></FONT><B></B>
+
+<DD>
+options prepended to the argument list, separated by spaces.
+A backslash escapes spaces within an option.
+The
+<B></B><FONT SIZE="-1"><B>RCSINIT</B></FONT><B></B>
+
+options are prepended to the argument lists of most <FONT SIZE="-1">RCS</FONT> commands.
+Useful
+<B></B><FONT SIZE="-1"><B>RCSINIT</B></FONT><B></B>
+
+options include
+<B>-q</B>,
+
+<B>-V</B>,
+
+<B>-x</B>,
+
+and
+<B>-z</B>.
+
+<DT><B></B><FONT SIZE="-1"><B>TMPDIR</B></FONT><B></B>
+
+<DD>
+Name of the temporary directory.
+If not set, the environment variables
+<B></B><FONT SIZE="-1"><B>TMP</B></FONT><B></B>
+
+and
+<B></B><FONT SIZE="-1"><B>TEMP</B></FONT><B></B>
+
+are inspected instead and the first value found is taken;
+if none of them are set,
+a host-dependent default is used, typically
+<B>/tmp</B>.
+
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+For each revision,
+<B>ci</B>
+
+prints the <FONT SIZE="-1">RCS</FONT> file, the working file, and the number
+of both the deposited and the preceding revision.
+The exit status is zero if and only if all operations were successful.
+<A NAME="lbAM">&nbsp;</A>
+<H2>IDENTIFICATION</H2>
+
+Author: Walter F. Tichy.
+<BR>
+
+Manual Page Revision: 5.17; Release Date: 1995/06/16.
+<BR>
+
+Copyright &#169; 1982, 1988, 1989 Walter F. Tichy.
+<BR>
+
+Copyright &#169; 1990, 1991, 1992, 1993, 1994, 1995 Paul Eggert.
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/co.1.php">co</A>(1),
+<A HREF="../man1/emacs.1.php">emacs</A>(1),
+<A HREF="../man1/ident.1.php">ident</A>(1), <A HREF="../man1/make.1.php">make</A>(1), <A HREF="../man1/rcs.1.php">rcs</A>(1), <A HREF="../man1/rcsclean.1.php">rcsclean</A>(1), <A HREF="../man1/rcsdiff.1.php">rcsdiff</A>(1),
+<A HREF="../man1/rcsintro.1.php">rcsintro</A>(1), <A HREF="../man1/rcsmerge.1.php">rcsmerge</A>(1), <A HREF="../man1/rlog.1.php">rlog</A>(1), <A HREF="../man2/setuid.2.php">setuid</A>(2), <A HREF="../man5/rcsfile.5.php">rcsfile</A>(5)
+<BR>
+
+Walter F. Tichy,
+<FONT SIZE="-1">RCS</FONT>--A System for Version Control,
+<I>Software--Practice &amp; Experience</I>
+
+<B>15</B>,
+
+7 (July 1985), 637-654.
+<BR>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILE NAMING</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">FILE MODES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SETUID USE</A><DD>
+<DT><A HREF="#lbAK">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAL">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAM">IDENTIFICATION</A><DD>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

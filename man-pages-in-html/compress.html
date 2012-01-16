@@ -1,0 +1,440 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>COMPRESS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>COMPRESS</H1>
+Section: User Commands  (1)<BR>Updated: local<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+compress, uncompress, zcat - compress and expand data (version 4.1)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<B>compress</B>
+
+[
+<B>-f</B>
+
+] [
+<B>-v</B>
+
+] [
+<B>-c</B>
+
+] [
+<B>-V</B>
+
+] [
+<B>-r</B>
+
+] [
+<B>-b</B>
+
+<I>bits</I>
+
+] [
+<I>name ...</I>
+
+]
+
+<BR>
+
+<B>uncompress</B>
+
+[
+<B>-f</B>
+
+] [
+<B>-v</B>
+
+] [
+<B>-c</B>
+
+] [
+<B>-V</B>
+
+] [
+<I>name ...</I>
+
+]
+<BR>
+
+<B>zcat</B>
+
+[
+<B>-V</B>
+
+] [
+<I>name ...</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Compress</I>
+
+reduces the size of the named files using adaptive Lempel-Ziv coding.
+Whenever possible,
+each file is replaced by one with the extension
+<B>.Z,</B>
+
+while keeping the same ownership modes, access and modification times.
+If no files are specified, the standard input is compressed to the
+standard output.
+<I>Compress</I>
+
+will only attempt to compress regular files.
+In particular, it will ignore symbolic links. If a file has multiple
+hard links,
+<I>compress</I>
+
+will refuse to compress it unless the
+<B>-f</B>
+
+flag is given.
+<P>
+
+If
+<B>-f</B>
+
+is not given and
+<I>compress</I>
+
+is run in the foreground,
+the user is prompted as to whether an existing file should be overwritten.
+<P>
+
+Compressed files can be restored to their original form using
+<I>uncompress</I>
+
+or
+<I>zcat.</I>
+
+<P>
+
+<I>uncompress</I>
+
+takes a list of files on its command line and replaces each
+file whose name ends with
+<B>.Z</B>
+
+and which begins with the correct magic number with an uncompressed
+file without the 
+<B>.Z.</B>
+
+The uncompressed file will have the mode, ownership and
+timestamps of the compressed file.
+<P>
+
+The
+<B>-c</B>
+
+option makes
+<I>compress/uncompress</I>
+
+write to the standard output; no files are changed.
+<P>
+
+<I>zcat</I>
+
+is identical to
+<I>uncompress</I>
+
+<B>-c.</B>
+
+<I>zcat</I>
+
+uncompresses either a list of files on the command line or its
+standard input and writes the uncompressed data on standard output.
+<I>zcat</I>
+
+will uncompress files that have the correct magic number whether
+they have a
+<B>.Z</B>
+
+suffix or not.
+<P>
+
+If the
+<B>-r</B>
+
+flag is specified, 
+<I>compress</I>
+
+will operate recursively. If any of the file names specified on the command
+line are directories, 
+<I>compress</I>
+
+will descend into the directory and compress all the files it finds there.
+<P>
+
+The
+<B>-V</B>
+
+flag tells each of these programs to print its version and patchlevel,
+along with any preprocessor flags specified during compilation, on
+stderr before doing any compression or uncompression.
+<P>
+
+<I>Compress</I>
+
+uses the modified Lempel-Ziv algorithm popularized in
+&quot;A Technique for High Performance Data Compression&quot;,
+Terry A. Welch,
+<I>IEEE Computer,</I>
+
+vol. 17, no. 6 (June 1984), pp. 8-19.
+Common substrings in the file are first replaced by 9-bit codes 257 and up.
+When code 512 is reached, the algorithm switches to 10-bit codes and
+continues to use more bits until the
+limit specified by the
+<B>-b</B>
+
+flag is reached (default 16).
+<I>Bits</I>
+
+must be between 9 and 16.  The default can be changed in the source to allow
+<I>compress</I>
+
+to be run on a smaller machine.
+<P>
+
+After the
+<I>bits</I>
+
+limit is attained,
+<I>compress</I>
+
+periodically checks the compression ratio.  If it is increasing,
+<I>compress</I>
+
+continues to use the existing code dictionary.  However,
+if the compression ratio decreases,
+<I>compress</I>
+
+discards the table of substrings and rebuilds it from scratch.  This allows
+the algorithm to adapt to the next &quot;block&quot; of the file.
+<P>
+
+Note that the
+<B>-b</B>
+
+flag is omitted for
+<I>uncompress,</I>
+
+since the 
+<I>bits</I>
+
+parameter specified during compression
+is encoded within the output, along with
+a magic number to ensure that neither decompression of random data nor
+recompression of compressed data is attempted. 
+<P>
+
+
+The amount of compression obtained depends on the size of the
+input, the number of
+<I>bits</I>
+
+per code, and the distribution of common substrings.
+Typically, text such as source code or English
+is reduced by 50-60%.
+Compression is generally much better than that achieved by
+Huffman coding (as used in
+<I>pack</I>),
+
+or adaptive Huffman coding
+(<I>compact</I>),
+
+and takes less time to compute.
+<P>
+
+Under the
+<B>-v</B>
+
+option,
+a message is printed yielding the percentage of
+reduction for each file compressed.
+<P>
+
+Exit status is normally 0;
+if the last file is larger after (attempted) compression, the status is 2;
+if an error occurs, exit status is 1.
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/pack.1.php">pack</A>(1), <A HREF="../man1/compact.1.php">compact</A>(1)
+<A NAME="lbAF">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+Usage: compress [-dfvcVr] [-b maxbits] [file ...]
+
+Invalid options were specified on the command line.
+
+Missing maxbits
+
+Maxbits must follow
+<B>-b</B>.
+
+
+<I>file</I>:
+
+not in compressed format
+
+The file specified to
+<I>uncompress</I>
+
+has not been compressed.
+
+<I>file</I>:
+
+compressed with 
+<I>xx</I>
+
+bits, can only handle 
+<I>yy</I>
+
+bits
+
+<I>File</I>
+
+was compressed by a program that could deal with
+more 
+<I>bits</I>
+
+than the compress code on this machine.
+Recompress the file with smaller
+<I>bits</I>.
+
+
+<I>file</I>:
+
+already has .Z suffix -- no change
+
+The file is assumed to be already compressed.
+Rename the file and try again.
+
+<I>file</I>:
+
+filename too long to tack on .Z
+
+The file cannot be compressed because its name is longer than
+12 characters.
+Rename and try again.
+This message does not occur on BSD systems.
+
+<I>file</I>
+
+already exists; do you wish to overwrite (y or n)?
+
+Respond &quot;y&quot; if you want the output file to be replaced; &quot;n&quot; if not.
+
+uncompress: corrupt input
+
+A SIGSEGV violation was detected which usually means that the input file has
+been corrupted.
+
+Compression: 
+<I>xx.xx%</I>
+
+
+Percentage of the input saved by compression.
+(Relevant only for
+<B>-v</B>.)
+
+
+-- not a regular file or directory: ignored
+
+When the input file is not a regular file or directory,
+(e.g. a symbolic link, socket, FIFO, device file), it is
+left unaltered.
+
+-- has 
+<I>xx </I>
+
+other links: unchanged
+
+The input file has links; it is left unchanged.  See
+<I><A HREF="../man1/ln.1.php">ln</A></I>(1)
+
+for more information. Use the
+<B>-f</B>
+
+flag to force compression of multiply-linked files.
+
+-- file unchanged
+
+No savings is achieved by
+compression.  The input remains virgin.
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+Although compressed files are compatible between machines with large memory,
+<B>-b</B>12
+
+should be used for file transfer to architectures with 
+a small process data space (64KB or less, as exhibited by the DEC PDP
+series, the Intel 80286, etc.)
+<P>
+
+Invoking compress with a -r
+flag will occasionally cause it to produce spurious error warnings of the form
+<P>
+
+
+&quot;&lt;filename&gt;.Z already has .Z suffix - ignored&quot;
+
+<P>
+
+These warnings can be ignored. See the comments in compress.c:compdir()
+for an explanation.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

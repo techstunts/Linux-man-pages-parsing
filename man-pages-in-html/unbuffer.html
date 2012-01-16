@@ -1,0 +1,157 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>UNBUFFER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>UNBUFFER</H1>
+Section: User Commands  (1)<BR>Updated: 1 June 1994<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+unbuffer - unbuffer output
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>unbuffer</B>
+
+<I>program</I>
+
+[
+<I>args</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>INTRODUCTION</H2>
+
+<B>unbuffer</B>
+
+disables the output buffering that occurs when program output
+is redirected.
+For example, suppose you are watching the output from a fifo by running it
+through od and then more.  
+<PRE>
+
+        od -c /tmp/fifo | more
+
+</PRE>
+
+You will not see anything until a full page
+of output has been produced.
+<P>
+You can disable this automatic buffering as follows:
+<P>
+<PRE>
+
+        unbuffer od -c /tmp/fifo | more
+
+</PRE>
+
+Normally, unbuffer does not read from stdin.  This simplifies use of unbuffer in some situations.  To use unbuffer in a pipeline, use the -p flag.
+Example:
+<PRE>
+
+        process1 | unbuffer -p process2 | process3
+</PRE>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+<P>
+unbuffer -p may appear to work incorrectly if a process feeding input
+to unbuffer exits.  Consider:
+<PRE>
+        process1 | unbuffer -p process2 | process3
+
+</PRE>
+
+If process1 exits, process2 may not yet have finished.  It is
+impossible for unbuffer to know long to wait for process2 and process2
+may not ever finish, for example, if it is a filter.  For expediency,
+unbuffer simply exits when it encounters an EOF from either its input
+or process2.
+<P>
+In order to have a version of unbuffer that worked in all situations,
+an oracle would be necessary.  If you want an application-specific
+solution, workarounds or hand-coded Expect may be more suitable.  For
+example, the following example shows how to allow grep to finish
+processing when the cat before it finishes first.  Using cat to feed
+grep would never require unbuffer in real life.  It is merely a
+placeholder for some imaginary process that may or may not finish.
+Similarly, the final cat at the end of the pipeline is also a
+placeholder for another process.
+<P>
+<PRE>
+
+$ cat /tmp/abcdef.log | grep abc | cat
+abcdef
+xxxabc defxxx
+$ cat /tmp/abcdef.log | unbuffer grep abc | cat
+$ (cat /tmp/abcdef.log ; sleep 1) | unbuffer grep abc | cat
+abcdef
+xxxabc defxxx
+$ 
+</PRE>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+The man page is longer than the program.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I>&quot;Exploring Expect: A Tcl-Based Toolkit for Automating Interactive Programs&quot;</I>
+
+by Don Libes,
+O'Reilly and Associates, January 1995.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Don Libes, National Institute of Standards and Technology
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">INTRODUCTION</A><DD>
+<DT><A HREF="#lbAE">CAVEATS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

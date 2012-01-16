@@ -1,0 +1,4209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLFAQ4</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLFAQ4</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlfaq4 - Data Manipulation ($Revision: 1.54 $, $Date: 2003/11/30 00:50:08 $)
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This section of the <FONT SIZE="-1">FAQ</FONT> answers questions related to manipulating
+numbers, dates, strings, arrays, hashes, and miscellaneous data issues.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Data: Numbers</H2>
+
+<A NAME="ixAAD"></A>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Why am I getting long decimals (eg, 19.9499999999999) instead of the numbers I should be getting (eg, 19.95)?</H2>
+
+<A NAME="ixAAE"></A>
+Internally, your computer represents floating-point numbers
+in binary. Digital (as in powers of two) computers cannot
+store all numbers exactly.  Some real numbers lose precision
+in the process.  This is a problem with how computers store
+numbers and affects all computer languages, not just Perl.
+<P>
+
+perlnumber show the gory details of number
+representations and conversions.
+<P>
+
+To limit the number of decimal places in your numbers, you
+can use the printf or sprintf function.  See the
+``Floating Point Arithmetic'' for more details.
+<P>
+
+
+
+<PRE>
+        printf &quot;%.2f&quot;, 10/3;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my $number = sprintf &quot;%.2f&quot;, 10/3;
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Why is <I>int()</I> broken?</H2>
+
+<A NAME="ixAAF"></A>
+Your <I>int()</I> is most probably working just fine.  It's the numbers that
+aren't quite what you think.
+<P>
+
+First, see the above item ``Why am I getting long decimals
+(eg, 19.9499999999999) instead of the numbers I should be getting
+(eg, 19.95)?''.
+<P>
+
+For example, this
+<P>
+
+
+
+<PRE>
+    print int(0.6/0.2-2), &quot;\n&quot;;
+
+</PRE>
+
+
+<P>
+
+will in most computers print 0, not 1, because even such simple
+numbers as 0.6 and 0.2 cannot be presented exactly by floating-point
+numbers.  What you think in the above as 'three' is really more like
+2.9999999999999995559.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Why isn't my octal data interpreted correctly?</H2>
+
+<A NAME="ixAAG"></A>
+Perl only understands octal and hex numbers as such when they occur as
+literals in your program.  Octal literals in perl must start with a
+leading ``0'' and hexadecimal literals must start with a leading ``0x''.
+If they are read in from somewhere and assigned, no automatic
+conversion takes place.  You must explicitly use <I>oct()</I> or <I>hex()</I> if you
+want the values converted to decimal.  <I>oct()</I> interprets hex (``0x350''),
+octal (``0350'' or even without the leading ``0'', like ``377'') and binary
+(``0b1010'') numbers, while <I>hex()</I> only converts hexadecimal ones, with
+or without a leading ``0x'', like ``0x255'', ``3A'', ``ff'', or ``deadbeef''.
+The inverse mapping from decimal to octal can be done with either the
+``%o'' or ``%O'' <I>sprintf()</I> formats.
+<P>
+
+This problem shows up most often when people try using <I>chmod()</I>, <I>mkdir()</I>,
+<I>umask()</I>, or <I>sysopen()</I>, which by widespread tradition typically take
+permissions in octal.
+<P>
+
+
+
+<PRE>
+    chmod(644,  $file); # WRONG
+    chmod(0644, $file); # right
+
+</PRE>
+
+
+<P>
+
+Note the mistake in the first line was specifying the decimal literal
+644, rather than the intended octal literal 0644.  The problem can
+be seen with:
+<P>
+
+
+
+<PRE>
+    printf(&quot;%#o&quot;,644); # prints 01204
+
+</PRE>
+
+
+<P>
+
+Surely you had not intended <TT>&quot;chmod(01204, $file);&quot;</TT> - did you?  If you
+want to use numeric literals as arguments to <I>chmod()</I> et al. then please
+try to express them as octal constants, that is with a leading zero and
+with the following digits restricted to the set 0..7.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Does Perl have a <I>round()</I> function?  What about <I>ceil()</I> and <I>floor()</I>?  Trig functions?</H2>
+
+<A NAME="ixAAH"></A>
+Remember that <I>int()</I> merely truncates toward 0.  For rounding to a
+certain number of digits, <I>sprintf()</I> or <I>printf()</I> is usually the easiest
+route.
+<P>
+
+
+
+<PRE>
+    printf(&quot;%.3f&quot;, 3.1415926535);       # prints 3.142
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">POSIX</FONT> module (part of the standard Perl distribution) implements
+<I>ceil()</I>, <I>floor()</I>, and a number of other mathematical and trigonometric
+functions.
+<P>
+
+
+
+<PRE>
+    use POSIX;
+    $ceil   = ceil(3.5);                        # 4
+    $floor  = floor(3.5);                       # 3
+
+</PRE>
+
+
+<P>
+
+In 5.000 to 5.003 perls, trigonometry was done in the Math::Complex
+module.  With 5.004, the Math::Trig module (part of the standard Perl
+distribution) implements the trigonometric functions. Internally it
+uses the Math::Complex module and some functions can break out from
+the real axis into the complex plane, for example the inverse sine of
+2.
+<P>
+
+Rounding in financial applications can have serious implications, and
+the rounding method used should be specified precisely.  In these
+cases, it probably pays not to trust whichever system rounding is
+being used by Perl, but to instead implement the rounding function you
+need yourself.
+<P>
+
+To see why, notice how you'll still have an issue on half-way-point
+alternation:
+<P>
+
+
+
+<PRE>
+    for ($i = 0; $i &lt; 1.01; $i += 0.05) { printf &quot;%.1f &quot;,$i}
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    0.0 0.1 0.1 0.2 0.2 0.2 0.3 0.3 0.4 0.4 0.5 0.5 0.6 0.7 0.7
+    0.8 0.8 0.9 0.9 1.0 1.0
+
+</PRE>
+
+
+<P>
+
+Don't blame Perl.  It's the same as in C.  <FONT SIZE="-1">IEEE</FONT> says we have to do this.
+Perl numbers whose absolute values are integers under 2**31 (on 32 bit
+machines) will work pretty much like mathematical integers.  Other numbers
+are not guaranteed.
+<A NAME="lbAI">&nbsp;</A>
+<H2>How do I convert between numeric representations/bases/radixes?</H2>
+
+<A NAME="ixAAI"></A>
+As always with Perl there is more than one way to do it.  Below
+are a few examples of approaches to making common conversions
+between number representations.  This is intended to be representational
+rather than exhaustive.
+<P>
+
+Some of the examples below use the Bit::Vector module from <FONT SIZE="-1">CPAN</FONT>.
+The reason you might choose Bit::Vector over the perl built in
+functions is that it works with numbers of <FONT SIZE="-1">ANY</FONT> size, that it is
+optimized for speed on some operations, and for at least some
+programmers the notation might be familiar.
+<DL COMPACT>
+<DT>How do I convert hexadecimal into decimal<DD>
+<A NAME="ixAAJ"></A>
+Using perl's built in conversion of 0x notation:
+
+
+<P>
+
+
+
+
+<PRE>
+    $dec = 0xDEADBEEF;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using the hex function:
+
+
+<P>
+
+
+
+
+<PRE>
+    $dec = hex(&quot;DEADBEEF&quot;);
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using pack:
+
+
+<P>
+
+
+
+
+<PRE>
+    $dec = unpack(&quot;N&quot;, pack(&quot;H8&quot;, substr(&quot;0&quot; x 8 . &quot;DEADBEEF&quot;, -8)));
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using the <FONT SIZE="-1">CPAN</FONT> module Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new_Hex(32, &quot;DEADBEEF&quot;);
+    $dec = $vec-&gt;to_Dec();
+
+</PRE>
+
+
+<DT>How do I convert from decimal to hexadecimal<DD>
+<A NAME="ixAAK"></A>
+Using sprintf:
+
+
+<P>
+
+
+
+
+<PRE>
+    $hex = sprintf(&quot;%X&quot;, 3735928559); # upper case A-F
+    $hex = sprintf(&quot;%x&quot;, 3735928559); # lower case a-f
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using unpack:
+
+
+<P>
+
+
+
+
+<PRE>
+    $hex = unpack(&quot;H*&quot;, pack(&quot;N&quot;, 3735928559));
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new_Dec(32, -559038737);
+    $hex = $vec-&gt;to_Hex();
+
+</PRE>
+
+
+
+
+<P>
+
+
+And Bit::Vector supports odd bit counts:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new_Dec(33, 3735928559);
+    $vec-&gt;Resize(32); # suppress leading 0 if unwanted
+    $hex = $vec-&gt;to_Hex();
+
+</PRE>
+
+
+<DT>How do I convert from octal to decimal<DD>
+<A NAME="ixAAL"></A>
+Using Perl's built in conversion of numbers with leading zeros:
+
+
+<P>
+
+
+
+
+<PRE>
+    $dec = 033653337357; # note the leading 0!
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using the oct function:
+
+
+<P>
+
+
+
+
+<PRE>
+    $dec = oct(&quot;33653337357&quot;);
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new(32);
+    $vec-&gt;Chunk_List_Store(3, split(//, reverse &quot;33653337357&quot;));
+    $dec = $vec-&gt;to_Dec();
+
+</PRE>
+
+
+<DT>How do I convert from decimal to octal<DD>
+<A NAME="ixAAM"></A>
+Using sprintf:
+
+
+<P>
+
+
+
+
+<PRE>
+    $oct = sprintf(&quot;%o&quot;, 3735928559);
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new_Dec(32, -559038737);
+    $oct = reverse join('', $vec-&gt;<A HREF="../man3/Chunk_List_Read.3.php">Chunk_List_Read</A>(3));
+
+</PRE>
+
+
+<DT>How do I convert from binary to decimal<DD>
+<A NAME="ixAAN"></A>
+Perl 5.6 lets you write binary numbers directly with
+the 0b notation:
+
+
+<P>
+
+
+
+
+<PRE>
+    $number = 0b10110110;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using oct:
+
+
+<P>
+
+
+
+
+<PRE>
+    my $input = &quot;10110110&quot;;
+    $decimal = oct( &quot;0b$input&quot; );
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using pack and ord:
+
+
+<P>
+
+
+
+
+<PRE>
+    $decimal = ord(pack('B8', '10110110'));
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using pack and unpack for larger strings:
+
+
+<P>
+
+
+
+
+<PRE>
+    $int = unpack(&quot;N&quot;, pack(&quot;B32&quot;,
+        substr(&quot;0&quot; x 32 . &quot;11110101011011011111011101111&quot;, -32)));
+    $dec = sprintf(&quot;%d&quot;, $int);
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    # substr() is used to left pad a 32 character string with zeros.
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    $vec = Bit::Vector-&gt;new_Bin(32, &quot;11011110101011011011111011101111&quot;);
+    $dec = $vec-&gt;to_Dec();
+
+</PRE>
+
+
+<DT>How do I convert from decimal to binary<DD>
+<A NAME="ixAAO"></A>
+Using sprintf (perl 5.6+):
+
+
+<P>
+
+
+
+
+<PRE>
+    $bin = sprintf(&quot;%b&quot;, 3735928559);
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using unpack:
+
+
+<P>
+
+
+
+
+<PRE>
+    $bin = unpack(&quot;B*&quot;, pack(&quot;N&quot;, 3735928559));
+
+</PRE>
+
+
+
+
+<P>
+
+
+Using Bit::Vector:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Bit::Vector;
+    $vec = Bit::Vector-&gt;new_Dec(32, -559038737);
+    $bin = $vec-&gt;to_Bin();
+
+</PRE>
+
+
+
+
+<P>
+
+
+The remaining transformations (e.g. hex -&gt; oct, bin -&gt; hex, etc.)
+are left as an exercise to the inclined reader.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Why doesn't &amp; work the way I want it to?</H2>
+
+<A NAME="ixAAP"></A>
+The behavior of binary arithmetic operators depends on whether they're
+used on numbers or strings.  The operators treat a string as a series
+of bits and work with that (the string <TT>&quot;3&quot;</TT> is the bit pattern
+<TT>00110011</TT>).  The operators work with the binary form of a number
+(the number <TT>3</TT> is treated as the bit pattern <TT>00000011</TT>).
+<P>
+
+So, saying <TT>&quot;11 &amp; 3&quot;</TT> performs the ``and'' operation on numbers (yielding
+<TT>3</TT>).  Saying <TT>&quot;11&quot; &amp; &quot;3&quot;</TT> performs the ``and'' operation on strings
+(yielding <TT>&quot;1&quot;</TT>).
+<P>
+
+Most problems with <TT>&quot;&amp;&quot;</TT> and <TT>&quot;|&quot;</TT> arise because the programmer thinks
+they have a number but really it's a string.  The rest arise because
+the programmer says:
+<P>
+
+
+
+<PRE>
+    if (&quot;\020\020&quot; &amp; &quot;\101\101&quot;) {
+        # ...
+    }
+
+</PRE>
+
+
+<P>
+
+but a string consisting of two null bytes (the result of <TT>&quot;&quot;\020\020&quot;
+&amp; &quot;\101\101&quot;&quot;</TT>) is not a false value in Perl.  You need:
+<P>
+
+
+
+<PRE>
+    if ( (&quot;\020\020&quot; &amp; &quot;\101\101&quot;) !~ /[^\000]/) {
+        # ...
+    }
+
+</PRE>
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>How do I multiply matrices?</H2>
+
+<A NAME="ixAAQ"></A>
+Use the Math::Matrix or Math::MatrixReal modules (available from <FONT SIZE="-1">CPAN</FONT>)
+or the <FONT SIZE="-1">PDL</FONT> extension (also available from <FONT SIZE="-1">CPAN</FONT>).
+<A NAME="lbAL">&nbsp;</A>
+<H2>How do I perform an operation on a series of integers?</H2>
+
+<A NAME="ixAAR"></A>
+To call a function on each element in an array, and collect the
+results, use:
+<P>
+
+
+
+<PRE>
+    @results = map { my_func($_) } @array;
+
+</PRE>
+
+
+<P>
+
+For example:
+<P>
+
+
+
+<PRE>
+    @triple = map { 3 * $_ } @single;
+
+</PRE>
+
+
+<P>
+
+To call a function on each element of an array, but ignore the
+results:
+<P>
+
+
+
+<PRE>
+    foreach $iterator (@array) {
+        some_func($iterator);
+    }
+
+</PRE>
+
+
+<P>
+
+To call a function on each integer in a (small) range, you <B>can</B> use:
+<P>
+
+
+
+<PRE>
+    @results = map { some_func($_) } (5 .. 25);
+
+</PRE>
+
+
+<P>
+
+but you should be aware that the <TT>&quot;..&quot;</TT> operator creates an array of
+all integers in the range.  This can take a lot of memory for large
+ranges.  Instead use:
+<P>
+
+
+
+<PRE>
+    @results = ();
+    for ($i=5; $i &lt; 500_005; $i++) {
+        push(@results, some_func($i));
+    }
+
+</PRE>
+
+
+<P>
+
+This situation has been fixed in Perl5.005. Use of <TT>&quot;..&quot;</TT> in a <TT>&quot;for&quot;</TT>
+loop will iterate over the range, without creating the entire range.
+<P>
+
+
+
+<PRE>
+    for my $i (5 .. 500_005) {
+        push(@results, some_func($i));
+    }
+
+</PRE>
+
+
+<P>
+
+will not create a list of 500,000 integers.
+<A NAME="lbAM">&nbsp;</A>
+<H2>How can I output Roman numerals?</H2>
+
+<A NAME="ixAAS"></A>
+Get the <A HREF="http://www.cpan.org/modules/by-module/Roman">http://www.cpan.org/modules/by-module/Roman</A> module.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Why aren't my random numbers random?</H2>
+
+<A NAME="ixAAT"></A>
+If you're using a version of Perl before 5.004, you must call <TT>&quot;srand&quot;</TT>
+once at the start of your program to seed the random number generator.
+<P>
+
+
+
+<PRE>
+         BEGIN { srand() if $] &lt; 5.004 }
+
+</PRE>
+
+
+<P>
+
+5.004 and later automatically call <TT>&quot;srand&quot;</TT> at the beginning.  Don't
+call <TT>&quot;srand&quot;</TT> more than once---you make your numbers less random, rather
+than more.
+<P>
+
+Computers are good at being predictable and bad at being random
+(despite appearances caused by bugs in your programs :-).  see the
+<I>random</I> article in the ``Far More Than You Ever Wanted To Know''
+collection in <A HREF="http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz">http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz</A> , courtesy of
+Tom Phoenix, talks more about this.  John von Neumann said, ``Anyone
+who attempts to generate random numbers by deterministic means is, of
+course, living in a state of sin.''
+<P>
+
+If you want numbers that are more random than <TT>&quot;rand&quot;</TT> with <TT>&quot;srand&quot;</TT>
+provides, you should also check out the Math::TrulyRandom module from
+<FONT SIZE="-1">CPAN</FONT>.  It uses the imperfections in your system's timer to generate
+random numbers, but this takes quite a while.  If you want a better
+pseudorandom generator than comes with your operating system, look at
+``Numerical Recipes in C'' at <A HREF="http://www.nr.com/">http://www.nr.com/</A> .
+<A NAME="lbAO">&nbsp;</A>
+<H2>How do I get a random number between X and Y?</H2>
+
+<A NAME="ixAAU"></A>
+<TT>&quot;rand($x)&quot;</TT> returns a number such that
+<TT>&quot;0 &lt;= rand($x) &lt; $x&quot;</TT>. Thus what you want to have perl
+figure out is a random number in the range from 0 to the
+difference between your <I>X</I> and <I>Y</I>.
+<P>
+
+That is, to get a number between 10 and 15, inclusive, you
+want a random number between 0 and 5 that you can then add
+to 10.
+<P>
+
+
+
+<PRE>
+    my $number = 10 + int rand( 15-10+1 );
+
+</PRE>
+
+
+<P>
+
+Hence you derive the following simple function to abstract
+that. It selects a random integer between the two given
+integers (inclusive), For example: <TT>&quot;random_int_in(50,120)&quot;</TT>.
+<P>
+
+
+
+<PRE>
+   sub random_int_in ($$) {
+     my($min, $max) = @_;
+      # Assumes that the two arguments are integers themselves!
+     return $min if $min == $max;
+     ($min, $max) = ($max, $min)  if  $min &gt; $max;
+     return $min + int rand(1 + $max - $min);
+   }
+
+</PRE>
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>Data: Dates</H2>
+
+<A NAME="ixAAV"></A>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>How do I find the day or week of the year?</H2>
+
+<A NAME="ixAAW"></A>
+The localtime function returns the day of the week.  Without an
+argument localtime uses the current time.
+<P>
+
+
+
+<PRE>
+    $day_of_year = (localtime)[7];
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">POSIX</FONT> module can also format a date as the day of the year or
+week of the year.
+<P>
+
+
+
+<PRE>
+        use POSIX qw/strftime/;
+        my $day_of_year  = strftime &quot;%j&quot;, localtime;
+        my $week_of_year = strftime &quot;%W&quot;, localtime;
+
+</PRE>
+
+
+<P>
+
+To get the day of year for any date, use the Time::Local module to get
+a time in epoch seconds for the argument to localtime.
+<P>
+
+
+
+<PRE>
+        use POSIX qw/strftime/;
+        use Time::Local;
+        my $week_of_year = strftime &quot;%W&quot;, 
+                localtime( timelocal( 0, 0, 0, 18, 11, 1987 ) );
+
+</PRE>
+
+
+<P>
+
+The Date::Calc module provides two functions for to calculate these.
+<P>
+
+
+
+<PRE>
+        use Date::Calc;
+        my $day_of_year  = Day_of_Year(  1987, 12, 18 );
+        my $week_of_year = Week_of_Year( 1987, 12, 18 );
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>How do I find the current century or millennium?</H2>
+
+<A NAME="ixAAX"></A>
+Use the following simple functions:
+<P>
+
+
+
+<PRE>
+    sub get_century    {
+        return int((((localtime(shift || time))[5] + 1999))/100);
+    }
+    sub get_millennium {
+        return 1+int((((localtime(shift || time))[5] + 1899))/1000);
+    }
+
+</PRE>
+
+
+<P>
+
+On some systems, the <FONT SIZE="-1">POSIX</FONT> module's <I>strftime()</I> function has
+been extended in a non-standard way to use a <TT>%C</TT> format,
+which they sometimes claim is the ``century''.  It isn't,
+because on most such systems, this is only the first two
+digits of the four-digit year, and thus cannot be used to
+reliably determine the current century or millennium.
+<A NAME="lbAS">&nbsp;</A>
+<H2>How can I compare two dates and find the difference?</H2>
+
+<A NAME="ixAAY"></A>
+If you're storing your dates as epoch seconds then simply subtract one
+from the other.  If you've got a structured date (distinct year, day,
+month, hour, minute, seconds values), then for reasons of accessibility,
+simplicity, and efficiency, merely use either timelocal or timegm (from
+the Time::Local module in the standard distribution) to reduce structured
+dates to epoch seconds.  However, if you don't know the precise format of
+your dates, then you should probably use either of the Date::Manip and
+Date::Calc modules from <FONT SIZE="-1">CPAN</FONT> before you go hacking up your own parsing
+routine to handle arbitrary date formats.
+<A NAME="lbAT">&nbsp;</A>
+<H2>How can I take a string and turn it into epoch seconds?</H2>
+
+<A NAME="ixAAZ"></A>
+If it's a regular enough string that it always has the same format,
+you can split it up and pass the parts to <TT>&quot;timelocal&quot;</TT> in the standard
+Time::Local module.  Otherwise, you should look into the Date::Calc
+and Date::Manip modules from <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAU">&nbsp;</A>
+<H2>How can I find the Julian Day?</H2>
+
+<A NAME="ixABA"></A>
+Use the Time::JulianDay module (part of the Time-modules bundle
+available from <FONT SIZE="-1">CPAN</FONT>.)
+<P>
+
+Before you immerse yourself too deeply in this, be sure to verify that
+it is the <I>Julian</I> Day you really want.  Are you interested in a way
+of getting serial days so that you just can tell how many days they
+are apart or so that you can do also other date arithmetic?  If you
+are interested in performing date arithmetic, this can be done using
+modules Date::Manip or Date::Calc.
+<P>
+
+There is too many details and much confusion on this issue to cover in
+this <FONT SIZE="-1">FAQ</FONT>, but the term is applied (correctly) to a calendar now
+supplanted by the Gregorian Calendar, with the Julian Calendar failing
+to adjust properly for leap years on centennial years (among other
+annoyances).  The term is also used (incorrectly) to mean: [1] days in
+the Gregorian Calendar; and [2] days since a particular starting time
+or `epoch', usually 1970 in the Unix world and 1980 in the
+MS-DOS/Windows world.  If you find that it is not the first meaning
+that you really want, then check out the Date::Manip and Date::Calc
+modules.  (Thanks to David Cassell for most of this text.)
+<A NAME="lbAV">&nbsp;</A>
+<H2>How do I find yesterday's date?</H2>
+
+<A NAME="ixABB"></A>
+If you only need to find the date (and not the same time), you
+can use the Date::Calc module.
+<P>
+
+
+
+<PRE>
+        use Date::Calc qw(Today Add_Delta_Days);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my @date = Add_Delta_Days( Today(), -1 );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        print &quot;@date\n&quot;;
+
+</PRE>
+
+
+<P>
+
+Most people try to use the time rather than the calendar to
+figure out dates, but that assumes that your days are
+twenty-four hours each.  For most people, there are two days
+a year when they aren't: the switch to and from summer time
+throws this off. Russ Allbery offers this solution.
+<P>
+
+
+
+<PRE>
+    sub yesterday {
+                my $now  = defined $_[0] ? $_[0] : time;
+                my $then = $now - 60 * 60 * 24;
+                my $ndst = (localtime $now)[8] &gt; 0;
+                my $tdst = (localtime $then)[8] &gt; 0;
+                $then - ($tdst - $ndst) * 60 * 60;
+                }
+
+</PRE>
+
+
+<P>
+
+Should give you ``this time yesterday'' in seconds since epoch relative to
+the first argument or the current time if no argument is given and
+suitable for passing to localtime or whatever else you need to do with
+it.  <TT>$ndst</TT> is whether we're currently in daylight savings time; <TT>$tdst</TT> is
+whether the point 24 hours ago was in daylight savings time.  If <TT>$tdst</TT>
+and <TT>$ndst</TT> are the same, a boundary wasn't crossed, and the correction
+will subtract 0.  If <TT>$tdst</TT> is 1 and <TT>$ndst</TT> is 0, subtract an hour more
+from yesterday's time since we gained an extra hour while going off
+daylight savings time.  If <TT>$tdst</TT> is 0 and <TT>$ndst</TT> is 1, subtract a
+negative hour (add an hour) to yesterday's time since we lost an hour.
+<P>
+
+All of this is because during those days when one switches off or onto
+<FONT SIZE="-1">DST</FONT>, a ``day'' isn't 24 hours long; it's either 23 or 25.
+<P>
+
+The explicit settings of <TT>$ndst</TT> and <TT>$tdst</TT> are necessary because localtime
+only says it returns the system tm struct, and the system tm struct at
+least on Solaris doesn't guarantee any particular positive value (like,
+say, 1) for isdst, just a positive value.  And that value can
+potentially be negative, if <FONT SIZE="-1">DST</FONT> information isn't available (this sub
+just treats those cases like no <FONT SIZE="-1">DST</FONT>).
+<P>
+
+Note that between 2am and 3am on the day after the time zone switches
+off daylight savings time, the exact hour of ``yesterday'' corresponding
+to the current hour is not clearly defined.  Note also that if used
+between 2am and 3am the day after the change to daylight savings time,
+the result will be between 3am and 4am of the previous day; it's
+arguable whether this is correct.
+<P>
+
+This sub does not attempt to deal with leap seconds (most things don't).
+<A NAME="lbAW">&nbsp;</A>
+<H2>Does Perl have a Year 2000 problem?  Is Perl Y2K compliant?
+
+</H2>
+
+<A NAME="ixABC"></A>
+Short answer: No, Perl does not have a Year 2000 problem.  Yes, Perl is
+Y2K compliant (whatever that means).  The programmers you've hired to
+use it, however, probably are not.
+<P>
+
+Long answer: The question belies a true understanding of the issue.
+Perl is just as Y2K compliant as your pencil---no more, and no less.
+Can you use your pencil to write a non-Y2K-compliant memo?  Of course
+you can.  Is that the pencil's fault?  Of course it isn't.
+<P>
+
+The date and time functions supplied with Perl (gmtime and localtime)
+supply adequate information to determine the year well beyond 2000
+(2038 is when trouble strikes for 32-bit machines).  The year returned
+by these functions when used in a list context is the year minus 1900.
+For years between 1910 and 1999 this <I>happens</I> to be a 2-digit decimal
+number. To avoid the year 2000 problem simply do not treat the year as
+a 2-digit number.  It isn't.
+<P>
+
+When <I>gmtime()</I> and <I>localtime()</I> are used in scalar context they return
+a timestamp string that contains a fully-expanded year.  For example,
+<TT>&quot;$timestamp = gmtime(1005613200)&quot;</TT> sets <TT>$timestamp</TT> to ``Tue Nov 13 01:00:00
+2001''.  There's no year 2000 problem here.
+<P>
+
+That doesn't mean that Perl can't be used to create non-Y2K compliant
+programs.  It can.  But so can your pencil.  It's the fault of the user,
+not the language.  At the risk of inflaming the <FONT SIZE="-1">NRA:</FONT> ``Perl doesn't
+break Y2K, people do.''  See <A HREF="http://language.perl.com/news/y2k.php">http://language.perl.com/news/y2k.html</A> for
+a longer exposition.
+<A NAME="lbAX">&nbsp;</A>
+<H2>Data: Strings</H2>
+
+<A NAME="ixABD"></A>
+<A NAME="lbAY">&nbsp;</A>
+<H2>How do I validate input?</H2>
+
+<A NAME="ixABE"></A>
+The answer to this question is usually a regular expression, perhaps
+with auxiliary logic.  See the more specific questions (numbers, mail
+addresses, etc.) for details.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>How do I unescape a string?</H2>
+
+<A NAME="ixABF"></A>
+It depends just what you mean by ``escape''.  <FONT SIZE="-1">URL</FONT> escapes are dealt
+with in perlfaq9.  Shell escapes with the backslash (<TT>&quot;\&quot;</TT>)
+character are removed with
+<P>
+
+
+
+<PRE>
+    s/\\(.)/$1/g;
+
+</PRE>
+
+
+<P>
+
+This won't expand <TT>&quot;\n&quot;</TT> or <TT>&quot;\t&quot;</TT> or any other special escapes.
+<A NAME="lbBA">&nbsp;</A>
+<H2>How do I remove consecutive pairs of characters?</H2>
+
+<A NAME="ixABG"></A>
+To turn <TT>&quot;abbcccd&quot;</TT> into <TT>&quot;abccd&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    s/(.)\1/$1/g;       # add /s to include newlines
+
+</PRE>
+
+
+<P>
+
+Here's a solution that turns ``abbcccd'' to ``abcd'':
+<P>
+
+
+
+<PRE>
+    y///cs;     # y == tr, but shorter :-)
+
+</PRE>
+
+
+<A NAME="lbBB">&nbsp;</A>
+<H2>How do I expand function calls in a string?</H2>
+
+<A NAME="ixABH"></A>
+This is documented in perlref.  In general, this is fraught with
+quoting and readability problems, but it is possible.  To interpolate
+a subroutine call (in list context) into a string:
+<P>
+
+
+
+<PRE>
+    print &quot;My sub returned @{[mysub(1,2,3)]} that time.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+See also ``How can I expand variables in text strings?'' in this
+section of the <FONT SIZE="-1">FAQ</FONT>.
+<A NAME="lbBC">&nbsp;</A>
+<H2>How do I find matching/nesting anything?</H2>
+
+<A NAME="ixABI"></A>
+This isn't something that can be done in one regular expression, no
+matter how complicated.  To find something between two single
+characters, a pattern like <TT>&quot;/x([^x]*)x/&quot;</TT> will get the intervening
+bits in <TT>$1</TT>. For multiple ones, then something more like
+<TT>&quot;/alpha(.*?)omega/&quot;</TT> would be needed.  But none of these deals with
+nested patterns.  For balanced expressions using <TT>&quot;(&quot;</TT>, <TT>&quot;{&quot;</TT>, <TT>&quot;[&quot;</TT>
+or <TT>&quot;&lt;&quot;</TT> as delimiters, use the <FONT SIZE="-1">CPAN</FONT> module Regexp::Common, or see
+``(??{ code })'' in perlre.  For other cases, you'll have to write a parser.
+<P>
+
+If you are serious about writing a parser, there are a number of
+modules or oddities that will make your life a lot easier.  There are
+the <FONT SIZE="-1">CPAN</FONT> modules Parse::RecDescent, Parse::Yapp, and Text::Balanced;
+and the byacc program.   Starting from perl 5.8 the Text::Balanced
+is part of the standard distribution.
+<P>
+
+One simple destructive, inside-out approach that you might try is to
+pull out the smallest nesting parts one at a time:
+<P>
+
+
+
+<PRE>
+    while (s/BEGIN((?:(?!BEGIN)(?!END).)*)END//gs) {
+        # do something with $1
+    }
+
+</PRE>
+
+
+<P>
+
+A more complicated and sneaky approach is to make Perl's regular
+expression engine do it for you.  This is courtesy Dean Inada, and
+rather has the nature of an Obfuscated Perl Contest entry, but it
+really does work:
+<P>
+
+
+
+<PRE>
+    # $_ contains the string to parse
+    # BEGIN and END are the opening and closing markers for the
+    # nested text.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    @( = ('(','');
+    @) = (')','');
+    ($re=$_)=~s/((BEGIN)|(END)|.)/$)[!$3]\Q$1\E$([!$2]/gs;
+    @$ = (eval{/$re/},$@!~/unmatched/i);
+    print join(&quot;\n&quot;,@$[0..$#$]) if( $$[-1] );
+
+</PRE>
+
+
+<A NAME="lbBD">&nbsp;</A>
+<H2>How do I reverse a string?</H2>
+
+<A NAME="ixABJ"></A>
+Use <I>reverse()</I> in scalar context, as documented in
+``reverse'' in perlfunc.
+<P>
+
+
+
+<PRE>
+    $reversed = reverse $string;
+
+</PRE>
+
+
+<A NAME="lbBE">&nbsp;</A>
+<H2>How do I expand tabs in a string?</H2>
+
+<A NAME="ixABK"></A>
+You can do it yourself:
+<P>
+
+
+
+<PRE>
+    1 while $string =~ s/\t+/' ' x (length($&amp;) * 8 - length($`) % 8)/e;
+
+</PRE>
+
+
+<P>
+
+Or you can just use the Text::Tabs module (part of the standard Perl
+distribution).
+<P>
+
+
+
+<PRE>
+    use Text::Tabs;
+    @expanded_lines = expand(@lines_with_tabs);
+
+</PRE>
+
+
+<A NAME="lbBF">&nbsp;</A>
+<H2>How do I reformat a paragraph?</H2>
+
+<A NAME="ixABL"></A>
+Use Text::Wrap (part of the standard Perl distribution):
+<P>
+
+
+
+<PRE>
+    use Text::Wrap;
+    print wrap(&quot;\t&quot;, '  ', @paragraphs);
+
+</PRE>
+
+
+<P>
+
+The paragraphs you give to Text::Wrap should not contain embedded
+newlines.  Text::Wrap doesn't justify the lines (flush-right).
+<P>
+
+Or use the <FONT SIZE="-1">CPAN</FONT> module Text::Autoformat.  Formatting files can be easily
+done by making a shell alias, like so:
+<P>
+
+
+
+<PRE>
+    alias fmt=&quot;perl -i -MText::Autoformat -n0777 \
+        -e 'print autoformat $_, {all=&gt;1}' $*&quot;
+
+</PRE>
+
+
+<P>
+
+See the documentation for Text::Autoformat to appreciate its many
+capabilities.
+<A NAME="lbBG">&nbsp;</A>
+<H2>How can I access or change N characters of a string?</H2>
+
+<A NAME="ixABM"></A>
+You can access the first characters of a string with <I>substr()</I>.
+To get the first character, for example, start at position 0
+and grab the string of length 1.
+<P>
+
+
+
+<PRE>
+        $string = &quot;Just another Perl Hacker&quot;;
+    $first_char = substr( $string, 0, 1 );  #  'J'
+
+</PRE>
+
+
+<P>
+
+To change part of a string, you can use the optional fourth
+argument which is the replacement string.
+<P>
+
+
+
+<PRE>
+    substr( $string, 13, 4, &quot;Perl 5.8.0&quot; );
+
+</PRE>
+
+
+<P>
+
+You can also use <I>substr()</I> as an lvalue.
+<P>
+
+
+
+<PRE>
+    substr( $string, 13, 4 ) =  &quot;Perl 5.8.0&quot;;
+
+</PRE>
+
+
+<A NAME="lbBH">&nbsp;</A>
+<H2>How do I change the Nth occurrence of something?</H2>
+
+<A NAME="ixABN"></A>
+You have to keep track of N yourself.  For example, let's say you want
+to change the fifth occurrence of <TT>&quot;whoever&quot;</TT> or <TT>&quot;whomever&quot;</TT> into
+<TT>&quot;whosoever&quot;</TT> or <TT>&quot;whomsoever&quot;</TT>, case insensitively.  These
+all assume that <TT>$_</TT> contains the string to be altered.
+<P>
+
+
+
+<PRE>
+    $count = 0;
+    s{((whom?)ever)}{
+        ++$count == 5           # is it the 5th?
+            ? &quot;${2}soever&quot;      # yes, swap
+            : $1                # renege and leave it there
+    }ige;
+
+</PRE>
+
+
+<P>
+
+In the more general case, you can use the <TT>&quot;/g&quot;</TT> modifier in a <TT>&quot;while&quot;</TT>
+loop, keeping count of matches.
+<P>
+
+
+
+<PRE>
+    $WANT = 3;
+    $count = 0;
+    $_ = &quot;One fish two fish red fish blue fish&quot;;
+    while (/(\w+)\s+fish\b/gi) {
+        if (++$count == $WANT) {
+            print &quot;The third fish is a $1 one.\n&quot;;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+That prints out: <TT>&quot;The third fish is a red one.&quot;</TT>  You can also use a
+repetition count and repeated pattern like this:
+<P>
+
+
+
+<PRE>
+    /(?:\w+\s+fish\s+){2}(\w+)\s+fish/i;
+
+</PRE>
+
+
+<A NAME="lbBI">&nbsp;</A>
+<H2>How can I count the number of occurrences of a substring within a string?</H2>
+
+<A NAME="ixABO"></A>
+There are a number of ways, with varying efficiency.  If you want a
+count of a certain single character (X) within a string, you can use the
+<TT>&quot;tr///&quot;</TT> function like so:
+<P>
+
+
+
+<PRE>
+    $string = &quot;ThisXlineXhasXsomeXx'sXinXit&quot;;
+    $count = ($string =~ tr/X//);
+    print &quot;There are $count X characters in the string&quot;;
+
+</PRE>
+
+
+<P>
+
+This is fine if you are just looking for a single character.  However,
+if you are trying to count multiple character substrings within a
+larger string, <TT>&quot;tr///&quot;</TT> won't work.  What you can do is wrap a <I>while()</I>
+loop around a global pattern match.  For example, let's count negative
+integers:
+<P>
+
+
+
+<PRE>
+    $string = &quot;-9 55 48 -2 23 -76 4 14 -44&quot;;
+    while ($string =~ /-\d+/g) { $count++ }
+    print &quot;There are $count negative numbers in the string&quot;;
+
+</PRE>
+
+
+<P>
+
+Another version uses a global match in list context, then assigns the
+result to a scalar, producing a count of the number of matches.
+<P>
+
+
+
+<PRE>
+        $count = () = $string =~ /-\d+/g;
+
+</PRE>
+
+
+<A NAME="lbBJ">&nbsp;</A>
+<H2>How do I capitalize all the words on one line?</H2>
+
+<A NAME="ixABP"></A>
+To make the first letter of each word upper case:
+<P>
+
+
+
+<PRE>
+        $line =~ s/\b(\w)/\U$1/g;
+
+</PRE>
+
+
+<P>
+
+This has the strange effect of turning &quot;<TT>&quot;don't do it&quot;</TT>`` into ''<TT>&quot;Don'T
+Do It&quot;</TT>&quot;.  Sometimes you might want this.  Other times you might need a
+more thorough solution (Suggested by brian d foy):
+<P>
+
+
+
+<PRE>
+    $string =~ s/ (
+                 (^\w)    #at the beginning of the line
+                   |      # or
+                 (\s\w)   #preceded by whitespace
+                   )
+                /\U$1/xg;
+    $string =~ /([\w']+)/\u\L$1/g;
+
+</PRE>
+
+
+<P>
+
+To make the whole line upper case:
+<P>
+
+
+
+<PRE>
+        $line = uc($line);
+
+</PRE>
+
+
+<P>
+
+To force each word to be lower case, with the first letter upper case:
+<P>
+
+
+
+<PRE>
+        $line =~ s/(\w+)/\u\L$1/g;
+
+</PRE>
+
+
+<P>
+
+You can (and probably should) enable locale awareness of those
+characters by placing a <TT>&quot;use locale&quot;</TT> pragma in your program.
+See perllocale for endless details on locales.
+<P>
+
+This is sometimes referred to as putting something into ``title
+case'', but that's not quite accurate.  Consider the proper
+capitalization of the movie <I>Dr. Strangelove or: How I Learned to
+Stop Worrying and Love the Bomb</I>, for example.
+<P>
+
+Damian Conway's Text::Autoformat module provides some smart
+case transformations:
+<P>
+
+
+
+<PRE>
+    use Text::Autoformat;
+    my $x = &quot;Dr. Strangelove or: How I Learned to Stop &quot;.
+      &quot;Worrying and Love the Bomb&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    print $x, &quot;\n&quot;;
+    for my $style (qw( sentence title highlight ))
+    {
+        print autoformat($x, { case =&gt; $style }), &quot;\n&quot;;
+    }
+
+</PRE>
+
+
+<A NAME="lbBK">&nbsp;</A>
+<H2>How can I split a [character] delimited string except when inside [character]?</H2>
+
+<A NAME="ixABQ"></A>
+Several modules can handle this sort of pasing---Text::Balanced,
+Text::CVS, Text::CVS_XS, and Text::ParseWords, among others.
+<P>
+
+Take the example case of trying to split a string that is
+comma-separated into its different fields. You can't use <TT>&quot;split(/,/)&quot;</TT>
+because you shouldn't split if the comma is inside quotes.  For
+example, take a data line like this:
+<P>
+
+
+
+<PRE>
+    SAR001,&quot;&quot;,&quot;Cimetrix, Inc&quot;,&quot;Bob Smith&quot;,&quot;CAM&quot;,N,8,1,0,7,&quot;Error, Core Dumped&quot;
+
+</PRE>
+
+
+<P>
+
+Due to the restriction of the quotes, this is a fairly complex
+problem.  Thankfully, we have Jeffrey Friedl, author of
+<I>Mastering Regular Expressions</I>, to handle these for us.  He
+suggests (assuming your string is contained in <TT>$text</TT>):
+<P>
+
+
+
+<PRE>
+     @new = ();
+     push(@new, $+) while $text =~ m{
+         &quot;([^\&quot;\\]*(?:\\.[^\&quot;\\]*)*)&quot;,?  # groups the phrase inside the quotes
+       | ([^,]+),?
+       | ,
+     }gx;
+     push(@new, undef) if substr($text,-1,1) eq ',';
+
+</PRE>
+
+
+<P>
+
+If you want to represent quotation marks inside a
+quotation-mark-delimited field, escape them with backslashes (eg,
+<TT>&quot;like \&quot;this\&quot;&quot;</TT>.
+<P>
+
+Alternatively, the Text::ParseWords module (part of the standard Perl
+distribution) lets you say:
+<P>
+
+
+
+<PRE>
+    use Text::ParseWords;
+    @new = quotewords(&quot;,&quot;, 0, $text);
+
+</PRE>
+
+
+<P>
+
+There's also a Text::CSV (Comma-Separated Values) module on <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbBL">&nbsp;</A>
+<H2>How do I strip blank space from the beginning/end of a string?</H2>
+
+<A NAME="ixABR"></A>
+Although the simplest approach would seem to be
+<P>
+
+
+
+<PRE>
+    $string =~ s/^\s*(.*?)\s*$/$1/;
+
+</PRE>
+
+
+<P>
+
+not only is this unnecessarily slow and destructive, it also fails with
+embedded newlines.  It is much faster to do this operation in two steps:
+<P>
+
+
+
+<PRE>
+    $string =~ s/^\s+//;
+    $string =~ s/\s+$//;
+
+</PRE>
+
+
+<P>
+
+Or more nicely written as:
+<P>
+
+
+
+<PRE>
+    for ($string) {
+        s/^\s+//;
+        s/\s+$//;
+    }
+
+</PRE>
+
+
+<P>
+
+This idiom takes advantage of the <TT>&quot;foreach&quot;</TT> loop's aliasing
+behavior to factor out common code.  You can do this
+on several strings at once, or arrays, or even the
+values of a hash if you use a slice:
+<P>
+
+
+
+<PRE>
+    # trim whitespace in the scalar, the array,
+    # and all the values in the hash
+    foreach ($scalar, @array, @hash{keys %hash}) {
+        s/^\s+//;
+        s/\s+$//;
+    }
+
+</PRE>
+
+
+<A NAME="lbBM">&nbsp;</A>
+<H2>How do I pad a string with blanks or pad a number with zeroes?</H2>
+
+<A NAME="ixABS"></A>
+In the following examples, <TT>$pad_len</TT> is the length to which you wish
+to pad the string, <TT>$text</TT> or <TT>$num</TT> contains the string to be padded,
+and <TT>$pad_char</TT> contains the padding character. You can use a single
+character string constant instead of the <TT>$pad_char</TT> variable if you
+know what it is in advance. And in the same way you can use an integer in
+place of <TT>$pad_len</TT> if you know the pad length in advance.
+<P>
+
+The simplest method uses the <TT>&quot;sprintf&quot;</TT> function. It can pad on the left
+or right with blanks and on the left with zeroes and it will not
+truncate the result. The <TT>&quot;pack&quot;</TT> function can only pad strings on the
+right with blanks and it will truncate the result to a maximum length of
+<TT>$pad_len</TT>.
+<P>
+
+
+
+<PRE>
+    # Left padding a string with blanks (no truncation):
+        $padded = sprintf(&quot;%${pad_len}s&quot;, $text);
+        $padded = sprintf(&quot;%*s&quot;, $pad_len, $text);  # same thing
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Right padding a string with blanks (no truncation):
+        $padded = sprintf(&quot;%-${pad_len}s&quot;, $text);
+        $padded = sprintf(&quot;%-*s&quot;, $pad_len, $text); # same thing
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Left padding a number with 0 (no truncation):
+        $padded = sprintf(&quot;%0${pad_len}d&quot;, $num);
+        $padded = sprintf(&quot;%0*d&quot;, $pad_len, $num); # same thing
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Right padding a string with blanks using pack (will truncate):
+    $padded = pack(&quot;A$pad_len&quot;,$text);
+
+</PRE>
+
+
+<P>
+
+If you need to pad with a character other than blank or zero you can use
+one of the following methods.  They all generate a pad string with the
+<TT>&quot;x&quot;</TT> operator and combine that with <TT>$text</TT>. These methods do
+not truncate <TT>$text</TT>.
+<P>
+
+Left and right padding with any character, creating a new string:
+<P>
+
+
+
+<PRE>
+    $padded = $pad_char x ( $pad_len - length( $text ) ) . $text;
+    $padded = $text . $pad_char x ( $pad_len - length( $text ) );
+
+</PRE>
+
+
+<P>
+
+Left and right padding with any character, modifying <TT>$text</TT> directly:
+<P>
+
+
+
+<PRE>
+    substr( $text, 0, 0 ) = $pad_char x ( $pad_len - length( $text ) );
+    $text .= $pad_char x ( $pad_len - length( $text ) );
+
+</PRE>
+
+
+<A NAME="lbBN">&nbsp;</A>
+<H2>How do I extract selected columns from a string?</H2>
+
+<A NAME="ixABT"></A>
+Use <I>substr()</I> or <I>unpack()</I>, both documented in perlfunc.
+If you prefer thinking in terms of columns instead of widths,
+you can use this kind of thing:
+<P>
+
+
+
+<PRE>
+    # determine the unpack format needed to split Linux ps output
+    # arguments are cut columns
+    my $fmt = cut2fmt(8, 14, 20, 26, 30, 34, 41, 47, 59, 63, 67, 72);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub cut2fmt {
+        my(@positions) = @_;
+        my $template  = '';
+        my $lastpos   = 1;
+        for my $place (@positions) {
+            $template .= &quot;A&quot; . ($place - $lastpos) . &quot; &quot;;
+            $lastpos   = $place;
+        }
+        $template .= &quot;A*&quot;;
+        return $template;
+    }
+
+</PRE>
+
+
+<A NAME="lbBO">&nbsp;</A>
+<H2>How do I find the soundex value of a string?</H2>
+
+<A NAME="ixABU"></A>
+Use the standard Text::Soundex module distributed with Perl.
+Before you do so, you may want to determine whether `soundex' is in
+fact what you think it is.  Knuth's soundex algorithm compresses words
+into a small space, and so it does not necessarily distinguish between
+two words which you might want to appear separately.  For example, the
+last names `Knuth' and `Kant' are both mapped to the soundex code K530.
+If Text::Soundex does not do what you are looking for, you might want
+to consider the String::Approx module available at <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbBP">&nbsp;</A>
+<H2>How can I expand variables in text strings?</H2>
+
+<A NAME="ixABV"></A>
+Let's assume that you have a string like:
+<P>
+
+
+
+<PRE>
+    $text = 'this has a $foo in it and a $bar';
+
+</PRE>
+
+
+<P>
+
+If those were both global variables, then this would
+suffice:
+<P>
+
+
+
+<PRE>
+    $text =~ s/\$(\w+)/${$1}/g;  # no /e needed
+
+</PRE>
+
+
+<P>
+
+But since they are probably lexicals, or at least, they could
+be, you'd have to do this:
+<P>
+
+
+
+<PRE>
+    $text =~ s/(\$\w+)/$1/eeg;
+    die if $@;                  # needed /ee, not /e
+
+</PRE>
+
+
+<P>
+
+It's probably better in the general case to treat those
+variables as entries in some special hash.  For example:
+<P>
+
+
+
+<PRE>
+    %user_defs = (
+        foo  =&gt; 23,
+        bar  =&gt; 19,
+    );
+    $text =~ s/\$(\w+)/$user_defs{$1}/g;
+
+</PRE>
+
+
+<P>
+
+See also ``How do I expand function calls in a string?'' in this section
+of the <FONT SIZE="-1">FAQ</FONT>.
+<A NAME="lbBQ">&nbsp;</A>
+<H2>What's wrong with always quoting $vars?</H2>
+
+
+
+<A NAME="ixABW"></A>
+The problem is that those double-quotes force stringification---
+coercing numbers and references into strings---even when you
+don't want them to be strings.  Think of it this way: double-quote
+expansion is used to produce new strings.  If you already
+have a string, why do you need more?
+<P>
+
+If you get used to writing odd things like these:
+<P>
+
+
+
+<PRE>
+    print &quot;$var&quot;;       # BAD
+    $new = &quot;$old&quot;;      # BAD
+    somefunc(&quot;$var&quot;);   # BAD
+
+</PRE>
+
+
+<P>
+
+You'll be in trouble.  Those should (in 99.8% of the cases) be
+the simpler and more direct:
+<P>
+
+
+
+<PRE>
+    print $var;
+    $new = $old;
+    somefunc($var);
+
+</PRE>
+
+
+<P>
+
+Otherwise, besides slowing you down, you're going to break code when
+the thing in the scalar is actually neither a string nor a number, but
+a reference:
+<P>
+
+
+
+<PRE>
+    func(\@array);
+    sub func {
+        my $aref = shift;
+        my $oref = &quot;$aref&quot;;  # WRONG
+    }
+
+</PRE>
+
+
+<P>
+
+You can also get into subtle problems on those few operations in Perl
+that actually do care about the difference between a string and a
+number, such as the magical <TT>&quot;++&quot;</TT> autoincrement operator or the
+<I>syscall()</I> function.
+<P>
+
+Stringification also destroys arrays.
+<P>
+
+
+
+<PRE>
+    @lines = `command`;
+    print &quot;@lines&quot;;             # WRONG - extra blanks
+    print @lines;               # right
+
+</PRE>
+
+
+<A NAME="lbBR">&nbsp;</A>
+<H2>Why don't my &lt;&lt;<FONT SIZE="-1">HERE</FONT> documents work?</H2>
+
+<A NAME="ixABX"></A>
+Check for these three things:
+<DL COMPACT>
+<DT>There must be no space after the &lt;&lt; part.<DD>
+<A NAME="ixABY"></A>
+
+<DT>There (probably) should be a semicolon at the end.<DD>
+<A NAME="ixABZ"></A>
+<DT>You can't (easily) have any space in front of the tag.<DD>
+<A NAME="ixACA"></A>
+
+</DL>
+<P>
+
+If you want to indent the text in the here document, you
+can do this:
+<P>
+
+
+
+<PRE>
+    # all in one
+    ($VAR = &lt;&lt;HERE_TARGET) =~ s/^\s+//gm;
+        your text
+        goes here
+    HERE_TARGET
+
+</PRE>
+
+
+<P>
+
+But the <FONT SIZE="-1">HERE_TARGET</FONT> must still be flush against the margin.
+If you want that indented also, you'll have to quote
+in the indentation.
+<P>
+
+
+
+<PRE>
+    ($quote = &lt;&lt;'    FINIS') =~ s/^\s+//gm;
+            ...we will have peace, when you and all your works have
+            perished--and the works of your dark master to whom you
+            would deliver us. You are a liar, Saruman, and a corrupter
+            of men's hearts.  --Theoden in /usr/src/perl/taint.c
+        FINIS
+    $quote =~ s/\s+--/\n--/;
+
+</PRE>
+
+
+<P>
+
+A nice general-purpose fixer-upper function for indented here documents
+follows.  It expects to be called with a here document as its argument.
+It looks to see whether each line begins with a common substring, and
+if so, strips that substring off.  Otherwise, it takes the amount of leading
+whitespace found on the first line and removes that much off each
+subsequent line.
+<P>
+
+
+
+<PRE>
+    sub fix {
+        local $_ = shift;
+        my ($white, $leader);  # common whitespace and common leading string
+        if (/^\s*(?:([^\w\s]+)(\s*).*\n)(?:\s*\1\2?.*\n)+$/) {
+            ($white, $leader) = ($2, quotemeta($1));
+        } else {
+            ($white, $leader) = (/^(\s+)/, '');
+        }
+        s/^\s*?$leader(?:$white)?//gm;
+        return $_;
+    }
+
+</PRE>
+
+
+<P>
+
+This works with leading special strings, dynamically determined:
+<P>
+
+
+
+<PRE>
+    $remember_the_main = fix&lt;&lt;'    MAIN_INTERPRETER_LOOP';
+        @@@ int
+        @@@ runops() {
+        @@@     SAVEI32(runlevel);
+        @@@     runlevel++;
+        @@@     while ( op = (*op-&gt;op_ppaddr)() );
+        @@@     TAINT_NOT;
+        @@@     return 0;
+        @@@ }
+    MAIN_INTERPRETER_LOOP
+
+</PRE>
+
+
+<P>
+
+Or with a fixed amount of leading whitespace, with remaining
+indentation correctly preserved:
+<P>
+
+
+
+<PRE>
+    $poem = fix&lt;&lt;EVER_ON_AND_ON;
+       Now far ahead the Road has gone,
+          And I must follow, if I can,
+       Pursuing it with eager feet,
+          Until it joins some larger way
+       Where many paths and errands meet.
+          And whither then? I cannot say.
+                --Bilbo in /usr/src/perl/pp_ctl.c
+    EVER_ON_AND_ON
+
+</PRE>
+
+
+<A NAME="lbBS">&nbsp;</A>
+<H2>Data: Arrays</H2>
+
+<A NAME="ixACB"></A>
+<A NAME="lbBT">&nbsp;</A>
+<H2>What is the difference between a list and an array?</H2>
+
+<A NAME="ixACC"></A>
+An array has a changeable length.  A list does not.  An array is something
+you can push or pop, while a list is a set of values.  Some people make
+the distinction that a list is a value while an array is a variable.
+Subroutines are passed and return lists, you put things into list
+context, you initialize arrays with lists, and you <I>foreach()</I> across
+a list.  <TT>&quot;@&quot;</TT> variables are arrays, anonymous arrays are arrays, arrays
+in scalar context behave like the number of elements in them, subroutines
+access their arguments through the array <TT>@_</TT>, and push/pop/shift only work
+on arrays.
+<P>
+
+As a side note, there's no such thing as a list in scalar context.
+When you say
+<P>
+
+
+
+<PRE>
+    $scalar = (2, 5, 7, 9);
+
+</PRE>
+
+
+<P>
+
+you're using the comma operator in scalar context, so it uses the scalar
+comma operator.  There never was a list there at all!  This causes the
+last value to be returned: 9.
+<A NAME="lbBU">&nbsp;</A>
+<H2>What is the difference between $array</TT>[1] and <TT>@array[1]?</H2>
+
+
+
+<A NAME="ixACD"></A>
+The former is a scalar value; the latter an array slice, making
+it a list with one (scalar) value.  You should use $ when you want a
+scalar value (most of the time) and @ when you want a list with one
+scalar value in it (very, very rarely; nearly never, in fact).
+<P>
+
+Sometimes it doesn't make a difference, but sometimes it does.
+For example, compare:
+<P>
+
+
+</TT>
+<PRE>
+    $good[0] = `some program that outputs several lines`;
+
+</PRE>
+
+
+<P>
+
+with
+<P>
+
+
+
+<PRE>
+    @bad[0]  = `same program that outputs several lines`;
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;use warnings&quot;</TT> pragma and the <B>-w</B> flag will warn you about these
+matters.
+<A NAME="lbBV">&nbsp;</A>
+<H2>How can I remove duplicate elements from a list or array?</H2>
+
+<A NAME="ixACE"></A>
+There are several possible ways, depending on whether the array is
+ordered and whether you wish to preserve the ordering.
+<DL COMPACT>
+<DT>a)<DD>
+If <TT>@in</TT> is sorted, and you want <TT>@out</TT> to be sorted:
+(this assumes all true values in the array)
+
+
+<P>
+
+
+
+
+<PRE>
+    $prev = &quot;not equal to $in[0]&quot;;
+    @out = grep($_ ne $prev &amp;&amp; ($prev = $_, 1), @in);
+
+</PRE>
+
+
+
+
+<P>
+
+
+This is nice in that it doesn't use much extra memory, simulating
+<I><A HREF="../man1/uniq.1.php">uniq</A></I>(1)'s behavior of removing only adjacent duplicates.  The ``, 1''
+guarantees that the expression is true (so that grep picks it up)
+even if the <TT>$_</TT> is 0, &quot;&quot;, or undef.
+<DT>b)<DD>
+If you don't know whether <TT>@in</TT> is sorted:
+
+
+<P>
+
+
+
+
+<PRE>
+    undef %saw;
+    @out = grep(!$saw{$_}++, @in);
+
+</PRE>
+
+
+<DT>c)<DD>
+Like (b), but <TT>@in</TT> contains only small integers:
+
+
+<P>
+
+
+
+
+<PRE>
+    @out = grep(!$saw[$_]++, @in);
+
+</PRE>
+
+
+<DT>d)<DD>
+A way to do (b) without any loops or greps:
+
+
+<P>
+
+
+
+
+<PRE>
+    undef %saw;
+    @saw{@in} = ();
+    @out = sort keys %saw;  # remove sort if undesired
+
+</PRE>
+
+
+<DT>e)<DD>
+Like (d), but <TT>@in</TT> contains only small positive integers:
+
+
+<P>
+
+
+
+
+<PRE>
+    undef @ary;
+    @ary[@in] = @in;
+    @out = grep {defined} @ary;
+
+</PRE>
+
+
+</DL>
+<P>
+
+But perhaps you should have been using a hash all along, eh?
+<A NAME="lbBW">&nbsp;</A>
+<H2>How can I tell whether a certain element is contained in a list or array?</H2>
+
+<A NAME="ixACF"></A>
+Hearing the word ``in'' is an <I>in</I>dication that you probably should have
+used a hash, not a list or array, to store your data.  Hashes are
+designed to answer this question quickly and efficiently.  Arrays aren't.
+<P>
+
+That being said, there are several ways to approach this.  If you
+are going to make this query many times over arbitrary string values,
+the fastest way is probably to invert the original array and maintain a
+hash whose keys are the first array's values.
+<P>
+
+
+
+<PRE>
+    @blues = qw/azure cerulean teal turquoise lapis-lazuli/;
+    %is_blue = ();
+    for (@blues) { $is_blue{$_} = 1 }
+
+</PRE>
+
+
+<P>
+
+Now you can check whether <TT>$is_blue</TT>{$some_color}.  It might have been a
+good idea to keep the blues all in a hash in the first place.
+<P>
+
+If the values are all small integers, you could use a simple indexed
+array.  This kind of an array will take up less space:
+<P>
+
+
+
+<PRE>
+    @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31);
+    @is_tiny_prime = ();
+    for (@primes) { $is_tiny_prime[$_] = 1 }
+    # or simply  @istiny_prime[@primes] = (1) x @primes;
+
+</PRE>
+
+
+<P>
+
+Now you check whether <TT>$is_tiny_prime</TT>[$some_number].
+<P>
+
+If the values in question are integers instead of strings, you can save
+quite a lot of space by using bit strings instead:
+<P>
+
+
+
+<PRE>
+    @articles = ( 1..10, 150..2000, 2017 );
+    undef $read;
+    for (@articles) { vec($read,$_,1) = 1 }
+
+</PRE>
+
+
+<P>
+
+Now check whether <TT>&quot;vec($read,$n,1)&quot;</TT> is true for some <TT>$n</TT>.
+<P>
+
+Please do not use
+<P>
+
+
+
+<PRE>
+    ($is_there) = grep $_ eq $whatever, @array;
+
+</PRE>
+
+
+<P>
+
+or worse yet
+<P>
+
+
+
+<PRE>
+    ($is_there) = grep /$whatever/, @array;
+
+</PRE>
+
+
+<P>
+
+These are slow (checks every element even if the first matches),
+inefficient (same reason), and potentially buggy (what if there are
+regex characters in <TT>$whatever</TT>?).  If you're only testing once, then
+use:
+<P>
+
+
+
+<PRE>
+    $is_there = 0;
+    foreach $elt (@array) {
+        if ($elt eq $elt_to_find) {
+            $is_there = 1;
+            last;
+        }
+    }
+    if ($is_there) { ... }
+
+</PRE>
+
+
+<A NAME="lbBX">&nbsp;</A>
+<H2>How do I compute the difference of two arrays?  How do I compute the intersection of two arrays?</H2>
+
+<A NAME="ixACG"></A>
+Use a hash.  Here's code to do both and more.  It assumes that
+each element is unique in a given array:
+<P>
+
+
+
+<PRE>
+    @union = @intersection = @difference = ();
+    %count = ();
+    foreach $element (@array1, @array2) { $count{$element}++ }
+    foreach $element (keys %count) {
+        push @union, $element;
+        push @{ $count{$element} &gt; 1 ? \@intersection : \@difference }, $element;
+    }
+
+</PRE>
+
+
+<P>
+
+Note that this is the <I>symmetric difference</I>, that is, all elements in
+either A or in B but not in both.  Think of it as an xor operation.
+<A NAME="lbBY">&nbsp;</A>
+<H2>How do I test whether two arrays or hashes are equal?</H2>
+
+<A NAME="ixACH"></A>
+The following code works for single-level arrays.  It uses a stringwise
+comparison, and does not distinguish defined versus undefined empty
+strings.  Modify if you have other needs.
+<P>
+
+
+
+<PRE>
+    $are_equal = compare_arrays(\@frogs, \@toads);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub compare_arrays {
+        my ($first, $second) = @_;
+        no warnings;  # silence spurious -w undef complaints
+        return 0 unless @$first == @$second;
+        for (my $i = 0; $i &lt; @$first; $i++) {
+            return 0 if $first-&gt;[$i] ne $second-&gt;[$i];
+        }
+        return 1;
+    }
+
+</PRE>
+
+
+<P>
+
+For multilevel structures, you may wish to use an approach more
+like this one.  It uses the <FONT SIZE="-1">CPAN</FONT> module FreezeThaw:
+<P>
+
+
+
+<PRE>
+    use FreezeThaw qw(cmpStr);
+    @a = @b = ( &quot;this&quot;, &quot;that&quot;, [ &quot;more&quot;, &quot;stuff&quot; ] );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    printf &quot;a and b contain %s arrays\n&quot;,
+        cmpStr(\@a, \@b) == 0
+            ? &quot;the same&quot;
+            : &quot;different&quot;;
+
+</PRE>
+
+
+<P>
+
+This approach also works for comparing hashes.  Here
+we'll demonstrate two different answers:
+<P>
+
+
+
+<PRE>
+    use FreezeThaw qw(cmpStr cmpStrHard);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    %a = %b = ( &quot;this&quot; =&gt; &quot;that&quot;, &quot;extra&quot; =&gt; [ &quot;more&quot;, &quot;stuff&quot; ] );
+    $a{EXTRA} = \%b;
+    $b{EXTRA} = \%a;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    printf &quot;a and b contain %s hashes\n&quot;,
+        cmpStr(\%a, \%b) == 0 ? &quot;the same&quot; : &quot;different&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    printf &quot;a and b contain %s hashes\n&quot;,
+        cmpStrHard(\%a, \%b) == 0 ? &quot;the same&quot; : &quot;different&quot;;
+
+</PRE>
+
+
+<P>
+
+The first reports that both those the hashes contain the same data,
+while the second reports that they do not.  Which you prefer is left as
+an exercise to the reader.
+<A NAME="lbBZ">&nbsp;</A>
+<H2>How do I find the first array element for which a condition is true?</H2>
+
+<A NAME="ixACI"></A>
+To find the first array element which satisfies a condition, you can
+use the <I>first()</I> function in the List::Util module, which comes with
+Perl 5.8.  This example finds the first element that contains ``Perl''.
+<P>
+
+
+
+<PRE>
+        use List::Util qw(first);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my $element = first { /Perl/ } @array;
+
+</PRE>
+
+
+<P>
+
+If you cannot use List::Util, you can make your own loop to do the
+same thing.  Once you find the element, you stop the loop with last.
+<P>
+
+
+
+<PRE>
+        my $found;
+        foreach my $element ( @array )
+                {
+                if( /Perl/ ) { $found = $element; last }
+                }
+
+</PRE>
+
+
+<P>
+
+If you want the array index, you can iterate through the indices
+and check the array element at each index until you find one
+that satisfies the condition.
+<P>
+
+
+
+<PRE>
+        my( $found, $index ) = ( undef, -1 );
+    for( $i = 0; $i &lt; @array; $i++ )
+        {
+        if( $array[$i] =~ /Perl/ )
+                {
+                $found = $array[$i];
+                $index = $i;
+                last;
+                }
+        }
+
+</PRE>
+
+
+<A NAME="lbCA">&nbsp;</A>
+<H2>How do I handle linked lists?</H2>
+
+<A NAME="ixACJ"></A>
+In general, you usually don't need a linked list in Perl, since with
+regular arrays, you can push and pop or shift and unshift at either end,
+or you can use splice to add and/or remove arbitrary number of elements at
+arbitrary points.  Both pop and shift are both <A HREF="../man1/O.1.php">O</A>(1) operations on Perl's
+dynamic arrays.  In the absence of shifts and pops, push in general
+needs to reallocate on the order every log(N) times, and unshift will
+need to copy pointers each time.
+<P>
+
+If you really, really wanted, you could use structures as described in
+perldsc or perltoot and do just what the algorithm book tells you
+to do.  For example, imagine a list node like this:
+<P>
+
+
+
+<PRE>
+    $node = {
+        VALUE =&gt; 42,
+        LINK  =&gt; undef,
+    };
+
+</PRE>
+
+
+<P>
+
+You could walk the list this way:
+<P>
+
+
+
+<PRE>
+    print &quot;List: &quot;;
+    for ($node = $head;  $node; $node = $node-&gt;{LINK}) {
+        print $node-&gt;{VALUE}, &quot; &quot;;
+    }
+    print &quot;\n&quot;;
+
+</PRE>
+
+
+<P>
+
+You could add to the list this way:
+<P>
+
+
+
+<PRE>
+    my ($head, $tail);
+    $tail = append($head, 1);       # grow a new head
+    for $value ( 2 .. 10 ) {
+        $tail = append($tail, $value);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub append {
+        my($list, $value) = @_;
+        my $node = { VALUE =&gt; $value };
+        if ($list) {
+            $node-&gt;{LINK} = $list-&gt;{LINK};
+            $list-&gt;{LINK} = $node;
+        } else {
+            $_[0] = $node;      # replace caller's version
+        }
+        return $node;
+    }
+
+</PRE>
+
+
+<P>
+
+But again, Perl's built-in are virtually always good enough.
+<A NAME="lbCB">&nbsp;</A>
+<H2>How do I handle circular lists?</H2>
+
+<A NAME="ixACK"></A>
+Circular lists could be handled in the traditional fashion with linked
+lists, or you could just do something like this with an array:
+<P>
+
+
+
+<PRE>
+    unshift(@array, pop(@array));  # the last shall be first
+    push(@array, shift(@array));   # and vice versa
+
+</PRE>
+
+
+<A NAME="lbCC">&nbsp;</A>
+<H2>How do I shuffle an array randomly?</H2>
+
+<A NAME="ixACL"></A>
+If you either have Perl 5.8.0 or later installed, or if you have
+Scalar-List-Utils 1.03 or later installed, you can say:
+<P>
+
+
+
+<PRE>
+    use List::Util 'shuffle';
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        @shuffled = shuffle(@list);
+
+</PRE>
+
+
+<P>
+
+If not, you can use a Fisher-Yates shuffle.
+<P>
+
+
+
+<PRE>
+    sub fisher_yates_shuffle {
+        my $deck = shift;  # $deck is a reference to an array
+        my $i = @$deck;
+        while ($i--) {
+            my $j = int rand ($i+1);
+            @$deck[$i,$j] = @$deck[$j,$i];
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # shuffle my mpeg collection
+    #
+    my @mpeg = &lt;audio/*/*.mp3&gt;;
+    fisher_yates_shuffle( \@mpeg );    # randomize @mpeg in place
+    print @mpeg;
+
+</PRE>
+
+
+<P>
+
+Note that the above implementation shuffles an array in place,
+unlike the <I>List::Util::shuffle()</I> which takes a list and returns
+a new shuffled list.
+<P>
+
+You've probably seen shuffling algorithms that work using splice,
+randomly picking another element to swap the current element with
+<P>
+
+
+
+<PRE>
+    srand;
+    @new = ();
+    @old = 1 .. 10;  # just a demo
+    while (@old) {
+        push(@new, splice(@old, rand @old, 1));
+    }
+
+</PRE>
+
+
+<P>
+
+This is bad because splice is already O(N), and since you do it N times,
+you just invented a quadratic algorithm; that is, O(N**2).  This does
+not scale, although Perl is so efficient that you probably won't notice
+this until you have rather largish arrays.
+<A NAME="lbCD">&nbsp;</A>
+<H2>How do I process/modify each element of an array?</H2>
+
+<A NAME="ixACM"></A>
+Use <TT>&quot;for&quot;</TT>/<TT>&quot;foreach&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    for (@lines) {
+        s/foo/bar/;     # change that word
+        y/XZ/ZX/;       # swap those letters
+    }
+
+</PRE>
+
+
+<P>
+
+Here's another; let's compute spherical volumes:
+<P>
+
+
+
+<PRE>
+    for (@volumes = @radii) {   # @volumes has changed parts
+        $_ **= 3;
+        $_ *= (4/3) * 3.14159;  # this will be constant folded
+    }
+
+</PRE>
+
+
+<P>
+
+which can also be done with <I>map()</I> which is made to transform
+one list into another:
+<P>
+
+
+
+<PRE>
+        @volumes = map {$_ ** 3 * (4/3) * 3.14159} @radii;
+
+</PRE>
+
+
+<P>
+
+If you want to do the same thing to modify the values of the
+hash, you can use the <TT>&quot;values&quot;</TT> function.  As of Perl 5.6
+the values are not copied, so if you modify <TT>$orbit</TT> (in this
+case), you modify the value.
+<P>
+
+
+
+<PRE>
+    for $orbit ( values %orbits ) {
+        ($orbit **= 3) *= (4/3) * 3.14159;
+    }
+
+</PRE>
+
+
+<P>
+
+Prior to perl 5.6 <TT>&quot;values&quot;</TT> returned copies of the values,
+so older perl code often contains constructions such as
+<TT>@orbits{keys %orbits}</TT> instead of <TT>&quot;values %orbits&quot;</TT> where
+the hash is to be modified.
+<A NAME="lbCE">&nbsp;</A>
+<H2>How do I select a random element from an array?</H2>
+
+<A NAME="ixACN"></A>
+Use the <I>rand()</I> function (see ``rand'' in perlfunc):
+<P>
+
+
+
+<PRE>
+    $index   = rand @array;
+    $element = $array[$index];
+
+</PRE>
+
+
+<P>
+
+Or, simply:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;my&nbsp;<TT>$element</TT>&nbsp;=&nbsp;<TT>$array</TT>[&nbsp;rand&nbsp;<TT>@array</TT>&nbsp;];
+<A NAME="lbCF">&nbsp;</A>
+<H2>How do I permute N elements of a list?</H2>
+
+<A NAME="ixACO"></A>
+Use the List::Permutor module on <FONT SIZE="-1">CPAN</FONT>.  If the list is
+actually an array, try the Algorithm::Permute module (also
+on <FONT SIZE="-1">CPAN</FONT>).  It's written in <FONT SIZE="-1">XS</FONT> code and is very efficient.
+<P>
+
+
+
+<PRE>
+        use Algorithm::Permute;
+        my @array = 'a'..'d';
+        my $p_iterator = Algorithm::Permute-&gt;new ( \@array );
+        while (my @perm = $p_iterator-&gt;next) {
+           print &quot;next permutation: (@perm)\n&quot;;
+        }
+
+</PRE>
+
+
+<P>
+
+For even faster execution, you could do:
+<P>
+
+
+
+<PRE>
+   use Algorithm::Permute;
+   my @array = 'a'..'d';
+   Algorithm::Permute::permute {
+      print &quot;next permutation: (@array)\n&quot;;
+   } @array;
+
+</PRE>
+
+
+<P>
+
+Here's a little program that generates all permutations of
+all the words on each line of input. The algorithm embodied
+in the <I>permute()</I> function is discussed in Volume 4 (still
+unpublished) of Knuth's <I>The Art of Computer Programming</I>
+and will work on any list:
+<P>
+
+
+
+<PRE>
+        #!/usr/bin/perl -n
+        # Fischer-Kause ordered permutation generator
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        sub permute (&amp;@) {
+                my $code = shift;
+                my @idx = 0..$#_;
+                while ( $code-&gt;(@_[@idx]) ) {
+                        my $p = $#idx;
+                        --$p while $idx[$p-1] &gt; $idx[$p];
+                        my $q = $p or return;
+                        push @idx, reverse splice @idx, $p;
+                        ++$q while $idx[$p-1] &gt; $idx[$q];
+                        @idx[$p-1,$q]=@idx[$q,$p-1];
+                }
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        permute {print&quot;@_\n&quot;} split;
+
+</PRE>
+
+
+<A NAME="lbCG">&nbsp;</A>
+<H2>How do I sort an array by (anything)?</H2>
+
+<A NAME="ixACP"></A>
+Supply a comparison function to <I>sort()</I> (described in ``sort'' in perlfunc):
+<P>
+
+
+
+<PRE>
+    @list = sort { $a &lt;=&gt; $b } @list;
+
+</PRE>
+
+
+<P>
+
+The default sort function is cmp, string comparison, which would
+sort <TT>&quot;(1, 2, 10)&quot;</TT> into <TT>&quot;(1, 10, 2)&quot;</TT>.  <TT>&quot;&lt;=&gt;&quot;</TT>, used above, is
+the numerical comparison operator.
+<P>
+
+If you have a complicated function needed to pull out the part you
+want to sort on, then don't do it inside the sort function.  Pull it
+out first, because the sort <FONT SIZE="-1">BLOCK</FONT> can be called many times for the
+same element.  Here's an example of how to pull out the first word
+after the first number on each item, and then sort those words
+case-insensitively.
+<P>
+
+
+
+<PRE>
+    @idx = ();
+    for (@data) {
+        ($item) = /\d+\s*(\S+)/;
+        push @idx, uc($item);
+    }
+    @sorted = @data[ sort { $idx[$a] cmp $idx[$b] } 0 .. $#idx ];
+
+</PRE>
+
+
+<P>
+
+which could also be written this way, using a trick
+that's come to be known as the Schwartzian Transform:
+<P>
+
+
+
+<PRE>
+    @sorted = map  { $_-&gt;[0] }
+              sort { $a-&gt;[1] cmp $b-&gt;[1] }
+              map  { [ $_, uc( (/\d+\s*(\S+)/)[0]) ] } @data;
+
+</PRE>
+
+
+<P>
+
+If you need to sort on several fields, the following paradigm is useful.
+<P>
+
+
+
+<PRE>
+    @sorted = sort { field1($a) &lt;=&gt; field1($b) ||
+                     field2($a) cmp field2($b) ||
+                     field3($a) cmp field3($b)
+                   }     @data;
+
+</PRE>
+
+
+<P>
+
+This can be conveniently combined with precalculation of keys as given
+above.
+<P>
+
+See the <I>sort</I> article in the ``Far More Than You Ever Wanted
+To Know'' collection in <A HREF="http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz">http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz</A> for
+more about this approach.
+<P>
+
+See also the question below on sorting hashes.
+<A NAME="lbCH">&nbsp;</A>
+<H2>How do I manipulate arrays of bits?</H2>
+
+<A NAME="ixACQ"></A>
+Use <I>pack()</I> and <I>unpack()</I>, or else <I>vec()</I> and the bitwise operations.
+<P>
+
+For example, this sets <TT>$vec</TT> to have bit N set if <TT>$ints</TT>[N] was set:
+<P>
+
+
+
+<PRE>
+    $vec = '';
+    foreach(@ints) { vec($vec,$_,1) = 1 }
+
+</PRE>
+
+
+<P>
+
+Here's how, given a vector in <TT>$vec</TT>, you can
+get those bits into your <TT>@ints</TT> array:
+<P>
+
+
+
+<PRE>
+    sub bitvec_to_list {
+        my $vec = shift;
+        my @ints;
+        # Find null-byte density then select best algorithm
+        if ($vec =~ tr/\0// / length $vec &gt; 0.95) {
+            use integer;
+            my $i;
+            # This method is faster with mostly null-bytes
+            while($vec =~ /[^\0]/g ) {
+                $i = -9 + 8 * pos $vec;
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+                push @ints, $i if vec($vec, ++$i, 1);
+            }
+        } else {
+            # This method is a fast general algorithm
+            use integer;
+            my $bits = unpack &quot;b*&quot;, $vec;
+            push @ints, 0 if $bits =~ s/^(\d)// &amp;&amp; $1;
+            push @ints, pos $bits while($bits =~ /1/g);
+        }
+        return \@ints;
+    }
+
+</PRE>
+
+
+<P>
+
+This method gets faster the more sparse the bit vector is.
+(Courtesy of Tim Bunce and Winfried Koenig.)
+<P>
+
+You can make the while loop a lot shorter with this suggestion
+from Benjamin Goldberg:
+<P>
+
+
+
+<PRE>
+        while($vec =~ /[^\0]+/g ) {
+           push @ints, grep vec($vec, $_, 1), $-[0] * 8 .. $+[0] * 8;
+        }
+
+</PRE>
+
+
+<P>
+
+Or use the <FONT SIZE="-1">CPAN</FONT> module Bit::Vector:
+<P>
+
+
+
+<PRE>
+    $vector = Bit::Vector-&gt;new($num_of_bits);
+    $vector-&gt;Index_List_Store(@ints);
+    @ints = $vector-&gt;Index_List_Read();
+
+</PRE>
+
+
+<P>
+
+Bit::Vector provides efficient methods for bit vector, sets of small integers
+and ``big int'' math.
+<P>
+
+Here's a more extensive illustration using <I>vec()</I>:
+<P>
+
+
+
+<PRE>
+    # vec demo
+    $vector = &quot;\xff\x0f\xef\xfe&quot;;
+    print &quot;Ilya's string \\xff\\x0f\\xef\\xfe represents the number &quot;,
+        unpack(&quot;N&quot;, $vector), &quot;\n&quot;;
+    $is_set = vec($vector, 23, 1);
+    print &quot;Its 23rd bit is &quot;, $is_set ? &quot;set&quot; : &quot;clear&quot;, &quot;.\n&quot;;
+    pvec($vector);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    set_vec(1,1,1);
+    set_vec(3,1,1);
+    set_vec(23,1,1);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    set_vec(3,1,3);
+    set_vec(3,2,3);
+    set_vec(3,4,3);
+    set_vec(3,4,7);
+    set_vec(3,8,3);
+    set_vec(3,8,7);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    set_vec(0,32,17);
+    set_vec(1,32,17);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub set_vec {
+        my ($offset, $width, $value) = @_;
+        my $vector = '';
+        vec($vector, $offset, $width) = $value;
+        print &quot;offset=$offset width=$width value=$value\n&quot;;
+        pvec($vector);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub pvec {
+        my $vector = shift;
+        my $bits = unpack(&quot;b*&quot;, $vector);
+        my $i = 0;
+        my $BASE = 8;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        print &quot;vector length in bytes: &quot;, length($vector), &quot;\n&quot;;
+        @bytes = unpack(&quot;A8&quot; x length($vector), $bits);
+        print &quot;bits are: @bytes\n\n&quot;;
+    }
+
+</PRE>
+
+
+<A NAME="lbCI">&nbsp;</A>
+<H2>Why does <I>defined()</I> return true on empty arrays and hashes?</H2>
+
+<A NAME="ixACR"></A>
+The short story is that you should probably only use defined on scalars or
+functions, not on aggregates (arrays and hashes).  See ``defined'' in perlfunc
+in the 5.004 release or later of Perl for more detail.
+<A NAME="lbCJ">&nbsp;</A>
+<H2>Data: Hashes (Associative Arrays)</H2>
+
+<A NAME="ixACS"></A>
+<A NAME="lbCK">&nbsp;</A>
+<H2>How do I process an entire hash?</H2>
+
+<A NAME="ixACT"></A>
+Use the <I>each()</I> function (see ``each'' in perlfunc) if you don't care
+whether it's sorted:
+<P>
+
+
+
+<PRE>
+    while ( ($key, $value) = each %hash) {
+        print &quot;$key = $value\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+If you want it sorted, you'll have to use <I>foreach()</I> on the result of
+sorting the keys as shown in an earlier question.
+<A NAME="lbCL">&nbsp;</A>
+<H2>What happens if I add or remove keys from a hash while iterating over it?</H2>
+
+<A NAME="ixACU"></A>
+Don't do that. :-)
+<P>
+
+[lwall] In Perl 4, you were not allowed to modify a hash at all while
+iterating over it.  In Perl 5 you can delete from it, but you still
+can't add to it, because that might cause a doubling of the hash table,
+in which half the entries get copied up to the new top half of the
+table, at which point you've totally bamboozled the iterator code.
+Even if the table doesn't double, there's no telling whether your new
+entry will be inserted before or after the current iterator position.
+<P>
+
+Either treasure up your changes and make them after the iterator finishes
+or use keys to fetch all the old keys at once, and iterate over the list
+of keys.
+<A NAME="lbCM">&nbsp;</A>
+<H2>How do I look up a hash element by value?</H2>
+
+<A NAME="ixACV"></A>
+Create a reverse hash:
+<P>
+
+
+
+<PRE>
+    %by_value = reverse %by_key;
+    $key = $by_value{$value};
+
+</PRE>
+
+
+<P>
+
+That's not particularly efficient.  It would be more space-efficient
+to use:
+<P>
+
+
+
+<PRE>
+    while (($key, $value) = each %by_key) {
+        $by_value{$value} = $key;
+    }
+
+</PRE>
+
+
+<P>
+
+If your hash could have repeated values, the methods above will only find
+one of the associated keys.   This may or may not worry you.  If it does
+worry you, you can always reverse the hash into a hash of arrays instead:
+<P>
+
+
+
+<PRE>
+     while (($key, $value) = each %by_key) {
+         push @{$key_list_by_value{$value}}, $key;
+     }
+
+</PRE>
+
+
+<A NAME="lbCN">&nbsp;</A>
+<H2>How can I know how many entries are in a hash?</H2>
+
+<A NAME="ixACW"></A>
+If you mean how many keys, then all you have to do is
+use the <I>keys()</I> function in a scalar context:
+<P>
+
+
+
+<PRE>
+    $num_keys = keys %hash;
+
+</PRE>
+
+
+<P>
+
+The <I>keys()</I> function also resets the iterator, which means that you may
+see strange results if you use this between uses of other hash operators
+such as <I>each()</I>.
+<A NAME="lbCO">&nbsp;</A>
+<H2>How do I sort a hash (optionally by value instead of key)?</H2>
+
+<A NAME="ixACX"></A>
+Internally, hashes are stored in a way that prevents you from imposing
+an order on key-value pairs.  Instead, you have to sort a list of the
+keys or values:
+<P>
+
+
+
+<PRE>
+    @keys = sort keys %hash;    # sorted by key
+    @keys = sort {
+                    $hash{$a} cmp $hash{$b}
+            } keys %hash;       # and by value
+
+</PRE>
+
+
+<P>
+
+Here we'll do a reverse numeric sort by value, and if two keys are
+identical, sort by length of key, or if that fails, by straight <FONT SIZE="-1">ASCII</FONT>
+comparison of the keys (well, possibly modified by your locale---see
+perllocale).
+<P>
+
+
+
+<PRE>
+    @keys = sort {
+                $hash{$b} &lt;=&gt; $hash{$a}
+                          ||
+                length($b) &lt;=&gt; length($a)
+                          ||
+                      $a cmp $b
+    } keys %hash;
+
+</PRE>
+
+
+<A NAME="lbCP">&nbsp;</A>
+<H2>How can I always keep my hash sorted?</H2>
+
+<A NAME="ixACY"></A>
+You can look into using the DB_File module and <I>tie()</I> using the
+<TT>$DB_BTREE</TT> hash bindings as documented in ``In Memory Databases'' in DB_File.
+The Tie::IxHash module from <FONT SIZE="-1">CPAN</FONT> might also be instructive.
+<A NAME="lbCQ">&nbsp;</A>
+<H2>What's the difference between delete and undef with hashes?</H2>
+
+
+
+<A NAME="ixACZ"></A>
+Hashes contain pairs of scalars: the first is the key, the
+second is the value.  The key will be coerced to a string,
+although the value can be any kind of scalar: string,
+number, or reference.  If a key <TT>$key</TT> is present in
+<TT>%hash</TT>, <TT>&quot;exists($hash{$key})&quot;</TT> will return true.  The value
+for a given key can be <TT>&quot;undef&quot;</TT>, in which case
+<TT>$hash{$key}</TT> will be <TT>&quot;undef&quot;</TT> while <TT>&quot;exists $hash{$key}&quot;</TT>
+will return true.  This corresponds to (<TT>$key</TT>, <TT>&quot;undef&quot;</TT>)
+being in the hash.
+<P>
+
+Pictures help...  here's the <TT>%hash</TT> table:
+<P>
+
+
+
+<PRE>
+          keys  values
+        +------+------+
+        |  a   |  3   |
+        |  x   |  7   |
+        |  d   |  0   |
+        |  e   |  2   |
+        +------+------+
+
+</PRE>
+
+
+<P>
+
+And these conditions hold
+<P>
+
+
+
+<PRE>
+        $hash{'a'}                       is true
+        $hash{'d'}                       is false
+        defined $hash{'d'}               is true
+        defined $hash{'a'}               is true
+        exists $hash{'a'}                is true (Perl5 only)
+        grep ($_ eq 'a', keys %hash)     is true
+
+</PRE>
+
+
+<P>
+
+If you now say
+<P>
+
+
+
+<PRE>
+        undef $hash{'a'}
+
+</PRE>
+
+
+<P>
+
+your table now reads:
+<P>
+
+
+
+<PRE>
+          keys  values
+        +------+------+
+        |  a   | undef|
+        |  x   |  7   |
+        |  d   |  0   |
+        |  e   |  2   |
+        +------+------+
+
+</PRE>
+
+
+<P>
+
+and these conditions now hold; changes in caps:
+<P>
+
+
+
+<PRE>
+        $hash{'a'}                       is FALSE
+        $hash{'d'}                       is false
+        defined $hash{'d'}               is true
+        defined $hash{'a'}               is FALSE
+        exists $hash{'a'}                is true (Perl5 only)
+        grep ($_ eq 'a', keys %hash)     is true
+
+</PRE>
+
+
+<P>
+
+Notice the last two: you have an undef value, but a defined key!
+<P>
+
+Now, consider this:
+<P>
+
+
+
+<PRE>
+        delete $hash{'a'}
+
+</PRE>
+
+
+<P>
+
+your table now reads:
+<P>
+
+
+
+<PRE>
+          keys  values
+        +------+------+
+        |  x   |  7   |
+        |  d   |  0   |
+        |  e   |  2   |
+        +------+------+
+
+</PRE>
+
+
+<P>
+
+and these conditions now hold; changes in caps:
+<P>
+
+
+
+<PRE>
+        $hash{'a'}                       is false
+        $hash{'d'}                       is false
+        defined $hash{'d'}               is true
+        defined $hash{'a'}               is false
+        exists $hash{'a'}                is FALSE (Perl5 only)
+        grep ($_ eq 'a', keys %hash)     is FALSE
+
+</PRE>
+
+
+<P>
+
+See, the whole entry is gone!
+<A NAME="lbCR">&nbsp;</A>
+<H2>Why don't my tied hashes make the defined/exists distinction?</H2>
+
+<A NAME="ixADA"></A>
+This depends on the tied hash's implementation of <FONT SIZE="-1"><I>EXISTS</I></FONT><I>()</I>.
+For example, there isn't the concept of undef with hashes
+that are tied to DBM* files. It also means that <I>exists()</I> and
+<I>defined()</I> do the same thing with a DBM* file, and what they
+end up doing is not what they do with ordinary hashes.
+<A NAME="lbCS">&nbsp;</A>
+<H2>How do I reset an <I>each()</I> operation part-way through?</H2>
+
+<A NAME="ixADB"></A>
+Using <TT>&quot;keys %hash&quot;</TT> in scalar context returns the number of keys in
+the hash <I>and</I> resets the iterator associated with the hash.  You may
+need to do this if you use <TT>&quot;last&quot;</TT> to exit a loop early so that when you
+re-enter it, the hash iterator has been reset.
+<A NAME="lbCT">&nbsp;</A>
+<H2>How can I get the unique keys from two hashes?</H2>
+
+<A NAME="ixADC"></A>
+First you extract the keys from the hashes into lists, then solve
+the ``removing duplicates'' problem described above.  For example:
+<P>
+
+
+
+<PRE>
+    %seen = ();
+    for $element (keys(%foo), keys(%bar)) {
+        $seen{$element}++;
+    }
+    @uniq = keys %seen;
+
+</PRE>
+
+
+<P>
+
+Or more succinctly:
+<P>
+
+
+
+<PRE>
+    @uniq = keys %{{%foo,%bar}};
+
+</PRE>
+
+
+<P>
+
+Or if you really want to save space:
+<P>
+
+
+
+<PRE>
+    %seen = ();
+    while (defined ($key = each %foo)) {
+        $seen{$key}++;
+    }
+    while (defined ($key = each %bar)) {
+        $seen{$key}++;
+    }
+    @uniq = keys %seen;
+
+</PRE>
+
+
+<A NAME="lbCU">&nbsp;</A>
+<H2>How can I store a multidimensional array in a <FONT SIZE="-1">DBM</FONT> file?</H2>
+
+<A NAME="ixADD"></A>
+Either stringify the structure yourself (no fun), or else
+get the <FONT SIZE="-1">MLDBM</FONT> (which uses Data::Dumper) module from <FONT SIZE="-1">CPAN</FONT> and layer
+it on top of either DB_File or GDBM_File.
+<A NAME="lbCV">&nbsp;</A>
+<H2>How can I make my hash remember the order I put elements into it?</H2>
+
+<A NAME="ixADE"></A>
+Use the Tie::IxHash from <FONT SIZE="-1">CPAN</FONT>.
+<P>
+
+
+
+<PRE>
+    use Tie::IxHash;
+    tie my %myhash, 'Tie::IxHash';
+    for (my $i=0; $i&lt;20; $i++) {
+        $myhash{$i} = 2*$i;
+    }
+    my @keys = keys %myhash;
+    # @keys = (0,1,2,3,...)
+
+</PRE>
+
+
+<A NAME="lbCW">&nbsp;</A>
+<H2>Why does passing a subroutine an undefined element in a hash create it?</H2>
+
+<A NAME="ixADF"></A>
+If you say something like:
+<P>
+
+
+
+<PRE>
+    somefunc($hash{&quot;nonesuch key here&quot;});
+
+</PRE>
+
+
+<P>
+
+Then that element ``autovivifies''; that is, it springs into existence
+whether you store something there or not.  That's because functions
+get scalars passed in by reference.  If <I>somefunc()</I> modifies <TT>$_[0]</TT>,
+it has to be ready to write it back into the caller's version.
+<P>
+
+This has been fixed as of Perl5.004.
+<P>
+
+Normally, merely accessing a key's value for a nonexistent key does
+<I>not</I> cause that key to be forever there.  This is different than
+awk's behavior.
+<A NAME="lbCX">&nbsp;</A>
+<H2>How can I make the Perl equivalent of a C structure/C<FONT SIZE="-2">++</FONT> class/hash or array of hashes or arrays?</H2>
+
+<A NAME="ixADG"></A>
+Usually a hash ref, perhaps like this:
+<P>
+
+
+
+<PRE>
+    $record = {
+        NAME   =&gt; &quot;Jason&quot;,
+        EMPNO  =&gt; 132,
+        TITLE  =&gt; &quot;deputy peon&quot;,
+        AGE    =&gt; 23,
+        SALARY =&gt; 37_000,
+        PALS   =&gt; [ &quot;Norbert&quot;, &quot;Rhys&quot;, &quot;Phineas&quot;],
+    };
+
+</PRE>
+
+
+<P>
+
+References are documented in perlref and the upcoming perlreftut.
+Examples of complex data structures are given in perldsc and
+perllol.  Examples of structures and object-oriented classes are
+in perltoot.
+<A NAME="lbCY">&nbsp;</A>
+<H2>How can I use a reference as a hash key?</H2>
+
+<A NAME="ixADH"></A>
+You can't do this directly, but you could use the standard Tie::RefHash
+module distributed with Perl.
+<A NAME="lbCZ">&nbsp;</A>
+<H2>Data: Misc</H2>
+
+<A NAME="ixADI"></A>
+<A NAME="lbDA">&nbsp;</A>
+<H2>How do I handle binary data correctly?</H2>
+
+<A NAME="ixADJ"></A>
+Perl is binary clean, so this shouldn't be a problem.  For example,
+this works fine (assuming the files are found):
+<P>
+
+
+
+<PRE>
+    if (`cat /vmunix` =~ /gzip/) {
+        print &quot;Your kernel is GNU-zip enabled!\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+On less elegant (read: Byzantine) systems, however, you have
+to play tedious games with ``text'' versus ``binary'' files.  See
+``binmode'' in perlfunc or perlopentut.
+<P>
+
+If you're concerned about 8-bit <FONT SIZE="-1">ASCII</FONT> data, then see perllocale.
+<P>
+
+If you want to deal with multibyte characters, however, there are
+some gotchas.  See the section on Regular Expressions.
+<A NAME="lbDB">&nbsp;</A>
+<H2>How do I determine whether a scalar is a number/whole/integer/float?</H2>
+
+<A NAME="ixADK"></A>
+Assuming that you don't care about <FONT SIZE="-1">IEEE</FONT> notations like ``NaN'' or
+``Infinity'', you probably just want to use a regular expression.
+<P>
+
+
+
+<PRE>
+   if (/\D/)            { print &quot;has nondigits\n&quot; }
+   if (/^\d+$/)         { print &quot;is a whole number\n&quot; }
+   if (/^-?\d+$/)       { print &quot;is an integer\n&quot; }
+   if (/^[+-]?\d+$/)    { print &quot;is a +/- integer\n&quot; }
+   if (/^-?\d+\.?\d*$/) { print &quot;is a real number\n&quot; }
+   if (/^-?(?:\d+(?:\.\d*)?|\.\d+)$/) { print &quot;is a decimal number\n&quot; }
+   if (/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)
+                        { print &quot;a C float\n&quot; }
+
+</PRE>
+
+
+<P>
+
+There are also some commonly used modules for the task.
+Scalar::Util (distributed with 5.8) provides access to perl's
+internal function <TT>&quot;looks_like_number&quot;</TT> for determining
+whether a variable looks like a number.  Data::Types
+exports functions that validate data types using both the
+above and other regular expressions. Thirdly, there is
+<TT>&quot;Regexp::Common&quot;</TT> which has regular expressions to match
+various types of numbers. Those three modules are available
+from the <FONT SIZE="-1">CPAN</FONT>.
+<P>
+
+If you're on a <FONT SIZE="-1">POSIX</FONT> system, Perl supports the <TT>&quot;POSIX::strtod&quot;</TT>
+function.  Its semantics are somewhat cumbersome, so here's a <TT>&quot;getnum&quot;</TT>
+wrapper function for more convenient access.  This function takes
+a string and returns the number it found, or <TT>&quot;undef&quot;</TT> for input that
+isn't a C float.  The <TT>&quot;is_numeric&quot;</TT> function is a front end to <TT>&quot;getnum&quot;</TT>
+if you just want to say, ``Is this a float?''
+<P>
+
+
+
+<PRE>
+    sub getnum {
+        use POSIX qw(strtod);
+        my $str = shift;
+        $str =~ s/^\s+//;
+        $str =~ s/\s+$//;
+        $! = 0;
+        my($num, $unparsed) = strtod($str);
+        if (($str eq '') || ($unparsed != 0) || $!) {
+            return undef;
+        } else {
+            return $num;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub is_numeric { defined getnum($_[0]) }
+
+</PRE>
+
+
+<P>
+
+Or you could check out the String::Scanf module on the <FONT SIZE="-1">CPAN</FONT>
+instead. The <FONT SIZE="-1">POSIX</FONT> module (part of the standard Perl distribution) provides
+the <TT>&quot;strtod&quot;</TT> and <TT>&quot;strtol&quot;</TT> for converting strings to double and longs,
+respectively.
+<A NAME="lbDC">&nbsp;</A>
+<H2>How do I keep persistent data across program calls?</H2>
+
+<A NAME="ixADL"></A>
+For some specific applications, you can use one of the <FONT SIZE="-1">DBM</FONT> modules.
+See AnyDBM_File.  More generically, you should consult the FreezeThaw
+or Storable modules from <FONT SIZE="-1">CPAN</FONT>.  Starting from Perl 5.8 Storable is part
+of the standard distribution.  Here's one example using Storable's <TT>&quot;store&quot;</TT>
+and <TT>&quot;retrieve&quot;</TT> functions:
+<P>
+
+
+
+<PRE>
+    use Storable;
+    store(\%hash, &quot;filename&quot;);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # later on...
+    $href = retrieve(&quot;filename&quot;);        # by ref
+    %hash = %{ retrieve(&quot;filename&quot;) };   # direct to hash
+
+</PRE>
+
+
+<A NAME="lbDD">&nbsp;</A>
+<H2>How do I print out or copy a recursive data structure?</H2>
+
+<A NAME="ixADM"></A>
+The Data::Dumper module on <FONT SIZE="-1">CPAN</FONT> (or the 5.005 release of Perl) is great
+for printing out data structures.  The Storable module on <FONT SIZE="-1">CPAN</FONT> (or the
+5.8 release of Perl), provides a function called <TT>&quot;dclone&quot;</TT> that recursively
+copies its argument.
+<P>
+
+
+
+<PRE>
+    use Storable qw(dclone);
+    $r2 = dclone($r1);
+
+</PRE>
+
+
+<P>
+
+Where <TT>$r1</TT> can be a reference to any kind of data structure you'd like.
+It will be deeply copied.  Because <TT>&quot;dclone&quot;</TT> takes and returns references,
+you'd have to add extra punctuation if you had a hash of arrays that
+you wanted to copy.
+<P>
+
+
+
+<PRE>
+    %newhash = %{ dclone(\%oldhash) };
+
+</PRE>
+
+
+<A NAME="lbDE">&nbsp;</A>
+<H2>How do I define methods for every class/object?</H2>
+
+<A NAME="ixADN"></A>
+Use the <FONT SIZE="-1">UNIVERSAL</FONT> class (see <FONT SIZE="-1">UNIVERSAL</FONT>).
+<A NAME="lbDF">&nbsp;</A>
+<H2>How do I verify a credit card checksum?</H2>
+
+<A NAME="ixADO"></A>
+Get the Business::CreditCard module from <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbDG">&nbsp;</A>
+<H2>How do I pack arrays of doubles or floats for <FONT SIZE="-1">XS</FONT> code?</H2>
+
+<A NAME="ixADP"></A>
+The kgbpack.c code in the <FONT SIZE="-1">PGPLOT</FONT> module on <FONT SIZE="-1">CPAN</FONT> does just this.
+If you're doing a lot of float or double processing, consider using
+the <FONT SIZE="-1">PDL</FONT> module from <FONT SIZE="-1">CPAN</FONT> instead---it makes number-crunching easy.
+<A NAME="lbDH">&nbsp;</A>
+<H2>AUTHOR AND COPYRIGHT</H2>
+
+<A NAME="ixADQ"></A>
+Copyright (c) 1997-2002 Tom Christiansen and Nathan Torkington.
+All rights reserved.
+<P>
+
+This documentation is free; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+<P>
+
+Irrespective of its distribution, all code examples in this file
+are hereby placed into the public domain.  You are permitted and
+encouraged to use this code in your own programs for fun
+or for profit as you see fit.  A simple comment in the code giving
+credit would be courteous but is not required.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Data: Numbers</A><DD>
+<DT><A HREF="#lbAE">Why am I getting long decimals (eg, 19.9499999999999) instead of the numbers I should be getting (eg, 19.95)?</A><DD>
+<DT><A HREF="#lbAF">Why is <I>int()</I> broken?</A><DD>
+<DT><A HREF="#lbAG">Why isn't my octal data interpreted correctly?</A><DD>
+<DT><A HREF="#lbAH">Does Perl have a <I>round()</I> function?  What about <I>ceil()</I> and <I>floor()</I>?  Trig functions?</A><DD>
+<DT><A HREF="#lbAI">How do I convert between numeric representations/bases/radixes?</A><DD>
+<DT><A HREF="#lbAJ">Why doesn't &amp; work the way I want it to?</A><DD>
+<DT><A HREF="#lbAK">How do I multiply matrices?</A><DD>
+<DT><A HREF="#lbAL">How do I perform an operation on a series of integers?</A><DD>
+<DT><A HREF="#lbAM">How can I output Roman numerals?</A><DD>
+<DT><A HREF="#lbAN">Why aren't my random numbers random?</A><DD>
+<DT><A HREF="#lbAO">How do I get a random number between X and Y?</A><DD>
+<DT><A HREF="#lbAP">Data: Dates</A><DD>
+<DT><A HREF="#lbAQ">How do I find the day or week of the year?</A><DD>
+<DT><A HREF="#lbAR">How do I find the current century or millennium?</A><DD>
+<DT><A HREF="#lbAS">How can I compare two dates and find the difference?</A><DD>
+<DT><A HREF="#lbAT">How can I take a string and turn it into epoch seconds?</A><DD>
+<DT><A HREF="#lbAU">How can I find the Julian Day?</A><DD>
+<DT><A HREF="#lbAV">How do I find yesterday's date?</A><DD>
+<DT><A HREF="#lbAW">Does Perl have a Year 2000 problem?  Is Perl Y2K compliant?</A><DD>
+<DT><A HREF="#lbAX">Data: Strings</A><DD>
+<DT><A HREF="#lbAY">How do I validate input?</A><DD>
+<DT><A HREF="#lbAZ">How do I unescape a string?</A><DD>
+<DT><A HREF="#lbBA">How do I remove consecutive pairs of characters?</A><DD>
+<DT><A HREF="#lbBB">How do I expand function calls in a string?</A><DD>
+<DT><A HREF="#lbBC">How do I find matching/nesting anything?</A><DD>
+<DT><A HREF="#lbBD">How do I reverse a string?</A><DD>
+<DT><A HREF="#lbBE">How do I expand tabs in a string?</A><DD>
+<DT><A HREF="#lbBF">How do I reformat a paragraph?</A><DD>
+<DT><A HREF="#lbBG">How can I access or change N characters of a string?</A><DD>
+<DT><A HREF="#lbBH">How do I change the Nth occurrence of something?</A><DD>
+<DT><A HREF="#lbBI">How can I count the number of occurrences of a substring within a string?</A><DD>
+<DT><A HREF="#lbBJ">How do I capitalize all the words on one line?</A><DD>
+<DT><A HREF="#lbBK">How can I split a [character] delimited string except when inside [character]?</A><DD>
+<DT><A HREF="#lbBL">How do I strip blank space from the beginning/end of a string?</A><DD>
+<DT><A HREF="#lbBM">How do I pad a string with blanks or pad a number with zeroes?</A><DD>
+<DT><A HREF="#lbBN">How do I extract selected columns from a string?</A><DD>
+<DT><A HREF="#lbBO">How do I find the soundex value of a string?</A><DD>
+<DT><A HREF="#lbBP">How can I expand variables in text strings?</A><DD>
+<DT><A HREF="#lbBQ">What's wrong with always quoting $vars?</A><DD>
+<DT><A HREF="#lbBR">Why don't my &lt;&lt;<FONT SIZE="-1">HERE</FONT> documents work?</A><DD>
+<DT><A HREF="#lbBS">Data: Arrays</A><DD>
+<DT><A HREF="#lbBT">What is the difference between a list and an array?</A><DD>
+<DT><A HREF="#lbBU">What is the difference between $array[1] and <TT>@array[1]?</A><DD>
+<DT><A HREF="#lbBV">How can I remove duplicate elements from a list or array?</A><DD>
+<DT><A HREF="#lbBW">How can I tell whether a certain element is contained in a list or array?</A><DD>
+<DT><A HREF="#lbBX">How do I compute the difference of two arrays?  How do I compute the intersection of two arrays?</A><DD>
+<DT><A HREF="#lbBY">How do I test whether two arrays or hashes are equal?</A><DD>
+<DT><A HREF="#lbBZ">How do I find the first array element for which a condition is true?</A><DD>
+<DT><A HREF="#lbCA">How do I handle linked lists?</A><DD>
+<DT><A HREF="#lbCB">How do I handle circular lists?</A><DD>
+<DT><A HREF="#lbCC">How do I shuffle an array randomly?</A><DD>
+<DT><A HREF="#lbCD">How do I process/modify each element of an array?</A><DD>
+<DT><A HREF="#lbCE">How do I select a random element from an array?</A><DD>
+<DT><A HREF="#lbCF">How do I permute N elements of a list?</A><DD>
+<DT><A HREF="#lbCG">How do I sort an array by (anything)?</A><DD>
+<DT><A HREF="#lbCH">How do I manipulate arrays of bits?</A><DD>
+<DT><A HREF="#lbCI">Why does <I>defined()</I> return true on empty arrays and hashes?</A><DD>
+<DT><A HREF="#lbCJ">Data: Hashes (Associative Arrays)</A><DD>
+<DT><A HREF="#lbCK">How do I process an entire hash?</A><DD>
+<DT><A HREF="#lbCL">What happens if I add or remove keys from a hash while iterating over it?</A><DD>
+<DT><A HREF="#lbCM">How do I look up a hash element by value?</A><DD>
+<DT><A HREF="#lbCN">How can I know how many entries are in a hash?</A><DD>
+<DT><A HREF="#lbCO">How do I sort a hash (optionally by value instead of key)?</A><DD>
+<DT><A HREF="#lbCP">How can I always keep my hash sorted?</A><DD>
+<DT><A HREF="#lbCQ">What's the difference between delete and undef with hashes?</A><DD>
+<DT><A HREF="#lbCR">Why don't my tied hashes make the defined/exists distinction?</A><DD>
+<DT><A HREF="#lbCS">How do I reset an <I>each()</I> operation part-way through?</A><DD>
+<DT><A HREF="#lbCT">How can I get the unique keys from two hashes?</A><DD>
+<DT><A HREF="#lbCU">How can I store a multidimensional array in a <FONT SIZE="-1">DBM</FONT> file?</A><DD>
+<DT><A HREF="#lbCV">How can I make my hash remember the order I put elements into it?</A><DD>
+<DT><A HREF="#lbCW">Why does passing a subroutine an undefined element in a hash create it?</A><DD>
+<DT><A HREF="#lbCX">How can I make the Perl equivalent of a C structure/C<FONT SIZE="-2">++</FONT> class/hash or array of hashes or arrays?</A><DD>
+<DT><A HREF="#lbCY">How can I use a reference as a hash key?</A><DD>
+<DT><A HREF="#lbCZ">Data: Misc</A><DD>
+<DT><A HREF="#lbDA">How do I handle binary data correctly?</A><DD>
+<DT><A HREF="#lbDB">How do I determine whether a scalar is a number/whole/integer/float?</A><DD>
+<DT><A HREF="#lbDC">How do I keep persistent data across program calls?</A><DD>
+<DT><A HREF="#lbDD">How do I print out or copy a recursive data structure?</A><DD>
+<DT><A HREF="#lbDE">How do I define methods for every class/object?</A><DD>
+<DT><A HREF="#lbDF">How do I verify a credit card checksum?</A><DD>
+<DT><A HREF="#lbDG">How do I pack arrays of doubles or floats for <FONT SIZE="-1">XS</FONT> code?</A><DD>
+<DT><A HREF="#lbDH">AUTHOR AND COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

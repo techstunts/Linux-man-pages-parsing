@@ -1,0 +1,302 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DC_CLIENT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DC_CLIENT</H1>
+Section: distcache (1)<BR>Updated: 2004.03.23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dc_client - Distributed session cache client proxy
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>dc_client</B> -server &lt;address&gt; [options]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>dc_client</B> runs a client proxy to provide access to a remote cache server
+(typically over TCP/IPv4) by providing a local service (typically over unix
+domain sockets). It starts listening on a configurable network address for
+connections and establishes a persistent connection to an instance of
+<B>dc_server</B> for proxying cache operations to. Incoming connections are
+expected to communicate using the <I><A HREF="../man8/distcache.8.php">distcache</A></I>(8) protocol, and would typically
+be applications using one of the distcache APIs in <I>libdistcache</I> to
+encapsulate these communications.
+<P>
+
+The common use of <B>dc_client</B> is to run as a local agent on each host machine
+that requires use of the distributed cache, as the listening address should
+probably use unix domain sockets which are better suited to frequent (and
+temporary) connections being used for individual cache operations. Likewise,
+the connection <B>dc_client</B> makes to the cache server (<B>dc_server</B>) for
+proxying cache operations is typically over a genuine network to remote
+machine, using TCP/IPv4.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-daemon</B><DD>
+<A NAME="ixAAF"></A>
+After initialising, <B>dc_client</B> will detach from the parent process, close
+standard file-descriptors, etc. If this flag is not set, <B>dc_client</B> will run in
+the foreground. It is recommended to use this flag in combination with the
+<I>pidfile</I> flag to simplify stopping and restarting services.
+<DT><B>-user</B> user<DD>
+<A NAME="ixAAG"></A>
+This switch will attempt to change user privileges of <B>dc_client</B> to the given
+user <FONT SIZE="-1">ID</FONT> after initialising its listening socket. On most systems, this can only
+work if <B>dc_client</B> is started as the <I>root</I> user. It is important to note
+that the change of user <FONT SIZE="-1">ID</FONT> occurs after the listening socket is created but
+before any attempts are made to connect to distcache servers. This ensures that
+the listening socket is created with the most restrictive permissions, and that
+the ability to connect to servers at run-time corresponds to the given user
+(rather than having unusual root permissions on startup).
+<DT><B>-listen</B> address<DD>
+<A NAME="ixAAH"></A>
+Configures the address on which <B>dc_client</B> should listen for incoming
+connections.  The syntax is that defined by the <I>libnal</I> <FONT SIZE="-1">API</FONT>. Though this can
+listen on any supported network transport, <B>dc_client</B> should be expected to
+receive a lot of short-lived (and frequest) connections, so unix domain sockets
+are generally preferable to TCP/IPv4. Eg.
+
+
+<P>
+
+
+
+
+<PRE>
+    # Listen on a unix domain socket in the /tmp directory
+    dc_client -listen UNIX:/tmp/cacheclient
+
+</PRE>
+
+
+
+
+<P>
+
+
+The default value for this flag is: UNIX:/tmp/scache
+<DT><B>-sockowner</B> user<DD>
+<A NAME="ixAAI"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change ownership of the created socket file.
+<DT><B>-sockgroup</B> group<DD>
+<A NAME="ixAAJ"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change group ownership of the created socket file.
+<DT><B>-sockperms</B> perms<DD>
+<A NAME="ixAAK"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change file permissions for the created socket file, and is
+specified in the standard octal notation used for unix file permissions. Eg. to
+start dc_client to run as the <I>nobody</I> user, listening on a unix domain socket
+that can only be connected to by the <I>root</I> user or members of the <I>ssl</I>
+group;
+
+
+<P>
+
+
+
+
+<PRE>
+    # dc_client -listen UNIX:/tmp/cacheclient -user nobody \
+          -sockgroup ssl -sockperms 440
+
+</PRE>
+
+
+<DT><B>-server</B> address<DD>
+<A NAME="ixAAL"></A>
+
+<DT><B>-connect</B> address<DD>
+<A NAME="ixAAM"></A>
+
+These flags are identical, and specify the address of the cache server
+<B>dc_client</B> should connect to. Cache operations requested by clients of
+<B>dc_client</B> (using short-lived local connections to the service address
+specified by <B>-listen</B>) are multiplexed to/from the cache server over this
+persistent connection. The syntax is that defined by the <I>libnal</I> <FONT SIZE="-1">API</FONT> and
+would typically be over TCP/IPv4, particularly if the cache server is running
+on a remote machine. Eg.
+
+
+<P>
+
+
+
+
+<PRE>
+    # Connect to a remote cache server listening on port 9001
+    dc_client -listen UNIX:/tmp/cacheclient \
+              -server IP:cacheserver.localnet:9001
+
+</PRE>
+
+
+<DT><B>-retry</B> msecs<DD>
+<A NAME="ixAAN"></A>
+Distcache is designed to be as fault-tolerant as possible, and part of this
+approach is to have <B>dc_client</B> manage the possible disappearance and
+subsequent reappearance of the remote instance of <B>dc_server</B> it proxies to.
+In actuality, this could happen for a variety of reasons including the cache
+server being restarted, or a network error at any point in between the two
+programs. During any period in which <B>dc_client</B> has lost communications with
+the cache server, any/all local connections and corresponding cache operation
+requests will be responded to directly by <B>dc_client</B> itself. The consequence
+is that cache operations return as failures during this time, so the
+application requesting the operations must make do without (eg. in <FONT SIZE="-1">SSL/TLS</FONT>
+session caching, this means that attempts to resume <FONT SIZE="-1">SSL/TLS</FONT> sessions fail and
+so full handshakes are required).
+
+
+<P>
+
+
+The default behaviour of <B>dc_client</B> when losing communications with the
+instance of <B>dc_server</B> (as specified by <B>-server</B> or <B>-connect</B>) is to try
+to reestablish communications every 5 seconds. This flag allows the retry
+period to be configured to any number of milliseconds. Note: confusing
+milliseconds with seconds can cause emotional disturbance and should be avoided
+at all costs.
+<DT><B>-idle</B> msecs<DD>
+<A NAME="ixAAO"></A>
+Normal behaviour with <B>dc_client</B> is to have its clients (applications using
+<B></B><A HREF="../man8/distcache.8.php">distcache</A><B>(8)</B> APIs for communication) use temporary connections for each
+cache operation. However, there are modes of operation in those APIs that allow
+persistent connections to be used together with various associated options.
+This is especially important for any platforms that (for whatever reason) can't
+use unix domain sockets and don't want to bloat file-descriptor tables with
+IPv4 sockets sitting in <FONT SIZE="-1">TIME_WAIT</FONT> state. For this reason, as well as resilience
+against client applications that hang, it useful to configure <B>dc_client</B> to
+automatically drop client connections that have been idle for some configurable
+period of time.
+
+
+<P>
+
+
+This flag specifies the period of idle time after which client connections will
+be dropped, and is in units of milliseconds and <B>not</B> seconds. The default
+value is zero, and this means that client connections are never intentionally
+dropped.
+
+
+<P>
+
+
+Note, provided client applications are appropriately configured they need not
+necessarily be vulnerable to race conditions when <B>dc_client</B> configures this
+flag. The <B></B><A HREF="../man8/distcache.8.php">distcache</A><B>(8)</B> <I></I><FONT SIZE="-1"><I>DC_CTX</I></FONT><I></I> <FONT SIZE="-1">API</FONT> provides additional persistence options
+such as <I><A HREF="../man2/fork.2.php">fork</A></I>(2)-checking and resistance against idle timeouts. Ie. if a request
+is commenced on a client connection that is in the process of being timed-out
+by <B>dc_client</B>, the <I></I><FONT SIZE="-1"><I>DC_CTX</I></FONT><I></I> will allow one retry with an immediate
+re-connection before considering the operation to have failed.
+<DT><B>-pidfile</B> path<DD>
+<A NAME="ixAAP"></A>
+This is a standard flag for many programs, and most useful in combination with
+<B>-daemon</B>. When <B>-pidfile</B> is specified <B>dc_client</B> will write its process
+<FONT SIZE="-1">ID</FONT> to a file at the specified path upon successful initialisation. To use this
+path file to later kill the running <B>dc_client</B> instance, use something like
+(where <B>pidfile.pid</B> is whatever <B>path</B> was);
+
+
+<P>
+
+
+
+
+<PRE>
+    kill `cat pidfile.pid`
+
+</PRE>
+
+
+<DT><B>-h</B>, <B>-help</B>, <B>-?</B><DD>
+<A NAME="ixAAQ"></A>
+Any of these flags will cause <B>dc_client</B> to display a brief usage summary to
+the console and exit cleanly. Any other flags are ignored.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAR"></A>
+<DL COMPACT>
+<DT><I><A HREF="../man1/dc_server.1.php">dc_server</A></I>(1)<DD>
+<A NAME="ixAAS"></A>
+Distributed cache server.
+<DT><I><A HREF="../man1/dc_snoop.1.php">dc_snoop</A></I>(1)<DD>
+<A NAME="ixAAT"></A>
+Distcache protocol analyser and debugging tool.
+<DT><I><A HREF="../man8/distcache.8.php">distcache</A></I>(8)<DD>
+<A NAME="ixAAU"></A>
+Overview of the distcache architecture.
+<DT><I><A HREF="http://www.distcache.org/">http://www.distcache.org/</A></I><DD>
+<A NAME="ixAAV"></A>
+Distcache home page.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAW"></A>
+This toolkit was designed and implemented by Geoff Thorpe for Cryptographic
+Appliances Incorporated. Since the project was released into open source, it
+has a home page and a project environment where development, mailing lists, and
+releases are organised. For problems with the software or this man page please
+check for new releases at the project web-site below, mail the users mailing
+list described there, or contact the author at <I><A HREF="mailto:geoff@geoffthorpe.net">geoff@geoffthorpe.net</A></I>.
+<P>
+
+Home Page: <I><A HREF="http://www.distcache.org">http://www.distcache.org</A></I>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

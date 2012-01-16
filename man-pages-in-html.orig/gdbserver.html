@@ -1,0 +1,223 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>gdbserver</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>gdbserver</H1>
+Section: GNU Development Tools (1)<BR>Updated: 2 November 1993<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gdbserver - Remote Server for the GNU Debugger
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<DL COMPACT>
+<DT><B>gdbserver</B>
+
+<DD>
+tty
+
+prog
+
+[<B>args...</B>]
+
+</DL>
+<P>
+
+<B>gdbserver</B>
+
+tty
+
+<B>--attach</B>
+
+PID
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+GDBSERVER is a program that allows you to run GDB on a different machine
+than the one which is running the program being debugged.
+<P>
+Usage (server (target) side):
+<P>
+First, you need to have a copy of the program you want to debug put onto
+the target system.  The program can be stripped to save space if needed, as
+GDBserver doesn't care about symbols.  All symbol handling is taken care of by
+the GDB running on the host system.
+<P>
+To use the server, you log on to the target system, and run the `gdbserver'
+program.  You must tell it (a) how to communicate with GDB, (b) the name of
+your program, and (c) its arguments.  The general syntax is:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>target&gt; gdbserver COMM PROGRAM [ARGS ...]<BR>
+<P>
+For example, using a serial port, you might say:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>target&gt; gdbserver /dev/com1 emacs foo.txt<BR>
+<P>
+This tells gdbserver to debug emacs with an argument of foo.txt, and to
+communicate with GDB via /dev/com1.  Gdbserver now waits patiently for the
+host GDB to communicate with it.
+<P>
+To use a TCP connection, you could say:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>target&gt; gdbserver host:2345 emacs foo.txt<BR>
+<P>
+This says pretty much the same thing as the last example, except that we are
+going to communicate with the host GDB via TCP.  The `host:2345' argument means
+that we are expecting to see a TCP connection from `host' to local TCP port
+2345.  (Currently, the `host' part is ignored.)  You can choose any number you
+want for the port number as long as it does not conflict with any existing TCP
+ports on the target system.  This same port number must be used in the host
+GDBs `target remote' command, which will be described shortly.  Note that if
+you chose a port number that conflicts with another service, gdbserver will
+print an error message and exit.
+<P>
+On some targets, gdbserver can also attach to running programs.
+This is accomplished via the --attach argument.  The syntax is:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>target&gt; gdbserver COMM --attach PID<BR>
+<P>
+PID is the process ID of a currently running process.  It isn't
+necessary to point gdbserver at a binary for the running process.
+<P>
+Usage (host side):
+<P>
+You need an unstripped copy of the target program on your host system, since
+GDB needs to examine it's symbol tables and such.  Start up GDB as you normally
+would, with the target program as the first argument.  (You may need to use the
+--baud option if the serial line is running at anything except 9600 baud.)
+Ie: `gdb TARGET-PROG', or `gdb --baud BAUD TARGET-PROG'.  After that, the only
+new command you need to know about is `target remote'.  It's argument is either
+a device name (usually a serial device, like `/dev/ttyb'), or a HOST:PORT
+descriptor.  For example:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>(gdb) target remote /dev/ttyb<BR>
+<P>
+communicates with the server via serial line /dev/ttyb, and:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>(gdb) target remote the-target:2345<BR>
+<P>
+communicates via a TCP connection to port 2345 on host `the-target', where
+you previously started up gdbserver with the same port number.  Note that for
+TCP connections, you must start up gdbserver prior to using the `target remote'
+command, otherwise you may get an error that looks something like
+`Connection refused'.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+You have to supply the name of the program to debug
+and the tty to communicate on; the remote GDB will do everything else.
+Any remaining arguments will be passed to the program verbatim.
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+`<B>gdb</B>'
+
+entry in
+<B>info</B>;
+<I>Using GDB: A Guide to the GNU Source-Level Debugger</I>, Richard M. Stallman and Roland H. Pesch, July 1991.
+<A NAME="lbAG">&nbsp;</A>
+<H2>COPYING</H2>
+
+Copyright (c) 1993 Free Software Foundation, Inc.
+<P>
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+<P>
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+<P>
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translations approved by the Free Software Foundation instead of in
+the original English.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">COPYING</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GROWISOFS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GROWISOFS</H1>
+Section: Misc. Reference Manual Pages (1m)<BR>Updated: 15 July 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+growisofs - combined mkisofs frontend/DVD recording program.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>growisofs</B>
+
+[<B>-dry-run</B>]
+[<B>-dvd-compat</B>]
+[<B>-overburn</B>]
+[<B>-speed=1</B>]
+-[<B>Z|M</B>]
+<I>/dev/dvd</I>
+
+<I>&lt;mkisofs-options&gt;</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>growisofs</B> was originally designed as a frontend to <B>mkisofs</B>
+to facilitate appending of data to ISO9660 volumes residing on
+random-access media such as DVD+RW, DVD-RAM, plain files, hard disk
+partitions. In the course of development general purpose DVD recording
+support was implemented, and as of now <B>growisofs</B> supports not
+only random-access media, but even mastering of multi-session DVD media
+such as DVD+R and DVD-R/-RW. In addition <B>growisofs</B> supports
+first-/single-session recording of <I>arbitrary pre-mastered image</I>
+(formatted as UDF, ISO9660 or any other file system, if formatted at
+all) to all supported DVD media types.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-Z&nbsp;/dev/dvd</B>
+
+<DD>
+Burn an initial session to the selected device. A special form of this
+option is recognized to support burning of pre-mastered images. See
+EXAMPLES section for further details.
+<DT><B>-M&nbsp;/dev/dvd</B>
+
+<DD>
+Merge a new session to an existing one.
+<DT><B>-version</B>
+
+<DD>
+Print version information and invoke <B>mkisofs</B>, also with -version
+option.
+<DT><B>-dvd-compat</B>
+
+<DD>
+Provide maximum media compatibility with DVD-ROM/-Video. In write-once
+context (DVD+R and DVD-R) this results in unappendable recording
+(closed disk). In DVD+RW context it instructs the logical unit to
+explicitly burn [otherwise optional] lead-out.
+<DT><B>-dry-run</B>
+
+<DD>
+At dry-run <B>growisofs</B> performs all the steps till, but not
+including the first write operation. Most notably check for &quot;overburn&quot;
+condition is performed, which implies that mkisofs is invoked and
+terminated prematurely.
+<DT><B>-overburn</B>
+
+<DD>
+Normally DVD media can accommodate up to approximately 4.700.000.000
+bytes (in marketing speech 4.7GB). In other words a DVD can contain
+about 4.377 GiB or 4482 MiB. Growisofs won't start without this option,
+if &quot;overburn&quot; condition appears to be unavoidable.
+<DT><B>-speed=N</B>
+
+<DD>
+An option to control recording velocity. Most commonly you'll use
+<B>-speed=1</B> with &quot;no-name&quot; DVD-R[W] media, if default speed
+settings messes up the media. Keep in mind that <B>N</B> essentially
+denotes speed <I>closest</I> to N*1385KBps among those offered by unit
+for currently mounted media. The list can be found in
+<B>dvd+rw-mediainfo</B> output.
+<DT><B>&lt;mkisofs-options&gt;</B>
+
+<DD>
+More options can be found in the manpage for <B>mkisofs</B>.
+<P>
+
+There're several undocumented options commonly denoted with
+<B>-use-the-force-luke</B> prefix. Some of them serve debugging
+purposes. Some require certain knowledge about recording process or
+even OS kernel internals and as being such can induce confusing
+behaviour. Some are to be used in very specific situations better
+recognized by front-ends or automated scripts. Rationale behind leaving
+these options undocumented is that those few users who would actually
+need to use them directly can as well consult the source code or obtain
+specific instructions elsewhere.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>DIFFERENCES WITH RUNNING MKISOFS DIRECTLY</H2>
+
+
+When using growisofs you may not use the
+<B>-o </B>
+
+option for an output file.
+<B>growisofs</B>
+
+dumps the image directly to the media;
+
+You don't have to specify the
+<B>-C</B>
+
+option to create a higher level session on a multi session disk,
+<B>growisofs </B>
+
+will construct one for you;
+
+Otherwise everything that applies to 
+<I>[multi-session] </I>
+
+mastering with 
+<B>mkisofs </B>
+
+applies to 
+<B>growisofs </B>
+
+as well. 
+<B>growisofs</B>
+
+needs at least 
+<B>mkisofs</B>
+
+version 1.14, version 2.0 is required for multi-session write-once
+recordings.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Actual device names vary from one operating system to another. We use
+<I>/dev/dvd</I> as a collective name or as symbolic link to the actual
+device if you wish. Under Linux it will most likely be an ide-scsi
+device  such as &quot;/dev/scd0.&quot; Under NetBSD/OpenBSD it has to be a
+<I>character</I> SCSI CD-ROM device such as &quot;/dev/rcd0c.&quot; Under Solaris
+it also has to be a <I>character</I> SCSI/ATAPI CD-ROM device, e.g.
+&quot;/dev/rdsk/c0t1d0s2&quot; or &quot;/vol/dev/aliases/cdrom0.&quot; And likewise in
+HP-UX and IRIX...
+<P>
+To master and burn an ISO9660 volume with Joliet and Rock-Ridge
+extensions on a DVD:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>growisofs <B>-Z</B> /dev/dvd <B>-R -J</B> /some/files<BR>
+<P>
+To append more data to same DVD:
+<P>
+<BR>&nbsp;<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>growisofs&nbsp;<B>-M</B>&nbsp;/dev/dvd&nbsp;<B>-R&nbsp;-J</B>&nbsp;/more/files<BR>
+<P>
+Make sure to use <I>the same options</I> for both inital burning and
+following sessions.
+<P>
+To use <B>growisofs</B> to write a pre-mastered ISO-image to a DVD:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>growisofs -dvd-compat -Z /dev/dvd<B>=</B>image.iso<BR>
+<P>
+where image.iso represents an arbitrary object in the filesystem, such
+as file, named pipe or device entry. Nothing is growing here and
+command name is not intuitive in this context.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+If executed under <A HREF="../man8/sudo.8.php">sudo</A>(8) growisofs refuses to start. This is done for
+the following reason. Naturally growisofs has to access the data set to
+be recorded to DVD media, either indirectly by letting mkisofs generate
+ISO9660 layout on-the-fly or directly if a pre-mastered image is to be
+recorded. Being executed under <A HREF="../man8/sudo.8.php">sudo</A>(8), growisofs effectively grants
+sudoers read access to <I>any</I> file in the file system. The situation
+is intensified by the fact that growisofs parses MKISOFS environment
+variable in order to determine alternative path to mkisofs executable
+image. This means that being executed under <A HREF="../man8/sudo.8.php">sudo</A>(8), growisofs
+effectively grants sudoers right to execute program of their choice
+with elevated privileges. If you for any reason still find the above
+acceptable and are willing to take the consequences, then consider
+running following wrapper script under <A HREF="../man8/sudo.8.php">sudo</A>(8) in place for real
+growisofs binary.
+<P>
+<PRE>
+        #!/bin/ksh
+        unset SUDO_COMMAND
+        export MKISOFS=/path/to/trusted/mkisofs
+        exec growisofs &quot;$@&quot;
+</PRE>
+
+<P>
+But note that the recommended alternative to the above &quot;workaround&quot; is
+actually to install growisofs set-root-uid, in which case it will drop
+privileges prior accessing data or executing mkisofs in order to
+preclude unauthorized access to the data.
+<P>
+If the media already carries isofs and <B>growisofs</B> is invoked with
+<B>-Z</B> option non-interactively, e.g. through cron, it shall fail
+with &quot;FATAL: /dev/dvd already carries isofs!&quot; Note that only ISO9660 is
+recognized, you can perfectly zap e.g. an UDF filesystem
+non-interactively.
+<P>
+&quot;Overburn&quot; protection in pre-mastered image context works only with
+plain files and ISO9660 formatted volumes. E.g. [given that /dev/root
+is an ext2 formatted file system larger than 4.7GB] /dev/dvd=/dev/root is
+bound to produce corrupted recording.
+<P>
+Note that DVD+RW re-formatting procedure does not substitute for
+blanking. If you want to nullify the media, e.g. for privacy reasons,
+do it explicitly with 'growisofs -Z /dev/dvd<B>=/dev/zero</B>'.
+<P>
+Playback of re-writable DVD media, both DVD+RW and DVD-RW, might be
+limited in legacy DVD-ROM/-Video units. In most cases this is due
+to lower reflectivity of such media.
+<P>
+Even though growisofs supports it, playback of multi-session write-once
+DVD might be limited to the first session for two reasons:
+<P>
+<DL COMPACT>
+<DT>*<DD>
+not all DVD-ROM players are capable of multi-border DVD-R playback,
+even less are aware of DVD+R multi-sessioning, burner unit therefore
+might be the only one in your vicinity capable of accessing files
+written at different occasions;
+<DT>*<DD>
+OS might fail to mount multi-session DVD for various reasons;
+</DL>
+<P>
+
+The above is not applicable to DVD+RW, DVD-RW Restricted Overwrite or
+DVD-RAM, as volumes are grown within a single session.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+Most up-to-date information on dvd+rw-tools is available at
+<A HREF="http://fy.chalmers.se/~appro/linux/DVD+RW/.">http://fy.chalmers.se/~appro/linux/DVD+RW/.</A>
+<P>
+
+The manpage for <B>mkisofs</B>.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Andy Polyakov &lt;<A HREF="mailto:appro@fy.chalmers.se">appro@fy.chalmers.se</A>&gt; stands for programming and on-line
+information.
+<P>
+This manpage is currently maintained by Huub Reuver
+&lt;<A HREF="mailto:h_reuver@mantell.xs4all.nl">h_reuver@mantell.xs4all.nl</A>&gt;.
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>LICENSE</H2>
+
+<B>growisofs</B> is distributed under GNU GPL.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">DIFFERENCES WITH RUNNING MKISOFS DIRECTLY</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+<DT><A HREF="#lbAK">LICENSE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

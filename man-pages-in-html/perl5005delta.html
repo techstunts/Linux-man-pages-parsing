@@ -1,0 +1,1333 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERL5005DELTA</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERL5005DELTA</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perl5005delta - what's new for perl5.005
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes differences between the 5.004 release and this one.
+<A NAME="lbAD">&nbsp;</A>
+<H2>About the new versioning system</H2>
+
+<A NAME="ixAAD"></A>
+Perl is now developed on two tracks: a maintenance track that makes
+small, safe updates to released production versions with emphasis on
+compatibility; and a development track that pursues more aggressive
+evolution.  Maintenance releases (which should be considered production
+quality) have subversion numbers that run from <TT>1</TT> to <TT>49</TT>, and
+development releases (which should be considered ``alpha'' quality) run
+from <TT>50</TT> to <TT>99</TT>.
+<P>
+
+Perl 5.005 is the combined product of the new dual-track development
+scheme.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Incompatible Changes</H2>
+
+<A NAME="ixAAE"></A>
+<A NAME="lbAF">&nbsp;</A>
+<H2><FONT SIZE="-1">WARNING:</FONT>  This version is not binary compatible with Perl 5.004.</H2>
+
+<A NAME="ixAAF"></A>
+Starting with Perl 5.004_50 there were many deep and far-reaching changes
+to the language internals.  If you have dynamically loaded extensions
+that you built under perl 5.003 or 5.004, you can continue to use them
+with 5.004, but you will need to rebuild and reinstall those extensions
+to use them 5.005.  See <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> for detailed instructions on how to
+upgrade.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Default installation structure has changed</H2>
+
+<A NAME="ixAAG"></A>
+The new Configure defaults are designed to allow a smooth upgrade from
+5.004 to 5.005, but you should read <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> for a detailed
+discussion of the changes in order to adapt them to your system.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Perl Source Compatibility</H2>
+
+<A NAME="ixAAH"></A>
+When none of the experimental features are enabled, there should be
+very few user-visible Perl source compatibility issues.
+<P>
+
+If threads are enabled, then some caveats apply. <TT>@_</TT> and <TT>$_</TT> become
+lexical variables.  The effect of this should be largely transparent to
+the user, but there are some boundary conditions under which user will
+need to be aware of the issues.  For example, <TT>&quot;local(@_)&quot;</TT> results in
+a ``Can't localize lexical variable <TT>@_</TT> ...'' message.  This may be enabled
+in a future version.
+<P>
+
+Some new keywords have been introduced.  These are generally expected to
+have very little impact on compatibility.  See &quot;New <TT>&quot;INIT&quot;</TT> keyword&quot;,
+&quot;New <TT>&quot;lock&quot;</TT> keyword&quot;, and &quot;New <TT>&quot;qr//&quot;</TT> operator&quot;.
+<P>
+
+Certain barewords are now reserved.  Use of these will provoke a warning
+if you have asked for them with the <TT>&quot;-w&quot;</TT> switch.
+See &quot;<TT>&quot;our&quot;</TT> is now a reserved word&quot;.
+<A NAME="lbAI">&nbsp;</A>
+<H2>C Source Compatibility</H2>
+
+<A NAME="ixAAI"></A>
+There have been a large number of changes in the internals to support
+the new features in this release.
+<DL COMPACT>
+<DT>*<DD>
+Core sources now require <FONT SIZE="-1">ANSI</FONT> C compiler
+
+
+<P>
+
+
+An <FONT SIZE="-1">ANSI</FONT> C compiler is now <B>required</B> to build perl.  See <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I>.
+<DT>*<DD>
+All Perl global variables must now be referenced with an explicit prefix
+
+
+<P>
+
+
+All Perl global variables that are visible for use by extensions now
+have a <TT>&quot;PL_&quot;</TT> prefix.  New extensions should <TT>&quot;not&quot;</TT> refer to perl globals
+by their unqualified names.  To preserve sanity, we provide limited
+backward compatibility for globals that are being widely used like
+<TT>&quot;sv_undef&quot;</TT> and <TT>&quot;na&quot;</TT> (which should now be written as <TT>&quot;PL_sv_undef&quot;</TT>,
+<TT>&quot;PL_na&quot;</TT> etc.)
+
+
+<P>
+
+
+If you find that your <FONT SIZE="-1">XS</FONT> extension does not compile anymore because a
+perl global is not visible, try adding a <TT>&quot;PL_&quot;</TT> prefix to the global
+and rebuild.
+
+
+<P>
+
+
+It is strongly recommended that all functions in the Perl <FONT SIZE="-1">API</FONT> that don't
+begin with <TT>&quot;perl&quot;</TT> be referenced with a <TT>&quot;Perl_&quot;</TT> prefix.  The bare function
+names without the <TT>&quot;Perl_&quot;</TT> prefix are supported with macros, but this
+support may cease in a future release.
+
+
+<P>
+
+
+See perlapi.
+<DT>*<DD>
+Enabling threads has source compatibility issues
+
+
+<P>
+
+
+Perl built with threading enabled requires extensions to use the new
+<TT>&quot;dTHR&quot;</TT> macro to initialize the handle to access per-thread data.
+If you see a compiler error that talks about the variable <TT>&quot;thr&quot;</TT> not
+being declared (when building a module that has <FONT SIZE="-1">XS</FONT> code),  you need
+to add <TT>&quot;dTHR;&quot;</TT> at the beginning of the block that elicited the error.
+
+
+<P>
+
+
+The <FONT SIZE="-1">API</FONT> function <TT>&quot;perl_get_sv(&quot;@&quot;,FALSE)&quot;</TT> should be used instead of
+directly accessing perl globals as <TT>&quot;GvSV(errgv)&quot;</TT>.  The <FONT SIZE="-1">API</FONT> call is
+backward compatible with existing perls and provides source compatibility
+with threading is enabled.
+
+
+<P>
+
+
+See ``C Source Compatibility'' for more information.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Binary Compatibility</H2>
+
+<A NAME="ixAAJ"></A>
+This version is <FONT SIZE="-1">NOT</FONT> binary compatible with older versions.  All extensions
+will need to be recompiled.  Further binaries built with threads enabled
+are incompatible with binaries built without.  This should largely be
+transparent to the user, as all binary incompatible configurations have
+their own unique architecture name, and extension binaries get installed at
+unique locations.  This allows coexistence of several configurations in
+the same directory hierarchy.  See <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Security fixes may affect compatibility</H2>
+
+<A NAME="ixAAK"></A>
+A few taint leaks and taint omissions have been corrected.  This may lead
+to ``failure'' of scripts that used to work with older versions.  Compiling
+with -DINCOMPLETE_TAINTS provides a perl with minimal amounts of changes
+to the tainting behavior.  But note that the resulting perl will have
+known insecurities.
+<P>
+
+Oneliners with the <TT>&quot;-e&quot;</TT> switch do not create temporary files anymore.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Relaxed new mandatory warnings introduced in 5.004</H2>
+
+<A NAME="ixAAL"></A>
+Many new warnings that were introduced in 5.004 have been made
+optional.  Some of these warnings are still present, but perl's new
+features make them less often a problem.  See ``New Diagnostics''.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Licensing</H2>
+
+<A NAME="ixAAM"></A>
+Perl has a new Social Contract for contributors.  See <I>Porting/Contract</I>.
+<P>
+
+The license included in much of the Perl documentation has changed.
+Most of the Perl documentation was previously under the implicit <FONT SIZE="-1">GNU</FONT>
+General Public License or the Artistic License (at the user's choice).
+Now much of the documentation unambiguously states the terms under which
+it may be distributed.  Those terms are in general much less restrictive
+than the <FONT SIZE="-1">GNU</FONT> <FONT SIZE="-1">GPL</FONT>.  See perl and the individual perl manpages listed
+therein.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Core Changes</H2>
+
+<A NAME="ixAAN"></A>
+<A NAME="lbAO">&nbsp;</A>
+<H2>Threads</H2>
+
+<A NAME="ixAAO"></A>
+<FONT SIZE="-1">WARNING:</FONT> Threading is considered an <B>experimental</B> feature.  Details of the
+implementation may change without notice.  There are known limitations
+and some bugs.  These are expected to be fixed in future versions.
+<P>
+
+See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.threads</I>.
+<A NAME="lbAP">&nbsp;</A>
+<H2>Compiler</H2>
+
+<A NAME="ixAAP"></A>
+<FONT SIZE="-1">WARNING:</FONT> The Compiler and related tools are considered <B>experimental</B>.
+Features may change without notice, and there are known limitations
+and bugs.  Since the compiler is fully external to perl, the default
+configuration will build and install it.
+<P>
+
+The Compiler produces three different types of transformations of a
+perl program.  The C backend generates C code that captures perl's state
+just before execution begins.  It eliminates the compile-time overheads
+of the regular perl interpreter, but the run-time performance remains
+comparatively the same.  The <FONT SIZE="-1">CC</FONT> backend generates optimized C code
+equivalent to the code path at run-time.  The <FONT SIZE="-1">CC</FONT> backend has greater
+potential for big optimizations, but only a few optimizations are
+implemented currently.  The Bytecode backend generates a platform
+independent bytecode representation of the interpreter's state
+just before execution.  Thus, the Bytecode back end also eliminates
+much of the compilation overhead of the interpreter.
+<P>
+
+The compiler comes with several valuable utilities.
+<P>
+
+<TT>&quot;B::Lint&quot;</TT> is an experimental module to detect and warn about suspicious
+code, especially the cases that the <TT>&quot;-w&quot;</TT> switch does not detect.
+<P>
+
+<TT>&quot;B::Deparse&quot;</TT> can be used to demystify perl code, and understand
+how perl optimizes certain constructs.
+<P>
+
+<TT>&quot;B::Xref&quot;</TT> generates cross reference reports of all definition and use
+of variables, subroutines and formats in a program.
+<P>
+
+<TT>&quot;B::Showlex&quot;</TT> show the lexical variables used by a subroutine or file
+at a glance.
+<P>
+
+<TT>&quot;perlcc&quot;</TT> is a simple frontend for compiling perl.
+<P>
+
+See <TT>&quot;ext/B/README&quot;</TT>, B, and the respective compiler modules.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Regular Expressions</H2>
+
+<A NAME="ixAAQ"></A>
+Perl's regular expression engine has been seriously overhauled, and
+many new constructs are supported.  Several bugs have been fixed.
+<P>
+
+Here is an itemized summary:
+<DL COMPACT>
+<DT>Many new and improved optimizations<DD>
+<A NAME="ixAAR"></A>
+Changes in the <FONT SIZE="-1">RE</FONT> engine:
+
+
+<P>
+
+
+
+
+<PRE>
+        Unneeded nodes removed;
+        Substrings merged together;
+        New types of nodes to process (SUBEXPR)* and similar expressions
+            quickly, used if the SUBEXPR has no side effects and matches
+            strings of the same length;
+        Better optimizations by lookup for constant substrings;
+        Better search for constants substrings anchored by $ ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Changes in Perl code using <FONT SIZE="-1">RE</FONT> engine:
+
+
+<P>
+
+
+
+
+<PRE>
+        More optimizations to s/longer/short/;
+        study() was not working;
+        /blah/ may be optimized to an analogue of index() if $&amp; $` $' not seen;
+        Unneeded copying of matched-against string removed;
+        Only matched part of the string is copying if $` $' were not seen;
+
+</PRE>
+
+
+<DT>Many bug fixes<DD>
+<A NAME="ixAAS"></A>
+Note that only the major bug fixes are listed here.  See <I>Changes</I> for others.
+
+
+<P>
+
+
+
+
+<PRE>
+        Backtracking might not restore start of $3.
+        No feedback if max count for * or + on &quot;complex&quot; subexpression
+            was reached, similarly (but at compile time) for {3,34567}
+        Primitive restrictions on max count introduced to decrease a 
+            possibility of a segfault;
+        (ZERO-LENGTH)* could segfault;
+        (ZERO-LENGTH)* was prohibited;
+        Long REs were not allowed;
+        /RE/g could skip matches at the same position after a 
+          zero-length match;
+
+</PRE>
+
+
+<DT>New regular expression constructs<DD>
+<A NAME="ixAAT"></A>
+The following new syntax elements are supported:
+
+
+<P>
+
+
+
+
+<PRE>
+        (?&lt;=RE)
+        (?&lt;!RE)
+        (?{ CODE })
+        (?i-x)
+        (?i:RE)
+        (?(COND)YES_RE|NO_RE)
+        (?&gt;RE)
+        \z
+
+</PRE>
+
+
+<DT>New operator for precompiled regular expressions<DD>
+<A NAME="ixAAU"></A>
+See &quot;New <TT>&quot;qr//&quot;</TT> operator&quot;.
+<DT>Other improvements<DD>
+<A NAME="ixAAV"></A>
+
+
+<PRE>
+        Better debugging output (possibly with colors),
+            even from non-debugging Perl;
+        RE engine code now looks like C, not like assembler;
+        Behaviour of RE modifiable by `use re' directive;
+        Improved documentation;
+        Test suite significantly extended;
+        Syntax [:^upper:] etc., reserved inside character classes;
+
+</PRE>
+
+
+<DT>Incompatible changes<DD>
+<A NAME="ixAAW"></A>
+
+
+<PRE>
+        (?i) localized inside enclosing group;
+        $( is not interpolated into RE any more;
+        /RE/g may match at the same position (with non-zero length)
+            after a zero-length match (bug fix).
+
+</PRE>
+
+
+</DL>
+<P>
+
+See perlre and perlop.
+<A NAME="lbAR">&nbsp;</A>
+<H2>Improved <I>malloc()</I></H2>
+
+<A NAME="ixAAX"></A>
+See banner at the beginning of <TT>&quot;malloc.c&quot;</TT> for details.
+<A NAME="lbAS">&nbsp;</A>
+<H2>Quicksort is internally implemented</H2>
+
+<A NAME="ixAAY"></A>
+Perl now contains its own highly optimized <I>qsort()</I> routine.  The new <I>qsort()</I>
+is resistant to inconsistent comparison functions, so Perl's <TT>&quot;sort()&quot;</TT> will
+not provoke coredumps any more when given poorly written sort subroutines.
+(Some C library <TT>&quot;qsort()&quot;</TT>s that were being used before used to have this
+problem.)  In our testing, the new <TT>&quot;qsort()&quot;</TT> required the minimal number
+of pair-wise compares on average, among all known <TT>&quot;qsort()&quot;</TT> implementations.
+<P>
+
+See <TT>&quot;perlfunc/sort&quot;</TT>.
+<A NAME="lbAT">&nbsp;</A>
+<H2>Reliable signals</H2>
+
+<A NAME="ixAAZ"></A>
+Perl's signal handling is susceptible to random crashes, because signals
+arrive asynchronously, and the Perl runtime is not reentrant at arbitrary
+times.
+<P>
+
+However, one experimental implementation of reliable signals is available
+when threads are enabled.  See <TT>&quot;Thread::Signal&quot;</TT>.  Also see <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> for
+how to build a Perl capable of threads.
+<A NAME="lbAU">&nbsp;</A>
+<H2>Reliable stack pointers</H2>
+
+<A NAME="ixABA"></A>
+The internals now reallocate the perl stack only at predictable times.
+In particular, magic calls never trigger reallocations of the stack,
+because all reentrancy of the runtime is handled using a ``stack of stacks''.
+This should improve reliability of cached stack pointers in the internals
+and in XSUBs.
+<A NAME="lbAV">&nbsp;</A>
+<H2>More generous treatment of carriage returns</H2>
+
+<A NAME="ixABB"></A>
+Perl used to complain if it encountered literal carriage returns in
+scripts.  Now they are mostly treated like whitespace within program text.
+Inside string literals and here documents, literal carriage returns are
+ignored if they occur paired with linefeeds, or get interpreted as whitespace
+if they stand alone.  This behavior means that literal carriage returns
+in files should be avoided.  You can get the older, more compatible (but
+less generous) behavior by defining the preprocessor symbol
+<TT>&quot;PERL_STRICT_CR&quot;</TT> when building perl.  Of course, all this has nothing
+whatever to do with how escapes like <TT>&quot;\r&quot;</TT> are handled within strings.
+<P>
+
+Note that this doesn't somehow magically allow you to keep all text files
+in <FONT SIZE="-1">DOS</FONT> format.  The generous treatment only applies to files that perl
+itself parses.  If your C compiler doesn't allow carriage returns in
+files, you may still be unable to build modules that need a C compiler.
+<A NAME="lbAW">&nbsp;</A>
+<H2>Memory leaks</H2>
+
+<A NAME="ixABC"></A>
+<TT>&quot;substr&quot;</TT>, <TT>&quot;pos&quot;</TT> and <TT>&quot;vec&quot;</TT> don't leak memory anymore when used in lvalue
+context.  Many small leaks that impacted applications that embed multiple
+interpreters have been fixed.
+<A NAME="lbAX">&nbsp;</A>
+<H2>Better support for multiple interpreters</H2>
+
+<A NAME="ixABD"></A>
+The build-time option <TT>&quot;-DMULTIPLICITY&quot;</TT> has had many of the details
+reworked.  Some previously global variables that should have been
+per-interpreter now are.  With care, this allows interpreters to call
+each other.  See the <TT>&quot;PerlInterp&quot;</TT> extension on <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAY">&nbsp;</A>
+<H2>Behavior of <I>local()</I> on array and hash elements is now well-defined</H2>
+
+<A NAME="ixABE"></A>
+See ``Temporary Values via <I>local()</I>'' in perlsub.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>%! is transparently tied to the Errno module</H2>
+
+
+
+<A NAME="ixABF"></A>
+See perlvar, and Errno.
+<A NAME="lbBA">&nbsp;</A>
+<H2>Pseudo-hashes are supported</H2>
+
+<A NAME="ixABG"></A>
+See perlref.
+<A NAME="lbBB">&nbsp;</A>
+<H2>EXPR foreach EXPR is supported</H2>
+
+
+
+<A NAME="ixABH"></A>
+See perlsyn.
+<A NAME="lbBC">&nbsp;</A>
+<H2>Keywords can be globally overridden</H2>
+
+<A NAME="ixABI"></A>
+See perlsub.
+<A NAME="lbBD">&nbsp;</A>
+<H2>$^E is meaningful on Win32</H2>
+
+
+
+<A NAME="ixABJ"></A>
+See perlvar.
+<A NAME="lbBE">&nbsp;</A>
+<H2>foreach (1..1000000) optimized</H2>
+
+
+
+<A NAME="ixABK"></A>
+<TT>&quot;foreach (1..1000000)&quot;</TT> is now optimized into a counting loop.  It does
+not try to allocate a 1000000-size list anymore.
+<A NAME="lbBF">&nbsp;</A>
+<H2>Foo:: can be used as implicitly quoted package name</H2>
+
+
+
+<A NAME="ixABL"></A>
+Barewords caused unintuitive behavior when a subroutine with the same
+name as a package happened to be defined.  Thus, <TT>&quot;new Foo @args&quot;</TT>,
+use the result of the call to <TT>&quot;Foo()&quot;</TT> instead of <TT>&quot;Foo&quot;</TT> being treated
+as a literal.  The recommended way to write barewords in the indirect
+object slot is <TT>&quot;new Foo:: @args&quot;</TT>.  Note that the method <TT>&quot;new()&quot;</TT> is
+called with a first argument of <TT>&quot;Foo&quot;</TT>, not <TT>&quot;Foo::&quot;</TT> when you do that.
+<A NAME="lbBG">&nbsp;</A>
+<H2>exists $Foo::{Bar::} tests existence of a package</H2>
+
+
+
+<A NAME="ixABM"></A>
+It was impossible to test for the existence of a package without
+actually creating it before.  Now <TT>&quot;exists $Foo::{Bar::}&quot;</TT> can be
+used to test if the <TT>&quot;Foo::Bar&quot;</TT> namespace has been created.
+<A NAME="lbBH">&nbsp;</A>
+<H2>Better locale support</H2>
+
+<A NAME="ixABN"></A>
+See perllocale.
+<A NAME="lbBI">&nbsp;</A>
+<H2>Experimental support for 64-bit platforms</H2>
+
+<A NAME="ixABO"></A>
+Perl5 has always had 64-bit support on systems with 64-bit longs.
+Starting with 5.005, the beginnings of experimental support for systems
+with 32-bit long and 64-bit 'long long' integers has been added.
+If you add -DUSE_LONG_LONG to your ccflags in config.sh (or manually
+define it in perl.h) then perl will be built with 'long long' support.
+There will be many compiler warnings, and the resultant perl may not
+work on all systems.  There are many other issues related to
+third-party extensions and libraries.  This option exists to allow
+people to work on those issues.
+<A NAME="lbBJ">&nbsp;</A>
+<H2><I>prototype()</I> returns useful results on builtins</H2>
+
+<A NAME="ixABP"></A>
+See ``prototype'' in perlfunc.
+<A NAME="lbBK">&nbsp;</A>
+<H2>Extended support for exception handling</H2>
+
+<A NAME="ixABQ"></A>
+<TT>&quot;die()&quot;</TT> now accepts a reference value, and <TT>$@</TT> gets set to that
+value in exception traps.  This makes it possible to propagate
+exception objects.  This is an undocumented <B>experimental</B> feature.
+<A NAME="lbBL">&nbsp;</A>
+<H2>Re-blessing in <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I> supported for chaining <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I> methods</H2>
+
+<A NAME="ixABR"></A>
+See ``Destructors'' in perlobj.
+<A NAME="lbBM">&nbsp;</A>
+<H2>All printf format conversions are handled internally</H2>
+
+
+
+<A NAME="ixABS"></A>
+See ``printf'' in perlfunc.
+<A NAME="lbBN">&nbsp;</A>
+<H2>New INIT keyword</H2>
+
+
+
+<A NAME="ixABT"></A>
+<TT>&quot;INIT&quot;</TT> subs are like <TT>&quot;BEGIN&quot;</TT> and <TT>&quot;END&quot;</TT>, but they get run just before
+the perl runtime begins execution.  e.g., the Perl Compiler makes use of
+<TT>&quot;INIT&quot;</TT> blocks to initialize and resolve pointers to XSUBs.
+<A NAME="lbBO">&nbsp;</A>
+<H2>New lock keyword</H2>
+
+
+
+<A NAME="ixABU"></A>
+The <TT>&quot;lock&quot;</TT> keyword is the fundamental synchronization primitive
+in threaded perl.  When threads are not enabled, it is currently a noop.
+<P>
+
+To minimize impact on source compatibility this keyword is ``weak'', i.e., any
+user-defined subroutine of the same name overrides it, unless a <TT>&quot;use Thread&quot;</TT>
+has been seen.
+<A NAME="lbBP">&nbsp;</A>
+<H2>New qr// operator</H2>
+
+
+
+<A NAME="ixABV"></A>
+The <TT>&quot;qr//&quot;</TT> operator, which is syntactically similar to the other quote-like
+operators, is used to create precompiled regular expressions.  This compiled
+form can now be explicitly passed around in variables, and interpolated in
+other regular expressions.  See perlop.
+<A NAME="lbBQ">&nbsp;</A>
+<H2>our is now a reserved word</H2>
+
+
+
+<A NAME="ixABW"></A>
+Calling a subroutine with the name <TT>&quot;our&quot;</TT> will now provoke a warning when
+using the <TT>&quot;-w&quot;</TT> switch.
+<A NAME="lbBR">&nbsp;</A>
+<H2>Tied arrays are now fully supported</H2>
+
+<A NAME="ixABX"></A>
+See Tie::Array.
+<A NAME="lbBS">&nbsp;</A>
+<H2>Tied handles support is better</H2>
+
+<A NAME="ixABY"></A>
+Several missing hooks have been added.  There is also a new base class for
+<FONT SIZE="-1">TIEARRAY</FONT> implementations.  See Tie::Array.
+<A NAME="lbBT">&nbsp;</A>
+<H2>4th argument to substr</H2>
+
+<A NAME="ixABZ"></A>
+<I>substr()</I> can now both return and replace in one operation.  The optional
+4th argument is the replacement string.  See ``substr'' in perlfunc.
+<A NAME="lbBU">&nbsp;</A>
+<H2>Negative <FONT SIZE="-1">LENGTH</FONT> argument to splice</H2>
+
+<A NAME="ixACA"></A>
+<I>splice()</I> with a negative <FONT SIZE="-1">LENGTH</FONT> argument now work similar to what the
+<FONT SIZE="-1">LENGTH</FONT> did for <I>substr()</I>.  Previously a negative <FONT SIZE="-1">LENGTH</FONT> was treated as
+0.  See ``splice'' in perlfunc.
+<A NAME="lbBV">&nbsp;</A>
+<H2>Magic lvalues are now more magical</H2>
+
+<A NAME="ixACB"></A>
+When you say something like <TT>&quot;substr($x, 5) = &quot;hi&quot;&quot;</TT>, the scalar returned
+by <I>substr()</I> is special, in that any modifications to it affect <TT>$x</TT>.
+(This is called a 'magic lvalue' because an 'lvalue' is something on
+the left side of an assignment.)  Normally, this is exactly what you
+would expect to happen, but Perl uses the same magic if you use <I>substr()</I>,
+<I>pos()</I>, or <I>vec()</I> in a context where they might be modified, like taking
+a reference with <TT>&quot;\&quot;</TT> or as an argument to a sub that modifies <TT>@_</TT>.
+In previous versions, this 'magic' only went one way, but now changes
+to the scalar the magic refers to ($x in the above example) affect the
+magic lvalue too. For instance, this code now acts differently:
+<P>
+
+
+
+<PRE>
+    $x = &quot;hello&quot;;
+    sub printit {
+        $x = &quot;g'bye&quot;;
+        print $_[0], &quot;\n&quot;;
+    }
+    printit(substr($x, 0, 5));
+
+</PRE>
+
+
+<P>
+
+In previous versions, this would print ``hello'', but it now prints ``g'bye''.
+<A NAME="lbBW">&nbsp;</A>
+<H2>&lt;&gt; now reads in records</H2>
+
+<A NAME="ixACC"></A>
+If <TT>$/</TT> is a reference to an integer, or a scalar that holds an integer,
+&lt;&gt; will read in records instead of lines. For more info, see
+&quot;$/&quot; in perlvar.
+<A NAME="lbBX">&nbsp;</A>
+<H2>Supported Platforms</H2>
+
+<A NAME="ixACD"></A>
+Configure has many incremental improvements.  Site-wide policy for building
+perl can now be made persistent, via Policy.sh.  Configure also records
+the command-line arguments used in <I>config.sh</I>.
+<A NAME="lbBY">&nbsp;</A>
+<H2>New Platforms</H2>
+
+<A NAME="ixACE"></A>
+BeOS is now supported.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.beos</I>.
+<P>
+
+<FONT SIZE="-1">DOS</FONT> is now supported under the <FONT SIZE="-1">DJGPP</FONT> tools.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.dos</I> (installed 
+as perldos on some systems).
+<P>
+
+MiNT is now supported.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.mint</I>.
+<P>
+
+MPE/iX is now supported.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.mpeix</I>.
+<P>
+
+<FONT SIZE="-1">MVS</FONT> (aka <FONT SIZE="-1">OS390</FONT>, aka Open Edition) is now supported.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.os390</I> 
+(installed as perlos390 on some systems).
+<P>
+
+Stratus <FONT SIZE="-1">VOS</FONT> is now supported.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.vos</I>.
+<A NAME="lbBZ">&nbsp;</A>
+<H2>Changes in existing support</H2>
+
+<A NAME="ixACF"></A>
+Win32 support has been vastly enhanced.  Support for Perl Object, a C<FONT SIZE="-2">++</FONT>
+encapsulation of Perl.  <FONT SIZE="-1">GCC</FONT> and <FONT SIZE="-1">EGCS</FONT> are now supported on Win32.
+See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.win32</I>, aka perlwin32.
+<P>
+
+<FONT SIZE="-1">VMS</FONT> configuration system has been rewritten.  See <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.vms</I> (installed 
+as README_vms on some systems).
+<P>
+
+The hints files for most Unix platforms have seen incremental improvements.
+<A NAME="lbCA">&nbsp;</A>
+<H2>Modules and Pragmata</H2>
+
+<A NAME="ixACG"></A>
+<A NAME="lbCB">&nbsp;</A>
+<H2>New Modules</H2>
+
+<A NAME="ixACH"></A>
+<DL COMPACT>
+<DT>B<DD>
+<A NAME="ixACI"></A>
+Perl compiler and tools.  See B.
+<DT>Data::Dumper<DD>
+<A NAME="ixACJ"></A>
+A module to pretty print Perl data.  See Data::Dumper.
+<DT>Dumpvalue<DD>
+<A NAME="ixACK"></A>
+A module to dump perl values to the screen. See Dumpvalue.
+<DT>Errno<DD>
+<A NAME="ixACL"></A>
+A module to look up errors more conveniently.  See Errno.
+<DT>File::Spec<DD>
+<A NAME="ixACM"></A>
+A portable <FONT SIZE="-1">API</FONT> for file operations.
+<DT>ExtUtils::Installed<DD>
+<A NAME="ixACN"></A>
+Query and manage installed modules.
+<DT>ExtUtils::Packlist<DD>
+<A NAME="ixACO"></A>
+Manipulate .packlist files.
+<DT>Fatal<DD>
+<A NAME="ixACP"></A>
+Make functions/builtins succeed or die.
+<DT>IPC::SysV<DD>
+<A NAME="ixACQ"></A>
+Constants and other support infrastructure for System V <FONT SIZE="-1">IPC</FONT> operations
+in perl.
+<DT>Test<DD>
+<A NAME="ixACR"></A>
+A framework for writing testsuites.
+<DT>Tie::Array<DD>
+<A NAME="ixACS"></A>
+Base class for tied arrays.
+<DT>Tie::Handle<DD>
+<A NAME="ixACT"></A>
+Base class for tied handles.
+<DT>Thread<DD>
+<A NAME="ixACU"></A>
+Perl thread creation, manipulation, and support.
+<DT>attrs<DD>
+<A NAME="ixACV"></A>
+Set subroutine attributes.
+<DT>fields<DD>
+<A NAME="ixACW"></A>
+Compile-time class fields.
+<DT>re<DD>
+<A NAME="ixACX"></A>
+Various pragmata to control behavior of regular expressions.
+</DL>
+<A NAME="lbCC">&nbsp;</A>
+<H2>Changes in existing modules</H2>
+
+<A NAME="ixACY"></A>
+<DL COMPACT>
+<DT>Benchmark<DD>
+<A NAME="ixACZ"></A>
+You can now run tests for <I>x</I> seconds instead of guessing the right
+number of tests to run.
+
+
+<P>
+
+
+Keeps better time.
+<DT>Carp<DD>
+<A NAME="ixADA"></A>
+Carp has a new function <I>cluck()</I>. <I>cluck()</I> warns, like <I>carp()</I>, but also adds
+a stack backtrace to the error message, like <I>confess()</I>.
+<DT><FONT SIZE="-1">CGI</FONT><DD>
+<A NAME="ixADB"></A>
+<FONT SIZE="-1">CGI</FONT> has been updated to version 2.42.
+<DT>Fcntl<DD>
+<A NAME="ixADC"></A>
+More Fcntl constants added: F_SETLK64, F_SETLKW64, O_LARGEFILE for
+large (more than 4G) file access (the 64-bit support is not yet
+working, though, so no need to get overly excited), Free/Net/OpenBSD
+locking behaviour flags F_FLOCK, F_POSIX, Linux F_SHLCK, and
+O_ACCMODE: the mask of O_RDONLY, O_WRONLY, and O_RDWR.
+<DT>Math::Complex<DD>
+<A NAME="ixADD"></A>
+The accessors methods Re, Im, arg, abs, rho, theta, methods can
+($z-&gt;<I>Re()</I>) now also act as mutators ($z-&gt;<I><A HREF="../man3/Re.3.php">Re</A></I>(3)).
+<DT>Math::Trig<DD>
+<A NAME="ixADE"></A>
+A little bit of radial trigonometry (cylindrical and spherical) added,
+for example the great circle distance.
+<DT><FONT SIZE="-1">POSIX</FONT><DD>
+<A NAME="ixADF"></A>
+<FONT SIZE="-1">POSIX</FONT> now has its own platform-specific hints files.
+<DT>DB_File<DD>
+<A NAME="ixADG"></A>
+DB_File supports version 2.x of Berkeley <FONT SIZE="-1">DB</FONT>.  See <TT>&quot;ext/DB_File/Changes&quot;</TT>.
+<DT>MakeMaker<DD>
+<A NAME="ixADH"></A>
+MakeMaker now supports writing empty makefiles, provides a way to
+specify that site <I>umask()</I> policy should be honored.  There is also
+better support for manipulation of .packlist files, and getting
+information about installed modules.
+
+
+<P>
+
+
+Extensions that have both architecture-dependent and
+architecture-independent files are now always installed completely in
+the architecture-dependent locations.  Previously, the shareable parts
+were shared both across architectures and across perl versions and were
+therefore liable to be overwritten with newer versions that might have
+subtle incompatibilities.
+<DT><FONT SIZE="-1">CPAN</FONT><DD>
+<A NAME="ixADI"></A>
+See perlmodinstall and <FONT SIZE="-1">CPAN</FONT>.
+<DT>Cwd<DD>
+<A NAME="ixADJ"></A>
+Cwd::cwd is faster on most platforms.
+</DL>
+<A NAME="lbCD">&nbsp;</A>
+<H2>Utility Changes</H2>
+
+<A NAME="ixADK"></A>
+<TT>&quot;h2ph&quot;</TT> and related utilities have been vastly overhauled.
+<P>
+
+<TT>&quot;perlcc&quot;</TT>, a new experimental front end for the compiler is available.
+<P>
+
+The crude <FONT SIZE="-1">GNU</FONT> <TT>&quot;configure&quot;</TT> emulator is now called <TT>&quot;configure.gnu&quot;</TT> to
+avoid trampling on <TT>&quot;Configure&quot;</TT> under case-insensitive filesystems.
+<P>
+
+<TT>&quot;perldoc&quot;</TT> used to be rather slow.  The slower features are now optional.
+In particular, case-insensitive searches need the <TT>&quot;-i&quot;</TT> switch, and
+recursive searches need <TT>&quot;-r&quot;</TT>.  You can set these switches in the
+<TT>&quot;PERLDOC&quot;</TT> environment variable to get the old behavior.
+<A NAME="lbCE">&nbsp;</A>
+<H2>Documentation Changes</H2>
+
+<A NAME="ixADL"></A>
+Config.pm now has a glossary of variables.
+<P>
+
+<I>Porting/patching.pod</I> has detailed instructions on how to create and
+submit patches for perl.
+<P>
+
+perlport specifies guidelines on how to write portably. 
+<P>
+
+perlmodinstall describes how to fetch and install modules from <TT>&quot;CPAN&quot;</TT>
+sites.
+<P>
+
+Some more Perl traps are documented now.  See perltrap.
+<P>
+
+perlopentut gives a tutorial on using <I>open()</I>.
+<P>
+
+perlreftut gives a tutorial on references.
+<P>
+
+perlthrtut gives a tutorial on threads.
+<A NAME="lbCF">&nbsp;</A>
+<H2>New Diagnostics</H2>
+
+<A NAME="ixADM"></A>
+<DL COMPACT>
+<DT>Ambiguous call resolved as CORE::%s(), qualify as such or use &amp;<DD>
+<A NAME="ixADN"></A>
+(W) A subroutine you have declared has the same name as a Perl keyword,
+and you have used the name without qualification for calling one or the
+other.  Perl decided to call the builtin because the subroutine is
+not imported.
+
+
+<P>
+
+
+To force interpretation as a subroutine call, either put an ampersand
+before the subroutine name, or qualify the name with its package.
+Alternatively, you can import the subroutine (or pretend that it's
+imported with the <TT>&quot;use subs&quot;</TT> pragma).
+
+
+<P>
+
+
+To silently interpret it as the Perl operator, use the <TT>&quot;CORE::&quot;</TT> prefix
+on the operator (e.g. <TT>&quot;CORE::log($x)&quot;</TT>) or by declaring the subroutine
+to be an object method (see attrs).
+<DT>Bad index while coercing array into hash<DD>
+<A NAME="ixADO"></A>
+(F) The index looked up in the hash found as the 0'th element of a
+pseudo-hash is not legal.  Index values must be at 1 or greater.
+See perlref.
+<DT>Bareword %s refers to nonexistent package<DD>
+
+
+<A NAME="ixADP"></A>
+(W) You used a qualified bareword of the form <TT>&quot;Foo::&quot;</TT>, but
+the compiler saw no other uses of that namespace before that point.
+Perhaps you need to predeclare a package?
+<DT>Can't call method %s on an undefined value<DD>
+
+
+<A NAME="ixADQ"></A>
+(F) You used the syntax of a method call, but the slot filled by the
+object reference or package name contains an undefined value.
+Something like this will reproduce the error:
+
+
+<P>
+
+
+
+
+<PRE>
+    $BADREF = 42;
+    process $BADREF 1,2,3;
+    $BADREF-&gt;process(1,2,3);
+
+</PRE>
+
+
+<DT>Can't check filesystem of script %s for nosuid<DD>
+
+
+<A NAME="ixADR"></A>
+(P) For some reason you can't check the filesystem of the script for nosuid.
+<DT>Can't coerce array into hash<DD>
+<A NAME="ixADS"></A>
+(F) You used an array where a hash was expected, but the array has no
+information on how to map from keys to array indices.  You can do that
+only with arrays that have a hash reference at index 0.
+<DT>Can't goto subroutine from an eval-string<DD>
+<A NAME="ixADT"></A>
+(F) The ``goto subroutine'' call can't be used to jump out of an eval ``string''.
+(You can use it to jump out of an eval {<FONT SIZE="-1">BLOCK</FONT>}, but you probably don't want to.)
+<DT>Can't localize pseudo-hash element<DD>
+<A NAME="ixADU"></A>
+(F) You said something like <TT>&quot;local $ar-&gt;{'key'}&quot;</TT>, where <TT>$ar</TT> is
+a reference to a pseudo-hash.  That hasn't been implemented yet, but
+you can get a similar effect by localizing the corresponding array
+element directly --- <TT>&quot;local $ar-&gt;[$ar-&gt;[0]{'key'}]&quot;</TT>.
+<DT>Can't use %%! because Errno.pm is not available<DD>
+<A NAME="ixADV"></A>
+(F) The first time the %! hash is used, perl automatically loads the
+Errno.pm module. The Errno module is expected to tie the %! hash to
+provide symbolic names for <TT>$!</TT> errno values.
+<DT>Cannot find an opnumber for %s<DD>
+
+
+<A NAME="ixADW"></A>
+(F) A string of a form <TT>&quot;CORE::word&quot;</TT> was given to <I>prototype()</I>, but
+there is no builtin with the name <TT>&quot;word&quot;</TT>.
+<DT>Character class syntax [. .] is reserved for future extensions<DD>
+<A NAME="ixADX"></A>
+(W) Within regular expression character classes ([]) the syntax beginning
+with ``[.'' and ending with ``.]'' is reserved for future extensions.
+If you need to represent those character sequences inside a regular
+expression character class, just quote the square brackets with the
+backslash: ``\[.'' and ``.\]''.
+<DT>Character class syntax [: :] is reserved for future extensions<DD>
+<A NAME="ixADY"></A>
+(W) Within regular expression character classes ([]) the syntax beginning
+with ``[:'' and ending with ``:]'' is reserved for future extensions.
+If you need to represent those character sequences inside a regular
+expression character class, just quote the square brackets with the
+backslash: ``\[:'' and ``:\]''.
+<DT>Character class syntax [= =] is reserved for future extensions<DD>
+<A NAME="ixADZ"></A>
+(W) Within regular expression character classes ([]) the syntax
+beginning with ``[='' and ending with ``=]'' is reserved for future extensions.
+If you need to represent those character sequences inside a regular
+expression character class, just quote the square brackets with the
+backslash: ``\[='' and ``=\]''.
+<DT>%s: Eval-group in insecure regular expression<DD>
+<A NAME="ixAEA"></A>
+(F) Perl detected tainted data when trying to compile a regular expression
+that contains the <TT>&quot;(?{ ... })&quot;</TT> zero-width assertion, which is unsafe.
+See ``(?{ code })'' in perlre, and perlsec.
+<DT>%s: Eval-group not allowed, use re 'eval'<DD>
+<A NAME="ixAEB"></A>
+(F) A regular expression contained the <TT>&quot;(?{ ... })&quot;</TT> zero-width assertion,
+but that construct is only allowed when the <TT>&quot;use re 'eval'&quot;</TT> pragma is
+in effect.  See ``(?{ code })'' in perlre.
+<DT>%s: Eval-group not allowed at run time<DD>
+<A NAME="ixAEC"></A>
+(F) Perl tried to compile a regular expression containing the <TT>&quot;(?{ ... })&quot;</TT>
+zero-width assertion at run time, as it would when the pattern contains
+interpolated values.  Since that is a security risk, it is not allowed.
+If you insist, you may still do this by explicitly building the pattern
+from an interpolated string at run time and using that in an <I>eval()</I>.
+See ``(?{ code })'' in perlre.
+<DT>Explicit blessing to '' (assuming package main)<DD>
+<A NAME="ixAED"></A>
+(W) You are blessing a reference to a zero length string.  This has
+the effect of blessing the reference into the package main.  This is
+usually not what you want.  Consider providing a default target
+package, e.g. bless($ref, <TT>$p</TT> || 'MyPackage');
+<DT>Illegal hex digit ignored<DD>
+<A NAME="ixAEE"></A>
+(W) You may have tried to use a character other than 0 - 9 or A - F in a
+hexadecimal number.  Interpretation of the hexadecimal number stopped
+before the illegal character.
+<DT>No such array field<DD>
+<A NAME="ixAEF"></A>
+(F) You tried to access an array as a hash, but the field name used is
+not defined.  The hash at index 0 should map all valid field names to
+array indices for that to work.
+<DT>No such field %s in variable %s of type <TT>%s<DD>
+
+
+<A NAME="ixAEG"></A>
+(F) You tried to access a field of a typed variable where the type
+does not know about the field name.  The field names are looked up in
+the %FIELDS</TT> hash in the type package at compile time.  The <TT>%FIELDS</TT> hash
+is usually set up with the 'fields' pragma.
+<DT>Out of memory during ridiculously large request<DD>
+<A NAME="ixAEH"></A>
+(F) You can't allocate more than 2^31+``small amount'' bytes.  This error
+is most likely to be caused by a typo in the Perl program. e.g., <TT>$arr[time]</TT>
+instead of <TT>$arr[$time]</TT>.
+<DT>Range iterator outside integer range<DD>
+<A NAME="ixAEI"></A>
+(F) One (or both) of the numeric arguments to the range operator ``..''
+are outside the range which can be represented by integers internally.
+One possible workaround is to force Perl to use magical string
+increment by prepending ``0'' to your numbers.
+<DT>Recursive inheritance detected while looking for method '%s' %s<DD>
+
+
+<A NAME="ixAEJ"></A>
+(F) More than 100 levels of inheritance were encountered while invoking a
+method.  Probably indicates an unintended loop in your inheritance hierarchy.
+<DT>Reference found where even-sized list expected<DD>
+<A NAME="ixAEK"></A>
+(W) You gave a single reference where Perl was expecting a list with
+an even number of elements (for assignment to a hash). This
+usually means that you used the anon hash constructor when you meant 
+to use parens. In any case, a hash requires key/value <B>pairs</B>.
+
+
+<P>
+
+
+
+
+<PRE>
+    %hash = { one =&gt; 1, two =&gt; 2, };   # WRONG
+    %hash = [ qw/ an anon array / ];   # WRONG
+    %hash = ( one =&gt; 1, two =&gt; 2, );   # right
+    %hash = qw( one 1 two 2 );                 # also fine
+
+</PRE>
+
+
+<DT>Undefined value assigned to typeglob<DD>
+<A NAME="ixAEL"></A>
+(W) An undefined value was assigned to a typeglob, a la <TT>&quot;*foo = undef&quot;</TT>.
+This does nothing.  It's possible that you really mean <TT>&quot;undef *foo&quot;</TT>.
+<DT>Use of reserved word %s is deprecated<DD>
+
+
+<A NAME="ixAEM"></A>
+(D) The indicated bareword is a reserved word.  Future versions of perl
+may use it as a keyword, so you're better off either explicitly quoting
+the word in a manner appropriate for its context of use, or using a
+different name altogether.  The warning can be suppressed for subroutine
+names by either adding a <TT>&quot;&amp;&quot;</TT> prefix, or using a package qualifier,
+e.g. <TT>&quot;&amp;our()&quot;</TT>, or <TT>&quot;Foo::our()&quot;</TT>.
+<DT>perl: warning: Setting locale failed.<DD>
+<A NAME="ixAEN"></A>
+(S) The whole warning message will look something like:
+
+
+<P>
+
+
+
+
+<PRE>
+       perl: warning: Setting locale failed.
+       perl: warning: Please check that your locale settings:
+               LC_ALL = &quot;En_US&quot;,
+               LANG = (unset)
+           are supported and installed on your system.
+       perl: warning: Falling back to the standard locale (&quot;C&quot;).
+
+</PRE>
+
+
+
+
+<P>
+
+
+Exactly what were the failed locale settings varies.  In the above the
+settings were that the <FONT SIZE="-1">LC_ALL</FONT> was ``En_US'' and the <FONT SIZE="-1">LANG</FONT> had no value.
+This error means that Perl detected that you and/or your system
+administrator have set up the so-called variable system but Perl could
+not use those settings.  This was not dead serious, fortunately: there
+is a ``default locale'' called ``C'' that Perl can and will use, the
+script will be run.  Before you really fix the problem, however, you
+will get the same error message each time you run Perl.  How to really
+fix the problem can be found in ``<FONT SIZE="-1">LOCALE</FONT> <FONT SIZE="-1">PROBLEMS</FONT>'' in perllocale.
+</DL>
+<A NAME="lbCG">&nbsp;</A>
+<H2>Obsolete Diagnostics</H2>
+
+<A NAME="ixAEO"></A>
+<DL COMPACT>
+<DT>Can't <I>mktemp()</I><DD>
+<A NAME="ixAEP"></A>
+(F) The <I>mktemp()</I> routine failed for some reason while trying to process
+a <B>-e</B> switch.  Maybe your /tmp partition is full, or clobbered.
+
+
+<P>
+
+
+Removed because <B>-e</B> doesn't use temporary files any more.
+<DT>Can't write to temp file for <B>-e</B>: %s<DD>
+
+
+<A NAME="ixAEQ"></A>
+(F) The write routine failed for some reason while trying to process
+a <B>-e</B> switch.  Maybe your /tmp partition is full, or clobbered.
+
+
+<P>
+
+
+Removed because <B>-e</B> doesn't use temporary files any more.
+<DT>Cannot open temporary file<DD>
+<A NAME="ixAER"></A>
+(F) The create routine failed for some reason while trying to process
+a <B>-e</B> switch.  Maybe your /tmp partition is full, or clobbered.
+
+
+<P>
+
+
+Removed because <B>-e</B> doesn't use temporary files any more.
+<DT>regexp too big<DD>
+<A NAME="ixAES"></A>
+(F) The current implementation of regular expressions uses shorts as
+address offsets within a string.  Unfortunately this means that if
+the regular expression compiles to longer than 32767, it'll blow up.
+Usually when you want a regular expression this big, there is a better
+way to do it with multiple statements.  See perlre.
+</DL>
+<A NAME="lbCH">&nbsp;</A>
+<H2>Configuration Changes</H2>
+
+<A NAME="ixAET"></A>
+You can use ``Configure -Uinstallusrbinperl'' which causes installperl
+to skip installing perl also as /usr/bin/perl.  This is useful if you
+prefer not to modify /usr/bin for some reason or another but harmful
+because many scripts assume to find Perl in /usr/bin/perl.
+<A NAME="lbCI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAEU"></A>
+If you find what you think is a bug, you might check the headers of
+recently posted articles in the comp.lang.perl.misc newsgroup.
+There may also be information at <A HREF="http://www.perl.com/perl/">http://www.perl.com/perl/</A> , the Perl
+Home Page.
+<P>
+
+If you believe you have an unreported bug, please run the <B>perlbug</B>
+program included with your release.  Make sure you trim your bug down
+to a tiny but sufficient test case.  Your bug report, along with the
+output of <TT>&quot;perl -V&quot;</TT>, will be sent off to &lt;<I><A HREF="mailto:perlbug@perl.com">perlbug@perl.com</A></I>&gt; to be
+analysed by the Perl porting team.
+<A NAME="lbCJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAEV"></A>
+The <I>Changes</I> file for exhaustive details on what changed.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> file for how to build Perl.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>README</I></FONT><I></I> file for general stuff.
+<P>
+
+The <I>Artistic</I> and <I>Copying</I> files for copyright information.
+<A NAME="lbCK">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAEW"></A>
+Written by Gurusamy Sarathy &lt;<I><A HREF="mailto:gsar@activestate.com">gsar@activestate.com</A></I>&gt;, with many contributions
+from The Perl Porters.
+<P>
+
+Send omissions or corrections to &lt;<I><A HREF="mailto:perlbug@perl.com">perlbug@perl.com</A></I>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">About the new versioning system</A><DD>
+<DT><A HREF="#lbAE">Incompatible Changes</A><DD>
+<DT><A HREF="#lbAF"><FONT SIZE="-1">WARNING:</FONT>  This version is not binary compatible with Perl 5.004.</A><DD>
+<DT><A HREF="#lbAG">Default installation structure has changed</A><DD>
+<DT><A HREF="#lbAH">Perl Source Compatibility</A><DD>
+<DT><A HREF="#lbAI">C Source Compatibility</A><DD>
+<DT><A HREF="#lbAJ">Binary Compatibility</A><DD>
+<DT><A HREF="#lbAK">Security fixes may affect compatibility</A><DD>
+<DT><A HREF="#lbAL">Relaxed new mandatory warnings introduced in 5.004</A><DD>
+<DT><A HREF="#lbAM">Licensing</A><DD>
+<DT><A HREF="#lbAN">Core Changes</A><DD>
+<DT><A HREF="#lbAO">Threads</A><DD>
+<DT><A HREF="#lbAP">Compiler</A><DD>
+<DT><A HREF="#lbAQ">Regular Expressions</A><DD>
+<DT><A HREF="#lbAR">Improved <I>malloc()</I></A><DD>
+<DT><A HREF="#lbAS">Quicksort is internally implemented</A><DD>
+<DT><A HREF="#lbAT">Reliable signals</A><DD>
+<DT><A HREF="#lbAU">Reliable stack pointers</A><DD>
+<DT><A HREF="#lbAV">More generous treatment of carriage returns</A><DD>
+<DT><A HREF="#lbAW">Memory leaks</A><DD>
+<DT><A HREF="#lbAX">Better support for multiple interpreters</A><DD>
+<DT><A HREF="#lbAY">Behavior of <I>local()</I> on array and hash elements is now well-defined</A><DD>
+<DT><A HREF="#lbAZ">%! is transparently tied to the Errno module</A><DD>
+<DT><A HREF="#lbBA">Pseudo-hashes are supported</A><DD>
+<DT><A HREF="#lbBB">EXPR foreach EXPR is supported</A><DD>
+<DT><A HREF="#lbBC">Keywords can be globally overridden</A><DD>
+<DT><A HREF="#lbBD">$^E is meaningful on Win32</A><DD>
+<DT><A HREF="#lbBE">foreach (1..1000000) optimized</A><DD>
+<DT><A HREF="#lbBF">Foo:: can be used as implicitly quoted package name</A><DD>
+<DT><A HREF="#lbBG">exists $Foo::{Bar::} tests existence of a package</A><DD>
+<DT><A HREF="#lbBH">Better locale support</A><DD>
+<DT><A HREF="#lbBI">Experimental support for 64-bit platforms</A><DD>
+<DT><A HREF="#lbBJ"><I>prototype()</I> returns useful results on builtins</A><DD>
+<DT><A HREF="#lbBK">Extended support for exception handling</A><DD>
+<DT><A HREF="#lbBL">Re-blessing in <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I> supported for chaining <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I> methods</A><DD>
+<DT><A HREF="#lbBM">All printf format conversions are handled internally</A><DD>
+<DT><A HREF="#lbBN">New INIT keyword</A><DD>
+<DT><A HREF="#lbBO">New lock keyword</A><DD>
+<DT><A HREF="#lbBP">New qr// operator</A><DD>
+<DT><A HREF="#lbBQ">our is now a reserved word</A><DD>
+<DT><A HREF="#lbBR">Tied arrays are now fully supported</A><DD>
+<DT><A HREF="#lbBS">Tied handles support is better</A><DD>
+<DT><A HREF="#lbBT">4th argument to substr</A><DD>
+<DT><A HREF="#lbBU">Negative <FONT SIZE="-1">LENGTH</FONT> argument to splice</A><DD>
+<DT><A HREF="#lbBV">Magic lvalues are now more magical</A><DD>
+<DT><A HREF="#lbBW">&lt;&gt; now reads in records</A><DD>
+<DT><A HREF="#lbBX">Supported Platforms</A><DD>
+<DT><A HREF="#lbBY">New Platforms</A><DD>
+<DT><A HREF="#lbBZ">Changes in existing support</A><DD>
+<DT><A HREF="#lbCA">Modules and Pragmata</A><DD>
+<DT><A HREF="#lbCB">New Modules</A><DD>
+<DT><A HREF="#lbCC">Changes in existing modules</A><DD>
+<DT><A HREF="#lbCD">Utility Changes</A><DD>
+<DT><A HREF="#lbCE">Documentation Changes</A><DD>
+<DT><A HREF="#lbCF">New Diagnostics</A><DD>
+<DT><A HREF="#lbCG">Obsolete Diagnostics</A><DD>
+<DT><A HREF="#lbCH">Configuration Changes</A><DD>
+<DT><A HREF="#lbCI">BUGS</A><DD>
+<DT><A HREF="#lbCJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbCK">HISTORY</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

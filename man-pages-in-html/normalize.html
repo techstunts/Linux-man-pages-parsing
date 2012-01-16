@@ -1,0 +1,258 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>NORMALIZE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>NORMALIZE</H1>
+Section:  (1)<BR>Updated: 2001-09-16<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+normalize - adjusts volume levels of audio files.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>normalize</B> [ <B></B><I>options</I><B></B> ]  [ <B>--</B> ]  <B></B><I>file</I><B></B><I>...</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>normalize</B> is used to adjust the volume of wav audio
+files to a standard volume level. This is useful for things like
+creating mp3 mixes, where different recording levels on different
+albums can cause the volume to vary greatly from song to song.
+<P>
+
+<B>normalize</B> operates in two phases. In the first phase, it
+analyzes the specified files as wav audio files, and computes the
+volume of each file. In the second phase, it applies a volume
+adjustment to each file to set each file's volume to a standard level.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a, --amplitude=</B><I>AMPLITUDE</I><B></B><DD>
+Adjust the RMS volume to the target amplitude AMPLITUDE; must be
+between 0.0 and 1.0. If a number suffixed by &quot;dB&quot; or &quot;dBFS&quot; is
+specified, the amplitude is assumed to be in decibels from full scale.
+The default is -12dBFS.
+<DT><B>-b, --batch</B><DD>
+Enable batch mode: see BATCH MODE, below.
+<DT><B>-c, --compression</B><DD>
+<B>Deprecated</B>. In previous versions, this enabled
+the limiter, but now the limiter is enabled by default.
+<DT><B>--clipping</B><DD>
+Disable the limiter, and just clip any samples that are too large.
+Same effect as -l 0dBFS.
+<DT><B>--fractions</B><DD>
+Display all values as decimal fractions instead of in decibels. By
+default, volume adjustments are shown in decibels, and volume levels
+in dBFS, where 0 dBFS is the level of a square wave of maximum
+amplitude.
+<DT><B>-g, --gain=</B><I>GAIN</I><B></B><DD>
+Skip the volume computation phase: don't compute the volume adjustment
+from the current volumes of the files. Instead, just apply the given
+gain as a volume adjustment to all files. As a plain number this is
+just a multiplier applied to all samples, If a number suffixed by &quot;dB&quot;
+is specified, all volumes are adjusted by that many decibels.
+<DT><B>--id3-compat</B><DD>
+Use this option when adjusting MPEG audio files if your MP3 player
+does not recognize ID3v2.4 tags. See MPEG
+AUDIO ADJUSTMENT, below, for details.
+<DT><B>--id3-unsync</B><DD>
+Use this option when adjusting MPEG audio files if your MP3 player
+does not recognize ID3v2 tags and has trouble playing some ID3v2
+tagged MP3 files. See MPEG AUDIO
+ADJUSTMENT, below, for details.
+<DT><B>-l, --limiter=</B><I>LEVEL</I><B></B><DD>
+This controls the behavior of the limiter. By default, all samples
+above -6dBFS (0.5) are limited, but this option sets the limiting
+level to <I>LEVEL</I>. Setting
+<I>LEVEL</I> to 1 (or 0dBFS) does no limiting
+(clipping is done instead); setting <I>LEVEL</I>
+to 0 does limiting on all samples. The default value is recommended
+unless you know what you're doing.
+<DT><B>-m, --mix</B><DD>
+Enable mix mode: see MIX MODE, below.
+Batch mode and mix mode are mutually exclusive.
+<DT><B>-n, --no-adjust</B><DD>
+Compute and output the volume adjustment that would set the volume to
+the target, but don't apply it to any of the files (i.e. skip the
+second phase). If you use this option, your files will not be altered
+in any way.
+<DT><B>--no-progress</B><DD>
+Don't print any progress information. All other messages are printed
+as normal according to the verbosity level.
+<DT><B>--peak</B><DD>
+Adjust using peak levels instead of RMS levels. Each file will be
+adjusted so that its maximum sample is at full scale. This just gives
+a file the maximum volume possible without clipping; no normalization
+is done.
+<DT><B>-q, --quiet</B><DD>
+Don't output progress information. Only error messages are printed.
+<DT><B>-t, --average-threshold=</B><I>THRESHOLD</I><B></B><DD>
+When averaging volume levels for batch mode or mix mode, throw out any
+volumes that are more than <I>THRESHOLD</I>
+decibels from the average. A high value here (say, 50) will make sure
+that the volumes of all files are considered in the average.
+<DT><B>-T, --adjust-threshold=</B><I>THRESHOLD</I><B></B><DD>
+If an adjustment to be made to a file is smaller than
+<I>THRESHOLD</I> decibels, consider the file
+already normalized and don't do the adjustment. This is 0.125 by
+default, or 0 if the <B>-g</B> option is given.
+<DT><B>-v, --verbose</B><DD>
+Increase verbosity. This option can be repeated for more messages.
+<DT><B>-w, --output-bitwidth</B><DD>
+Force output files to have samples that are W bits wide. This option
+is ignored when adjusting MP3 files.
+<DT><B>-h, --help</B><DD>
+Display usage information and exit.
+<DT><B>-V, --version</B><DD>
+Print version information and exit.
+<DT><B>--</B><DD>
+Terminate option list.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>MIX MODE</H2>
+
+<P>
+
+This mode is made especially for making mixed CD's and the like. You
+want every song on the mix to be the same volume, but it doesn't
+matter if they are the same volume as the songs on some other mix you
+made last week. In mix mode, average level of all the files is
+computed, and each file is separately normalized to this average
+volume.
+<A NAME="lbAG">&nbsp;</A>
+<H2>BATCH MODE</H2>
+
+<P>
+
+When operating on a group of unrelated files, you usually want all of
+them at the same level, and this is the default behavior. However, a
+group of music files all from the same album is generally meant to be
+listened to at the relative volumes they were recorded at. In batch
+mode, all the specified files are considered to be part of a single
+album and their relative volumes are preserved. This is done by
+averaging the volumes of all the files, computing a single adjustment
+from that, and applying the same adjustment to all the files. Some
+analysis is also done so that files with volumes that appear to be
+statistical aberrations are not considered in the average. This is
+useful if you have albums (like many of the author's) in which there
+is one &quot;quiet song&quot; that throws off the average.
+<A NAME="lbAH">&nbsp;</A>
+<H2>MPEG AUDIO ADJUSTMENT</H2>
+
+<P>
+
+MP3 files are &quot;adjusted&quot; by setting a <B>relative volume
+adjustment</B> frame in their ID3 tags. There is a frame for
+this, called &quot;RVA2&quot;, that does exactly what we want, and is a native
+frame in ID3v2.4. Unfortunately, many MP3 players do not support v2.4
+tags (including xmms, as of this writing), and the RVA2 tag is not
+native in previous ID3 versions. In fact, adding an RVA2 frame to a
+v2.3 tag confuses some MP3 players. Therefore, we are left with two
+choices when trying to add volume adjustment information to an ID3
+tag:
+<DL COMPACT>
+<DT>1.<DD>
+Go ahead and upgrade the tag to version 2.4, and use RVA2 tags. This
+is the default behavior, in the hope that eventually MP3 players will
+support v2.4 tags and this won't be a problem anymore.
+<DT>2.<DD>
+Upgrade the tag to only version 2.3. Instead of RVA2, use an &quot;XRVA&quot;
+tag with the same format as an RVA2 tag. This isn't a native frame,
+but since it starts with an &quot;X&quot;, it's considered experimental and
+therefore legal, according to the ID3 spec. The
+<B>--id3-compat</B> option turns on this behavior.
+</DL>
+<P>
+
+The disadvantage of the first method is that your MP3 player may no
+longer read the ID3 tags on your files. Bug the author of your
+favorite MP3 player to support ID3v2.4 tags!
+<P>
+
+The disadvantage of the second method is that the XRVA frame is only
+recognized by the xmms-rva plugin that is packaged with normalize. On
+the other hand, I don't know of any MP3 players that recognize the
+RVA2 frame, either, so it may not make any difference.
+<P>
+
+The other option related to ID3 tags,
+<B>--id3-unsync</B>, is only necessary for
+compatibility with old MP3 players that don't recognize ID3v2 tags at
+all. If your MP3 player complains of garbage at the start of tagged
+files, or is unable to play the files at all, turn this option on.
+This option should never hurt, but if your MP3 player knows about
+ID3v2 tags, you don't need it.
+<A NAME="lbAI">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+<P>
+
+Note that your version of <B>normalize</B> must be
+compiled with MAD library support to analyze MP3 file volume levels.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Chris Vaill &lt;<A HREF="mailto:cvaill@cs.columbia.edu">cvaill@cs.columbia.edu</A>&gt;
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<A HREF="../man1/sox.1.php">sox</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">MIX MODE</A><DD>
+<DT><A HREF="#lbAG">BATCH MODE</A><DD>
+<DT><A HREF="#lbAH">MPEG AUDIO ADJUSTMENT</A><DD>
+<DT><A HREF="#lbAI">CAVEATS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

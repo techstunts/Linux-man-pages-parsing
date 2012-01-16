@@ -1,0 +1,361 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XMLWF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XMLWF</H1>
+Section:  (1)<BR>Updated: 24 January 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xmlwf - Determines if an XML document is well-formed
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>xmlwf</B> [ <B>-s</B>]  [ <B>-n</B>]  [ <B>-p</B>]  [ <B>-x</B>]  [ <B>-e </B><I>encoding</I><B></B>]  [ <B>-w</B>]  [ <B>-d </B><I>output-dir</I><B></B>]  [ <B>-c</B>]  [ <B>-m</B>]  [ <B>-r</B>]  [ <B>-t</B>]  [ <B>-v</B>]  [ <B>file ...</B>] 
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>xmlwf</B> uses the Expat library to
+determine if an XML document is well-formed.  It is
+non-validating.
+<P>
+
+If you do not specify any files on the command-line, and you
+have a recent version of <B>xmlwf</B>, the
+input file will be read from standard input.
+<A NAME="lbAE">&nbsp;</A>
+<H2>WELL-FORMED DOCUMENTS</H2>
+
+<P>
+
+A well-formed document must adhere to the
+following rules:
+<DL COMPACT>
+<DT>*<DD>
+The file begins with an XML declaration.  For instance,
+&lt;?xml version=&quot;1.0&quot; standalone=&quot;yes&quot;?&gt;.
+<B>NOTE:</B>
+<B>xmlwf</B> does not currently
+check for a valid XML declaration.
+<DT>*<DD>
+Every start tag is either empty (&lt;tag/&gt;)
+or has a corresponding end tag.
+<DT>*<DD>
+There is exactly one root element.  This element must contain
+all other elements in the document.  Only comments, white
+space, and processing instructions may come after the close
+of the root element.
+<DT>*<DD>
+All elements nest properly.
+<DT>*<DD>
+All attribute values are enclosed in quotes (either single
+or double).
+</DL>
+<P>
+
+If the document has a DTD, and it strictly complies with that
+DTD, then the document is also considered <B>valid</B>.
+<B>xmlwf</B> is a non-validating parser --
+it does not check the DTD.  However, it does support
+external entities (see the <B>-x</B> option).
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+When an option includes an argument, you may specify the argument either
+separately (&quot;<B>-d</B> output&quot;) or concatenated with the
+option (&quot;<B>-d</B>output&quot;).  <B>xmlwf</B>
+supports both.
+<DL COMPACT>
+<DT><B>-c</B><DD>
+If the input file is well-formed and <B>xmlwf</B>
+doesn't encounter any errors, the input file is simply copied to
+the output directory unchanged.
+This implies no namespaces (turns off <B>-n</B>) and
+requires <B>-d</B> to specify an output file.
+<DT><B>-d output-dir</B><DD>
+Specifies a directory to contain transformed
+representations of the input files.
+By default, <B>-d</B> outputs a canonical representation
+(described below).
+You can select different output formats using <B>-c</B>
+and <B>-m</B>.
+<P>
+The output filenames will
+be exactly the same as the input filenames or &quot;STDIN&quot; if the input is
+coming from standard input.  Therefore, you must be careful that the
+output file does not go into the same directory as the input
+file.  Otherwise, <B>xmlwf</B> will delete the
+input file before it generates the output file (just like running
+cat &lt; file &gt; file in most shells).
+<P>
+Two structurally equivalent XML documents have a byte-for-byte
+identical canonical XML representation.
+Note that ignorable white space is considered significant and
+is treated equivalently to data.
+More on canonical XML can be found at
+<A HREF="http://www.jclark.com/xml/canonxml.php">http://www.jclark.com/xml/canonxml.html</A> .
+<DT><B>-e encoding</B><DD>
+Specifies the character encoding for the document, overriding
+any document encoding declaration.  <B>xmlwf</B>
+supports four built-in encodings:
+US-ASCII,
+UTF-8,
+UTF-16, and
+ISO-8859-1.
+Also see the <B>-w</B> option.
+<DT><B>-m</B><DD>
+Outputs some strange sort of XML file that completely
+describes the the input file, including character postitions.
+Requires <B>-d</B> to specify an output file.
+<DT><B>-n</B><DD>
+Turns on namespace processing.  (describe namespaces)
+<B>-c</B> disables namespaces.
+<DT><B>-p</B><DD>
+Tells xmlwf to process external DTDs and parameter
+entities.
+<P>
+Normally <B>xmlwf</B> never parses parameter
+entities.  <B>-p</B> tells it to always parse them.
+<B>-p</B> implies <B>-x</B>.
+<DT><B>-r</B><DD>
+Normally <B>xmlwf</B> memory-maps the XML file
+before parsing; this can result in faster parsing on many
+platforms.
+<B>-r</B> turns off memory-mapping and uses normal file
+IO calls instead.
+Of course, memory-mapping is automatically turned off
+when reading from standard input.
+<P>
+Use of memory-mapping can cause some platforms to report
+substantially higher memory usage for
+<B>xmlwf</B>, but this appears to be a matter of
+the operating system reporting memory in a strange way; there is
+not a leak in <B>xmlwf</B>.
+<DT><B>-s</B><DD>
+Prints an error if the document is not standalone. 
+A document is standalone if it has no external subset and no
+references to parameter entities.
+<DT><B>-t</B><DD>
+Turns on timings.  This tells Expat to parse the entire file,
+but not perform any processing.
+This gives a fairly accurate idea of the raw speed of Expat itself
+without client overhead.
+<B>-t</B> turns off most of the output options
+(<B>-d</B>, <B>-m</B>, <B>-c</B>,
+...).
+<DT><B>-v</B><DD>
+Prints the version of the Expat library being used, including some
+information on the compile-time configuration of the library, and
+then exits.
+<DT><B>-w</B><DD>
+Enables support for Windows code pages.
+Normally, <B>xmlwf</B> will throw an error if it
+runs across an encoding that it is not equipped to handle itself.  With
+<B>-w</B>, xmlwf will try to use a Windows code
+page.  See also <B>-e</B>.
+<DT><B>-x</B><DD>
+Turns on parsing external entities.
+<P>
+Non-validating parsers are not required to resolve external
+entities, or even expand entities at all.
+Expat always expands internal entities (?),
+but external entity parsing must be enabled explicitly.
+<P>
+External entities are simply entities that obtain their
+data from outside the XML file currently being parsed.
+<P>
+This is an example of an internal entity:
+<P>
+<PRE>
+&lt;!ENTITY vers '1.0.2'&gt;
+</PRE>
+
+<P>
+And here are some examples of external entities:
+<P>
+<PRE>
+&lt;!ENTITY header SYSTEM &quot;header-&amp;vers;.xml&quot;&gt;  (parsed)
+&lt;!ENTITY logo SYSTEM &quot;logo.png&quot; PNG&gt;         (unparsed)
+</PRE>
+
+<DT><B>--</B><DD>
+(Two hyphens.)
+Terminates the list of options.  This is only needed if a filename
+starts with a hyphen.  For example:
+<P>
+<PRE>
+xmlwf -- -myfile.xml
+</PRE>
+
+<P>
+will run <B>xmlwf</B> on the file
+<I>-myfile.xml</I>.
+</DL>
+<P>
+
+Older versions of <B>xmlwf</B> do not support
+reading from standard input.
+<A NAME="lbAG">&nbsp;</A>
+<H2>OUTPUT</H2>
+
+<P>
+
+If an input file is not well-formed,
+<B>xmlwf</B> prints a single line describing
+the problem to standard output.  If a file is well formed,
+<B>xmlwf</B> outputs nothing.
+Note that the result code is <B>not</B> set.
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+According to the W3C standard, an XML file without a
+declaration at the beginning is not considered well-formed.
+However, <B>xmlwf</B> allows this to pass.
+<P>
+
+<B>xmlwf</B> returns a 0 - noerr result,
+even if the file is not well-formed.  There is no good way for
+a program to use <B>xmlwf</B> to quickly
+check a file -- it must parse <B>xmlwf</B>'s
+standard output.
+<P>
+
+The errors should go to standard error, not standard output.
+<P>
+
+There should be a way to get <B>-d</B> to send its
+output to standard output rather than forcing the user to send
+it to a file.
+<P>
+
+I have no idea why anyone would want to use the
+<B>-d</B>, <B>-c</B>, and
+<B>-m</B> options.  If someone could explain it to
+me, I'd like to add this information to this manpage.
+<A NAME="lbAI">&nbsp;</A>
+<H2>ALTERNATIVES</H2>
+
+<P>
+
+Here are some XML validators on the web:
+<P>
+<PRE>
+<A HREF="http://www.hcrc.ed.ac.uk/~richard/xml-check.php">http://www.hcrc.ed.ac.uk/~richard/xml-check.html</A>
+<A HREF="http://www.stg.brown.edu/service/xmlvalid/">http://www.stg.brown.edu/service/xmlvalid/</A>
+<A HREF="http://www.scripting.com/frontier5/xml/code/xmlValidator.php">http://www.scripting.com/frontier5/xml/code/xmlValidator.html</A>
+<A HREF="http://www.xml.com/pub/a/tools/ruwf/check.php">http://www.xml.com/pub/a/tools/ruwf/check.html</A>
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<P>
+<PRE>
+The Expat home page:        <A HREF="http://www.libexpat.org/">http://www.libexpat.org/</A>
+The W3 XML specification:   <A HREF="http://www.w3.org/TR/REC-xml">http://www.w3.org/TR/REC-xml</A>
+</PRE>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+This manual page was written by Scott Bronson &lt;<A HREF="mailto:bronson@rinspin.com">bronson@rinspin.com</A>&gt; for
+the Debian GNU/Linux system (but may be used by others).  Permission is
+granted to copy, distribute and/or modify this document under
+the terms of the GNU Free Documentation
+License, Version 1.1.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">WELL-FORMED DOCUMENTS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">OUTPUT</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">ALTERNATIVES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

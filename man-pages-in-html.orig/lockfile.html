@@ -1,0 +1,448 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LOCKFILE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LOCKFILE</H1>
+Section: User Commands  (1)<BR>Updated: 2001/06/23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lockfile - conditional semaphore-file creator
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>lockfile</B>
+
+<I></I><B>-</B>sleeptime
+
+|
+<I></I><B>-r </B>retries
+
+|
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<I></I><B>-l </B>locktimeout
+
+|
+<I></I><B>-s </B>suspend
+
+|
+<B>-!</B>
+
+|
+<B>-ml</B>
+
+|
+<B>-mu</B>
+
+|
+<I>filename</I>
+
+...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>lockfile</B>
+
+can be used to create one or more
+<I>semaphore</I>
+
+<I>files</I>.
+
+If lockfile can't create all the specified files (in the specified order),
+it waits
+<I>sleeptime</I>
+
+(defaults to 8) seconds and retries the last file that didn't
+succeed.  You can specify the number of
+<I>retries</I>
+
+to do until failure is returned.
+If the number of
+<I>retries</I>
+
+is -1 (default, i.e.,
+<B>-r-1</B>)
+
+lockfile will retry forever.
+<P>
+
+If the number of
+<I>retries</I>
+
+expires before all files have been created, lockfile returns failure and
+removes all the files it created up till that point.
+<P>
+
+Using lockfile as the condition of a loop in a shell script can be done
+easily by using the
+<B>-!</B>
+
+flag to invert the exit status.  To prevent infinite loops, failures
+for any reason other than the lockfile already existing are not
+inverted to success but rather are still returned as failures.
+<P>
+
+All flags can be specified anywhere on the command line, they will be
+processed when encountered.  The command line is simply parsed from
+left to right.
+<P>
+
+All files created by lockfile will be read-only, and therefore
+will have to be removed with
+<B>rm</B>
+
+<B>-f</B>.
+
+<P>
+
+If you specify a
+<I>locktimeout</I>
+
+then a lockfile will be removed by force after locktimeout seconds have
+passed since the lockfile was last modified/created (most likely by some
+other program that unexpectedly died a long time ago, and hence could not clean
+up any leftover lockfiles).  Lockfile is clock skew immune.  After a lockfile
+has been removed by force, a suspension of
+<I>suspend</I>
+
+seconds (defaults to 16) is taken into account, in order to prevent
+the inadvertent immediate removal of any newly created lockfile by another
+program (compare
+<B>SUSPEND</B>
+
+in
+<B><A HREF="../man1/procmail.1.php">procmail</A></B>(1)).
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Mailbox locks</H3>
+
+If the permissions on the system mail spool directory allow it, or if lockfile
+is suitably setgid, it will be able to lock and unlock your system mailbox by
+using the options
+<B>-ml</B>
+
+and
+<B>-mu</B>
+
+respectively.
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Suppose you want to make sure that access to the file &quot;important&quot; is
+serialised, i.e., no more than one program or shell script should be allowed
+to access it.  For simplicity's sake, let's suppose that it is a shell
+script.  In this case you could solve it like this:
+<DL COMPACT><DT><DD>
+...
+lockfile important.lock
+...
+access_&quot;important&quot;_to_your_hearts_content
+...
+rm -f important.lock
+...
+</DL>
+
+Now if all the scripts that access &quot;important&quot; follow this guideline, you
+will be assured that at most one script will be executing between the
+`lockfile' and the `rm' commands.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>LOGNAME</B>
+
+<DD>
+used as a hint to determine the invoker's loginname
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>/etc/passwd</B>
+
+<DD>
+to verify and/or correct the invoker's loginname (and to find out his HOME
+directory, if needed)
+<DT><B>/var/mail/$LOGNAME.lock</B>
+
+<DD>
+lockfile for the system mailbox, the environment variables present in here
+will not be taken from the environment, but will be determined by looking
+in /etc/passwd
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+
+
+<B><A HREF="../man1/rm.1.php">rm</A></B>(1),
+
+<B><A HREF="../man1/mail.1.php">mail</A></B>(1),
+
+<B><A HREF="../man1/binmail.1.php">binmail</A></B>(1),
+
+<B><A HREF="../man8/sendmail.8.php">sendmail</A></B>(8),
+
+<B><A HREF="../man1/procmail.1.php">procmail</A></B>(1)
+
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<DL COMPACT>
+<DT>Filename too long, ...<DD>
+Use shorter filenames.
+<DT>Forced unlock denied on &quot;x&quot;<DD>
+No write permission in the directory where lockfile &quot;x&quot; resides, or more than
+one lockfile trying to force a lock at exactly the same time.
+<DT>Forcing lock on &quot;x&quot;<DD>
+Lockfile &quot;x&quot; is going to be removed by force because of a timeout
+(compare
+<B>LOCKTIMEOUT</B>
+
+in
+<B><A HREF="../man1/procmail.1.php">procmail</A></B>(1)).
+
+<DT>Out of memory, ...<DD>
+The system is out of swap space.
+<DT>Signal received, ...<DD>
+Lockfile will remove anything it created till now and terminate.
+<DT>Sorry, ...<DD>
+The
+<I>retries</I>
+
+limit has been reached.
+<DT>Truncating &quot;x&quot; and retrying lock<DD>
+&quot;x&quot; does not seem to be a valid filename.
+<DT>Try praying, ...<DD>
+Missing subdirectories or insufficient privileges.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+Definitely less than one.
+<A NAME="lbAL">&nbsp;</A>
+<H2>WARNINGS</H2>
+
+The behavior of the
+<B>-!</B>
+
+flag, while useful, is not necessarily intuitive or consistent.  When
+testing lockfile's return value, shell script writers should consider
+carefully whether they want to use the
+<B>-!</B>
+
+flag, simply reverse the test, or do a switch on the exact exitcode.
+In general, the
+<B>-!</B>
+
+flag should only be used when lockfile is the conditional of a loop.
+<A NAME="lbAM">&nbsp;</A>
+<H2>MISCELLANEOUS</H2>
+
+Lockfile is NFS-resistant and eight-bit clean.
+<A NAME="lbAN">&nbsp;</A>
+<H2>NOTES</H2>
+
+Calling up lockfile with the -h or -? options will cause
+it to display a command-line help page.  Calling it up with the -v
+option will cause it to display its version information.
+<P>
+
+Multiple
+<B>-!</B>
+
+flags will toggle the return status.
+<P>
+
+Since flags can occur anywhere on the command line, any filename starting
+with a '-' has to be preceded by './'.
+<P>
+
+The number of
+<I>retries</I>
+
+will not be reset when any following file is being created (i.e., they are
+simply used up).  It can, however, be reset by specifying
+-r<I>newretries</I>
+
+after every file on the command line.
+<P>
+
+Although files with any name can be used as lockfiles, it is common practice
+to use the extension `.lock' to lock mailfolders (it is appended to the
+mailfolder name).  In case one does not want to have to worry about too long
+filenames and does not have to conform to any other lockfilename convention,
+then an excellent way to generate a lockfilename corresponding to some already
+existing file is by taking the prefix `lock.' and appending the i-node number
+of the file which is to be locked.
+<A NAME="lbAO">&nbsp;</A>
+<H2>SOURCE</H2>
+
+This program is part of the
+<I>procmail mail-processing-package</I>
+
+(v3.22) available at <A HREF="http://www.procmail.org/">http://www.procmail.org/</A> or
+<A HREF="ftp://ftp.procmail.org">ftp.procmail.org</A> in
+<B>pub/procmail/</B>.
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>MAILINGLIST</H2>
+
+There exists a mailinglist for questions relating to any program in the
+procmail package:
+<DL COMPACT><DT><DD>
+&lt;<A HREF="mailto:procmail-users@procmail.org">procmail-users@procmail.org</A>&gt;
+<DL COMPACT><DT><DD>
+for submitting questions/answers.
+</DL>
+
+&lt;<A HREF="mailto:procmail-users-request@procmail.org">procmail-users-request@procmail.org</A>&gt;
+<DL COMPACT><DT><DD>
+for subscription requests.
+</DL>
+
+<P>
+
+</DL>
+
+If you would like to stay informed about new versions and official patches send
+a subscription request to
+<DL COMPACT><DT><DD>
+<A HREF="mailto:procmail-announce-request@procmail.org">procmail-announce-request@procmail.org</A>
+</DL>
+
+(this is a readonly list).
+<A NAME="lbAQ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Stephen R. van den Berg
+<DL COMPACT><DT><DD>
+&lt;<A HREF="mailto:srb@cuci.nl">srb@cuci.nl</A>&gt;
+</DL>
+
+Philip A. Guenther
+<DL COMPACT><DT><DD>
+&lt;<A HREF="mailto:guenther@sendmail.com">guenther@sendmail.com</A>&gt;
+</DL>
+
+
+
+
+
+
+
+
+
+
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Mailbox locks</A><DD>
+</DL>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+<DT><A HREF="#lbAL">WARNINGS</A><DD>
+<DT><A HREF="#lbAM">MISCELLANEOUS</A><DD>
+<DT><A HREF="#lbAN">NOTES</A><DD>
+<DT><A HREF="#lbAO">SOURCE</A><DD>
+<DT><A HREF="#lbAP">MAILINGLIST</A><DD>
+<DT><A HREF="#lbAQ">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

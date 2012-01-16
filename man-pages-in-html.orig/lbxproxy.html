@@ -1,0 +1,356 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LBXPROXY</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LBXPROXY</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lbxproxy - Low BandWidth X proxy
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>lbxproxy [:&lt;display&gt;] [option]</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Applications that would like to take advantage of the Low Bandwidth
+extension to X (LBX) must make their connections to an lbxproxy.  These
+applications need to know nothing about LBX, they simply connect to the
+lbxproxy as if were a regular server.  The lbxproxy accepts client
+connections, multiplexes them over a single connection to the X server, and
+performs various optimizations on the X protocol to make it faster over low
+bandwidth and/or high latency connections.
+<P>
+
+With regard to authentication/authorization, lbxproxy simply passes along
+to the server the credentials presented by the client.  Since X clients will
+connect to lbxproxy, it is important that the user's .Xauthority file contain
+entries with valid keys associated with the network ID of the proxy.  lbxproxy
+does not get involved with how these entries are added to the .Xauthority file.
+The user is responsible for setting it up.
+<P>
+
+The lbxproxy program has various options, all of which are optional.
+<P>
+
+If
+<B>:&lt;display&gt;</B>
+
+is specified, the proxy will use the given display port when
+listening for connections.  The display port is an offset from port 6000,
+identical to the way in which regular X display connections are specified.
+If no port is specified on the command line option, lbxproxy will default
+to port 63.  If the port number that the proxy tries to listen on is in
+use, the proxy will attempt to use another port number.  If
+the proxy is not using the Proxy Manager and the default
+port number cannot be used, the port number that is used
+will be written to stderr.
+<P>
+
+The other command line options that can be specified are:
+<P>
+
+<DL COMPACT>
+<DT><B>-help</B>
+
+<DD>
+Prints a brief help message about the command line options.
+<DT><B>-display </B><I>dpy</I>
+
+<DD>
+Specifies the address of the X server supporting the LBX extension.
+If this option is not specified, the display is obtained by the
+DISPLAY environment variable.
+<DT><B>-motion </B><I>count</I>
+
+<DD>
+A limited number of pointer motion events are allowed to be in flight
+between the server and the proxy at any given time.  The maximum
+number of motion events that can be in flight is set with this option;
+the default is 8.
+<DT><B>-maxservers </B><I>number</I>
+
+<DD>
+The default behavior of lbxproxy is to manage a single server.
+However, lbxproxy can manage more than one server.  The default
+maximum number of servers is 20.  The number of servers can be 
+overridden by setting the environment variable LBXPROXY_MAXSERVERS 
+to the desired number.  The order of precedence from highest
+to lowest: command line, environment variable, default number.
+<DT><B>-[terminate|reset]</B>
+
+<DD>
+The default behavior of lbxproxy is to continue running as usual when
+it's last client exits.  The
+<B>-terminate</B>
+
+option will cause lbxproxy to
+exit when the last client exits.  The
+<B>-reset</B>
+
+option will cause
+lbxproxy to reset itself when the last client exits.  Resetting causes
+lbxproxy to clean up it's state and reconnect to the server.
+<DT><B>-reconnect</B>
+
+<DD>
+The default behavior of lbxproxy is to exit when its connection to the
+server is broken.  The
+<B>-reconnect</B>
+
+option will cause lbxproxy to just reset instead (see
+<B>-reset</B>
+
+above) and attempt to reconnect to the server.
+<DT><B>-I</B>
+
+<DD>
+Causes all remaining arguments to be ignored.
+<DT><B>-nolbx</B>
+
+<DD>
+Disables all LBX optimizations.
+<DT><B>-nocomp</B>
+
+<DD>
+Disables stream compression.
+<DT><B>-nodelta</B>
+
+<DD>
+Disables delta request substitutions.
+<DT><B>-notags</B>
+
+<DD>
+Disables usage of tags.
+<DT><B>-nogfx</B>
+
+<DD>
+Disables reencoding of graphics requests (not including image
+related requests).
+<DT><B>-noimage</B>
+
+<DD>
+Disables image compression.
+<DT><B>-nosquish</B>
+
+<DD>
+Disables squishing of X events.
+<DT><B>-nointernsc</B>
+
+<DD>
+Disables short circuiting of InternAtom requests.
+<DT><B>-noatomsfile</B>
+
+<DD>
+Disables reading of the atoms control file.  See the section on
+&quot;Atom Control&quot; for more details.
+<DT><B>-atomsfile </B><I>file</I>
+
+<DD>
+Overrides the default AtomControl file.  See the section on
+&quot;Atom Control&quot; for more details.
+<DT><B>-nowinattr</B>
+
+<DD>
+Disables GetWindowAttributes/GetGeometry grouping into one round trip.
+<DT><B>-nograbcmap</B>
+
+<DD>
+Disables colormap grabbing.
+<DT><B>-norgbfile</B>
+
+<DD>
+Disables color name to RGB resolution in proxy.
+<DT><B>-rgbfile </B><I>path</I>
+
+<DD>
+Specifies an alternate RGB database for color name to RGB resolution.
+<DT><B>-tagcachesize</B>
+
+<DD>
+Set the size of the proxy's tag cache (in bytes).
+<DT><B>-zlevel </B><I>level</I>
+
+<DD>
+Set the Zlib compression level (used for stream compression).
+<BR>
+
+default is 6
+<BR>
+
+1 = worst compression, fastest
+<BR>
+
+9 = best compression, slowest
+<DT><B>-compstats</B>
+
+<DD>
+Report stream compression statistics every time the proxy resets
+or receives a SIGHUP signal.
+<DT><B>-nozeropad</B>
+
+<DD>
+Don't zero out unused pad bytes in X requests, replies, and events.
+<DT><B>-cheaterrors</B>
+
+<DD>
+Allows cheating on X protocol for the sake of improved performance.
+The X protocol guarantees that any replies, events or
+errors generated by a previous request will be sent before those of
+a later request.  This puts substantial restrictions on when lbxproxy
+can short circuit a request.  The -cheaterrors option allows lbxproxy to
+violate X protocol rules with respect to errors.  Use at your own risk.
+<DT><B>-cheatevents</B>
+
+<DD>
+The -cheatevents option allows lbxproxy to violate X protocol rules with
+respect to events as well as errors.  Use at your own risk.
+</DL>
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>ATOM CONTROL</H2>
+
+<P>
+
+At startup, lbxproxy &quot;pre-interns&quot; a configurable list of
+atoms.  This allows lbxproxy to intern a group of atoms in a single round
+trip and immediately store the results in its cache.
+<P>
+
+While running, lbxproxy uses heuristics to decide when to delay
+sending window property data to the server.  The heuristics depend
+on the size of the data, the name of the property, and whether a
+window manager is running through the same lbxproxy.
+<P>
+
+Atom control is specified in the &quot;AtomControl&quot; file, set
+up during installation of lbxproxy, with command line overrides.
+<P>
+
+The file is a simple text file.  There are three forms of lines:
+comments, length control, and name control.  Lines starting with
+a '!' are treated as comments.  A line of the form
+<P>
+
+<PRE>
+z <I>length</I>
+</PRE>
+
+
+<P>
+specifies the minimum length in bytes before property data will be
+delayed.  A line of the form
+<P>
+
+<PRE>
+<I>options</I> <I>atomname</I>
+</PRE>
+
+
+<P>
+controls the given atom, where <I>options</I> is any combination
+of the following characters: 'i' means the atom should be pre-interned;
+
+and 'w' means data for properties with this name should be delayed only
+if a window manager is also running through the same lbxproxy.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+When the authorization protocol XDM-AUTHORIZATION-1 is used:
+<P>
+
+
+A client must be on the same host as lbxproxy for the client to be
+authorized to connect to the server.
+<P>
+
+
+If a client is not on the same host as lbxproxy, the client will
+not be authorized to connect to the server.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">ATOM CONTROL</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Xdelta</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>Xdelta</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xdelta - Invoke Xdelta
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xdelta</B>
+
+<I>subcommand</I>
+
+[
+<I>option</I>...
+
+] [
+<I>operand</I>...
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Xdelta provides the ability to generate deltas between a pair of files
+and later apply those deltas.  It operates similar to the
+<B>diff</B>
+
+and
+<B>patch</B>
+
+commands, but works on binary files and does not produce a human
+readable output.
+<P>
+
+<P>
+Xdelta has three subcommands, delta, patch, and info.  Delta accepts
+two file versions and produces a delta, while patch accepts the
+original file version and delta and produces the second version.  The
+info command prints useful information about a delta.  Each subcommand
+will be detailed seperately.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H3>Gzip processing</H3>
+
+Attempting to compute a delta between compressed input files usually
+results in poor compression.  This is because small differences
+between the original contents causes changes in the compression of
+whole blocks of data.  To simplify things, Xdelta implements a special
+case for
+<I><A HREF="../man1/gzip.1.php">gzip</A></I>(1)
+
+compressed files.  If any version input to the delta command is
+recognized as having gzip compression, it will be automatically
+decompressed into a temporary location prior to comparison.  This
+temporary location is either the value of the
+<I>TMPDIR</I>
+
+environment variable, if set, otherwise &quot;/tmp&quot;.
+<P>
+The Xdelta patch header contains a flag indicating that the
+reconstructed version should be recompressed after applying the
+patch.  In general, this allows Xdelta to operate transparently on
+gzip compressed inputs.
+<P>
+There is one potential problem when automatically processing gzip
+compressed files, which is that the recompressed content does not
+always match byte-for-byte with the original compressed content.  The
+uncompressed content still matches, but if there is an external
+integrity check such as cryptographic signature verification, it may
+fail.  To prevent this from happening, the --pristine option disables
+automatic gzip processing.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H3>MD5 integrity check</H3>
+
+By default, Xdelta always verifies the MD5 checksum of the files it
+reconstructs.  This prevents you from supplying an incorrect input
+during patch, which would result in corrupt output.  Because of this
+feature, you can feel confident that patch has produced valid results.
+The --noverify option disables MD5 verification, but this is only
+recommended for performance testing.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Compressed patch format</H3>
+
+Xdelta uses a fairly simple encoding for its delta, then applies zlib
+compression to the result.  You should not have to post-compress an
+Xdelta delta.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Delta</H3>
+
+The delta subcommand has the following synopsis:
+<P>
+<B>xdelta</B>
+
+<I>delta</I>
+
+[
+<I>option</I>...
+
+]
+<I>fromfile</I>
+
+<I>tofile</I>
+
+<I>patchout</I>
+
+<P>
+Computes a delta from
+<I>fromfile</I>
+
+to
+<I>tofile</I>
+
+and writes it to
+<I>patchout</I>
+
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H3>Patch</H3>
+
+The patch subcommand has the following synopsis:
+<P>
+<B>xdelta</B>
+
+<I>patch</I>
+
+[
+<I>option</I>...
+
+]
+<I>patchin</I>
+
+[
+<I>fromfile</I>
+
+[
+<I>tofile</I>
+
+]]
+<P>
+Applies
+<I>patchin</I>
+
+to
+<I>fromfile</I>
+
+and produces a reconstructed version of
+<I>tofile.</I>
+
+<P>
+If fromfile was omitted, Xdelta attempts to use the original fromfile
+name, which is stored in the delta.  The from file must be identical
+to the one used to create the delta.  If its length or MD5 checksum
+differs, patch will abort with an error message.
+<P>
+If tofile was omitted, Xdelta attempts to use the original tofile
+name, which is also stored in the delta.  If the original tofile name
+already exists, a unique filename extension will be added to avoid
+destroying any existing data.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Info</H3>
+
+The info subcommand has the following synopsis:
+<P>
+<B>xdelta</B>
+
+<I>info</I>
+
+<I>patchinfo</I>
+
+<P>
+Prints information about
+<I>patchinfo</I>
+
+and the version it reconstructs, including file names, lengths, and
+MD5 checksums.
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Options</H3>
+
+<P>
+<DL COMPACT>
+<DT>-0..9<DD>
+Set the zlib compression level.  Zero indicates no compression.  Nine
+indicates maximum compression.
+<P>
+<DT>-h, --help<DD>
+Print a short help message and exit.
+<P>
+<DT>-q, --quiet<DD>
+Quiet.  Surpresses several warning messages.
+<P>
+<DT>-v, --version<DD>
+Print the Xdelta version number and exit.
+<P>
+<DT>-V, --verbose<DD>
+Verbose.  Prints a bit of extra information.
+<P>
+<DT>-n, --noverify<DD>
+No verify.  Turns off MD5 checksum verification of the input and
+output files.
+<P>
+<DT>-m=SIZE, --maxmem=SIZE<DD>
+Set an upper bound on the size of an in-memory page cache.  For
+example, --maxmem=32M will use a 32 megabyte page cache.
+<P>
+<DT>-s=BLOCK_SIZE<DD>
+Set the block size, unless it was hard coded (20% speed improvement).
+Should be a power of 2.
+<P>
+<DT>-p, --pristine<DD>
+Disable the automatic decompression of gzipped inputs, to prevent
+unexpected differences in the re-compressed content.
+<P>
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>IDENTIFICATION</H2>
+
+Author: Joshua P. MacDonald, <A HREF="mailto:jmacd@cs.berkeley.edu">jmacd@cs.berkeley.edu</A>
+<BR>
+
+
+Manual Page Revision: 1.5; Release Date: Fri, 29 Jun 2001 06:01:08 -0700.
+<BR>
+
+Copyright &#169; 1997, 1998, 1999, 2000, 2001
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Gzip processing</A><DD>
+<DT><A HREF="#lbAF">MD5 integrity check</A><DD>
+<DT><A HREF="#lbAG">Compressed patch format</A><DD>
+<DT><A HREF="#lbAH">Delta</A><DD>
+<DT><A HREF="#lbAI">Patch</A><DD>
+<DT><A HREF="#lbAJ">Info</A><DD>
+<DT><A HREF="#lbAK">Options</A><DD>
+</DL>
+<DT><A HREF="#lbAL">IDENTIFICATION</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

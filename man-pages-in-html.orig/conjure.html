@@ -1,0 +1,633 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>conjure</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>conjure</H1>
+Section: User Commands  (1)<BR>Updated: Date: 2004/01/01 01:00:00<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>CONJURE</H2>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>NAME</H2>
+
+conjure - process a Magick Scripting Language (MSL) script
+<P>
+<B>WARNING: Conjure and MSL are in very early development and the
+syntax is subject to change!</B>
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>conjure</B> <B>[</B> <I>options</I> <B>]</B> <I>script.msl</I>
+<B>[ [</B> <I>options</I> <B>]</B> <I>script.msl</I> <B>]</B>
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+The Magick scripting language (MSL) will primarily
+benefit those that want to accomplish custom image processing tasks but
+do not wish to program, or those that do not have access to a Perl
+interpreter or a compiler.  The interpreter is called conjure and here
+is an example script:
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&nbsp;size=&quot;400x400&quot;&nbsp;&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;read&nbsp;filename=&quot;image.gif&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;get&nbsp;width=&quot;base-width&quot;&nbsp;height=&quot;base-height&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;resize&nbsp;geometry=&quot;%[dimensions]&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;get&nbsp;width=&quot;width&quot;&nbsp;height=&quot;height&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;print&nbsp;output=
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Image&nbsp;sized&nbsp;from&nbsp;%[base-width]x%[base-height]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;%[width]x%[height].\n&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;write&nbsp;filename=&quot;image.png&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/image&gt;
+<P>
+invoked with
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;conjure&nbsp;-dimensions&nbsp;400x400&nbsp;incantation.msl
+<P>
+All operations will closely follow the key/value pairs defined in
+PerlMagick, unless otherwise noted.
+<P>
+<P>
+<B>Conjure</B> is in the early stages of development as of
+April 2002.
+<P>
+<P>
+This early announcement is to allow ImageMagick users to contribute
+ideas early in the process so when the scripting language is released it
+will be useful/stable from the get-go! If you want to contribute
+suggestions about the Magick scripting language (MSL), post them to the
+ImageMagick tools list at imagemagick-tools @ lists.sourceforge.net.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+Options are processed in command line order. Any option you specify on
+the command line remains in effect until it is explicitly changed by specifying
+the option again with a different effect, or if it is changed by a statement
+in the scripting language.
+<P>
+<P>
+You can define your own keyword/value pairs on the command line.
+The script can then use this information when setting values by including
+%[keyword] in the string.  For example, if you included
+&quot;-dimensions 400x400&quot; on the command line, as illustrated above,
+then any string
+containing &quot;%[dimensions]&quot; would have 400x400 substituted.
+The &quot;%[string]&quot; can be used either an entire string, such as
+geometry=&quot;%[dimensions]&quot; or as a part of a string such as
+filename=&quot;%[basename].png&quot;.
+<P>
+The keyword can be any string except for the following reserved
+strings (in any upper, lower, or mixed case variant): <B>debug</B>,
+<B>help</B>, and <B>verbose</B>, whose usage is described below.
+<P>
+The value can be any string.  If
+either the keyword or the value contains white space or any
+symbols that have special meanings to your shell such as &quot;#&quot;,
+&quot;|&quot;,
+or
+&quot;%&quot;, enclose the string in quotation marks or use &quot;\&quot; to escape the white
+space and special symbols.
+<P>
+Keywords and values are case dependent.  &quot;Key&quot;,
+&quot;key&quot;,
+and &quot;KEY&quot; would
+be three different keywords.
+<P>
+<P>
+For a more detailed description of each option, see
+Options, above.
+<I><A HREF="../man1/ImageMagick.1.php">ImageMagick</A>(1)</I>.
+<P>
+<DL COMPACT>
+<DT><B>-debug </B><I>&lt;events&gt;</I>
+
+<DD>
+enable debug printout
+<DT><B>-define </B><I>&lt;key&gt;{=&lt;value&gt;},...</I>
+
+<DD>
+add coder/decoder specific options
+<DT><B>-help</B>
+
+<DD>
+print usage instructions
+<DT><B>-log </B><I>&lt;string&gt;</I>
+
+<DD>
+Specify format for debug log
+<DT><B>-verbose</B>
+
+<DD>
+print detailed information about the image
+<DT><B>-version</B>
+
+<DD>
+print ImageMagick version string
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>MAGICK SCRIPTING LANGUAGE</H2>
+
+The Magick Scripting Language (MSL) presently defines the following
+elements and their attributes:
+
+<P>
+
+<B>&lt;image&gt;</B>
+
+
+<BR>&nbsp;
+
+Define a new image object.
+<B>&lt;/image&gt;</B> destroys it. Because of this, if you wish
+to reference multiple &quot;subimages&quot; (aka pages or layers),
+you can embed one <B>image</B> element inside of
+another. For example:
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;read&nbsp;filename=&quot;input.png&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;get&nbsp;width=&quot;base-width&quot;&nbsp;height=&quot;base-height&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&nbsp;height=&quot;base-height&quot;&nbsp;width=&quot;base-width&quot;&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;write&nbsp;filename=&quot;output.mng&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/image&gt;
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&nbsp;size=&quot;400x400&quot;&nbsp;/&gt;
+<P>
+
+
+<B>&lt;group&gt;</B>
+
+
+<BR>&nbsp;
+
+Define a new group of image objects.
+By default, images are only valid for the life of
+their <B>&lt;image&gt;</B>element.
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&gt;&nbsp;&nbsp;&nbsp;--&nbsp;creates&nbsp;the&nbsp;image
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;.....&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;do&nbsp;stuff&nbsp;with&nbsp;it
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/image&gt;&nbsp;&nbsp;--&nbsp;dispose&nbsp;of&nbsp;the&nbsp;image
+<P>
+
+
+<P>
+However, in a group, all images in that group will stay 
+around for the life of the group:
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;group&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;start&nbsp;a&nbsp;group
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;create&nbsp;an&nbsp;image
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;....&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;do&nbsp;stuff
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/image&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;NOOP
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;image&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;create&nbsp;another&nbsp;image
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;....&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;do&nbsp;more&nbsp;stuff
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/image&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;NOOP
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;write&nbsp;filename=&quot;image.mng&quot;&nbsp;/&gt;&nbsp;&nbsp;--&nbsp;output
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/group&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;dispose&nbsp;of&nbsp;both&nbsp;images
+<P>
+
+
+<B>&lt;read&gt;</B>
+
+
+<BR>&nbsp;
+
+Read a new image from a disk file.
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;read&nbsp;filename=&quot;image.gif&quot;&nbsp;/&gt;
+<P>
+
+
+To read two images use
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;read&nbsp;filename=&quot;image.gif&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;read&nbsp;filename=&quot;image.png&nbsp;/&gt;
+<P>
+
+
+<B>&lt;write&gt;</B>
+
+
+<BR>&nbsp;
+
+Write the image(s) to disk, either as
+a single multiple-image file or multiple ones if necessary.
+<P>
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;write&nbsp;filename=image.tiff&quot;&nbsp;/&gt;
+
+<B>&lt;get&gt;</B>
+
+
+<BR>&nbsp;
+
+Get any attribute recognized by
+PerlMagick's GetAttribute() and stores it as an image attribute for later
+use. Currently only <I>width</I> and <I>height</I> are supported.
+
+
+<P>
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;get&nbsp;width=&quot;base-width&quot;&nbsp;height=&quot;base-height&quot;&nbsp;/&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&lt;print&nbsp;output=&quot;Image&nbsp;size&nbsp;is&nbsp;%[base-width]x%[base-height].\n&quot;&nbsp;/&gt;
+<P>
+
+
+<B>&lt;set&gt;</B>
+
+
+<BR>&nbsp;
+
+background, bordercolor, clip-mask, colorspace, density,
+magick, mattecolor, opacity.  Set an attribute recognized by
+PerlMagick's GetAttribute().
+
+
+<B>&lt;border&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;fill,&nbsp;geometry,&nbsp;height,&nbsp;width
+
+
+<B>&lt;blur&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;radius,&nbsp;sigma
+
+
+<B>&lt;charcoal&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;radius,&nbsp;sigma
+
+
+<B>&lt;chop&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;height,&nbsp;width,&nbsp;x,&nbsp;y
+
+
+<B>&lt;crop&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;height,&nbsp;width,&nbsp;x,&nbsp;y
+
+
+<B>&lt;despeckle&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;emboss&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;radius,&nbsp;sigma
+
+
+<B>&lt;enhance&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;equalize&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;flip&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;flop&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;frame&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;fill,&nbsp;geometry,&nbsp;height,&nbsp;width,&nbsp;x,&nbsp;y,&nbsp;inner,&nbsp;outer
+
+
+<B>&lt;get&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;height,&nbsp;width
+
+
+<B>&lt;image&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;background,&nbsp;color,&nbsp;id,&nbsp;size
+
+
+<B>&lt;magnify&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;minify&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;normalize&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;print&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;output
+
+
+<B>&lt;read&gt;</B>
+
+
+<BR>&nbsp;
+
+<B>&lt;resize&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;blur,&nbsp;filter,&nbsp;geometry,&nbsp;height,&nbsp;width
+
+
+<B>&lt;roll&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;x,&nbsp;y
+
+
+<B>&lt;rotate&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;degrees
+
+
+<B>&lt;sample&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;height,&nbsp;width
+
+
+<B>&lt;scale&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;height,&nbsp;width
+
+
+<B>&lt;sharpen&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;radius,&nbsp;sigma
+
+
+<B>&lt;shave&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;geometry,&nbsp;height,&nbsp;width
+
+
+<B>&lt;shear&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;x,&nbsp;y
+
+
+<B>&lt;solarize&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;threshold
+
+
+<B>&lt;spread&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;radius
+
+
+<B>&lt;stegano&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;image
+
+
+<B>&lt;stereo&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;image
+
+
+<B>&lt;swirl&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;degrees
+
+
+<B>&lt;texture&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;image
+
+
+<B>&lt;threshold&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;threshold
+
+
+<B>&lt;transparent&gt;</B>
+
+
+<BR>&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;color
+
+
+<B>&lt;trim&gt;</B>
+
+
+<BR>&nbsp;
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<A HREF="../man1/animate.1.php">animate</A>(1), <A HREF="../man1/display.1.php">display</A>(1), <A HREF="../man1/composite.1.php">composite</A>(1), <A HREF="../man1/convert.1.php">convert</A>(1), <A HREF="../man1/identify.1.php">identify</A>(1),
+<A HREF="../man1/import.1.php">import</A>(1), <A HREF="../man1/mogrify.1.php">mogrify</A>(1), <A HREF="../man1/montage.1.php">montage</A>(1)
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+<P>
+<B>Copyright (C) 1999-2004 ImageMagick Studio LLC. Additional copyrights and
+licenses apply to this software, see
+<A HREF="http://www.imagemagick.org/www/Copyright.php">http://www.imagemagick.org/www/Copyright.html</A></B>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">CONJURE</A><DD>
+<DT><A HREF="#lbAC">NAME</A><DD>
+<DT><A HREF="#lbAD">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">MAGICK SCRIPTING LANGUAGE</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

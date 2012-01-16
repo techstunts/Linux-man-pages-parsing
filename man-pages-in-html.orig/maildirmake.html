@@ -1,0 +1,342 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MAILDIRMAKE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MAILDIRMAKE</H1>
+Section:  (1)<BR>Updated: 07 February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+maildirmake - create maildirs and maildir folders
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>maildirmake</B> [ <B>options</B><I> ...</I> ] <B></B><I>maildir</I><B></B>
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The <B>maildirmake</B> command creates maildirs, and
+maildir folders.
+This documentation
+describes the <B>maildirmake</B> command from the Courier
+mail server, which creates an extended form of maildirs that implements
+additional extensions beyond the basic maildir properties that were first
+implemented in the Qmail mail server.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-S</B><DD>
+create a &quot;sharable&quot; maildir.  A sharable maildir has
+slightly different permissions which allows creation of publicly-shared
+folders.
+<DT><B>-q </B><I>quota</I><B></B><DD>
+install a quota on the maildir.
+See &quot;Maildir Quotas&quot;, below.
+<DT><B>-f </B><I>folder</I><B></B><DD>
+do not create a maildir, but create a folder in an
+existing maildir.
+<DT><B>-s </B><I>mode</I><B></B><DD>
+create a publicly accessible folder in an
+existing sharable maildir.  First, use the <B>-S</B> option to
+create a sharable maildir.
+Then, run <B>maildirmake</B> again with the
+<B>-s</B> option to create
+publicly accessible folders.
+<I>mode</I> is a comma-separated list of
+the following keywords: read - readonly folder, only you can
+write messages to this folder;
+write - anyone can read and
+write messages to this folder;
+group - only allow members of
+your own system group to access messages in this folder (instead of
+everyone).
+<DT><B>--add </B><I>name</I><B>=</B><I>pathname</I><B>, --del </B><I>name</I><B></B><DD>
+create or delete the directories and links needed to
+access shared folders.  See below for more information.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H3>FOLDERS</H3>
+
+<P>
+
+This <B>maildirmake</B> command supports enhanced maildirs that
+contain folders.
+<P>
+
+By itself, <B>maildirmake</B> makes a new subdirectory
+<I>maildir</I>,
+and creates all the necessary structures.
+The <B>-f</B> option
+creates a new &quot;folder&quot; within an existing
+<I>maildir</I>. <I>maildir</I> must
+already exist, and the <B>maildirmake</B> command will create a new
+folder in the maildir.
+<P>
+
+Folders are simply subdirectories inside the main maildir whose names start
+with a period, and which are themselves maildirs.
+For example, the command
+&quot;<B>maildirmake -f Drafts mail/Maildir</B>&quot; creates
+<I>mail/Maildir/.Drafts</I>,
+that has the usual <I>tmp</I>,
+<I>new</I> and <I>cur</I>.
+You MUST use the <B>-f</B> option, instead of
+specifying <I>mail/Maildir/.Drafts</I> directly,
+in order to correctly
+initialize certain enhanced maildir features.
+<P>
+
+Folders cannot be created directly within other folders.
+Running
+<B>maildirmake -f Urgent mail/Maildir/.Drafts</B> will not work.
+Instead, the period character is designated as a hierarchy separator, run
+<B>maildirmake -f Drafts.Urgent mail/Maildir</B> instead.
+This creates
+<I>mail/Maildir/.Drafts.Urgent</I>, and all mail software
+that supports
+enhanced maildirs will interpret it as a subfolder Urgent of the Drafts
+folder.
+<A NAME="lbAG">&nbsp;</A>
+<H3>SHARED FOLDERS</H3>
+
+<P>
+
+This is another extension to the Maildir format that allows folders to be
+shared between multiple clients.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+<P>
+
+The Courier-IMAP folder implements two types of shared folders:
+filesystem permission-based shared folders,
+as well as virtual shared folders based on IMAP access control lists.
+Use the <B>maildirmake</B> command
+to implement shared folders based on
+filesystem permissions.
+The
+<B><A HREF="../man1/maildiracl.1.php">maildiracl</A></B>(1)
+command manages access control lists, which
+are used by virtual shared folders.
+<P>
+
+See the Courier-IMAP server documentation for more information.
+</DL>
+
+<P>
+
+First, you need to create a collection of
+sharable folders, as a separate maildir:
+<P>
+<DL COMPACT><DT><DD>
+<P>
+
+<P>
+<PRE>
+<B>maildirmake -S /usr/local/share/maildirs/notices</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Then, create individuals folders that will be accessed in shared mode:
+<P>
+<DL COMPACT><DT><DD>
+<P>
+
+<P>
+<PRE>
+<B>maildirmake -s write -f Weekly /usr/local/share/maildirs/notices</B>
+</PRE>
+
+</DL>
+
+<P>
+
+In this example, the &quot;Weekly&quot; folder is created,
+with read/write access to everyone.
+Multiple folders can be created in the same maildir, with different access
+permissions. Everyone can create a sharable maildir.  The access privileges
+for individual folders are set by the <B>-s</B> option, and are
+implemented using traditional filesystem permissions.
+<P>
+
+Use the <B>--add</B> and
+<B>--del</B> options to add a sharable maildir to
+an existing maildir.  Client software that implements this extension will now
+know where to find sharable folders:
+<P>
+<DL COMPACT><DT><DD>
+<P>
+
+<P>
+<PRE>
+<B>maildirmake --add notices=/usr/local/share/maildirs/notices $HOME/Maildir</B>
+</PRE>
+
+</DL>
+
+<P>
+
+<I>$HOME/Maildir</I> is your main maildir.
+The argument to <B>-add</B>
+is <I>nick</I>=<I>path</I>.
+<I>nick</I> is a nickname for this collection of
+sharable folders, and <I>path</I> is the location of the
+sharable maildir.
+All folders in the sharable maildir that you have access to -- such
+as &quot;Weekly&quot;, in this case, will now be accessible.
+Multiple sharable maildirs can be added, by giving each one a unique
+<I>nick</I>.
+<P>
+
+The <B>--del</B> option &quot;disconnects&quot; the sharable maildir from
+the main maildir.
+<A NAME="lbAH">&nbsp;</A>
+<H3>GLOBAL SHARED FOLDERS</H3>
+
+<P>
+
+Normally <B>-add</B> command must be run for every maildir
+which needs
+to access the sharable maildir. Alternatively the file
+<I>/etc/courier-imap/maildirshared</I> can be created,
+to specify a default set of sharable maildirs.
+Each line in this file takes the following format:
+<P>
+<DL COMPACT><DT><DD>
+<P>
+
+<P>
+<PRE>
+<I>nick</I>&lt;tab&gt;<I>path</I>
+</PRE>
+
+</DL>
+
+<P>
+
+<I>nick</I> is a short nickname for
+the sharable maildir, &lt;tab&gt;
+is a single tab character, <I>path</I>
+is the pathname to the sharable maildir.
+<A NAME="lbAI">&nbsp;</A>
+<H3>ACCESSING SHARED FOLDERS</H3>
+
+<P>
+
+You may have read or write access to a shared folder.
+If you have write
+access, you can add messages to the shared folder. You can also delete
+messages that you've added.
+<P>
+
+Anyone can create a sharable maildir, so if the sharable maildir
+is actually created by you, can can delete any message, not just your
+own.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man5/maildir.5.php">maildir</A></B>(5),
+<B><A HREF="../man1/maildiracl.1.php">maildiracl</A></B>(1),
+<B><A HREF="../man1/maildirkw.1.php">maildirkw</A></B>(1),
+<B><A HREF="../man1/maildrop.1.php">maildrop</A></B>(1),
+<B><A HREF="../man7/maildirquota.7.php">maildirquota</A></B>(7),
+<B><A HREF="../man8/deliverquota.8.php">deliverquota</A></B>(8),
+<B><A HREF="../man7/maildropfilter.7.php">maildropfilter</A></B>(7),
+<A HREF="http://www.qmail.org/man/man5/maildir.html.">http://www.qmail.org/man/man5/maildir.html.</A>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAF">FOLDERS</A><DD>
+<DT><A HREF="#lbAG">SHARED FOLDERS</A><DD>
+<DT><A HREF="#lbAH">GLOBAL SHARED FOLDERS</A><DD>
+<DT><A HREF="#lbAI">ACCESSING SHARED FOLDERS</A><DD>
+</DL>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

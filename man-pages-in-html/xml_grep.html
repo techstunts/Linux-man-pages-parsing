@@ -1,0 +1,267 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XML_GREP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XML_GREP</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2003-10-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xml_grep - grep XML files looking for specific elements
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSYS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+  xml_grep [options] &lt;file list&gt;
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+  xml_grep &lt;xpath expression&gt; &lt;file list&gt;
+
+</PRE>
+
+
+<P>
+
+By default you can just give <TT>&quot;xml_grep&quot;</TT> an XPath expression and
+a list of files, and get an <FONT SIZE="-1">XML</FONT> file with the result.
+<P>
+
+This is equivalent to writing 
+<P>
+
+
+
+<PRE>
+  xml_grep --group_by_file file --pretty_print indented --cond &lt;file list&gt;
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAD"></A>
+<DL COMPACT>
+<DT><B>--help</B><DD>
+<A NAME="ixAAE"></A>
+brief help message
+<DT><B>--man</B><DD>
+<A NAME="ixAAF"></A>
+full documentation
+<DT><B>--version</B><DD>
+<A NAME="ixAAG"></A>
+display the tool version
+<DT><B>--root</B> &lt;cond&gt;<DD>
+<A NAME="ixAAH"></A>
+look for and return xml chunks matching &lt;cond&gt;
+
+
+<P>
+
+
+if neither <TT>&quot;--root&quot;</TT> nor <TT>&quot;--file&quot;</TT> are used then the element(s)
+that trigger the <TT>&quot;--cond&quot;</TT> option is (are) used. If <TT>&quot;--cond&quot;</TT> is
+not used then all elements matching the &lt;cond&gt; are returned
+
+
+<P>
+
+
+several <TT>&quot;--root&quot;</TT> can be provided
+<DT><B>--cond</B> &lt;cond&gt;<DD>
+<A NAME="ixAAI"></A>
+return the chunks (or file names) only if they contain elements matching &lt;cond&gt;
+
+
+<P>
+
+
+several <TT>&quot;--cond&quot;</TT> can be provided (in which case they are <FONT SIZE="-1">OR</FONT>'ed)
+<DT><B>--files</B><DD>
+<A NAME="ixAAJ"></A>
+return only file names (do not generate an <FONT SIZE="-1">XML</FONT> output)
+
+
+<P>
+
+
+usage of this option precludes using any of the options that define the <FONT SIZE="-1">XML</FONT> output:
+<TT>&quot;--roots&quot;</TT>, <TT>&quot;--encoding&quot;</TT>, <TT>&quot;--wrap&quot;</TT>, <TT>&quot;--group_by_file&quot;</TT> or <TT>&quot;--pretty_print&quot;</TT>
+<DT><B>--count</B><DD>
+<A NAME="ixAAK"></A>
+return only the number of matches in each file
+
+
+<P>
+
+
+usage of this option precludes using any of the options that define the <FONT SIZE="-1">XML</FONT> output:
+<TT>&quot;--roots&quot;</TT>, <TT>&quot;--encoding&quot;</TT>, <TT>&quot;--wrap&quot;</TT>, <TT>&quot;--group_by_file&quot;</TT> or <TT>&quot;--pretty_print&quot;</TT>
+<DT><B>--date</B><DD>
+<A NAME="ixAAL"></A>
+when on (by default) the wrapping element get a <TT>&quot;date&quot;</TT> attribute that gives
+the date the tool was run.
+
+
+<P>
+
+
+with <TT>&quot;--nodate&quot;</TT> this attribute is not added, which can be useful if you need
+to compare 2 runs.
+<DT><B>--encoding</B> &lt;enc&gt;<DD>
+<A NAME="ixAAM"></A>
+encoding of the xml output (utf-8 by default)
+<DT><B>--nb_results</B> &lt;nb&gt;<DD>
+<A NAME="ixAAN"></A>
+output only &lt;nb&gt; results
+<DT><B>--wrap</B> &lt;tag&gt;<DD>
+<A NAME="ixAAO"></A>
+wrap the xml result in the provided tag (defaults to 'xml_grep')
+
+
+<P>
+
+
+If wrap is set to an empty string (<TT>&quot;--wrap ''&quot;</TT>) then the xml result is not wrapped at all. 
+<DT><B>--descr</B> &lt;string&gt;<DD>
+<A NAME="ixAAP"></A>
+attributes of the wrap tag (defaults to <TT>&quot;version=&quot;&lt;VERSION&gt;&quot; date=&quot;&lt;date&gt;&quot;&quot;</TT>)
+<DT><B>--file_wrap</B> &lt;optional_tag&gt;<DD>
+<A NAME="ixAAQ"></A>
+wrap results for each files into a separate element. By default that element 
+is named <TT>&quot;file&quot;</TT>. It has an attribute named <TT>&quot;filename&quot;</TT> that gives the name of the 
+file.
+
+
+<P>
+
+
+the short version of this option is <B>-g</B>
+<DT><B>--pretty_print</B> &lt;optional_style&gt;<DD>
+<A NAME="ixAAR"></A>
+pretty print the output using XML::Twig styles ('<TT>&quot;indented&quot;</TT>', '<TT>&quot;record&quot;</TT>'
+or '<TT>&quot;record_c&quot;</TT>' are probably what you are looking for) 
+
+
+<P>
+
+
+if the option is used but no style is given then '<TT>&quot;indented&quot;</TT>' is used
+
+
+<P>
+
+
+short form for this arggument is <B>-s</B>
+<DT><B>--text_only</B><DD>
+<A NAME="ixAAS"></A>
+Displays the text of the results, one by line.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Condition Syntax</H2>
+
+<A NAME="ixAAT"></A>
+&lt;cond&gt; is an XPath-like expression as allowed by XML::Twig to trigger handlers. 
+<P>
+
+exemples: 
+<BR>&nbsp;&nbsp;'para'
+<BR>&nbsp;&nbsp;'para[@compact=``compact'']'
+<BR>&nbsp;&nbsp;'*[@urgent]'
+<BR>&nbsp;&nbsp;'*[@urgent=``1'']'
+<BR>&nbsp;&nbsp;'para[<I>string()</I>=``<FONT SIZE="-1">WARNING</FONT>'']'
+<P>
+
+see XML::Twig for a more complete description of the &lt;cond&gt; syntax
+<P>
+
+options are processedby Getopt::Long so they can start with '-' or '--'
+and can be abbreviated (-r instead of --root for example)
+<A NAME="lbAF">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAU"></A>
+<B>xml_grep</B> does a grep on <FONT SIZE="-1">XML</FONT> files. Instead of using regular 
+expressions it uses XPath expressions (in fact the subset of 
+XPath supported by XML::Twig)
+<P>
+
+the results can be the names of the files or <FONT SIZE="-1">XML</FONT> elements 
+containing matching elements.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAV"></A>
+XML::Twig Getopt::Long
+<A NAME="lbAH">&nbsp;</A>
+<H2>LICENSE</H2>
+
+<A NAME="ixAAW"></A>
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAX"></A>
+Michel Rodriguez &lt;<A HREF="mailto:mirod@xmltwig.com">mirod@xmltwig.com</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSYS</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">Condition Syntax</A><DD>
+<DT><A HREF="#lbAF">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">LICENSE</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

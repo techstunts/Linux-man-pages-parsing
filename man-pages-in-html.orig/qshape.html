@@ -1,0 +1,209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>QSHAPE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>QSHAPE</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+qshape
+-
+Print Postfix queue domain and age distribution
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<PRE>
+</PRE>
+
+<B>qshape</B> [<B>-s</B>] [<B>-p</B>] [<B>-m </B><I>min_subdomains</I>]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>-b&nbsp;</B><I>bucket_count</I>]&nbsp;[<B>-t&nbsp;</B><I>bucket_time</I>]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>-w&nbsp;</B><I>terminal_width</I>]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>-c&nbsp;</B><I>config_directory</I>]&nbsp;[<I>queue_name</I>&nbsp;...]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+
+The <B>qshape</B> program helps the administrator understand the
+Postfix queue message distribution in time and by sender domain
+or recipient domain. The program needs read access to the queue
+directories and queue files, so it must run as the superuser or
+the <B>mail_owner</B> specified in <I>main.cf</I> (typically
+<B>postfix</B>).
+<P>
+Options:
+<DL COMPACT>
+<DT><B>-s</B><DD>
+Display the sender domain distribution instead of the recipient
+domain distribution.  By default the recipient distribution is
+displayed. There can be more recipients than messages, but as
+each message has only one sender, the sender distribution is a
+a message distribution.
+<DT><B>-p</B><DD>
+Generate aggregate statistics for parent domains. Top level domains
+are not shown, nor are domains with fewer than <I>min_subdomains</I>
+subdomains. The names of parent domains are shown with a leading dot,
+(e.g. <I>.example.com</I>).
+<DT><B>-m </B><I>min_subdomains</I><DD>
+When used with the <B>-p</B> option, sets the minimum subdomain count
+needed to show a separate line for a parent domain. The default is 5.
+<DT><B>-b </B><I>bucket_count</I><DD>
+The age distribution is broken up into a sequence of geometrically
+increasing intervals. This option sets the number of intervals
+or &quot;buckets&quot;. Each bucket has a maximum queue age that is twice
+as large as that of the previous bucket. The last bucket has no
+age limit.
+<DT><B>-b </B><I>bucket_time</I><DD>
+The age limit in minutes for the first time bucket. The default
+value is 5, meaning that the first bucket counts messages between
+0 and 5 minutes old.
+<DT><B>-w </B><I>terminal_width</I><DD>
+The output is right justified, with the counts for the last
+bucket shown on the 80th column, the <I>terminal_width</I> can be
+adjusted for wider screens allowing more buckets to be displayed
+with truncating the domain names on the left. When a row for a
+full domain name and its counters does not fit in the specified
+number of columns, only the last 17 bytes of the domain name
+are shown with the prefix replaced by a '+' character. Truncated
+parent domain rows are shown as '.+' followed by the last 16 bytes
+of the domain name. If this is still too narrow to show the domain
+name and all the counters, the terminal_width limit is violated.
+<DT><B>-c </B><I>config_directory</I><DD>
+The <B>main.cf</B> configuration file is in the named directory
+instead of the default configuration directory.
+</DL>
+<P>
+
+Arguments:
+<DL COMPACT>
+<DT><I>queue_name</I><DD>
+By default <B>qshape</B> displays the combined distribution of
+the incoming and active queues. To display a different set of
+queues, just list their directory names on the command line.
+Absolute paths are used as is, other paths are taken relative
+to the <I>main.cf</I> <B>queue_directory</B> parameter setting.
+While <I>main.cf</I> supports the use of <I>$variable</I> expansion
+in the definition of the <B>queue_directory</B> parameter, the
+<B>qshape</B> program does not. If you must use variable expansions
+in the <B>queue_directory</B> setting, you must specify an explicit
+absolute path for each queue subdirectory even if you want the
+default incoming and active queue distribution.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+
+<PRE>
+<A HREF="../man1/mailq.1.php">mailq</A>(1) List all messages in the queue.
+QSHAPE_README Examples and background material.
+</PRE><A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+
+<PRE>
+$config_directory/main.cf, Postfix installation parameters.
+$queue_directory/maildrop/, local submission directory.
+$queue_directory/incoming/, new message queue.
+$queue_directory/hold/, messages waiting for tech support.
+$queue_directory/active/, messages scheduled for delivery.
+$queue_directory/deferred/, messages postponed for later delivery.
+</PRE><A NAME="lbAG">&nbsp;</A>
+<H2>LICENSE</H2>
+
+
+<PRE>
+</PRE>
+
+The Secure Mailer license must be distributed with this software.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR(S)</H2>
+
+
+<PRE>
+Victor Duchovni
+Morgan Stanley
+
+</PRE>
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">LICENSE</A><DD>
+<DT><A HREF="#lbAH">AUTHOR(S)</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

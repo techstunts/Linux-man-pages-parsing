@@ -1,0 +1,485 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XSM</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XSM</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xsm - X Session Manager
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xsm</B>
+
+[-display display] [-session sessionName] [-verbose]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<I>xsm</I> is a session manager.  A session is a group of applications, each
+of which has a particular state.  <I>xsm</I> allows you to create arbitrary
+sessions - for example, you might have a &quot;light&quot; session, a &quot;development&quot;
+session, or an &quot;xterminal&quot; session.  Each session can have its own set of
+applications.  Within a session, you can perform a &quot;checkpoint&quot; to save
+application state, or a &quot;shutdown&quot; to save state and exit the session.  When
+you log back in to the system, you can load a specific session, and you can
+delete sessions you no longer want to keep.
+<BR>
+
+<P>
+Some session managers simply allow you to manually specify a list of
+applications to be started in a session.  <I>xsm</I> is more powerful
+because it lets you run applications and have them automatically become
+part of the session.  On a simple level, <I>xsm</I> is useful because it
+gives you this ability to easily define which applications are in a session.
+The true power of <I>xsm</I>, however, can be taken advantage of when more
+and more applications learn to save and restore their state.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-display </B><I>display</I>
+
+<DD>
+Causes <I>xsm</I> to connect to the specified X display.
+<DT><B>-session </B><I>sessionName</I>
+
+<DD>
+Causes <I>xsm</I> to load the specified session, bypassing the session menu.
+<DT><B>-verbose</B>
+
+<DD>
+Turns on debugging information.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SETUP</H2>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>.xsession file</H3>
+
+Using <I>xsm</I> requires a change to your <I>.xsession</I> file:
+<P>
+
+The last program executed by your <I>.xsession</I> file should
+be <I>xsm</I>.  With this configuration, when the user chooses to shut
+down the session using <I>xsm</I>, the session will truly be over.
+<P>
+
+Since the goal of the session manager is to restart clients when
+logging into a session, your .xsession file, in general, should not directly
+start up applications.  Rather, the applications should be started within
+a session.  When <I>xsm</I> shuts down the session, <I>xsm</I> will know to
+restart these applications.  Note however that there are some types of
+applications that are not &quot;session aware&quot;.  <I>xsm</I> allows you to
+manually add these applications to your session (see the section titled
+<I>Client List</I>).
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>SM_SAVE_DIR environment variable</H3>
+
+If the <I>SM_SAVE_DIR</I> environment variable is defined, <I>xsm</I> will
+save all configuration files in this directory.  Otherwise, they will be
+stored in the user's home directory.  Session aware applications are also
+encouraged to save their checkpoint files in the <I>SM_SAVE_DIR</I> directory,
+although the user should not depend on this convention.
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>Default Startup Applications</H3>
+
+The first time <I>xsm</I> is started, it will need to locate a list of
+applications to start up.  For example, this list might include a window
+manager, a session management proxy, and an xterm.  <I>xsm</I> will first
+look for the file <I>.xsmstartup</I> in the user's home directory.  If that
+file does not exists, it will look for the <I>system.xsm</I> file that was
+set up at installation time.  Note that <I>xsm</I> provides a &quot;fail safe&quot;
+option when the user chooses a session to start up.  The fail safe option
+simply loads the default applications described above.
+<P>
+
+Each line in the startup file should contain a command to start an application.
+A sample startup file might look this:
+<P>
+
+&lt;start of file&gt;
+<BR>
+
+twm
+<BR>
+
+smproxy
+<BR>
+
+xterm
+<BR>
+
+&lt;end of file&gt;
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>STARTING A SESSION</H2>
+
+When <I>xsm</I> starts up, it first checks to see if the user previously
+saved any sessions.  If no saved sessions exist, <I>xsm</I> starts up a set
+of default applications (as described above in the section titled
+<I>Default Startup Applications</I>).  If at least one session exists, a
+session menu is presented.  The <B>[-session sessionName]</B> option forces the
+specified session to be loaded, bypassing the session menu.
+<A NAME="lbAK">&nbsp;</A>
+<H3>The session menu</H3>
+
+The session menu presents the user with a list of sessions to choose from.
+The user can change the currently selected session with the mouse, or by
+using the up and down arrows on the keyboard.  Note that sessions which are
+locked (i.e. running on a different display) can not be loaded or deleted.
+<P>
+
+The following operations can be performed from the session menu:
+<P>
+
+<DL COMPACT>
+<DT><B>Load Session</B>
+
+<DD>
+Pressing this button will load the currently selected session.  Alternatively,
+hitting the Return key will also load the currently selected session, or the
+user can double click a session from the list.
+<DT><B>Delete Session</B>
+
+<DD>
+This operation will delete the currently selected session, along with all
+of the application checkpoint files associated with the session.  After
+pressing this button, the user will be asked to press the button a second
+time in order to confirm the operation.
+<DT><B>Default/Fail Safe</B>
+
+<DD>
+<I>xsm</I> will start up a set of default applications (as described above
+in the section titled <I>Default Startup Applications</I>).  This is useful
+when the user wants to start a fresh session, or if the session configuration
+files were corrupted and the user wants a &quot;fail safe&quot; session.
+<DT><B>Cancel</B>
+
+<DD>
+Pressing this button will cause <I>xsm</I> to exit.  It can also be used to
+cancel a &quot;Delete Session&quot; operation.
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>CONTROLLING A SESSION</H2>
+
+After <I>xsm</I> determines which session to load, it brings up its main
+window, then starts up all applications that are part of
+the session.  The title bar for the session manager's main window will
+contain the name of the session that was loaded.
+<P>
+
+The following options are available from <I>xsm</I>'s main window:
+<DL COMPACT>
+<DT><B>Client List</B>
+
+<DD>
+Pressing this button brings up a window containing a list of all clients that
+are in the current session.  For each client, the host machine that the client
+is running on is presented.  As clients are added and removed from the session,
+this list is updated to reflect the changes.  The user is able to control how
+these clients are restarted (see below).
+<BR>
+
+<P>
+By pressing the <B>View Properties</B>
+button, the user can view the session management properties associated with
+the currently selected client.
+<BR>
+
+<P>
+By pressing the <B>Clone</B> button, the user can start a copy of the selected
+application.
+<BR>
+
+<P>
+By pressing the <B>Kill Client</B> button, the user can remove a client from
+the session.
+<BR>
+
+<P>
+By selecting a restart hint from the <B>Restart Hint</B> menu, the user can
+control the restarting of a client.  The following hints are available:
+<BR>
+
+<P>
+<B>-</B>
+
+The <B>Restart If Running</B> hint indicates that the client should be
+restarted in the next session if it is connected to the session manager at
+the end of the current session.
+<BR>
+
+<P>
+<B>-</B>
+
+The <B>Restart Anyway</B> hint indicates that the client should be restarted
+in the next session even if it exits before the current session is terminated.
+<BR>
+
+<P>
+<B>-</B>
+
+The <B>Restart Immediately</B> hint is similar to the <B>Restart Anyway</B> hint,
+but in addition, the client is meant to run continuously.  If the client exits,
+the session manager will try to restart it in the current session.
+<BR>
+
+<P>
+<B>-</B>
+
+The <B>Restart Never</B> hint indicates that the client should not be restarted
+in the next session.
+<BR>
+
+<P>
+Note that all X applications may not be &quot;session aware&quot;.  Applications that
+are not session aware are ones that do not support the X Session Management
+Protocol or they can not be detected by the Session Management Proxy (see the
+section titled <I>THE PROXY</I>).  <I>xsm</I> allows the user to manually add
+such applications to the session.  The bottom of the <I>Client List</I> window
+contains a text entry field in which application commands can be typed in.
+Each command should go on its own line.  This information will be saved with
+the session at checkpoint or shutdown time.  When the session is restarted,
+<I>xsm</I> will restart these applications in addition to the regular &quot;session
+aware&quot; applications.
+<BR>
+
+<P>
+Pressing the <B>Done</B> button removes the <B>Client List</B> window.
+<DT><B>Session Log...</B>
+
+<DD>
+The Session Log window presents useful information about the session.  For
+example, when a session is restarted, all of the restart commands will be
+displayed in the log window.
+<DT><B>Checkpoint</B>
+
+<DD>
+By performing a checkpoint, all applications that are in the session are
+asked to save their state.  Not every application will save its complete
+state, but at a minimum, the session manager is guaranteed that it will
+receive the command required to restart the application (along with all
+command line options).  A window manager participating in the session
+should guarantee that the applications will come back up with the same
+window configurations.
+<BR>
+
+<P>
+If the session being checkpointed was never assigned a name, the user will
+be required to specify a session name.  Otherwise, the user can perform the
+checkpoint using the current session name, or a new session name can be
+specified.  If the session name specified already exists, the user will be
+given the opportunity to specify a different name or to overwrite the
+already existing session.  Note that a session which is locked can not be
+overwritten.
+<BR>
+
+<P>
+When performing a checkpoint, the user must specify a <B>Save Type</B>
+which informs the applications in the session how much state they should save.
+<BR>
+
+<P>
+The <B>Local</B>
+type indicates that the application should save enough information to restore
+the state as seen by the user.  It should not affect the state as seen by
+other users.  For example, an editor would create a temporary file containing
+the contents of its editing buffer, the location of the cursor, etc...
+<BR>
+
+<P>
+The <B>Global</B>
+type indicates that the application should commit all of its data to
+permanent, globally accessible storage.  For example, the editor would
+simply save the edited file.
+<BR>
+
+<P>
+The <B>Both</B>
+type indicates that the application should do both of these.  For example,
+the editor would save the edited file, then create a temporary file with
+information such as the location of the cursor, etc...
+<BR>
+
+<P>
+In addition to the <B>Save Type</B>, the user must specify an
+<B>Interact Style</B>.
+<BR>
+
+<P>
+The <B>None</B> type indicates that the application should not interact with
+the user while saving state.
+<BR>
+
+<P>
+The <B>Errors</B> type indicates that the application may interact with
+the user only if an error condition arises.
+<BR>
+
+<P>
+The <B>Any</B> type indicates that the application may interact with
+the user for any purpose.  Note that <I>xsm</I> will only allow one
+application to interact with the user at a time.
+<BR>
+
+<P>
+<P>
+After the checkpoint is completed, <I>xsm</I> will, if necessary, display a
+window containing the list of applications which did not report a successful
+save of state.
+<DT><B>Shutdown</B>
+
+<DD>
+A shutdown provides all of the options found in a checkpoint, but in addition,
+can cause the session to exit.  Note that if the interaction style is
+<B>Errors</B> or <B>Any</B>, the user may cancel the shutdown.  The user may
+also cancel the shutdown if any of the applications report an
+unsuccessful save of state.
+<BR>
+
+<P>
+The user may choose to shutdown the session with our without performing a
+checkpoint.
+</DL>
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>HOW <I>XSM</I> RESPONDS TO SIGNALS</H2>
+
+<I>xsm</I> will respond to a SIGTERM signal by performing a shutdown with
+the following options: fast, no interaction, save type local.  This allows
+the user's session to be saved when the system is being shutdown.  It can
+also be used to perform a remote shutdown of a session.
+<BR>
+
+<P>
+<I>xsm</I> will respond to a SIGUSR1 signal by performing a checkpoint with
+the following options: no interaction, save type local.  This signal can be
+used to perform a remote checkpoint of a session.
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>THE PROXY</H2>
+
+Since not all applications have been ported to support the X Session
+Management Protocol, a proxy service exists to allow &quot;old&quot; clients to
+work with the session manager.  In order for the proxy to detect an
+application joining a session, one of the following must be true:
+<BR>
+
+<P>
+- The application maps a top level window containing the
+<B>WM_CLIENT_LEADER</B> property.  This property provides a pointer to
+the client leader window which contains the <B>WM_CLASS</B>, <B>WM_NAME</B>,
+<B>WM_COMMAND</B>, and <B>WM_CLIENT_MACHINE</B> properties.
+<BR>
+
+<P>
+or ...
+<BR>
+
+<P>
+- The application maps a top level window which does not contain the
+<B>WM_CLIENT_LEADER</B> property.  However, this top level window
+contains the <B>WM_CLASS</B>, <B>WM_NAME</B>, <B>WM_COMMAND</B>, and
+<B>WM_CLIENT_MACHINE</B> properties.
+<P>
+
+An application that support the <B>WM_SAVE_YOURSELF</B> protocol will receive
+a <B>WM_SAVE_YOURSELF</B> client message each time the session manager issues
+a checkpoint or shutdown.  This allows the application to save state.  If
+an application does not support the <B>WM_SAVE_YOURSELF</B> protocol, then
+the proxy will provide enough information to the session manager to restart
+the application (using <B>WM_COMMAND</B>), but no state will be restored.
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>REMOTE APPLICATIONS</H2>
+
+<I>xsm</I> requires a remote execution protocol in order to restart
+applications on remote machines.  Currently, <I>xsm</I> supports the
+<I>rstart</I> protocol.  In order to restart an application on remote
+machine <B>X</B>, machine <B>X</B> must have <I>rstart</I> installed.  In
+the future, additional remote execution protocols may be supported.
+<A NAME="lbAP">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/smproxy.1.php">smproxy</A>(1), <A HREF="../man1/rstart.1.php">rstart</A>(1)
+<A NAME="lbAQ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Ralph Mor, X Consortium
+<BR>
+
+Jordan Brown, Quarterdeck Office Systems
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SETUP</A><DD>
+<DL>
+<DT><A HREF="#lbAG">.xsession file</A><DD>
+<DT><A HREF="#lbAH">SM_SAVE_DIR environment variable</A><DD>
+<DT><A HREF="#lbAI">Default Startup Applications</A><DD>
+</DL>
+<DT><A HREF="#lbAJ">STARTING A SESSION</A><DD>
+<DL>
+<DT><A HREF="#lbAK">The session menu</A><DD>
+</DL>
+<DT><A HREF="#lbAL">CONTROLLING A SESSION</A><DD>
+<DT><A HREF="#lbAM">HOW <I>XSM</I> RESPONDS TO SIGNALS</A><DD>
+<DT><A HREF="#lbAN">THE PROXY</A><DD>
+<DT><A HREF="#lbAO">REMOTE APPLICATIONS</A><DD>
+<DT><A HREF="#lbAP">SEE ALSO</A><DD>
+<DT><A HREF="#lbAQ">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

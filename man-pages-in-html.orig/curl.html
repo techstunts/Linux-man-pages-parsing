@@ -1,0 +1,1337 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>curl</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>curl</H1>
+Section: Curl Manual (1)<BR>Updated: 3 May 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+curl - transfer a URL
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>curl [options]</B>
+
+<I>[URL...]</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>curl</B>
+
+is a tool to transfer data from or to a server, using one of the supported
+protocols (HTTP, HTTPS, FTP, FTPS, GOPHER, DICT, TELNET, LDAP or FILE). The
+command is designed to work without user interaction.
+<P>
+curl offers a busload of useful tricks like proxy support, user
+authentication, ftp upload, HTTP post, SSL (https:) connections, cookies, file
+transfer resume and more. As you will see below, the amount of features will
+make your head spin!
+<P>
+curl is powered by libcurl for all transfer-related features. See
+<B><A HREF="../man3/libcurl.3.php">libcurl</A></B>(3)
+
+for details.
+<A NAME="lbAE">&nbsp;</A>
+<H2>URL</H2>
+
+The URL syntax is protocol dependent. You'll find a detailed description in
+RFC 2396.
+<P>
+You can specify multiple URLs or parts of URLs by writing part sets within
+braces as in:
+<P>
+<BR>&nbsp;<A HREF="http://site.{one,two,three}.com">http://site.{one,two,three}.com</A>
+<P>
+or you can get sequences of alphanumeric series by using [] as in:
+<P>
+<BR>&nbsp;<A HREF="ftp://ftp.numericals.com/file[1-100].txt">ftp://ftp.numericals.com/file[1-100].txt</A>
+<BR>&nbsp;<A HREF="ftp://ftp.numericals.com/file[001-100].txt">ftp://ftp.numericals.com/file[001-100].txt</A>&nbsp;&nbsp;&nbsp;&nbsp;(with&nbsp;leading&nbsp;zeros)
+<BR>&nbsp;<A HREF="ftp://ftp.letters.com/file[a-z].txt">ftp://ftp.letters.com/file[a-z].txt</A>
+<P>
+No nesting of the sequences is supported at the moment, but you can use
+several ones next to each other:
+<P>
+<BR>&nbsp;<A HREF="http://any.org/archive[1996-1999]/vol[1-4]/part{a,b,c}.php">http://any.org/archive[1996-1999]/vol[1-4]/part{a,b,c}.html</A>
+<P>
+You can specify any amount of URLs on the command line. They will be fetched
+in a sequential manner in the specified order.
+<P>
+Curl will attempt to re-use connections for multiple file transfers, so that
+getting many files from the same server will not do multiple connects /
+handshakes. This improves speed. Of course this is only done on files
+specified on a single command line and cannot be used between separate curl
+invokes.
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT>-a/--append<DD>
+(FTP) When used in an FTP upload, this will tell curl to append to the target
+file instead of overwriting it. If the file doesn't exist, it will be created.
+<P>
+If this option is used twice, the second one will disable append mode again.
+<DT>-A/--user-agent &lt;agent string&gt;<DD>
+(HTTP) Specify the User-Agent string to send to the HTTP server. Some badly
+done CGIs fail if its not set to &quot;Mozilla/4.0&quot;.  To encode blanks in the
+string, surround the string with single quote marks.  This can also be set
+with the <I>-H/--header</I> option of course.
+<P>
+If this option is set more than once, the last one will be the one that's
+used.
+<DT>--anyauth<DD>
+(HTTP) Tells curl to figure out authentication method by itself, and use the
+most secure one the remote site claims it supports. This is done by first
+doing a request and checking the response-headers, thus inducing an extra
+network round-trip. This is used instead of setting a specific authentication
+method, which you can do with <I>--basic</I>, <I>--digest</I>, <I>--ntlm</I>, and
+<I>--negotiate</I>. (Added in 7.10.6)
+<P>
+If this option is used several times, the following occurrences make no
+difference.
+<DT>-b/--cookie &lt;name=data&gt;<DD>
+(HTTP)
+Pass the data to the HTTP server as a cookie. It is supposedly the
+data previously received from the server in a &quot;Set-Cookie:&quot; line.
+The data should be in the format &quot;NAME1=VALUE1; NAME2=VALUE2&quot;.
+<P>
+If no '=' letter is used in the line, it is treated as a filename to use to
+read previously stored cookie lines from, which should be used in this session
+if they match. Using this method also activates the &quot;cookie parser&quot; which will
+make curl record incoming cookies too, which may be handy if you're using this
+in combination with the <I>-L/--location</I> option. The file format of the
+file to read cookies from should be plain HTTP headers or the Netscape/Mozilla
+cookie file format.
+<P>
+<B>NOTE</B> that the file specified with <I>-b/--cookie</I> is only used as
+input. No cookies will be stored in the file. To store cookies, use the
+<I>-c/--cookie-jar</I> option or you could even save the HTTP headers to a file
+using <I>-D/--dump-header</I>!
+<P>
+If this option is set more than once, the last one will be the one that's
+used.
+<DT>-B/--use-ascii<DD>
+Use ASCII transfer when getting an FTP file or LDAP info. For FTP, this can
+also be enforced by using an URL that ends with &quot;;type=A&quot;. This option causes
+data sent to stdout to be in text mode for win32 systems.
+<P>
+If this option is used twice, the second one will disable ASCII usage.
+<DT>--basic<DD>
+(HTTP) Tells curl to use HTTP Basic authentication. This is the default and
+this option is usually pointless, unless you use it to override a previously
+set option that sets a different authentication method (such as <I>--ntlm</I>,
+<I>--digest</I> and <I>--negotiate</I>). (Added in 7.10.6)
+<P>
+If this option is used several times, the following occurrences make no
+difference.
+<DT>--ciphers &lt;list of ciphers&gt;<DD>
+(SSL) Specifies which ciphers to use in the connection. The list of ciphers
+must be using valid ciphers. Read up on SSL cipher list details on this URL:
+<I><A HREF="http://www.openssl.org/docs/apps/ciphers.php">http://www.openssl.org/docs/apps/ciphers.html</A></I>
+<P>
+If this option is used several times, the last one will override the others.
+<DT>--compressed<DD>
+(HTTP) Request a compressed response using one of the algorithms libcurl
+supports, and return the uncompressed document.  If this option is used and
+the server sends an unsupported encoding, Curl will report an error.
+<P>
+If this option is used several times, each occurrence will toggle it on/off.
+<DT>--connect-timeout &lt;seconds&gt;<DD>
+Maximum time in seconds that you allow the connection to the server to take.
+This only limits the connection phase, once curl has connected this option is
+of no more use. See also the <I>-m/--max-time</I> option.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-c/--cookie-jar &lt;file name&gt;<DD>
+Specify to which file you want curl to write all cookies after a completed
+operation. Curl writes all cookies previously read from a specified file as
+well as all cookies received from remote server(s). If no cookies are known,
+no file will be written. The file will be written using the Netscape cookie
+file format. If you set the file name to a single dash, &quot;-&quot;, the cookies will
+be written to stdout.
+<P>
+<B>NOTE</B>
+
+If the cookie jar can't be created or written to, the whole curl operation
+won't fail or even report an error clearly. Using -v will get a warning
+displayed, but that is the only visible feedback you get about this possibly
+lethal situation.
+<P>
+If this option is used several times, the last specfied file name will be
+used.
+<DT>-C/--continue-at &lt;offset&gt;<DD>
+Continue/Resume a previous file transfer at the given offset. The given offset
+is the exact number of bytes that will be skipped counted from the beginning
+of the source file before it is transfered to the destination.  If used with
+uploads, the ftp server command SIZE will not be used by curl.
+<P>
+Use &quot;-C -&quot; to tell curl to automatically find out where/how to resume the
+transfer. It then uses the given output/input files to figure that out.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--create-dirs<DD>
+When used in conjunction with the -o option, curl will create the necessary
+local directory hierarchy as needed. This option creates the dirs mentioned
+with the -o option, nothing else. If the -o file name uses no dir or if the
+dirs it mentions already exist, no dir will be created.
+<P>
+To create remote directories when using FTP, try <I>--ftp-create-dirs</I>.
+<DT>--crlf<DD>
+(FTP) Convert LF to CRLF in upload. Useful for MVS (OS/390).
+<P>
+If this option is used twice, the second will again disable crlf converting.
+<DT>-d/--data &lt;data&gt;<DD>
+(HTTP) Sends the specified data in a POST request to the HTTP server, in a way
+that can emulate as if a user has filled in a HTML form and pressed the submit
+button. Note that the data is sent exactly as specified with no extra
+processing (with all newlines cut off).  The data is expected to be
+&quot;url-encoded&quot;. This will cause curl to pass the data to the server using the
+content-type application/x-www-form-urlencoded. Compare to <I>-F/--form</I>. If
+this option is used more than once on the same command line, the data pieces
+specified will be merged together with a separating &amp;-letter. Thus, using '-d
+name=daniel -d skill=lousy' would generate a post chunk that looks like
+'name=daniel&amp;skill=lousy'.
+<P>
+If you start the data with the letter @, the rest should be a file name to
+read the data from, or - if you want curl to read the data from stdin.  The
+contents of the file must already be url-encoded. Multiple files can also be
+specified. Posting data from a file named 'foobar' would thus be done with
+<I>--data</I> @foobar&quot;.
+<P>
+To post data purely binary, you should instead use the <I>--data-binary</I>
+option.
+<P>
+<I>-d/--data</I> is the same as <I>--data-ascii</I>.
+<P>
+If this option is used several times, the ones following the first will
+append data.
+<DT>--data-ascii &lt;data&gt;<DD>
+(HTTP) This is an alias for the <I>-d/--data</I> option.
+<P>
+If this option is used several times, the ones following the first will
+append data.
+<DT>--data-binary &lt;data&gt;<DD>
+(HTTP) This posts data in a similar manner as <I>--data-ascii</I> does,
+although when using this option the entire context of the posted data is kept
+as-is. If you want to post a binary file without the strip-newlines feature of
+the <I>--data-ascii</I> option, this is for you.
+<P>
+If this option is used several times, the ones following the first will
+append data.
+<DT>--digest<DD>
+(HTTP) Enables HTTP Digest authentication. This is a authentication that
+prevents the password from being sent over the wire in clear text. Use this in
+combination with the normal <I>-u/--user</I> option to set user name and
+password. See also <I>--ntlm</I>, <I>--negotiate</I> and <I>--anyauth</I> for
+related options. (Added in curl 7.10.6)
+<P>
+If this option is used several times, the following occurrences make no
+difference.
+<DT>--disable-eprt<DD>
+(FTP) Tell curl to disable the use of the EPRT and LPRT commands when doing
+active FTP transfers. Curl will normally always first attempt to use EPRT,
+then LPRT before using PORT, but with this option, it will use PORT right
+away. EPRT and LPRT are extensions to the original FTP protocol, may not work
+on all servers but enable more functionality in a better way than the
+traditional PORT command. (Aded in 7.10.5)
+<P>
+If this option is used several times, each occurrence will toggle this on/off.
+<DT>--disable-epsv<DD>
+(FTP) Tell curl to disable the use of the EPSV command when doing passive FTP
+transfers. Curl will normally always first attempt to use EPSV before PASV,
+but with this option, it will not try using EPSV.
+<P>
+If this option is used several times, each occurrence will toggle this on/off.
+<DT>-D/--dump-header &lt;file&gt;<DD>
+Write the protocol headers to the specified file.
+<P>
+This option is handy to use when you want to store the headers that a HTTP
+site sends to you. Cookies from the headers could then be read in a second
+curl invoke by using the <I>-b/--cookie</I> option! The <I>-c/--cookie-jar</I>
+option is however a better way to store cookies.
+<P>
+When used on FTP, the ftp server response lines are considered being &quot;headers&quot;
+and thus are saved there.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-e/--referer &lt;URL&gt;<DD>
+(HTTP) Sends the &quot;Referer Page&quot; information to the HTTP server. This can also
+be set with the <I>-H/--header</I> flag of course.  When used with
+<I>-L/--location</I> you can append &quot;;auto&quot; to the referer URL to make curl
+automatically set the previous URL when it follows a Location: header. The
+&quot;;auto&quot; string can be used alone, even if you don't set an initial referer.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--environment<DD>
+(RISC OS ONLY) Sets a range of environment variables, using the names the -w
+option supports, to easier allow extraction of useful information after having
+run curl.
+<P>
+If this option is used several times, each occurrence will toggle this on/off.
+<DT>--egd-file &lt;file&gt;<DD>
+(HTTPS) Specify the path name to the Entropy Gathering Daemon socket. The
+socket is used to seed the random engine for SSL connections. See also the
+<I>--random-file</I> option.
+<DT>-E/--cert &lt;certificate[:password]&gt;<DD>
+(HTTPS)
+Tells curl to use the specified certificate file when getting a file
+with HTTPS. The certificate must be in PEM format.
+If the optional password isn't specified, it will be queried for on
+the terminal. Note that this certificate is the private key and the private
+certificate concatenated!
+<P>
+If this option is used several times, the last one will be used.
+<DT>--cert-type &lt;type&gt;<DD>
+(SSL) Tells curl what certificate type the provided certificate is in. PEM,
+DER and ENG are recognized types.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--cacert &lt;CA certificate&gt;<DD>
+(HTTPS) Tells curl to use the specified certificate file to verify the
+peer. The file may contain multiple CA certificates. The certificate(s) must
+be in PEM format.
+<P>
+curl recognizes the environment variable named 'CURL_CA_BUNDLE' if that is
+set, and uses the given path as a path to a CA cert bundle. This option
+overrides that variable.
+<P>
+The windows version of curl will automatically look for a CA certs file named
+'curl-ca-bundle.crt', either in the same directory as curl.exe, or in the
+Current Working Directory, or in any folder along your PATH.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--capath &lt;CA certificate directory&gt;<DD>
+(HTTPS) Tells curl to use the specified certificate directory to verify the
+peer. The certificates must be in PEM format, and the directory must have been
+processed using the c_rehash utility supplied with openssl. Using
+<I>--capath</I> can allow curl to make https connections much more efficiently
+than using <I>--cacert</I> if the <I>--cacert</I> file contains many CA
+certificates.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-f/--fail<DD>
+(HTTP) Fail silently (no output at all) on server errors. This is mostly done
+like this to better enable scripts etc to better deal with failed attempts. In
+normal cases when a HTTP server fails to deliver a document, it returns a HTML
+document stating so (which often also describes why and more). This flag will
+prevent curl from outputting that and fail silently instead.
+<P>
+If this option is used twice, the second will again disable silent failure.
+<DT>--ftp-create-dirs<DD>
+(FTP) When an FTP URL/operation uses a path that doesn't currently exist on
+the server, the standard behavior of curl is to fail. Using this option, curl
+will instead attempt to create missing directories. (Added in 7.10.7)
+<P>
+If this option is used twice, the second will again disable silent failure.
+<DT>--ftp-pasv<DD>
+(FTP) Use PASV when transfering. PASV is the internal default behavior, but
+using this option can be used to override a previos --ftp-port option. (Added
+in 7.11.0)
+<P>
+If this option is used twice, the second will again disable silent failure.
+<DT>--ftp-ssl<DD>
+(FTP) Make the FTP connection switch to use SSL/TLS. (Added in 7.11.0)
+<P>
+If this option is used twice, the second will again disable silent failure.
+<DT>-F/--form &lt;name=content&gt;<DD>
+(HTTP) This lets curl emulate a filled in form in which a user has pressed the
+submit button. This causes curl to POST data using the content-type
+multipart/form-data according to RFC1867. This enables uploading of binary
+files etc. To force the 'content' part to be be a file, prefix the file name
+with an @ sign. To just get the content part from a file, prefix the file name
+with the letter &lt;. The difference between @ and &lt; is then that @ makes a file
+get attached in the post as a file upload, while the &lt; makes a text field and
+just get the contents for that text field from a file.
+<P>
+Example, to send your password file to the server, where
+'password' is the name of the form-field to which /etc/passwd will be the
+input:
+<P>
+<B>curl</B> -F password=@/etc/passwd <A HREF="http://www.mypasswords.com">www.mypasswords.com</A>
+<P>
+To read the file's content from stdin insted of a file, use - where the file
+name should've been. This goes for both @ and &lt; constructs.
+<P>
+You can also tell curl what Content-Type to use for the file upload part, by
+using 'type=', in a manner similar to:
+<P>
+<B>curl</B> -F &quot;web=@index.html;type=text/html&quot; url.com
+<P>
+See further examples and details in the MANUAL.
+<P>
+This option can be used multiple times.
+<DT>-g/--globoff<DD>
+This option switches off the &quot;URL globbing parser&quot;. When you set this option,
+you can specify URLs that contain the letters {}[] without having them being
+interpreted by curl itself. Note that these letters are not normal legal URL
+contents but they should be encoded according to the URI standard.
+<DT>-G/--get<DD>
+When used, this option will make all data specified with <I>-d/--data</I> or
+<I>--data-binary</I> to be used in a HTTP GET request instead of the POST
+request that otherwise would be used. The data will be appended to the URL
+with a '?'  separator.
+<P>
+If used in combination with -I, the POST data will instead be appended to the
+URL with a HEAD request.
+<P>
+If used multiple times, nothing special happens.
+<DT>-h/--help<DD>
+Usage help.
+<DT>-H/--header &lt;header&gt;<DD>
+(HTTP) Extra header to use when getting a web page. You may specify any number
+of extra headers. Note that if you should add a custom header that has the
+same name as one of the internal ones curl would use, your externally set
+header will be used instead of the internal one. This allows you to make even
+trickier stuff than curl would normally do. You should not replace internally
+set headers without knowing perfectly well what you're doing. Replacing an
+internal header with one without content on the right side of the colon will
+prevent that header from appearing.
+<P>
+See also the <I>-A/--user-agent</I> and <I>-e/--referer</I> options.
+<P>
+This option can be used multiple times to add/replace/remove multiple headers.
+<DT>-i/--include<DD>
+(HTTP)
+Include the HTTP-header in the output. The HTTP-header includes things
+like server-name, date of the document, HTTP-version and more...
+<P>
+If this option is used twice, the second will again disable header include.
+<DT>--interface &lt;name&gt;<DD>
+Perform an operation using a specified interface. You can enter interface
+name, IP address or host name. An example could look like:
+<P>
+<BR>&nbsp;curl&nbsp;--interface&nbsp;eth0:1&nbsp;<A HREF="http://www.netscape.com/">http://www.netscape.com/</A>
+<P>
+If this option is used several times, the last one will be used.
+<DT>-I/--head<DD>
+(HTTP/FTP/FILE)
+Fetch the HTTP-header only! HTTP-servers feature the command HEAD
+which this uses to get nothing but the header of a document. When used
+on a FTP or FILE file, curl displays the file size and last modification
+time only.
+<P>
+If this option is used twice, the second will again disable header only.
+<DT>-j/--junk-session-cookies<DD>
+(HTTP) When curl is told to read cookies from a given file, this option will
+make it discard all &quot;session cookies&quot;. This will basicly have the same effect
+as if a new session is started. Typical browsers always discard session
+cookies when they're closed down. (Added in 7.9.7)
+<P>
+If this option is used several times, each occurrence will toggle this on/off.
+<DT>-k/--insecure<DD>
+(SSL) This option explicitly allows curl to perform &quot;insecure&quot; SSL connections
+and transfers. Starting with curl 7.10, all SSL connections will be attempted
+to be made secure by using the CA certificate bundle installed by
+default. This makes all connections considered &quot;insecure&quot; to fail unless
+<I>-k/--insecure</I> is used.
+<P>
+If this option is used twice, the second time will again disable it.
+<DT>--key &lt;key&gt;<DD>
+(SSL) Private key file name. Allows you to provide your private key in this
+separate file.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--key-type &lt;type&gt;<DD>
+(SSL) Private key file type. Specify which type your <I>--key</I> provided
+private key is. DER, PEM and ENG are supported.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--krb4 &lt;level&gt;<DD>
+(FTP) Enable kerberos4 authentication and use. The level must be entered and
+should be one of 'clear', 'safe', 'confidential' or 'private'. Should you use
+a level that is not one of these, 'private' will instead be used.
+<P>
+This option requiures that the library was built with kerberos4 support. This
+is not very common. Use <I>-V/--version</I> to see if your curl supports it.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-K/--config &lt;config file&gt;<DD>
+Specify which config file to read curl arguments from. The config file is a
+text file in which command line arguments can be written which then will be
+used as if they were written on the actual command line. Options and their
+parameters must be specified on the same config file line. If the parameter is
+to contain white spaces, the parameter must be inclosed within quotes.  If the
+first column of a config line is a '#' character, the rest of the line will be
+treated as a comment.
+<P>
+Specify the filename as '-' to make curl read the file from stdin.
+<P>
+Note that to be able to specify a URL in the config file, you need to specify
+it using the <I>--url</I> option, and not by simply writing the URL on its own
+line. So, it could look similar to this:
+<P>
+url = &quot;<A HREF="http://curl.haxx.se/docs/">http://curl.haxx.se/docs/</A>&quot;
+<P>
+This option can be used multiple times.
+<DT>--limit-rate &lt;speed&gt;<DD>
+Specify the maximum transfer rate you want curl to use. This feature is useful
+if you have a limited pipe and you'd like your transfer not use your entire
+bandwidth.
+<P>
+The given speed is measured in bytes/second, unless a suffix is appended.
+Appending 'k' or 'K' will count the number as kilobytes, 'm' or M' makes it
+megabytes while 'g' or 'G' makes it gigabytes. Examples: 200K, 3m and 1G.
+<P>
+If you are also using the <I>-Y/--speed-limit</I> option, that option will take
+precedence and might cripple the rate-limiting slightly, to help keeping the
+speed-limit logic working.
+<P>
+This option was introduced in curl 7.10.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-l/--list-only<DD>
+(FTP)
+When listing an FTP directory, this switch forces a name-only view.
+Especially useful if you want to machine-parse the contents of an FTP
+directory since the normal directory view doesn't use a standard look
+or format.
+<P>
+This option causes an FTP NLST command to be sent.  Some FTP servers
+list only files in their response to NLST; they do not include
+subdirectories and symbolic links.
+<P>
+If this option is used twice, the second will again disable list only.
+<DT>-L/--location<DD>
+(HTTP/HTTPS) If the server reports that the requested page has a different
+location (indicated with the header line Location:) this flag will let curl
+attempt to reattempt the get on the new place. If used together with
+<I>-i/--include</I> or <I>-I/--head</I>, headers from all requested pages will
+be shown. If authentication is used, curl will only send its credentials to
+the initial host, so if a redirect takes curl to a different host, it won't
+intercept the user+password. See also <I>--location-trusted</I> on how to
+change this.
+<P>
+If this option is used twice, the second will again disable location following.
+<DT>--location-trusted<DD>
+(HTTP/HTTPS) Like <I>-L/--location</I>, but will allow sending the name +
+password to all hosts that the site may redirect to. This may or may not
+introduce a security breach if the site redirects you do a site to which
+you'll send your authentication info (which is plaintext in the case of HTTP
+Basic authentication).
+<P>
+If this option is used twice, the second will again disable location following.
+<DT>--max-filesize &lt;bytes&gt;<DD>
+Specify the maximum size (in bytes) of a file to download. If the file
+requested is larger than this value, the transfer will not start and curl will
+return with exit code 63.
+<P>
+NOTE: The file size is not always known prior to download, and for such files
+this option has no effect even if the file transfer ends up being larger than
+this given limit. This concerns both FTP and HTTP transfers.
+<DT>-m/--max-time &lt;seconds&gt;<DD>
+Maximum time in seconds that you allow the whole operation to take.  This is
+useful for preventing your batch jobs from hanging for hours due to slow
+networks or links going down.  This doesn't work fully in win32 systems.  See
+also the <I>--connect-timeout</I> option.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-M/--manual<DD>
+Manual. Display the huge help text.
+<DT>-n/--netrc<DD>
+Makes curl scan the <I>.netrc</I> file in the user's home directory for login
+name and password. This is typically used for ftp on unix. If used with http,
+curl will enable user authentication. See
+<B><A HREF="../man4/netrc.4.php">netrc</A>(4)</B>
+
+or
+<B><A HREF="../man1/ftp.1.php">ftp</A>(1)</B>
+
+for details on the file format. Curl will not complain if that file
+hasn't the right permissions (it should not be world nor group
+readable). The environment variable &quot;HOME&quot; is used to find the home
+directory.
+<P>
+A quick and very simple example of how to setup a <I>.netrc</I> to allow curl
+to ftp to the machine host.domain.com with user name 'myself' and password
+
+<P>
+<B>machine host.domain.com login myself password secret</B>
+
+<P>
+If this option is used twice, the second will again disable netrc usage.
+<DT>--netrc-optional<DD>
+Very similar to <I>--netrc</I>, but this option makes the .netrc usage
+<B>optional</B> and not mandatory as the <I>--netrc</I> does.
+<DT>--negotiate<DD>
+(HTTP) Enables GSS-Negotiate authentication. The GSS-Negotiate method was
+designed by Microsoft and is used in their web aplications. It is primarily
+meant as a support for Kerberos5 authentication but may be also used along
+with another authentication methods. For more information see IETF draft
+draft-brezak-spnego-http-04.txt. (Added in 7.10.6)
+<P>
+This option requiures that the library was built with GSSAPI support. This is
+not very common. Use <I>-V/--version</I> to see if your version supports
+GSS-Negotiate.
+<P>
+If this option is used several times, the following occurrences make no
+difference.
+<DT>-N/--no-buffer<DD>
+Disables the buffering of the output stream. In normal work situations, curl
+will use a standard buffered output stream that will have the effect that it
+will output the data in chunks, not necessarily exactly when the data arrives.
+Using this option will disable that buffering.
+<P>
+If this option is used twice, the second will again switch on buffering.
+<DT>--ntlm<DD>
+(HTTP) Enables NTLM authentication. The NTLM authentication method was
+designed by Microsoft and is used by IIS web servers. It is a proprietary
+protocol, reversed engineered by clever people and implemented in curl based
+on their efforts. This kind of behavior should not be endorsed, you should
+encourage everyone who uses NTLM to switch to a public and documented
+authentication method instead. Such as Digest. (Added in 7.10.6)
+<P>
+If you want to enable NTLM for your proxy authentication, then use
+<I>--proxy-ntlm</I>.
+<P>
+This option requiures that the library was built with SSL support. Use
+<I>-V/--version</I> to see if your curl supports NTLM.
+<P>
+If this option is used several times, the following occurrences make no
+difference.
+<DT>-o/--output &lt;file&gt;<DD>
+Write output to &lt;file&gt; instead of stdout. If you are using {} or [] to fetch
+multiple documents, you can use '#' followed by a number in the &lt;file&gt;
+specifier. That variable will be replaced with the current string for the URL
+being fetched. Like in:
+<P>
+<BR>&nbsp;&nbsp;curl&nbsp;<A HREF="http://{one,two}.site.com">http://{one,two}.site.com</A>&nbsp;-o&nbsp;&quot;file_#1.txt&quot;
+<P>
+or use several variables like:
+<P>
+<BR>&nbsp;&nbsp;curl&nbsp;<A HREF="http://{site,host}.host[1-5].com">http://{site,host}.host[1-5].com</A>&nbsp;-o&nbsp;&quot;#1_#2&quot;
+<P>
+You may use this option as many times as you have number of URLs.
+<P>
+See also the <I>--create-dirs</I> option to create the local directories
+dynamically.
+<DT>-O/--remote-name<DD>
+Write output to a local file named like the remote file we get. (Only the file
+part of the remote file is used, the path is cut off.)
+<P>
+You may use this option as many times as you have number of URLs.
+<DT>--pass &lt;phrase&gt;<DD>
+(SSL) Pass phrase for the private key
+<P>
+If this option is used several times, the last one will be used.
+<DT>--proxy-basic<DD>
+Tells curl to use HTTP Basic authentication when communicating with the given
+proxy. Use <I>--basic</I> for enabling HTTP Basic with a remote host. Basic is
+the default authentication method curl uses with proxies.
+<P>
+If this option is used twice, the second will again disable proxy HTTP Basic
+authentication.
+<DT>--proxy-digest<DD>
+Tells curl to use HTTP Digest authentication when communicating with the given
+proxy. Use <I>--digest</I> for enabling HTTP Digest with a remote host.
+<P>
+If this option is used twice, the second will again disable proxy HTTP Digest.
+<DT>--proxy-ntlm<DD>
+Tells curl to use HTTP NTLM authentication when communicating with the given
+proxy. Use <I>--ntlm</I> for enabling NTLM with a remote host.
+<P>
+If this option is used twice, the second will again disable proxy HTTP NTLM.
+<DT>-p/--proxytunnel<DD>
+When an HTTP proxy is used (<I>-x/--proxy</I>), this option will cause non-HTTP
+protocols to attempt to tunnel through the proxy instead of merely using it to
+do HTTP-like operations. The tunnel approach is made with the HTTP proxy
+CONNECT request and requires that the proxy allows direct connect to the
+remote port number curl wants to tunnel through to.
+<P>
+If this option is used twice, the second will again disable proxy tunnel.
+<DT>-P/--ftp-port &lt;address&gt;<DD>
+(FTP) Reverses the initiator/listener roles when connecting with ftp. This
+switch makes Curl use the PORT command instead of PASV. In practice, PORT
+tells the server to connect to the client's specified address and port, while
+PASV asks the server for an ip address and port to connect to. &lt;address&gt;
+should be one of:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>interface<DD>
+i.e &quot;eth0&quot; to specify which interface's IP address you want to use  (Unix only)
+<DT>IP address<DD>
+i.e &quot;192.168.10.1&quot; to specify exact IP number
+<DT>host name<DD>
+i.e &quot;my.host.domain&quot; to specify machine
+<DT>-<DD>
+(any single-letter string) to make it pick the machine's default
+</DL>
+</DL>
+
+<P>
+If this option is used several times, the last one will be used. Disable the
+use of PORT with <I>--ftp-pasv</I>. Disable the attempt to use the EPRT command
+instead of PORT by using <I>--disable-eprt</I>. EPRT is really PORT++.
+<DT>-q<DD>
+If used as the first parameter on the command line, the <I>$HOME/.curlrc</I>
+file will not be read and used as a config file.
+<DT>-Q/--quote &lt;comand&gt;<DD>
+(FTP) Send an arbitrary command to the remote FTP server. Quote commands are
+sent BEFORE the transfer is taking place. To make commands take place after a
+successful transfer, prefix them with a dash '-'. You may specify any amount
+of commands to be run before and after the transfer. If the server returns
+failure for one of the commands, the entire operation will be aborted. You
+must send syntactically correct FTP commands as RFC959 defines.
+<P>
+This option can be used multiple times.
+<DT>--random-file &lt;file&gt;<DD>
+(HTTPS) Specify the path name to file containing what will be considered as
+random data. The data is used to seed the random engine for SSL connections.
+See also the <I>--egd-file</I> option.
+<DT>-r/--range &lt;range&gt;<DD>
+(HTTP/FTP)
+Retrieve a byte range (i.e a partial document) from a HTTP/1.1 or FTP
+server. Ranges can be specified in a number of ways.
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>0-499</B>
+
+<DD>
+specifies the first 500 bytes
+<DT><B>500-999</B>
+
+<DD>
+specifies the second 500 bytes
+<DT><B>-500</B>
+
+<DD>
+specifies the last 500 bytes
+<DT><B>9500</B>
+
+<DD>
+specifies the bytes from offset 9500 and forward
+<DT><B>0-0,-1</B>
+
+<DD>
+specifies the first and last byte only(*)(H)
+<DT><B>500-700,600-799</B>
+
+<DD>
+specifies 300 bytes from offset 500(H)
+<DT><B>100-199,500-599</B>
+
+<DD>
+specifies two separate 100 bytes ranges(*)(H)
+</DL>
+</DL>
+
+<P>
+(*) = NOTE that this will cause the server to reply with a multipart
+response!
+<P>
+You should also be aware that many HTTP/1.1 servers do not have this feature
+enabled, so that when you attempt to get a range, you'll instead get the whole
+document.
+<P>
+FTP range downloads only support the simple syntax 'start-stop' (optionally
+with one of the numbers omitted). It depends on the non-RFC command SIZE.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-R/--remote-time<DD>
+When used, this will make libcurl attempt to figure out the timestamp of the
+remote file, and if that is available make the local file get that same
+timestamp.
+<P>
+If this option is used twice, the second time disables this again.
+<DT>-s/--silent<DD>
+Silent mode. Don't show progress meter or error messages.  Makes
+Curl mute.
+<P>
+If this option is used twice, the second will again disable mute.
+<DT>-S/--show-error<DD>
+When used with -s it makes curl show error message if it fails.
+<P>
+If this option is used twice, the second will again disable show error.
+<DT>--socks &lt;host[:port]&gt;<DD>
+Use the specified SOCKS5 proxy. If the port number is not specified, it is
+assumed at port 1080. (Option added in 7.11.1)
+<P>
+This option overrides any previous use of <I>-x/--proxy</I>, as they are
+mutually exclusive.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--stderr &lt;file&gt;<DD>
+Redirect all writes to stderr to the specified file instead. If the file name
+is a plain '-', it is instead written to stdout. This option has no point when
+you're using a shell with decent redirecting capabilities.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--tcp-nodelay<DD>
+Turn on the TCP_NODELAY option. See the <I><A HREF="../man3/curl_easy_setopt.3.php">curl_easy_setopt</A>(3)</I> man page for
+details about this option. (Added in 7.11.2)
+<P>
+If this option is used several times, each occurance toggles this on/off.
+<DT>-t/--telnet-option &lt;OPT=val&gt;<DD>
+Pass options to the telnet protocol. Supported options are:
+<P>
+TTYPE=&lt;term&gt; Sets the terminal type.
+<P>
+XDISPLOC=&lt;X display&gt; Sets the X display location.
+<P>
+NEW_ENV=&lt;var,val&gt; Sets an environment variable.
+<DT>-T/--upload-file &lt;file&gt;<DD>
+This transfers the specified local file to the remote URL. If there is no file
+part in the specified URL, Curl will append the local file name. NOTE that you
+must use a trailing / on the last directory to really prove to Curl that there
+is no file name or curl will think that your last directory name is the remote
+file name to use. That will most likely cause the upload operation to fail. If
+this is used on a http(s) server, the PUT command will be used.
+<P>
+Use the file name &quot;-&quot; (a single dash) to use stdin instead of a given file.
+<P>
+Before 7.10.8, when this option was used several times, the last one was used.
+<P>
+In curl 7.10.8 and later, you can specify one -T for each URL on the command
+line. Each -T + URL pair specifies what to upload and to where. curl also
+supports &quot;globbing&quot; of the -T argument, meaning that you can upload multiple
+files to a single URL by using the same URL globbing style supported in the
+URL, like this:
+<P>
+curl -T &quot;{file1,file2}&quot; <A HREF="http://www.uploadtothissite.com">http://www.uploadtothissite.com</A>
+<P>
+or even
+<P>
+curl -T &quot;img[1-1000].png&quot; <A HREF="ftp://ftp.picturemania.com/upload/">ftp://ftp.picturemania.com/upload/</A>
+<DT>--trace &lt;file&gt;<DD>
+Enables a full trace dump of all incoming and outgoing data, including
+descriptive information, to the given output file. Use &quot;-&quot; as filename to have
+the output sent to stdout.
+<P>
+If this option is used several times, the last one will be used. (Added in
+7.9.7)
+<DT>--trace-ascii &lt;file&gt;<DD>
+Enables a full trace dump of all incoming and outgoing data, including
+descriptive information, to the given output file. Use &quot;-&quot; as filename to have
+the output sent to stdout.
+<P>
+This is very similar to <I>--trace</I>, but leaves out the hex part and only
+shows the ASCII part of the dump. It makes smaller output that might be easier
+to read for untrained humans.
+<P>
+If this option is used several times, the last one will be used. (Added in
+7.9.7)
+<DT>-u/--user &lt;user:password&gt;<DD>
+Specify user and password to use for server authentication.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-U/--proxy-user &lt;user:password&gt;<DD>
+Specify user and password to use for proxy authentication.
+<P>
+If this option is used several times, the last one will be used.
+<DT>--url &lt;URL&gt;<DD>
+Specify a URL to fetch. This option is mostly handy when you want to specify
+URL(s) in a config file.
+<P>
+This option may be used any number of times. To control where this URL is
+written, use the <I>-o/--output</I> or the <I>-O/--remote-name</I> options.
+<DT>-v/--verbose<DD>
+Makes the fetching more verbose/talkative. Mostly usable for debugging. Lines
+starting with '&gt;' means data sent by curl, '&lt;' means data received by curl
+that is hidden in normal cases and lines starting with '*' means additional
+info provided by curl.
+<P>
+Note that if you want to see HTTP headers in the output, <I>-i/--include</I>
+might be option you're looking for.
+<P>
+If you think this option still doesn't give you enough details, consider using
+<I>--trace</I> or <I>--trace-ascii</I> instead.
+<P>
+If this option is used twice, the second will again disable verbose.
+<DT>-V/--version<DD>
+Displays information about curl and the libcurl version it uses.
+<P>
+The first line includes the full version of curl, libcurl and other 3rd party
+libraries linked with the executable.
+<P>
+The second line (starts with &quot;Protocols:&quot;) shows all protocols that libcurl
+reports to support.
+<P>
+The third line (starts with &quot;Features:&quot;) shows specific features libcurl
+reports to offer. Available features include:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>IPv6<DD>
+You can use IPv6 with this.
+<DT>krb4<DD>
+Krb4 for ftp is supported.
+<DT>SSL<DD>
+HTTPS and FTPS are supported.
+<DT>libz<DD>
+Automatic decompression of compressed files over HTTP is supported.
+<DT>NTLM<DD>
+NTLM authenticaion is supported.
+<DT>GSS-Negotiate<DD>
+Negotiate authenticaion is supported.
+<DT>Debug<DD>
+This curl uses a libcurl built with Debug. This enables more error-tracking
+and memory debugging etc. For curl-developers only!
+<DT>AsynchDNS<DD>
+This curl uses asynchronous name resolves.
+<DT>SPNEGO<DD>
+SPNEGO Negotiate authenticaion is supported.
+<DT>Largefile<DD>
+This curl supports transfers of large files, files larger than 2GB.
+<DT>IDN<DD>
+This curl supports IDN - international domain names.
+</DL>
+</DL>
+
+<DT>-w/--write-out &lt;format&gt;<DD>
+Defines what to display after a completed and successful operation. The format
+is a string that may contain plain text mixed with any number of variables. The
+string can be specified as &quot;string&quot;, to get read from a particular file you
+specify it &quot;@filename&quot; and to tell curl to read the format from stdin you
+write &quot;@-&quot;.
+<P>
+The variables present in the output format will be substituted by the value or
+text that curl thinks fit, as described below. All variables are specified
+like %{variable_name} and to output a normal % you just write them like
+%%. You can output a newline by using \n, a carriage return with \r and a tab
+space with \t.
+<P>
+<B>NOTE:</B>
+
+The %-letter is a special letter in the win32-environment, where all
+occurrences of % must be doubled when using this option.
+<P>
+Available variables are at this point:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>url_effective</B>
+
+<DD>
+The URL that was fetched last. This is mostly meaningful if you've told curl
+to follow location: headers.
+<DT><B>http_code</B>
+
+<DD>
+The numerical code that was found in the last retrieved HTTP(S) page.
+<DT><B>time_total</B>
+
+<DD>
+The total time, in seconds, that the full operation lasted. The time will be
+displayed with millisecond resolution.
+<DT><B>time_namelookup</B>
+
+<DD>
+The time, in seconds, it took from the start until the name resolving was
+completed.
+<DT><B>time_connect</B>
+
+<DD>
+The time, in seconds, it took from the start until the connect to the remote
+host (or proxy) was completed.
+<DT><B>time_pretransfer</B>
+
+<DD>
+The time, in seconds, it took from the start until the file transfer is just
+about to begin. This includes all pre-transfer commands and negotiations that
+are specific to the particular protocol(s) involved.
+<DT><B>time_starttransfer</B>
+
+<DD>
+The time, in seconds, it took from the start until the first byte is just about
+to be transfered. This includes time_pretransfer and also the time the
+server needs to calculate the result.
+<DT><B>size_download</B>
+
+<DD>
+The total amount of bytes that were downloaded.
+<DT><B>size_upload</B>
+
+<DD>
+The total amount of bytes that were uploaded.
+<DT><B>size_header</B>
+
+<DD>
+The total amount of bytes of the downloaded headers.
+<DT><B>size_request</B>
+
+<DD>
+The total amount of bytes that were sent in the HTTP request.
+<DT><B>speed_download</B>
+
+<DD>
+The average download speed that curl measured for the complete download.
+<DT><B>speed_upload</B>
+
+<DD>
+The average upload speed that curl measured for the complete upload.
+<DT><B>content_type</B>
+
+<DD>
+The Content-Type of the requested document, if there was any. (Added in 7.9.5)
+</DL>
+</DL>
+
+<P>
+If this option is used several times, the last one will be used.
+<DT>-x/--proxy &lt;proxyhost[:port]&gt;<DD>
+Use specified HTTP proxy. If the port number is not specified, it is assumed
+at port 1080.
+<P>
+This option overrides existing environment variables that sets proxy to
+use. If there's an environment variable setting a proxy, you can set proxy to
+&quot;&quot; to override it.
+<P>
+<B>Note</B> that all operations that are performed over a HTTP proxy will
+transparantly be converted to HTTP. It means that certain protocol specific
+operations might not be available. This is not the case if you can tunnel
+through the proxy, as done with the <I>-p/--proxytunnel</I> option.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-X/--request &lt;command&gt;<DD>
+(HTTP)
+Specifies a custom request to use when communicating with the HTTP server.
+The specified request will be used instead of the standard GET. Read the
+HTTP 1.1 specification for details and explanations.
+<P>
+(FTP)
+Specifies a custom FTP command to use instead of LIST when doing file lists
+with ftp.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-y/--speed-time &lt;time&gt;<DD>
+If a download is slower than speed-limit bytes per second during a speed-time
+period, the download gets aborted. If speed-time is used, the default
+speed-limit will be 1 unless set with -y.
+<P>
+This option controls transfers and thus will not affect slow connects etc. If
+this is a concern for you, try the <I>--connect-timeout</I> option.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-Y/--speed-limit &lt;speed&gt;<DD>
+If a download is slower than this given speed, in bytes per second, for
+speed-time seconds it gets aborted. speed-time is set with -Y and is 30 if
+not set.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-z/--time-cond &lt;date expression&gt;<DD>
+(HTTP)
+Request to get a file that has been modified later than the given time and
+date, or one that has been modified before that time. The date expression can
+be all sorts of date strings or if it doesn't match any internal ones, it
+tries to get the time from a given file name instead! See the
+<B>GNU <A HREF="../man1/date.1.php">date</A>(1)</B>
+
+or
+<B><A HREF="../man3/curl_getdate.3.php">curl_getdate</A>(3)</B>
+
+man pages for date expression details.
+<P>
+Start the date expression with a dash (-) to make it request for a document
+that is older than the given date/time, default is a document that is newer
+than the specified date/time.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-Z/--max-redirs &lt;num&gt;<DD>
+Set maximum number of redirection-followings allowed. If <I>-L/--location</I>
+is used, this option can be used to prevent curl from following redirections
+&quot;in absurdum&quot;.
+<P>
+If this option is used several times, the last one will be used.
+<DT>-0/--http1.0<DD>
+(HTTP) Forces curl to issue its requests using HTTP 1.0 instead of using its
+internally preferred: HTTP 1.1.
+<DT>-1/--tlsv1<DD>
+(HTTPS)
+Forces curl to use TSL version 1 when negotiating with a remote TLS server.
+<DT>-2/--sslv2<DD>
+(HTTPS)
+Forces curl to use SSL version 2 when negotiating with a remote SSL server.
+<DT>-3/--sslv3<DD>
+(HTTPS)
+Forces curl to use SSL version 3 when negotiating with a remote SSL server.
+<DT>-4/--ipv4<DD>
+If libcurl is capable of resolving an address to multiple IP versions (which
+it is if it is ipv6-capable), this option tells libcurl to resolve names to
+IPv4 addresses only. (Added in 7.10.8)
+<DT>-6/--ipv6<DD>
+If libcurl is capable of resolving an address to multiple IP versions (which
+it is if it is ipv6-capable), this option tells libcurl to resolve names to
+IPv6 addresses only. (Added in 7.10.8)
+<DT>-#/--progress-bar<DD>
+Make curl display progress information as a progress bar instead of the
+default statistics.
+<P>
+If this option is used twice, the second will again disable the progress bar.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<I>~/.curlrc</I>
+
+<DL COMPACT><DT><DD>
+Default config file.
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT>http_proxy [protocol://]&lt;host&gt;[:port]<DD>
+Sets proxy server to use for HTTP.
+<DT>HTTPS_PROXY [protocol://]&lt;host&gt;[:port]<DD>
+Sets proxy server to use for HTTPS.
+<DT>FTP_PROXY [protocol://]&lt;host&gt;[:port]<DD>
+Sets proxy server to use for FTP.
+<DT>GOPHER_PROXY [protocol://]&lt;host&gt;[:port]<DD>
+Sets proxy server to use for GOPHER.
+<DT>ALL_PROXY [protocol://]&lt;host&gt;[:port]<DD>
+Sets proxy server to use if no protocol-specific proxy is set.
+<DT>NO_PROXY &lt;comma-separated list of hosts&gt;<DD>
+list of host names that shouldn't go through any proxy. If set to a asterisk
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXIT CODES</H2>
+
+There exists a bunch of different error codes and their corresponding error
+messages that may appear during bad conditions. At the time of this writing,
+the exit codes are:
+<DL COMPACT>
+<DT>1<DD>
+Unsupported protocol. This build of curl has no support for this protocol.
+<DT>2<DD>
+Failed to initialize.
+<DT>3<DD>
+URL malformat. The syntax was not correct.
+<DT>4<DD>
+URL user malformatted. The user-part of the URL syntax was not correct.
+<DT>5<DD>
+Couldn't resolve proxy. The given proxy host could not be resolved.
+<DT>6<DD>
+Couldn't resolve host. The given remote host was not resolved.
+<DT>7<DD>
+Failed to connect to host.
+<DT>8<DD>
+FTP weird server reply. The server sent data curl couldn't parse.
+<DT>9<DD>
+FTP access denied. The server denied login.
+<DT>10<DD>
+FTP user/password incorrect. Either one or both were not accepted by the
+server.
+<DT>11<DD>
+FTP weird PASS reply. Curl couldn't parse the reply sent to the PASS request.
+<DT>12<DD>
+FTP weird USER reply. Curl couldn't parse the reply sent to the USER request.
+<DT>13<DD>
+FTP weird PASV reply, Curl couldn't parse the reply sent to the PASV request.
+<DT>14<DD>
+FTP weird 227 format. Curl couldn't parse the 227-line the server sent.
+<DT>15<DD>
+FTP can't get host. Couldn't resolve the host IP we got in the 227-line.
+<DT>16<DD>
+FTP can't reconnect. Couldn't connect to the host we got in the 227-line.
+<DT>17<DD>
+FTP couldn't set binary. Couldn't change transfer method to binary.
+<DT>18<DD>
+Partial file. Only a part of the file was transfered.
+<DT>19<DD>
+FTP couldn't download/access the given file, the RETR (or similar) command
+failed.
+<DT>20<DD>
+FTP write error. The transfer was reported bad by the server.
+<DT>21<DD>
+FTP quote error. A quote command returned error from the server.
+<DT>22<DD>
+HTTP page not retrieved. The requested url was not found or returned another
+error with the HTTP error code being 400 or above. This return code only
+appears if <I>-f/--fail</I> is used.
+<DT>23<DD>
+Write error. Curl couldn't write data to a local filesystem or similar.
+<DT>24<DD>
+Malformed user. User name badly specified.
+<DT>25<DD>
+FTP couldn't STOR file. The server denied the STOR operation, used for FTP
+uploading.
+<DT>26<DD>
+Read error. Various reading problems.
+<DT>27<DD>
+Out of memory. A memory allocation request failed.
+<DT>28<DD>
+Operation timeout. The specified time-out period was reached according to the
+conditions.
+<DT>29<DD>
+FTP couldn't set ASCII. The server returned an unknown reply.
+<DT>30<DD>
+FTP PORT failed. The PORT command failed. Not all FTP servers support the PORT
+command, try doing a transfer using PASV instead!
+<DT>31<DD>
+FTP couldn't use REST. The REST command failed. This command is used for
+resumed FTP transfers.
+<DT>32<DD>
+FTP couldn't use SIZE. The SIZE command failed. The command is an extension
+to the original FTP spec RFC 959.
+<DT>33<DD>
+HTTP range error. The range &quot;command&quot; didn't work.
+<DT>34<DD>
+HTTP post error. Internal post-request generation error.
+<DT>35<DD>
+SSL connect error. The SSL handshaking failed.
+<DT>36<DD>
+FTP bad download resume. Couldn't continue an earlier aborted download.
+<DT>37<DD>
+FILE couldn't read file. Failed to open the file. Permissions?
+<DT>38<DD>
+LDAP cannot bind. LDAP bind operation failed.
+<DT>39<DD>
+LDAP search failed.
+<DT>40<DD>
+Library not found. The LDAP library was not found.
+<DT>41<DD>
+Function not found. A required LDAP function was not found.
+<DT>42<DD>
+Aborted by callback. An application told curl to abort the operation.
+<DT>43<DD>
+Internal error. A function was called with a bad parameter.
+<DT>44<DD>
+Internal error. A function was called in a bad order.
+<DT>45<DD>
+Interface error. A specified outgoing interface could not be used.
+<DT>46<DD>
+Bad password entered. An error was signaled when the password was entered.
+<DT>47<DD>
+Too many redirects. When following redirects, curl hit the maximum amount.
+<DT>48<DD>
+Unknown TELNET option specified.
+<DT>49<DD>
+Malformed telnet option.
+<DT>51<DD>
+The remote peer's SSL certificate wasn't ok
+<DT>52<DD>
+The server didn't reply anything, which here is considered an error.
+<DT>53<DD>
+SSL crypto engine not found
+<DT>54<DD>
+Cannot set SSL crypto engine as default
+<DT>55<DD>
+Failed sending network data
+<DT>56<DD>
+Failure in receiving network data
+<DT>57<DD>
+Share is in use (internal error)
+<DT>58<DD>
+Problem with the local certificate
+<DT>59<DD>
+Couldn't use specified SSL cipher
+<DT>60<DD>
+Problem with the CA cert (path? permission?)
+<DT>61<DD>
+Unrecognized transfer encoding
+<DT>62<DD>
+Invalid LDAP URL
+<DT>63<DD>
+Maximum file size exceeded
+<DT>XX<DD>
+There will appear more error codes here in future releases. The existing ones
+are meant to never change.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS / CONTRIBUTORS</H2>
+
+Daniel Stenberg is the main author, but the whole list of contributors is
+found in the separate THANKS file.
+<A NAME="lbAK">&nbsp;</A>
+<H2>WWW</H2>
+
+<A HREF="http://curl.haxx.se">http://curl.haxx.se</A>
+<A NAME="lbAL">&nbsp;</A>
+<H2>FTP</H2>
+
+<A HREF="ftp://ftp.sunet.se/pub/www/utilities/curl/">ftp://ftp.sunet.se/pub/www/utilities/curl/</A>
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/ftp.1.php">ftp</A></B>(1),
+
+<B><A HREF="../man1/wget.1.php">wget</A></B>(1),
+
+<B><A HREF="../man1/snarf.1.php">snarf</A></B>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">URL</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">EXIT CODES</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS / CONTRIBUTORS</A><DD>
+<DT><A HREF="#lbAK">WWW</A><DD>
+<DT><A HREF="#lbAL">FTP</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

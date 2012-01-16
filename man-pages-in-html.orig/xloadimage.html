@@ -1,0 +1,832 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XLOADIMAGE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XLOADIMAGE</H1>
+Section: User Commands  (1)<BR>Updated: 8 May 1991<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xloadimage, xsetbg, xview - load images into an X11 window or onto
+the root window
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<I>xloadimage</I> [global_options] {[image_options] image ...}
+<BR>
+
+<I>xloadimage</I> [global_options] [image_options] stdin &lt; image
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Xloadimage</I> displays images in an X11 window, loads them onto the
+root window, or writes them into a file.  Many image types are
+recognized; use the <I>-supported</I> option to list them.
+<P>
+
+If the filename <I>stdin</I> is given, xloadimage will read the image
+from standard input if this capability is supported by the loader for
+that image type (most types do support reading from stdin).
+<P>
+
+If the destination display cannot support the number of colors in the
+image, the image will be dithered (monochrome destination) or have its
+colormap reduced (color destination) as appropriate.  This can also be
+done forcibly with the <I>-halftone</I>, <I>-dither</I>, and
+<I>-colors</I> options.
+<P>
+
+A variety of image manipulations can be specified, including gamma
+correction, brightening, clipping, dithering, depth-reduction,
+rotation, and zooming.  Most of these manipulations have simple
+implementations; speed was opted for above accuracy.
+<P>
+
+If you are viewing a large image in a window, the initial window will
+be at most 90% of the size of the display unless the window manager
+does not correctly handle window size requests or if you've used the
+<I>-fullscreen</I> option.  You may move the image around in the window
+by dragging with the first mouse button.  The cursor will indicate
+which directions you may drag, if any.  You may exit the window by
+typing 'q' or '^C' when the keyboard focus is on the window.
+<P>
+
+If more than one image file is specified on the command line, each
+image will be shown in order (except if <I>-merge</I> or <I>-goto</I>
+are being used).
+<P>
+
+A wide variety of common image manipulations can be done by mixing and
+matching the available options.  See the section entitled <I>HINTS FOR
+GOOD IMAGE DISPLAYS</I> for some ideas.
+<P>
+
+The <I>-dump</I> option causes an image to be written to a file rather
+than displayed after processing.  This allows you to read an image,
+perform a number of processing operations on it, and save the
+resultant image.  This also allows translation from any of the
+recognized image types into any of the formats that support dumping.
+<P>
+
+<I>Xsetbg</I> is equivalent to <I>xloadimage -onroot -quiet</I> and
+<I>xview</I> is equivalent to <I>xloadimage -view -verbose</I>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RESOURCE CLASS</H2>
+
+<I>Xloadimage</I> uses the resource class name <I>Xloadimage</I> for
+window managers which need this resource set.  This name changed
+in version 2.00 and 2.01; some previous versions used the name
+<I>XLoadImage</I> (which was difficult to predict) or <I>xloadimage</I>
+(which conflicted with class naming conventions).
+<A NAME="lbAF">&nbsp;</A>
+<H2>GLOBAL OPTIONS</H2>
+
+The following options affect the global operation of <I>xloadimage</I>.
+They may be specified anywhere on the command line.  Additionally the
+<I>-global</I> option can be used to force an image option to apply to
+all images.
+<DL COMPACT>
+<DT>-border <I>color</I><DD>
+This sets the background portion of the window which is not covered by
+any images to be <I>color</I>.
+<DT>-configuration<DD>
+Displays the image path, image suffixes, and supported filters which
+will be used when looking for and reading images.  These are loaded
+from ~/.xloadimagerc and optionally from a systemwide file (normally
+/usr/lib/xloadimagerc).  This replaces the -path option.
+<DT>-default<DD>
+Use the default root weave as the image.  This option forces
+<I>-onroot</I>.  If <I>-default</I> is used alone, it is the same as
+<I>xsetroot</I> with no arguments.  If used in conjunction with
+<I>-tile</I> this option can be used to place images on the default
+root weave (see <B>EXAMPLES</B> below).
+<DT>-debug<DD>
+Talk to the X server in synchronous mode.  This is useful for
+debugging.  If an X error is seen while in this mode, a core will be
+dumped.
+<DT>-delay <I>secs</I><DD>
+Automatically advance to the next image after <I>secs</I> seconds.
+<DT>-display <I>display_name</I><DD>
+X11 display name to send the image(s) to.
+<DT>-dump <I>image_type[,option[=value]]</I> <I>dump_file</I><DD>
+Rather than displaying the loaded and processed image, dump it into an
+image file of the specified type.  For a list of image types that can
+be dumped, use the <I>-supported</I> option.  Some image types have
+options that affect the format of the file that's created.  See
+<B>DUMP OPTIONS</B> below.  An image can be dumped in any supported
+dump format regardless of the original image type, so image file type
+translation is possible using this option.
+<DT>-fit<DD>
+Force image to use the default visual and colormap.  This is useful if
+you do not want technicolor effects when the colormap focus is inside
+the image window, but it may reduce the quality of the displayed
+image.  This is on by default if -onroot or -windowid is specified.
+<DT>-fork<DD>
+Fork xloadimage.  This causes xloadimage to disassociate itself from
+the shell.  This option automatically turns on -quiet.
+<DT>-fullscreen<DD>
+Use the entire screen to display images.  If combined with -onroot,
+the image will be zoomed to fill the entire rootwindow.
+<DT>-geometry <I>WxH[{+-X}{+-}Y]</I><DD>
+This sets the size of the window onto which the images are loaded to a
+different value than the size of the image.  When viewing an image in
+a window, this can be used to reduce the size of the destination
+window.  When loading an image onto the root window, this option
+controls the size of the pixmap which will be loaded onto the root.
+If the size is smaller than that of the display, the image will be
+replicated.
+<DT>-goto image_name<DD>
+Forces the next image to be displayed to be the image named
+<I>image_name</I>.  This is useful for generating looped slideshows.
+If more than one image of the same name as the target exists on the
+argument list, the first in the argument list is used.
+<DT>-help [option ...]<DD>
+Give information on an option or list of options.  If no option is
+given, a simple interactive help facility is invoked.
+<DT>-identify<DD>
+Identify the supplied images rather than display them.
+<DT>-install<DD>
+Forcibly install the image's colormap when the window is focused.
+This violates ICCCM standards and only exists to allow operation with
+naive window managers.  Use this option only if your window manager
+does not install colormaps properly.
+<DT>-list<DD>
+List the images which are along the image path.
+<DT>-onroot<DD>
+Load image(s) onto the root window instead of viewing in a window.
+This option automatically sets the -fit option.
+This is the opposite of <I>-view</I>.  <I>XSetbg</I> has this option set
+by default.
+<DT>-path<DD>
+Displays miscellaneous information about the program configuration.
+This option is obsolete and has been replaced by -configuration.
+<DT>-pixmap<DD>
+Force the use of a pixmap as backing-store.  This is provided for
+servers where backing-store is broken (such as some versions of the
+AIXWindows server).  It may improve scrolling performance on servers
+which provide backing-store.
+<DT>-private<DD>
+Force the use of a private colormap.  Normally colors are allocated
+shared unless there are not enough colors available.
+<DT>-quiet<DD>
+Forces <I>xloadimage</I> and <I>xview</I> to be quiet.  This is the
+default for <I>xsetbg</I>, but the others like to whistle. 
+<DT>-supported<DD>
+List the supported image types. 
+<DT>-type <I>type_name</I><DD>
+Forces <I>xloadimage</I> to try to load the image as a particular file
+type rather than trying to guess.  This often improves load
+performance noticably.
+<DT>-verbose<DD>
+Causes <I>xloadimage</I> to be talkative, telling you what kind of
+image it's playing with and any special processing that it has to do. 
+This is the default for <I>xview</I> and <I>xloadimage</I>. 
+<DT>-version<DD>
+Print the version number and patchlevel of this version of
+<I>xloadimage</I>.
+<DT>-view<DD>
+View image(s) in a window.  This is the opposite of <I>-onroot</I> and
+the default for <I>xview</I> and <I>xloadimage</I>. 
+<DT>-visual <I>visual_name</I><DD>
+Force the use of a specific visual type to display an image.  Normally
+<I>xloadimage</I> tries to pick the best available image for a
+particular image type.  The available visual types are:  DirectColor,
+TrueColor, PseudoColor, StaticColor, GrayScale, and StaticGray.
+Nonconflicting names may be abbreviated and case is ignored.
+<DT>-windowid <I>hex_window_id</I><DD>
+Sets the background pixmap of a particular window ID.  The argument
+must be in hexadecimal and must be preceeded by &quot;0x&quot; (<I>eg</I>
+-windowid 0x40000b.  This is intended for setting the background
+pixmap of some servers which use untagged virtual roots
+(<I>eg</I> HP-VUE), but can have other interesting applications.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>IMAGE OPTIONS</H2>
+
+The following options may preceed each image.  These options are
+local to the image they preceed. 
+<DL COMPACT>
+<DT>-at <I>X</I>,<I>Y</I><DD>
+Indicates coordinates to load the image at on the base image.  If
+this is an option to the first image, and the <I>-onroot</I> option is
+specified, the image will be loaded at the given location on the
+display background. 
+<DT>-background <I>color</I><DD>
+Use <I>color</I> as the background color instead of the default
+(usually white but this depends on the image type) if you are
+transferring a monochrome image to a color display. 
+<DT>-brighten <I>percentage</I><DD>
+Specify a percentage multiplier for a color image's colormap.  A value
+of more than 100 will brighten an image, one of less than 100 will
+darken it. 
+<DT>-center<DD>
+Center the image on the base image loaded.  If this is an option to
+the first image, and the <I>-onroot</I> option is specified, the image
+will be centered on the display background. 
+<DT>-clip <I>X</I>,<I>Y</I>,<I>W</I>,<I>H</I><DD>
+Clip the image before loading it.  <I>X</I> and <I>Y</I> define the
+upper-left corner of the clip area, and <I>W</I> and <I>H</I> define the
+extents of the area.  A zero value for <I>W</I> or <I>H</I> will be
+interpreted as the remainder of the image. 
+<DT>-colors <I>n</I><DD>
+Specify the maximum number of colors to use in the image.  This is a
+way to forcibly reduce the depth of an image.
+<DT>-dither<DD>
+Dither a color image to monochrome using a Floyd-Steinberg dithering
+algorithm.  This happens by default when viewing color images on a
+monochrome display.  This is slower than <I>-halftone</I> and affects
+the image accuracy but usually looks much better.
+<DT>-foreground <I>color</I><DD>
+Use <I>color</I> as the foreground color instead of black if you are
+transferring a monochrome image to a color display.  This can also be
+used to invert the foreground and background colors of a monochrome
+image. 
+<DT>-gamma <I>display_gamma</I><DD>
+Specify the gamma correction for the display.
+The default value is 1.0, a typical display needs 2.0 to 2.5.
+<DT>-global<DD>
+Force the following option to apply to all images rather than one
+specific image.  Local image options will temporarily override any
+option specified with -global.
+<DT>-gray<DD>
+Convert an image to grayscale.  This is very useful when displaying
+colorful images on servers with limited color capability.  It can also
+be used to convert a bitmap image into a grayscale image, although the
+resulting image will be smaller than the original.  The optional
+spelling <I>-grey</I> may also be used.
+<DT>-halftone<DD>
+Force halftone dithering of a color image when displaying on a
+monochrome display.  This option is ignored on monochrome images.
+This dithering algorithm blows an image up by sixteen times; if you
+don't like this, the <I>-dither</I> option will not blow the image up
+but will take longer to process and will be less accurate.
+<DT>-idelay <I>secs</I><DD>
+Set the delay to be used for this image to <I>secs</I> seconds (see
+<I>-delay</I>).  If <I>-delay</I> was specified, this overrides it.  If
+it was not specified, this sets the automatic advance delay for this
+image while others will wait for the user to advance them.
+<DT>-invert<DD>
+Inverts a monochrome image.  This is shorthand for <I>-foreground
+white -background black</I>.
+<DT>-merge<DD>
+Merge this image onto the base image after local processing.  The base
+image is considered to be the first image specified or the last image
+that was not preceeded by <I>-merge</I>.  If used in conjunction with
+<I>-at</I> and <I>-clip</I>, very complex images can be built up.  This
+option is on by default for all images if the <I>-onroot</I> or
+<I>-windowid</I> options are specified.
+<DT>-name <I>image_name</I><DD>
+Force the next argument to be treated as an image name.  This is
+useful if the name of the image is <I>-dither</I>, for instance. 
+<DT>-newoptions<DD>
+Reset globally-specified options.
+<DT>-normalize<DD>
+Normalize a color image.
+<DT>-rotate <I>degrees</I><DD>
+Rotate the image by <I>degrees</I> clockwise.  The number must be a
+multiple of 90.
+<DT>-shrink<DD>
+Shrink an image down to fit on the display.  This is particularly
+useful with servers that do not support window sizes larger than the
+physical screen (eg DECWINDOWS servers).
+<DT>-smooth<DD>
+Smooth a color image.  This reduces blockiness after zooming an image
+up.  If used on a monochrome image, nothing happens.  This option can
+take awhile to perform, especially on large images.  You may specify
+more than one <I>-smooth</I> option per image, causing multiple
+iterations of the smoothing algorithm.
+<DT>-tile<DD>
+Tile this image (after any necessary merging or tiling) to create a
+fullscreen image.  This is usually used to create a large background
+image on which to merge other images.  <I>-geometry</I> can be used to
+set the new image size to something other than -fullscreen.
+<DT>-title <I>title</I><DD>
+Change the title of the image.  This sets the title bar title if
+displaying in a window or the NIFF file image title if dumping the
+image.
+<DT>-xzoom <I>percentage</I><DD>
+Zoom the X axis of an image by <I>percentage</I>.  A number greater
+than 100 will expand the image, one smaller will compress it.  A zero
+value will be ignored.  This option, and the related <I>-yzoom</I> are
+useful for correcting the aspect ratio of images to be displayed.
+<DT>-yzoom <I>percentage</I><DD>
+Zoom the Y axis of an image by <I>percentage</I>.  See <I>-xzoom</I> for
+more information. 
+<DT>-zoom <I>percentage</I><DD>
+Zoom both the X and Y axes by <I>percentage</I>.  See <I>-xzoom</I> for
+more information.  Technically the percentage actually zoomed is the
+square of the number supplied since the zoom is to both axes, but I
+opted for consistency instead of accuracy.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+To load the rasterfile &quot;my.image&quot; onto the background and replicate
+it to fill the entire background:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -onroot my.image
+<P>
+
+To center an image on the default root background:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -default -tile my.image
+<P>
+If using a monochrome display and a color image you will probably want
+to dither the image for a cleaner (and faster) display:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -default -tile -dither my.image
+<P>
+
+To load a monochrome image &quot;my.image&quot; onto the background, using red
+as the foreground color, replicate the image, and overlay
+&quot;another.image&quot; onto it at coordinate (10,10):
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -foreground red my.image -at 10,10 another.image
+<P>
+
+To center the rectangular region from 10 to 110 along the X axis and
+from 10 to the height of the image along the Y axis:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -center -clip 10,10,100,0 my.image
+<P>
+
+To double the size of an image:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -zoom 200 my.image
+<P>
+
+To halve the size of an image:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -zoom 50 my.image
+<P>
+
+To brighten a dark image:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -brighten 150 my.image
+<P>
+
+To darken a bright image:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage -brighten 50 my.image
+<A NAME="lbAI">&nbsp;</A>
+<H2>HINTS FOR GOOD IMAGE DISPLAYS</H2>
+
+Since images are likely to come from a variety of sources, they may be
+in a variety of aspect ratios which may not be supported by your
+display.  The <I>-xzoom</I> and <I>-yzoom</I> options can be used to
+change the aspect ratio of an image before display.  If you use these
+options, it is recommended that you increase the size of one of the
+dimensions instead of shrinking the other, since shrinking looses
+detail.  For instance, many GIF and G3 FAX images have an X:Y ratio of
+about 2:1.  You can correct this for viewing on a 1:1 display with
+either <I>-xzoom 50</I> or <I>-yzoom 200</I> (reduce X axis to 50% of
+its size and expand Y axis to 200% of its size, respectively) but the
+latter should be used so no detail is lost in the conversion.
+<P>
+
+When zooming color images up you can reduce blockiness with
+<I>-smooth</I>.  For zooms of 300% or more, I recommend two smoothing
+passes (although this can take awhile to do on slow machines).  There
+will be a noticable improvement in the image.
+<P>
+
+You can perform image processing on a small portion of an image by
+loading the image more than once and using the <I>-merge</I>, <I>-at</I>
+and <I>-clip</I> options.  Load the image, then merge it with a
+clipped, processed version of itself.  To brighten a 100x100 rectangular
+portion of an image located at (50,50), for instance, you could type:
+<P>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+xloadimage my.image -merge -at 50,50 -clip 50,50,100,100 -brighten 150 my.image
+<P>
+
+If you're using a display with a small colormap to display colorful
+images, try using the <I>-gray</I> option to convert to grayscale.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>PATHS AND EXTENSIONS</H2>
+
+The file ~/.xloadimagerc (and optionally a system-wide file) defines a
+number of configuration options that affect xloadimage.
+<P>
+
+This file is split into three section, the <I>path</I> section, the
+<I>extension</I> section, and the <I>filter</I> section.  The sections
+are identified by typing the section name followed by an equals sign,
+eg &quot;path =&quot;.
+<P>
+
+The <I>path</I> statement is used to provide a set of search paths to
+use when looking for an image of a specified name.  Separate each path
+in the list by whitespace (eg one or more spaces, tabs, or newlines).
+The path is searched in the order it is specified.  For example:
+<P>
+
+<PRE>
+  path = ~/images /usr/local/images ~fred
+</PRE>
+
+<P>
+
+will first look for the image name you specified, then look for the
+name in ~/images (the tilde is expanded to the value of $HOME), then
+in /usr/local/images, then in user fred's home directory.  This allows
+easy use of image repositories.
+<P>
+
+The <I>extension</I> statement is used to provide a set of default
+extensions to use when looking for an image of a specified name.
+Separate each extension in the list by whitespace.  The extensions are
+searched in the order in which they are specified.  For example:
+<P>
+
+<PRE>
+  extension = .gif .jpg
+</PRE>
+
+<P>
+
+If you have a file named <I>myimage.gif</I> you could specify the name
+<I>myimage</I> and xloadimage would append the <I>.gif</I> extension
+automatically.
+<P>
+
+The <I>filter</I> statement is used to describe filter programs, such
+as &quot;uncompress&quot;, which are to be applied to image files automatically.
+You specify one filter program and any number of recognized extensions
+following the <I>filter</I> keyword.  For example:
+<P>
+
+<PRE>
+  filter = uncompress .Z
+</PRE>
+
+<P>
+
+specifies that the program <I>uncompress</I> should be used as a filter
+whenever an image file has a .Z extension.  By default filters are
+provided for compressed (.Z) files and GNU zip (.gz) files.  See the
+<B>FILTERS</B> section for more information on defining your own
+filters.
+<P>
+
+Any text on a line following a hash-mark (#) is ignored; if you wish
+to use a hash-mark in a path, extension, or filter you can escape it
+using a backslash (\).
+<P>
+
+If you wish to include white-space in a filter program name, path, or
+extension you can enclose the entire text in double-quotes.  For
+example:
+<P>
+
+<PRE>
+  filter = &quot;gzip -cd&quot; .gz
+</PRE>
+
+<P>
+
+Use backslash (\) characters to allow inclusion of double-quote marks
+or newlines.
+<P>
+
+The following is a sample ~/.xloadimagerc file:
+<P>
+
+<PRE>
+  # paths to look for images in
+  path = /usr/local/images        # system image repository
+        ~/images                 # personal images
+        /usr/include/X11/bitmaps # standard X bitmaps
+
+  # default extensions for images
+  extension = .csun .msun .sun .face .xbm .bm
+
+  # invoke GNU zip if a .z or .zip extension is found
+  filter = &quot;gzip -cd&quot; .z .zip
+
+</PRE>
+
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>IMAGE TYPES</H2>
+
+<P>
+
+<I>Xloadimage</I> currently supports many common and some uncommon
+image types, and can create images in several formats.  For a complete
+list use the <I>-supported</I> option.
+<A NAME="lbAL">&nbsp;</A>
+<H2>DUMPING IMAGES</H2>
+
+Several image dumpers are included that can be used to create a new
+image after loading and processing.  The NIFF (Native Image File
+Format) is the simplest and creates images that <I>xloadimage</I> can
+read the fastest; it is essentially a copy of the internal image
+format.
+<P>
+
+Some image dumpers allow options that affect the image output.  These
+options are appended to the image type following a comma and are
+separated by commas.  If a value is desired it can be specified
+following an equals-sign.  For example, to create a monochrome JPEG
+image file with a quality factor of 80, you would use the following
+command line:
+<P>
+
+<PRE>
+  xloadimage image_name -dump jpeg,quality=80,grayscale new_image.jpg
+</PRE>
+
+<P>
+
+Option names can be abbreviated but if the abbreviation is too short
+to be unique the option which will be used is indeterminate.
+<A NAME="lbAM">&nbsp;</A>
+<H2>FILTERS</H2>
+
+Xloadimage supports automatic filtering by recognizing file
+extensions.  By default &quot;compress&quot; and &quot;gzip&quot; files are recognized and
+their names passed to appropriate commands to decompress them.
+<P>
+
+The xloadimage distribution includes a special &quot;smart&quot; uudecoder,
+called <I>uufilter</I> that can be used to automatically uudecode files
+for processing.  <I>Uufilter</I> ignores extraneous lines in the file
+so it is particularly useful if the uuencoded file was created by
+concatenating email or news postings that had headers or line-break
+indicators included.
+<P>
+
+To make use of <I>uufilter</I> you can add the following to your
+<I>.xloadimagerc</I> file:
+<P>
+
+<PRE>
+  filter = &quot;uufilter -s&quot; .uu .uue
+</PRE>
+
+The filter will be automatically invoked on any file with a .uu or
+
+<P>
+
+For a list of filters automatically recognized by xloadimage use the
+<I>-configuration</I> option.
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>SUPPORTED IMAGE OPTIONS</H2>
+
+<P>
+
+The JPEG image dumper supports the following options:
+<DL COMPACT>
+<DT>arithmetic<DD>
+Use arithmetic encoding.
+<DT>grayscale<DD>
+Force a monochrome (grayscale) image to be created given a color
+image.
+<DT>nointerleave<DD>
+Create a non-interleaved file.
+<DT>optimize<DD>
+Enable entropy parameter optimization.
+<DT>quality<DD>
+Adjust the quality of the image to be created.  The default quality
+factor is 75; lower values create poorer images.
+<DT>restart <I>interval</I><DD>
+Set the restart interval in MCU rows, or MCUs if 'b' follows the
+interval value.
+<DT>smooth <I>smoothing_factor</I><DD>
+Set the smoothing factor.  Value should be between 0 and 100,
+inclusive.
+</DL>
+<P>
+
+If you are not familiar with the meaning of these options you can ask
+the Independent JPEG Group (IJG) via email at <A HREF="mailto:jpeg@cs.columbia.edu">jpeg@cs.columbia.edu</A>.
+<P>
+
+The PBM image dumper supports the following options:
+<DL COMPACT>
+<DT>normal<DD>
+Dump a normal (ascii) PBM/PPM file.
+<DT>raw<DD>
+Dump a RawBits format PBM/PPM file.  This is the default and results
+in significantly smaller image files than when using <I>normal</I>.
+</DL>
+<P>
+
+There is no way to dump a PGM format file or a &quot;compact&quot; PBM format
+file (sorry).
+<P>
+
+The TIFF image dumper supports the following options:
+<DL COMPACT>
+<DT>compression<DD>
+Image data compression technique.  Can be one of:
+<I>none</I> (no compression),
+<I>rle</I> (CCITT RLE compression),
+<I>g3fax</I> (CCITT Group 3 FAX compression),
+<I>g4fax</I> (CCITT Group 4 FAX compression),
+<I>lzw</I> (Limpel-Ziv-Welsh compression, the default),
+<I>jpeg</I> (JPEG compression),
+<I>next</I> (NeXT run-length compression),
+<I>rlew</I> (CCITT RLEW compression),
+<I>mac</I> (Macintosh PackBits compression),
+<I>packbits</I> (same as <I>mac</I>),
+<I>thunderscan</I> (ThunderScan compression).
+</DL>
+<P>
+
+<I>Xloadimage</I> will save using the MINISBLACK, MINISWHITE, COLORMAP,
+or RGB photometrics as appropriate for its internal image format.
+There is no way to specify a particular photometric or any other TIFF
+fields.
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<PRE>
+Jim Frost
+CenterLine Software
+<A HREF="mailto:jimf@centerline.com">jimf@centerline.com</A>
+</PRE>
+
+<P>
+
+For a more-or-less complete list of other contributors (there are a
+<I>lot</I> of them), please see the README file enclosed with the
+distribution.
+<A NAME="lbAP">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+xloadimage              - the image loader and viewer
+xsetbg                  - pseudonym which quietly sets the background
+xview                   - pseudonym which views in a window
+/usr/lib/X11/Xloadimage - default system-wide configuration file
+~/.xloadimagerc         - user's personal configuration file
+</PRE>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Copyright (c) 1989, 1993 Jim Frost and others.
+<P>
+
+<I>Xloadimage</I> is copywritten material with a very loose copyright
+allowing unlimited modification and distribution if the copyright
+notices are left intact.  Various portions are copywritten by various
+people, but all use a modification of the MIT copyright notice.
+Please check the source for complete copyright information.  The
+intent is to keep the source free, not to stifle its distribution, so
+please write to me if you have any questions.
+<A NAME="lbAR">&nbsp;</A>
+<H2>BUGS</H2>
+
+Zooming dithered images, especially downwards, is UGLY.
+<P>
+
+Images can come in a variety of aspect ratios.  <I>Xloadimage</I> cannot
+detect what aspect ratio the particular image being loaded has, nor
+the aspect ratio of the destination display, so images with differing
+aspect ratios from the destination display will appear distorted.  See
+<I>HINTS FOR GOOD IMAGE DISPLAYS</I> for more information.
+<P>
+
+The GIF format allows more than one image to be stored in a single GIF
+file, but <I>xloadimage</I> will only display the first.
+<P>
+
+Only GIF87a format is supported.
+<P>
+
+One of the pseudonyms for <I>xloadimage</I>, <I>xview</I>, is the same
+name as Sun uses for their SunView-under-X package.  This will be
+confusing if you're one of those poor souls who has to use Sun's
+XView.
+<P>
+
+Some window managers do not correctly handle window size requests.  In
+particular, many versions of the twm window manager use
+the MaxSize hint instead of the PSize hint, causing images which
+are larger than the screen to display in a window larger than the
+screen, something which is normally avoided.  Some versions of twm
+also ignore the MaxSize argument's real function, to limit the maximum
+size of the window, and allow the window to be resized larger than the
+image.  If this happens, <I>xloadimage</I> merely places the image in
+the upper-left corner of the window and uses the zero-value'ed pixel
+for any space which is not covered by the image.  This behavior is
+less-than-graceful but so are window managers which are cruel enough
+to ignore such details.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RESOURCE CLASS</A><DD>
+<DT><A HREF="#lbAF">GLOBAL OPTIONS</A><DD>
+<DT><A HREF="#lbAG">IMAGE OPTIONS</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">HINTS FOR GOOD IMAGE DISPLAYS</A><DD>
+<DT><A HREF="#lbAJ">PATHS AND EXTENSIONS</A><DD>
+<DT><A HREF="#lbAK">IMAGE TYPES</A><DD>
+<DT><A HREF="#lbAL">DUMPING IMAGES</A><DD>
+<DT><A HREF="#lbAM">FILTERS</A><DD>
+<DT><A HREF="#lbAN">SUPPORTED IMAGE OPTIONS</A><DD>
+<DT><A HREF="#lbAO">AUTHOR</A><DD>
+<DT><A HREF="#lbAP">FILES</A><DD>
+<DT><A HREF="#lbAQ">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAR">BUGS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

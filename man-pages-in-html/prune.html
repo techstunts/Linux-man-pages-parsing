@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>prune</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>prune</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+prune - Prune directed graphs
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSYS</H2>
+
+<B>prune</B>
+
+[
+<B>-n</B><I> node</I>
+
+]
+[
+<B>-N</B><I> attrspec</I>
+
+]
+[
+<I>files ...</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>prune</B>
+
+reads directed graphs in the same format used by 
+<B><A HREF="../man1/dot.1.php">dot</A>(1)</B>
+
+and removes subgraphs rooted at nodes specified on the
+command line via options. These nodes themselves will not be removed,
+but can be given attributes so that they can be easily located by a
+graph stream editor such as
+<B><A HREF="../man1/gpr.1.php">gpr</A>(1).</B>
+
+<B>prune</B>
+
+correctly handles cycles, loops and multi-edges.
+<P>
+Both options can appear multiple times on the command line. All
+subgraphs rooted at the respective nodes given will then be
+processed. If a node does not exist,
+<B>prune</B>
+
+will skip it and print a warning message to stderr.
+If multiple attributes are given, they will be applied to
+all nodes that have been processed.
+<B>prune</B>
+
+writes the result to the stdout.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-n</B><I> name</I>
+
+<DD>
+Specifies name of node to prune.
+<DT><B>-N</B><I> attrspec</I>
+
+<DD>
+Specifies attribute that will be set (or changed if it exists) for any
+pruned node.
+<I>attrspec</I>
+
+is a string of the form
+<I>attr</I>=<I>value.</I>
+
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+An input graph
+<I>test.dot</I>
+
+of the form
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>digraph DG {<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; B;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; C;<BR>
+<BR>
+
+<P>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  B -&gt; D;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  B -&gt; E;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>}<BR>
+<BR>
+
+<P>
+, processed by the command
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>prune -n B test.dot<BR>
+<P>
+
+would produce the following output (the actual code might be formatted
+in a slightly different way).
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>digraph DG {<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; B;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; C;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>}<BR>
+<BR>
+
+<P>
+Another input graph
+<I>test.dot</I>
+
+of the form
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>digraph DG {<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; B;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; C;<BR>
+<BR>
+
+<P>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  B -&gt; D;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  B -&gt; E;<BR>
+<BR>
+
+<P>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  C -&gt; E;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>}<BR>
+<BR>
+
+<P>
+(note the additional edge from
+<I>C</I>
+
+to
+<I>E</I>
+
+), processed by the command
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>prune -n B -N color=red test.dot<BR>
+<P>
+
+results in
+<P>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>digraph DG {<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  B [color=red];<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; B;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  A -&gt; C;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  C -&gt; E;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>}<BR>
+<BR>
+
+<P>
+Node
+<I>E</I>
+
+has not been removed since its second parent
+<I>C</I>
+
+is not being pruned.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXIT STATUS</H2>
+
+<B>prune</B>
+
+returns 0 on successful completion.
+It returns 1 if an error occurs.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/dot.1.php">dot</A></B>(1),
+
+<B><A HREF="../man1/gpr.1.php">gpr</A></B>(1)
+
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Marcus Harnisch &lt;<A HREF="mailto:marcus.harnisch@gmx.net">marcus.harnisch@gmx.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSYS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">EXIT STATUS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

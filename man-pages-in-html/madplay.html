@@ -1,0 +1,887 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MADPLAY</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MADPLAY</H1>
+Section: MPEG Audio Decoder (1)<BR>Updated: 22 February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+madplay - decode and play MPEG audio stream(s)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>madplay</B>
+
+[<I>options</I>]
+
+<I>file</I>
+
+...
+<BR>
+
+<B>madplay</B>
+
+[<I>options</I>]
+
+<B>-o</B> [<I>type</I><B>:</B>]<I>path</I>
+<I>file</I>
+
+...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>madplay</B>
+
+is a command-line MPEG audio decoder and player based on the MAD library
+(<I>libmad</I>).
+
+<P>
+
+MAD is a high-quality MPEG audio decoder. It currently supports MPEG-1 and the
+MPEG-2 extension to Lower Sampling Frequencies, as well as the so-called
+MPEG&nbsp;2.5 format. All three audio layers (Layer&nbsp;I, Layer&nbsp;II, and Layer&nbsp;III
+a.k.a. MP3) are fully implemented.
+<P>
+
+Among the special features of MAD are 24-bit PCM resolution and 100%
+fixed-point (integer) computation. Since MAD is implemented entirely without
+the use of floating point arithmetic, it performs especially well on
+architectures without an FPU.
+<P>
+
+MAD does not yet support MPEG-2 multichannel audio (although it should be
+backward compatible with such streams) nor does it currently support AAC.
+<P>
+
+By default
+<B>madplay</B>
+
+reads and decodes one or more input
+<I>file</I>s
+
+containing MPEG audio data and plays them on the native audio device. If the
+input file is a single dash (-), data is read from standard input.
+<P>
+
+Decoded output may optionally be redirected to a file instead of being played
+on the audio device by using the
+<B>-o</B>
+
+(<B>--output</B>)
+
+option.
+<P>
+
+For each
+<I>file</I>,
+
+<B>madplay</B>
+
+will also attempt to read and display ID3 tag information. The supported tag
+versions are ID3v1, ID3v1.1, ID3v2.2, ID3v2.3, and ID3v2.4. If a tag contains
+relative volume adjustment information (RVA2),
+<B>madplay</B>
+
+will use the information to adjust the master volume for output. This behavior
+can be changed with the
+<B>-A</B>
+
+(<B>--adjust-volume</B>)
+
+and
+<B>-G</B>
+
+(<B>--replay-gain</B>)
+
+options.
+<P>
+
+If the
+<B>-T</B>
+
+(<B>--show-tags-only</B>)
+
+option is used, decoding is not performed but tag information is still
+displayed. When used in conjunction with
+<B>-v</B>
+
+(<B>--verbose</B>),
+
+encoder as well as ID3 tags are shown.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Verbosity</H3>
+
+<DL COMPACT>
+<DT><B>-v</B> or <B>--verbose</B>
+
+<DD>
+Generally show more information than the default. During decoding, show
+information about the stream including playing time, audio layer, bit rate,
+sampling frequency, and stereo mode.
+<DT><B>-q</B> or <B>--quiet</B>
+
+<DD>
+Generally show less information than the default. Do not show any information
+during decoding except warnings.
+<DT><B>-Q</B> or <B>--very-quiet</B>
+
+<DD>
+Generally show no information except severe errors. Do not show any
+information or warnings during decoding.
+<DT><B>--display-time=</B><I>mode</I>
+
+<DD>
+Set the default verbose time display mode to
+<I>mode</I>,
+
+which must be one of
+<B>remaining</B>,
+
+<B>current</B>,
+
+or
+<B>overall</B>.
+
+This is only relevant with
+<B>-v</B>
+
+(<B>--verbose</B>).
+
+See
+<B>--tty-control</B>
+
+below for details on changing the time display mode during playback.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Decoding</H3>
+
+<DL COMPACT>
+<DT><B>--downsample</B>
+
+<DD>
+Reduce the decoded sampling frequency 2:1. This also reduces the computational
+overhead of the decoder.
+<DT><B>-i</B> or <B>--ignore-crc</B>
+
+<DD>
+Ignore CRC information in the audio stream. This causes frames with CRC errors
+to be decoded and played anyway. This option is not recommended, but since
+some encoders have been known to generate bad CRC information, this option is
+a work-around to play streams from such encoders.
+<DT><B>--ancillary-output=</B><I>path</I><DD>
+Write ancillary data from the MPEG audio stream to
+<I>path</I>.
+
+If
+<I>path</I>
+
+is a single dash (-), the data will be written to standard output.
+Bits from the ancillary data stream are packed into octets; if any bits
+remain, the final octet will be padded with zero bits. See the
+<B>NOTES</B>
+
+section below for further information about this option.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Audio Output</H3>
+
+<DL COMPACT>
+<DT><B>-o</B> or <B>--output=</B>[<I>type</I><B>:</B>]<I>path</I><DD>
+Direct output to
+<I>path</I>,
+
+rather than playing audio on the native audio device. The format of the output
+is specified by
+<I>type</I>
+
+which can be any of the supported output formats (see
+<B>Output Formats</B>
+
+below.) If a format is not specified, one will be inferred from
+<I>path</I>.
+
+If
+<I>path</I>
+
+is a single dash (-), the output will be written to standard output.
+<DT><B>-b</B> or <B>--bit-depth=</B><I>depth</I><DD>
+Request an output precision of
+<I>depth</I>
+
+bits per sample. Higher bit depths yield higher quality sound. Typical bit
+depths are 8, 16, 24, and 32, however other depths may also be possible.
+Whether the request can be honored depends on the capabilities of the audio
+device or output format.
+See the
+<B>NOTES</B>
+
+section below for further details about this option.
+<DT><B>-R</B> or <B>--sample-rate=</B><I>hertz</I><DD>
+Request an output sampling frequency of
+<I>hertz</I>
+
+samples per second (Hz).
+The sample rate must be in the range 1000 to 65535&nbsp;Hz.
+Whether the request can be honored depends on the capabilities of the audio
+device or output format.
+If the effective rate is not the same as the rate of the decoded audio, output
+may be resampled, possibly resulting in lower quality sound.
+<DT><B>-d</B> or <B>--no-dither</B>
+
+<DD>
+Do not dither output PCM samples. This may result in lower quality sound but
+is useful for analyzing output from the decoder.
+<DT><B>--fade-in</B>[<B>=</B><I>duration</I>]<DD>
+Gradually fade-in the audio from each file over
+<I>duration</I>.
+
+If not specified, the default duration is
+<B>0:05</B>
+
+(five seconds.)
+<DT><B>-a</B> or <B>--attenuate=</B><I>decibels</I> or <B>--amplify=</B><I>decibels</I><DD>
+Attenuate or amplify the signal by
+<I>decibels</I>
+
+(dB).
+The signal is attenuated if the decibel value is negative; it is amplified if
+the value is positive.
+The value must be in the range -175 to +18&nbsp;dB.
+The value may be fractional, e.g. -1.5&nbsp;dB.
+A value of 0&nbsp;dB will leave the signal unchanged.
+Each step of 6&nbsp;dB will approximately halve (in the negative direction) or
+double (in the positive direction) the strength of the signal.
+<DT><B>-A</B> or <B>--adjust-volume=</B><I>decibels</I><DD>
+Adjust the relative volume for all files. This option overrides any per-file
+volume adjustment settings. For example,
+<B>-A0</B>
+
+may be used to ignore relative volume adjustments given by ID3 tags. Relative
+volume adjustments specified by this option or by ID3 tags are used as the
+base volume against which the signal is further attenuated or amplified using
+the
+<B>-a</B>
+
+(<B>--attenuate</B>,
+
+<B>--amplify</B>)
+
+option or keyboard controls.
+This option cannot be used together with
+<B>-G</B>
+
+(<B>--replay-gain</B>).
+
+<DT><B>-G</B> or <B>--replay-gain</B>[<B>=</B><I>profile</I>]<DD>
+Enable Replay Gain volume adjustments. Replay Gain information contained in
+the decoded files (if any) is used to make volume adjustments for output. The
+<I>profile</I>
+
+may be one of
+<B>radio</B>
+
+(the default) or
+<B>audiophile</B>.
+
+See the
+<B>NOTES</B>
+
+section below for further details. When Replay Gain is enabled, a default
+pre-amp gain of +6&nbsp;dB is also applied; this can be changed with the
+<B>-a</B>
+
+(<B>--attenuate</B>,
+
+<B>--amplify</B>)
+
+option.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H3>Channel Selection</H3>
+
+<P>
+
+For dual channel streams, an output channel should be selected. If one is not
+selected, the first (left) channel will be used.
+<P>
+
+For stereo streams, making a channel selection other than stereo will cause
+the output to become monaural.
+<DL COMPACT>
+<DT><B>-1</B> or <B>--left</B>
+
+<DD>
+Output the first (left) channel only.
+<DT><B>-2</B> or <B>--right</B>
+
+<DD>
+Output the second (right) channel only.
+<DT><B>-m</B> or <B>--mono</B>
+
+<DD>
+Mix the left and right channels together.
+<DT><B>-S</B> or <B>--stereo</B>
+
+<DD>
+Force stereo output, even if the stream is single or dual channel.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Playback</H3>
+
+<DL COMPACT>
+<DT><B>-s</B> or <B>--start=</B><I>time</I><DD>
+Begin playing at
+<I>time</I>,
+
+given as an offset from the beginning of the first file
+(<B>0:00:00</B>),
+
+seeking as necessary.
+<DT><B>-t</B> or <B>--time=</B><I>duration</I><DD>
+Stop playback after the playing time of the output audio equals
+<I>duration</I>.
+
+<DT><B>-z</B> or <B>--shuffle</B>
+
+<DD>
+Randomize the list of files given on the command line for playback.
+<DT><B>-r</B> or <B>--repeat</B>[<B>=</B><I>max</I>]<DD>
+Play the input files
+<I>max</I>
+
+times, or indefinitely. Playback can be stopped prematurely by giving a time
+limit with the
+<B>-t</B>
+
+(<B>--time</B>)
+
+option. If
+<B>-z</B>
+
+(<B>--shuffle</B>)
+
+is also used, the files will be continuously shuffled and repeated in such a
+way that the same file is not played again until at least half of the other
+files have played in the interim.
+<DT><B>--tty-control</B>
+
+<DD>
+Enable keyboard controls during playback. This is the default unless standard
+input is not a terminal, output is redirected with
+<B>-o</B>
+
+(<B>--output</B>),
+
+or either of
+<B>-q</B>
+
+(<B>--quiet</B>)
+
+or
+<B>-Q</B>
+
+(<B>--very-quiet</B>)
+
+is given.
+The keyboard controls are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>P</B>
+
+<DD>
+Pause; press any key to resume.
+<DT><B>S</B>
+
+<DD>
+Stop; press any key to replay the current file from the beginning.
+<DT><B>F</B>
+
+<DD>
+Forward; advance to the next file.
+<DT><B>B</B>
+
+<DD>
+Back; replay the current file, unless it has been playing for less than 4
+seconds, in which case replay the previous file.
+<DT><B>T</B>
+
+<DD>
+Time display; change the time display mode. This only works with
+<B>-v</B>
+
+(<B>--verbose</B>).
+
+The display mode alternates among overall playing time, current time
+remaining, and current playing time.
+<DT><B>+</B>
+
+<DD>
+Increase gain; increase the audio output gain by 0.5&nbsp;dB.
+<DT><B>-</B>
+
+<DD>
+Decrease gain; decrease the audio output gain by 0.5&nbsp;dB.
+<DT><B>Q</B>
+
+<DD>
+Quit; stop decoding and exit.
+</DL>
+</DL>
+
+<DT><B>--no-tty-control</B>
+
+<DD>
+Disable keyboard controls during playback. This is the default when standard
+input is not a terminal, output is redirected with
+<B>-o</B>
+
+(<B>--output</B>),
+
+or either of
+<B>-q</B>
+
+(<B>--quiet</B>)
+
+or
+<B>-Q</B>
+
+(<B>--very-quiet</B>)
+
+is given.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Miscellaneous</H3>
+
+<DL COMPACT>
+<DT><B>-T</B> or <B>--show-tags-only</B>
+
+<DD>
+Show ID3 and/or encoder tags from the input
+<I>file</I>s
+
+but do not otherwise decode or play any audio. By default only ID3 tags are
+shown (if any). With
+<B>-v</B>
+
+(<B>--verbose</B>),
+
+all tags are shown. Encoder tags recognized by
+<B>madplay</B>
+
+include the Xing VBR header tag and the header tag format written by
+<B><A HREF="../man1/lame.1.php">lame</A></B>(1).
+
+<DT><B>-V</B> or <B>--version</B>
+
+<DD>
+Display the effective version and build options for
+<B>madplay</B>
+
+and exit.
+<DT><B>--license</B>
+
+<DD>
+Display copyright, license, and warranty information and exit.
+<DT><B>-h</B> or <B>--help</B>
+
+<DD>
+Display usage information and exit.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>Output Formats</H2>
+
+Other than playing on the native audio device, the following output formats
+are supported:
+<DL COMPACT>
+<DT><B>cdda</B>
+
+<DD>
+CD audio, 16-bit big-endian 44100&nbsp;Hz stereo PCM, padded to 2352-byte block
+boundary
+(<B>*.cdr</B>,
+
+<B>*.cda</B>)
+
+<DT><B>aiff</B>
+
+<DD>
+Audio IFF, [16-bit] PCM
+(<B>*.aif</B>,
+
+<B>*.aiff</B>)
+
+<DT><B>wave</B>
+
+<DD>
+Microsoft RIFF/WAVE, [16-bit] PCM
+(<B>*.wav</B>)
+
+<DT><B>snd</B>
+
+<DD>
+Sun/NeXT audio, 8-bit ISDN &#181;-law
+(<B>*.au</B>,
+
+<B>*.snd</B>)
+
+<DT><B>raw</B>
+
+<DD>
+binary [16-bit] host-endian linear PCM, stereo interleaved
+<DT><B>hex</B>
+
+<DD>
+ASCII hexadecimal [24-bit] linear PCM, stereo interleaved, one sample per
+output line
+<DT><B>esd</B>
+
+<DD>
+Enlightened Sound Daemon (EsounD) [16-bit] (give speaker host as
+<I>path</I>)
+
+<DT><B>null</B>
+
+<DD>
+no output (usually for testing or timing the decoder)
+</DL>
+<P>
+
+Default bit depths shown in square brackets can be changed with the
+<B>-b</B>
+
+(<B>--bit-depth</B>)
+
+option.
+<P>
+
+Note that EsounD support requires the
+<I>libesd</I>
+
+library.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Time Specifications</H2>
+
+For options which accept a time or duration argument, the following time
+specifications are recognized:
+<DL COMPACT>
+<DT><I>hh</I><B>:</B><I>mm</I><B>:</B><I>ss</I><B>.</B><I>ddd</I>
+
+<DD>
+Hours, minutes, seconds, and decimal fractions of a second. This specification
+is flexible;
+<I>hh</I><B>:</B><I>mm</I><B>:</B><I>ss</I>,
+<I>mmm</I><B>:</B><I>ss</I>,
+<B>:</B><I>ss</I>,
+<I>sss</I><B>.</B><I>ddd</I>,
+<B>.</B><I>ddd</I>, and
+<I>ssss</I>
+
+are all acceptable. The component values are not constrained to any particular
+range or number of digits.
+<DT><I>frac</I><B>/</B><I>unit</I>
+
+<DD>
+A length of time specified as a rational number, in seconds. This can be used
+for sample-granularity, for example
+<B>32/44100</B>
+
+for 32 samples, assuming a 44100&nbsp;Hz sample frequency.
+<DT><I>time1</I><B>+</B><I>time2</I>
+
+<DD>
+A composite time made by adding two time values together. This permits mixing
+the above specification forms.
+</DL>
+<P>
+
+The resolution of any time value cannot exceed 1/352800000 seconds.
+<A NAME="lbAN">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<DL COMPACT>
+<DT><B>error: frame #: lost synchronization</B>
+
+<DD>
+If encountered at the beginning of a file, this means the file contains
+something other than an ID3v2 tag before the MPEG audio data. If encountered
+in the middle of a file, it may mean the file is corrupt. This message is most
+commonly encountered, however, at the end of a file if the file contains an
+ID3v1 tag that is not aligned to an MPEG audio frame boundary. In this case,
+the message is harmless and may be ignored.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>error: frame #: bad main_data_begin pointer</B>
+
+<DD>
+This message can occur while decoding a Layer&nbsp;III stream that has been cut or
+spliced without preserving its bit reservoir. The affected frame cannot be
+properly decoded, but will be used to help restore the bit reservoir for
+following frames.
+</DL>
+<P>
+
+Most other messages indicate a deficiency in the input stream.
+<P>
+
+When a frame cannot be properly decoded, a concealment strategy is used as
+follows:
+<DL COMPACT>
+<DT>*<DD>
+If the previous frame was properly decoded, it is repeated in place of the
+current frame.
+<DT>*<DD>
+If the previous frame was
+<I>not</I>
+
+properly decoded, the current frame is muted.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="lbAP">&nbsp;</A>
+<H3>Output Precision</H3>
+
+Because MAD produces samples with a precision greater than 24 bits, by default
+<B>madplay</B>
+
+will dither the samples to the precision of the output format. This produces
+high quality audio that generally sounds superior to the output of a simple
+rounding algorithm. However, dithering may unfavorably affect an analytic
+examination of the output, and therefore it may be disabled by using the
+<B>-d</B>
+
+(<B>--no-dither</B>)
+
+option.
+<P>
+
+The actual precision of output samples can be requested with the
+<B>-b</B>
+
+(<B>--bit-depth</B>)
+
+option. Whether the request can be honored depends on the capabilities of the
+audio device or output format. If this option is not specified, a typical
+default depth will be used (often 16) or in the case of output to an audio
+device, the highest bit depth determined to work reliably with the device will
+be used.
+<P>
+
+Note that bit depths greater than 24 are effectively the same as 24-bit
+precision samples padded to the requested depth.
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Ancillary Data</H3>
+
+MPEG audio streams contain an ancillary data stream in addition to audio data.
+Most often this does not contain any useful information and may simply consist
+of padding bits. The MPEG-2 extension to multichannel audio uses part of this
+ancillary stream to convey multichannel information; presently MAD does not
+interpret such data.
+<P>
+
+For applications which have uses for the stream, ancillary data can be
+extracted with the
+<B>--ancillary-output</B>
+
+option.
+<A NAME="lbAR">&nbsp;</A>
+<H3>Replay Gain</H3>
+
+<B>madplay</B>
+
+optionally supports the Replay Gain proposed standard with the
+<B>-G</B>
+
+(<B>--replay-gain</B>)
+
+option to make compensating volume adjustments when playing decoded audio from
+different sources. There are two Replay Gain profiles:
+<B>radio</B>
+
+strives to make gain adjustments that give all tracks equal loudness, while
+<B>audiophile</B>
+
+attempts to give ideal listening loudness. These adjustments are relative to a
+reference of 83&nbsp;dB SPL.
+<P>
+
+A pre-amp gain is also used in conjunction with Replay Gain to achieve the
+overall desired loudness. When Replay Gain is enabled, this pre-amp gain
+defaults to +6&nbsp;dB, however it can be changed with the
+<B>-a</B>
+
+(<B>--attenuate</B>,
+
+<B>--amplify</B>)
+
+option or keyboard controls.
+<P>
+
+Note that when enabled, Replay Gain overrides any relative volume adjustments
+specified by ID3 tags (RVA2). Replay Gain is also incompatible with the
+<B>-A</B>
+
+(<B>--adjust-volume</B>)
+
+option; any attempt to use it will be ignored.
+<P>
+
+Replay Gain information is read either from an ID3 tag (RGAD) or from an
+encoder tag written by
+<B><A HREF="../man1/lame.1.php">lame</A></B>(1).
+
+If both are present, the information in the ID3 tag takes precedence. In
+accordance with the proposed standard, if the requested Replay Gain profile is
+not available but the alternate is, the alternate is used instead.
+<P>
+
+Due to an unfortunate heresy, versions of
+<B><A HREF="../man1/lame.1.php">lame</A></B>(1)
+
+since 3.95.1 write Replay Gain information using a reference of 89&nbsp;dB SPL
+instead of the 83&nbsp;dB specified in the Replay Gain proposed standard. To
+compensate,
+<B>madplay</B>
+
+automatically subtracts 6&nbsp;dB from the Replay Gain values read from such tags.
+<P>
+
+Note that
+<B>madplay</B>
+
+does not yet support hard limiting as suggested by the Replay Gain proposed
+standard; nor does it automatically reduce the pre-amp gain to avoid clipping.
+<A NAME="lbAS">&nbsp;</A>
+<H2>CONFORMING TO</H2>
+
+MAD conforms to Part&nbsp;3 of the ISO/IEC&nbsp;11172 (MPEG-1) international standard
+for decoding MPEG audio. In addition, MAD supports the extension to Lower
+Sampling Frequencies (LSF) as defined in Part&nbsp;3 of ISO/IEC&nbsp;13818 (MPEG-2).
+<P>
+
+The output from MAD has been tested and found to satisfy the ISO/IEC&nbsp;11172-4
+computational accuracy requirements for compliance. In most configurations,
+MAD is a
+<I>Full Layer&nbsp;III ISO/IEC&nbsp;11172-3 audio decoder</I>
+
+as defined by the standard.
+<P>
+
+The ID3 tag parsing library used by
+<B>madplay</B>
+
+conforms to the ID3v2.4.0 informal standard.
+<P>
+
+With the exception of the clipping prevention provisions, Replay Gain support
+provided by
+<B>madplay</B>
+
+is in accordance with the Replay Gain proposed standard published on July&nbsp;10,
+2001 by David Robinson.
+<A NAME="lbAT">&nbsp;</A>
+<H2>BUGS</H2>
+
+The resampling algorithm used by
+<B>madplay</B>
+
+is one of a linear interpolation, and does not produce optimum quality
+sound.
+<P>
+
+The granularity of start and stop times
+(<B>--start</B>
+
+and
+<B>--time</B>)
+
+is not yet as fine as this document suggests.
+<A NAME="lbAU">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Robert Leslie &lt;<A HREF="mailto:rob@mars.org">rob@mars.org</A>&gt;
+<A NAME="lbAV">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/lame.1.php">lame</A></B>(1),
+
+<B><A HREF="../man1/normalize.1.php">normalize</A></B>(1),
+
+<B><A HREF="../man1/sox.1.php">sox</A></B>(1),
+
+<B><A HREF="../man1/wget.1.php">wget</A></B>(1)
+
+
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Verbosity</A><DD>
+<DT><A HREF="#lbAG">Decoding</A><DD>
+<DT><A HREF="#lbAH">Audio Output</A><DD>
+<DT><A HREF="#lbAI">Channel Selection</A><DD>
+<DT><A HREF="#lbAJ">Playback</A><DD>
+<DT><A HREF="#lbAK">Miscellaneous</A><DD>
+</DL>
+<DT><A HREF="#lbAL">Output Formats</A><DD>
+<DT><A HREF="#lbAM">Time Specifications</A><DD>
+<DT><A HREF="#lbAN">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAO">NOTES</A><DD>
+<DL>
+<DT><A HREF="#lbAP">Output Precision</A><DD>
+<DT><A HREF="#lbAQ">Ancillary Data</A><DD>
+<DT><A HREF="#lbAR">Replay Gain</A><DD>
+</DL>
+<DT><A HREF="#lbAS">CONFORMING TO</A><DD>
+<DT><A HREF="#lbAT">BUGS</A><DD>
+<DT><A HREF="#lbAU">AUTHOR</A><DD>
+<DT><A HREF="#lbAV">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

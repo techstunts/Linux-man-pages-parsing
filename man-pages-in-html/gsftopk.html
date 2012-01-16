@@ -1,0 +1,466 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GSFTOPK</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GSFTOPK</H1>
+Section: User Commands  (1)<BR>Updated: 28 November 1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gsftopk - render a ghostscript font in TeX pk format
+
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>gsftopk</B>
+
+[-i <I>path</I>]
+[-q]
+[-t]
+[--debug=<I>n</I>]
+[--dosnames]
+[--interpreter=<I>path</I>]
+[--mapline=<I>line</I>]
+[--mapfile=<I>file</I>]
+[--quiet]
+[--test]
+[--help]
+[--version]
+<I>font</I>
+
+<I>dpi</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>ARGUMENTS</H2>
+
+<DL COMPACT>
+<DT><I>font</I><DD>
+Name of the font to be created.
+<DT><I>dpi</I><DD>
+Desired resolution of the font to be created, in dots per inch.  This may
+be a real number.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>gsftopk</B>
+
+is a program which calls up the ghostscript program
+<B><A HREF="../man1/gs.1.php">gs</A></B>(1)
+
+to render a given font at a given resolution.  It packs the resulting
+characters into the
+<B>pk</B>
+
+file format and writes them to a file whose name is formed from the font
+name and the resolution (rounded to the nearest integer).  The font may
+be in any format acceptable to Ghostscript, including
+.<I>pfa</I>,
+
+.<I>pfb</I>,
+
+.<I>gsf</I>,
+
+and
+.<I>ttf</I>
+
+files.
+<P>
+
+This program should normally be called by a script, such as
+<B>mktexpk</B>,
+
+to create fonts on demand.
+<P>
+
+<B>gsftopk</B>
+
+obtains the character widths from the
+.<I>tfm</I>
+
+file, which must exist in the standard search path.  It also must be
+able to find the font in a map file (such as
+<B>psfonts.map</B>),
+
+formatted as in
+<B><A HREF="../man1/dvips.1.php">dvips</A></B>(1)),
+
+unless the
+<B>--mapline</B>
+
+option is used.  The set of map files is given by the
+<B>--mapfile</B>
+
+option, or in the files
+<B>config.ps</B>,
+
+<B>$HOME/.dvipsrc</B>,
+
+and
+<B>config.gsftopk</B>
+
+(as would be used by
+<B>dvips -Pgsftopk</B>).
+
+<P>
+
+The following
+<B>pk</B>
+
+&quot;specials&quot; are added at the end of the output file, to provide an internal
+check on the contents of the file:
+&quot;<B>jobname=</B><I>font</I>&quot;,
+&quot;<B>mag=1</B>&quot;,
+&quot;<B>mode=modeless</B>&quot;, and
+&quot;<B>pixels_per_inch=</B><I>dpi</I>&quot;.
+This is in accordance with the TeX Directory Standard (TDS).
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>--debug=</B><I>n</I>
+
+<DD>
+Set the
+<B>Kpathsea</B>
+
+debug flags according to the integer
+<I>n</I>.
+
+<DT><B>--dosnames</B>
+
+<DD>
+Use a name of the form
+<I>font</I><B>.pk</B>
+
+instead of
+<I>font</I><B>.</B><I>dpi</I><B>pk</B>.
+
+<DT><B>-h</B>, --help
+
+<DD>
+Print a brief help synopsis and exit.
+<DT><B>-i </B><I>path</I>, --interpreter=<I>path</I>
+
+<DD>
+Use
+<I>path</I>
+
+as the Ghostscript interpreter.
+<DT><B>--mapfile=</B><I>file</I>
+
+<DD>
+Use
+<I>file</I>
+
+to look for the map information for
+<I>font</I>.
+
+This should be the full name of the file (in other words, no path searching
+algorithms are applied).
+<DT><B>--mapline=</B><I>line</I>
+
+<DD>
+Use
+<I>line</I>
+
+instead of looking for an entry in a map file.
+The first word of
+<I>line</I>
+
+must match
+<I>font</I>.
+
+<DT><B>-q</B>, --quiet
+
+<DD>
+Operate quietly; i.e., without writing any messages to the standard output.
+<DT><B>-t</B>, --test
+
+<DD>
+Test run:  return zero status if the font can be found in the map file(s),
+and nonzero status if it cannot.  If this option is specified, then the
+<I>dpi</I>
+
+argument is optional (since the font will not be generated).
+<DT><B>-v</B>, --version
+
+<DD>
+Print the version number and exit.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<DL COMPACT>
+<DT><B>DVIPSRC</B><DD>
+Name of file to read instead of
+<B>$HOME/.dvipsrc</B>.
+
+This should be the full name of the file (in other words, no path searching
+algorithms are applied).
+<DT><B>GSFTOPKFONTS</B><DD>
+See
+<FONT SIZE="-1"><B>TFMFONTS.</B></FONT>
+<DT><B>GSFTOPKHEADERS</B><DD>
+See
+<FONT SIZE="-1"><B>TEXPSHEADERS.</B></FONT>
+<DT><B>PSHEADERS</B><DD>
+See
+<FONT SIZE="-1"><B>TEXPSHEADERS.</B></FONT>
+<DT><B>TEXCONFIG</B><DD>
+Colon-separated list of paths to search for map files.
+An extra colon in the list will include the
+compiled-in default paths at that point.  A double slash will enable recursive
+subdirectory searching at that point in the path.
+<DT><B>TFMFONTS</B><DD>
+Colon-separated list of paths to search for the
+.<I>tfm</I>
+
+file associated with the font.  Double slashes and extra colons behave as with
+<FONT SIZE="-1"><B>TEXCONFIG.</B></FONT>
+This information may also be supplied by using the environment variables
+<FONT SIZE="-1"><B>TFMFONTS</B></FONT>
+or
+<FONT SIZE="-1"><B>GSFTOPKFONTS.</B></FONT>
+These environment variables are checked in the order
+<FONT SIZE="-1"><B>GSFTOPKFONTS,</B></FONT>
+<FONT SIZE="-1"><B>TFMFONTS,</B></FONT>
+<FONT SIZE="-1"><B>TFMFONTS;</B></FONT>
+the first one (if any) having a value is used.
+<DT><B>TEXPSHEADERS</B><DD>
+Colon-separated list of paths to search for the Ghostscript driver file
+<B>render.ps</B>
+
+and for any PostScript header or font files
+(.<I>enc</I>,
+
+.<I>pfa</I>,
+
+.<I>pfb</I>,
+
+.<I>gsf</I>,
+
+or
+.<I>ttf</I>
+
+files).  Double slashes and extra colons behave as with
+<FONT SIZE="-1"><B>TEXCONFIG.</B></FONT>
+This information may also be supplied by using the environment variables
+<FONT SIZE="-1"><B>PSHEADERS</B></FONT>
+or
+<FONT SIZE="-1"><B>GSFTOPKHEADERS.</B></FONT>
+These environment variables are checked in the order
+<FONT SIZE="-1"><B>GSFTOPKHEADERS,</B></FONT>
+<FONT SIZE="-1"><B>TEXPSHEADERS,</B></FONT>
+<FONT SIZE="-1"><B>PSHEADERS;</B></FONT>
+the first one (if any) having a value is used.
+<DT><B>TFMFONTS</B><DD>
+See
+<FONT SIZE="-1"><B>TFMFONTS.</B></FONT>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+In order to determine the set of map files to be used and the path for
+finding PostScript files,
+<B>gsftopk</B>
+
+reads, in order, the files
+<B>config.ps</B>,
+
+<B>.dvipsrc</B>,
+
+and
+<B>config.gsftopk</B>.
+
+The files
+<B>config.ps</B>
+
+and
+<B>config.gsftopk</B>
+
+are searched for using the environment variable
+<FONT SIZE="-1"><B>TEXCONFIG,</B></FONT>
+the
+<B>Kpathsea</B>
+
+configuration file,
+or the compiled-in default paths.  The file
+<B>.dvipsrc</B>
+
+is searched for in the user's home directory.
+<P>
+
+These files are in the same format as for
+<B>dvips</B>
+
+(as well as being in the same locations).  The entries used by
+<B>gsftopk</B>
+
+are as follows.
+<DL COMPACT>
+<DT>H <I>path</I>
+
+<DD>
+Indicates that the Ghostscript driver file
+<B>render.ps</B>
+
+and the PostScript header and font files are to be searched for using
+<I>path</I>.
+
+<DT>p <I>file</I>
+
+<DD>
+Indicates that the list of map files is to be erased and replaced by
+<I>file</I>.
+
+<DT>p +<I>file</I>
+
+<DD>
+Indicates that
+<I>file</I>
+
+is to be added to the list of map files.
+</DL>
+<P>
+
+All other entries are ignored.
+<P>
+
+This is similar to the handling of these options when running
+<B>dvips -Pgsftopk</B>.
+
+For more details, see the
+<B>Kpathsea</B>
+
+manual.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<B>gsftopk</B>
+
+sometimes has trouble with fonts with very complicated characters
+(such as the Seal of the University of California).  This is because
+<B>gsftopk</B>
+
+uses the
+<B>charpath</B>
+
+operator to determine the bounding box of each character.  If the character
+is too complicated, then old versions of Ghostscript fail, causing
+<B>gsftopk</B>
+
+to terminate with an error message
+<DL COMPACT>
+<DT><DD>
+<B>Call to gs stopped by signal 10</B>
+
+</DL>
+<P>
+
+(The number may vary from system to system; it corresponds to a bus error
+or a segmentation fault.)  The best way to fix this bug is to install a
+current version of ghostscript.  As an alternative,
+<B>gsftopk</B>
+
+can be instructed to use the bounding box provided with the font (if one
+exists) instead of finding a bounding box for each character.  To do this,
+include the string
+<DL COMPACT>
+<DT><DD>
+<B>/usefontbbox true def</B>
+
+</DL>
+<P>
+
+in the font map file;
+<I>e.g.</I>,
+
+<DL COMPACT>
+<DT><DD>
+<B>ucseal /usefontbbox true def</B>
+
+</DL>
+<P>
+
+This will not affect use of the font by
+<B>dvips</B>.
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/gs.1.php">gs</A></B>(1),
+
+<B><A HREF="../man1/gftopk.1.php">gftopk</A></B>(1),
+
+<B><A HREF="../man1/tex.1.php">tex</A></B>(1),
+
+<B><A HREF="../man1/xdvi.1.php">xdvi</A></B>(1),
+
+<B><A HREF="../man1/dvips.1.php">dvips</A></B>(1)
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Written by Paul Vojta.  This program was inspired by Karl Berry's
+<B>gsrenderfont</B>.
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>MODIFICATIONS</H2>
+
+Modified by Yves Arrouye to use Karl Berry's
+<B>Kpathsea</B>
+
+library.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">ARGUMENTS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAH">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+<DT><A HREF="#lbAL">MODIFICATIONS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

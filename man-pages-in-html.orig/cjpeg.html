@@ -1,0 +1,509 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CJPEG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CJPEG</H1>
+Section: User Commands  (1)<BR>Updated: 20 March 1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cjpeg - compress an image file to a JPEG file
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cjpeg</B>
+
+[
+<I>options</I>
+
+]
+[
+<I>filename</I>
+
+]
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>cjpeg</B>
+
+compresses the named image file, or the standard input if no file is
+named, and produces a JPEG/JFIF file on the standard output.
+The currently supported input file formats are: PPM (PBMPLUS color
+format), PGM (PBMPLUS gray-scale format), BMP, Targa, and RLE (Utah Raster
+Toolkit format).  (RLE is supported only if the URT library is available.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+All switch names may be abbreviated; for example,
+<B>-grayscale</B>
+
+may be written
+<B>-gray</B>
+
+or
+<B>-gr</B>.
+
+Most of the &quot;basic&quot; switches can be abbreviated to as little as one letter.
+Upper and lower case are equivalent (thus
+<B>-BMP</B>
+
+is the same as
+<B>-bmp</B>).
+
+British spellings are also accepted (e.g.,
+<B>-greyscale</B>),
+
+though for brevity these are not mentioned below.
+<P>
+
+The basic switches are:
+<DL COMPACT>
+<DT><B>-quality</B><I> N</I>
+
+<DD>
+Scale quantization tables to adjust image quality.  Quality is 0 (worst) to
+100 (best); default is 75.  (See below for more info.)
+<DT><B>-grayscale</B>
+
+<DD>
+Create monochrome JPEG file from color input.  Be sure to use this switch when
+compressing a grayscale BMP file, because
+<B>cjpeg</B>
+
+isn't bright enough to notice whether a BMP file uses only shades of gray.
+By saying
+<B>-grayscale</B>,
+
+you'll get a smaller JPEG file that takes less time to process.
+<DT><B>-optimize</B>
+
+<DD>
+Perform optimization of entropy encoding parameters.  Without this, default
+encoding parameters are used.
+<B>-optimize</B>
+
+usually makes the JPEG file a little smaller, but
+<B>cjpeg</B>
+
+runs somewhat slower and needs much more memory.  Image quality and speed of
+decompression are unaffected by
+<B>-optimize</B>.
+
+<DT><B>-progressive</B>
+
+<DD>
+Create progressive JPEG file (see below).
+<DT><B>-targa</B>
+
+<DD>
+Input file is Targa format.  Targa files that contain an &quot;identification&quot;
+field will not be automatically recognized by
+<B>cjpeg</B>;
+
+for such files you must specify
+<B>-targa</B>
+
+to make
+<B>cjpeg</B>
+
+treat the input as Targa format.
+For most Targa files, you won't need this switch.
+</DL>
+<P>
+
+The
+<B>-quality</B>
+
+switch lets you trade off compressed file size against quality of the
+reconstructed image: the higher the quality setting, the larger the JPEG file,
+and the closer the output image will be to the original input.  Normally you
+want to use the lowest quality setting (smallest file) that decompresses into
+something visually indistinguishable from the original image.  For this
+purpose the quality setting should be between 50 and 95; the default of 75 is
+often about right.  If you see defects at
+<B>-quality</B>
+
+75, then go up 5 or 10 counts at a time until you are happy with the output
+image.  (The optimal setting will vary from one image to another.)
+<P>
+
+<B>-quality</B>
+
+100 will generate a quantization table of all 1's, minimizing loss in the
+quantization step (but there is still information loss in subsampling, as well
+as roundoff error).  This setting is mainly of interest for experimental
+purposes.  Quality values above about 95 are
+<B>not</B>
+
+recommended for normal use; the compressed file size goes up dramatically for
+hardly any gain in output image quality.
+<P>
+
+In the other direction, quality values below 50 will produce very small files
+of low image quality.  Settings around 5 to 10 might be useful in preparing an
+index of a large image library, for example.  Try
+<B>-quality</B>
+
+2 (or so) for some amusing Cubist effects.  (Note: quality
+values below about 25 generate 2-byte quantization tables, which are
+considered optional in the JPEG standard.
+<B>cjpeg</B>
+
+emits a warning message when you give such a quality value, because some
+other JPEG programs may be unable to decode the resulting file.  Use
+<B>-baseline</B>
+
+if you need to ensure compatibility at low quality values.)
+<P>
+
+The
+<B>-progressive</B>
+
+switch creates a &quot;progressive JPEG&quot; file.  In this type of JPEG file, the data
+is stored in multiple scans of increasing quality.  If the file is being
+transmitted over a slow communications link, the decoder can use the first
+scan to display a low-quality image very quickly, and can then improve the
+display with each subsequent scan.  The final image is exactly equivalent to a
+standard JPEG file of the same quality setting, and the total file size is
+about the same --- often a little smaller.
+<B>Caution:</B>
+
+progressive JPEG is not yet widely implemented, so many decoders will be
+unable to view a progressive JPEG file at all.
+<P>
+
+Switches for advanced users:
+<DL COMPACT>
+<DT><B>-dct int</B>
+
+<DD>
+Use integer DCT method (default).
+<DT><B>-dct fast</B>
+
+<DD>
+Use fast integer DCT (less accurate).
+<DT><B>-dct float</B>
+
+<DD>
+Use floating-point DCT method.
+The float method is very slightly more accurate than the int method, but is
+much slower unless your machine has very fast floating-point hardware.  Also
+note that results of the floating-point method may vary slightly across
+machines, while the integer methods should give the same results everywhere.
+The fast integer method is much less accurate than the other two.
+<DT><B>-restart</B><I> N</I>
+
+<DD>
+Emit a JPEG restart marker every N MCU rows, or every N MCU blocks if &quot;B&quot; is
+attached to the number.
+<B>-restart 0</B>
+
+(the default) means no restart markers.
+<DT><B>-smooth</B><I> N</I>
+
+<DD>
+Smooth the input image to eliminate dithering noise.  N, ranging from 1 to
+100, indicates the strength of smoothing.  0 (the default) means no smoothing.
+<DT><B>-maxmemory</B><I> N</I>
+
+<DD>
+Set limit for amount of memory to use in processing large images.  Value is
+in thousands of bytes, or millions of bytes if &quot;M&quot; is attached to the
+number.  For example,
+<B>-max 4m</B>
+
+selects 4000000 bytes.  If more space is needed, temporary files will be used.
+<DT><B>-outfile</B><I> name</I>
+
+<DD>
+Send output image to the named file, not to standard output.
+<DT><B>-verbose</B>
+
+<DD>
+Enable debug printout.  More
+<B>-v</B>'s
+
+give more output.  Also, version information is printed at startup.
+<DT><B>-debug</B>
+
+<DD>
+Same as
+<B>-verbose</B>.
+
+</DL>
+<P>
+
+The
+<B>-restart</B>
+
+option inserts extra markers that allow a JPEG decoder to resynchronize after
+a transmission error.  Without restart markers, any damage to a compressed
+file will usually ruin the image from the point of the error to the end of the
+image; with restart markers, the damage is usually confined to the portion of
+the image up to the next restart marker.  Of course, the restart markers
+occupy extra space.  We recommend
+<B>-restart 1</B>
+
+for images that will be transmitted across unreliable networks such as Usenet.
+<P>
+
+The
+<B>-smooth</B>
+
+option filters the input to eliminate fine-scale noise.  This is often useful
+when converting dithered images to JPEG: a moderate smoothing factor of 10 to
+50 gets rid of dithering patterns in the input file, resulting in a smaller
+JPEG file and a better-looking image.  Too large a smoothing factor will
+visibly blur the image, however.
+<P>
+
+Switches for wizards:
+<DL COMPACT>
+<DT><B>-baseline</B>
+
+<DD>
+Force baseline-compatible quantization tables to be generated.  This clamps
+quantization values to 8 bits even at low quality settings.  (This switch is
+poorly named, since it does not ensure that the output is actually baseline
+JPEG.  For example, you can use
+<B>-baseline</B>
+
+and
+<B>-progressive</B>
+
+together.)
+<DT><B>-qtables</B><I> file</I>
+
+<DD>
+Use the quantization tables given in the specified text file.
+<DT><B>-qslots</B><I> N[,...]</I>
+
+<DD>
+Select which quantization table to use for each color component.
+<DT><B>-sample</B><I> HxV[,...]</I>
+
+<DD>
+Set JPEG sampling factors for each color component.
+<DT><B>-scans</B><I> file</I>
+
+<DD>
+Use the scan script given in the specified text file.
+</DL>
+<P>
+
+The &quot;wizard&quot; switches are intended for experimentation with JPEG.  If you
+don't know what you are doing, <B>don't use them</B>.  These switches are
+documented further in the file wizard.doc.
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+This example compresses the PPM file foo.ppm with a quality factor of
+60 and saves the output as foo.jpg:
+<DL COMPACT>
+<DT><DD>
+<B>cjpeg -quality</B>
+
+<I>60 foo.ppm</I>
+
+<B>&gt;</B>
+
+<I>foo.jpg</I>
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>HINTS</H2>
+
+Color GIF files are not the ideal input for JPEG; JPEG is really intended for
+compressing full-color (24-bit) images.  In particular, don't try to convert
+cartoons, line drawings, and other images that have only a few distinct
+colors.  GIF works great on these, JPEG does not.  If you want to convert a
+GIF to JPEG, you should experiment with
+<B>cjpeg</B>'s
+
+<B>-quality</B>
+
+and
+<B>-smooth</B>
+
+options to get a satisfactory conversion.
+<B>-smooth 10</B>
+
+or so is often helpful.
+<P>
+
+Avoid running an image through a series of JPEG compression/decompression
+cycles.  Image quality loss will accumulate; after ten or so cycles the image
+may be noticeably worse than it was after one cycle.  It's best to use a
+lossless format while manipulating an image, then convert to JPEG format when
+you are ready to file the image away.
+<P>
+
+The
+<B>-optimize</B>
+
+option to
+<B>cjpeg</B>
+
+is worth using when you are making a &quot;final&quot; version for posting or archiving.
+It's also a win when you are using low quality settings to make very small
+JPEG files; the percentage improvement is often a lot more than it is on
+larger files.  (At present,
+<B>-optimize</B>
+
+mode is always selected when generating progressive JPEG files.)
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>JPEGMEM</B>
+
+<DD>
+If this environment variable is set, its value is the default memory limit.
+The value is specified as described for the
+<B>-maxmemory</B>
+
+switch.
+<B>JPEGMEM</B>
+
+overrides the default value specified when the program was compiled, and
+itself is overridden by an explicit
+<B>-maxmemory</B>.
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/djpeg.1.php">djpeg</A></B>(1),
+
+<B><A HREF="../man1/jpegtran.1.php">jpegtran</A></B>(1),
+
+<B><A HREF="../man1/rdjpgcom.1.php">rdjpgcom</A></B>(1),
+
+<B><A HREF="../man1/wrjpgcom.1.php">wrjpgcom</A></B>(1)
+
+<BR>
+
+<B><A HREF="../man5/ppm.5.php">ppm</A></B>(5),
+
+<B><A HREF="../man5/pgm.5.php">pgm</A></B>(5)
+
+<BR>
+
+Wallace, Gregory K.  &quot;The JPEG Still Picture Compression Standard&quot;,
+Communications of the ACM, April 1991 (vol. 34, no. 4), pp. 30-44.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Independent JPEG Group
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+Arithmetic coding is not supported for legal reasons.
+<P>
+
+GIF input files are no longer supported, to avoid the Unisys LZW patent.
+Use a Unisys-licensed program if you need to read a GIF file.  (Conversion
+of GIF files to JPEG is usually a bad idea anyway.)
+<P>
+
+Not all variants of BMP and Targa file formats are supported.
+<P>
+
+The
+<B>-targa</B>
+
+switch is not a bug, it's a feature.  (It would be a bug if the Targa format
+designers had not been clueless.)
+<P>
+
+Still not as fast as we'd like.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">HINTS</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

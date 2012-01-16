@@ -1,0 +1,391 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SPLAIN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SPLAIN</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-10-12<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+diagnostics, splain - produce verbose warning diagnostics
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+Using the <TT>&quot;diagnostics&quot;</TT> pragma:
+<P>
+
+
+
+<PRE>
+    use diagnostics;
+    use diagnostics -verbose;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    enable  diagnostics;
+    disable diagnostics;
+
+</PRE>
+
+
+<P>
+
+Using the <TT>&quot;splain&quot;</TT> standalone filter program:
+<P>
+
+
+
+<PRE>
+    perl program 2&gt;diag.out
+    splain [-v] [-p] diag.out
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<A NAME="lbAE">&nbsp;</A>
+<H2>The diagnostics Pragma</H2>
+
+
+
+<A NAME="ixAAE"></A>
+This module extends the terse diagnostics normally emitted by both the
+perl compiler and the perl interpreter, augmenting them with the more
+explicative and endearing descriptions found in perldiag.  Like the
+other pragmata, it affects the compilation phase of your program rather
+than merely the execution phase.
+<P>
+
+To use in your program as a pragma, merely invoke
+<P>
+
+
+
+<PRE>
+    use diagnostics;
+
+</PRE>
+
+
+<P>
+
+at the start (or near the start) of your program.  (Note 
+that this <I>does</I> enable perl's <B>-w</B> flag.)  Your whole
+compilation will then be subject(ed :-) to the enhanced diagnostics.
+These still go out <B></B><FONT SIZE="-1"><B>STDERR</B></FONT><B></B>.
+<P>
+
+Due to the interaction between runtime and compiletime issues,
+and because it's probably not a very good idea anyway,
+you may not use <TT>&quot;no diagnostics&quot;</TT> to turn them off at compiletime.
+However, you may control their behaviour at runtime using the 
+<I>disable()</I> and <I>enable()</I> methods to turn them off and on respectively.
+<P>
+
+The <B>-verbose</B> flag first prints out the perldiag introduction before
+any other diagnostics.  The <TT>$diagnostics::PRETTY</TT> variable can generate nicer
+escape sequences for pagers.
+<P>
+
+Warnings dispatched from perl itself (or more accurately, those that match
+descriptions found in perldiag) are only displayed once (no duplicate
+descriptions).  User code generated warnings a la <I>warn()</I> are unaffected,
+allowing duplicate user messages to be displayed.
+<A NAME="lbAF">&nbsp;</A>
+<H2>The <I>splain</I> Program</H2>
+
+<A NAME="ixAAF"></A>
+While apparently a whole nuther program, <I>splain</I> is actually nothing
+more than a link to the (executable) <I>diagnostics.pm</I> module, as well as
+a link to the <I>diagnostics.pod</I> documentation.  The <B>-v</B> flag is like
+the <TT>&quot;use diagnostics -verbose&quot;</TT> directive.
+The <B>-p</B> flag is like the
+<TT>$diagnostics::PRETTY</TT> variable.  Since you're post-processing with 
+<I>splain</I>, there's no sense in being able to <I>enable()</I> or <I>disable()</I> processing.
+<P>
+
+Output from <I>splain</I> is directed to <B></B><FONT SIZE="-1"><B>STDOUT</B></FONT><B></B>, unlike the pragma.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAG"></A>
+The following file is certain to trigger a few errors at both
+runtime and compiletime:
+<P>
+
+
+
+<PRE>
+    use diagnostics;
+    print NOWHERE &quot;nothing\n&quot;;
+    print STDERR &quot;\n\tThis message should be unadorned.\n&quot;;
+    warn &quot;\tThis is a user warning&quot;;
+    print &quot;\nDIAGNOSTIC TESTER: Please enter a &lt;CR&gt; here: &quot;;
+    my $a, $b = scalar &lt;STDIN&gt;;
+    print &quot;\n&quot;;
+    print $x/$y;
+
+</PRE>
+
+
+<P>
+
+If you prefer to run your program first and look at its problem
+afterwards, do this:
+<P>
+
+
+
+<PRE>
+    perl -w test.pl 2&gt;test.out
+    ./splain &lt; test.out
+
+</PRE>
+
+
+<P>
+
+Note that this is not in general possible in shells of more dubious heritage, 
+as the theoretical 
+<P>
+
+
+
+<PRE>
+    (perl -w test.pl &gt;/dev/tty) &gt;&amp; test.out
+    ./splain &lt; test.out
+
+</PRE>
+
+
+<P>
+
+Because you just moved the existing <B>stdout</B> to somewhere else.
+<P>
+
+If you don't want to modify your source code, but still have on-the-fly
+warnings, do this:
+<P>
+
+
+
+<PRE>
+    exec 3&gt;&amp;1; perl -w test.pl 2&gt;&amp;1 1&gt;&amp;3 3&gt;&amp;- | splain 1&gt;&amp;2 3&gt;&amp;-
+
+</PRE>
+
+
+<P>
+
+Nifty, eh?
+<P>
+
+If you want to control warnings on the fly, do something like this.
+Make sure you do the <TT>&quot;use&quot;</TT> first, or you won't be able to get
+at the <I>enable()</I> or <I>disable()</I> methods.
+<P>
+
+
+
+<PRE>
+    use diagnostics; # checks entire compilation phase 
+        print &quot;\ntime for 1st bogus diags: SQUAWKINGS\n&quot;;
+        print BOGUS1 'nada';
+        print &quot;done with 1st bogus\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    disable diagnostics; # only turns off runtime warnings
+        print &quot;\ntime for 2nd bogus: (squelched)\n&quot;;
+        print BOGUS2 'nada';
+        print &quot;done with 2nd bogus\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    enable diagnostics; # turns back on runtime warnings
+        print &quot;\ntime for 3rd bogus: SQUAWKINGS\n&quot;;
+        print BOGUS3 'nada';
+        print &quot;done with 3rd bogus\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    disable diagnostics;
+        print &quot;\ntime for 4th bogus: (squelched)\n&quot;;
+        print BOGUS4 'nada';
+        print &quot;done with 4th bogus\n&quot;;
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>INTERNALS</H2>
+
+<A NAME="ixAAH"></A>
+Diagnostic messages derive from the <I>perldiag.pod</I> file when available at
+runtime.  Otherwise, they may be embedded in the file itself when the
+splain package is built.   See the <I>Makefile</I> for details.
+<P>
+
+If an extant <TT>$SIG</TT>{__WARN__} handler is discovered, it will continue
+to be honored, but only after the <I>diagnostics::splainthis()</I> function 
+(the module's <TT>$SIG</TT>{__WARN__} interceptor) has had its way with your
+warnings.
+<P>
+
+There is a <TT>$diagnostics::DEBUG</TT> variable you may set if you're desperately
+curious what sorts of things are being intercepted.
+<P>
+
+
+
+<PRE>
+    BEGIN { $diagnostics::DEBUG = 1 }
+
+</PRE>
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAI"></A>
+Not being able to say ``no diagnostics'' is annoying, but may not be
+insurmountable.
+<P>
+
+The <TT>&quot;-pretty&quot;</TT> directive is called too late to affect matters.
+You have to do this instead, and <I>before</I> you load the module.
+<P>
+
+
+
+<PRE>
+    BEGIN { $diagnostics::PRETTY = 1 }
+
+</PRE>
+
+
+<P>
+
+I could start up faster by delaying compilation until it should be
+needed, but this gets a ``panic: top_level'' when using the pragma form
+in Perl 5.001e.
+<P>
+
+While it's true that this documentation is somewhat subserious, if you use
+a program named <I>splain</I>, you should expect a bit of whimsy.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAJ"></A>
+Tom Christiansen &lt;<I><A HREF="mailto:tchrist@mox.perl.com">tchrist@mox.perl.com</A></I>&gt;, 25 June 1995.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">The diagnostics Pragma</A><DD>
+<DT><A HREF="#lbAF">The <I>splain</I> Program</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">INTERNALS</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

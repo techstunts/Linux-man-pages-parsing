@@ -1,0 +1,335 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SPAMC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SPAMC</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-10-18<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+spamc - client for spamd
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<DL COMPACT>
+<DT>spamc [options] &lt; message<DD>
+<A NAME="ixAAD"></A>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAE"></A>
+Spamc is the client half of the spamc/spamd pair.  It should be used in place
+of <TT>&quot;spamassassin&quot;</TT> in scripts to process mail.  It will read the mail from
+<FONT SIZE="-1">STDIN</FONT>, and spool it to its connection to spamd, then read the result back and
+print it to <FONT SIZE="-1">STDOUT</FONT>.  Spamc has extremely low overhead in loading, so it should
+be much faster to load than the whole spamassassin program.
+<P>
+
+See the <I></I><FONT SIZE="-1"><I>README</I></FONT><I></I> file in the <I>spamd</I> directory of the SpamAssassin
+distribution for more details.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAF"></A>
+<DL COMPACT>
+<DT><B>-B</B><DD>
+<A NAME="ixAAG"></A>
+Assume input is a single BSMTP-formatted message. In other words, spamc will
+pull out everything between the <FONT SIZE="-1">DATA</FONT> line and the lone-dot line to feed to
+spamd, and will place the spamd output back in the same envelope (thus, any
+<FONT SIZE="-1">SIZE</FONT> extension in your <FONT SIZE="-1">BSMTP</FONT> file will cause many problems).
+<DT><B>-c</B><DD>
+<A NAME="ixAAH"></A>
+Just check if the message is spam or not.  Set process exitcode to 1 if
+message is spam, 0 if not spam or processing failure occurs.  Will print
+score/threshold to stdout (as ints) or 0/0 if there was an error.
+Combining <B>-c</B> and <B>-E</B> is a no-op, since <B>-c</B> implies the behaviour
+of <B>-E</B>.
+<DT><B>-d</B> <I>host</I><DD>
+<A NAME="ixAAI"></A>
+In <FONT SIZE="-1">TCP/IP</FONT> mode, connect to spamd server on given host (default: localhost). 
+
+
+<P>
+
+
+If <I>host</I> resolves to multiple addresses, then spamc will fail-over to the 
+other addresses, if the first one cannot be connected to.
+<DT><B>-e</B> <I>command</I> <I>[args]</I><DD>
+<A NAME="ixAAJ"></A>
+Instead of writing to stdout, pipe the output to <I>command</I>'s standard input.
+Note that there is a very slight chance mail will be lost here, because if the
+fork-and-exec fails there's no place to put the mail message.
+
+
+<P>
+
+
+Note that this must be the <FONT SIZE="-1">LAST</FONT> command line option, as everything after the
+<B>-e</B> is taken as arguments to the command (it's like <I>rxvt</I> or <I>xterm</I>).
+
+
+<P>
+
+
+This option is not supported on Win32 platforms.
+<DT><B>-E</B><DD>
+<A NAME="ixAAK"></A>
+Filter according to the other options, but set the process exitcode to 1 if
+message is spam, 0 if not spam or processing failure occurs.
+<DT><B>-h</B><DD>
+<A NAME="ixAAL"></A>
+Print this help message and terminate without action.
+<DT><B>-H</B><DD>
+<A NAME="ixAAM"></A>
+For <FONT SIZE="-1">TCP/IP</FONT> sockets, randomize the <FONT SIZE="-1">IP</FONT> addresses returned from a <FONT SIZE="-1">DNS</FONT> name
+lookup (when more than one <FONT SIZE="-1">IP</FONT> is returned). This provides for a kind of
+hostname-base load balancing.
+<DT><B>-l</B><DD>
+<A NAME="ixAAN"></A>
+Send log messages to stderr, instead of to the syslog.
+<DT><B>-p</B> <I>port</I><DD>
+<A NAME="ixAAO"></A>
+In <FONT SIZE="-1">TCP/IP</FONT> mode, connect to spamd server listening on given port 
+(default: 783).
+<DT><B>-r</B><DD>
+<A NAME="ixAAP"></A>
+Just output the SpamAssassin report text to stdout, if the message is
+spam.  If the message is ham (non-spam), nothing will be printed.  The
+first line of the output is the message score and the threshold, in
+this format:
+
+
+<P>
+
+
+
+
+<PRE>
+        score/threshold
+
+</PRE>
+
+
+<DT><B>-R</B><DD>
+<A NAME="ixAAQ"></A>
+Just output the SpamAssassin report text to stdout, for all messages.
+See <B>-r</B> for details of the output format used.
+<DT><B>-s</B> <I>max_size</I><DD>
+<A NAME="ixAAR"></A>
+Set the maximum message size which will be sent to spamd --- any bigger than
+this threshold and the message will be returned unprocessed (default: 250k).
+If spamc gets handed a message bigger than this, it won't be passed to spamd.
+
+
+<P>
+
+
+The size is specified in bytes, and if you send it a negative number, things 
+are quite likely to break very hard.
+<DT><B>-S</B><DD>
+<A NAME="ixAAS"></A>
+If spamc was built with support for <FONT SIZE="-1">SSL</FONT>, encrypt data to and from the
+spamd process with <FONT SIZE="-1">SSL</FONT>; spamd must support <FONT SIZE="-1">SSL</FONT> as well.
+<DT><B>-t</B> <I>timeout</I><DD>
+<A NAME="ixAAT"></A>
+Set the timeout for spamc-to-spamd communications (default: 600, 0 disables).
+If spamd takes longer than this many seconds to reply to a message, spamc 
+will abort the connection and treat this as a failure to connect; in other 
+words the message will be returned unprocessed.  
+<DT><B>-u</B> <I>username</I><DD>
+<A NAME="ixAAU"></A>
+This argument has been semi-obsoleted.  To have spamd use per-user-config
+files, run spamc as the user whose config files spamd should load.  If you're
+running spamc as some other user, though, (eg. root, mail, nobody, cyrus, etc.)
+then you can still use this flag.
+<DT><B>-U</B> <I>socketpath</I><DD>
+<A NAME="ixAAV"></A>
+Connect to <TT>&quot;spamd&quot;</TT> via <FONT SIZE="-1">UNIX</FONT> domain socket <I>socketpath</I> instead of a
+<FONT SIZE="-1">TCP/IP</FONT> connection.
+
+
+<P>
+
+
+This option is not supported on Win32 platforms.
+<DT><B>-V</B><DD>
+<A NAME="ixAAW"></A>
+Report the version of this <TT>&quot;spamc&quot;</TT> client.  If built with <FONT SIZE="-1">SSL</FONT> support,
+an additional line will be included noting this, like so:
+
+
+<P>
+
+
+
+
+<PRE>
+  SpamAssassin Client version 3.0.0-rc4
+    compiled with SSL support (OpenSSL 0.9.7d 17 Mar 2004)
+
+</PRE>
+
+
+<DT><B>-x</B><DD>
+<A NAME="ixAAX"></A>
+Don't use the 'safe fallback' error-recovery method, which passes through the
+unaltered message if an error occurs.  Instead, exit with an error code, and
+let the <FONT SIZE="-1">MTA</FONT> queue up the mails for a retry later.  The exit codes used are
+as follows:
+
+
+<P>
+
+
+
+
+<PRE>
+    EX_USAGE        64  command line usage error
+    EX_DATAERR      65  data format error       
+    EX_NOINPUT      66  cannot open input
+    EX_NOUSER       67  addressee unknown
+    EX_NOHOST       68  host name unknown
+    EX_UNAVAILABLE  69  service unavailable
+    EX_SOFTWARE     70  internal software error
+    EX_OSERR        71  system error (e.g., can't fork)
+    EX_OSFILE       72  critical OS file missing
+    EX_CANTCREAT    73  can't create (user) output file
+    EX_IOERR        74  input/output error
+    EX_TEMPFAIL     75  temp failure; user is invited to retry
+    EX_PROTOCOL     76  remote error in protocol
+    EX_NOPERM       77  permission denied
+    EX_CONFIG       78  configuration error
+
+</PRE>
+
+
+<DT><B>-y</B><DD>
+<A NAME="ixAAY"></A>
+Just output the names of the tests hit to stdout, on one line, separated
+by commas.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXIT CODES</H2>
+
+<A NAME="ixAAZ"></A>
+By default, spamc will exit with an exit code of <TT>0</TT> unless there is an
+unrecoverable error encountered during processing.
+<P>
+
+The <B>-c</B> and <B>-E</B> options modify this; instead, spamc will use an exit code
+of <TT>1</TT> if the message is determined to be spam.
+<P>
+
+If the <TT>&quot;-x&quot;</TT> option is specified, 'safe fallback' will be disabled, and certain
+error conditions related to communication between spamc and spamd will not
+result in an error code.  Instead, the message will be passed through
+unmodified and an exit code of <TT>0</TT> will be returned.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABA"></A>
+<I><A HREF="../man1/spamd.1.php">spamd</A></I>(1)
+<I><A HREF="../man1/spamassassin.1.php">spamassassin</A></I>(1)
+<I>Mail::<A HREF="../man3/SpamAssassin.3.php">SpamAssassin</A></I>(3)
+<A NAME="lbAH">&nbsp;</A>
+<H2>PREREQUISITES</H2>
+
+<A NAME="ixABB"></A>
+<TT>&quot;Mail::SpamAssassin&quot;</TT>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixABC"></A>
+The SpamAssassin(tm) Project &lt;<A HREF="http://spamassassin.apache.org/">http://spamassassin.apache.org/</A>&gt;
+<A NAME="lbAJ">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+<A NAME="ixABD"></A>
+SpamAssassin is distributed under the Apache License, Version 2.0, as
+described in the file <TT>&quot;LICENSE&quot;</TT> included with the distribution.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXIT CODES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">PREREQUISITES</A><DD>
+<DT><A HREF="#lbAI">AUTHORS</A><DD>
+<DT><A HREF="#lbAJ">COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

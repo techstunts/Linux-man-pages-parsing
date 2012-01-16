@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DC_SERVER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DC_SERVER</H1>
+Section: distcache (1)<BR>Updated: 2004.03.23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dc_server - Distributed session cache server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>dc_server</B> -listen &lt;address&gt; [options]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>dc_server</B> runs a cache server and starts listening on a configurable network
+address for connections. Incoming connections are expected to communicate using
+the <I><A HREF="../man8/distcache.8.php">distcache</A></I>(8) protocol, and would typically be instances of
+<I><A HREF="../man1/dc_client.1.php">dc_client</A></I>(1) running on other machines.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-daemon</B><DD>
+<A NAME="ixAAF"></A>
+After initialising, <B>dc_server</B> will detach from the parent process, close
+standard file-descriptors, etc. If this flag is not set, <B>dc_server</B> will run in
+the foreground. It is recommended to use this flag in combination with the
+<I>pidfile</I> flag to simplify stopping and restarting services.
+<DT><B>-user</B> user<DD>
+<A NAME="ixAAG"></A>
+This switch will attempt to change user privileges of <B>dc_server</B> to the given
+user <FONT SIZE="-1">ID</FONT> after initialising its listening socket. On most systems, this can only
+work if <B>dc_server</B> is started as the <I>root</I> user. It is important to note
+that the change of user <FONT SIZE="-1">ID</FONT> occurs after the listening socket is create. This
+ensures that the listening socket is created with the most restrictive
+permissions, and that the ability to connect to servers at run-time corresponds
+to the given user (rather than having unusual root permissions on startup).
+<DT><B>-listen</B> address<DD>
+<A NAME="ixAAH"></A>
+Configures the address on which <B>dc_server</B> should listen for incoming connections.
+The syntax is that defined by the <I>libnal</I> <FONT SIZE="-1">API</FONT>. Some examples follow;
+
+
+<P>
+
+
+
+
+<PRE>
+    # Listen on port 9001 for all TCP/IPv4 interfaces
+    dc_server -listen IP:9001
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    # Listen on port 9001 on a specific TCP/IPv4 interface
+    dc_server -listen IP:192.168.0.1:9001
+    dc_server -listen IP:cacheserver.localnet:9001
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    # Listen on a unix domain socket in the /tmp directory
+    dc_server -listen UNIX:/tmp/cacheserver
+
+</PRE>
+
+
+<DT><B>-sockowner</B> user<DD>
+<A NAME="ixAAI"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change ownership of the created socket file.
+<DT><B>-sockgroup</B> group<DD>
+<A NAME="ixAAJ"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change group ownership of the created socket file.
+<DT><B>-sockperms</B> perms<DD>
+<A NAME="ixAAK"></A>
+This switch is only useful when listening (see <B>-listen</B>) on unix domain sockets.
+It will attempt to change file permissions for the created socket file, and is
+specified in the standard octal notation used for unix file permissions. Eg. to
+start dc_server to run as the <I>nobody</I> user, listening on a unix domain socket
+that can only be connected to by the <I>root</I> user or members of the <I>dcclient</I>
+group;
+
+
+<P>
+
+
+
+
+<PRE>
+    # dc_server -listen UNIX:/tmp/cacheserver -user nobody \
+          -sockgroup dcclient -sockperms 440
+
+</PRE>
+
+
+<DT><B>-sessions</B> num<DD>
+<A NAME="ixAAL"></A>
+Specifies a maximum number of sessions that should be stored in the cache. All
+sessions in a cache have an expiry time so that they will, if they have not
+been forcibly removed before that time, be expired out of the cache. If it is
+desirable to allow long session timeouts under normal situations yet protect
+against the session cache growing without limit periods of high-load, this
+limit can provide the required balance. If the session cache reaches this
+limit, it will automatically rotate out those sessions in the cache that are
+due to expire soonest. It is not (yet) possible to have no limit at all, though
+a future version should support this by allowing the user to specify zero.
+
+
+<P>
+
+
+The default value for this flag is 512.
+<DT><B>-progress</B> num<DD>
+<A NAME="ixAAM"></A>
+<B>dc_server</B> will, by default, log a line of output to stdout whenever there is
+cache activity, but will make sure to do so no more often than once a second.
+If <B>-progress</B> is specified, this will take precedence  so that output will be
+emitted whenever <B>num</B> operations have occurred since the last output,
+irrespective of how little time has elapsed. The once-a-second logic remains
+behind this, so that if less than <B>num</B> operations has taken place but at
+least one second has passed, output will still be logged. This flag has no
+effect if <B>-daemon</B> is used.
+<DT><B>-pidfile</B> path<DD>
+<A NAME="ixAAN"></A>
+This is a standard flag for many programs, and most useful in combination with
+<B>-daemon</B>. When <B>-pidfile</B> is specified <B>dc_server</B> will write its process
+<FONT SIZE="-1">ID</FONT> to a file at the specified path upon successful initialisation. To use this
+path file to later kill the running <B>dc_server</B> instance, use something like
+(where <B>pidfile.pid</B> is whatever <B>path</B> was);
+
+
+<P>
+
+
+
+
+<PRE>
+    kill `cat pidfile.pid`
+
+</PRE>
+
+
+<DT><B>-killable</B><DD>
+<A NAME="ixAAO"></A>
+The default behaviour of <B>dc_server</B> is to silently ignore <FONT SIZE="-1">SIGUSR1</FONT> and <FONT SIZE="-1">SIGUSR2</FONT>
+signals, but with this switch enabled it will handle these signals and close
+down cleanly (mainly useful for developers as an alternative to <FONT SIZE="-1">SIGKILL</FONT> which
+is less useful for debugging memory leaks).
+<DT><B>-h</B>, <B>-help</B>, <B>-?</B><DD>
+<A NAME="ixAAP"></A>
+Any of these flags will cause <B>dc_server</B> to display a brief usage summary to
+the console and exit cleanly. Any other flags are ignored.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAQ"></A>
+<DL COMPACT>
+<DT><I><A HREF="../man1/dc_client.1.php">dc_client</A></I>(1)<DD>
+<A NAME="ixAAR"></A>
+Distributed caching client proxy.
+<DT><I><A HREF="../man1/dc_snoop.1.php">dc_snoop</A></I>(1)<DD>
+<A NAME="ixAAS"></A>
+Distcache protocol analyser and debugging tool.
+<DT><I><A HREF="../man8/distcache.8.php">distcache</A></I>(8)<DD>
+<A NAME="ixAAT"></A>
+Overview of the distcache architecture.
+<DT><I><A HREF="http://www.distcache.org/">http://www.distcache.org/</A></I><DD>
+<A NAME="ixAAU"></A>
+Distcache home page.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAV"></A>
+This toolkit was designed and implemented by Geoff Thorpe for Cryptographic
+Appliances Incorporated. Since the project was released into open source, it
+has a home page and a project environment where development, mailing lists, and
+releases are organised. For problems with the software or this man page please
+check for new releases at the project web-site below, mail the users mailing
+list described there, or contact the author at <I><A HREF="mailto:geoff@geoffthorpe.net">geoff@geoffthorpe.net</A></I>.
+<P>
+
+Home Page: <I><A HREF="http://www.distcache.org">http://www.distcache.org</A></I>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

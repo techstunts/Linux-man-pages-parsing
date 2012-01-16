@@ -1,0 +1,1283 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>host</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>host</H1>
+Section: User Commands  (1)<BR>Updated: 991527<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+host - query nameserver about domain names and zones
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS </H2>
+
+
+<PRE>
+<B>host</B> [<B>-v</B>] [<B>-a</B>] [<B>-t</B> <I>querytype</I>] [<I>options</I>]  <I>name</I>  [<I>server</I>] 
+<BR>
+<B>host</B> [<B>-v</B>] [<B>-a</B>] [<B>-t</B> <I>querytype</I>] [<I>options</I>]  <B>-l</B> <I>zone</I>  [<I>server</I>] 
+<BR>
+<B>host</B> [<B>-v</B>] [<I>options</I>] <B>-H</B> [<B>-D</B>] [<B>-E</B>] [<B>-G</B>] <I>zone</I>
+<BR>
+<B>host</B> [<B>-v</B>] [<I>options</I>] <B>-C</B> <I>zone</I>
+<BR>
+<B>host</B> [<B>-v</B>] [<I>options</I>] <B>-A</B> <I>host</I>
+
+<B>host</B> [<I>options</I>] <B>-x</B> [<I>name</I> ...]
+<BR>
+<B>host</B> [<I>options</I>] <B>-X</B> <I>server</I> [<I>name</I> ...]
+</PRE><A NAME="lbAD">&nbsp;</A>
+<H2>OPTION SYNTAX</H2>
+
+Besides the traditional short options (one letter with single dash,
+and an optional value as separate argument), there are now also
+long options in the format <B>--keyword</B>[=<I>value</I>].
+Many (but not all) short options have a long equivalent.
+There are several long options without a short equivalent.
+The long options are not yet documented in this manual page,
+but a summary of the existing long options, and the mapping to
+their short alternative, is available via the command
+<B>host&nbsp;--help</B>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION </H2>
+
+<I>host</I>
+
+looks for information about Internet hosts and domain names.
+It gets this information from a set of interconnected servers
+that are spread across the world. The information is stored
+in the form of &quot;resource records&quot; belonging to hierarchically
+organized &quot;zones&quot;.
+<P>
+
+By default, the program simply converts between host names and Internet
+addresses. However, with the <B>-t</B>, <B>-a</B> and <B>-v</B>
+options, it can be used to find all of the information about
+domain names that is maintained by the domain nameserver system.
+The information printed consists of various fields of the
+associated resource records that were retrieved.
+<P>
+
+The arguments can be either host names (domain names) or numeric
+Internet addresses.
+<P>
+
+A numeric Internet address consists of four decimal numbers
+separated by dots, e.g. <B>192.16.199.1</B>, representing the
+four bytes of the 32-bit address.
+<BR>
+
+The default action is to look up the associated host name.
+<P>
+
+A host name or domain name consists of component names (labels)
+separated by dots, e.g. <B>nikhefh.nikhef.nl</B>
+<BR>
+
+The default action is to look up all of its Internet addresses.
+<P>
+
+For single names without a trailing dot, the local domain is
+automatically tacked on the end.
+Thus a user in domain &quot;nikhef.nl&quot; can say &quot;host nikhapo&quot;,
+and it will actually look up &quot;nikhapo.nikhef.nl&quot;.
+In all other cases, the name is tried unchanged.
+Single names with trailing dot are considered top-level domain
+specifications, e.g. &quot;nl.&quot;
+<P>
+
+Note that the usual lookup convention for any name that does not end
+with a trailing dot is to try first with the local domain appended,
+and possibly other search domains.
+(As of BIND 4.9, names that have embedded dots but no trailing dot
+are first tried ``as is'' before appending search domains)
+This convention is not used by this program.
+<P>
+
+The actual suffix to tack on the end is usually the local domain
+as specified in the <B>/etc/resolv.conf</B> file, but this can be
+overridden.
+See below for a description of how to customize the host name lookup.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ARGUMENTS</H2>
+
+The first argument is normally the host name (domain name) for which
+you want to look up the requested information.
+If the first argument is an Internet address, a query is done on the
+special &quot;reverse mapping&quot; domain to look up its associated host name.
+<P>
+
+If the <B>-l</B> option is given, the first argument is a domain zone
+name for which a complete listing is given. The program enters a
+special zone listing mode which has several variants (see below).
+<P>
+
+The second argument is optional. It allows you to specify a particular
+server to query.  If you don't specify this argument, default servers
+are used, as defined by the <B>/etc/resolv.conf</B> file.
+<A NAME="lbAG">&nbsp;</A>
+<H3>EXTENDED SYNTAX</H3>
+
+If the <B>-x</B> option is given, it extends the syntax in the sense
+that multiple arguments are allowed on the command line. An optional
+explicit server must now be specified using the <B>-X</B> option as it
+cannot be given as an ordinary argument any more. The <B>-X</B>
+option implies <B>-x</B>.
+<P>
+The extended syntax allows no arguments at all, in which case the
+arguments will be read from standard input. This can be a pipe,
+redirection from a file, or an interactive terminal. Note that
+these arguments are the names to be queried, and not command options.
+Everything that appears after a '#' or ';' on an input line will be
+skipped. Multiple arguments per line are allowed.
+<A NAME="lbAH">&nbsp;</A>
+<H3>OPTIONS</H3>
+
+There are a number of options that can be used before the specified
+arguments.  Some of these options are meaningful only to the people
+who maintain the domain database zones.
+The first options are the regularly used ones.
+<DL COMPACT>
+<DT><B>-v</B>
+
+<DD>
+causes printout to be in a &quot;verbose&quot; format.
+All resource record fields are printed.
+Without this option, the ttl and class fields are not shown.
+Also the contents of the &quot;additional information&quot; and &quot;authority
+information&quot; sections in the answer from the nameserver are printed,
+if present.  Normally these sections are not shown.
+In addition, the verbose option prints extra information about the
+various actions that are taken by the program.
+Note that <B>-vv</B> is &quot;very verbose&quot;. This generates a lot of output.
+<DT><B>-t</B><I> querytype</I>
+
+<DD>
+allows you to specify a particular type of resource record information
+to be looked up.  Supported types are listed below.
+The wildcard may be written as either <B>ANY</B> or <B>*</B>.
+Types may be given in upper or lower case.
+The default is type <B>A</B> for regular lookups,
+and <B>A</B>, <B>NS</B>, and <B>PTR</B> for zone listings.
+<DT><B>-a</B>
+
+<DD>
+is equivalent to <B>-t ANY</B>.
+Note that this gives you &quot;anything available&quot; (currently cached) and
+not &quot;all defined data&quot; if a non-authoritative server is queried.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H3>SPECIAL MODES</H3>
+
+The following options put the program in a special mode.
+<DL COMPACT>
+<DT><B>-l</B><I> zone</I>
+
+<DD>
+generates the listing of an entire zone.
+<P>
+E.g. the command
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><B>host -l nikhef.nl</B><BR>
+<BR>
+
+will give a listing of all hosts in the &quot;nikhef.nl&quot; zone.
+The <B>-t</B> option is used to filter what information is
+extracted, as you would expect. The default is address
+information from A records, supplemented with data from PTR
+and NS records.
+<P>
+The command
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><B>host -Z -a -l nikhef.nl</B><BR>
+<BR>
+
+will give a complete download of the zone data for &quot;nikhef.nl&quot;,
+in the official master file format.
+<DT><B>-H</B>
+
+<DD>
+can be specified instead of the <B>-l</B> option. It will print
+the count of the unique hostnames (names with an A record)
+encountered within the zone.
+It will not count pseudo names like &quot;localhost&quot;, nor addresses
+associated with the zone name itself. Neither are counted the
+&quot;glue records&quot; that are necessary to define nameservers for
+the zone and its delegated zones.
+<P>
+By default, this option will not print any resource records.
+<P>
+Combined with the <B>-S</B> option, it will give a complete
+statistics survey of the zone.
+<P>
+The host count may be affected by duplicate hosts (see below).
+To compute the most realistic value, subtract the duplicate
+host count from the total host count.
+<DT><B>-G</B>
+
+<DD>
+implies <B>-H</B>, but lists the names of gateway hosts.
+These are the hosts that have more than one address.
+Gateway hosts are not checked for duplicate addresses.
+<DT><B>-E</B>
+
+<DD>
+implies <B>-H</B>, but lists the names of extrazone hosts.
+An extrazone host in zone &quot;foo.bar&quot; is of the form
+&quot;host.xxx.foo.bar&quot; where &quot;xxx.foo.bar&quot; is not defined as
+a delegated zone with an NS record.
+This may be intentional, but also may be an error.
+<DT><B>-D</B>
+
+<DD>
+implies <B>-H</B>, but lists the names of duplicate hosts.
+These are hosts with only one address, which is known to
+have been defined also for another host with a different name,
+possibly even in a different zone.
+This may be intentional, but also may be an error.
+<DT><B>-C</B>
+
+<DD>
+can be specified instead of the <B>-l</B> option. It causes the SOA
+records for the specified zone to be compared as found at each of
+the authoritative nameservers for the zone (as listed in the NS records).
+Nameserver recursion is turned off, and it will be checked whether
+the answers are really authoritative. If a server cannot provide an
+authoritative SOA record, a lame delegation of the zone to that server
+is reported.
+Discrepancies between the records are reported. Various sanity checks
+are performed.
+<DT><B>-A</B>
+
+<DD>
+enters a special address check mode.
+<P>
+If the first argument is a host name, its addresses will be retrieved,
+and for each of the addresses it will be checked whether they map back
+to the given host.
+<P>
+If the first argument is a dotted quad Internet address, its name will
+be retrieved, and it will be checked whether the given address is listed
+among the known addresses belonging to that host.
+<P>
+If the <B>-A</B> flag is specified along with any zone listing option,
+a reverse lookup of the address in each encountered A record is performed,
+and it is checked whether it is registered and maps back to the name of
+the A record.
+This applies to forward zones. For reverse in-addr.arpa zones, it is
+checked whether the target in PTR records maps to a canonical host name.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>LISTING OPTIONS</H3>
+
+The following options apply only to the special zone listing modes.
+<DL COMPACT>
+<DT><B>-L</B><I> level</I>
+
+<DD>
+Recursively generate zone listings up to this level deep.
+Level 1 traverses the parent zone and all of its delegated zones.
+Each additional level descends into another layer of delegated zones.
+<DT><B>-S</B>
+
+<DD>
+prints statistics about the various types of resource records found
+during zone listings, the number of various host classifications,
+the number of delegated zones, and some total statistics after
+recursive listings.
+<DT><B>-p</B>
+
+<DD>
+causes only the primary nameserver of a zone to be contacted for zone
+transfers during zone listings. Normally, zone transfers are obtained
+from any one of the authoritative servers that responds.
+The primary nameserver is obtained from the SOA record of the zone.
+If a specific server is given on the command line, this option will
+query that server for the desired nameservers of the zone. This can be
+used for testing purposes in case the zone has not been registered yet.
+<DT><B>-P</B><I> prefserver</I>
+
+<DD>
+gives priority for zone transfers to preferred servers residing in
+domains given by the comma-separated list <I>prefserver</I>. The more
+domain component labels match, the higher the priority.
+If this option is not present, priority is given to servers within
+your own domain or parent domains.
+The order in which NS records are issued may be unfavorable if they
+are subject to BIND 4.9 round-robin reshuffling.
+<DT><B>-N</B><I> skipzone</I>
+
+<DD>
+prohibits zone transfers for the zones given by the comma-separated
+list <I>skipzone</I>. This may be used during recursive zone listings
+when certain zones are known to contain bogus information which
+should be excluded from further processing.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>COMMON OPTIONS</H3>
+
+The following options can be used in both normal mode and domain
+listing mode.
+<DL COMPACT>
+<DT><B>-d</B>
+
+<DD>
+turns on debugging.  Nameserver transactions are shown in detail.
+Note that <B>-dd</B> prints even more debugging output.
+<DT><B>-f</B><I> filename</I>
+
+<DD>
+writes the resource record output to the given logfile as well as
+to standard output.
+<DT><B>-F</B><I> filename</I>
+
+<DD>
+same as <B>-f</B>, but exchange the role of stdout and logfile.
+All stdout output (including verbose and debug printout) goes to
+the logfile, and stdout gets only the extra resource record output
+(so that it can be used in pipes).
+<DT><B>-I</B><I> chars</I>
+
+<DD>
+suppresses warning messages about illegal domain names containing
+invalid characters, by specifying such characters in the string
+<I>chars</I>. The underscore is a good candidate.
+<DT><B>-i</B>
+
+<DD>
+constructs a query for the &quot;reverse mapping&quot; <B>in-addr.arpa</B>
+domain in case a numeric (dotted quad) address was specified.
+Useful primarily for zone listing mode, since for numeric regular
+lookups such query is done anyway (but with -i you see the actual
+PTR resource record outcome).
+<DT><B>-n</B>
+
+<DD>
+constructs a query for the &quot;reverse mapping&quot; <B>nsap.int</B>
+domain in case an nsap address was specified.
+This can be used to look up the names associated with nsap addresses,
+or to list reverse nsap zones.
+An nsap address consists of an even number of hexadecimal digits,
+with a maximum of 40, optionally separated by interspersed dots.
+An optional prefix &quot;0x&quot; is skipped.
+If this option is used, all reverse nsap.int names are by default
+printed in forward notation, only to improve readability.
+The <B>-Z</B> option forces the output to be in the official zone
+file format.
+<DT><B>-q</B>
+
+<DD>
+be quiet and suppress various warning messages (the ones preceded
+by &quot; !!! &quot;).
+Serious error messages (preceded by &quot; *** &quot;) are never suppressed.
+<DT><B>-Q</B>
+
+<DD>
+selects quick mode, in which several potentially time consuming
+special checks are not carried out, and statistics gathering is
+skipped if not explicitly selected.
+<DT><B>-T</B>
+
+<DD>
+prints the time-to-live values during non-verbose output.
+By default the ttl is shown only in verbose mode.
+<DT><B>-Z</B>
+
+<DD>
+prints the selected resource record output in full zone file format,
+including trailing dot in domain names, plus ttl value and class name.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H3>OTHER OPTIONS</H3>
+
+The following options are used only in special circumstances.
+<DL COMPACT>
+<DT><B>-c</B><I> class</I>
+
+<DD>
+allows you to specify a particular resource record class.
+Supported are
+<B>IN</B>, <B>INTERNET</B>, <B>CS</B>, <B>CSNET</B>, <B>CH</B>, <B>CHAOS</B>,
+<B>HS</B>, <B>HESIOD</B>, and the wildcard <B>ANY</B> or <B>*</B>.
+The default class is <B>IN</B>.
+<DT><B>-e</B>
+
+<DD>
+excludes information about names that are not residing within
+the given zone during zone listings, such as some glue records.
+For regular queries, it suppresses the printing of the &quot;additional
+information&quot; and &quot;authority information&quot; sections in the answer
+from the nameserver.
+<DT><B>-m</B>
+
+<DD>
+is equivalent to <B>-t MAILB</B>, which filters
+any of types <B>MB</B>, <B>MR</B>, <B>MG</B>, or <B>MINFO</B>.
+In addition, <B>MR</B> and <B>MG</B> records will be recursively
+expanded into <B>MB</B> records.
+<DT><B>-o</B>
+
+<DD>
+suppresses the resource record output to stdout. Can be used in
+combination with the <B>-f</B> option to separate the resource
+record output from verbose and debug comments and error messages.
+<DT><B>-r</B>
+
+<DD>
+causes nameserver recursion to be turned off in the request.
+This means that the contacted nameserver will return only data
+it has currently cached in its own database.
+It will not ask other servers to retrieve the information.
+Note that nameserver recursion is always turned off when checking
+SOA records using the <B>-C</B> option. Authoritative servers
+should have all relevant information available.
+<DT><B>-R</B>
+
+<DD>
+Normally querynames are assumed to be fully qualified and are
+tried as such, unless it is a single name, which is always tried
+(and only once) in the default domain.
+This option simulates the default BIND behavior by qualifying
+any specified name by repeatedly adding search domains, with
+the exception that the search terminates immediately if the name
+exists but does not have the desired querytype.
+The default search domains are constructed from the default domain
+by repeatedly peeling off the first component, until a final domain
+with only one dot remains.
+<DT><B>-s</B><I> seconds</I>
+
+<DD>
+specifies a new nameserver timeout value. The program will wait
+for a nameserver reply in two attempts of this number of seconds.
+Normally it does 2 attempts of 5 seconds per nameserver address tried.
+The actual timeout algorithm is slightly more complicated, extending
+the timeout value dynamically depending on the number of tries and
+the number of nameserver addresses.
+<DT><B>-u</B>
+
+<DD>
+forces the use of virtual circuits (TCP) instead of datagrams (UDP) when
+issuing nameserver queries. This is slower, but potentially more reliable.
+Note that a virtual circuit is automatically chosen in case a query
+exceeds the maximum datagram packet size. Also if a datagram answer
+turns out to be truncated, the query is retried using virtual circuit.
+A zone transfer is always done via a virtual circuit.
+<DT><B>-w</B>
+
+<DD>
+causes the program to retry forever if the response to a regular query
+times out. Normally it will time out after some 10 seconds per
+nameserver address tried.
+<DT><B>-V</B>
+
+<DD>
+prints just the version number of the <B>host</B> program, and exits.
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H3>SPECIAL OPTIONS</H3>
+
+The following options are used only in special circumstances.
+<DL COMPACT>
+<DT><B>-O</B> <I>srcaddr</I><DD>
+Define an explicit source IP address for sending nameserver queries.
+This may be necessary for multi-homed hosts with asymmetric routing
+policy.
+<DT><B>-j</B> <I>minport</I> <B>-J</B> <I>maxport</I><DD>
+Define a range of explicit port numbers to be assigned to the source
+IP address of the client socket for sending the nameserver queries and
+receiving the replies. Normally the kernel chooses a random free port
+number. This may be an inappropriate number if you are behind a firewall
+that filters random port numbers on incoming traffic.
+<BR>
+
+If only one of <B>-j</B> or <B>-J</B> is given, a single explicit port
+number is defined. This is ok for UDP queries, but may not be sufficient
+for TCP queries.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H3>DEFAULT OPTIONS</H3>
+
+Default options and parameters can be preset in an environment
+variable <B>HOST_DEFAULTS</B> using the same syntax as on the command
+line. They will be evaluated before the command line arguments.
+<A NAME="lbAO">&nbsp;</A>
+<H2>QUERYTYPES</H2>
+
+The following querytypes (resource record types) are supported.
+Indicated within parentheses are the various kinds of data fields.
+<DL COMPACT>
+<DT><B>A</B>
+
+<DD>
+Host address (dotted quad)
+<DT><B>NS</B>
+
+<DD>
+Authoritative nameserver (domain name)
+<DT><B>MD</B>
+
+<DD>
+Mail destination (domain name)
+<DT><B>MF</B>
+
+<DD>
+Mail forwarder (domain name)
+<DT><B>CNAME</B>
+
+<DD>
+Canonical name for an alias (domain name)
+<DT><B>SOA</B>
+
+<DD>
+Marks the start of a zone of authority
+(domain name of primary, domain name of hostmaster,
+serial, refresh, retry, expiration, default ttl)
+<DT><B>MB</B>
+
+<DD>
+Mailbox domain name (domain name)
+<DT><B>MG</B>
+
+<DD>
+Mail group member (domain name)
+<DT><B>MR</B>
+
+<DD>
+Mail rename domain name (domain name)
+<DT><B>NULL</B>
+
+<DD>
+Null resource record (no format or data)
+<DT><B>WKS</B>
+
+<DD>
+Well-known service description (dotted quad, protocol name, list of services)
+<DT><B>PTR</B>
+
+<DD>
+Domain name pointer (domain name)
+<DT><B>HINFO</B>
+
+<DD>
+Host information (CPU type string, OS type string)
+<DT><B>MINFO</B>
+
+<DD>
+Mailbox or mail list information (request domain name, error domain name)
+<DT><B>MX</B>
+
+<DD>
+Mail exchanger (preference value, domain name)
+<DT><B>TXT</B>
+
+<DD>
+Descriptive text (one or more strings)
+<DT><B>UINFO</B>
+
+<DD>
+User information (string)
+<DT><B>UID</B>
+
+<DD>
+User identification (number)
+<DT><B>GID</B>
+
+<DD>
+Group identification (number)
+<DT><B>UNSPEC</B>
+
+<DD>
+Unspecified binary data (data)
+<DT><B>ANY</B>
+
+<DD>
+Matches information of any type available.
+<DT><B>MAILB</B>
+
+<DD>
+Matches any of types <B>MB</B>, <B>MR</B>, <B>MG</B>, or <B>MINFO</B>.
+<DT><B>MAILA</B>
+
+<DD>
+Matches any of types <B>MD</B>, or <B>MF</B>.
+</DL>
+<P>
+
+The following types have been defined in RFC 1183, but
+are not yet in general use. They are recognized by this program.
+<DL COMPACT>
+<DT><B>RP</B>
+
+<DD>
+Responsible person (domain name for MB, domain name for TXT)
+<DT><B>AFSDB</B>
+
+<DD>
+AFS database location (type, domain name)
+<DT><B>X25</B>
+
+<DD>
+X25 address (address string)
+<DT><B>ISDN</B>
+
+<DD>
+ISDN address (address string, optional subaddress string)
+<DT><B>RT</B>
+
+<DD>
+Route through host (preference value, domain name)
+</DL>
+<P>
+
+The following types have been defined in RFC 1348, but
+are not yet in general use. They are recognized by this program.
+RFC 1348 has already been obsoleted by RFC 1637 and RFC 1706,
+which defines a new experimental usage of NSAP records.
+This program has now hooks to manipulate them.
+<DL COMPACT>
+<DT><B>NSAP</B>
+
+<DD>
+NSAP address (encoded address)
+<DT><B>NSAP-PTR</B>
+
+<DD>
+NSAP pointer (domain name)
+</DL>
+<P>
+
+The following are new types as per RFC 1664 and RFC 1712.
+Note that the GPOS type has been withdrawn already, and has been
+superseded by the LOC type.
+<DL COMPACT>
+<DT><B>PX</B>
+
+<DD>
+X400 to RFC822 mapping (preference value, rfc822 domain, x400 domain)
+<DT><B>GPOS</B>
+
+<DD>
+Geographical position (longitude string, latitude string, altitude string)
+</DL>
+<P>
+
+The following types have been reserved in RFC 1700, and are
+defined in RFC 2065 and revised per RFC 2035.
+<DL COMPACT>
+<DT><B>SIG</B>
+
+<DD>
+Security signature
+<DT><B>KEY</B>
+
+<DD>
+Security key
+<DT><B>NXT</B>
+
+<DD>
+Next valid record
+</DL>
+<P>
+
+The IP v6 address architecture and DNS extensions are defined in
+RFC 1884 and RFC 1886.
+<DL COMPACT>
+<DT><B>AAAA</B>
+
+<DD>
+IP v6 address (address spec with colons)
+</DL>
+<P>
+
+The following type is documented in RFC 1876.
+<DL COMPACT>
+<DT><B>LOC</B>
+
+<DD>
+Geographical location (latitude, longitude, altitude, precision)
+</DL>
+<P>
+
+The following types have been proposed, but are still in draft.
+<DL COMPACT>
+<DT><B>EID</B>
+
+<DD>
+Endpoint identifier
+<DT><B>NIMLOC</B>
+
+<DD>
+Nimrod locator
+<DT><B>ATMA</B>
+
+<DD>
+ATM address
+</DL>
+<P>
+
+The following type is defined per RFC 2168.
+<DL COMPACT>
+<DT><B>NAPTR</B>
+
+<DD>
+Naming authority URN
+</DL>
+<P>
+
+The following type is proposed in RFC 2052, updated by RFC 2782.
+<DL COMPACT>
+<DT><B>SRV</B>
+
+<DD>
+Internet service information
+</DL>
+<P>
+
+The following type is proposed in RFC 2230.
+<DL COMPACT>
+<DT><B>KX</B>
+
+<DD>
+Key exchanger (preference value, domain name)
+</DL>
+<P>
+
+The following type is defined in RFC 2538.
+<DL COMPACT>
+<DT><B>CERT</B>
+
+<DD>
+</DL>
+<P>
+
+The following types have been proposed, but are still in draft.
+<DL COMPACT>
+<DT><B>A6</B>
+
+<DD>
+<DT><B>DNAME</B>
+
+<DD>
+<DT><B>SINK</B>
+
+<DD>
+</DL>
+<P>
+
+The following type is defined in RFC 2671.
+<DL COMPACT>
+<DT><B>OPT</B>
+
+<DD>
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+A very good summary and validation of an entire zone can be obtained
+with the following command:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><B>host -G -S -C -A -L 1</B> <I>zone</I><BR>
+<P>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<A NAME="lbAR">&nbsp;</A>
+<H3>FAILURE MESSAGES</H3>
+
+The following messages are printed to show the reason
+of failure for a particular query. The name of an explicit
+server, if specified, may be included. If a special class
+was requested, it is also shown.
+<DL COMPACT>
+<DT>Nameserver [<I>server</I>] not running<DD>
+The contacted server host does not have a nameserver running.
+<DT>Nameserver [<I>server</I>] not responding<DD>
+The nameserver at the contacted server host did not give a reply
+within the specified time frame.
+<DT>Nameserver [<I>server</I>] not reachable<DD>
+The network route to the intended server host is blocked.
+<DT><I>name</I> does not exist [at <I>server</I>] (Authoritative answer)<DD>
+The queryname does definitely not exist at all.
+<DT><I>name</I> does not exist [at <I>server</I>], try again<DD>
+The queryname does not exist, but the answer was not authoritative,
+so it is still undecided.
+<DT><I>name</I> has no <I>type</I> record [at <I>server</I>] (Authoritative answer)<DD>
+The queryname is valid, but the specified type does not exist.
+This status is here returned only in case authoritative.
+<DT><I>name</I> <I>type</I> record currently not present [at <I>server</I>]<DD>
+The specified type does not exist, but we don't know whether
+the queryname is valid or not. The answer was not authoritative.
+Perhaps recursion was off, and no data was cached locally.
+<DT><I>name</I> <I>type</I> record not found [at <I>server</I>], try again<DD>
+Some intermediate failure, e.g. timeout reaching a nameserver.
+<DT><I>name</I> <I>type</I> record not found [at <I>server</I>], server failure<DD>
+Some explicit nameserver failure to process the query, due to internal
+or forwarding errors. This may also be returned if the zone data has
+expired at a secondary server, of when the server is not authoritative
+for some class.
+<DT><I>name</I> <I>type</I> record not found [at <I>server</I>], no recovery<DD>
+Some irrecoverable format error, or server refusal.
+<DT><I>name</I> <I>type</I> record query refused [by <I>server</I>]<DD>
+The contacted nameserver explicitly refused to answer the query.
+Some nameservers are configured to refuse zone transfer requests
+that come from arbitrary clients.
+<DT><I>name</I> <I>type</I> record not found [at <I>server</I>]<DD>
+The exact reason for failure could not be determined.
+(This should not happen).
+<DT><I>zone</I> has lame delegation to <I>server</I><DD>
+If we query a supposedly authoritative nameserver for the SOA record
+of a zone, the information should be available and the answer should
+be authoritative. If not, a lame delegation is flagged. This is also
+done if the server turns out not to exist at all. Ditto if we ask for
+a zone transfer and the server cannot provide it.
+<DT>No nameservers for <I>zone</I> found<DD>
+It was not possible to retrieve the name of any nameserver
+for the desired zone, in order to do a zone transfer.
+<DT>No addresses of nameservers for <I>zone</I> found<DD>
+We got some nameserver names, but it was not possible to retrieve
+addresses for any of them.
+<DT>No nameservers for <I>zone</I> responded<DD>
+When trying all nameservers in succession to do a zone transfer,
+none of them were able or willing to provide it.
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H3>WARNING AND ERROR MESSAGES</H3>
+
+Miscellaneous warning messages may be generated.
+They are preceded by &quot; !!! &quot; and indicate some non-fatal condition,
+usually during the interpretation of the retrieved data.
+These messages can be suppressed with the -q command line option.
+<P>
+Error messages are preceded by &quot; *** &quot; and indicate a serious problem,
+such as format errors in the answers to queries, but also major
+violations of the specifications.
+Those messages cannot be suppressed.
+<DL COMPACT>
+<DT><I>zone</I> has only one nameserver <I>server</I><DD>
+When retrieving the nameservers for a zone, it appears that only one
+single nameserver exists.  This is against the recommendations.
+<DT><I>zone</I> nameserver <I>server</I> is not canonical (<I>realserver</I>)<DD>
+When retrieving the nameservers for a zone, the name of the specified
+server appears not to be canonical. This may cause serious operational
+problems. The canonical name is given between parentheses.
+<DT>empty zone transfer for <I>zone</I> from <I>server</I><DD>
+The zone transfer from the specified server contained no data, perhaps
+only the SOA record. This could happen if we query the victim of a
+lame delegation which happens to have the SOA record in its cache.
+<DT>extraneous NS record for <I>name</I> within <I>zone</I> from <I>server</I><DD>
+During a zone transfer, an NS record appears for a name which is not
+a delegated subzone of the current zone.
+<DT>extraneous SOA record for <I>name</I> within <I>zone</I> from <I>server</I><DD>
+During a zone transfer, an SOA record appears for a name which is
+not the name of the current zone.
+<DT>extraneous glue record for <I>name</I> within <I>zone</I> from <I>server</I><DD>
+During a zone transfer, a glue record is included for a name which
+is not part of the zone or its delegated subzones. This is done in some
+older versions of BIND. It is undesirable since unauthoritative, or even
+incorrect, information may be propagated.
+<DT>incomplete <I>type</I> record for <I>name</I><DD>
+When decoding the resource record data from the answer to a query,
+not all required data fields were present. This is frequently the case
+for HINFO records of which only one of the two data field is encoded.
+<DT><I>name</I> has both NS and A records within <I>zone</I> from <I>server</I><DD>
+An A record has been defined for the delegated zone <I>name</I>. This is
+signalled only during the transfer of the parent <I>zone</I>. It is not
+an error, but the overall hostcount may be wrong, since the A record
+is counted as a host in the parent zone. This A record is not included
+in the hostcount of the delegated zone.
+<DT><I>name</I> <I>type</I> record has zero ttl<DD>
+Resource records with a zero ttl value are special. They are not cached
+after retrieval from an authoritative nameserver.
+<DT><I>name</I> <I>type</I> records have different ttl within <I>zone</I> from <I>server</I><DD>
+Resource records of the same name/type/class should have the same ttl value
+in zone listings. This is sometimes not the case, due to the independent
+definition of glue records or other information in the parent zone, which
+is not kept in sync with the definition in the delegated zone.
+<DT><I>name</I> <I>type</I> record has illegal name<DD>
+The name of an A or MX record contains invalid characters.
+Only alphanumeric characters and hyphen '-' are valid in
+components (labels) between dots.
+<DT><I>name</I> <I>type</I> host <I>server</I> has illegal name<DD>
+The name of an NS or MX target host contains invalid characters.
+Only alphanumeric characters and hyphen '-' are valid in
+components (labels) between dots.
+<DT><I>name</I> <I>type</I> host <I>server</I> does not exist<DD>
+The NS or MX target host <I>server</I> does not exist at all.
+In case of NS, a lame delegation of <I>name</I> to <I>server</I>
+is flagged.
+It also applies to the PTR target host in reverse zones.
+<DT><I>name</I> <I>type</I> host <I>server</I> has no A record<DD>
+The NS or MX target host <I>server</I> has no address.
+In case of NS, a lame delegation of <I>name</I> to <I>server</I>
+is flagged.
+It also applies to the PTR target host in reverse zones.
+<DT><I>name</I> <I>type</I> host <I>server</I> is not canonical<DD>
+The NS or MX target host <I>server</I> is not a canonical name.
+This may cause serious operational problems during domain data
+retrieval, or electronic mail delivery.
+It also applies to the PTR target host in reverse zones.
+<DT><I>name</I> <I>type</I> target <I>domain</I> does not exist<DD>
+The CNAME target <I>domain</I> does not exist at all.
+<DT><I>name</I> <I>type</I> target <I>domain</I> has no ANY record<DD>
+The CNAME target <I>domain</I> does not seem to have any
+associated resource record, although the name seems to exist.
+<DT><I>name</I> address <I>A.B.C.D</I> is not registered<DD>
+The reverse lookup of the address of an A record failed in an
+authoritative fashion. It was not present in the corresponding
+in-addr.arpa zone.
+<DT><I>name</I> address <I>A.B.C.D</I> maps to <I>realname</I><DD>
+The reverse lookup of the address of an A record succeeded,
+but it did not map back to the name of the A record.
+There may be A records with different names for the same address.
+In the reverse in-addr.arpa zone there is usually only one PTR to
+the ``official'' host name.
+<DT><I>name</I> address <I>A.B.C.D</I> maps to alias <I>aliasname</I><DD>
+In case of multiple PTR records, the first one encountered points
+to the ``official'' host name. Subsequent ones are returned as
+alias names via gethostbyaddr() as of BIND 4.9. Note that PTR
+records are exempt from round-robin reshuffling.
+<DT><I>zone</I> SOA record at <I>server</I> is not authoritative<DD>
+When checking the SOA for a zone at one of its supposedly
+authoritative nameservers, the SOA information turns out
+to be not authoritative.  This could be determined by making
+a query without nameserver recursion turned on.
+<DT><I>zone</I> SOA primary <I>server</I> is not advertised via NS<DD>
+The primary nameserver is not among the list of nameservers
+retrieved via NS records for the zone.
+This is not an error per se, since only publicly accessible
+nameservers may be advertised, and others may be behind a
+firewall.
+<DT><I>zone</I> SOA primary <I>server</I> has illegal name<DD>
+The name of the primary nameserver contains invalid characters.
+<DT><I>zone</I> SOA hostmaster <I>mailbox</I> has illegal mailbox<DD>
+The name of the hostmaster mailbox contains invalid characters.
+A common mistake is to use an RFC822 email address with a ``@'',
+whereas the at-sign should have been replaced with a dot.
+<DT><I>zone</I> SOA serial has high bit set<DD>
+Although the serial number is an unsigned 32-bit value, overflow
+into the high bit can inadvertently occur by making inappropriate
+use of the dotted decimal notation in the zone file. This may lead
+to synchronization failures between primary and secondary servers.
+<DT><I>zone</I> SOA retry exceeds refresh<DD>
+A failing refresh would be retried after it is time for the
+next refresh.
+<DT><I>zone</I> SOA refresh+retry exceeds expire<DD>
+The retry after a failing refresh would be done after the data
+has already expired.
+<DT><I>zone</I> SOA expire is less than 1 week<DD>
+The authoritative data at secondary servers expires after only
+one week of failing refresh attempts. This is probably a little
+too early under normal circumstances.
+<DT><I>zone</I> SOA expire is more than 6 months<DD>
+Secondary servers will retry failing refresh attempts for a period
+of more than 6 months before their authoritative data expires.
+As BIND 8 concludes: war must have broken out.
+<DT><I>server1</I> and <I>server2</I> have different primary for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+<DT><I>server1</I> and <I>server2</I> have different hostmaster for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+<DT><I>server1</I> and <I>server2</I> have different serial for <I>zone</I><DD>
+This is usually not an error, but happens during the period after the
+primary server has updated its zone data, but before a secondary
+performed a refresh. Nevertheless there could be an error if a mistake
+has been made in properly adapting the serial number.
+<DT><I>server1</I> and <I>server2</I> have different refresh for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+<DT><I>server1</I> and <I>server2</I> have different retry for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+<DT><I>server1</I> and <I>server2</I> have different expire for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+<DT><I>server1</I> and <I>server2</I> have different defttl for <I>zone</I><DD>
+If the SOA record is different, the zone data is probably different
+as well. What you get depends on which server you happen to query.
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H2>EXIT STATUS</H2>
+
+The program returns a zero exit status if the requested information
+could be retrieved successfully, or in case zone listings or SOA
+checks were performed without any serious error.
+Otherwise it returns a non-zero exit status.
+<A NAME="lbAU">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<A NAME="lbAV">&nbsp;</A>
+<H3>CUSTOMIZING HOST NAME LOOKUP</H3>
+
+In general, if the name supplied by the user does not have any dots
+in it, a default domain is appended to the end. This domain is usually
+defined in the <B>/etc/resolv.conf</B> file. If not, it is derived by
+taking the local hostname and taking everything after its first dot.
+<P>
+
+
+The user can override this, and specify a different default domain,
+by defining it in the environment variable <I>LOCALDOMAIN</I>.
+<P>
+
+
+In addition, the user can supply his own single-word abbreviations
+for host names. They should be in a file consisting of one line per
+abbreviation. Each line contains an abbreviation, white space, and
+then the fully qualified host name. The name of this file must be
+specified in the environment variable <I>HOSTALIASES</I>.
+<A NAME="lbAW">&nbsp;</A>
+<H2>SPECIAL CONSIDERATIONS</H2>
+
+The complete set of resource record information for a domain name
+is available from an authoritative nameserver only. Therefore,
+if you query another server with the &quot;-a&quot; option, only a subset
+of the data may be presented, since this option asks for any data
+that the latter server currently knows about, not all data that
+may possibly exist.  Note that the &quot;-v&quot; option shows whether an
+answer is authoritative or not.
+<P>
+
+When listing a zone with the &quot;-l&quot; option, information will be fetched
+from authoritative nameservers for that zone. This is implemented by
+doing a complete zone transfer and then filtering out the information
+that you have asked for.
+Note that direct contact with such nameservers must be possible for
+this option to work.
+This option should be used with caution. Servers may be configured
+to refuse zone transfers if they are flooded with requests.
+<A NAME="lbAX">&nbsp;</A>
+<H2>RELATED DOCUMENTATION</H2>
+
+rfc819, Domain naming convention for internet applications
+<BR>
+
+rfc883, Domain names - implementation and specification
+<BR>
+
+rfc920, Domain requirements
+<BR>
+
+rfc952, DOD Internet host table specification
+<BR>
+
+rfc974, Mail routing and the domain system
+<BR>
+
+rfc1032, Domain administrators guide
+<BR>
+
+rfc1033, Domain administrators operations guide
+<BR>
+
+rfc1034, Domain names - concepts and facilities
+<BR>
+
+rfc1035, Domain names - implementation and specification
+<BR>
+
+rfc1101, DNS encoding of network names and other types
+<BR>
+
+rfc1122, Requirements for Internet hosts - comm. layers
+<BR>
+
+rfc1123, Requirements for Internet hosts - application
+<BR>
+
+rfc1183, New DNS RR definitions
+<BR>
+
+rfc1348, DNS NSAP RRs
+<BR>
+
+rfc1535, A security problem and proposed correction
+<BR>
+
+rfc1536, Common DNS implementation errors
+<BR>
+
+rfc1537, Common DNS data file configuration errors
+<BR>
+
+rfc1591, Domain Name System structure and delegation
+<BR>
+
+rfc1597, Address allocation for private internets
+<BR>
+
+rfc1627, Network 10 considered harmful
+<BR>
+
+rfc1637, DNS NSAP resource records
+<BR>
+
+rfc1664, Using DNS to distribute X.400 address mappings
+<BR>
+
+rfc1700, Assigned numbers
+<BR>
+
+rfc1706, DNS NSAP resource records
+<BR>
+
+rfc1712, DNS encoding of geographical location (GPOS)
+<BR>
+
+rfc1713, Tools for DNS debugging
+<BR>
+
+rfc1794, DNS support for load balancing
+<BR>
+
+rfc1876, Expressing location information in the DNS (LOC)
+<BR>
+
+rfc1884, IP v6 addressing architecture
+<BR>
+
+rfc1886, DNS extensions to support IP v6 (AAAA)
+<BR>
+
+rfc1912, Common DNS operational and configuration errors
+<BR>
+
+rfc1982, Serial number arithmetic
+<BR>
+
+rfc1995, Incremental zone transfer in DNS (IXFR)
+<BR>
+
+rfc1996, Prompt notification of zone changes
+<BR>
+
+rfc2010, Operational criteria for root nameservers
+<BR>
+
+rfc2052, Specification of location of services (SRV)
+<BR>
+
+rfc2065, DNS security extensions (KEY/SIG/NXT)
+<BR>
+
+rfc2136, Dynamic updates in the DNS
+<BR>
+
+rfc2137, Secure DNS dynamic update
+<BR>
+
+rfc2163, Using DNS to distribute global address mapping (PX)
+<BR>
+
+rfc2168, Resolution of Uniform Resource Identifiers (NAPTR)
+<BR>
+
+rfc2181, Clarifications to the DNS specification
+<BR>
+
+rfc2230, Key exchange delegation record for the DNS (KX)
+<BR>
+
+rfc2308, Negative cacheing of DNS queries
+<BR>
+
+rfc2317, Classless in-addr.arpa delegation
+<BR>
+
+rfc2535, DNS security extensions (KEY/SIG/NXT)
+<BR>
+
+rfc2538, Storing certificates in the DNS (CERT)
+<BR>
+
+rfc2541, DNS security operational considerations
+<BR>
+
+rfc2671, Extension mechanisms for DNS (OPT)
+<BR>
+
+rfc2782, Specifying the location of services (SRV)
+<A NAME="lbAY">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+This program is originally from Rutgers University.
+<BR>
+
+Rewritten by Eric Wassenaar, NIKHEF, &lt;<A HREF="mailto:e07@nikhef.nl">e07@nikhef.nl</A>&gt;
+<A NAME="lbAZ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man8/named.8.php">named</A>(8), <A HREF="../man5/resolv.conf.5.php">resolv.conf</A>(5), <A HREF="../man3/resolver.3.php">resolver</A>(3)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS </A><DD>
+<DT><A HREF="#lbAD">OPTION SYNTAX</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION </A><DD>
+<DT><A HREF="#lbAF">ARGUMENTS</A><DD>
+<DL>
+<DT><A HREF="#lbAG">EXTENDED SYNTAX</A><DD>
+<DT><A HREF="#lbAH">OPTIONS</A><DD>
+<DT><A HREF="#lbAI">SPECIAL MODES</A><DD>
+<DT><A HREF="#lbAJ">LISTING OPTIONS</A><DD>
+<DT><A HREF="#lbAK">COMMON OPTIONS</A><DD>
+<DT><A HREF="#lbAL">OTHER OPTIONS</A><DD>
+<DT><A HREF="#lbAM">SPECIAL OPTIONS</A><DD>
+<DT><A HREF="#lbAN">DEFAULT OPTIONS</A><DD>
+</DL>
+<DT><A HREF="#lbAO">QUERYTYPES</A><DD>
+<DT><A HREF="#lbAP">EXAMPLES</A><DD>
+<DT><A HREF="#lbAQ">DIAGNOSTICS</A><DD>
+<DL>
+<DT><A HREF="#lbAR">FAILURE MESSAGES</A><DD>
+<DT><A HREF="#lbAS">WARNING AND ERROR MESSAGES</A><DD>
+</DL>
+<DT><A HREF="#lbAT">EXIT STATUS</A><DD>
+<DT><A HREF="#lbAU">ENVIRONMENT</A><DD>
+<DL>
+<DT><A HREF="#lbAV">CUSTOMIZING HOST NAME LOOKUP</A><DD>
+</DL>
+<DT><A HREF="#lbAW">SPECIAL CONSIDERATIONS</A><DD>
+<DT><A HREF="#lbAX">RELATED DOCUMENTATION</A><DD>
+<DT><A HREF="#lbAY">AUTHOR</A><DD>
+<DT><A HREF="#lbAZ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

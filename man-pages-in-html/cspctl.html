@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>cspctl</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>cspctl</H1>
+Section: User Commands  (1)<BR>Updated: April 27, 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cspctl - Sound Blaster 16 ASP/CSP control program
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cspctl</B>
+
+command [-options] &lt;filename&gt;
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>cspctl</B>
+
+is a simple CSP microcode loader for Crative Sound Blaster 16ASP and some Sound Blaster AWE32 sound cards with Creative Signal Processor (CSP) chip (CT1748A) installed.
+<B>cspctl</B>
+
+can also be used as a post-install function to
+<I>snd-sb16-csp</I>
+
+module to load default codec at module installation. If CSP chip is succesfully detected and initialized, it will be installed as a hardware dependant device
+<I>hwC0D2</I>
+
+into /dev/snd directory. Currently, following codecs can be loaded to CSP device:
+<DL COMPACT>
+<DT><DD>
+
+<PRE>
+
+<B>wfm0001a.csp</B>    QSound decoder
+<B>wfm0006a.csp</B>    A-law codec
+<B>wfm0007a.csp</B>    u-law codec
+<B>wfm0011a.csp</B>    IMA ADPCM codec (distorted output for IMA test files)
+<B>wfm0200a.csp</B>    Creative ADPCM codec (sounds like Intel/DVI IMA ADPCM compatible)
+<B>wfm0202a.csp</B>    Fast Speech 8 codec
+<B>wfm0203a.csp</B>    Fast Speech 10 codec
+</PRE>
+
+</DL>
+<P>
+
+These codecs are not yet supported by ALSA:
+<DL COMPACT>
+<DT><DD>
+
+
+<B>wfm0201a.csp</B><TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT>Text2Speech decoder<BR>
+
+
+</DL>
+<P>
+
+Qsound microcode file has
+<B>four functions,</B>
+
+each function is a decoder for different sample rate. Rates for QSound functions #1, #2, #3 and #4 are 44100, 22050, 11025 and 8000Hz respectively. IMA ADPCM and FastSpeech codecs are formed of
+<B>two functions,</B>
+
+the first one is for capture and the second one is for playback. A-law and u-law codecs have only
+<B>one function.</B>
+
+To load for example function #2 from QSound microcode file (decoder for 22050Hz), run as follows:
+<DL COMPACT>
+<DT><DD>
+% cspctl load -f 2 -d QSound wfm0001a.csp
+</DL>
+<P>
+
+After successful loading, /proc/asound/SB16/cspD2 will show:
+<DL COMPACT>
+<DT><DD>
+
+<PRE>
+Creative Signal Processor [v1.0]
+State: -x--L
+Codec: QSound [func #2]
+Sample rates: 22050Hz
+QSound decoder disabled
+</PRE>
+
+</DL>
+<P>
+
+With QSound decoder microcode loaded, all simple PCM file formats can be played with QSound 180 degree positioning applied. QSound element is dynamically added into mixer structure as
+<I>3DEffect1-space</I>
+
+element. It will only show if support for CSP has been compiled into ALSA drivers, CSP chip has been found, and QSound codec is loaded into CSP. When enabled, QSound position can be dynamically changed by mixer slider, and proc interface should follow the state of CSP chip and its current QSound position:
+<DL COMPACT>
+<DT><DD>
+
+<PRE>
+Creative Signal Processor [v1.0]
+State: Qx-RL
+Codec: QSound [func #2]
+Sample rates: 22050Hz
+QSound decoder enabled
+Processing 16bit mono PCM samples
+Qsound position: left = 0x9, right = 0x9
+</PRE>
+
+</DL>
+<P>
+
+Driver supports autoloading of u-Law, A-Law and Ima-ADPCM hardware codecs. Autoloading is active only when there is no microcode loaded to CSP, and there is no need to preload appropriate *.csp files. To unload manually loaded microcode, you should run
+<DL COMPACT>
+<DT><DD>
+% cspctl unload
+</DL>
+<P>
+
+If hardware codec microcode has been manually loaded, then CSP will support only loaded PCM format and autoloading will be disabled. In such case, proc interface will show loaded codec properties:
+<DL COMPACT>
+<DT><DD>
+
+<PRE>
+Creative Signal Processor [v1.0]
+State: -x--L
+Codec: IMA-ADPCM [func #2]
+Sample rates: All
+PCM format ID: 0x400000 (16bit/-) [mono/stereo] [playback/-]
+</PRE>
+
+</DL>
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+<DL COMPACT>
+<DT><B>load</B>
+
+<DD>
+Load microcode from filename to CSP.
+<DT><B>unload</B>
+
+<DD>
+Unload microcode from CSP.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-h, --help</B>
+
+<DD>
+Display a short help.
+<DT><B>-c card</B>
+
+<DD>
+Select a card number. Option defaults to 0.
+<DT><B>-f function</B>
+
+<DD>
+Select a function from microcode file. Option defaults to 1.
+<DT><B>-d description</B>
+
+<DD>
+Optional microcode description string.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Uros Bizjak &lt;<A HREF="mailto:uros@kss-loka.si">uros@kss-loka.si</A>&gt;.
+<P>
+<P>
+<P>
+<P>
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMANDS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

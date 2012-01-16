@@ -1,0 +1,2075 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLPACKTUT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLPACKTUT</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlpacktut - tutorial on <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT>
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+<TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT> are two functions for transforming data according
+to a user-defined template, between the guarded way Perl stores values
+and some well-defined representation as might be required in the 
+environment of a Perl program. Unfortunately, they're also two of 
+the most misunderstood and most often overlooked functions that Perl
+provides. This tutorial will demystify them for you.
+<A NAME="lbAD">&nbsp;</A>
+<H2>The Basic Principle</H2>
+
+<A NAME="ixAAD"></A>
+Most programming languages don't shelter the memory where variables are
+stored. In C, for instance, you can take the address of some variable,
+and the <TT>&quot;sizeof&quot;</TT> operator tells you how many bytes are allocated to
+the variable. Using the address and the size, you may access the storage
+to your heart's content.
+<P>
+
+In Perl, you just can't access memory at random, but the structural and
+representational conversion provided by <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT> is an
+excellent alternative. The <TT>&quot;pack&quot;</TT> function converts values to a byte
+sequence containing representations according to a given specification,
+the so-called ``template'' argument. <TT>&quot;unpack&quot;</TT> is the reverse process,
+deriving some values from the contents of a string of bytes. (Be cautioned,
+however, that not all that has been packed together can be neatly unpacked - 
+a very common experience as seasoned travellers are likely to confirm.)
+<P>
+
+Why, you may ask, would you need a chunk of memory containing some values
+in binary representation? One good reason is input and output accessing
+some file, a device, or a network connection, whereby this binary
+representation is either forced on you or will give you some benefit
+in processing. Another cause is passing data to some system call that
+is not available as a Perl function: <TT>&quot;syscall&quot;</TT> requires you to provide
+parameters stored in the way it happens in a C program. Even text processing 
+(as shown in the next section) may be simplified with judicious usage 
+of these two functions.
+<P>
+
+To see how (un)packing works, we'll start with a simple template
+code where the conversion is in low gear: between the contents of a byte
+sequence and a string of hexadecimal digits. Let's use <TT>&quot;unpack&quot;</TT>, since
+this is likely to remind you of a dump program, or some desperate last
+message unfortunate programs are wont to throw at you before they expire
+into the wild blue yonder. Assuming that the variable <TT>$mem</TT> holds a 
+sequence of bytes that we'd like to inspect without assuming anything 
+about its meaning, we can write
+<P>
+
+
+
+<PRE>
+   my( $hex ) = unpack( 'H*', $mem );
+   print &quot;$hex\n&quot;;
+
+</PRE>
+
+
+<P>
+
+whereupon we might see something like this, with each pair of hex digits
+corresponding to a byte:
+<P>
+
+
+
+<PRE>
+   41204d414e204120504c414e20412043414e414c2050414e414d41
+
+</PRE>
+
+
+<P>
+
+What was in this chunk of memory? Numbers, characters, or a mixture of
+both? Assuming that we're on a computer where <FONT SIZE="-1">ASCII</FONT> (or some similar)
+encoding is used: hexadecimal values in the range <TT>0x40</TT> - <TT>0x5A</TT>
+indicate an uppercase letter, and <TT>0x20</TT> encodes a space. So we might
+assume it is a piece of text, which some are able to read like a tabloid;
+but others will have to get hold of an <FONT SIZE="-1">ASCII</FONT> table and relive that
+firstgrader feeling. Not caring too much about which way to read this,
+we note that <TT>&quot;unpack&quot;</TT> with the template code <TT>&quot;H&quot;</TT> converts the contents
+of a sequence of bytes into the customary hexadecimal notation. Since
+``a sequence of'' is a pretty vague indication of quantity, <TT>&quot;H&quot;</TT> has been
+defined to convert just a single hexadecimal digit unless it is followed
+by a repeat count. An asterisk for the repeat count means to use whatever
+remains.
+<P>
+
+The inverse operation - packing byte contents from a string of hexadecimal
+digits - is just as easily written. For instance:
+<P>
+
+
+
+<PRE>
+   my $s = pack( 'H2' x 10, map { &quot;3$_&quot; } ( 0..9 ) );
+   print &quot;$s\n&quot;;
+
+</PRE>
+
+
+<P>
+
+Since we feed a list of ten 2-digit hexadecimal strings to <TT>&quot;pack&quot;</TT>, the
+pack template should contain ten pack codes. If this is run on a computer
+with <FONT SIZE="-1">ASCII</FONT> character coding, it will print <TT>0123456789</TT>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Packing Text</H2>
+
+<A NAME="ixAAE"></A>
+Let's suppose you've got to read in a data file like this:
+<P>
+
+
+
+<PRE>
+    Date      |Description                | Income|Expenditure
+    01/24/2001 Ahmed's Camel Emporium                  1147.99
+    01/28/2001 Flea spray                                24.99
+    01/29/2001 Camel rides to tourists      235.00
+
+</PRE>
+
+
+<P>
+
+How do we do it? You might think first to use <TT>&quot;split&quot;</TT>; however, since
+<TT>&quot;split&quot;</TT> collapses blank fields, you'll never know whether a record was
+income or expenditure. Oops. Well, you could always use <TT>&quot;substr&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    while (&lt;&gt;) { 
+        my $date   = substr($_,  0, 11);
+        my $desc   = substr($_, 12, 27);
+        my $income = substr($_, 40,  7);
+        my $expend = substr($_, 52,  7);
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+It's not really a barrel of laughs, is it? In fact, it's worse than it
+may seem; the eagle-eyed may notice that the first field should only be
+10 characters wide, and the error has propagated right through the other
+numbers - which we've had to count by hand. So it's error-prone as well
+as horribly unfriendly.
+<P>
+
+Or maybe we could use regular expressions:
+<P>
+
+
+
+<PRE>
+    while (&lt;&gt;) { 
+        my($date, $desc, $income, $expend) = 
+            m|(\d\d/\d\d/\d{4}) (.{27}) (.{7})(.*)|;
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+Urgh. Well, it's a bit better, but - well, would you want to maintain
+that?
+<P>
+
+Hey, isn't Perl supposed to make this sort of thing easy? Well, it does,
+if you use the right tools. <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT> are designed to help
+you out when dealing with fixed-width data like the above. Let's have a
+look at a solution with <TT>&quot;unpack&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    while (&lt;&gt;) { 
+        my($date, $desc, $income, $expend) = unpack(&quot;A10xA27xA7A*&quot;, $_);
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+That looks a bit nicer; but we've got to take apart that weird template.
+Where did I pull that out of? 
+<P>
+
+<FONT SIZE="-1">OK</FONT>, let's have a look at some of our data again; in fact, we'll include
+the headers, and a handy ruler so we can keep track of where we are.
+<P>
+
+
+
+<PRE>
+             1         2         3         4         5        
+    1234567890123456789012345678901234567890123456789012345678
+    Date      |Description                | Income|Expenditure
+    01/28/2001 Flea spray                                24.99
+    01/29/2001 Camel rides to tourists      235.00
+
+</PRE>
+
+
+<P>
+
+From this, we can see that the date column stretches from column 1 to
+column 10 - ten characters wide. The <TT>&quot;pack&quot;</TT>-ese for ``character'' is
+<TT>&quot;A&quot;</TT>, and ten of them are <TT>&quot;A10&quot;</TT>. So if we just wanted to extract the
+dates, we could say this:
+<P>
+
+
+
+<PRE>
+    my($date) = unpack(&quot;A10&quot;, $_);
+
+</PRE>
+
+
+<P>
+
+<FONT SIZE="-1">OK</FONT>, what's next? Between the date and the description is a blank column;
+we want to skip over that. The <TT>&quot;x&quot;</TT> template means ``skip forward'', so we
+want one of those. Next, we have another batch of characters, from 12 to
+38. That's 27 more characters, hence <TT>&quot;A27&quot;</TT>. (Don't make the fencepost
+error - there are 27 characters between 12 and 38, not 26. Count 'em!)
+<P>
+
+Now we skip another character and pick up the next 7 characters:
+<P>
+
+
+
+<PRE>
+    my($date,$description,$income) = unpack(&quot;A10xA27xA7&quot;, $_);
+
+</PRE>
+
+
+<P>
+
+Now comes the clever bit. Lines in our ledger which are just income and
+not expenditure might end at column 46. Hence, we don't want to tell our
+<TT>&quot;unpack&quot;</TT> pattern that we <B>need</B> to find another 12 characters; we'll
+just say ``if there's anything left, take it''. As you might guess from
+regular expressions, that's what the <TT>&quot;*&quot;</TT> means: ``use everything
+remaining''.
+<DL COMPACT>
+<DT>*<DD>
+Be warned, though, that unlike regular expressions, if the <TT>&quot;unpack&quot;</TT>
+template doesn't match the incoming data, Perl will scream and die.
+</DL>
+<P>
+
+Hence, putting it all together:
+<P>
+
+
+
+<PRE>
+    my($date,$description,$income,$expend) = unpack(&quot;A10xA27xA7xA*&quot;, $_);
+
+</PRE>
+
+
+<P>
+
+Now, that's our data parsed. I suppose what we might want to do now is
+total up our income and expenditure, and add another line to the end of
+our ledger - in the same format - saying how much we've brought in and
+how much we've spent:
+<P>
+
+
+
+<PRE>
+    while (&lt;&gt;) {
+        my($date, $desc, $income, $expend) = unpack(&quot;A10xA27xA7xA*&quot;, $_);
+        $tot_income += $income;
+        $tot_expend += $expend;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $tot_income = sprintf(&quot;%.2f&quot;, $tot_income); # Get them into 
+    $tot_expend = sprintf(&quot;%.2f&quot;, $tot_expend); # &quot;financial&quot; format
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $date = POSIX::strftime(&quot;%m/%d/%Y&quot;, localtime);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # OK, let's go:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    print pack(&quot;A10xA27xA7xA*&quot;, $date, &quot;Totals&quot;, $tot_income, $tot_expend);
+
+</PRE>
+
+
+<P>
+
+Oh, hmm. That didn't quite work. Let's see what happened:
+<P>
+
+
+
+<PRE>
+    01/24/2001 Ahmed's Camel Emporium                   1147.99
+    01/28/2001 Flea spray                                 24.99
+    01/29/2001 Camel rides to tourists     1235.00
+    03/23/2001Totals                     1235.001172.98
+
+</PRE>
+
+
+<P>
+
+<FONT SIZE="-1">OK</FONT>, it's a start, but what happened to the spaces? We put <TT>&quot;x&quot;</TT>, didn't
+we? Shouldn't it skip forward? Let's look at what ``pack'' in perlfunc says:
+<P>
+
+
+
+<PRE>
+    x   A null byte.
+
+</PRE>
+
+
+<P>
+
+Urgh. No wonder. There's a big difference between ``a null byte'',
+character zero, and ``a space'', character 32. Perl's put something
+between the date and the description - but unfortunately, we can't see
+it! 
+<P>
+
+What we actually need to do is expand the width of the fields. The <TT>&quot;A&quot;</TT>
+format pads any non-existent characters with spaces, so we can use the
+additional spaces to line up our fields, like this:
+<P>
+
+
+
+<PRE>
+    print pack(&quot;A11 A28 A8 A*&quot;, $date, &quot;Totals&quot;, $tot_income, $tot_expend);
+
+</PRE>
+
+
+<P>
+
+(Note that you can put spaces in the template to make it more readable,
+but they don't translate to spaces in the output.) Here's what we got
+this time:
+<P>
+
+
+
+<PRE>
+    01/24/2001 Ahmed's Camel Emporium                   1147.99
+    01/28/2001 Flea spray                                 24.99
+    01/29/2001 Camel rides to tourists     1235.00
+    03/23/2001 Totals                      1235.00 1172.98
+
+</PRE>
+
+
+<P>
+
+That's a bit better, but we still have that last column which needs to
+be moved further over. There's an easy way to fix this up:
+unfortunately, we can't get <TT>&quot;pack&quot;</TT> to right-justify our fields, but we
+can get <TT>&quot;sprintf&quot;</TT> to do it:
+<P>
+
+
+
+<PRE>
+    $tot_income = sprintf(&quot;%.2f&quot;, $tot_income); 
+    $tot_expend = sprintf(&quot;%12.2f&quot;, $tot_expend);
+    $date = POSIX::strftime(&quot;%m/%d/%Y&quot;, localtime); 
+    print pack(&quot;A11 A28 A8 A*&quot;, $date, &quot;Totals&quot;, $tot_income, $tot_expend);
+
+</PRE>
+
+
+<P>
+
+This time we get the right answer:
+<P>
+
+
+
+<PRE>
+    01/28/2001 Flea spray                                 24.99
+    01/29/2001 Camel rides to tourists     1235.00
+    03/23/2001 Totals                      1235.00      1172.98
+
+</PRE>
+
+
+<P>
+
+So that's how we consume and produce fixed-width data. Let's recap what
+we've seen of <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT> so far:
+<DL COMPACT>
+<DT>*<DD>
+Use <TT>&quot;pack&quot;</TT> to go from several pieces of data to one fixed-width
+version; use <TT>&quot;unpack&quot;</TT> to turn a fixed-width-format string into several
+pieces of data. 
+<DT>*<DD>
+The pack format <TT>&quot;A&quot;</TT> means ``any character''; if you're <TT>&quot;pack&quot;</TT>ing and
+you've run out of things to pack, <TT>&quot;pack&quot;</TT> will fill the rest up with
+spaces.
+<DT>*<DD>
+<TT>&quot;x&quot;</TT> means ``skip a byte'' when <TT>&quot;unpack&quot;</TT>ing; when <TT>&quot;pack&quot;</TT>ing, it means
+``introduce a null byte'' - that's probably not what you mean if you're
+dealing with plain text.
+<DT>*<DD>
+You can follow the formats with numbers to say how many characters
+should be affected by that format: <TT>&quot;A12&quot;</TT> means ``take 12 characters'';
+<TT>&quot;x6&quot;</TT> means ``skip 6 bytes'' or ``character 0, 6 times''.
+<DT>*<DD>
+Instead of a number, you can use <TT>&quot;*&quot;</TT> to mean ``consume everything else
+left''. 
+
+
+<P>
+
+
+<B>Warning</B>: when packing multiple pieces of data, <TT>&quot;*&quot;</TT> only means
+``consume all of the current piece of data''. That's to say
+
+
+<P>
+
+
+
+
+<PRE>
+    pack(&quot;A*A*&quot;, $one, $two)
+
+</PRE>
+
+
+
+
+<P>
+
+
+packs all of <TT>$one</TT> into the first <TT>&quot;A*&quot;</TT> and then all of <TT>$two</TT> into
+the second. This is a general principle: each format character
+corresponds to one piece of data to be <TT>&quot;pack&quot;</TT>ed.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Packing Numbers</H2>
+
+<A NAME="ixAAF"></A>
+So much for textual data. Let's get onto the meaty stuff that <TT>&quot;pack&quot;</TT>
+and <TT>&quot;unpack&quot;</TT> are best at: handling binary formats for numbers. There is,
+of course, not just one binary format  - life would be too simple - but
+Perl will do all the finicky labor for you.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Integers</H2>
+
+<A NAME="ixAAG"></A>
+Packing and unpacking numbers implies conversion to and from some
+<I>specific</I> binary representation. Leaving floating point numbers
+aside for the moment, the salient properties of any such representation
+are:
+<DL COMPACT>
+<DT>*<DD>
+the number of bytes used for storing the integer,
+<DT>*<DD>
+whether the contents are interpreted as a signed or unsigned number,
+<DT>*<DD>
+the byte ordering: whether the first byte is the least or most
+significant byte (or: little-endian or big-endian, respectively).
+</DL>
+<P>
+
+So, for instance, to pack 20302 to a signed 16 bit integer in your
+computer's representation you write
+<P>
+
+
+
+<PRE>
+   my $ps = pack( 's', 20302 );
+
+</PRE>
+
+
+<P>
+
+Again, the result is a string, now containing 2 bytes. If you print 
+this string (which is, generally, not recommended) you might see
+<TT>&quot;ON&quot;</TT> or <TT>&quot;NO&quot;</TT> (depending on your system's byte ordering) - or something
+entirely different if your computer doesn't use <FONT SIZE="-1">ASCII</FONT> character encoding.
+Unpacking <TT>$ps</TT> with the same template returns the original integer value:
+<P>
+
+
+
+<PRE>
+   my( $s ) = unpack( 's', $ps );
+
+</PRE>
+
+
+<P>
+
+This is true for all numeric template codes. But don't expect miracles:
+if the packed value exceeds the allotted byte capacity, high order bits
+are silently discarded, and unpack certainly won't be able to pull them
+back out of some magic hat. And, when you pack using a signed template
+code such as <TT>&quot;s&quot;</TT>, an excess value may result in the sign bit
+getting set, and unpacking this will smartly return a negative value.
+<P>
+
+16 bits won't get you too far with integers, but there is <TT>&quot;l&quot;</TT> and <TT>&quot;L&quot;</TT>
+for signed and unsigned 32-bit integers. And if this is not enough and
+your system supports 64 bit integers you can push the limits much closer
+to infinity with pack codes <TT>&quot;q&quot;</TT> and <TT>&quot;Q&quot;</TT>. A notable exception is provided
+by pack codes <TT>&quot;i&quot;</TT> and <TT>&quot;I&quot;</TT> for signed and unsigned integers of the 
+``local custom'' variety: Such an integer will take up as many bytes as
+a local C compiler returns for <TT>&quot;sizeof(int)&quot;</TT>, but it'll use <I>at least</I>
+32 bits.
+<P>
+
+Each of the integer pack codes <TT>&quot;sSlLqQ&quot;</TT> results in a fixed number of bytes,
+no matter where you execute your program. This may be useful for some 
+applications, but it does not provide for a portable way to pass data 
+structures between Perl and C programs (bound to happen when you call 
+<FONT SIZE="-1">XS</FONT> extensions or the Perl function <TT>&quot;syscall&quot;</TT>), or when you read or
+write binary files. What you'll need in this case are template codes that
+depend on what your local C compiler compiles when you code <TT>&quot;short&quot;</TT> or
+<TT>&quot;unsigned long&quot;</TT>, for instance. These codes and their corresponding
+byte lengths are shown in the table below.  Since the C standard leaves
+much leeway with respect to the relative sizes of these data types, actual
+values may vary, and that's why the values are given as expressions in
+C and Perl. (If you'd like to use values from <TT>%Config</TT> in your program
+you have to import it with <TT>&quot;use Config&quot;</TT>.)
+<P>
+
+
+
+<PRE>
+   signed unsigned  byte length in C   byte length in Perl       
+     s!     S!      sizeof(short)      $Config{shortsize}
+     i!     I!      sizeof(int)        $Config{intsize}
+     l!     L!      sizeof(long)       $Config{longsize}
+     q!     Q!      sizeof(long long)  $Config{longlongsize}
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;i!&quot;</TT> and <TT>&quot;I!&quot;</TT> codes aren't different from <TT>&quot;i&quot;</TT> and <TT>&quot;I&quot;</TT>; they are
+tolerated for completeness' sake.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Unpacking a Stack Frame</H2>
+
+<A NAME="ixAAH"></A>
+Requesting a particular byte ordering may be necessary when you work with
+binary data coming from some specific architecture whereas your program could
+run on a totally different system. As an example, assume you have 24 bytes
+containing a stack frame as it happens on an Intel 8086:
+<P>
+
+
+
+<PRE>
+      +---------+        +----+----+               +---------+
+ TOS: |   IP    |  TOS+4:| FL | FH | FLAGS  TOS+14:|   SI    |
+      +---------+        +----+----+               +---------+
+      |   CS    |        | AL | AH | AX            |   DI    |
+      +---------+        +----+----+               +---------+
+                         | BL | BH | BX            |   BP    |
+                         +----+----+               +---------+
+                         | CL | CH | CX            |   DS    |
+                         +----+----+               +---------+
+                         | DL | DH | DX            |   ES    |
+                         +----+----+               +---------+
+
+</PRE>
+
+
+<P>
+
+First, we note that this time-honored 16-bit <FONT SIZE="-1">CPU</FONT> uses little-endian order,
+and that's why the low order byte is stored at the lower address. To
+unpack such a (signed) short we'll have to use code <TT>&quot;v&quot;</TT>. A repeat
+count unpacks all 12 shorts:
+<P>
+
+
+
+<PRE>
+   my( $ip, $cs, $flags, $ax, $bx, $cd, $dx, $si, $di, $bp, $ds, $es ) =
+     unpack( 'v12', $frame );
+
+</PRE>
+
+
+<P>
+
+Alternatively, we could have used <TT>&quot;C&quot;</TT> to unpack the individually
+accessible byte registers <FONT SIZE="-1">FL</FONT>, <FONT SIZE="-1">FH</FONT>, <FONT SIZE="-1">AL</FONT>, <FONT SIZE="-1">AH</FONT>, etc.:
+<P>
+
+
+
+<PRE>
+   my( $fl, $fh, $al, $ah, $bl, $bh, $cl, $ch, $dl, $dh ) =
+     unpack( 'C10', substr( $frame, 4, 10 ) );
+
+</PRE>
+
+
+<P>
+
+It would be nice if we could do this in one fell swoop: unpack a short,
+back up a little, and then unpack 2 bytes. Since Perl <I>is</I> nice, it
+proffers the template code <TT>&quot;X&quot;</TT> to back up one byte. Putting this all
+together, we may now write:
+<P>
+
+
+
+<PRE>
+   my( $ip, $cs,
+       $flags,$fl,$fh,
+       $ax,$al,$ah, $bx,$bl,$bh, $cx,$cl,$ch, $dx,$dl,$dh, 
+       $si, $di, $bp, $ds, $es ) =
+   unpack( 'v2' . ('vXXCC' x 5) . 'v5', $frame );
+
+</PRE>
+
+
+<P>
+
+(The clumsy construction of the template can be avoided - just read on!)  
+<P>
+
+We've taken some pains to construct the template so that it matches
+the contents of our frame buffer. Otherwise we'd either get undefined values,
+or <TT>&quot;unpack&quot;</TT> could not unpack all. If <TT>&quot;pack&quot;</TT> runs out of items, it will
+supply null strings (which are coerced into zeroes whenever the pack code
+says so).
+<A NAME="lbAI">&nbsp;</A>
+<H2>How to Eat an Egg on a Net</H2>
+
+<A NAME="ixAAI"></A>
+The pack code for big-endian (high order byte at the lowest address) is
+<TT>&quot;n&quot;</TT> for 16 bit and <TT>&quot;N&quot;</TT> for 32 bit integers. You use these codes
+if you know that your data comes from a compliant architecture, but,
+surprisingly enough, you should also use these pack codes if you
+exchange binary data, across the network, with some system that you
+know next to nothing about. The simple reason is that this
+order has been chosen as the <I>network order</I>, and all standard-fearing
+programs ought to follow this convention. (This is, of course, a stern
+backing for one of the Lilliputian parties and may well influence the
+political development there.) So, if the protocol expects you to send
+a message by sending the length first, followed by just so many bytes,
+you could write:
+<P>
+
+
+
+<PRE>
+   my $buf = pack( 'N', length( $msg ) ) . $msg;
+
+</PRE>
+
+
+<P>
+
+or even:
+<P>
+
+
+
+<PRE>
+   my $buf = pack( 'NA*', length( $msg ), $msg );
+
+</PRE>
+
+
+<P>
+
+and pass <TT>$buf</TT> to your send routine. Some protocols demand that the
+count should include the length of the count itself: then just add 4
+to the data length. (But make sure to read ``Lengths and Widths'' before
+you really code this!)
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Floating point Numbers</H2>
+
+<A NAME="ixAAJ"></A>
+For packing floating point numbers you have the choice between the
+pack codes <TT>&quot;f&quot;</TT> and <TT>&quot;d&quot;</TT> which pack into (or unpack from) single-precision or
+double-precision representation as it is provided by your system. (There
+is no such thing as a network representation for reals, so if you want
+to send your real numbers across computer boundaries, you'd better stick
+to <FONT SIZE="-1">ASCII</FONT> representation, unless you're absolutely sure what's on the other
+end of the line.)
+<A NAME="lbAK">&nbsp;</A>
+<H2>Exotic Templates</H2>
+
+<A NAME="ixAAK"></A>
+<A NAME="lbAL">&nbsp;</A>
+<H2>Bit Strings</H2>
+
+<A NAME="ixAAL"></A>
+Bits are the atoms in the memory world. Access to individual bits may
+have to be used either as a last resort or because it is the most
+convenient way to handle your data. Bit string (un)packing converts
+between strings containing a series of <TT>0</TT> and <TT>1</TT> characters and
+a sequence of bytes each containing a group of 8 bits. This is almost
+as simple as it sounds, except that there are two ways the contents of
+a byte may be written as a bit string. Let's have a look at an annotated
+byte:
+<P>
+
+
+
+<PRE>
+     7 6 5 4 3 2 1 0
+   +-----------------+
+   | 1 0 0 0 1 1 0 0 |
+   +-----------------+
+    MSB           LSB
+
+</PRE>
+
+
+<P>
+
+It's egg-eating all over again: Some think that as a bit string this should
+be written ``10001100'' i.e. beginning with the most significant bit, others
+insist on ``00110001''. Well, Perl isn't biased, so that's why we have two bit
+string codes:
+<P>
+
+
+
+<PRE>
+   $byte = pack( 'B8', '10001100' ); # start with MSB
+   $byte = pack( 'b8', '00110001' ); # start with LSB
+
+</PRE>
+
+
+<P>
+
+It is not possible to pack or unpack bit fields - just integral bytes.
+<TT>&quot;pack&quot;</TT> always starts at the next byte boundary and ``rounds up'' to the
+next multiple of 8 by adding zero bits as required. (If you do want bit
+fields, there is ``vec'' in perlfunc. Or you could implement bit field 
+handling at the character string level, using split, substr, and
+concatenation on unpacked bit strings.)
+<P>
+
+To illustrate unpacking for bit strings, we'll decompose a simple
+status register (a ``-'' stands for a ``reserved'' bit):
+<P>
+
+
+
+<PRE>
+   +-----------------+-----------------+
+   | S Z - A - P - C | - - - - O D I T |
+   +-----------------+-----------------+
+    MSB           LSB MSB           LSB
+
+</PRE>
+
+
+<P>
+
+Converting these two bytes to a string can be done with the unpack 
+template <TT>'b16'</TT>. To obtain the individual bit values from the bit
+string we use <TT>&quot;split&quot;</TT> with the ``empty'' separator pattern which dissects
+into individual characters. Bit values from the ``reserved'' positions are
+simply assigned to <TT>&quot;undef&quot;</TT>, a convenient notation for ``I don't care where
+this goes''.
+<P>
+
+
+
+<PRE>
+   ($carry, undef, $parity, undef, $auxcarry, undef, $zero, $sign,
+    $trace, $interrupt, $direction, $overflow) =
+      split( //, unpack( 'b16', $status ) );
+
+</PRE>
+
+
+<P>
+
+We could have used an unpack template <TT>'b12'</TT> just as well, since the
+last 4 bits can be ignored anyway. 
+<A NAME="lbAM">&nbsp;</A>
+<H2>Uuencoding</H2>
+
+<A NAME="ixAAM"></A>
+Another odd-man-out in the template alphabet is <TT>&quot;u&quot;</TT>, which packs an
+``uuencoded string''. (``uu'' is short for Unix-to-Unix.) Chances are that
+you won't ever need this encoding technique which was invented to overcome
+the shortcomings of old-fashioned transmission mediums that do not support
+other than simple <FONT SIZE="-1">ASCII</FONT> data. The essential recipe is simple: Take three 
+bytes, or 24 bits. Split them into 4 six-packs, adding a space (0x20) to 
+each. Repeat until all of the data is blended. Fold groups of 4 bytes into 
+lines no longer than 60 and garnish them in front with the original byte count 
+(incremented by 0x20) and a <TT>&quot;\n&quot;</TT> at the end. - The <TT>&quot;pack&quot;</TT> chef will
+prepare this for you, a la minute, when you select pack code <TT>&quot;u&quot;</TT> on the menu:
+<P>
+
+
+
+<PRE>
+   my $uubuf = pack( 'u', $bindat );
+
+</PRE>
+
+
+<P>
+
+A repeat count after <TT>&quot;u&quot;</TT> sets the number of bytes to put into an
+uuencoded line, which is the maximum of 45 by default, but could be
+set to some (smaller) integer multiple of three. <TT>&quot;unpack&quot;</TT> simply ignores
+the repeat count.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Doing Sums</H2>
+
+<A NAME="ixAAN"></A>
+An even stranger template code is <TT>&quot;%&quot;</TT>&lt;<I>number</I>&gt;. First, because 
+it's used as a prefix to some other template code. Second, because it
+cannot be used in <TT>&quot;pack&quot;</TT> at all, and third, in <TT>&quot;unpack&quot;</TT>, doesn't return the
+data as defined by the template code it precedes. Instead it'll give you an
+integer of <I>number</I> bits that is computed from the data value by 
+doing sums. For numeric unpack codes, no big feat is achieved:
+<P>
+
+
+
+<PRE>
+    my $buf = pack( 'iii', 100, 20, 3 );
+    print unpack( '%32i3', $buf ), &quot;\n&quot;;  # prints 123
+
+</PRE>
+
+
+<P>
+
+For string values, <TT>&quot;%&quot;</TT> returns the sum of the byte values saving
+you the trouble of a sum loop with <TT>&quot;substr&quot;</TT> and <TT>&quot;ord&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    print unpack( '%32A*', &quot;\x01\x10&quot; ), &quot;\n&quot;;  # prints 17
+
+</PRE>
+
+
+<P>
+
+Although the <TT>&quot;%&quot;</TT> code is documented as returning a ``checksum'':
+don't put your trust in such values! Even when applied to a small number
+of bytes, they won't guarantee a noticeable Hamming distance.
+<P>
+
+In connection with <TT>&quot;b&quot;</TT> or <TT>&quot;B&quot;</TT>, <TT>&quot;%&quot;</TT> simply adds bits, and this can be put
+to good use to count set bits efficiently:
+<P>
+
+
+
+<PRE>
+    my $bitcount = unpack( '%32b*', $mask );
+
+</PRE>
+
+
+<P>
+
+And an even parity bit can be determined like this:
+<P>
+
+
+
+<PRE>
+    my $evenparity = unpack( '%1b*', $mask );
+
+</PRE>
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>Unicode</H2>
+
+<A NAME="ixAAO"></A>
+Unicode is a character set that can represent most characters in most of
+the world's languages, providing room for over one million different
+characters. Unicode 3.1 specifies 94,140 characters: The Basic Latin
+characters are assigned to the numbers 0 - 127. The Latin-1 Supplement with
+characters that are used in several European languages is in the next
+range, up to 255. After some more Latin extensions we find the character
+sets from languages using non-Roman alphabets, interspersed with a
+variety of symbol sets such as currency symbols, Zapf Dingbats or Braille.
+(You might want to visit <A HREF="http://www.unicode.org">www.unicode.org</A> for a look at some of
+them - my personal favourites are Telugu and Kannada.)
+<P>
+
+The Unicode character sets associates characters with integers. Encoding
+these numbers in an equal number of bytes would more than double the
+requirements for storing texts written in Latin alphabets.
+The <FONT SIZE="-1">UTF-8</FONT> encoding avoids this by storing the most common (from a western
+point of view) characters in a single byte while encoding the rarer
+ones in three or more bytes.
+<P>
+
+So what has this got to do with <TT>&quot;pack&quot;</TT>? Well, if you want to convert
+between a Unicode number and its <FONT SIZE="-1">UTF-8</FONT> representation you can do so by
+using template code <TT>&quot;U&quot;</TT>. As an example, let's produce the <FONT SIZE="-1">UTF-8</FONT>
+representation of the Euro currency symbol (code number 0x20AC):
+<P>
+
+
+
+<PRE>
+   $UTF8{Euro} = pack( 'U', 0x20AC );
+
+</PRE>
+
+
+<P>
+
+Inspecting <TT>$UTF8{Euro}</TT> shows that it contains 3 bytes: ``\xe2\x82\xac''. The
+round trip can be completed with <TT>&quot;unpack&quot;</TT>:
+<P>
+
+
+
+<PRE>
+   $Unicode{Euro} = unpack( 'U', $UTF8{Euro} );
+
+</PRE>
+
+
+<P>
+
+Usually you'll want to pack or unpack <FONT SIZE="-1">UTF-8</FONT> strings:
+<P>
+
+
+
+<PRE>
+   # pack and unpack the Hebrew alphabet
+   my $alefbet = pack( 'U*', 0x05d0..0x05ea );
+   my @hebrew = unpack( 'U*', $utf );
+
+</PRE>
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>Another Portable Binary Encoding</H2>
+
+<A NAME="ixAAP"></A>
+The pack code <TT>&quot;w&quot;</TT> has been added to support a portable binary data
+encoding scheme that goes way beyond simple integers. (Details can
+be found at Casbah.org, the Scarab project.)  A <FONT SIZE="-1">BER</FONT> (Binary Encoded
+Representation) compressed unsigned integer stores base 128
+digits, most significant digit first, with as few digits as possible.
+Bit eight (the high bit) is set on each byte except the last. There
+is no size limit to <FONT SIZE="-1">BER</FONT> encoding, but Perl won't go to extremes.
+<P>
+
+
+
+<PRE>
+   my $berbuf = pack( 'w*', 1, 128, 128+1, 128*128+127 );
+
+</PRE>
+
+
+<P>
+
+A hex dump of <TT>$berbuf</TT>, with spaces inserted at the right places,
+shows 01 8100 8101 81807F. Since the last byte is always less than
+128, <TT>&quot;unpack&quot;</TT> knows where to stop.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Template Grouping</H2>
+
+<A NAME="ixAAQ"></A>
+Prior to Perl 5.8, repetitions of templates had to be made by
+<TT>&quot;x&quot;</TT>-multiplication of template strings. Now there is a better way as
+we may use the pack codes <TT>&quot;(&quot;</TT> and <TT>&quot;)&quot;</TT> combined with a repeat count.
+The <TT>&quot;unpack&quot;</TT> template from the Stack Frame example can simply
+be written like this:
+<P>
+
+
+
+<PRE>
+   unpack( 'v2 (vXXCC)5 v5', $frame )
+
+</PRE>
+
+
+<P>
+
+Let's explore this feature a little more. We'll begin with the equivalent of
+<P>
+
+
+
+<PRE>
+   join( '', map( substr( $_, 0, 1 ), @str ) )
+
+</PRE>
+
+
+<P>
+
+which returns a string consisting of the first character from each string.
+Using pack, we can write
+<P>
+
+
+
+<PRE>
+   pack( '(A)'.@str, @str )
+
+</PRE>
+
+
+<P>
+
+or, because a repeat count <TT>&quot;*&quot;</TT> means ``repeat as often as required'',
+simply
+<P>
+
+
+
+<PRE>
+   pack( '(A)*', @str )
+
+</PRE>
+
+
+<P>
+
+(Note that the template <TT>&quot;A*&quot;</TT> would only have packed <TT>$str[0]</TT> in full
+length.)
+<P>
+
+To pack dates stored as triplets ( day, month, year ) in an array <TT>@dates</TT>
+into a sequence of byte, byte, short integer we can write
+<P>
+
+
+
+<PRE>
+   $pd = pack( '(CCS)*', map( @$_, @dates ) );
+
+</PRE>
+
+
+<P>
+
+To swap pairs of characters in a string (with even length) one could use
+several techniques. First, let's use <TT>&quot;x&quot;</TT> and <TT>&quot;X&quot;</TT> to skip forward and back:
+<P>
+
+
+
+<PRE>
+   $s = pack( '(A)*', unpack( '(xAXXAx)*', $s ) );
+
+</PRE>
+
+
+<P>
+
+We can also use <TT>&quot;@&quot;</TT> to jump to an offset, with 0 being the position where
+we were when the last <TT>&quot;(&quot;</TT> was encountered:
+<P>
+
+
+
+<PRE>
+   $s = pack( '(A)*', unpack( '(@1A @0A @2)*', $s ) );
+
+</PRE>
+
+
+<P>
+
+Finally, there is also an entirely different approach by unpacking big
+endian shorts and packing them in the reverse byte order:
+<P>
+
+
+
+<PRE>
+   $s = pack( '(v)*', unpack( '(n)*', $s );
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>Lengths and Widths</H2>
+
+<A NAME="ixAAR"></A>
+<A NAME="lbAS">&nbsp;</A>
+<H2>String Lengths</H2>
+
+<A NAME="ixAAS"></A>
+In the previous section we've seen a network message that was constructed
+by prefixing the binary message length to the actual message. You'll find
+that packing a length followed by so many bytes of data is a 
+frequently used recipe since appending a null byte won't work
+if a null byte may be part of the data. Here is an example where both
+techniques are used: after two null terminated strings with source and
+destination address, a Short Message (to a mobile phone) is sent after
+a length byte:
+<P>
+
+
+
+<PRE>
+   my $msg = pack( 'Z*Z*CA*', $src, $dst, length( $sm ), $sm );
+
+</PRE>
+
+
+<P>
+
+Unpacking this message can be done with the same template:
+<P>
+
+
+
+<PRE>
+   ( $src, $dst, $len, $sm ) = unpack( 'Z*Z*CA*', $msg );
+
+</PRE>
+
+
+<P>
+
+There's a subtle trap lurking in the offing: Adding another field after
+the Short Message (in variable <TT>$sm</TT>) is all right when packing, but this
+cannot be unpacked naively:
+<P>
+
+
+
+<PRE>
+   # pack a message
+   my $msg = pack( 'Z*Z*CA*C', $src, $dst, length( $sm ), $sm, $prio );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   # unpack fails - $prio remains undefined!
+   ( $src, $dst, $len, $sm, $prio ) = unpack( 'Z*Z*CA*C', $msg );
+
+</PRE>
+
+
+<P>
+
+The pack code <TT>&quot;A*&quot;</TT> gobbles up all remaining bytes, and <TT>$prio</TT> remains
+undefined! Before we let disappointment dampen the morale: Perl's got
+the trump card to make this trick too, just a little further up the sleeve.
+Watch this:
+<P>
+
+
+
+<PRE>
+   # pack a message: ASCIIZ, ASCIIZ, length/string, byte
+   my $msg = pack( 'Z* Z* C/A* C', $src, $dst, $sm, $prio );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   # unpack
+   ( $src, $dst, $sm, $prio ) = unpack( 'Z* Z* C/A* C', $msg );
+
+</PRE>
+
+
+<P>
+
+Combining two pack codes with a slash (<TT>&quot;/&quot;</TT>) associates them with a single
+value from the argument list. In <TT>&quot;pack&quot;</TT>, the length of the argument is
+taken and packed according to the first code while the argument itself
+is added after being converted with the template code after the slash.
+This saves us the trouble of inserting the <TT>&quot;length&quot;</TT> call, but it is 
+in <TT>&quot;unpack&quot;</TT> where we really score: The value of the length byte marks the
+end of the string to be taken from the buffer. Since this combination
+doesn't make sense except when the second pack code isn't <TT>&quot;a*&quot;</TT>, <TT>&quot;A*&quot;</TT>
+or <TT>&quot;Z*&quot;</TT>, Perl won't let you.
+<P>
+
+The pack code preceding <TT>&quot;/&quot;</TT> may be anything that's fit to represent a
+number: All the numeric binary pack codes, and even text codes such as
+<TT>&quot;A4&quot;</TT> or <TT>&quot;Z*&quot;</TT>:
+<P>
+
+
+
+<PRE>
+   # pack/unpack a string preceded by its length in ASCII
+   my $buf = pack( 'A4/A*', &quot;Humpty-Dumpty&quot; );
+   # unpack $buf: '13  Humpty-Dumpty'
+   my $txt = unpack( 'A4/A*', $buf );
+
+</PRE>
+
+
+<P>
+
+<TT>&quot;/&quot;</TT> is not implemented in Perls before 5.6, so if your code is required to
+work on older Perls you'll need to <TT>&quot;unpack( 'Z* Z* C')&quot;</TT> to get the length,
+then use it to make a new unpack string. For example
+<P>
+
+
+
+<PRE>
+   # pack a message: ASCIIZ, ASCIIZ, length, string, byte (5.005 compatible)
+   my $msg = pack( 'Z* Z* C A* C', $src, $dst, length $sm, $sm, $prio );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   # unpack
+   ( undef, undef, $len) = unpack( 'Z* Z* C', $msg );
+   ($src, $dst, $sm, $prio) = unpack ( &quot;Z* Z* x A$len C&quot;, $msg );
+
+</PRE>
+
+
+<P>
+
+But that second <TT>&quot;unpack&quot;</TT> is rushing ahead. It isn't using a simple literal
+string for the template. So maybe we should introduce...
+<A NAME="lbAT">&nbsp;</A>
+<H2>Dynamic Templates</H2>
+
+<A NAME="ixAAT"></A>
+So far, we've seen literals used as templates. If the list of pack
+items doesn't have fixed length, an expression constructing the
+template is required (whenever, for some reason, <TT>&quot;()*&quot;</TT> cannot be used).
+Here's an example: To store named string values in a way that can be
+conveniently parsed by a C program, we create a sequence of names and
+null terminated <FONT SIZE="-1">ASCII</FONT> strings, with <TT>&quot;=&quot;</TT> between the name and the value,
+followed by an additional delimiting null byte. Here's how:
+<P>
+
+
+
+<PRE>
+   my $env = pack( '(A*A*Z*)' . keys( %Env ) . 'C',
+                   map( { ( $_, '=', $Env{$_} ) } keys( %Env ) ), 0 );
+
+</PRE>
+
+
+<P>
+
+Let's examine the cogs of this byte mill, one by one. There's the <TT>&quot;map&quot;</TT>
+call, creating the items we intend to stuff into the <TT>$env</TT> buffer:
+to each key (in <TT>$_</TT>) it adds the <TT>&quot;=&quot;</TT> separator and the hash entry value.
+Each triplet is packed with the template code sequence <TT>&quot;A*A*Z*&quot;</TT> that
+is repeated according to the number of keys. (Yes, that's what the <TT>&quot;keys&quot;</TT>
+function returns in scalar context.) To get the very last null byte,
+we add a <TT>0</TT> at the end of the <TT>&quot;pack&quot;</TT> list, to be packed with <TT>&quot;C&quot;</TT>.
+(Attentive readers may have noticed that we could have omitted the 0.)
+<P>
+
+For the reverse operation, we'll have to determine the number of items
+in the buffer before we can let <TT>&quot;unpack&quot;</TT> rip it apart:
+<P>
+
+
+
+<PRE>
+   my $n = $env =~ tr/\0// - 1;
+   my %env = map( split( /=/, $_ ), unpack( &quot;(Z*)$n&quot;, $env ) );
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;tr&quot;</TT> counts the null bytes. The <TT>&quot;unpack&quot;</TT> call returns a list of
+name-value pairs each of which is taken apart in the <TT>&quot;map&quot;</TT> block. 
+<A NAME="lbAU">&nbsp;</A>
+<H2>Counting Repetitions</H2>
+
+<A NAME="ixAAU"></A>
+Rather than storing a sentinel at the end of a data item (or a list of items),
+we could precede the data with a count. Again, we pack keys and values of
+a hash, preceding each with an unsigned short length count, and up front
+we store the number of pairs:
+<P>
+
+
+
+<PRE>
+   my $env = pack( 'S(S/A* S/A*)*', scalar keys( %Env ), %Env );
+
+</PRE>
+
+
+<P>
+
+This simplifies the reverse operation as the number of repetitions can be
+unpacked with the <TT>&quot;/&quot;</TT> code:
+<P>
+
+
+
+<PRE>
+   my %env = unpack( 'S/(S/A* S/A*)', $env );
+
+</PRE>
+
+
+<P>
+
+Note that this is one of the rare cases where you cannot use the same
+template for <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT> because <TT>&quot;pack&quot;</TT> can't determine
+a repeat count for a <TT>&quot;()&quot;</TT>-group.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Packing and Unpacking C Structures</H2>
+
+<A NAME="ixAAV"></A>
+In previous sections we have seen how to pack numbers and character
+strings. If it were not for a couple of snags we could conclude this
+section right away with the terse remark that C structures don't
+contain anything else, and therefore you already know all there is to it.
+Sorry, no: read on, please.
+<A NAME="lbAW">&nbsp;</A>
+<H2>The Alignment Pit</H2>
+
+<A NAME="ixAAW"></A>
+In the consideration of speed against memory requirements the balance
+has been tilted in favor of faster execution. This has influenced the
+way C compilers allocate memory for structures: On architectures
+where a 16-bit or 32-bit operand can be moved faster between places in
+memory, or to or from a <FONT SIZE="-1">CPU</FONT> register, if it is aligned at an even or 
+multiple-of-four or even at a multiple-of eight address, a C compiler
+will give you this speed benefit by stuffing extra bytes into structures.
+If you don't cross the C shoreline this is not likely to cause you any
+grief (although you should care when you design large data structures,
+or you want your code to be portable between architectures (you do want
+that, don't you?)).
+<P>
+
+To see how this affects <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT>, we'll compare these two
+C structures:
+<P>
+
+
+
+<PRE>
+   typedef struct {
+     char     c1;
+     short    s;
+     char     c2;
+     long     l;
+   } gappy_t;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   typedef struct {
+     long     l;
+     short    s;
+     char     c1;
+     char     c2;
+   } dense_t;
+
+</PRE>
+
+
+<P>
+
+Typically, a C compiler allocates 12 bytes to a <TT>&quot;gappy_t&quot;</TT> variable, but
+requires only 8 bytes for a <TT>&quot;dense_t&quot;</TT>. After investigating this further,
+we can draw memory maps, showing where the extra 4 bytes are hidden:
+<P>
+
+
+
+<PRE>
+   0           +4          +8          +12
+   +--+--+--+--+--+--+--+--+--+--+--+--+
+   |c1|xx|  s  |c2|xx|xx|xx|     l     |    xx = fill byte
+   +--+--+--+--+--+--+--+--+--+--+--+--+
+   gappy_t
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   0           +4          +8
+   +--+--+--+--+--+--+--+--+
+   |     l     |  h  |c1|c2|
+   +--+--+--+--+--+--+--+--+
+   dense_t
+
+</PRE>
+
+
+<P>
+
+And that's where the first quirk strikes: <TT>&quot;pack&quot;</TT> and <TT>&quot;unpack&quot;</TT>
+templates have to be stuffed with <TT>&quot;x&quot;</TT> codes to get those extra fill bytes.
+<P>
+
+The natural question: ``Why can't Perl compensate for the gaps?'' warrants
+an answer. One good reason is that C compilers might provide (non-ANSI)
+extensions permitting all sorts of fancy control over the way structures
+are aligned, even at the level of an individual structure field. And, if
+this were not enough, there is an insidious thing called <TT>&quot;union&quot;</TT> where
+the amount of fill bytes cannot be derived from the alignment of the next
+item alone.
+<P>
+
+<FONT SIZE="-1">OK</FONT>, so let's bite the bullet. Here's one way to get the alignment right
+by inserting template codes <TT>&quot;x&quot;</TT>, which don't take a corresponding item 
+from the list:
+<P>
+
+
+
+<PRE>
+  my $gappy = pack( 'cxs cxxx l!', $c1, $s, $c2, $l );
+
+</PRE>
+
+
+<P>
+
+Note the <TT>&quot;!&quot;</TT> after <TT>&quot;l&quot;</TT>: We want to make sure that we pack a long
+integer as it is compiled by our C compiler. And even now, it will only
+work for the platforms where the compiler aligns things as above.
+And somebody somewhere has a platform where it doesn't.
+[Probably a Cray, where <TT>&quot;short&quot;</TT>s, <TT>&quot;int&quot;</TT>s and <TT>&quot;long&quot;</TT>s are all 8 bytes. :-)]
+<P>
+
+Counting bytes and watching alignments in lengthy structures is bound to 
+be a drag. Isn't there a way we can create the template with a simple
+program? Here's a C program that does the trick:
+<P>
+
+
+
+<PRE>
+   #include &lt;<A HREF="file:/usr/include/stdio.h">stdio.h</A>&gt;
+   #include &lt;<A HREF="file:/usr/include/stddef.h">stddef.h</A>&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   typedef struct {
+     char     fc1;
+     short    fs;
+     char     fc2;
+     long     fl;
+   } gappy_t;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   #define Pt(struct,field,tchar) \
+     printf( &quot;@%d%s &quot;, offsetof(struct,field), # tchar );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   int main() {
+     Pt( gappy_t, fc1, c  );
+     Pt( gappy_t, fs,  s! );
+     Pt( gappy_t, fc2, c  );
+     Pt( gappy_t, fl,  l! );
+     printf( &quot;\n&quot; );
+   }
+
+</PRE>
+
+
+<P>
+
+The output line can be used as a template in a <TT>&quot;pack&quot;</TT> or <TT>&quot;unpack&quot;</TT> call:
+<P>
+
+
+
+<PRE>
+  my $gappy = pack( '@0c @2s! @4c @8l!', $c1, $s, $c2, $l );
+
+</PRE>
+
+
+<P>
+
+Gee, yet another template code - as if we hadn't plenty. But 
+<TT>&quot;@&quot;</TT> saves our day by enabling us to specify the offset from the beginning
+of the pack buffer to the next item: This is just the value
+the <TT>&quot;offsetof&quot;</TT> macro (defined in <TT>&quot;&lt;<A HREF="file:/usr/include/stddef.h">stddef.h</A>&gt;&quot;</TT>) returns when
+given a <TT>&quot;struct&quot;</TT> type and one of its field names (``member-designator'' in 
+C standardese).
+<P>
+
+Neither using offsets nor adding <TT>&quot;x&quot;</TT>'s to bridge the gaps is satisfactory.
+(Just imagine what happens if the structure changes.) What we really need
+is a way of saying ``skip as many bytes as required to the next multiple of N''.
+In fluent Templatese, you say this with <TT>&quot;x!N&quot;</TT> where N is replaced by the
+appropriate value. Here's the next version of our struct packaging:
+<P>
+
+
+
+<PRE>
+  my $gappy = pack( 'c x!2 s c x!4 l!', $c1, $s, $c2, $l );
+
+</PRE>
+
+
+<P>
+
+That's certainly better, but we still have to know how long all the
+integers are, and portability is far away. Rather than <TT>2</TT>,
+for instance, we want to say ``however long a short is''. But this can be
+done by enclosing the appropriate pack code in brackets: <TT>&quot;[s]&quot;</TT>. So, here's
+the very best we can do:
+<P>
+
+
+
+<PRE>
+  my $gappy = pack( 'c x![s] s c x![l!] l!', $c1, $s, $c2, $l );
+
+</PRE>
+
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>Alignment, Take 2</H2>
+
+<A NAME="ixAAX"></A>
+I'm afraid that we're not quite through with the alignment catch yet. The
+hydra raises another ugly head when you pack arrays of structures:
+<P>
+
+
+
+<PRE>
+   typedef struct {
+     short    count;
+     char     glyph;
+   } cell_t;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   typedef cell_t buffer_t[BUFLEN];
+
+</PRE>
+
+
+<P>
+
+Where's the catch? Padding is neither required before the first field <TT>&quot;count&quot;</TT>,
+nor between this and the next field <TT>&quot;glyph&quot;</TT>, so why can't we simply pack
+like this:
+<P>
+
+
+
+<PRE>
+   # something goes wrong here:
+   pack( 's!a' x @buffer,
+         map{ ( $_-&gt;{count}, $_-&gt;{glyph} ) } @buffer );
+
+</PRE>
+
+
+<P>
+
+This packs <TT>&quot;3*@buffer&quot;</TT> bytes, but it turns out that the size of 
+<TT>&quot;buffer_t&quot;</TT> is four times <TT>&quot;BUFLEN&quot;</TT>! The moral of the story is that
+the required alignment of a structure or array is propagated to the
+next higher level where we have to consider padding <I>at the end</I>
+of each component as well. Thus the correct template is:
+<P>
+
+
+
+<PRE>
+   pack( 's!ax' x @buffer,
+         map{ ( $_-&gt;{count}, $_-&gt;{glyph} ) } @buffer );
+
+</PRE>
+
+
+<A NAME="lbAY">&nbsp;</A>
+<H2>Alignment, Take 3</H2>
+
+<A NAME="ixAAY"></A>
+And even if you take all the above into account, <FONT SIZE="-1">ANSI</FONT> still lets this:
+<P>
+
+
+
+<PRE>
+   typedef struct {
+     char     foo[2];
+   } foo_t;
+
+</PRE>
+
+
+<P>
+
+vary in size. The alignment constraint of the structure can be greater than
+any of its elements. [And if you think that this doesn't affect anything
+common, dismember the next cellphone that you see. Many have <FONT SIZE="-1">ARM</FONT> cores, and
+the <FONT SIZE="-1">ARM</FONT> structure rules make <TT>&quot;sizeof (foo_t)&quot;</TT> == 4]
+<A NAME="lbAZ">&nbsp;</A>
+<H2>Pointers for How to Use Them</H2>
+
+<A NAME="ixAAZ"></A>
+The title of this section indicates the second problem you may run into
+sooner or later when you pack C structures. If the function you intend
+to call expects a, say, <TT>&quot;void *&quot;</TT> value, you <I>cannot</I> simply take
+a reference to a Perl variable. (Although that value certainly is a
+memory address, it's not the address where the variable's contents are
+stored.)
+<P>
+
+Template code <TT>&quot;P&quot;</TT> promises to pack a ``pointer to a fixed length string''.
+Isn't this what we want? Let's try:
+<P>
+
+
+
+<PRE>
+    # allocate some storage and pack a pointer to it
+    my $memory = &quot;\x00&quot; x $size;
+    my $memptr = pack( 'P', $memory );
+
+</PRE>
+
+
+<P>
+
+But wait: doesn't <TT>&quot;pack&quot;</TT> just return a sequence of bytes? How can we pass this
+string of bytes to some C code expecting a pointer which is, after all,
+nothing but a number? The answer is simple: We have to obtain the numeric
+address from the bytes returned by <TT>&quot;pack&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    my $ptr = unpack( 'L!', $memptr );
+
+</PRE>
+
+
+<P>
+
+Obviously this assumes that it is possible to typecast a pointer
+to an unsigned long and vice versa, which frequently works but should not
+be taken as a universal law. - Now that we have this pointer the next question
+is: How can we put it to good use? We need a call to some C function
+where a pointer is expected. The <I><A HREF="../man2/read.2.php">read</A></I>(2) system call comes to mind:
+<P>
+
+
+
+<PRE>
+    ssize_t read(int fd, void *buf, size_t count);
+
+</PRE>
+
+
+<P>
+
+After reading perlfunc explaining how to use <TT>&quot;syscall&quot;</TT> we can write
+this Perl function copying a file to standard output:
+<P>
+
+
+
+<PRE>
+    require 'syscall.ph';
+    sub cat($){
+        my $path = shift();
+        my $size = -s $path;
+        my $memory = &quot;\x00&quot; x $size;  # allocate some memory
+        my $ptr = unpack( 'L', pack( 'P', $memory ) );
+        open( F, $path ) || die( &quot;$path: cannot open ($!)\n&quot; );
+        my $fd = fileno(F);
+        my $res = syscall( &amp;SYS_read, fileno(F), $ptr, $size );
+        print $memory;
+        close( F );
+    }
+
+</PRE>
+
+
+<P>
+
+This is neither a specimen of simplicity nor a paragon of portability but
+it illustrates the point: We are able to sneak behind the scenes and
+access Perl's otherwise well-guarded memory! (Important note: Perl's
+<TT>&quot;syscall&quot;</TT> does <I>not</I> require you to construct pointers in this roundabout
+way. You simply pass a string variable, and Perl forwards the address.) 
+<P>
+
+How does <TT>&quot;unpack&quot;</TT> with <TT>&quot;P&quot;</TT> work? Imagine some pointer in the buffer
+about to be unpacked: If it isn't the null pointer (which will smartly
+produce the <TT>&quot;undef&quot;</TT> value) we have a start address - but then what?
+Perl has no way of knowing how long this ``fixed length string'' is, so
+it's up to you to specify the actual size as an explicit length after <TT>&quot;P&quot;</TT>.
+<P>
+
+
+
+<PRE>
+   my $mem = &quot;abcdefghijklmn&quot;;
+   print unpack( 'P5', pack( 'P', $mem ) ); # prints &quot;abcde&quot;
+
+</PRE>
+
+
+<P>
+
+As a consequence, <TT>&quot;pack&quot;</TT> ignores any number or <TT>&quot;*&quot;</TT> after <TT>&quot;P&quot;</TT>.
+<P>
+
+Now that we have seen <TT>&quot;P&quot;</TT> at work, we might as well give <TT>&quot;p&quot;</TT> a whirl.
+Why do we need a second template code for packing pointers at all? The 
+answer lies behind the simple fact that an <TT>&quot;unpack&quot;</TT> with <TT>&quot;p&quot;</TT> promises
+a null-terminated string starting at the address taken from the buffer,
+and that implies a length for the data item to be returned:
+<P>
+
+
+
+<PRE>
+   my $buf = pack( 'p', &quot;abc\x00efhijklmn&quot; );
+   print unpack( 'p', $buf );    # prints &quot;abc&quot;
+
+</PRE>
+
+
+<P>
+
+Albeit this is apt to be confusing: As a consequence of the length being
+implied by the string's length, a number after pack code <TT>&quot;p&quot;</TT> is a repeat
+count, not a length as after <TT>&quot;P&quot;</TT>. 
+<P>
+
+Using <TT>&quot;pack(..., $x)&quot;</TT> with <TT>&quot;P&quot;</TT> or <TT>&quot;p&quot;</TT> to get the address where <TT>$x</TT> is
+actually stored must be used with circumspection. Perl's internal machinery
+considers the relation between a variable and that address as its very own 
+private matter and doesn't really care that we have obtained a copy. Therefore:
+<DL COMPACT>
+<DT>*<DD>
+Do not use <TT>&quot;pack&quot;</TT> with <TT>&quot;p&quot;</TT> or <TT>&quot;P&quot;</TT> to obtain the address of variable
+that's bound to go out of scope (and thereby freeing its memory) before you
+are done with using the memory at that address.
+<DT>*<DD>
+Be very careful with Perl operations that change the value of the
+variable. Appending something to the variable, for instance, might require
+reallocation of its storage, leaving you with a pointer into no-man's land.
+<DT>*<DD>
+Don't think that you can get the address of a Perl variable
+when it is stored as an integer or double number! <TT>&quot;pack('P', $x)&quot;</TT> will
+force the variable's internal representation to string, just as if you
+had written something like <TT>&quot;$x .= ''&quot;</TT>.
+</DL>
+<P>
+
+It's safe, however, to P- or p-pack a string literal, because Perl simply
+allocates an anonymous variable.
+<A NAME="lbBA">&nbsp;</A>
+<H2>Pack Recipes</H2>
+
+<A NAME="ixABA"></A>
+Here are a collection of (possibly) useful canned recipes for <TT>&quot;pack&quot;</TT>
+and <TT>&quot;unpack&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    # Convert IP address for socket functions
+    pack( &quot;C4&quot;, split /\./, &quot;123.4.5.6&quot; );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Count the bits in a chunk of memory (e.g. a select vector)
+    unpack( '%32b*', $mask );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Determine the endianness of your system
+    $is_little_endian = unpack( 'c', pack( 's', 1 ) );
+    $is_big_endian = unpack( 'xc', pack( 's', 1 ) );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Determine the number of bits in a native integer
+    $bits = unpack( '%32I!', ~0 );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Prepare argument for the nanosleep system call
+    my $timespec = pack( 'L!L!', $secs, $nanosecs );
+
+</PRE>
+
+
+<P>
+
+For a simple memory dump we unpack some bytes into just as 
+many pairs of hex digits, and use <TT>&quot;map&quot;</TT> to handle the traditional
+spacing - 16 bytes to a line:
+<P>
+
+
+
+<PRE>
+    my $i;
+    print map( ++$i % 16 ? &quot;$_ &quot; : &quot;$_\n&quot;,
+               unpack( 'H2' x length( $mem ), $mem ) ),
+          length( $mem ) % 16 ? &quot;\n&quot; : '';
+
+</PRE>
+
+
+<A NAME="lbBB">&nbsp;</A>
+<H2>Funnies Section</H2>
+
+<A NAME="ixABB"></A>
+
+
+<PRE>
+    # Pulling digits out of nowhere...
+    print unpack( 'C', pack( 'x' ) ),
+          unpack( '%B*', pack( 'A' ) ),
+          unpack( 'H', pack( 'A' ) ),
+          unpack( 'A', unpack( 'C', pack( 'A' ) ) ), &quot;\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # One for the road ;-)
+    my $advice = pack( 'all u can in a van' );
+
+</PRE>
+
+
+<A NAME="lbBC">&nbsp;</A>
+<H2>Authors</H2>
+
+<A NAME="ixABC"></A>
+Simon Cozens and Wolfgang Laun.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">The Basic Principle</A><DD>
+<DT><A HREF="#lbAE">Packing Text</A><DD>
+<DT><A HREF="#lbAF">Packing Numbers</A><DD>
+<DT><A HREF="#lbAG">Integers</A><DD>
+<DT><A HREF="#lbAH">Unpacking a Stack Frame</A><DD>
+<DT><A HREF="#lbAI">How to Eat an Egg on a Net</A><DD>
+<DT><A HREF="#lbAJ">Floating point Numbers</A><DD>
+<DT><A HREF="#lbAK">Exotic Templates</A><DD>
+<DT><A HREF="#lbAL">Bit Strings</A><DD>
+<DT><A HREF="#lbAM">Uuencoding</A><DD>
+<DT><A HREF="#lbAN">Doing Sums</A><DD>
+<DT><A HREF="#lbAO">Unicode</A><DD>
+<DT><A HREF="#lbAP">Another Portable Binary Encoding</A><DD>
+<DT><A HREF="#lbAQ">Template Grouping</A><DD>
+<DT><A HREF="#lbAR">Lengths and Widths</A><DD>
+<DT><A HREF="#lbAS">String Lengths</A><DD>
+<DT><A HREF="#lbAT">Dynamic Templates</A><DD>
+<DT><A HREF="#lbAU">Counting Repetitions</A><DD>
+<DT><A HREF="#lbAV">Packing and Unpacking C Structures</A><DD>
+<DT><A HREF="#lbAW">The Alignment Pit</A><DD>
+<DT><A HREF="#lbAX">Alignment, Take 2</A><DD>
+<DT><A HREF="#lbAY">Alignment, Take 3</A><DD>
+<DT><A HREF="#lbAZ">Pointers for How to Use Them</A><DD>
+<DT><A HREF="#lbBA">Pack Recipes</A><DD>
+<DT><A HREF="#lbBB">Funnies Section</A><DD>
+<DT><A HREF="#lbBC">Authors</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

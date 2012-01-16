@@ -1,0 +1,452 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MPIEXEC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MPIEXEC</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mpiexec - Run MPI programs on LAM nodes.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+<DD>mpiexec [global_args] local_args1 [: local_args2 [...]]
+<DT>
+<DD>mpiexec [global_args] -configfile &lt;filename&gt;
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+Global arguments apply to all commands that will be launched by 
+<I>mpiexec</I>.
+
+They come at the beginning of the command line.
+<DL COMPACT>
+<DT><B>-boot</B>
+
+<DD>
+Boot the LAM run-time environment before running the MPI program.  If
+<B>-machinefile</B>
+
+is not specified, use the default boot schema.  When the MPI processes
+finish, the LAM run-time environment will be shut down.
+<DT><B>-boot-args &lt;args&gt;</B>
+
+<DD>
+Pass arguments to the back-end
+<I>lamboot</I>
+
+command when booting the LAM run-time environment.  Implies
+<I>-boot</I>.
+
+<DT><B>-d</B>
+
+<DD>
+Enable lots of debugging output.  Implies
+<B>-v</B>.
+
+<DT><B>-machinefile &lt;hostfile&gt;</B>
+
+<DD>
+Enable &quot;one shot&quot; MPI executions; boot the LAM run-time environment
+with the boot schema specified by &lt;hostfile&gt; (see <A HREF="../man5/bhost.5.php">bhost</A>(5)), run the
+MPI program, and then shut down the LAM run-time environment.  Implies
+<B>-boot</B>.
+
+<DT><B>-ssi &lt;key&gt; &lt;value&gt;</B>
+
+<DD>
+Set the SSI parameter &lt;key&gt; to the value &lt;value&gt;.
+<DT><B>-tv</B>
+
+<DD>
+Launch the MPI processes under the TotalView debugger.
+<DT><B>-v</B>
+
+<DD>
+Be verbose
+</DL>
+<P>
+
+One or more sets of local arguments must be specified (or a config
+file; see below).  Local arguments essentially include everything
+allowed in an <A HREF="../man5/appschema.5.php">appschema</A>(5) as well as the following options specified
+by the MPI-2 standard (note that the options listed below must be
+specified
+<I>before</I>
+
+appschema arguments):
+<DL COMPACT>
+<DT><B>-n &lt;numprocs&gt;</B>
+
+<DD>
+Number of copies of the process to start.  
+<DT><B>-host &lt;hostname&gt;</B>
+
+<DD>
+Specify the hostname to start the MPI process on.  The hostname must
+be resolvable by the 
+<I>lamnodes</I>
+
+command after the LAM run-time environment is booted (see
+<A HREF="../man1/lamnodes.1.php">lamnodes</A>(1)).
+<DT><B>-arch &lt;architecture&gt;</B>
+
+<DD>
+Specify the architecture to start the MPI process on.  
+<I>mpiexec</I>
+
+essentially uses the provided &lt;architecture&gt; as a pattern match
+against the output of the GNU
+<I>config.guess</I>
+
+utility on each machine in the LAM run-time environment.  Any subset
+will match.  See EXAMPLES, below.
+<DT><B>-wdir &lt;directory&gt;</B>
+
+<DD>
+Set the working directory of the executable.
+<DT><B>-soft</B>
+
+<DD>
+Not yet supported.
+<DT><B>-path</B>
+
+<DD>
+Not yet supported.
+<DT><B>-file</B>
+
+<DD>
+Not yet supported.
+<DT><B>&lt;other_arguments&gt;</B>
+
+<DD>
+When 
+<I>mpiexec </I>
+
+first encounters an argument that it doesn't recognize (such as an
+<A HREF="../man5/appschema.5.php">appschema</A>(5) argument, or the MPI executable name), the remainder of
+the arguments will be passed back to
+<I>mpirun</I>
+
+to actually start the process.  As such, all of 
+<I>mpiexec</I>'s
+
+arguments that are described above must come 
+<B>before </B>
+
+appschema arguments and/or the MPI executable name.  Similarly, all
+arguments after the MPI executable name will be transparently passed
+as command line argument to the MPI process and will be will be
+effectively ignored by
+<I>mpirun</I>.
+
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<I>mpiexec</I>
+
+is loosely defined in the Miscellany chapter of the MPI-2 standard
+(see <A HREF="http://www.mpi-forum.org/).">http://www.mpi-forum.org/).</A>  It is meant to be a portable
+mechanism for starting MPI processes.  The MPI-2 standard recommends
+several command line options, but does not mandate any.  LAM's
+<I>mpiexec</I>
+
+currently supports several of these options, but not all.
+<P>
+
+LAM's 
+<I>mpiexec</I>
+
+is actually a perl script that is a wrapper around several underlying
+LAM commands, most notably
+<I>lamboot</I>,
+
+<I>mpirun</I>,
+
+and
+<I>lamhalt</I>.
+
+As such, the functionality provided by
+<I>mpiexec</I>
+
+can always be performed manually.  Unless otherwise specified in
+arguments that are passed back to
+<I>mpirun</I>,
+
+<I>mpiexec</I>
+
+will use the per-CPU scheduling as described in <A HREF="../man1/mpirun.1.php">mpirun</A>(1) (i.e.,
+the &quot;cX&quot; and &quot;C&quot; notation).
+<P>
+
+<I>mpiexec</I>
+
+can either use an already-existing LAM universe (i.e., a booted LAM
+run-time environment), similar to 
+<I>mpirun</I>,
+
+or can be used for &quot;one-shot&quot; MPI executions where it boots the LAM
+run-time environment, runs the MPI executable(s), and then shuts down
+the LAM run-time environment.  
+<P>
+
+<I>mpiexec</I>
+
+can also be used to launch MPMD MPI jobs from the command line.
+<I>mpirun</I>
+
+also supports launching MPMD MPI jobs, but the user must make a text
+file <A HREF="../man5/appschema.5.php">appschema</A>(5) first.
+<P>
+
+Perhaps one of
+<I>1</I>mpiexec<I>'s</I>
+
+most useful features is the command-line ability to launch different
+executables on different architectures using the
+<I>-arch</I>
+
+flag (see EXAMPLES, below).  Essentially, the string argument that is
+given to 
+<I>-arch</I>
+
+is used as a pattern match against the output of the GNU
+<I>config.guess</I>
+
+utility on each node.  If the user-provided &lt;architecture&gt; string
+matches any subset of the output of
+<I>config.guess</I>,
+
+it is ruled a match.  Wildcards are not possible.  The GNU 
+<I>config.guess</I>
+
+utility is available both in the LAM/MPI source code distribution (in
+the config subdirectory) and at
+<A HREF="ftp://ftp.gnu.org/gnu/config/config.guess.">ftp://ftp.gnu.org/gnu/config/config.guess.</A>  
+<P>
+
+Some sample outputs from
+<I>config.guess include:</I>
+
+<DL COMPACT>
+<DT>sparc-sun-solaris2.8<DD>
+Solaris 2.8 running on a SPARC platform.
+<DT>i686-pc-linux-gnu<DD>
+Linux running on an i686 architecture.
+<DT>mips-sgi-irix6.5<DD>
+IRIX 6.5 running on an SGI/MIPS architecture.
+</DL>
+<P>
+
+You might want to run the
+<I>laminfo</I>
+
+command on your available platforms to see what string
+<I>config.guess</I>
+
+reported.  See <A HREF="../man1/laminfo.1.php">laminfo</A>(1) for more details (e.g., the
+<B>-arch</B>
+
+flag to 
+<I>laminfo</I>).
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Configfile option</H3>
+
+It is possible to specify any set of local parameters in a
+configuration file rather than on the command line using the 
+<I>-configfile</I>
+
+option.  This option is typically used when the number of command line
+options is too large for some shells, or when automated processes
+generate the command line arguments and it is simply more convenient
+to put them in a file for later processing by
+<B>mpiexec</B>.
+
+<P>
+
+The config file can contain both comments and one or more sets of
+local arguments.  Lines beginning with &quot;#&quot; are considered comments and
+are ignored.  Other lines are considered to be one or more groups of
+local arguments.  Each group must be separated by either a newline or
+a colon (&quot;:&quot;).  For example:
+<P>
+
+
+<BR>&nbsp;&nbsp;#&nbsp;Sample&nbsp;mpiexec&nbsp;config&nbsp;file
+<BR>&nbsp;&nbsp;#&nbsp;Launch&nbsp;foo&nbsp;on&nbsp;two&nbsp;nodes
+<BR>&nbsp;&nbsp;-host&nbsp;node1.example.com&nbsp;foo&nbsp;:&nbsp;-host&nbsp;node2.example.com&nbsp;foo
+<BR>&nbsp;&nbsp;#&nbsp;Launch&nbsp;two&nbsp;copies&nbsp;of&nbsp;bar&nbsp;on&nbsp;a&nbsp;third&nbsp;node
+<BR>&nbsp;&nbsp;-host&nbsp;node3.example.com&nbsp;-np&nbsp;2&nbsp;bar
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>ERRORS</H2>
+
+In the event of an error, 
+<I>mpiexec</I>
+
+will do its best to shut everything down and return to the state
+before it was executed.  For example, if
+<I>mpiexec</I>
+
+was used to boot a LAM run-time environment, 
+<I>mpiexec</I>
+
+will do its best to take down whatever successfully booted of the
+run-time environment (to include invoking
+<I>lamhalt</I>
+
+and/or
+<I>wipe</I>).
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+The following are some examples of how to use
+<I>mpiexec</I>.
+
+Note that all examples assume the CPU-based scheduling (which does 
+<I>NOT</I>
+
+map to physical CPUs) as described in <A HREF="../man1/mpirun.1.php">mpirun</A>(1).
+<DL COMPACT>
+<DT>mpiexec -n 4 my_mpi_program<DD>
+Launch 4 copies of 
+<I>my_mpi_program</I>
+
+in an already-existing LAM universe.
+<DT>mpiexec -n 4 my_mpi_program arg1 arg2<DD>
+Similar to the previous example, but pass &quot;arg1&quot; and &quot;arg2&quot; as command
+line arguments to each copy of my_mpi_program.
+<DT>mpiexec -ssi rpi gm -n 4 my_mpi_program<DD>
+Similar to the previous example, but pass &quot;-ssi rpi gm&quot; back to 
+<I>mpirun</I>
+
+to tell the MPI processes to use the Myrinet (gm) RPI for MPI message
+passing.
+<DT>mpiexec -n 4 program1 : -n 4 program2<DD>
+Launch 4 copies of 
+<I>program1</I>
+
+and 4 copies of
+<I>program2</I>
+
+in an already-existing LAM universe.  All 8 resulting processes will
+share a common MPI_COMM_WORLD.
+<DT>mpiexec -machinefile hostfile -n 4 my_mpi_program<DD>
+Boot the LAM run-time environment with the nodes listed in the
+hostfile, run 4 copies of my_mpi_program in the resulting LAM
+universe, and then shut down the LAM universe.
+<DT>mpiexec -machinefile hostfile my_mpi_program<DD>
+Similar to above, but run my_mpi_program on all available CPUs in the
+LAM universe.
+<DT>mpiexec -arch solaris2.8 sol_program : -arch linux linux_program<DD>
+Run as many copies of sol_program as there are CPUs on Solaris
+machines in the current LAM universe, and as many copies of
+linux_program as there are CPUs on linux machines in the current LAM
+universe.  All resulting processes will share a common
+MPI_COMM_WORLD.  
+<DT>mpiexec -arch solaris2.8 sol2.8_prog : -arch solaris2.9 sol2.9_program<DD>
+Similar to the above example, except distinguish between Solaris 2.8
+and 2.9 (since they may have different shared libraries, etc.).
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man5/appschema.5.php">appschema</A>(5), <A HREF="../man5/bhost.5.php">bhost</A>(5), <A HREF="../man1/lamboot.1.php">lamboot</A>(1), <A HREF="../man1/lamexec.1.php">lamexec</A>(1), <A HREF="../man1/mpirun.1.php">mpirun</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Configfile option</A><DD>
+</DL>
+<DT><A HREF="#lbAG">ERRORS</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

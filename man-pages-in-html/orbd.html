@@ -1,0 +1,247 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>orbd</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>orbd</H1>
+Section: User Commands  (1)<BR>Updated: 10 March 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+orbd - The Object Request Broker Daemon
+<P>
+
+<B>orbd</B>
+
+is used to enable clients to transparently locate and invoke
+persistent objects on servers in the CORBA environment.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>orbd</B>
+
+&lt;
+<I>options</I>
+
+&gt;
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION </H2>
+
+The
+<B>orbd</B>
+
+tool is used to enable clients to transparently locate and
+invoke persistent objects on server in the CORBA environment.
+The persistent servers, while publishing the persistent
+object references in the Naming Service, include the port
+number of the ORBD in the object reference instead of the
+port number of the Server. The inclusion of ORBD port 
+number in the object reference for persistent object
+references has the following advantages:
+<P>
+
+<DL COMPACT>
+<DT>* The object reference in the Naming Service remains <DD>
+independent of the server life cycle. For example, the object
+reference could be published by the server in the Naming
+Service when it is first installed, and then independent
+of how many times the server is started or shutdown, the
+ORBD will always return the correct object reference
+to the invoking client.
+<DT>* The client needs to lookup the object reference in<DD>
+the Naming Service only once, and can keep re-using
+this reference independent of the chanes introduced
+due to server life cycle.
+</DL>
+<P>
+
+The 
+<B>orbd</B>
+
+tool incorporates the following functionality:
+<P>
+
+<DL COMPACT>
+<DT>* Server Manager<DD>
+When used in conjunction with the servertool,
+the Server Manager locates, registers, and
+activates a server when a client wants to access
+the server.
+<DT>* Interoperable Naming Service (INS)<DD>
+The naming service maps logical names to object
+references so that you can use the name to
+retrieve the object reference and invoke
+operations on that object. ORBD is used instead of
+the Transient Naming Service, tnameserv. ORBD
+includes both a Transient Naming Service and a
+Persistent Naming Service.
+<DT>* Bootstrap Name Server<DD>
+The persistent servers publish their object
+references in this Name Server. The clients can, in
+turn, contact this Name Server for looking up the
+object references. The advantage of providing this
+bootstrap name server as part of ORBD is that the
+user doesn't need to start an additional Name
+Server process for publishing and resolving object
+references. 
+</DL>
+<P>
+
+The ORBD works with the 
+<B>servertool,</B>
+
+which is used to register, unregister, and list server information.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-port</B><I> port</I>
+
+<DD>
+Specifies the activation port where the ORBD
+should be started. The default value for this port
+is 1049. This port number is added to the port
+field of the persistent Interoperable Object
+References (IOR). (optional) 
+<DT><B>-defaultdb</B><I> directory</I>
+
+<DD>
+Specifies the base where the ORBD persistent
+storage directory 
+<B>orb.db</B>
+
+is created. If this option
+is not specified, the default value is &quot;./orb.db&quot;.
+(optional)
+<DT><B>-serverid</B><I> ID</I>
+
+<DD>
+Specifies the persistent server ID to be assigned
+to this ORBD. The default value is 1. (optional) 
+<DT><B>-ORBInitialPort</B><I> nameserverport</I>
+
+<DD>
+Specifies the port on which the bootstrap name
+server is running. Note that when using Solaris
+software, you must become root to start a process
+on a port under 1024. For this reason, we
+recommend that you use a port number greater
+than or equal to 1024. (required) 
+<DT><B>-serverPollingTime</B><I> milliseconds</I>
+
+<DD>
+Specifies how often the daemon thread checks for
+the health of registered servers. ORBD polls
+process health every 
+<B>milliseconds.</B>
+
+The default
+value is 1,000 ms (or 1 second). The value
+specified for 
+<B>milliseconds</B>
+
+must be a valid integer.
+<DT><B>-serverStartupDelay</B><I> milliseconds</I>
+
+<DD>
+Specifies how long the ServerManager waits
+before sending a location forward exception after
+the server is restarted. ORBD waits for
+<B>milliseconds</B>
+
+before raising a location forward
+exception. The default value is 1,000 ms (or 1
+second). The value specified for 
+<B>milliseconds</B>
+
+must be a valid integer. 
+<DT><B>J  option</B>
+
+<DD>
+Pass
+<I>option</I>
+
+to the Java virtual machine, where 
+<I>option</I>
+
+is one of the options described on the man page for the
+java application launcher, <A HREF="../man1/java.1.php">java</A>(1). For example,
+<I>-J-Xms48m</I>
+
+sets the startup memory to 48 megabytes. It is a common convention for
+<B>-J</B>
+
+to pass options to the underlying virtual machine.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H3>ENVIRONMENT VARIABLES</H3>
+
+<DL COMPACT>
+<DT><B>CLASSPATH</B>
+
+<DD>
+Used to provide the system a path to
+user-defined classes. Directories are separated by
+colons. For information on setting the CLASSPATH,
+see 
+<B>Setting the Class Path</B>.
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>java,</B>
+
+<B>javac,</B>
+
+<B>classpath,</B>
+
+<B>servertool</B>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION </A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAF">ENVIRONMENT VARIABLES</A><DD>
+</DL>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

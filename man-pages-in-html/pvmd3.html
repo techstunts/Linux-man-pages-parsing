@@ -1,0 +1,463 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PVMD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PVMD</H1>
+Section: PVM Version 3.4 (1PVM)<BR>Updated: 06 May, 1994<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pvmd, pvmd3 - PVM daemon
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>
+pvmd
+[
+-options
+]
+[
+hostfile
+]
+&amp;
+</B>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Pvmd3</I>
+
+is a daemon process which coordinates unix hosts
+in a virtual machine.
+One <I>pvmd3</I> must run on each host in the group.
+They provide the communication and process control functions
+needed by the user's PVM processes.
+The daemon can be started manually with a host file argument
+that will automatically start the remote pvmds.
+The local and remote pvmds can also be started from the PVM console
+program <I>pvm</I>.
+<P>
+The name of the daemon executable is <I>pvmd3</I>.
+It is usually started by a shell script, <I>$PVM_ROOT/lib/pvmd</I>.
+<P>
+[v3.4 and later]
+Before running pvmd3,
+pvmd
+sources any commands in <I>$HOME/.pvmprofile</I>
+if this file exists.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options may be specified on the command line when
+starting the master pvmd or PVM console:
+<DL COMPACT>
+<DT>-d<I>mask</I><DD>
+Set pvmd debug mask.
+Used to debug the pvmd or libpvm (not intended to be used to debug
+application programs).
+<I>Mask</I> is the <I>sum</I> of the following bits
+and
+can be specified in hexadecimal (0x...), octal (0...) or decimal:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT>Bit<DD>
+Information
+<DT>0x1<DD>
+Packet routing
+<DT>0x2<DD>
+Message routing and entry points
+<DT>0x4<DD>
+Task state
+<DT>0x8<DD>
+Slave pvmd startup
+<DT>0x10<DD>
+Host table updates
+<DT>0x20<DD>
+Select loop (below packet layer)
+<DT>0x40<DD>
+IP network
+<DT>0x80<DD>
+Multiprocessor nodes
+<DT>0x100<DD>
+Resource manager interface
+<DT>0x200<DD>
+Application (messages with no destination, etc.)
+<DT>0x400<DD>
+Wait contexts
+<DT>0x800<DD>
+Shared memory operations
+<DT>0x1000<DD>
+Semaphores
+<DT>0x2000<DD>
+Locks
+<DT>0x4000<DD>
+Message route control
+
+</DL>
+</DL>
+
+<P>
+<DT>-n<I>name</I><DD>
+Specify an alternate hostname for the master pvmd to use.
+Useful when <I>gethostname()</I> returns a name not assigned to any
+network interface.
+</DL>
+<P>
+
+<P>
+The following options are used by the master pvmd when starting slaves
+and are only of interest to someone writing a <I>hoster</I>.
+Don't just go using them, now.
+<DL COMPACT>
+<DT>-s<DD>
+Start pvmd in slave mode.
+Hostfile cannot be used,
+five additional parameters must be supplied:
+master pvmd index,
+master IP,
+master MTU,
+slave pvmd index,
+and
+slave IP.
+<DT>-S<DD>
+Same as -s,
+but slave pvmd doesn't wait for its <I>stdin</I> to be closed
+after printing its parameters.
+Used for manual startup.
+<DT>-f<DD>
+Slave doesn't fork after configuration (useful if the slave is
+to be controlled or monitored by some process).
+</DL>
+<P>
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>HOST FILE FORMAT</H2>
+
+Each host in the virtual machine must have an entry in the host
+file.
+Lines beginning with a splat ( # ), optionally preceded by whitespace,
+are ignored.
+<P>
+A simple host file might look like:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT># my first host file<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>thud<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>fred<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>wilma<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>barney<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>betty<BR>
+<P>
+This specifies the names of five hosts to be configured in the virtual machine.
+<P>
+The master <I>pvmd</I> for a group is started by hand on the localhost,
+and it starts slaves on each of the remaining hosts
+using the <I>rsh</I> or <I>rexec</I> command.
+The master host may appear on any line of the host file.
+Host names cannot be numeric (IP) addresses,
+because they are passed to rsh and rexec(),
+which usually don't accept addresses.
+<P>
+The simple format above works fine if you have the same login name
+on all five machines and the name of the master host in your .rhosts
+files on the other four.
+<P>
+There are several host file options available:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>lo=NAME<DD>
+Specifies an alternate login name (NAME) to use.
+<P>
+<DT>so=pw<DD>
+This is necessary when the remote host cannot trust the master.
+Causes the master pvmd to prompt for a password for the remote host
+in the tty of the pvmd (note you can't start the master using the
+console or background it when using this option) you will see:
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>Password (honk.cs.utk.edu:manchek):<BR>
+<BR>
+
+you should type your password for the remote host.  The startup
+will then continue as normal.
+<P>
+<DT>dx=FILE<DD>
+Specifies the path of the pvmd executable.
+FILE may be a simple filename, an absolute pathname,
+or a path relative to the user's home directory on the remote host.
+This is mainly useful to aid in debugging new versions of PVM,
+but may have other uses.
+<P>
+<DT>ep=PATH<DD>
+Specifies a path for the <I>pvmd</I> to search for executable
+program components when spawning a new process.
+The path may have multiple elements, separated by colons ( : ).
+<P>
+<DT>wd=PATH<DD>
+Specifies a working directory in which all spawned
+tasks on this host will execute.
+<P>
+<DT>sp=VALUE<DD>
+Specifies the relative computational speed of this host
+compared to other hosts in the configuration.
+VALUE is an integer in the range [1 - 1000000]
+<P>
+<DT>bx=PATH<DD>
+Specifies the debugger program path.
+Note: the environment variable PVM_DEBUGGER can also be set.
+<P>
+<DT>ip=NAME<DD>
+Specifies an alternate IP address to use for the host.
+As with host names (when ip= is not used),
+the address must be a host name, not a numeric address, because it is passed
+to rsh and rexec().
+This option allows one to pick a specific network interface for a machine
+without using the interface's name.
+It can also be used to create a virtual machine using symbolic (instead of actual)
+host names.
+<P>
+<DT>so=ms<DD>
+Rarely used.
+Causes the master pvmd to request user to manually
+perform the startup of a pvmd on a slave host when rsh and rexec
+network services are disabled but IP connectivity exists.
+See section &quot;MANUAL STARTUP&quot;.
+<P>
+<DT>id=VMID<DD>
+A new feature in PVM 3.4.4 is the concept of a &quot;Virtual Machine ID&quot;.
+You can now set the VMID to an arbitrary string and this will
+distinguish and allow multiple virtual machines to run on the same
+set of hosts under the same userid.  (This feature was originally
+introduced by SGI in their commercial PVM product, and has now been
+generalized for the public PVM system.)  This feature seems to be
+something that people often want, and the PVM_VMID is the cleanest
+way to provide this functionality, rather than overloading the
+SHAREDTMP compiler flag and other internals.
+By default, all hosts which are added to the virtual machine
+will inherit the same VMID.  If hosts are added to the virtual machine
+which are running older versions of PVM (prior to 3.4.4), then the
+VMID will be ignored for those hosts, and hence these machines can
+only be added to one virtual machine for the given user.  The VMID
+need not be consistent on every host in a virtual machine (although
+this is not necessarily advisable).
+</DL>
+</DL>
+
+<P>
+
+<P>
+A dollar sign ( $ ) in an option introduces a variable name,
+for example <I>$PVM_ARCH</I>.
+Names are expanded from environment variables by each pvmd.
+<P>
+Each of the flags above has a default value.  These are:
+<DL COMPACT><DT><DD>
+
+<DL COMPACT>
+<DT>lo<DD>
+The loginname on the master host.
+<DT>so<DD>
+Nothing
+<DT>dx<DD>
+$PVM_ROOT/lib/pvmd (or environment variable PVM_DPATH)
+<DT>ep<DD>
+$HOME/pvm3/bin/$PVM_ARCH:$PVM_ROOT/bin/$PVM_ARCH
+<DT>wd<DD>
+$HOME
+<DT>sp<DD>
+1000
+<DT>bx<DD>
+$PVM_ROOT/lib/debugger
+
+</DL>
+</DL>
+
+<P>
+
+<P>
+You can change these by adding a line with a star ( * ) in the
+first field followed by the options, for example:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>* lo=afriend so=pw<BR>
+<P>
+This sets new default values for 'lo' and 'so' for the remainder
+of the host file, or until the next '*' line.
+Options set on the last '*' line also apply to hosts added dynamically
+using <I>pvm_addhosts()</I>.
+<P>
+Host options can be set without starting the hosts automatically.
+Information on host file lines beginning with '&amp;' is stored,
+but the hosts are not started until added using <I>pvm_addhosts()</I>.
+<P>
+Example host file:
+<PRE>
+        # host file for testing on various platforms
+        fonebone
+        refuge
+        # installed in /usr/local here
+        sigi.cs            dx=/usr/local/pvm3/lib/pvmd
+        # borrowed accts, &quot;guest&quot;, don't trust fonebone
+        *                  lo=guest  so=pw
+        sn666.jrandom.com
+        cubie.misc.edu
+        # really painful one, must start it by hand and share a homedir
+        &amp; igor.firewall.com  lo=guest2  so=ms  ep=bob/pvm3/bin/$PVM_ARCH
+</PRE>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>MANUAL STARTUP</H2>
+
+When adding a host with this option set you will see on the tty of the pvmd:
+<PRE>
+        *** Manual startup ***
+        Login to &quot;honk&quot; and type:
+        $PVM_ROOT/lib/pvmd -S -d0 -nhonk 1 80a9ca95:0cb6 4096 2 80a95c43:0000
+        Type response:
+</PRE>
+
+<P>
+after typing the given command on host <I>honk</I>, you should see a line like:
+<PRE>
+        ddpro&lt;2312&gt; arch&lt;ALPHA&gt; ip&lt;80a95c43:0a8e&gt; mtu&lt;4096&gt;
+</PRE>
+
+<P>
+type this line on the tty of the master pvmd.
+You should then see:
+<PRE>
+        Thanks
+</PRE>
+
+<P>
+and the two pvmds should be able to communicate.
+<P>
+Note you can't start the master using the
+console or background it when using this option.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>OVERLOADING HOSTS</H2>
+
+<P>
+You can force PVM to overload a host (start more than one pvmd on it)
+by putting a '$' before the host name in the host file.
+This is not recommended unless you know what you're doing and have
+a good reason for it.
+You must build the PVM source with option OVERLOADHOST defined for it to work.
+<P>
+You may also need to use the ip= hostfile option to define several names
+with the same IP address.
+If two or more hosts in a PVM have the same name,
+they cannot be identified uniquely.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>STOPPING PVMD3</H2>
+
+
+
+
+The preferred method of stopping all the pvmds is to give the
+<I>halt</I> command in the PVM console. This kills all PVM tasks,
+all the remote daemons, the local daemon, and finally the console itself.
+If the master pvmd is killed manually it should be sent a SIGTERM signal
+to allow it to kill the remote pvmds and clean up various files.
+<P>
+
+The pvmd can be killed in a manner that leaves the file
+/tmp/pvmd.<I>uid</I> behind on one or more hosts.
+<I>Uid</I> is the numeric user ID (from /etc/passwd) of the user.
+This will prevent PVM from restarting on that host.
+Deletion of this file will fix this problem:
+<P>
+<PRE>
+    rm `( grep $user /etc/passwd || ypmatch $user passwd )
+         | awk -F: '{print &quot;/tmp/pvmd.&quot;$3; exit}'` 
+</PRE>
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+
+
+<PRE>
+  $PVM_ROOT/lib/pvmd  PVM daemon startup script
+  $PVM_ROOT/lib/$PVM_ARCH/pvmd3 PVM daemon executable
+  $HOME/.pvmprofile Shell commands read by pvmd before
+    running pvmd3
+  $HOME/pvm3/bin/$PVM_ARCH  Private PVM executable directory
+  $PVM_ROOT/pvm3/bin/$PVM_ARCH  System PVM executable directory
+  /tmp/pvmd.<I>uid</I> Pvmd local socket address
+  /tmp/pvml.<I>uid</I> Pvmd runtime error log
+  $HOME/.rhosts File allowing access to a host from
+    other hosts
+</PRE>
+
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+pvm(1PVM),
+pvm_intro(1PVM),
+<A HREF="../man5/rhosts.5.php">rhosts</A>(5)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">HOST FILE FORMAT</A><DD>
+<DT><A HREF="#lbAG">MANUAL STARTUP</A><DD>
+<DT><A HREF="#lbAH">OVERLOADING HOSTS</A><DD>
+<DT><A HREF="#lbAI">STOPPING PVMD3</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

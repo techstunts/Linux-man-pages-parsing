@@ -1,0 +1,364 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ABCDE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ABCDE</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+abcde - Grab an entire CD and compress it to Ogg or MP3 format.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>abcde</B>
+
+<I>[options] [tracks]</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Ordinarily, the process of grabbing the data off a CD and encoding it, then
+tagging or commenting it, is very involved.
+<B>abcde</B>
+
+is designed to automate this. It will take an entire CD and convert it into
+a compressed audio format - Ogg Vorbis or MPEG Audio Layer III. With one
+command, it will:
+<DL COMPACT>
+<DT><B>*</B>
+
+<DD>
+Do a CDDB query over the Internet to look up your CD
+<DT><B>*</B>
+
+<DD>
+Grab a track from your CD
+<DT><B>*</B>
+
+<DD>
+Compress it to Ogg or MP3 format
+<DT><B>*</B>
+
+<DD>
+Comment or ID3 tag it
+<DT><B>*</B>
+
+<DD>
+Give it an intelligible filename
+<DT><B>*</B>
+
+<DD>
+Delete the intermediate WAV file
+<DT><B>*</B>
+
+<DD>
+Repeat until finished
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a [actions]</B>
+
+<DD>
+Comma-delimited list of actions to perform. Can be one or more of:
+cddb, read, encode, tag, move, playlist, clean. Encode implies read. Tag implies
+cddb, read, encode. Move implies cddb, read, encode, tag. Playlist implies
+cddb. The default is to do all actions except playlist.
+<DT><B>-c [filename]</B>
+
+<DD>
+Specifies an additional configuration file to parse. Configuration options
+in this file override those in /etc/abcde.conf or $HOME/.abcde.conf.
+<DT><B>-C [discid]</B>
+
+<DD>
+Allows you to resume a session for
+<I>discid</I>
+
+when you no longer have the CD available (abcde will automatically resume if
+you still have the CD in the drive). You must have already finished at
+least the &quot;read&quot; action during the previous session.
+<DT><B>-d [devicename]</B>
+
+<DD>
+CD-ROM block device that contains audio tracks to be read.
+<DT><B>-D</B>
+
+<DD>
+Capture debugging information (you'll want to redirect this - try 'abcde -D
+2&gt;logfile')
+<DT><B>-j [number]</B>
+
+<DD>
+Start [number] encoder processes at once. Useful for SMP systems. Overrides
+the MAXPROCS configuration variable.
+<DT><B>-l</B>
+
+<DD>
+Use the low-diskspace algorithm. See the LOWDISK configuration variable.
+<DT><B>-o [filetype]</B>
+
+<DD>
+Select output type. Can be either &quot;ogg&quot; or &quot;mp3&quot;. See the OUTPUTTYPE
+configuration variable.
+<DT><B>-r [hosts...]</B>
+
+<DD>
+Remote encode on this comma-delimited list of machines using distmp3. See
+the REMOTEHOSTS configuration variable.
+<DT><B>-x</B>
+
+<DD>
+Eject the CD when all tracks have been read. See the EJECTCD configuration
+variable.
+<DT><B>-h</B>
+
+<DD>
+Get help information.
+<DT><B>[tracks]</B>
+
+<DD>
+A list of tracks you want abcde to process. If this isn't specified, abcde
+will process the entire CD. Accepts ranges of track numbers -
+&quot;abcde 1-5 7 9&quot; will process tracks 1, 2, 3, 4, 5, 7, and 9.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OUTPUT</H2>
+
+Each track is, by default, placed in a separate file named after the track
+in a subdirectory named after the artist under the current directory. Each
+file is given an extension identifying its compression format, '.ogg'
+or '.mp3'. This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
+variables in your abcde.conf.
+<A NAME="lbAG">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+abcde sources two configuration files on startup - /etc/abcde.conf and
+$HOME/.abcde.conf, in that order. Here is a list of options abcde recognizes:
+<DL COMPACT>
+<DT><B>CDDBURL</B>
+
+<DD>
+Specifies a server to use for CDDB lookups.
+<DT><B>ENCODERSYNTAX</B>
+
+<DD>
+Specifies the style of encoder to use. Valid options are 'oggenc' (default
+for Ogg Vorbis), 'vorbize', 'lame' (default for MP3), 'gogo', 'bladeenc',
+'l3enc', and 'mp3enc'. This affects the default location of the binary,
+the variable to pick encoder command-line options from, and where the options
+are given.
+<DT><B>HELLOINFO</B>
+
+<DD>
+Specifies the Hello information to send to the CDDB server. The CDDB
+protocol requires you to send a valid username and hostname each time you
+connect. The format of this is <A HREF="mailto:username@hostname">username@hostname</A>.
+<DT><B>OUTPUTDIR</B>
+
+<DD>
+Specifies the directory to place completed tracks/playlists in.
+<DT><B>WAVOUTPUTDIR</B>
+
+<DD>
+Specifies the temporary directory to store .wav files in. Abcde may use up
+to 700MB of temporary space for each session (although it is rare to use
+over 100MB for a machine that can encode music as fast as it can read it).
+<DT><B>OUTPUTFORMAT</B>
+
+<DD>
+Specifies the format for completed Ogg or MP3 filenames. Variables are included
+using standard shell syntax. Allowed variables are ALBUMFILE, ARTISTFILE,
+TRACKFILE, and TRACKNUM. Default is
+'${ARTISTFILE}/${TRACKFILE}.${OUTPUTTYPE}'.
+Make sure to use single quotes around this variable. TRACKNUM is
+automatically zero-padded.
+<DT><B>OUTPUTTYPE</B>
+
+<DD>
+Specifies the encoding format to output as well as the default extension and
+encoder. Defaults to &quot;ogg&quot;. Valid settings are &quot;ogg&quot; (Ogg Vorbis) and &quot;mp3&quot;
+(MPEG-1 Audio Layer 3).
+<DT><B>VAOUTPUTFORMAT</B>
+
+<DD>
+Just like OUTPUTFORMAT but for Various Artists discs. Default is whatever
+OUTPUTFORMAT is set to.
+<DT><B>PATHNAMES</B>
+
+<DD>
+The following configuration file options specify the pathnames of their
+respective utilities: LAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
+VORBIZE, OGGENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, WGET, CDDISCID,
+CDDBTOOL, EJECT, DISTMP3, and VORBISCOMMENT.
+<DT><B>COMMAND-LINE OPTIONS</B>
+
+<DD>
+If you wish to specify command-line options to any of the programs abcde
+uses, set the following configuration file options: LAMEOPTS, GOGOOPTS,
+BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS,
+OGGENCOPTS, ID3OPTS, ID3V2OPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, WGETOPTS,
+CDDBTOOLOPTS, EJECTOPTS, and DISTMP3OPTS.
+<DT><B>MAXPROCS</B>
+
+<DD>
+Defines how many encoders to run at once. This makes for huge speedups
+on SMP systems. You should run one encoder per CPU at once for maximum
+efficiency, although more doesn't hurt very much.
+<DT><B>LOWDISK</B>
+
+<DD>
+If set to y, conserves disk space by encoding tracks immediately after
+reading them. This is substantially slower than normal operation but
+requires several hundred MB less space to complete the encoding of an
+entire CD. Use only if your system is low on space and cannot encode as
+quickly as it can read.
+<DT><B>PLAYLISTFORMAT</B>
+
+<DD>
+Specifies the format for completed playlist filenames. Works like the
+OUTPUTFORMAT configuration variable. Default is
+'${ARTISTFILE}_-_${ALBUMFILE}.m3u'.
+Make sure to use single quotes around this variable.
+<DT><B>PLAYLISTDATAPREFIX</B>
+
+<DD>
+Specifies a prefix for filenames within a playlist. Useful for http
+playlists, etc.
+<DT><B>COMMENT</B>
+
+<DD>
+Specifies a comment to embed in the ID3 or Ogg comment field of each
+finished track. Can be up to 28 characters long. Supports the same
+syntax as OUTPUTFORMAT. Does not currently support ID3v2.
+<DT><B>REMOTEHOSTS</B>
+
+<DD>
+Specifies a comma-delimited list of systems to use for remote encoding using
+distmp3. Equivalent to -r.
+<DT><B>mungefilename</B>
+
+<DD>
+mungefilename() is an abcde shell function that can be overridden via
+abcde.conf. It takes CDDB data as $1 and outputs the resulting filename on
+stdout. It defaults to eating control characters, apostrophes and
+question marks, translating spaces and forward slashes to underscores, and
+translating colons to an underscore and a hyphen.
+<BR>
+
+If you modify this function, it is probably a good idea to keep the forward
+slash munging (UNIX cannot store a file with a '/' char in it) as well as
+the control character munging (NULs can't be in a filename either, and
+newlines and such in filenames are typically not desirable).
+<DT><B>EJECTCD</B>
+
+<DD>
+If set to &quot;y&quot;, abcde will call <A HREF="../man1/eject.1.php">eject</A>(1) to eject the cdrom from the drive
+after all tracks have been read.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BACKEND TOOLS</H2>
+
+abcde requires the following backend tools to work:
+<DL COMPACT>
+<DT><B>*</B>
+
+<DD>
+An Ogg or MP3 Encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc)
+<DT><B>*</B>
+
+<DD>
+An audio CD reading utility (cdparanoia, cdda2wav)
+<DT><B>*</B>
+
+<DD>
+cd-discid, a CDDB DiscID reading program.
+<DT><B>*</B>
+
+<DD>
+wget, an HTTP retrieval program.
+<DT><B>*</B>
+
+<DD>
+(for MP3s) id3, an id3 tagging program.
+<DT><B>*</B>
+
+<DD>
+(optional) distmp3, a client/server for distributed mp3 encoding.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cdparanoia.1.php">cdparanoia</A></B>(1),
+
+<B><A HREF="../man1/cdda2wav.1.php">cdda2wav</A></B>(1),
+
+<B><A HREF="../man1/oggenc.1.php">oggenc</A></B>(1),
+
+<B><A HREF="../man1/vorbize.1.php">vorbize</A></B>(1),
+
+<B><A HREF="../man1/id3.1.php">id3</A></B>(1),
+
+<B><A HREF="../man1/wget.1.php">wget</A></B>(1),
+
+<B><A HREF="../man1/cd-discid.1.php">cd-discid</A></B>(1),
+
+<B><A HREF="../man1/distmp3.1.php">distmp3</A></B>(1),
+
+<B><A HREF="../man1/distmp3host.1.php">distmp3host</A></B>(1)
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Robert Woodcock &lt;<A HREF="mailto:rcw@debian.org">rcw@debian.org</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">OUTPUT</A><DD>
+<DT><A HREF="#lbAG">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAH">BACKEND TOOLS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

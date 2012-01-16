@@ -1,0 +1,379 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DICTFMT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DICTFMT</H1>
+Section:  (1)<BR>Updated: 25 December 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dictfmt - formats a DICT protocol dictionary database
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<PRE>
+<B>dictfmt</B><I>  -c5|-e|-f|-h|-j|-p [options]  basename</I>
+</PRE>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>dictfmt</B>
+
+takes a file, 
+<I>FILE,</I>
+
+on stdin, and creates a dictionary database named 
+<I>basename.dict,</I>
+
+that conforms to the DICT protocol.  It also creates an index file named 
+<I>basename.index.  </I>
+
+By default, the index is sorted according to the
+C locale, and only alphanumeric characters and spaces are used in
+sorting, however this may be changed with the --locale and --allchars
+options.  (
+<I>basename</I> is commonly chosen to correspond to the basename of
+
+<I>FILE</I>
+
+, but this is not mandatory.)  
+<P>
+Unless the database is extremely small, it is
+highly recommended that 
+<I>basename.dict</I>
+
+be compressed with
+<I>/usr/bin/dictzip </I>
+
+to create 
+<I>basename.dict.dz.</I>
+
+(dictzip is included in
+the 
+<B>dictd </B>
+
+source package.)    
+<P>
+FILE may be in any of the several formats described by 
+the format options -c5, -e, -f, -h, -j, or -p.  Exactly one of 
+these options must be given.
+<P>
+Headers are prepended to the .dict file giving the URL of the site
+from which the original database was obtained, the name of the
+dictionary, and the date of conversion (formatting).  If the -u and/or
+-s options are omitted, the value &quot;unknown&quot; will be included for these
+values, which is undesirable for a publicly distributed database.
+<P>
+All text in the input file prior to the first headword is appended to
+the headers in the .dict file.  All text in the input file following
+a headword, up to the next headword, is copied unchanged to the .dict
+file.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>FORMATTING OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-c5</B>
+
+<DD>
+<I>FILE </I>
+
+is formatted with 
+<B>headwords </B>
+
+preceded by 5 or more underscore characters (_) and a blank line. 
+All text until the next 
+<B>headword </B>
+
+is considered the definition.  Any leading `@'
+characters are stripped out, but the file is otherwise unchanged. This
+option was written to format the CIA WORLD FACTBOOK 1995.
+<DT><B>-e</B>
+
+<DD>
+<I>FILE </I>
+
+is in html format, with the 
+<B>headword </B>
+
+tagged as bold.  (&lt;B&gt;headword - &lt;/B&gt;)
+<DL COMPACT><DT><DD>
+This option was written to format EASTON'S 1897 BIBLE DICTIONARY.  A
+typical entry from Easton is:
+<P>
+&lt;A NAME=&quot;T0000005&quot;&gt;
+<BR>
+
+&lt;B&gt;Abagtha - &lt;/B&gt;
+<BR>
+
+one of the seven eunuchs in Ahasuerus's court (Esther 1:10;
+2:21).
+<P>
+This is converted to:
+<BR>
+
+Abagtha
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;one&nbsp;of&nbsp;the&nbsp;seven&nbsp;eunuchs&nbsp;in&nbsp;Ahasuerus's&nbsp;court&nbsp;(Esther&nbsp;1:10;
+2:21).
+<P>
+The heading &quot;&lt;A NAME=&quot;T0000005&quot;&gt; is omitted, and the 
+<B>headword </B>
+
+`Abagtha' is indexed.
+<P>
+<B>NOTE: </B>
+
+This option should be used with caution.  It removes several html tags
+(enough to format Easton properly), but not all.  The Makefile that
+was originally written to format dict-easton uses sed scripts to
+modify certain cross reference tags.  It may be necessary to pipe the
+input file through a sed script, or hack the source of dictfmt in
+order to properly format other html databases.
+</DL>
+
+<DT><B>-f</B>
+
+<DD>
+<I>FILE </I>
+
+is formatted with the 
+<B>headwords</B>
+
+starting in column 0, with the definition indented at least one space
+(or tab character) on subsequent lines.  The third line starting in
+column 0 is taken as the first headword, and the first two lines
+starting in column 0 are treated as part of the headers.  This option
+was written to format the F.O.L.D.O.C.
+<DT><B>-h</B>
+
+<DD>
+<I>FILE </I>
+
+is formatted with the 
+<B>headwords</B>
+
+starting in column 0, followed by a comma, with the definition
+continuing on the same line.  All text before the first single
+character line is considered part of the headers, and lines with only
+one character are omitted from the .dict file.  The first headword
+is on the line following the first single character line.
+<DL COMPACT><DT><DD>
+This option was written to format HITCHCOCK'S  BIBLE
+NAMES DICTIONARY.  The 
+<B>headword </B>
+
+is indexed; the text of the file is not changed. 
+</DL>
+
+<DT><B>-j</B>
+
+<DD>
+<I>FILE </I>
+
+is formatted with 
+<B>headwords </B>
+
+starting in col 0, enclosed in colons, followed by the definition.
+<DL COMPACT><DT><DD>
+This option was written to format the JARGON FILE.  The colons
+surrounding the 
+<B>headword</B>
+
+are removed, and the
+<B>headword</B>
+
+is indexed.  Lines beginning with '*', '=', or '-' are also removed.
+All text before the first headword is included in the headers. 
+<P>
+<B>NOTE:</B>
+
+Some recent versions of the JARGON FILE had three blanks inserted
+before the first colon at each headword.  These must be removed before
+processing with dictfmt.  (sed scripts have been used for this
+purpose. ed, awk, or perl scripts are also possible.)
+</DL>
+
+<DT><B>-p</B>
+
+<DD>
+<I>FILE </I>
+
+is formatted with `%h' in column 0, followed by a blank, followed by the 
+<B>headword,</B>
+
+optionally followed by a line containing `%d' in column 0.  The
+definition starts on the following line.  The first line beginning
+'%h' and any lines beginnning '%d' are stripped from the .dict
+file, and '%h ' is stripped from in front of the headword.  All
+text before the first headword is included in the headers.   
+
+This option was written to format Jay Kominek's elements database.  
+<DT></DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DD>
+<DL COMPACT>
+<DT><B>-u</B><I> url</I>
+
+<DD>
+Specifies the URL of the site from which the raw database was obtained.
+<DT><B>-s</B><I> name</I>
+
+<DD>
+Specifies the name and, optionally, the version and date, of the
+database.  (If this contains spaces, it must be quoted.)
+<DT><B>-L</B>
+
+<DD>
+display license and copyright information
+<DT><B>-V</B>
+
+<DD>
+display version information
+<DT><B>-D</B>
+
+<DD>
+output debuugging information
+<DT><B>--help</B>
+
+<DD>
+display a help message
+<DT><B>--locale</B><I> locale</I>
+
+<DD>
+specifies the locale used for sorting.  if no locale is specified, the
+&quot;C&quot; locale is used. 
+<DT><B>--allchars</B>
+
+<DD>
+use all characters (not only alphanumeric and space) in sorting the index
+<DT><B>--headword-separator</B><I> sep</I>
+
+<DD>
+sets the head word separator, which allows several words to have the same
+definition.  For example, if '--headword-separator %%%' is given,
+and the input file contains 'autumn%%%fall', both 'autumn' and 'fall'
+will be indexed as  headwords, with the same definition.
+<DT><B>--without-headword</B>
+
+<DD>
+head words will not be included in .dict file
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CREDITS</H2>
+
+<B>dictfmt</B>
+
+was written by Rik Faith (<A HREF="mailto:faith@cs.unc.edu">faith@cs.unc.edu</A>) as part of the dict-misc
+package.
+<B>dictfmt</B>
+
+is distributed under the terms of the GNU
+General Public License.  If you need to distribute under other terms,
+write to the author.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+This manual page was written by Robert D. Hilliard
+&lt;<A HREF="mailto:hilliard@debian.org">hilliard@debian.org</A>&gt; .  
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/dict.1.php">dict</A></B>(1),
+
+<B><A HREF="../man8/dictd.8.php">dictd</A></B>(8),
+
+<B><A HREF="../man1/dictzip.1.php">dictzip</A></B>(1),
+
+<B><A HREF="http://www.dict.org,">http://www.dict.org,</A></B>
+
+<B>RFC 2229</B>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">FORMATTING OPTIONS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">CREDITS</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

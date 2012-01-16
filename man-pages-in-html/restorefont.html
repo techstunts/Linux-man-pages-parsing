@@ -1,0 +1,244 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>restorefont</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>restorefont</H1>
+Section: Svgalib User Manual (1)<BR>Updated: 2 Aug 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+restorefont - save or restore the SVGA font for textmode.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>restorefont {-r|-w} </B><I>filename</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The font used by SVGA when in textmode is written to or restored from
+<I>filename</I>
+
+using the
+<B><A HREF="../man3/vga_gettextfont.3.php">vga_gettextfont</A></B>(3) and 
+
+<B><A HREF="../man3/vga_puttextfont.3.php">vga_puttextfont</A></B>(3)
+
+functions.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>FILE FORMAT</H2>
+
+The VGA font file
+<I>filename</I>
+
+has the following format:
+<P>
+<DL COMPACT><DT><DD>
+<B>Offset:</B>
+
+<BR>
+
+<B>   0 -   31  </B>Character 0
+
+<BR>
+
+<B>    ...      </B>    ...
+
+<BR>
+
+<B>8164 - 8195  </B>Character 255
+
+</DL>
+
+<P>
+Each row of a character bitmap is stored as a byte (8 pixels).
+The space that is left from the 32-byte buffer for each character
+is ignored, e.g. a 16 line font uses only offsets 0 - 15 of each character.
+<P>
+Linux textmode screen resolutions:
+<P>
+<B>80x25</B>    16 line font  400 scanlines
+
+<BR>
+
+<B>80x28</B>    14 line font  400 scanlines
+
+<BR>
+
+<B>80x50</B>     8 line font  400 scanlines
+
+<P>
+The font sizes and resolutions of extended textmodes depend on the
+video card type and BIOS:
+<P>
+<B>132x25</B>   14 line font  350 scanlines (ugly)
+
+<BR>
+
+<B>132x25</B>   16 line font  400 scanlines
+
+<BR>
+
+<B>132x43</B>    8 line font  350 scanlines (use fix132x43 to fix/improve)
+
+<BR>
+
+<B>132x50</B>    8 line font  400 scanlines
+
+<BR>
+
+<P>
+Using a font that has less lines per character than the textmode works, but
+the characters are smaller. Using a font that is bigger than the textmode
+font results in the bottom part of characters being cut off.
+<P>
+The svgalib distribution contains sample fonts with 8, 14 and 16 line characters
+in the files
+<I>utils/font8</I>, <I>utils/font14</I>, and <I>utils/font16</I>.
+
+<P>
+The
+<B>convfont</B>
+
+(1) program can be used to convert fonts straightforwardly stored 
+character-after-character (i.e. each character only uses 8/14/whatever
+bytes), to the 32-byte per character format that
+<B>restorefont</B>
+
+requires.
+<P>
+The purpose of this program is usually to recover from a crashed console due to an
+svgalib, Xfree or other program bug. First save the state of the SVGA card when on a
+text console. After the crash restore this state. The
+<B><A HREF="../man1/savetextmode.1.php">savetextmode</A></B>(1)
+
+and
+<B><A HREF="../man1/textmode.1.php">textmode</A></B>(1)
+
+script makes this procedure very easy.
+<P>
+The national/fontpak packages, which include kernel patches, allow different
+textmode fonts to be used in different virtual consoles. These have been
+superseded by the kbd package (in the kernel since ages). See the
+<B><A HREF="../man8/setfont.8.php">setfont</A></B>(8)
+
+utility of the kbd package as a starting point.
+<P>
+Recent kernels support up to 2 fonts with 512 chars each. Recent versions
+of svgalib take this into account and extend the size of the datafile accordingly.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-w </B><I>filename</I>
+
+<DD>
+write the font to the file
+<I>filename</I>.
+
+<DT><B>-r </B><I>filename</I>
+
+<DD>
+restore the font from the file
+<I>filename</I>.
+
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man7/svgalib.7.php">svgalib</A></B>(7),
+
+<B><A HREF="../man7/vgagl.7.php">vgagl</A></B>(7),
+
+<B><A HREF="../man5/libvga.config.5.php">libvga.config</A></B>(5),
+
+<B><A HREF="../man8/setfont.8.php">setfont</A></B>(8),
+
+<B><A HREF="../man3/vga_gettextfont.3.php">vga_gettextfont</A></B>(3),
+
+<B><A HREF="../man3/vga_puttextfont.3.php">vga_puttextfont</A></B>(3),
+
+<B><A HREF="../man1/dumpreg.1.php">dumpreg</A></B>(1),
+
+<B><A HREF="../man1/convfont.1.php">convfont</A></B>(1),
+
+<B><A HREF="../man1/fix132x43.1.php">fix132x43</A></B>(1),
+
+<B><A HREF="../man1/restoretextmode.1.php">restoretextmode</A></B>(1),
+
+<B><A HREF="../man1/restorepalette.1.php">restorepalette</A></B>(1),
+
+<B><A HREF="../man1/runx.1.php">runx</A></B>(1),
+
+<B><A HREF="../man1/savetextmode.1.php">savetextmode</A></B>(1),
+
+<B><A HREF="../man1/setmclk.1.php">setmclk</A></B>(1),
+
+<B><A HREF="../man1/textmode.1.php">textmode</A></B>(1).
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+This manual page was edited by Michael Weller &lt;<A HREF="mailto:eowmob@exp-math.uni-essen.de">eowmob@exp-math.uni-essen.de</A>&gt;. The
+exact source of the referenced utility as well as of the original documentation is
+unknown.
+<P>
+It is very likely that both are at least to some extent are due to
+Harm Hanemaayer &lt;<A HREF="mailto:H.Hanemaayer@inter.nl.net">H.Hanemaayer@inter.nl.net</A>&gt;.
+<P>
+Occasionally this might be wrong. I hereby
+asked to be excused by the original author and will happily accept any additions or corrections
+to this first version of the svgalib manual.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">FILE FORMAT</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

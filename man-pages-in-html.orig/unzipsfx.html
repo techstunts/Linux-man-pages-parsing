@@ -1,0 +1,564 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>UNZIPSFX</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>UNZIPSFX</H1>
+Section: Misc. Reference Manual Pages (1L)<BR>Updated: 22 May 2004 (v5.51)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+unzipsfx - self-extracting stub for prepending to ZIP archives
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>&lt;name of unzipsfx+archive combo&gt;</B> [<B>-cfptuz</B>[<B>ajnoqsCLV$</B>]]
+[<I>file(s)</I>&nbsp;... [<B>-x</B>&nbsp;<I>xfile(s)</I>&nbsp;...]]
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>unzipsfx</I> is a modified version of <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) designed to be
+prepended to existing ZIP archives in order to form self-extracting archives.
+Instead of taking its first non-flag argument to be the zipfile(s) to be
+extracted, <I>unzipsfx</I> seeks itself under the name by which it was invoked
+and tests or extracts the contents of the appended archive.  Because the
+executable stub adds bulk to the archive (the whole purpose of which is to
+be as small as possible), a number of the less-vital capabilities in regular
+<I>unzip</I> have been removed.  Among these are the usage (or help) screen,
+the listing and diagnostic functions (<B>-l</B> and <B>-v</B>), the ability
+to decompress older compression formats (the ``reduce,'' ``shrink'' and
+``implode'' methods).  The ability to extract to a directory other than
+the current one can be selected as a compile-time option, which is now enabled
+by default since UnZipSFX version 5.5.  Similary, decryption is supported as
+a compile-time option but should be avoided unless the attached archive
+contains encrypted files. Starting with release 5.5, another compile-time
+option adds a simple ``run command after extraction'' feature.  This feature
+is currently incompatible with the ``extract to different directory''
+feature and remains disabled by default.
+<P>
+
+<B>Note that
+self-extracting archives made with</B> <I>unzipsfx</I> <B>are no more (or less)
+portable across different operating systems than is
+the</B> <I>unzip</I> <B>executable itself.</B>  In general a self-extracting
+archive made on
+a particular Unix system, for example, will only self-extract under the same
+flavor of Unix.  Regular <I>unzip</I> may still be used to extract the
+embedded archive as with any normal zipfile, although it will generate
+a harmless warning about extra bytes at the beginning of the zipfile.
+<I>Despite this</I>, however, the self-extracting archive is technically
+<I>not</I> a valid ZIP archive, and PKUNZIP may be unable to test or extract
+it.  This limitation is due to the simplistic manner in which the archive
+is created; the internal directory structure is not updated to reflect the
+extra bytes prepended to the original zipfile.
+
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>ARGUMENTS</H2>
+
+<DL COMPACT>
+<DT>[<I>file(s)</I>]<DD>
+An optional list of archive members to be processed.
+Regular expressions (wildcards) similar to those in Unix <I><A HREF="../man1/egrep.1.php">egrep</A></I>(1)
+may be used to match multiple members.  These wildcards may contain:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+matches a sequence of 0 or more characters
+<DT>?<DD>
+matches exactly 1 character
+<DT>[...]<DD>
+matches any single character found inside the brackets; ranges are specified
+by a beginning character, a hyphen, and an ending character.  If an exclamation
+point or a caret (`!' or `^') follows the left bracket, then the range of
+characters within the brackets is complemented (that is, anything <I>except</I>
+the characters inside the brackets is considered a match).
+</DL>
+</DL>
+
+<DT><DD>
+(Be sure to quote any character that might otherwise be interpreted or
+modified by the operating system, particularly under Unix and VMS.)
+<DT>[<B>-x</B>&nbsp;<I>xfile(s)</I>]<DD>
+An optional list of archive members to be excluded from processing.
+Since wildcard characters match directory separators (`/'), this option
+may be used to exclude any files that are in subdirectories.  For
+example, ``foosfx *.[ch] -x */*'' would extract all C source files
+in the main directory, but none in any subdirectories.  Without the <B>-x</B>
+option, all C source files in all directories within the zipfile would be
+extracted.
+</DL>
+<P>
+
+If <I>unzipsfx</I> is compiled with SFX_EXDIR defined, the following option
+is also enabled:
+<DL COMPACT>
+<DT>[<B>-d</B>&nbsp;<I>exdir</I>]<DD>
+An optional directory to which to extract files.  By default, all files
+and subdirectories are recreated in the current directory; the <B>-d</B>
+option allows extraction in an arbitrary directory (always assuming one
+has permission to write to the directory).  The option and directory may
+be concatenated without any white space between them, but note that this
+may cause normal shell behavior to be suppressed.  In particular,
+``-d&nbsp;~'' (tilde) is expanded by Unix C shells into the name
+of the user's home directory, but ``-d~'' is treated as a
+literal subdirectory ``<B>~</B>'' of the current directory.
+
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<I>unzipsfx</I> supports the following <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) options:  <B>-c</B>
+and <B>-p</B> (extract to standard output/screen), <B>-f</B> and <B>-u</B>
+(freshen and update existing files upon extraction), <B>-t</B> (test
+archive) and <B>-z</B> (print archive comment).  All normal listing options
+(<B>-l</B>, <B>-v</B> and <B>-Z</B>) have been removed, but the testing
+option (<B>-t</B>) may be used as a ``poor man's'' listing.  Alternatively,
+those creating self-extracting archives may wish to include a short listing
+in the zipfile comment.
+<P>
+
+See <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) for a more complete description of these options.
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>MODIFIERS</H2>
+
+<I>unzipsfx</I> currently supports all <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) modifiers:  <B>-a</B>
+(convert text files), <B>-n</B> (never overwrite), <B>-o</B> (overwrite
+without prompting), <B>-q</B> (operate quietly), <B>-C</B> (match names
+case-insensitively), <B>-L</B> (convert uppercase-OS names to lowercase),
+<B>-j</B> (junk paths) and <B>-V</B> (retain version numbers); plus the
+following operating-system specific options:  <B>-X</B> (restore VMS
+owner/protection info), <B>-s</B> (convert spaces in filenames to underscores
+[DOS, OS/2, NT]) and <B>-$</B> (restore volume label [DOS, OS/2, NT, Amiga]).
+<P>
+
+(Support for regular ASCII text-conversion may be removed in future versions,
+since it is simple enough for the archive's creator to ensure that text
+files have the appropriate format for the local OS.  EBCDIC conversion will
+of course continue to be supported since the zipfile format implies ASCII
+storage of text files.)
+<P>
+
+See <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) for a more complete description of these modifiers.
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT OPTIONS</H2>
+
+<I>unzipsfx</I> uses the same environment variables as <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) does,
+although this is likely to be an issue only for the person creating and
+testing the self-extracting archive.  See <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) for details.
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>DECRYPTION</H2>
+
+Decryption is supported exactly as in <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L); that is, interactively
+with a non-echoing prompt for the password(s).  See <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) for
+details.  Once again, note that if the archive has no encrypted files there
+is no reason to use a version of <I>unzipsfx</I> with decryption support;
+that only adds to the size of the archive.
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTORUN COMMAND</H2>
+
+When <I>unzipsfx</I> was compiled with CHEAP_SFX_AUTORUN defined, a simple
+``command autorun'' feature is supported. You may enter a command into the
+Zip archive comment, using the following format:
+<P>
+
+
+
+<PRE>
+$AUTORUN$&gt;[command line string]
+
+</PRE>
+
+
+
+<P>
+
+When <I>unzipsfxP recognizes the ``$AUTORUN$&gt;'' token at the beginning
+of the Zip archive comment, the remainder of the first line of the comment
+(until the first newline character) is passed as a shell command to the
+operating system using the C rtl ``system'' function. Before executing
+the command, unzipsfxP displays the command on the console and prompts
+the user for confirmation.  When the user has switched off prompting by
+specifying the </I><B>-q</B> option, autorun commands are never executed.
+<P>
+
+In case the archive comment contains additonal lines of text, the remainder
+of the archive comment following the first line is displayed normally, unless
+quiet operation was requested by supplying a <B>-q</B> option.
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+To create a self-extracting archive <I>letters</I> from a regular zipfile
+<I>letters.zip</I> and change the new archive's permissions to be
+world-executable under Unix:
+<P>
+
+
+
+<PRE>
+cat unzipsfx letters.zip &gt; letters
+chmod 755 letters
+zip -A letters
+
+</PRE>
+
+
+
+<P>
+
+To create the same archive under MS-DOS, OS/2 or NT (note the use of the
+<B>/b</B> [binary] option to the <I>copy</I> command):
+<P>
+
+
+
+<PRE>
+copy /b unzipsfx.exe+letters.zip letters.exe
+zip -A letters.exe
+
+</PRE>
+
+
+
+<P>
+
+Under VMS:
+<P>
+
+
+
+<PRE>
+copy unzipsfx.exe,letters.zip letters.exe
+letters == &quot;$currentdisk:[currentdir]letters.exe&quot;
+zip -A letters.exe
+
+</PRE>
+
+
+
+<P>
+
+(The VMS <I>append</I> command may also be used.  The second command installs
+the new program as a ``foreign command'' capable of taking arguments.  The
+third line assumes that Zip is already installed as a foreign command.)
+Under AmigaDOS:
+<P>
+
+
+
+<PRE>
+MakeSFX letters letters.zip UnZipSFX
+
+</PRE>
+
+
+
+<P>
+
+(MakeSFX is included with the UnZip source distribution and with Amiga
+binary distributions.  ``zip -A'' doesn't work on Amiga self-extracting
+archives.)
+To test (or list) the newly created self-extracting archive:
+<P>
+
+
+
+<PRE>
+letters -t
+
+</PRE>
+
+
+
+<P>
+
+To test <I>letters</I> quietly, printing only a summary message indicating
+whether the archive is OK or not:
+<P>
+
+
+
+<PRE>
+letters -tqq
+
+</PRE>
+
+
+
+<P>
+
+To extract the complete contents into the current directory, recreating all
+files and subdirectories as necessary:
+<P>
+
+
+
+<PRE>
+letters
+
+</PRE>
+
+
+
+<P>
+
+To extract all *.txt files (in Unix quote the `*'):
+<P>
+
+
+
+<PRE>
+letters *.txt
+
+</PRE>
+
+
+
+<P>
+
+To extract everything <I>except</I> the *.txt files:
+<P>
+
+
+
+<PRE>
+letters -x *.txt
+
+</PRE>
+
+
+
+<P>
+
+To extract only the README file to standard output (the screen):
+<P>
+
+
+
+<PRE>
+letters -c README
+
+</PRE>
+
+
+
+<P>
+
+To print only the zipfile comment:
+<P>
+
+
+
+<PRE>
+letters -z
+
+</PRE>
+
+
+
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>LIMITATIONS</H2>
+
+The principle and fundamental limitation of <I>unzipsfx</I> is that it is
+not portable across architectures or operating systems, and therefore
+neither are the resulting archives.  For some architectures there is
+limited portability, however (e.g., between some flavors of Intel-based Unix).
+<P>
+
+Another problem with the current implementation is that any archive
+with ``junk'' prepended to the beginning technically is no longer a zipfile
+(unless <I><A HREF="../man1/zip.1.php">zip</A></I>(1) is used to adjust the zipfile offsets appropriately,
+as noted above).  <I><A HREF="../man1/unzip.1.php">unzip</A></I>(1) takes note of the prepended bytes
+and ignores them since some file-transfer protocols, notably MacBinary, are
+also known to prepend junk.  But PKWARE's archiver suite may not be able to
+deal with the modified archive unless its offsets have been adjusted.
+<P>
+
+<I>unzipsfx</I> has no knowledge of the user's PATH, so in general an archive
+must either be in the current directory when it is invoked, or else a full
+or relative path must be given.  If a user attempts to extract the archive
+from a directory in the PATH other than the current one, <I>unzipsfx</I> will
+print a warning to the effect, ``can't find myself.''  This is always true
+under Unix and may be true in some cases under MS-DOS, depending on the
+compiler used (Microsoft C fully qualifies the program name, but other
+compilers may not).  Under OS/2 and NT there are operating-system calls
+available that provide the full path name, so the archive may be invoked
+from anywhere in the user's path.  The situation is not known for AmigaDOS,
+Atari TOS, MacOS, etc.
+<P>
+
+As noted above, a number of the normal <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) functions have
+been removed in order to make <I>unzipsfx</I> smaller:  usage and diagnostic
+info, listing functions and extraction to other directories.  Also, only
+stored and deflated files are supported.  The latter limitation is mainly
+relevant to those who create SFX archives, however.
+<P>
+
+VMS users must know how to set up self-extracting archives as foreign
+commands in order to use any of <I>unzipsfx</I>'s options.  This is not
+necessary for simple extraction, but the command to do so then becomes,
+e.g., ``run letters'' (to continue the examples given above).
+<P>
+
+<I>unzipsfx</I> on the Amiga requires the use of a special program, MakeSFX,
+in order to create working self-extracting archives; simple concatenation
+does not work.  (For technically oriented users, the attached archive is
+defined as a ``debug hunk.'')  There may be compatibility problems between
+the ROM levels of older Amigas and newer ones.
+<P>
+
+All current bugs in <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) exist in <I>unzipsfx</I> as well.
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<I>unzipsfx</I>'s exit status (error level) is identical to that of
+<I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L); see the corresponding man page.
+
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man1L/funzip.1L.php">funzip</A></I>(1L), <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L), <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L), <I><A HREF="../man1L/zipcloak.1L.php">zipcloak</A></I>(1L),
+<I><A HREF="../man1L/zipgrep.1L.php">zipgrep</A></I>(1L), <I><A HREF="../man1L/zipinfo.1L.php">zipinfo</A></I>(1L), <I><A HREF="../man1L/zipnote.1L.php">zipnote</A></I>(1L), <I><A HREF="../man1L/zipsplit.1L.php">zipsplit</A></I>(1L)
+
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>URL</H2>
+
+The Info-ZIP home page is currently at
+
+
+<PRE>
+<A HREF="http://www.info-zip.org/pub/infozip/">http://www.info-zip.org/pub/infozip/</A>
+
+</PRE>
+
+
+
+or
+
+
+<PRE>
+<A HREF="ftp://ftp.info-zip.org/pub/infozip/">ftp://ftp.info-zip.org/pub/infozip/</A> .
+
+</PRE>
+
+
+
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Greg Roelofs was responsible for the basic modifications to UnZip necessary
+to create UnZipSFX.  See <I><A HREF="../man1L/unzip.1L.php">unzip</A></I>(1L) for the current list of Zip-Bugs
+authors, or the file CONTRIBS in the UnZip source distribution for the
+full list of Info-ZIP contributors.
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">ARGUMENTS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">MODIFIERS</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT OPTIONS</A><DD>
+<DT><A HREF="#lbAI">DECRYPTION</A><DD>
+<DT><A HREF="#lbAJ">AUTORUN COMMAND</A><DD>
+<DT><A HREF="#lbAK">EXAMPLES</A><DD>
+<DT><A HREF="#lbAL">LIMITATIONS</A><DD>
+<DT><A HREF="#lbAM">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+<DT><A HREF="#lbAO">URL</A><DD>
+<DT><A HREF="#lbAP">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

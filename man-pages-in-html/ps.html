@@ -1,0 +1,1853 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PS</H1>
+Section: Linux User's Manual (1)<BR>Updated: July 28, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ps - report a snapshot of the current processes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ps</B> [<I>options</I>]
+<P>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>ps</B>
+
+displays information about a selection of the active processes.
+If you want a repetitive update of the selection and the
+displayed information, use&nbsp;<I><A HREF="../man1/top.1.php">top</A></I>(1) instead.
+
+By default, <B>ps</B> selects all processes with the same effective user
+ID (EUID) as the curent user and associated with the same terminal as the
+invoker.  It displays the process ID (PID), the terminal (tty) associated
+with the process (TTY), the cumulated CPU time in [dd-]hh:mm:ss format
+(TIME), and the executable name (CMD). The use of BSD-style options
+will add process state (STAT) to the default display. The use of BSD-style
+options will also change the process selection to include processes
+on other terminals (TTYs) that are owned by you; alternately, this may
+be described as setting the selection to be the set of all processes
+filtered to exclude processes owned by other users or not on a terminal.
+Output is unsorted by default.
+
+Except as described below, process selection options are additive.
+The default selection is discarded, and then the selected processes
+are added to the set of processes to be displayed.
+A&nbsp;process will thus be shown if it meets any of the selection
+criteria.
+<P>
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMAND-LINE OPTIONS</H2>
+
+This version of <B>ps</B> accepts several kinds of options:
+
+<DL COMPACT>
+<DT>1<DD>
+UNIX options, which may be grouped and must be preceeded by a dash.
+<DT>2<DD>
+BSD options, which may be grouped and must not be used with a dash.
+<DT>3<DD>
+GNU long options, which are preceeded by two dashes.
+
+</DL>
+<P>
+
+Options of different types may be freely mixed, but conflicts can appear.
+There are some synonomous options, which are functionally identical, due
+to the many standards and <B>ps</B> implementations that this <B>ps</B> is
+compatible with.
+
+Note that &quot;<B>ps&nbsp;-aux</B>&quot; is distinct from &quot;<B>ps&nbsp;aux</B>&quot;.
+The POSIX and UNIX standards require that &quot;<B>ps&nbsp;-aux</B>&quot; print all
+processes owned by a user named &quot;x&quot;, as well as printing all processes
+that would be selected by the <B>-a</B> option. If the user named &quot;x&quot; does
+not exist, this <B>ps</B> may interpret the command as &quot;<B>ps&nbsp;aux</B>&quot;
+instead and print a warning. This behavior is intended to aid in
+transitioning old scripts and habits. It is fragile, subject to change,
+and thus should not be relied upon.
+<P>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>To see every process on the system using standard syntax:<DD>
+<B>ps&nbsp;-e</B>
+
+<BR>
+
+<B>ps&nbsp;-ef</B>
+
+<BR>
+
+<B>ps&nbsp;-eF</B>
+
+<BR>
+
+<B>ps&nbsp;-ely</B>
+
+<DT>To see every process on the system using BSD syntax:<DD>
+<B>ps&nbsp;ax</B>
+
+<BR>
+
+<B>ps&nbsp;axu</B>
+
+<DT>To print a process tree:<DD>
+<B>ps&nbsp;-ejH</B>
+
+<BR>
+
+<B>ps&nbsp;axjf</B>
+
+<DT>To get info about threads:<DD>
+<B>ps&nbsp;-eLf</B>
+
+<BR>
+
+<B>ps&nbsp;axms</B>
+
+<DT>To get security info:<DD>
+<B>ps&nbsp;-eo euser,ruser,suser,fuser,f,comm,label</B>
+
+<BR>
+
+<B>ps&nbsp;axZ</B>
+
+<BR>
+
+<B>ps&nbsp;-eM</B>
+
+<DT>To see every process except those running as root (real&nbsp;&amp;&nbsp;effective&nbsp;ID)<DD>
+<B>ps&nbsp;-U&nbsp;root&nbsp;-u&nbsp;root&nbsp;-N</B>
+
+<DT>To see every process with a user-defined format:<DD>
+<B>ps&nbsp;-eo&nbsp;pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm</B>
+
+<BR>
+
+<B>ps&nbsp;axo&nbsp;stat,euid,ruid,tty,tpgid,sess,pgrp,ppid,pid,pcpu,comm</B>
+
+<BR>
+
+<B>ps&nbsp;-eopid,tt,user,fname,tmout,f,wchan</B>
+
+<DT>Odd display with AIX field descriptors:<DD>
+<B>ps&nbsp;-o&nbsp;%u&nbsp;:&nbsp;%U&nbsp;:&nbsp;%p&nbsp;:&nbsp;%a</B>
+
+<DT>Print only the process IDs of syslogd:<DD>
+<B>ps&nbsp;-C&nbsp;syslogd&nbsp;-o&nbsp;pid=</B>
+
+<DT>Print only the name of PID 42:<DD>
+<B>ps&nbsp;-p&nbsp;42&nbsp;-o&nbsp;comm=</B>
+
+</DL>
+<P>
+
+<P>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>SIMPLE PROCESS SELECTION</H2>
+
+<DL COMPACT>
+<DT><B>-A</B>
+
+<DD>
+Select all processes.  Identical to <B>-e</B>.
+<P>
+<DT><B>-N</B>
+
+<DD>
+Select all processes except those that fulfill the specified conditions.
+<P>
+
+<DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><B>DT><</B>
+
+<DD>
+
+Select all processes associated with this terminal.  Identical to the
+<B>t</B> option without any argument.
+<P>
+<DT><B>-a</B>
+
+<DD>
+Select all processes except session leaders (see <I><A HREF="../man2/getsid.2.php">getsid</A></I>(2)) and
+processes not associated with a terminal.
+<P>
+<DT><B>a</B>
+
+<DD>
+Lift the BSD-style &quot;only yourself&quot; restriction, which is imposed upon
+the set of all processes when some BSD-style (without&nbsp;&quot;-&quot;) options
+are used or when the <B>ps</B> personality setting is BSD-like.
+The set of processes selected in this manner is
+in addition to the set of processes selected by other means.
+An alternate description is that this option causes <B>ps</B> to
+list all processes with a terminal (tty), or to list all processes
+when used together with the <B>x</B> option.
+<P>
+<DT><B>-d</B>
+
+<DD>
+Select all processes except session leaders.
+<P>
+<DT><B>-e</B>
+
+<DD>
+Select all processes.  Identical to <B>-A</B>.
+<P>
+
+
+
+
+
+<DT><B>g</B>
+
+<DD>
+Really all, even session leaders.  This flag is obsolete and may be
+discontinued in a future release. It is normally implied by the <B>a</B> flag,
+and is only useful when operating in the sunos4 personality.
+<P>
+<DT><B>r</B>
+
+<DD>
+Restrict the selection to only running processes.
+<P>
+<DT><B>x</B>
+
+<DD>
+Lift the BSD-style &quot;must have a tty&quot; restriction, which is imposed upon
+the set of all processes when
+some BSD-style options are used or when the <B>ps</B> personality
+setting is BSD-like. The set of processes selected in this manner is
+in addition to the set of processes selected by other means.
+An alternate description is that this option causes <B>ps</B> to
+list all processes owned by you (same EUID as <B>ps</B>),
+or to list all processes when used together with the <B>a</B> option.
+<P>
+<DT><B>--deselect</B>
+
+<DD>
+Select all processes except those that fulfill the specified conditions.
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>PROCESS SELECTION BY LIST</H2>
+
+These options accept a single argument in the form of a blank-separated
+or comma-separated list.  They can be used multiple times.
+For&nbsp;example:&nbsp;<B>ps&nbsp;-p&nbsp;&quot;1&nbsp;2&quot;&nbsp;-p&nbsp;3,4</B>
+
+<DL COMPACT>
+<DT><B>-C</B><I>&nbsp;cmdlist</I>
+
+<DD>
+Select by command name.
+<BR>
+
+This selects the processes whose executable name is given in
+<I>cmdlist</I>.
+<P>
+<DT><B>-G</B><I>&nbsp;grplist</I>
+
+<DD>
+Select by real group ID (RGID) or name.
+<BR>
+
+This selects the processes whose real group name or ID is in the
+<I>grplist</I> list.  The real group ID identifies the group of the user
+who created the process, see <I><A HREF="../man2/getgid.2.php">getgid</A></I>(2).
+<P>
+<DT><B>U</B><I>&nbsp;userlist</I>
+
+<DD>
+Select by effective user ID (EUID) or name.
+<BR>
+
+This selects the processes whose effective user name
+or ID is in <I>userlist</I>.
+The effective user&nbsp;ID describes the user whose file
+access permissions are used by the process
+(see&nbsp;<I><A HREF="../man2/geteuid.2.php">geteuid</A></I>(2)).
+Identical to <B>-u</B> and&nbsp;<B>--user</B>.
+<P>
+<DT><B>-U</B><I>&nbsp;userlist</I>
+
+<DD>
+select by real user ID (RUID) or name.
+<BR>
+
+It selects the processes whose real user name or ID is in the
+<I>userlist</I> list.
+The real user ID identifies the user who created the process,
+see&nbsp;<I><A HREF="../man2/getuid.2.php">getuid</A></I>(2).
+<P>
+<DT><B>-g</B><I>&nbsp;grplist</I>
+
+<DD>
+Select by session OR by effective group name.
+<BR>
+
+Selection by session is specified by many standards,
+but selection by effective group is the logical behavior that
+several other operating systems use.
+This <B>ps</B> will select by session when the list
+is completely numeric (as&nbsp;sessions&nbsp;are).
+Group ID numbers will work only when some group names are also specified.
+See the <B>-s</B> and <B>--group</B> options.
+<P>
+<DT><B>p</B><I>&nbsp;pidlist</I>
+
+<DD>
+Select by process ID.  Identical to <B>-p</B> and&nbsp;<B>--pid</B>.
+<P>
+<DT><B>-p</B><I>&nbsp;pidlist</I>
+
+<DD>
+Select by PID.
+<BR>
+
+This selects the processes whose process ID numbers appear in
+<I>pidlist</I>.  Identical to <B>p</B> and&nbsp;<B>--pid</B>.
+<P>
+<DT><B>-s</B><I>&nbsp;sesslist</I>
+
+<DD>
+Select by session ID.
+<BR>
+
+This selects the processes
+with a session ID specified in&nbsp;<I>sesslist</I>.
+<P>
+<DT><B>t</B><I>&nbsp;ttylist</I>
+
+<DD>
+Select by tty.  Nearly identical to <B>-t</B> and <B>--tty</B>,
+but can also be used with an empty <I>ttylist</I> to indicate
+the terminal associated with <B>ps</B>.
+Using the <B>T</B> option is considered cleaner than using <B>T</B> with
+an&nbsp;empty&nbsp;<I>ttylist</I>.
+<P>
+<DT><B>-t</B><I>&nbsp;ttylist</I>
+
+<DD>
+Select by tty.
+<BR>
+
+This selects the processes associated with the terminals
+given in <I>ttylist</I>.
+Terminals (ttys, or screens for text output) can be specified in several
+forms: /dev/ttyS1, ttyS1, S1.
+A&nbsp;plain &quot;-&quot; may be used to select processes not attached to any terminal.
+<P>
+<DT><B>-u</B><I>&nbsp;userlist</I>
+
+<DD>
+Select by effective user ID (EUID) or name.
+<BR>
+
+This selects the processes whose effective user name or ID is in
+<I>userlist</I>.  The effective user ID describes the user whose file
+access permissions are used by the process (see&nbsp;<I><A HREF="../man2/geteuid.2.php">geteuid</A></I>(2)).
+Identical to <B>U</B> and <B>--user</B>.
+<P>
+<DT><B>--Group</B><I>&nbsp;grplist</I>
+
+<DD>
+Select by real group ID (RGID) or name.  Identical to <B>-G</B>.
+<P>
+<DT><B>--User</B><I>&nbsp;userlist</I>
+
+<DD>
+Select by real user ID (RUID) or name.  Identical to <B>-U</B>.
+<P>
+<DT><B>--group</B><I>&nbsp;grplist</I>
+
+<DD>
+Select by effective group ID (EGID) or name.
+<BR>
+
+This selects the processes whose effective group name or ID is in
+<I>grouplist</I>.  The effective group ID describes the group whose file
+access permissions are used by the process (see&nbsp;<I><A HREF="../man2/geteuid.2.php">geteuid</A></I>(2)).
+The <B>-g</B> option is often an alternative to&nbsp;<B>--group</B>.
+<P>
+<DT><B>--pid</B><I>&nbsp;pidlist</I>
+
+<DD>
+Select by process&nbsp;ID.  Identical to <B>-p</B>&nbsp;and&nbsp;<B>p</B>.
+<P>
+<DT><B>--ppid</B><I>&nbsp;pidlist</I>
+
+<DD>
+Select by parent process&nbsp;ID.
+This selects the processes
+with a parent&nbsp;process&nbsp;ID in pidlist.
+That&nbsp;is, it selects processes that are children
+of those listed in pidlist.
+<P>
+<DT><B>--sid</B><I>&nbsp;sesslist</I>
+
+<DD>
+Select by session&nbsp;ID.  Identical to&nbsp;<B>-s</B>.
+<P>
+<DT><B>--tty</B><I>&nbsp;ttylist</I>
+
+<DD>
+Select by terminal.  Identical to <B>-t</B> and&nbsp;<B>t</B>.
+<P>
+<DT><B>--user</B><I>&nbsp;userlist</I>
+
+<DD>
+Select by effective user ID (EUID) or name.
+Identical to <B>-u</B> and&nbsp;<B>U</B>.
+<P>
+<DT><B>-</B><I>123</I><DD>
+Identical to <B>--sid&nbsp;</B><I>123</I>.
+<P>
+<DT><B></B><I>123</I>
+
+<DD>
+Identical to <B>--pid&nbsp;</B><I>123</I>.
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>OUTPUT FORMAT CONTROL</H2>
+
+These options are used to choose the information displayed by <B>ps</B>.
+The output may differ by personality.
+<P>
+
+<P>
+<DL COMPACT>
+<DT><B>-F</B>
+
+<DD>
+extra full format. See the <B>-f</B> option, which <B>-F</B> implies.
+<P>
+<DT><B>-O</B><I>&nbsp;format</I>
+
+<DD>
+is like <B>-o</B>, but preloaded with some default columns.
+Identical to <B>-o&nbsp;pid,</B><I>format</I><B>,state,tname,time,command</B>
+or <B>-o&nbsp;pid,</B><I>format</I><B>,tname,time,cmd</B>, see&nbsp;<B>-o</B>&nbsp;below.
+<P>
+<DT><B>O</B><I>&nbsp;format</I>
+
+<DD>
+is preloaded <B>o</B> (overloaded).
+<BR>
+
+The BSD <B>O</B> option can act like <B>-O</B> (user-defined output
+format with some common fields predefined) or can be used to specify
+sort order.  Heuristics are used to determine the behavior of this
+option. To ensure that the desired behavior is obtained (sorting or
+formatting), specify the option in some other way
+(e.g. with <B>-O</B> or <B>--sort</B>).
+When used as a formatting option, it is identical to <B>-O</B>, with the
+BSD&nbsp;personality.
+<P>
+<DT><B>-M</B>
+
+<DD>
+Add a column of security data. (for&nbsp;SE&nbsp;Linux)
+<P>
+<DT><B>X</B>
+
+<DD>
+Register format.
+<P>
+<DT><B>Z</B>
+
+<DD>
+Add a column of security data. (for&nbsp;SE&nbsp;Linux)
+<P>
+<DT><B>-c</B>
+
+<DD>
+Show different scheduler information for the <B>-l</B> option.
+<P>
+<DT><B>-f</B>
+
+<DD>
+does full-format listing. This option can be combined with many
+other UNIX-style options to add additional columns. It also causes
+the command arguments to be printed. When used with <B>-L</B>, the
+NLWP (number of threads) and LWP (thread ID) columns will be added.
+<P>
+<DT><B>j</B>
+
+<DD>
+BSD job control format.
+<P>
+<DT><B>-j</B>
+
+<DD>
+jobs format
+<P>
+<DT><B>l</B>
+
+<DD>
+display BSD long format.
+<P>
+<DT><B>-l</B>
+
+<DD>
+long format. The <B>-y</B> option is often useful with this.
+<P>
+<DT><B>o</B><I>&nbsp;format</I>
+
+<DD>
+specify user-defined format.  Identical to <B>-o</B> and
+<B>--format</B>.
+<P>
+<DT><B>-o</B><I>&nbsp;format</I>
+
+<DD>
+user-defined format.
+<BR>
+
+<I>format</I> is a single argument in the form of a
+blank-separated or comma-separated list, which offers
+a way to specify individual output columns.
+The recognized keywords are described in the <B>STANDARD FORMAT
+SPECIFIERS</B> section below.
+Headers may be
+renamed (<B>ps&nbsp;-o&nbsp;pid,ruser=RealUser&nbsp;-o&nbsp;comm=Command</B>) as desired.
+If all column headers are empty (<B>ps&nbsp;-o&nbsp;pid=&nbsp;-o&nbsp;comm=</B>) then the
+header line will not be output. Column width will increase as
+needed for wide headers; this may be used to widen up columns
+such as WCHAN (<B>ps&nbsp;-o&nbsp;pid,wchan=WIDE-WCHAN-COLUMN&nbsp;-o&nbsp;comm</B>).
+Explicit width control (<B>ps&nbsp;opid,wchan:42,cmd</B>) is offered too.
+The behavior of <B>ps&nbsp;-o&nbsp;pid=X,comm=Y</B> varies with personality;
+output may be one column named &quot;X,comm=Y&quot; or two columns
+named &quot;X&quot; and &quot;Y&quot;. Use multiple <B>-o</B> options when in doubt.
+Use the <B>PS_FORMAT</B> environment variable to specify a default
+as desired; DefSysV and DefBSD are macros that may be used to
+choose the default UNIX or BSD columns.
+<P>
+<DT><B>s</B>
+
+<DD>
+display signal format
+<P>
+<DT><B>u</B>
+
+<DD>
+display user-oriented format
+<P>
+<DT><B>v</B>
+
+<DD>
+display virtual memory format
+<P>
+<DT><B>-y</B>
+
+<DD>
+Do not show flags; show rss in place of addr.
+This option can only be used with <B>-l</B>.
+<P>
+<DT><B>-Z</B>
+
+<DD>
+display security context format (NSA SELinux, etc.)
+<P>
+<DT><B>--format</B><I>&nbsp;format</I>
+
+<DD>
+user-defined format.  Identical to <B>-o</B> and <B>o</B>.
+<P>
+<DT><B>--context</B>
+
+<DD>
+Display security context format. (for&nbsp;SE&nbsp;Linux)
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>OUTPUT MODIFIERS</H2>
+
+<P>
+
+
+
+<P>
+<DL COMPACT>
+<DT><B>-H</B>
+
+<DD>
+show process hierarchy (forest)
+<P>
+<DT><B>N</B><I>&nbsp;namelist</I>
+
+<DD>
+Specify namelist file.  Identical to <B>-n</B>, see <B>-n</B> above.
+<P>
+<DT><B>O</B><I>&nbsp;order</I>
+
+<DD>
+Sorting order. (overloaded)
+<BR>
+
+The BSD <B>O</B> option can act like <B>-O</B> (user-defined output
+format with some common fields predefined) or can be used to specify
+sort order.  Heuristics are used to determine the behavior of this
+option. To ensure that the desired behavior is obtained (sorting or
+formatting), specify the option in some other way (e.g. with <B>-O</B>
+or <B>--sort</B>).
+<P>
+For sorting, obsolete BSD <B>O</B> option syntax is
+<B>O</B>[<B>+</B>|<B>-</B>]<I>k1</I>[,[<B>+</B>|<B>-</B>]<I>k2</I>[,...]].
+It orders the processes listing according to the multilevel sort specified by
+the sequence of one-letter short keys <I>k1</I>, <I>k2</I>, ... described
+in the <B>OBSOLETE SORT KEYS</B> section below.
+The&nbsp;&quot;+&quot; is currently optional,
+merely re-iterating the default direction on a key,
+but may help to distinguish an <B>O</B> sort from an <B>O</B> format.
+The&nbsp;&quot;-&quot; reverses direction only on the key it precedes.
+<P>
+<DT><B>S</B>
+
+<DD>
+Sum up some information, such as CPU usage, from dead child processes
+into their parent. This is useful for examining a system where a
+parent process repeatedly forks off short-lived children to do work.
+<P>
+<DT><B>c</B>
+
+<DD>
+Show the true command name. This is derived from the name of the
+executable file, rather than from the argv value which could be
+modified by a user. Command arguments are not shown.
+<P>
+<DT><B>e</B>
+
+<DD>
+Show the environment after the command.
+<P>
+<DT><B>f</B>
+
+<DD>
+ASCII-art process hierarchy (forest)
+<P>
+<DT><B>h</B>
+
+<DD>
+No header. (or, one header per screen in the BSD personality)
+<BR>
+
+The <B>h</B> option is problematic.  Standard BSD <B>ps</B> uses
+this option to print a header on each page of output, but older
+Linux <B>ps</B> uses this option to totally disable the header.
+This version of <B>ps</B> follows the Linux usage of not printing
+the header unless the BSD personality has been selected, in which
+case it prints a header on each page of output. Regardless of the
+current personality, you can use the long options <B>--headers</B>
+and <B>--no-headers</B> to enable printing headers each page or
+disable headers entirely, respectively.
+<P>
+<DT><B>k</B><I>&nbsp;spec</I>
+
+<DD>
+specify sorting order. Sorting syntax is
+[<B>+</B>|<B>-</B>]<I>key</I>[,[<B>+</B>|<B>-</B>]<I>key</I>[,...]]
+Choose a multi-letter key from the <B>STANDARD FORMAT SPECIFIERS</B> section.
+The&nbsp;&quot;+&quot; is optional since default direction is increasing numerical or
+lexicographic order. Identical to <B>--sort</B>. Examples:
+<BR>
+
+<B>ps&nbsp;jaxkuid,-ppid,+pid</B>
+<BR>
+
+<B>ps&nbsp;axk&nbsp;comm&nbsp;o&nbsp;comm,args</B>
+<BR>
+
+<B>ps&nbsp;kstart_time&nbsp;-ef</B>
+<P>
+<DT><B>-n</B><I>&nbsp;namelist</I>
+
+<DD>
+set namelist file.  Identical to <B>N</B>.
+<BR>
+
+The namelist file is needed for a proper WCHAN display, and must match
+the current Linux kernel exactly for correct output.
+Without this option, the default search path for the namelist is:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>$PS_SYSMAP<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>$PS_SYSTEM_MAP<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/proc/*/wchan<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/boot/System.map-`uname&nbsp;-r`<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/boot/System.map<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/lib/modules/`uname&nbsp;-r`/System.map<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/src/linux/System.map<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/System.map<BR>
+<P>
+<DT><B>n</B>
+
+<DD>
+Numeric output for WCHAN and USER. (including all types of UID and GID)
+<P>
+<DT><B>-w</B>
+
+<DD>
+Wide output. Use this option twice for unlimited width.
+<P>
+<DT><B>w</B>
+
+<DD>
+Wide output. Use this option twice for unlimited width.
+<P>
+<DT><B>--cols</B><I>&nbsp;n</I>
+
+<DD>
+set screen width
+<P>
+<DT><B>--columns</B><I>&nbsp;n</I>
+
+<DD>
+set screen width
+<P>
+<DT><B>--cumulative</B>
+
+<DD>
+include some dead child process data (as a sum with the parent)
+<P>
+<DT><B>--forest</B>
+
+<DD>
+ASCII art process tree
+<P>
+<DT><B>--headers</B>
+
+<DD>
+repeat header lines, one per page of output
+<P>
+<DT><B>--no-headers</B>
+
+<DD>
+print no header line at all
+<P>
+<DT><B>--lines</B><I>&nbsp;n</I>
+
+<DD>
+set screen height
+<P>
+<DT><B>--rows</B><I>&nbsp;n</I>
+
+<DD>
+set screen height
+<P>
+<DT><B>--sort</B><I>&nbsp;spec</I>
+
+<DD>
+specify sorting order. Sorting syntax is
+[<B>+</B>|<B>-</B>]<I>key</I>[,[<B>+</B>|<B>-</B>]<I>key</I>[,...]]
+Choose a multi-letter key from the <B>STANDARD FORMAT SPECIFIERS</B> section.
+The&nbsp;&quot;+&quot; is optional since default direction is increasing numerical or
+lexicographic order. Identical to&nbsp;<B>k</B>.
+For example: <B>ps&nbsp;jax&nbsp;--sort=uid,-ppid,+pid</B>
+<P>
+<DT><B>--width</B><I>&nbsp;n</I>
+
+<DD>
+set screen width
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>THREAD DISPLAY</H2>
+
+
+<P>
+<DL COMPACT>
+<DT><B>H</B>
+
+<DD>
+Show threads as if they were processes
+<P>
+<DT><B>-L</B>
+
+<DD>
+Show threads, possibly with LWP and NLWP columns
+<P>
+<DT><B>-T</B>
+
+<DD>
+Show threads, possibly with SPID column
+<P>
+<DT><B>m</B>
+
+<DD>
+Show threads after processes
+<P>
+<DT><B>-m</B>
+
+<DD>
+Show threads after processes
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>OTHER INFORMATION</H2>
+
+
+<P>
+<DL COMPACT>
+<DT><B>L</B>
+
+<DD>
+List all format specifiers.
+<P>
+<DT><B>-V</B>
+
+<DD>
+Print the procps version.
+<P>
+<DT><B>V</B>
+
+<DD>
+Print the procps version.
+<P>
+<DT><B>--help</B>
+
+<DD>
+Print a help message.
+<P>
+<DT><B>--info</B>
+
+<DD>
+Print debugging info.
+<P>
+<DT><B>--version</B>
+
+<DD>
+Print the procps version.
+<P>
+
+
+</DL>
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>NOTES</H2>
+
+This <B>ps</B> works by reading the virtual files in&nbsp;/proc.
+This <B>ps</B> does not need to be setuid kmem or have any privileges to run.
+Do not give this <B>ps</B> any special permissions.
+<P>
+This <B>ps</B> needs access to namelist data for proper WCHAN display.
+For kernels prior to 2.6, the System.map file must be installed.
+<P>
+CPU usage is currently expressed as the percentage of time spent
+running during the entire lifetime of a process.
+This is not ideal, and&nbsp;it does not conform to the
+standards that <B>ps</B> otherwise conforms&nbsp;to.
+CPU&nbsp;usage is unlikely to add up to exactly&nbsp;100%.
+<P>
+Programs swapped out to disk will be shown without command line arguments,
+and unless the <B>c</B> option is given,
+in&nbsp;brackets.
+<P>
+The SIZE and RSS fields don't count some parts of a process including the
+page tables, kernel stack, struct thread_info, and struct task_struct.
+This is usually at least 20&nbsp;KiB of memory that is always resident.
+SIZE is the virtual size of the process (code+data+stack).
+<P>
+Processes marked &lt;defunct&gt; are dead processes (so-called&nbsp;&quot;zombies&quot;) that
+remain because their parent has not destroyed them properly. These processes
+will be destroyed by <I><A HREF="../man8/init.8.php">init</A></I>(8) if the parent process exits.
+<P>
+<P>
+<A NAME="lbAN">&nbsp;</A>
+<H2>PROCESS FLAGS</H2>
+
+The sum of these values is displayed in the &quot;F&quot; column,
+which is provided by the <B>flags</B> output specifier.
+
+<DL COMPACT>
+<DT>1<DD>
+forked but didn't exec
+<DT>4<DD>
+used super-user privileges
+
+</DL>
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>PROCESS STATE CODES</H2>
+
+Here are the different values that the <B>s</B>, <B>stat</B> and
+<B>state</B> output specifiers (header&nbsp;&quot;STAT&quot;&nbsp;or&nbsp;&quot;S&quot;) will display to
+describe the state of a process.
+
+<DL COMPACT>
+<DT>D<DD>
+Uninterruptible sleep (usually&nbsp;IO)
+<DT>R<DD>
+Running or runnable (on&nbsp;run&nbsp;queue)
+<DT>S<DD>
+Interruptible sleep (waiting for an event to complete)
+<DT>T<DD>
+Stopped, either by a job control signal or because it is being traced.
+<DT>W<DD>
+paging (not valid since the 2.6.xx kernel)
+<DT>X<DD>
+dead (should never be seen)
+<DT>Z<DD>
+Defunct (&quot;zombie&quot;) process, terminated but not reaped by its parent.
+
+</DL>
+<P>
+
+For BSD formats and when the <B>stat</B> keyword is used, additional
+characters may be displayed:
+
+<DL COMPACT>
+<DT>&lt;<DD>
+high-priority (not nice to other users)
+<DT>N<DD>
+low-priority (nice to other users)
+<DT>L<DD>
+has pages locked into memory (for real-time and custom&nbsp;IO)
+<DT>s<DD>
+is a session leader
+<DT>l<DD>
+is multi-threaded (using CLONE_THREAD, like NPTL pthreads&nbsp;do)
+<DT>+<DD>
+is in the foreground process group
+
+</DL>
+<P>
+
+<P>
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>OBSOLETE SORT KEYS</H2>
+
+These keys are used by the BSD <B>O</B> option (when it is used for
+sorting).  The GNU <B>--sort</B> option doesn't use these keys, but the
+specifiers described below in the <B>STANDARD FORMAT SPECIFIERS</B>
+section. Note that the values used in sorting are the internal
+values <B>ps</B> uses and not the &quot;cooked&quot; values used in some of
+the output format fields (e.g. sorting on tty will sort into
+device number, not according to the terminal name displayed).
+Pipe <B>ps</B> output into the <I><A HREF="../man1/sort.1.php">sort</A></I>(1) command if you want
+to sort the cooked values.
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B>KEY</B></TD><TD>LONG</TD><TD>DESCRIPTION<BR></TD></TR>
+<TR VALIGN=top><TD>c</TD><TD>cmd</TD><TD>simple name of executable<BR></TD></TR>
+<TR VALIGN=top><TD>C</TD><TD>pcpu</TD><TD>cpu utilization<BR></TD></TR>
+<TR VALIGN=top><TD>f</TD><TD>flags</TD><TD>flags as in long format F field<BR></TD></TR>
+<TR VALIGN=top><TD>g</TD><TD>pgrp</TD><TD>process group ID<BR></TD></TR>
+<TR VALIGN=top><TD>G</TD><TD>tpgid</TD><TD>controlling tty process group ID<BR></TD></TR>
+<TR VALIGN=top><TD>j</TD><TD>cutime</TD><TD>cumulative user time<BR></TD></TR>
+<TR VALIGN=top><TD>J</TD><TD>cstime</TD><TD>cumulative system time<BR></TD></TR>
+<TR VALIGN=top><TD>k</TD><TD>utime</TD><TD>user time<BR></TD></TR>
+<TR VALIGN=top><TD>m</TD><TD>min_flt</TD><TD>number of minor page faults<BR></TD></TR>
+<TR VALIGN=top><TD>M</TD><TD>maj_flt</TD><TD>number of major page faults<BR></TD></TR>
+<TR VALIGN=top><TD>n</TD><TD>cmin_flt</TD><TD>cumulative minor page faults<BR></TD></TR>
+<TR VALIGN=top><TD>N</TD><TD>cmaj_flt</TD><TD>cumulative major page faults<BR></TD></TR>
+<TR VALIGN=top><TD>o</TD><TD>session</TD><TD>session ID<BR></TD></TR>
+<TR VALIGN=top><TD>p</TD><TD>pid</TD><TD>process ID<BR></TD></TR>
+<TR VALIGN=top><TD>P</TD><TD>ppid</TD><TD>parent process ID<BR></TD></TR>
+<TR VALIGN=top><TD>r</TD><TD>rss</TD><TD>resident set size<BR></TD></TR>
+<TR VALIGN=top><TD>R</TD><TD>resident</TD><TD>resident pages<BR></TD></TR>
+<TR VALIGN=top><TD>s</TD><TD>size</TD><TD>memory size in kilobytes<BR></TD></TR>
+<TR VALIGN=top><TD>S</TD><TD>share</TD><TD>amount of shared pages<BR></TD></TR>
+<TR VALIGN=top><TD>t</TD><TD>tty</TD><TD>the device number of the controling tty<BR></TD></TR>
+<TR VALIGN=top><TD>T</TD><TD>start_time</TD><TD>time process was started<BR></TD></TR>
+<TR VALIGN=top><TD>U</TD><TD>uid</TD><TD>user ID number<BR></TD></TR>
+<TR VALIGN=top><TD>u</TD><TD>user</TD><TD>user name<BR></TD></TR>
+<TR VALIGN=top><TD>v</TD><TD>vsize</TD><TD>total VM size in kB<BR></TD></TR>
+<TR VALIGN=top><TD>y</TD><TD>priority</TD><TD>kernel scheduling priority<BR></TD></TR>
+</TABLE>
+
+<P>
+
+<P>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H2>AIX FORMAT DESCRIPTORS</H2>
+
+This <B>ps</B> supports AIX format descriptors, which work somewhat like the
+formatting codes of <I><A HREF="../man1/printf.1.php">printf</A></I>(1) and <I><A HREF="../man3/printf.3.php">printf</A></I>(3). For example, the normal
+default output can be produced with this:  <B>ps&nbsp;-eo&nbsp;&quot;%p&nbsp;%y&nbsp;%x&nbsp;%c&quot;</B>.
+The&nbsp;<B>NORMAL</B> codes are described in the next section.
+<TABLE>
+<TR VALIGN=top><TD><B>CODE</B></TD><TD>NORMAL</TD><TD>HEADER<BR></TD></TR>
+<TR VALIGN=top><TD>%C</TD><TD>pcpu</TD><TD>%CPU<BR></TD></TR>
+<TR VALIGN=top><TD>%G</TD><TD>group</TD><TD>GROUP<BR></TD></TR>
+<TR VALIGN=top><TD>%P</TD><TD>ppid</TD><TD>PPID<BR></TD></TR>
+<TR VALIGN=top><TD>%U</TD><TD>user</TD><TD>USER<BR></TD></TR>
+<TR VALIGN=top><TD>%a</TD><TD>args</TD><TD>COMMAND<BR></TD></TR>
+<TR VALIGN=top><TD>%c</TD><TD>comm</TD><TD>COMMAND<BR></TD></TR>
+<TR VALIGN=top><TD>%g</TD><TD>rgroup</TD><TD>RGROUP<BR></TD></TR>
+<TR VALIGN=top><TD>%n</TD><TD>nice</TD><TD>NI<BR></TD></TR>
+<TR VALIGN=top><TD>%p</TD><TD>pid</TD><TD>PID<BR></TD></TR>
+<TR VALIGN=top><TD>%r</TD><TD>pgid</TD><TD>PGID<BR></TD></TR>
+<TR VALIGN=top><TD>%t</TD><TD>etime</TD><TD>ELAPSED<BR></TD></TR>
+<TR VALIGN=top><TD>%u</TD><TD>ruser</TD><TD>RUSER<BR></TD></TR>
+<TR VALIGN=top><TD>%x</TD><TD>time</TD><TD>TIME<BR></TD></TR>
+<TR VALIGN=top><TD>%y</TD><TD>tty</TD><TD>TTY<BR></TD></TR>
+<TR VALIGN=top><TD>%z</TD><TD>vsz</TD><TD>VSZ<BR></TD></TR>
+</TABLE>
+
+<P>
+<A NAME="lbAR">&nbsp;</A>
+<H2>STANDARD FORMAT SPECIFIERS</H2>
+
+Here are the different keywords that may be used to control the output
+format (e.g. with option <B>-o</B>) or to sort the selected processes
+with the GNU-style <B>--sort</B> option.
+<P>
+For example:  <B>ps&nbsp;-eo&nbsp;pid,user,args&nbsp;--sort&nbsp;user</B>
+<P>
+This version of <B>ps</B> tries to recognize most of the keywords used in
+other implementations of <B>ps</B>.
+<P>
+The following user-defined format specifiers may contain
+spaces: <B>args</B>, <B>cmd</B>, <B>comm</B>, <B>command</B>, <B>fname</B>,
+<B>ucmd</B>, <B>ucomm</B>,
+<B>lstart</B>, <B>bsdstart</B>, <B>start</B>.
+<P>
+Some keywords may not be available for sorting.
+<P>
+
+
+
+
+
+
+
+<TABLE>
+<TR VALIGN=top><TD><B>CODE&nbsp;</B></TD><TD><B>HEADER&nbsp;</B></TD><TD><B>DESCRIPTION</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>%cpu&nbsp;</B></TD><TD>%CPU&nbsp;</TD><TD>
+cpu utilization of the process in &quot;##.#&quot; format.  It is the CPU time
+used divided by the time the process has been running (cputime/realtime
+ratio), expressed as a percentage. It will not add up to 100% unless you
+are lucky.  (alias&nbsp;<B>pcpu</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>%mem&nbsp;</B></TD><TD>%MEM&nbsp;</TD><TD>
+ratio of the process's resident set size  to the physical memory on
+the machine, expressed as a percentage.  (alias&nbsp;<B>pmem</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>args&nbsp;</B></TD><TD>COMMAND&nbsp;</TD><TD>
+command with all its arguments as a string.  May chop as desired.
+Modifications to the arguments are not shown.  The output in this column
+may contain spaces.  (alias&nbsp;<B>cmd</B>,&nbsp;<B>command</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>blocked&nbsp;</B></TD><TD>BLOCKED&nbsp;</TD><TD>
+mask of the blocked signals, see <I><A HREF="../man7/signal.7.php">signal</A></I>(7).
+According to the width of the field,
+a&nbsp;32-bit or 64-bit mask in hexadecimal format is displayed.
+(alias&nbsp;<B>sig_block</B>,&nbsp;<B>sigmask</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>bsdstart&nbsp;</B></TD><TD>START&nbsp;</TD><TD>
+time the command started.  If the process was started less
+than 24 hours ago, the output format is &quot;&nbsp;HH:MM&quot;,
+else it is &quot;mmm&nbsp;dd&quot;
+(where mmm is the three letters of the month).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>bsdtime&nbsp;</B></TD><TD>TIME&nbsp;</TD><TD>
+accumulated cpu time, user&nbsp;+&nbsp;system.  The display format is usualy
+&quot;MMM:SS&quot;, but can be shifted to the right if the process used more than 999
+minutes of cpu time.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>c&nbsp;</B></TD><TD>C&nbsp;</TD><TD>
+integer value of the processor utilisation percentage.  (see&nbsp;<B>%cpu</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>caught&nbsp;</B></TD><TD>CAUGHT&nbsp;</TD><TD>
+mask of the caught signals, see <I><A HREF="../man7/signal.7.php">signal</A></I>(7).  According to the
+width of the field, a 32 or 64 bits mask in hexadecimal format is
+displayed.  (alias&nbsp;<B>sig_catch</B>,&nbsp;<B>sigcatch</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>class&nbsp;</B></TD><TD>CLS&nbsp;</TD><TD>
+scheduling class of the process.  (alias&nbsp;<B>policy</B>,&nbsp;<B>cls</B>).
+Field's possible values are:
+<BR>
+
+-<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>not reported<BR>
+<BR>
+
+TS<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_OTHER<BR>
+<BR>
+
+FF<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_FIFO<BR>
+<BR>
+
+RR<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_RR<BR>
+<BR>
+
+?<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>unknown value<BR>
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>cls&nbsp;</B></TD><TD>CLS&nbsp;</TD><TD>
+scheduling class of the process.  (alias&nbsp;<B>policy</B>,&nbsp;<B>class</B>).
+Field's possible values are:
+<BR>
+
+-<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>not reported<BR>
+<BR>
+
+TS<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_OTHER<BR>
+<BR>
+
+FF<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_FIFO<BR>
+<BR>
+
+RR<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_RR<BR>
+<BR>
+
+?<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>unknown value<BR>
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>cmd&nbsp;</B></TD><TD>CMD&nbsp;</TD><TD>
+see <B>args</B>.  (alias&nbsp;<B>args</B>,&nbsp;<B>command</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>comm&nbsp;</B></TD><TD>COMMAND&nbsp;</TD><TD>
+command name (only&nbsp;the executable&nbsp;name).  The output in this
+column may contain spaces.  (alias&nbsp;<B>ucmd</B>,&nbsp;<B>ucomm</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>command&nbsp;</B></TD><TD>COMMAND&nbsp;</TD><TD>
+see <B>args</B>.  (alias&nbsp;<B>args</B>,&nbsp;<B>cmd</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>cp&nbsp;</B></TD><TD>CP&nbsp;</TD><TD>
+per-mill CPU usage.  (see&nbsp;<B>%cpu</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>cputime&nbsp;</B></TD><TD>TIME&nbsp;</TD><TD>
+cumulative CPU time, &quot;[dd-]hh:mm:ss&quot; format.  (alias&nbsp;<B>time</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>egid&nbsp;</B></TD><TD>EGID&nbsp;</TD><TD>
+effective group ID number of the process as a decimal integer.
+(alias&nbsp;<B>gid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>egroup&nbsp;</B></TD><TD>EGROUP&nbsp;</TD><TD>
+effective group ID of the process.  This will be the textual group ID,
+if it can be obtained and the field width permits, or a decimal
+representation otherwise.  (alias&nbsp;<B>group</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>eip&nbsp;</B></TD><TD>EIP&nbsp;</TD><TD>
+instruction pointer.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>esp&nbsp;</B></TD><TD>ESP&nbsp;</TD><TD>
+stack pointer.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>etime&nbsp;</B></TD><TD>ELAPSED&nbsp;</TD><TD>
+elapsed time since the process was started,
+in&nbsp;the form&nbsp;[[dd-]hh:]mm:ss.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>euid&nbsp;</B></TD><TD>EUID&nbsp;</TD><TD>
+effective user&nbsp;ID. (alias&nbsp;<B>uid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>euser&nbsp;</B></TD><TD>EUSER&nbsp;</TD><TD>
+effective user&nbsp;name.  This will be the textual
+user&nbsp;ID, if&nbsp;it can be obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+The&nbsp;<B>n</B>&nbsp;option can be used
+to force the decimal representation.
+(alias&nbsp;<B>uname</B>,&nbsp;<B>user</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>f&nbsp;</B></TD><TD>F&nbsp;</TD><TD>
+flags associated with the process, see the <B>PROCESS FLAGS</B> section.
+(alias&nbsp;<B>flag</B>,&nbsp;<B>flags</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>fgid&nbsp;</B></TD><TD>FGID&nbsp;</TD><TD>
+filesystem access group&nbsp;ID.  (alias&nbsp;<B>fsgid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>fgroup&nbsp;</B></TD><TD>FGROUP&nbsp;</TD><TD>
+filesystem access group&nbsp;ID.
+This will be the textual user&nbsp;ID, if&nbsp;it can be obtained
+and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+(alias&nbsp;<B>fsgroup</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>flag&nbsp;</B></TD><TD>F&nbsp;</TD><TD>
+see&nbsp;<B>f</B>.  (alias&nbsp;<B>f</B>,&nbsp;<B>flags</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>flags&nbsp;</B></TD><TD>F&nbsp;</TD><TD>
+see&nbsp;<B>f</B>.  (alias&nbsp;<B>f</B>,&nbsp;<B>flag</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>fname&nbsp;</B></TD><TD>COMMAND&nbsp;</TD><TD>
+first 8 bytes of the base name of the process's executable file.
+The output in this column may contain spaces.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>fuid&nbsp;</B></TD><TD>FUID&nbsp;</TD><TD>
+filesystem access user&nbsp;ID.  (alias&nbsp;<B>fsuid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>fuser&nbsp;</B></TD><TD>FUSER&nbsp;</TD><TD>
+filesystem access user&nbsp;ID.  This will be the textual user&nbsp;ID,
+if&nbsp;it can be obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>gid&nbsp;</B></TD><TD>GID&nbsp;</TD><TD>
+see&nbsp;<B>egid</B>.  (alias&nbsp;<B>egid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>group&nbsp;</B></TD><TD>GROUP&nbsp;</TD><TD>
+see&nbsp;<B>egroup</B>.  (alias&nbsp;<B>egroup</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ignored&nbsp;</B></TD><TD>IGNORED&nbsp;</TD><TD>
+mask of the ignored signals, see <I><A HREF="../man7/signal.7.php">signal</A></I>(7).  According to the
+width of the field, a&nbsp;32-bit or 64-bit mask in hexadecimal format
+is displayed.  (alias <B>sig_ignore</B>, <B>sigignore</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>label&nbsp;</B></TD><TD>LABEL&nbsp;</TD><TD>
+security label, most commonly used for SE&nbsp;Linux context data.
+This is for the <I>Mandatory Access Control</I> (&quot;MAC&quot;) found on
+high-security systems.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>lstart&nbsp;</B></TD><TD>STARTED&nbsp;</TD><TD>
+time the command started.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>lwp&nbsp;</B></TD><TD>LWP&nbsp;</TD><TD>
+lwp (light weight process, or thread) ID of the lwp being reported.
+(alias&nbsp;<B>spid</B>,&nbsp;<B>tid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ni&nbsp;</B></TD><TD>NI&nbsp;</TD><TD>
+nice value. This ranges from 19 (nicest) to -20 (not&nbsp;nice to&nbsp;others),
+see&nbsp;<I><A HREF="../man1/nice.1.php">nice</A></I>(1).  (alias&nbsp;<B>nice</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>nice&nbsp;</B></TD><TD>NI&nbsp;</TD><TD>
+see&nbsp;<B>ni</B>.  (alias&nbsp;<B>ni</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>nlwp&nbsp;</B></TD><TD>NLWP&nbsp;</TD><TD>
+number of lwps (threads) in the process.  (alias&nbsp;<B>thcount</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>nwchan&nbsp;</B></TD><TD>WCHAN&nbsp;</TD><TD>
+address of the kernel function where the process is sleeping
+(use <B>wchan</B> if you want the kernel function name).
+Running tasks will display a dash ('-') in this column.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pcpu&nbsp;</B></TD><TD>%CPU&nbsp;</TD><TD>
+see&nbsp;<B>%cpu</B>.  (alias&nbsp;<B>%cpu</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pending&nbsp;</B></TD><TD>PENDING&nbsp;</TD><TD>
+mask of the pending signals. See&nbsp;<I><A HREF="../man7/signal.7.php">signal</A></I>(7).  Signals pending on
+the process are distinct from signals pending on individual threads.
+Use the <B>m</B> option or the <B>-m</B> option to see both.
+According to the width of the field, a&nbsp;32-bit or 64-bit mask in
+hexadecimal format is displayed.  (alias&nbsp;<B>sig</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pgid&nbsp;</B></TD><TD>PGID&nbsp;</TD><TD>
+process group&nbsp;ID or, equivalently, the process&nbsp;ID of the
+process group leader.  (alias&nbsp;<B>pgrp</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pgrp&nbsp;</B></TD><TD>PGRP&nbsp;</TD><TD>
+see&nbsp;<B>pgid</B>.  (alias&nbsp;<B>pgid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pid&nbsp;</B></TD><TD>PID&nbsp;</TD><TD>
+process&nbsp;ID number of the process.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>pmem&nbsp;</B></TD><TD>%MEM&nbsp;</TD><TD>
+see&nbsp;<B>%mem</B>.  (alias&nbsp;<B>%mem</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>policy&nbsp;</B></TD><TD>POL&nbsp;</TD><TD>
+scheduling class of the process.  (alias&nbsp;<B>class</B>,&nbsp;<B>cls</B>).
+Possible values are:
+<BR>
+
+-<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>not reported<BR>
+<BR>
+
+TS<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_OTHER<BR>
+<BR>
+
+FF<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_FIFO<BR>
+<BR>
+
+RR<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SCHED_RR<BR>
+<BR>
+
+?<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>unknown value<BR>
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ppid&nbsp;</B></TD><TD>PPID&nbsp;</TD><TD>
+parent process ID.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>psr&nbsp;</B></TD><TD>PSR&nbsp;</TD><TD>
+processor that process is currently assigned to.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rgid&nbsp;</B></TD><TD>RGID&nbsp;</TD><TD>
+real group ID.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rgroup&nbsp;</B></TD><TD>RGROUP&nbsp;</TD><TD>
+real group name.  This will be the textual group&nbsp;ID, if&nbsp;it can be
+obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rss&nbsp;</B></TD><TD>RSS&nbsp;</TD><TD>
+resident set size, the non-swapped physical memory that
+a task has used (in&nbsp;kiloBytes).
+(alias&nbsp;<B>rssize</B>,&nbsp;<B>rsz</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rssize&nbsp;</B></TD><TD>RSS&nbsp;</TD><TD>
+see&nbsp;<B>rss</B>.  (alias&nbsp;<B>rss</B>,&nbsp;<B>rsz</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rsz&nbsp;</B></TD><TD>RSZ&nbsp;</TD><TD>
+see&nbsp;<B>rss</B>.  (alias&nbsp;<B>rss</B>,&nbsp;<B>rssize</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>rtprio&nbsp;</B></TD><TD>RTPRIO&nbsp;</TD><TD>
+realtime priority.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ruid&nbsp;</B></TD><TD>RUID&nbsp;</TD><TD>
+real user&nbsp;ID.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ruser&nbsp;</B></TD><TD>RUSER&nbsp;</TD><TD>
+real user&nbsp;ID.  This will be the textual user&nbsp;ID,
+if&nbsp;it can be obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>s&nbsp;</B></TD><TD>S&nbsp;</TD><TD>
+minimal state display (one&nbsp;character).
+See&nbsp;section <B>PROCESS STATE CODES</B> for the different values.
+See&nbsp;also <B>stat</B> if you want additionnal
+information displayed.  (alias&nbsp;<B>state</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sched&nbsp;</B></TD><TD>SCH&nbsp;</TD><TD>
+scheduling policy of the process.  The policies sched_other, sched_fifo,
+and sched_rr are respectively displayed as 0,&nbsp;1,&nbsp;and&nbsp;2.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sess&nbsp;</B></TD><TD>SESS&nbsp;</TD><TD>
+session&nbsp;ID or, equivalently, the process&nbsp;ID of the session&nbsp;leader.
+(alias&nbsp;<B>session</B>,&nbsp;<B>sid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sgi_p&nbsp;</B></TD><TD>P&nbsp;</TD><TD>
+processor that the process is currently executing on.
+Displays &quot;*&quot; if the process is not currently running or runnable.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sgid&nbsp;</B></TD><TD>SGID&nbsp;</TD><TD>
+saved group&nbsp;ID.
+(alias&nbsp;<B>svgid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sgroup&nbsp;</B></TD><TD>SGROUP&nbsp;</TD><TD>
+saved group&nbsp;name.  This will be the textual group&nbsp;ID,
+if&nbsp;it can be obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sid&nbsp;</B></TD><TD>SID&nbsp;</TD><TD>
+see&nbsp;<B>sess</B>.  (alias&nbsp;<B>sess</B>,&nbsp;<B>session</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sig&nbsp;</B></TD><TD>PENDING&nbsp;</TD><TD>
+see&nbsp;<B>pending</B>.  (alias&nbsp;<B>pending</B>,&nbsp;<B>sig_pend</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sigcatch&nbsp;</B></TD><TD>CAUGHT&nbsp;</TD><TD>
+see&nbsp;<B>caught</B>.  (alias&nbsp;<B>caught</B>,&nbsp;<B>sig_catch</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sigignore&nbsp;</B></TD><TD>IGNORED&nbsp;</TD><TD>
+see&nbsp;<B>ignored</B>.  (alias&nbsp;<B>ignored</B>,&nbsp;<B>sig_ignore</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sigmask&nbsp;</B></TD><TD>BLOCKED&nbsp;</TD><TD>
+see&nbsp;<B>blocked</B>.  (alias&nbsp;<B>blocked</B>,&nbsp;<B>sig_block</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>size&nbsp;</B></TD><TD>SZ&nbsp;</TD><TD>
+approximate amount of swap space that would be required
+if the process were to dirty all writable pages and then
+be swapped out.
+This number is very&nbsp;rough!
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>spid&nbsp;</B></TD><TD>SPID&nbsp;</TD><TD>
+see <B>lwp</B>.  (alias&nbsp;<B>lwp</B>,&nbsp;<B>tid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>stackp&nbsp;</B></TD><TD>STACKP&nbsp;</TD><TD>
+address of the bottom (start) of stack for the process.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>start&nbsp;</B></TD><TD>STARTED&nbsp;</TD><TD>
+time the command started.
+If the process was started less than 24 hours ago,
+the output format is &quot;HH:MM:SS&quot;,
+else it is &quot;&nbsp;&nbsp;mmm&nbsp;dd&quot;
+(where mmm is a three-letter month&nbsp;name).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>start_time&nbsp;</B></TD><TD>START&nbsp;</TD><TD>
+starting time or date of the process.
+Only the year will be displayed if the process was not
+started the same year <B>ps</B> was invoked,
+or&nbsp;&quot;mmmdd&quot; if&nbsp;it was not started the same day,
+or&nbsp;&quot;HH:MM&quot; otherwise.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>stat&nbsp;</B></TD><TD>STAT&nbsp;</TD><TD>
+multi-character process state.
+See&nbsp;section <B>PROCESS STATE CODES</B>
+for the different values meaning.
+See also <B>s</B> and <B>state</B> if you just want
+the first character displayed.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>state&nbsp;</B></TD><TD>S&nbsp;</TD><TD>
+see&nbsp;<B>s</B>.  (alias&nbsp;<B>s</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>suid&nbsp;</B></TD><TD>SUID&nbsp;</TD><TD>
+saved user&nbsp;ID.  (alias&nbsp;<B>svuid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>suser&nbsp;</B></TD><TD>SUSER&nbsp;</TD><TD>
+saved user name.  This will be the textual user&nbsp;ID,
+if&nbsp;it can be obtained and the field width permits,
+or&nbsp;a&nbsp;decimal representation otherwise.
+(alias&nbsp;<B>svuser</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>svgid&nbsp;</B></TD><TD>SVGID&nbsp;</TD><TD>
+see&nbsp;<B>sgid</B>.  (alias&nbsp;<B>sgid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>svuid&nbsp;</B></TD><TD>SVUID&nbsp;</TD><TD>
+see&nbsp;<B>suid</B>.  (alias&nbsp;<B>suid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>sz&nbsp;</B></TD><TD>SZ&nbsp;</TD><TD>
+size in physical pages of the core image of the process.
+This includes text, data, and stack space.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>thcount&nbsp;</B></TD><TD>THCNT&nbsp;</TD><TD>
+see <B>nlwp</B>.  (alias&nbsp;<B>nlwp</B>).
+number of kernel threads owned by the process.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>tid&nbsp;</B></TD><TD>TID&nbsp;</TD><TD>
+see&nbsp;<B>lwp</B>.  (alias&nbsp;<B>lwp</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>time&nbsp;</B></TD><TD>TIME&nbsp;</TD><TD>
+cumulative CPU&nbsp;time, &quot;[dd-]hh:mm:ss&quot; format.  (alias&nbsp;<B>cputime</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>tname&nbsp;</B></TD><TD>TTY&nbsp;</TD><TD>
+controlling tty (terminal).
+(alias&nbsp;<B>tt</B>,&nbsp;<B>tty</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>tpgid&nbsp;</B></TD><TD>TPGID&nbsp;</TD><TD>
+ID of the foreground process group on the tty (terminal) that
+the process is connected to, or -1 if the process is not connected
+to a tty.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>tt&nbsp;</B></TD><TD>TT&nbsp;</TD><TD>
+controlling tty (terminal).  (alias&nbsp;<B>tname</B>,&nbsp;<B>tty</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>tty&nbsp;</B></TD><TD>TT&nbsp;</TD><TD>
+controlling tty (terminal).  (alias&nbsp;<B>tname</B>,&nbsp;<B>tt</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ucmd&nbsp;</B></TD><TD>CMD&nbsp;</TD><TD>
+see <B>comm</B>.  (alias&nbsp;<B>comm</B>,&nbsp;<B>ucomm</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>ucomm&nbsp;</B></TD><TD>COMMAND&nbsp;</TD><TD>
+see <B>comm</B>.  (alias&nbsp;<B>comm</B>,&nbsp;<B>ucmd</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>uid&nbsp;</B></TD><TD>UID&nbsp;</TD><TD>
+see <B>euid</B>.  (alias&nbsp;<B>euid</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>uname&nbsp;</B></TD><TD>USER&nbsp;</TD><TD>
+see <B>euser</B>.  (alias&nbsp;<B>euser</B>,&nbsp;<B>user</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>user&nbsp;</B></TD><TD>USER&nbsp;</TD><TD>
+see <B>euser</B>.  (alias&nbsp;<B>euser</B>,&nbsp;<B>uname</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>vsize&nbsp;</B></TD><TD>VSZ&nbsp;</TD><TD>
+virtual memory usage of entire process.
+vm_lib&nbsp;+&nbsp;vm_exe&nbsp;+&nbsp;vm_data&nbsp;+&nbsp;vm_stack
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>vsz&nbsp;</B></TD><TD>VSZ&nbsp;</TD><TD>
+see <B>vsize</B>.  (alias&nbsp;<B>vsize</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&nbsp;</B></TD><TD>&nbsp;</TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD><B>wchan&nbsp;</B></TD><TD>WCHAN&nbsp;</TD><TD>
+name of the kernel function in which the process is sleeping,
+a&nbsp;&quot;-&quot;&nbsp;if the process is running,
+or a &quot;*&quot;&nbsp;if the process is multi-threaded and
+<B>ps</B> is not displaying threads.
+<BR></TD></TR>
+</TABLE>
+
+
+<P>
+
+<P>
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+The following environment variables could affect <B>ps</B>:
+<DL COMPACT>
+<DT><B>COLUMNS</B>
+
+<DD>
+Override default display width.
+<DT><B>LINES</B>
+
+<DD>
+Override default display height.
+<DT><B>PS_PERSONALITY</B>
+
+<DD>
+Set to one of posix, old, linux, bsd, sun, digital...
+(see&nbsp;section&nbsp;<B>PERSONALITY</B>&nbsp;below).
+<DT><B>CMD_ENV</B>
+
+<DD>
+Set to one of posix, old, linux, bsd, sun, digital...
+(see&nbsp;section&nbsp;<B>PERSONALITY</B>&nbsp;below).
+<DT><B>I_WANT_A_BROKEN_PS</B>
+
+<DD>
+Force obsolete command line interpretation.
+<DT><B>LC_TIME</B>
+
+<DD>
+Date format.
+<DT><B>PS_COLORS</B>
+
+<DD>
+Not currently supported.
+<DT><B>PS_FORMAT</B>
+
+<DD>
+Default output format override.
+<DT><B>PS_SYSMAP</B>
+
+<DD>
+Default namelist (System.map) location.
+<DT><B>PS_SYSTEM_MAP</B>
+
+<DD>
+Default namelist (System.map) location.
+<DT><B>POSIXLY_CORRECT</B>
+
+<DD>
+Don't find excuses to ignore bad &quot;features&quot;.
+<DT><B>POSIX2</B>
+
+<DD>
+When set to &quot;on&quot;, acts as <B>POSIXLY_CORRECT</B>.
+<DT><B>UNIX95</B>
+
+<DD>
+Don't find excuses to ignore bad &quot;features&quot;.
+<DT><B>_XPG</B>
+
+<DD>
+Cancel <B>CMD_ENV</B><I>=irix</I> non-standard behavior.
+</DL>
+<P>
+
+In general, it&nbsp;is a bad idea to set these variables.
+The one exception is <B>CMD_ENV</B> or <B>PS_PERSONALITY</B>,
+which could be set to Linux for normal systems.
+Without that setting,
+<B>ps</B> follows the useless and bad parts of the Unix98 standard.
+<P>
+
+<P>
+
+<A NAME="lbAT">&nbsp;</A>
+<H2>PERSONALITY</H2>
+
+<TABLE>
+<TR VALIGN=top><TD>390</TD><TD>like the S/390 OpenEdition <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>aix</TD><TD>like AIX <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>bsd</TD><TD>like FreeBSD <B>ps</B> (totally&nbsp;non-standard)<BR></TD></TR>
+<TR VALIGN=top><TD>compaq</TD><TD>like Digital Unix <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>debian</TD><TD>like the old Debian <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>digital</TD><TD>like Tru64 (was Digital&nbsp;Unix, was OSF/1) <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>gnu</TD><TD>like the old Debian <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>hp</TD><TD>like HP-UX <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>hpux</TD><TD>like HP-UX <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>irix</TD><TD>like Irix <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>linux</TD><TD>***** RECOMMENDED *****<BR></TD></TR>
+<TR VALIGN=top><TD>old</TD><TD>like the original Linux <B>ps</B> (totally&nbsp;non-standard)<BR></TD></TR>
+<TR VALIGN=top><TD>os390</TD><TD>like OS/390 Open Edition <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>posix</TD><TD>standard<BR></TD></TR>
+<TR VALIGN=top><TD>s390</TD><TD>like OS/390 Open Edition <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>sco</TD><TD>like SCO <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>sgi</TD><TD>like Irix <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>solaris2</TD><TD>like Solaris 2+ (SunOS 5) <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>sunos4</TD><TD>like SunOS 4 (Solaris 1) <B>ps</B> (totally&nbsp;non-standard)<BR></TD></TR>
+<TR VALIGN=top><TD>svr4</TD><TD>standard<BR></TD></TR>
+<TR VALIGN=top><TD>sysv</TD><TD>standard<BR></TD></TR>
+<TR VALIGN=top><TD>tru64</TD><TD>like Tru64 (was Digital&nbsp;Unix, was OSF/1) <B>ps</B><BR></TD></TR>
+<TR VALIGN=top><TD>unix</TD><TD>standard<BR></TD></TR>
+<TR VALIGN=top><TD>unix95</TD><TD>standard<BR></TD></TR>
+<TR VALIGN=top><TD>unix98</TD><TD>standard<BR></TD></TR>
+</TABLE>
+
+<P>
+
+<P>
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man1/top.1.php">top</A></I>(1), <I><A HREF="../man1/pgrep.1.php">pgrep</A></I>(1), <I><A HREF="../man1/pstree.1.php">pstree</A></I>(1), <I><A HREF="../man5/proc.5.php">proc</A></I>(5).
+<P>
+
+<P>
+
+<A NAME="lbAV">&nbsp;</A>
+<H2>STANDARDS</H2>
+
+This <B>ps</B> conforms to:
+<P>
+
+
+<DL COMPACT>
+<DT>1<DD>
+Version 2 of the Single Unix Specification
+<DT>2<DD>
+The Open Group Technical Standard Base Specifications, Issue&nbsp;6
+<DT>3<DD>
+IEEE Std 1003.1, 2004&nbsp;Edition
+<DT>4<DD>
+X/Open System Interfaces Extension [UP&nbsp;XSI]
+<DT>5<DD>
+ISO/IEC 9945:2003
+
+</DL>
+<P>
+
+<A NAME="lbAW">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<B>ps</B> was originally written by Branko Lankester &lt;<A HREF="mailto:lankeste@fwi.uva.nl">lankeste@fwi.uva.nl</A>&gt;. Michael
+K. Johnson &lt;<A HREF="mailto:johnsonm@redhat.com">johnsonm@redhat.com</A>&gt; re-wrote it significantly to use the proc
+filesystem, changing a few things in the process. Michael Shields
+&lt;<A HREF="mailto:mjshield@nyx.cs.du.edu">mjshield@nyx.cs.du.edu</A>&gt; added the pid-list feature. Charles Blake
+&lt;<A HREF="mailto:cblake@bbn.com">cblake@bbn.com</A>&gt; added multi-level sorting, the dirent-style library, the
+device name-to-number mmaped database, the approximate binary search
+directly on System.map, and many code and documentation cleanups. David
+Mossberger-Tang wrote the generic BFD support for psupdate. Albert Cahalan
+&lt;<A HREF="mailto:albert@users.sf.net">albert@users.sf.net</A>&gt; rewrote ps for full Unix98 and BSD support, along with
+some ugly hacks for obsolete and foreign syntax.
+<P>
+Please send bug reports to &lt;<A HREF="mailto:procps-feedback@lists.sf.net">procps-feedback@lists.sf.net</A>&gt;.
+No&nbsp;subscription is required or suggested.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMAND-LINE OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">SIMPLE PROCESS SELECTION</A><DD>
+<DT><A HREF="#lbAH">PROCESS SELECTION BY LIST</A><DD>
+<DT><A HREF="#lbAI">OUTPUT FORMAT CONTROL</A><DD>
+<DT><A HREF="#lbAJ">OUTPUT MODIFIERS</A><DD>
+<DT><A HREF="#lbAK">THREAD DISPLAY</A><DD>
+<DT><A HREF="#lbAL">OTHER INFORMATION</A><DD>
+<DT><A HREF="#lbAM">NOTES</A><DD>
+<DT><A HREF="#lbAN">PROCESS FLAGS</A><DD>
+<DT><A HREF="#lbAO">PROCESS STATE CODES</A><DD>
+<DT><A HREF="#lbAP">OBSOLETE SORT KEYS</A><DD>
+<DT><A HREF="#lbAQ">AIX FORMAT DESCRIPTORS</A><DD>
+<DT><A HREF="#lbAR">STANDARD FORMAT SPECIFIERS</A><DD>
+<DT><A HREF="#lbAS">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAT">PERSONALITY</A><DD>
+<DT><A HREF="#lbAU">SEE ALSO</A><DD>
+<DT><A HREF="#lbAV">STANDARDS</A><DD>
+<DT><A HREF="#lbAW">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

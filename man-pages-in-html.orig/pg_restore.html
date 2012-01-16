@@ -1,0 +1,489 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PG_RESTORE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PG_RESTORE</H1>
+Section: PostgreSQL Client Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pg_restore - restore a PostgreSQL database from an archive file created by pg_dump
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>pg_restore</B> [ <B></B><I>option</I><B></B>...<B> </B>] [ <B></B><I>filename</I><B> </B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>pg_restore</B> is a utility for restoring a
+PostgreSQL database from an archive
+created by <B><A HREF="../man1/pg_dump.1.php">pg_dump</A></B>(1) in one of the non-plain-text
+formats. It will issue the commands necessary to reconstruct the
+database to the state it was in at the time it was saved. The
+archive files also allow <B>pg_restore</B> to
+be selective about what is restored, or even to reorder the items
+prior to being restored. The archive files are designed to be
+portable across architectures.
+<P>
+
+<B>pg_restore</B> can operate in two modes: If
+a database name is specified, the archive is restored directly into
+the database. (Large objects can only be restored by using such a direct
+database connection.) Otherwise, a script containing the SQL
+commands necessary to rebuild the database is created (and written
+to a file or standard output), similar to the ones created by the
+<B>pg_dump</B> plain text format. Some of the
+options controlling the script output are therefore analogous to
+<B>pg_dump</B> options.
+<P>
+
+Obviously, <B>pg_restore</B> cannot restore information
+that is not present in the archive file. For instance, if the
+archive was made using the ``dump data as
+<B>INSERT</B> commands'' option,
+<B>pg_restore</B> will not be able to load the data
+using <B>COPY</B> statements.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<B>pg_restore</B> accepts the following command
+line arguments.
+<DL COMPACT>
+<DT><B></B><I>filename</I><B></B><DD>
+Specifies the location of the archive file to be restored.
+If not specified, the standard input is used.
+<DT><B>-a</B><DD>
+<DT><B>--data-only</B><DD>
+Restore only the data, not the schema (data definitions).
+<DT><B>-c</B><DD>
+<DT><B>--clean</B><DD>
+Clean (drop) database objects before recreating them.
+<DT><B>-C</B><DD>
+<DT><B>--create</B><DD>
+Create the database before restoring into it. (When this
+option is used, the database named with <B>-d</B> is
+used only to issue the initial CREATE DATABASE
+command. All data is restored into the database name that
+appears in the archive.)
+<DT><B>-d </B><I>dbname</I><B></B><DD>
+<DT><B>--dbname=</B><I>dbname</I><B></B><DD>
+Connect to database <I>dbname</I> and restore directly
+into the database.
+<DT><B>-f </B><I>filename</I><B></B><DD>
+<DT><B>--file=</B><I>filename</I><B></B><DD>
+Specify output file for generated script, or for the listing
+when used with <B>-l</B>. Default is the standard
+output.
+<DT><B>-F </B><I>format</I><B></B><DD>
+<DT><B>--format=</B><I>format</I><B></B><DD>
+Specify format of the archive. It is not necessary to specify
+the format, since <B>pg_restore</B> will
+determine the format automatically. If specified, it can be
+one of the following:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>t</B><DD>
+The archive is a <B>tar</B> archive. Using this
+archive format allows reordering and/or exclusion of schema
+elements at the time the database is restored. It is also
+possible to limit which data is reloaded at restore time.
+<DT><B>c</B><DD>
+The archive is in the custom format of
+<B>pg_dump</B>. This is the most
+flexible format in that it allows reordering of data load
+as well as schema elements. This format is also compressed
+by default.
+</DL>
+</DL>
+
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>-i</B><DD>
+<DT><B>--ignore-version</B><DD>
+Ignore database version checks.
+<DT><B>-I </B><I>index</I><B></B><DD>
+<DT><B>--index=</B><I>index</I><B></B><DD>
+Restore definition of named index only.
+<DT><B>-l</B><DD>
+<DT><B>--list</B><DD>
+List the contents of the archive. The output of this operation
+can be used with the <B>-L</B> option to restrict
+and reorder the items that are restored.
+<DT><B>-L </B><I>list-file</I><B></B><DD>
+<DT><B>--use-list=</B><I>list-file</I><B></B><DD>
+Restore elements in <I>list-file</I> only, and in the
+order they appear in the file. Lines can be moved and may also
+be commented out by placing a ; at the
+start of the line. (See below for examples.)
+<DT><B>-N</B><DD>
+<DT><B>--orig-order</B><DD>
+Restore items in the order they were originally generated within
+<B>pg_dump</B>. This option has no known
+practical use, since <B>pg_dump</B> generates
+the items in an order convenient to it, which is unlikely to be a
+safe order for restoring them. (This is <B>not</B> the order
+in which the items are ultimately listed in the archive's table of
+contents.) See also <B>-r</B>.
+<DT><B>-o</B><DD>
+<DT><B>--oid-order</B><DD>
+Restore items in order by OID. This option is of limited usefulness,
+since OID is only an approximate indication of original creation
+order. This option overrides <B>-N</B> if both are specified.
+See also <B>-r</B>.
+<DT><B>-O</B><DD>
+<DT><B>--no-owner</B><DD>
+Do not output commands to set
+ownership of objects to match the original database.
+By default, <B>pg_restore</B> issues
+<B>SET SESSION AUTHORIZATION</B>
+statements to set ownership of created schema elements.
+These statements will fail unless the initial connection to the
+database is made by a superuser
+(or the same user that owns all of the objects in the script).
+With <B>-O</B>, any user name can be used for the
+initial connection, and this user will own all the created objects.
+<DT><B>-P </B><I>function-name(argtype [, ...])</I><B></B><DD>
+<DT><B>--function=</B><I>function-name(argtype [, ...])</I><B></B><DD>
+Restore the named function only. Be careful to spell the function
+name and arguments exactly as they appear in the dump file's table
+of contents.
+<DT><B>-r</B><DD>
+<DT><B>--rearrange</B><DD>
+Rearrange items by object type (this occurs after the sorting
+specified by <B>-N</B> or <B>-o</B>, if
+given). The rearrangement is intended to give the best possible
+restore performance.
+<P>
+When none of <B>-N</B>, <B>-o</B>, and
+<B>-r</B> appear, <B>pg_restore</B> restores
+items in the order they appear in the dump's table of contents,
+or in the order they appear in the <I>list-file</I> if <B>-L</B> is
+given. The combination of <B>-o</B> and <B>-r</B>
+duplicates the sorting done by <B>pg_dump</B>
+before creating the dump's table of contents,
+and so it is normally unnecessary to specify it.
+<DT><B>-R</B><DD>
+<DT><B>--no-reconnect</B><DD>
+This option is obsolete but still accepted for backwards
+compatibility.
+<DT><B>-s</B><DD>
+<DT><B>--schema-only</B><DD>
+Restore only the schema (data definitions), not the data.
+Sequence values will be reset.
+<DT><B>-S </B><I>username</I><B></B><DD>
+<DT><B>--superuser=</B><I>username</I><B></B><DD>
+Specify the superuser user name to use when disabling triggers.
+This is only relevant if <B>--disable-triggers</B> is used.
+<DT><B>-t </B><I>table</I><B></B><DD>
+<DT><B>--table=</B><I>table</I><B></B><DD>
+Restore definition and/or data of named table only.
+<DT><B>-T </B><I>trigger</I><B></B><DD>
+<DT><B>--trigger=</B><I>trigger</I><B></B><DD>
+Restore named trigger only.
+<DT><B>-v</B><DD>
+<DT><B>--verbose</B><DD>
+Specifies verbose mode.
+<DT><B>-x</B><DD>
+<DT><B>--no-privileges</B><DD>
+<DT><B>--no-acl</B><DD>
+Prevent restoration of access privileges (grant/revoke commands).
+<DT><B>-X use-set-session-authorization</B><DD>
+<DT><B>--use-set-session-authorization</B><DD>
+This option is obsolete but still accepted for backwards
+compatibility.
+<B>pg_restore</B> now always behaves in the
+way formerly selected by this option.
+<DT><B>-X disable-triggers</B><DD>
+<DT><B>--disable-triggers</B><DD>
+This option is only relevant when performing a data-only restore.
+It instructs <B>pg_restore</B> to execute commands
+to temporarily disable triggers on the target tables while
+the data is reloaded. Use this if you have referential
+integrity checks or other triggers on the tables that you
+do not want to invoke during data reload.
+<P>
+Presently, the commands emitted for
+<B>--disable-triggers</B> must be done as superuser. So, you
+should also specify a superuser name with <B>-S</B>, or
+preferably run <B>pg_restore</B> as a
+PostgreSQL superuser.
+</DL>
+<P>
+
+<P>
+
+<B>pg_restore</B> also accepts
+the following command line arguments for connection parameters:
+<DL COMPACT>
+<DT><B>-h </B><I>host</I><B></B><DD>
+<DT><B>--host=</B><I>host</I><B></B><DD>
+Specifies the host name of the machine on which the server is
+running. If the value begins with a slash, it is used as the
+directory for the Unix domain socket. The default is taken
+from the <B>PGHOST</B> environment variable, if set,
+else a Unix domain socket connection is attempted.
+<DT><B>-p </B><I>port</I><B></B><DD>
+<DT><B>--port=</B><I>port</I><B></B><DD>
+Specifies the TCP port or local Unix domain socket file
+extension on which the server is listening for connections.
+Defaults to the <B>PGPORT</B> environment variable, if
+set, or a compiled-in default.
+<DT><B>-U </B><I>username</I><B></B><DD>
+Connect as the given user
+<DT><B>-W</B><DD>
+Force a password prompt. This should happen automatically if
+the server requires password authentication.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGHOST</B><DD>
+<DT><B>PGPORT</B><DD>
+<DT><B>PGUSER</B><DD>
+Default connection parameters
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<P>
+
+When a direct database connection is specified using the
+<B>-d</B> option, <B>pg_restore</B>
+internally executes SQL statements. If you have
+problems running <B>pg_restore</B>, make sure
+you are able to select information from the database using, for
+example, <B>psql</B>.
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+If your installation has any local additions to the
+template1 database, be careful to load the output of
+<B>pg_restore</B> into a truly empty database;
+otherwise you are likely to get errors due to duplicate definitions
+of the added objects. To make an empty database without any local
+additions, copy from template0 not template1, for example:
+<P>
+<PRE>
+CREATE DATABASE foo WITH TEMPLATE template0;
+
+</PRE>
+
+<P>
+
+The limitations of <B>pg_restore</B> are detailed below.
+<DL COMPACT>
+<DT>*<DD>
+When restoring data to a pre-existing table and the option
+<B>--disable-triggers</B> is used,
+<B>pg_restore</B> emits commands
+to disable triggers on user tables before inserting the data then emits commands to
+re-enable them after the data has been inserted. If the restore is stopped in the
+middle, the system catalogs may be left in the wrong state.
+<DT>*<DD>
+<B>pg_restore</B> will not restore large objects for a single table. If
+an archive contains large objects, then all large objects will be restored.
+</DL>
+<P>
+
+<P>
+
+See also the <B><A HREF="../man1/pg_dump.1.php">pg_dump</A></B>(1) documentation for details on
+limitations of <B>pg_dump</B>.
+<P>
+
+Once restored, it is wise to run <B>ANALYZE</B> on each
+restored table so the optimizer has useful statistics.
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+To dump a database called mydb that contains
+large objects to a <I>tar</I> file:
+<P>
+<PRE>
+$ <B>pg_dump -Ft -b mydb &gt; db.tar</B>
+
+</PRE>
+
+<P>
+
+To reload this database (with large objects) to an
+existing database called newdb:
+<P>
+<PRE>
+$ <B>pg_restore -d newdb db.tar</B>
+
+</PRE>
+
+<P>
+
+To reorder database items, it is first necessary to dump the table of
+contents of the archive:
+<P>
+<PRE>
+$ <B>pg_restore -l archive.file &gt; archive.list</B>
+
+</PRE>
+
+The listing file consists of a header and one line for each item, e.g.,
+<P>
+<PRE>
+;
+; Archive created at Fri Jul 28 22:28:36 2000
+;     dbname: birds
+;     TOC Entries: 74
+;     Compression: 0
+;     Dump Version: 1.4-0
+;     Format: CUSTOM
+;
+;
+; Selected TOC Entries:
+;
+2; 145344 TABLE species postgres
+3; 145344 ACL species
+4; 145359 TABLE nt_header postgres
+5; 145359 ACL nt_header
+6; 145402 TABLE species_records postgres
+7; 145402 ACL species_records
+8; 145416 TABLE ss_old postgres
+9; 145416 ACL ss_old
+10; 145433 TABLE map_resolutions postgres
+11; 145433 ACL map_resolutions
+12; 145443 TABLE hs_old postgres
+13; 145443 ACL hs_old
+
+</PRE>
+
+Semicolons start a comment, and the numbers at the start of lines refer to the
+internal archive ID assigned to each item.
+<P>
+
+Lines in the file can be commented out, deleted, and reordered. For example,
+<P>
+<PRE>
+10; 145433 TABLE map_resolutions postgres
+;2; 145344 TABLE species postgres
+;4; 145359 TABLE nt_header postgres
+6; 145402 TABLE species_records postgres
+;8; 145416 TABLE ss_old postgres
+
+</PRE>
+
+could be used as input to <B>pg_restore</B> and would only restore
+items 10 and 6, in that order:
+<P>
+<PRE>
+$ <B>pg_restore -L archive.list archive.file</B>
+
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<P>
+
+The <B>pg_restore</B> utility first appeared in
+PostgreSQL 7.1.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/pg_dump.1.php">pg_dump</A></B>(1), <B><A HREF="../man1/pg_dumpall.1.php">pg_dumpall</A></B>(1), <B><A HREF="../man1/psql.1.php">psql</A></B>(1)
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">HISTORY</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

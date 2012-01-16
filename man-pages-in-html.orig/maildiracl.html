@@ -1,0 +1,441 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MAILDIRACL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MAILDIRACL</H1>
+Section:  (1)<BR>Updated: 07 February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+maildiracl - manage access control lists
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>maildiracl</B> <B>-reset</B> <B></B><I>maildir</I><B></B>
+<P>
+<P>
+<B>maildiracl</B> <B>-list</B> <B></B><I>maildir</I><B></B> <B></B><I>INBOX[.folder]</I><B></B>
+<P>
+<P>
+<B>maildiracl</B> <B>-set</B> <B></B><I>maildir</I><B></B> <B></B><I>INBOX[.folder]</I><B></B> <B></B><I>[-]identifier</I><B></B> <B></B><I>[+/-]rights</I><B></B>
+<P>
+<P>
+<B>maildiracl</B> <B>-delete</B> <B></B><I>maildir</I><B></B> <B></B><I>INBOX[.folder]</I><B></B> <B></B><I>[-]identifier</I><B></B>
+<P>
+<P>
+<B>maildiracl</B> <B>-compute</B> <B></B><I>maildir</I><B></B> <B></B><I>INBOX[.folder]</I><B></B> <B></B><I>identifier</I><B></B><I> ...</I>
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>maildiracl</B>
+manages ``access control lists'' (or ACLs)
+of <B>Courier-IMAP</B> maildir folders.
+Access control lists are used primarily to provide fine-grained control
+for accessing virtual shared folders via IMAP.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+<P>
+
+The <B>Courier-IMAP</B> server implements two types of shared folders:
+filesystem permission-based shared folders,
+as well as virtual shared folders based on IMAP access control lists.
+Use the <B>maildiracl</B>
+command to set up access control lists for virtual shared folders.
+Use the
+<B><A HREF="../man1/maildirmake.1.php">maildirmake</A></B>(1),
+command
+to implement shared folders based on
+filesystem permissions.
+<P>
+
+See the <B>Courier-IMAP</B> server documentation for additional information
+on setting up virtual shared folders.
+</DL>
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>ACL OVERVIEW</H3>
+
+<P>
+
+ACLs provide a fine-grained mechanism for controlling
+access to shared folders.
+ACLs may be used to specify, for example, that
+user1 may only open and read the messages in the folder;
+and user2 can not only do that, but also delete messages,
+and create subfolders.
+<P>
+
+Each folder maintains its own individual access control list, that specifies
+who can do what to the folder.
+An ACL is a list of ``identifier'' and ``rights''
+pairs.
+Each ``identifier'' and ``rights'' pair means that an
+entity called ``identifier''
+(using the UTF-8 character set)
+is allowed to do ``rights''
+on this folder.
+``rights'' consists of one or more letters, each letter
+signifies a particular action:
+<DL COMPACT>
+<DT><B>a</B><DD>
+<I>identifier</I>
+may modify this folder's ACLs.
+<DT><B>c</B><DD>
+<I>identifier</I>
+may create subfolders of this folder (this includes renaming another
+folder as this folder's subfolders).
+<DT><B>e</B><DD>
+<I>identifier</I>
+may remove deleted messages from this folder.
+<DT><B>i</B><DD>
+<I>identifier</I>
+may add messages to this folder (either uploading them one by one,
+or copying messages from another folder).
+<DT><B>l</B><DD>
+<I>identifier</I>
+may actually see that this folder exists.
+If <I>identifier</I> does not have the ``l''
+right on this folder, the folder is effectively invisible to
+<I>identifier</I>.
+<DT><B>r</B><DD>
+<I>identifier</I>
+may open this folder.
+Note that if <I>identifier</I>
+knows the name of this folder, it can open it even if
+<I>identifier</I> does not the ``l''
+right on this folder.
+<DT><B>s</B><DD>
+<I>identifier</I>
+may mark messages in this folder as seen, or unseen.
+<DT><B>t</B><DD>
+<I>identifier</I>
+may mark messages in this folder as deleted, or undeleted.
+<DT><B>w</B><DD>
+<I>identifier</I>
+may change other status flags of messages in this folder.
+May also add or remove custom keywords on individual messages.
+<DT><B>x</B><DD>
+<I>identifier</I>
+may delete this folder (which includes renaming this folder as another
+mailbox's subfoler.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H3>NEGATIVE RIGHTS</H3>
+
+<P>
+
+An ACL entry of ``-identifier'' and ``rights''
+is called a ``negative right'', which
+explicitly removes ``rights'' from ``identifier''.
+More than one ``identifier'' is usually used to determine the
+actual rights someone has for the given folder.
+The actual access rights are determined by taking all rights from all
+applicable <I>identifier</I>, than subtracting any
+negative rights, as specified in the following section.
+<A NAME="lbAG">&nbsp;</A>
+<H3>IDENTIFIERS</H3>
+
+<P>
+
+Access rights on a given folder are computed by obtained the rights
+on the following identifiers, then subtracting the negative rights on the
+same identifiers:
+<DL COMPACT>
+<DT><B>owner</B><DD>
+The owner of the maildir containing this folder.
+The maildir's INBOX's ACL defaults to all rights for its owner.
+A new folder's ACL is the same as its parent's ACL.
+In all cases, trying to remove the ``a'' right from the owner
+(either directly or using a negative right) results in an error.
+<DT><B>anyone</B><DD>
+This identifier refers literally to every userid.
+The associated rights (or negative rights) are always used.
+<DT><B>anonymous</B><DD>
+This is a synonym from ``anyone''.
+<DT><B>user=</B><I>loginid</I><B></B><DD>
+Rights (or negative rights) for IMAP account ``loginid''.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+``loginid'' is what's logged to syslog after a succesful
+login.
+In some situations ``loginid'' is not exactly the actual login ID
+used by the IMAP client.
+</DL>
+
+</DL>
+<P>
+
+Consider the following access control list:
+<P>
+
+<P>
+<PRE>
+owner       aceilrstwx
+anyone      lr
+user=john   w
+-user=mary  r
+</PRE>
+
+<P>
+
+This access control list specifies that the folder's owner has complete
+control over the mailbox; everyone else can see it and open it,
+except for ``mary'' who can see that the mailbox exists, but
+can't open it; additionally, ``john'' can change the status and
+keywords of individual messages (but not mark them as deleted/undeleted or
+seen/unseen, which requires additional rights).
+<A NAME="lbAH">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<B>maildiracl -reset </B><I>maildir</I><B></B>
+<P>
+<P>
+
+This command resets access control lists in
+<I>maildir</I>
+which as a path to a maildir.
+Under certain conditions, the files where a folder's ACLs are saved may
+continue to exist after the folder is removed.
+The -reset options goes through
+<I>maildir</I>
+and removes all stale ACL files for removed folders.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+The <B>Courier-IMAP</B> server normally performs this maintenance
+function automatically.
+It is not necessary to run this command under normal conditions.
+</DL>
+
+<P>
+<B>maildiracl -list
+</B><I>maildir</I><B>
+</B><I>folder</I><B></B>
+<P>
+<P>
+
+This command
+lists the access control lists set for <I>folder</I>.
+<I>folder</I> must be either
+``INBOX'' or ``INBOX.folder.subfolder'', which is the
+same naming convention for <B>Courier-IMAP</B>.
+<P>
+<B>maildiracl -set
+</B><I>maildir</I><B>
+</B><I>folder</I><B>
+</B><I>identifier</I><B>
+</B><I>rights</I><B></B>
+<P>
+<P>
+
+Puts <I>identifier</I> (which may begin with a minus
+sign to specify a negative right) and
+<I>rights</I> in
+<I>folder</I>'s access control list.
+Existing rights for
+<I>identifier</I>
+(or <I>identifier</I>) are replaced by
+<I>rights</I> unless ``rights'' begins with
+``+'' or ``-'', which modifies the existing rights
+by adding or removing from them accordingly.
+Some examples:
+<P>
+
+<P>
+<PRE>
+maildiracl -set /home/user1/Maildir INBOX.Sent user=john lr
+
+maildiracl -set /home/user2/Maildir INBOX.Notes anyone -r
+
+maildiracl -set /home/user3/Maildir INBOX.Private -user=tom +r
+</PRE>
+
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+Observe that the last command <B>revokes</B> the ``r''
+right from ``tom'', by adding it as a negative right.
+</DL>
+
+<P>
+<B>maildiracl -delete
+</B><I>maildir</I><B>
+</B><I>folder</I><B>
+</B><I>identifier</I><B></B>
+<P>
+<P>
+
+This command removes <I>identifier</I>
+from
+<I>folder</I>'s access control list, if it exists.
+Use ``-<I>identifier</I>'' to remove
+negative rights.
+<P>
+<B>maildiracl -compute
+</B><I>maildir</I><B>
+</B><I>folder</I><B>
+[</B><I>identifier</I><B>]+</B>
+<P>
+<P>
+
+This command takes a list of one or more
+<I>identifier</I>s.
+All access rights for the
+<I>identifier</I>s are combined together, then
+any appropriate negative rights are removed, and the result is printed
+on standard output.
+Use the following procedure to compute access rights the same way as they
+are computed by <B>Courier-IMAP</B>:
+<P>
+
+<P>
+<PRE>
+maildiracl -compute /home/tom46/Maildir INBOX.Sent owner user=tom46
+</PRE>
+
+<P>
+
+This command computes access rights ``tom46'' has on
+his own folder.
+<P>
+
+<P>
+<PRE>
+maildiracl -compute /home/john34/Maildir INBOX.Public user=tom46
+</PRE>
+
+<P>
+
+This command computes access rights ``tom46'' has on
+``john34'''s folder.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+All identifiers are specified using the UTF-8 character
+set.
+<P>
+
+All non-Latin letters in folder names are specified using the
+modified-UTF7 coding as used in IMAP.
+<P>
+
+This implementation of access control lists is based on
+version 2 (or ``ACL2'') of IMAP
+access control lists, which is a work-in-progress.
+The existing IMAP ACL,
+RFC 2086
+is transparently implemented inside the ACL2 model.
+<P>
+
+If history's of any guidance, ACL2 is subject to change at any time.
+Be sure to check the release notes
+when upgrading to a newer version of this software.
+The ``ACL overview'' portion of this manual page is a
+<B>very</B> brief summary of ACL2, which leaves out optional
+parts of ACL2 that are not implemented.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man1/maildirmake.1.php">maildirmake</A></B>(1),
+<B><A HREF="../man1/maildirkw.1.php">maildirkw</A></B>(1),
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">ACL OVERVIEW</A><DD>
+<DT><A HREF="#lbAF">NEGATIVE RIGHTS</A><DD>
+<DT><A HREF="#lbAG">IDENTIFIERS</A><DD>
+</DL>
+<DT><A HREF="#lbAH">OPTIONS</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

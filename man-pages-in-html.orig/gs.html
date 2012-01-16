@@ -1,0 +1,730 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GS</H1>
+Section: Ghostscript (1)<BR>Updated: 17 May 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gs - Ghostscript (PostScript and PDF language interpreter and previewer)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>gs</B> [ <I>options</I> ] [ <I>files</I> ] ... <B>(Unix, VMS)</B>
+<BR>
+
+<B>gswin32</B> [ <I>options</I> ] [ <I>files</I> ] ... <B>(MS Windows)</B>
+<BR>
+
+<B>gswin32c</B> [ <I>options</I> ] [ <I>files</I> ] ... <B>(MS Windows)</B>
+<BR>
+
+<B>gs386</B> [ <I>options</I> ] [ <I>files</I> ] ... <B>(DOS for PC)</B>
+<BR>
+
+<B>gsos2</B> [ <I>options</I> ] [ <I>files</I> ] ... <B>(OS/2)</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <B>gs</B> (<B>gswin32</B>, <B>gswin32c</B>, <B>gs386</B>, <B>gsos2</B>)
+command invokes <B>Ghostscript</B>, an interpreter of Adobe Systems'
+<B>PostScript</B>(tm) and <B>Portable Document Format</B> (PDF) languages.
+<B>gs</B> reads &quot;files&quot; in sequence and executes them as Ghostscript
+programs.  After doing this, it reads further input from the standard input
+stream (normally the keyboard), interpreting each line separately.  The
+interpreter quits gracefully when it encounters the &quot;quit&quot; command (either
+in a file or from the keyboard), at end-of-file, or at an interrupt signal
+(such as Control-C at the keyboard).
+<P>
+
+The interpreter recognizes several switches described below, which may
+appear anywhere in the command line and apply to all files thereafter.
+Invoking Ghostscript with the <B>-h</B> or <B>-?</B> switch produces a
+message which shows several useful switches, all the devices known to
+that executable, and the search path for fonts; on Unix it also shows the
+location of detailed documentation.
+<P>
+
+Ghostscript may be built able to use many different output devices.  To see
+which devices your executable can use, run &quot;<B>gs -h</B>&quot;.  Unless you
+specify a particular device, Ghostscript normally opens the first one of
+those and directs output to it, so if the first one in the list is the one
+you want to use, just issue the command
+<P>
+
+<PRE>
+        gs myfile.ps
+</PRE>
+
+<P>
+
+You can also check the set of available devices from within Ghostscript:
+invoke Ghostscript and type
+<P>
+
+<PRE>
+        devicenames ==
+</PRE>
+
+<P>
+
+but the first device on the resulting list may not be the default device
+you determine with &quot;<B>gs -h</B>&quot;.  To specify &quot;AbcXyz&quot; as the
+initial output device, include the switch
+<P>
+
+<PRE>
+        -sDEVICE=AbcXyz
+</PRE>
+
+<P>
+
+For example, for output to an Epson printer you might use the command
+<P>
+
+<PRE>
+        gs -sDEVICE=epson myfile.ps
+</PRE>
+
+<P>
+
+The &quot;-sDEVICE=&quot; switch must precede the first mention of a file to print,
+and only the switch's first use has any effect.  Alternatively, in
+Ghostscript you can type
+<P>
+
+<PRE>
+        (epson) selectdevice
+        (myfile.ps) run
+</PRE>
+
+<P>
+
+All output then goes to the printer until you select another device with
+the &quot;selectdevice&quot; procedure in the PostScript program stream, for example
+<P>
+
+<PRE>
+        (vga) selectdevice
+</PRE>
+
+or
+<PRE>
+        (x11) selectdevice
+</PRE>
+
+<P>
+
+Finally, you can specify a default device in the environment variable
+<B>GS_DEVICE</B>.  The order of precedence for these alternatives from
+highest to lowest (Ghostscript uses the device defined highest in the list)
+is:
+<P>
+
+<PRE>
+        selectdevice
+        (command line)
+        GS_DEVICE
+        (first device in build list)
+</PRE>
+
+<P>
+
+Some printers can print at different resolutions (densities).  To specify
+the resolution on such a printer, use the &quot;-r&quot; switch:
+<P>
+
+<PRE>
+        gs -sDEVICE=&lt;device&gt; -r&lt;xres&gt;x&lt;yres&gt;
+</PRE>
+
+<P>
+
+For example, on a 9-pin Epson-compatible printer, you get the
+lowest-density (fastest) mode with
+<P>
+
+<PRE>
+        gs -sDEVICE=epson -r60x72
+</PRE>
+
+<P>
+
+and the highest-density (best output quality) mode with
+<P>
+
+<PRE>
+        gs -sDEVICE=epson -r240x72.
+</PRE>
+
+<P>
+
+If you select a printer as the output device, Ghostscript also allows you
+to choose where Ghostscript sends the output -- on Unix systems, usually
+to a temporary file.  To send the output to a file &quot;foo.xyz&quot;,
+use the switch
+<P>
+
+<PRE>
+        -sOutputFile=foo.xyz
+</PRE>
+
+<P>
+
+You might want to print each page separately.  To do this, send the output
+to a series of files &quot;foo1.xyz, foo2.xyz, ...&quot; using the &quot;-sOutputFile=&quot;
+switch with &quot;%d&quot; in a filename template:
+<P>
+
+<PRE>
+        -sOutputFile=foo%d.xyz
+</PRE>
+
+<P>
+
+Each resulting file receives one page of output, and the files are numbered
+in sequence.  &quot;%d&quot; is a printf format specification; you can also use a
+variant like &quot;%02d&quot;.
+<P>
+
+On Unix systems you can also send output to a pipe.  For example, to
+pipe output to the &quot;<B>lpr</B>&quot; command (which, on many Unix systems,
+directs it to a printer), use the switch
+<P>
+
+<PRE>
+        -sOutputFile=\|lpr
+</PRE>
+
+<P>
+
+You can also send output to standard output for piping with the switch
+<P>
+
+<PRE>
+        -sOutputFile=-
+</PRE>
+
+<P>
+
+In this case you must also use the <B>-q</B> switch, to prevent Ghostscript
+from writing messages to standard output.
+<P>
+
+To select a specific paper size, use the command line switch
+<P>
+
+<PRE>
+        -sPAPERSIZE=a_known_paper_size
+</PRE>
+
+<P>
+
+for instance
+<P>
+
+<PRE>
+        -sPAPERSIZE=a4
+</PRE>
+
+or
+<PRE>
+        -sPAPERSIZE=legal
+</PRE>
+
+<P>
+
+At this time, the known paper sizes, defined in the initialization
+file &quot;gs_statd.ps&quot;, are:
+<TABLE>
+<TR VALIGN=top><TD>PAPERSIZE</TD><TD>X inches</TD><TD>Y inches</TD><TD>X cm</TD><TD>Y cm<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=5><HR></TD></TR>
+<TR VALIGN=top><TD>a0</TD><TD>33.0556</TD><TD>46.7778</TD><TD>83.9611</TD><TD>118.816<BR></TD></TR>
+<TR VALIGN=top><TD>a1</TD><TD>23.3889</TD><TD>33.0556</TD><TD>59.4078</TD><TD>83.9611<BR></TD></TR>
+<TR VALIGN=top><TD>a2</TD><TD>16.5278</TD><TD>23.3889</TD><TD>41.9806</TD><TD>59.4078<BR></TD></TR>
+<TR VALIGN=top><TD>a3</TD><TD>11.6944</TD><TD>16.5278</TD><TD>29.7039</TD><TD>41.9806<BR></TD></TR>
+<TR VALIGN=top><TD>a4</TD><TD>8.26389</TD><TD>11.6944</TD><TD>20.9903</TD><TD>29.7039<BR></TD></TR>
+<TR VALIGN=top><TD>a5</TD><TD>5.84722</TD><TD>8.26389</TD><TD>14.8519</TD><TD>20.9903<BR></TD></TR>
+<TR VALIGN=top><TD>a6</TD><TD>4.125</TD><TD>5.84722</TD><TD>10.4775</TD><TD>14.8519<BR></TD></TR>
+<TR VALIGN=top><TD>a7</TD><TD>2.91667</TD><TD>4.125</TD><TD>7.40833</TD><TD>10.4775<BR></TD></TR>
+<TR VALIGN=top><TD>a8</TD><TD>2.05556</TD><TD>2.91667</TD><TD>5.22111</TD><TD>7.40833<BR></TD></TR>
+<TR VALIGN=top><TD>a9</TD><TD>1.45833</TD><TD>2.05556</TD><TD>3.70417</TD><TD>5.22111<BR></TD></TR>
+<TR VALIGN=top><TD>a10</TD><TD>1.02778</TD><TD>1.45833</TD><TD>2.61056</TD><TD>3.70417<BR></TD></TR>
+<TR VALIGN=top><TD>b0</TD><TD>39.3889</TD><TD>55.6667</TD><TD>100.048</TD><TD>141.393<BR></TD></TR>
+<TR VALIGN=top><TD>b1</TD><TD>27.8333</TD><TD>39.3889</TD><TD>70.6967</TD><TD>100.048<BR></TD></TR>
+<TR VALIGN=top><TD>b2</TD><TD>19.6944</TD><TD>27.8333</TD><TD>50.0239</TD><TD>70.6967<BR></TD></TR>
+<TR VALIGN=top><TD>b3</TD><TD>13.9167</TD><TD>19.6944</TD><TD>35.3483</TD><TD>50.0239<BR></TD></TR>
+<TR VALIGN=top><TD>b4</TD><TD>9.84722</TD><TD>13.9167</TD><TD>25.0119</TD><TD>35.3483<BR></TD></TR>
+<TR VALIGN=top><TD>b5</TD><TD>6.95833</TD><TD>9.84722</TD><TD>17.6742</TD><TD>25.0119<BR></TD></TR>
+<TR VALIGN=top><TD>archA</TD><TD>9</TD><TD>12</TD><TD>22.86</TD><TD>30.48<BR></TD></TR>
+<TR VALIGN=top><TD>archB</TD><TD>12</TD><TD>18</TD><TD>30.48</TD><TD>45.72<BR></TD></TR>
+<TR VALIGN=top><TD>archC</TD><TD>18</TD><TD>24</TD><TD>45.72</TD><TD>60.96<BR></TD></TR>
+<TR VALIGN=top><TD>archD</TD><TD>24</TD><TD>36</TD><TD>60.96</TD><TD>91.44<BR></TD></TR>
+<TR VALIGN=top><TD>archE</TD><TD>36</TD><TD>48</TD><TD>91.44</TD><TD>121.92<BR></TD></TR>
+<TR VALIGN=top><TD>flsa</TD><TD>8.5</TD><TD>13</TD><TD>21.59</TD><TD>33.02<BR></TD></TR>
+<TR VALIGN=top><TD>flse</TD><TD>8.5</TD><TD>13</TD><TD>21.59</TD><TD>33.02<BR></TD></TR>
+<TR VALIGN=top><TD>halfletter</TD><TD>5.5</TD><TD>8.5</TD><TD>13.97</TD><TD>21.59<BR></TD></TR>
+<TR VALIGN=top><TD>note</TD><TD>7.5</TD><TD>10</TD><TD>19.05</TD><TD>25.4<BR></TD></TR>
+<TR VALIGN=top><TD>letter</TD><TD>8.5</TD><TD>11</TD><TD>21.59</TD><TD>27.94<BR></TD></TR>
+<TR VALIGN=top><TD>legal</TD><TD>8.5</TD><TD>14</TD><TD>21.59</TD><TD>35.56<BR></TD></TR>
+<TR VALIGN=top><TD>11x17</TD><TD>11</TD><TD>17</TD><TD>27.94</TD><TD>43.18<BR></TD></TR>
+<TR VALIGN=top><TD>ledger</TD><TD>17</TD><TD>11</TD><TD>43.18</TD><TD>27.94<BR></TD></TR>
+</TABLE>
+
+<P>
+
+Note that the B paper sizes are ISO sizes: for information about using
+JIS B sizes, see <B>Use.htm</B>.
+<P>
+
+Ghostscript can do many things other than print or view PostScript and
+PDF files.  For example, if you want to know the bounding box of a
+PostScript (or EPS) file, Ghostscript provides a special &quot;device&quot; that
+just prints out this information:
+<P>
+
+<PRE>
+        gs -sDEVICE=bbox myfile.ps
+</PRE>
+
+<P>
+
+For example, using one of the example files distributed with Ghostscript,
+<P>
+
+<PRE>
+        gs -sDEVICE=bbox golfer.ps
+</PRE>
+
+<P>
+
+prints out
+<P>
+
+<PRE>
+        %%BoundingBox: 0 25 583 732
+        %%HiResBoundingBox: 0.808497 25.009496 582.994503 731.809445
+</PRE>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>INITIALIZATION FILES</H2>
+
+When looking for the initialization files &quot;gs_*.ps&quot;, the files related to
+fonts, or the file for the &quot;run&quot; operator, Ghostscript first tries to open
+the file with the name as given, using the current working directory if no
+directory is specified.  If this fails, and the file name doesn't specify
+an explicit directory or drive (for instance, doesn't contain &quot;/&quot; on Unix
+systems or &quot;\&quot; on DOS systems), Ghostscript tries directories in this
+order:
+<DL COMPACT>
+<DT>1.<DD>
+the directories specified by the <B>-I</B> switches in the command
+line (see below), if any;
+<DT>2.<DD>
+the directories specified by the <B>GS_LIB</B> environment variable,
+if any;
+<DT>3.<DD>
+the directories specified by the <B>GS_LIB_DEFAULT</B> macro in the
+Ghostscript makefile when the executable was built.  When <B>gs</B> is built
+on Unix, <B>GS_LIB_DEFAULT</B> is usually
+&quot;/usr/local/share/ghostscript/#.##:/usr/local/share/ghostscript/fonts&quot;
+where &quot;#.##&quot; represents the Ghostscript version number.
+</DL>
+<P>
+
+Each of these (<B>GS_LIB_DEFAULT</B>, <B>GS_LIB</B>, and <B>-I</B> parameter)
+may be either a single directory or a list of directories separated by
+&quot;:&quot;.
+<A NAME="lbAF">&nbsp;</A>
+<H2>X RESOURCES</H2>
+
+Ghostscript looks for the following resources under the program name
+&quot;Ghostscript&quot;:
+<DL COMPACT>
+<DT><B>borderWidth</B>
+
+<DD>
+The border width in pixels (default = 1).
+<DT><B>borderColor</B>
+
+<DD>
+The name of the border color (default = black).
+<DT><B>geometry</B>
+
+<DD>
+The window size and placement, WxH+X+Y (default is NULL).
+<DT><B>xResolution</B>
+
+<DD>
+The number of x pixels per inch (default is computed from <B>WidthOfScreen</B>
+and <B>WidthMMOfScreen</B>).
+<DT><B>yResolution</B>
+
+<DD>
+The number of y pixels per inch (default is computed from
+<B>HeightOfScreen</B> and <B>HeightMMOfScreen</B>).
+<DT><B>useBackingPixmap</B>
+
+<DD>
+Determines whether backing store is to be used for saving display window
+(default = true).
+</DL>
+<P>
+
+See the usage document for a more complete list of resources.  To set these
+resources on Unix, put them in a file such as &quot;~/.Xresources&quot; in the
+following form:
+<P>
+
+<PRE>
+        Ghostscript*geometry:    612x792-0+0
+        Ghostscript*xResolution: 72
+        Ghostscript*yResolution: 72
+</PRE>
+
+<P>
+
+Then merge these resources into the X server's resource database:
+<P>
+
+<PRE>
+        % xrdb -merge ~/.Xresources
+</PRE>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>SWITCHES</H2>
+
+<DL COMPACT>
+<DT><B>--</B><I> filename arg1 ...</I>
+
+<DD>
+Takes the next argument as a file name as usual, but takes all remaining
+arguments (even if they have the syntactic form of switches) and defines
+the name &quot;ARGUMENTS&quot; in &quot;userdict&quot; (not &quot;systemdict&quot;) as an
+array of those strings, <B>before</B> running the file.  When Ghostscript
+finishes executing the file, it exits back to the shell.
+<DT><B>-D</B><I>name</I><B>=</B><I>token</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<B>-d</B><I>name</I><B>=</B><I>token</I>
+
+<DD>Define a name in &quot;systemdict&quot; with the given definition.  The token must be
+exactly one token (as defined by the &quot;token&quot; operator) and may contain no
+whitespace.
+<DT><B>-D</B><I>name</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<B>-d</B><I>name</I>
+
+<DD>Define a name in &quot;systemdict&quot; with value=null.
+<DT><B>-S</B><I>name</I><B>=</B><I>string</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<B>-s</B><I>name</I><B>=</B><I>string</I>
+
+<DD>Define a name in &quot;systemdict&quot; with a given string as value.  This is
+different from <B>-d</B>.  For example, <B>-dname=35</B> is equivalent to the
+program fragment
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/name 35 def<BR>
+<BR>
+
+whereas <B>-sname=35</B> is equivalent to
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/name (35) def<BR>
+<DT><B>-q</B>
+
+<DD>
+Quiet startup: suppress normal startup messages, and also do the
+equivalent of <B>-dQUIET</B>.
+<DT><B>-g</B><I>number1</I><B>x</B><I>number2</I>
+
+<DD>
+Equivalent to <B>-dDEVICEWIDTH=</B><I>number1</I> and
+<B>-dDEVICEHEIGHT=</B><I>number2</I>.  This is for the benefit of devices
+(such as X11 windows) that require (or allow) width and height to be
+specified.
+<DT><B>-r</B><I>number</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<B>-r</B><I>number1</I><B>x</B><I>number2</I>
+
+<DD>Equivalent to <B>-dDEVICEXRESOLUTION=</B><I>number1</I> and
+<B>-dDEVICEYRESOLUTION=</B><I>number2</I>.  This is for the benefit of
+devices such as printers that support multiple X and Y resolutions.  If
+only one number is given, it is used for both X and Y resolutions.
+<DT><B>-I</B><I>directories</I>
+
+<DD>
+Adds the designated list of directories at the head of the
+search path for library files.
+<DT><B>-</B>
+
+<DD>
+This is not really a switch, but indicates to Ghostscript that standard
+input is coming from a file or a pipe and not interactively from the
+command line.  Ghostscript reads from standard input until it reaches
+end-of-file, executing it like any other file, and then continues with
+processing the command line.  When the command line has been entirely
+processed, Ghostscript exits rather than going into its interactive mode.
+</DL>
+<P>
+
+Note that the normal initialization file &quot;gs_init.ps&quot; makes &quot;systemdict&quot;
+read-only, so the values of names defined with <B>-D</B>, <B>-d</B>,
+<B>-S</B>, or <B>-s</B> cannot be changed (although, of course, they can be
+superseded by definitions in &quot;userdict&quot; or other dictionaries.)
+<A NAME="lbAH">&nbsp;</A>
+<H2>SPECIAL NAMES</H2>
+
+<DL COMPACT>
+<DT><B>-dSAFER</B>
+
+<DD>
+Disables the &quot;deletefile&quot; and &quot;renamefile&quot; operators and the ability to
+open files in any mode other than read-only. This is desirable for
+spoolers or any other environments where a malicious or badly written
+PostScript program must be prevented from changing important files.
+<DT><B>-dBATCH</B>
+
+<DD>
+Causes Ghostscript to exit after processing all files named on the
+command line, rather than prompting for further PostScript
+commands.
+<DT><B>-dNOPAUSE</B>
+
+<DD>
+Disables the prompt and pause at the end of each page. This may be
+desirable in converting documents or for applications where another
+program is driving Ghostscript.
+<DT><B>-sDEVICE=</B><I>device</I>
+
+<DD>
+Selects an alternate initial output device, as described above.
+<DT><B>-sOutputFile=</B><I>filename</I>
+
+<DD>
+Selects an alternate output file (or pipe) for the initial output
+device, as described above.
+<DT><B>-dNODISPLAY</B>
+
+<DD>
+Suppresses the normal initialization of the output device.
+This may be useful when debugging.
+<DT><B>-dNOCACHE</B>
+
+<DD>
+Disables character caching. Useful only for debugging.
+<DT><B>-dNOBIND</B>
+
+<DD>
+Disables the &quot;bind&quot; operator. Useful only for debugging.
+<DT><B>-dNOPLATFONTS</B>
+
+<DD>
+Disables the use of fonts supplied by the underlying platform (for instance
+X Windows). This may be needed if the platform fonts look undesirably
+different from the scalable fonts.
+<DT><B>-dDISKFONTS</B>
+
+<DD>
+Causes individual character outlines to be loaded from the disk
+the first time they are encountered. (Normally Ghostscript loads all the
+character outlines when it loads a font.) This may allow loading more
+fonts into RAM, at the expense of slower rendering.
+<DT><B>-dWRITESYSTEMDICT</B>
+
+<DD>
+Leaves &quot;systemdict&quot; writable. This is necessary when running special
+utility programs such as <B>font2c</B> and <B>pcharstr</B>, which must bypass
+normal PostScript access protection.
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+
+The locations of many Ghostscript run-time files are compiled into the
+executable when it is built.  On Unix these are typically based in
+<B>/usr/local</B>, but this may be different on your system.  Under DOS they
+are typically based in <B>C:\GS</B>, but may be elsewhere, especially if
+you install Ghostscript with <B>GSview</B>.  Run &quot;<B>gs -h</B>&quot; to find the
+location of Ghostscript documentation on your system, from which you can
+get more details.
+<DL COMPACT>
+<DT><B>/usr/local/share/ghostscript/#.##/*</B>
+
+<DD>
+Startup files, utilities, and basic font definitions
+<DT><B>/usr/local/share/ghostscript/fonts/*</B>
+
+<DD>
+More font definitions
+<DT><B>/usr/local/share/ghostscript/#.##/examples/*</B>
+
+<DD>
+Ghostscript demonstration files
+<DT><B>/usr/local/share/ghostscript/#.##/doc/*</B>
+
+<DD>
+Diverse document files
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>GS_OPTIONS</B>
+
+<DD>
+String of options to be processed before the command line options
+<DT><B>GS_DEVICE</B>
+
+<DD>
+Used to specify an output device
+<DT><B>GS_FONTPATH</B>
+
+<DD>
+Path names used to search for fonts
+<DT><B>GS_LIB</B>
+
+<DD>
+Path names for initialization files and fonts
+<DT><B>TEMP</B>
+
+<DD>
+Where temporary files are made
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+The various Ghostscript document files (above), especially <B>Use.htm</B>.
+<A NAME="lbAL">&nbsp;</A>
+<H2>BUGS</H2>
+
+See the Usenet news group comp.lang.postscript.
+<A NAME="lbAM">&nbsp;</A>
+<H2>VERSION</H2>
+
+This document was last revised for Ghostscript version 7.07.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+L. Peter Deutsch &lt;<A HREF="mailto:ghost@aladdin.com">ghost@aladdin.com</A>&gt; is the principal author of Ghostscript.
+Russell J. Lang &lt;<A HREF="mailto:rjl@aladdin.com">rjl@aladdin.com</A>&gt; is the author of most of the MS Windows
+code in Ghostscript.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">INITIALIZATION FILES</A><DD>
+<DT><A HREF="#lbAF">X RESOURCES</A><DD>
+<DT><A HREF="#lbAG">SWITCHES</A><DD>
+<DT><A HREF="#lbAH">SPECIAL NAMES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">BUGS</A><DD>
+<DT><A HREF="#lbAM">VERSION</A><DD>
+<DT><A HREF="#lbAN">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

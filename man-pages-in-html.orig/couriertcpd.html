@@ -1,0 +1,678 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>COURIERTCPD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>COURIERTCPD</H1>
+Section:  (1)<BR>Updated: 07 February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+couriertcpd - Courier TCP server daemon
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>couriertcpd</B> <B>-pid=</B><I>pidfile</I><B></B> [ <B></B><I>option</I><B></B><I> ...</I> ] <B></B><I>list</I><B></B> <B></B><I>program</I><B></B> <B></B><I>arg</I><B></B><I> ...</I>
+<P>
+<P>
+<B>couriertcpd</B> <B>-pid=</B><I>pidfile</I><B></B> <B>-stop</B>
+<P>
+<P>
+<B>couriertcpd</B> <B>-pid=</B><I>pidfile</I><B></B> <B>-restart</B>
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>couriertcpd</B> accepts incoming network connections, and runs
+<B>program</B> after establishing each network connection. The
+<B>program</B>'s standard input and output are set to the network
+connection.
+<P>
+
+<I>list</I> is a comma-separated list of TCP port numbers
+where incoming
+connections are created. <B>program</B> is the program to
+run. If <B>program</B> requires any
+arguments, they are specified on the command line, after
+<B>program</B> itself.
+<P>
+
+Before running <B>program</B>, <B>couriertcpd</B>
+initializes
+several environment variables that describe the network connection. The
+environment inherited by <B>program</B> will be the environment
+inherited by <B>couriertcpd</B>, plus any additional environment
+variables initialized by <B>couriertcpd</B>. It is also possible to
+reject certain network connections. Several options are available to specify
+which network connections will be rejected.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-access=</B><I>filename</I><B></B><DD>
+Specifies an optional access
+file. The access file lists the IP addresses from which connections
+should be accepted or rejected. The access file is also used to
+initialize environment variables based on the IP address of the
+connection. <I>filename</I> is a GDBM or DB database file
+that's usually
+created by a script from one or more text files. See &quot;ACCESS FILE&quot; below for
+more information.
+<DT><B>-address=</B><I>n.n.n.n</I><B></B><DD>
+Accept network connections only to IP address
+<I>n.n.n.n</I>. If not specified,
+<B>couriertcpd</B>
+accepts connections to any IP address that the system accepts connections
+on. If the system has multiple network interfaces with separate IP
+addresses, this option makes <B>couriertcpd</B> accept connections
+only to one specific IP address. Most systems have multiple network
+interfaces: the loopback interface, plus the local network interface, so
+that -address=127.0.0.1 accepts connections only from the
+local system. When multiple port numbers are specified, it is also
+possible to selectively bind different network addresses to each port
+number when <I>list</I> specifies more than one port
+number. See &quot;Multiple port list&quot; below for more
+information.
+<DT><B>-block=</B><I>zone</I><B>[,</B><I>var</I><B>[/</B><I>n.n.n.n</I><B>][,</B><I>msg</I><B>]]</B><DD>
+Initialize the environment variable <I>var</I> if both of
+the following
+conditions are true: <I>var</I> is not already initialized;
+the connecting IP address can be found in a DNS-based list. See
+DNS ACCESS LISTS, below.
+Multiple <B>-block</B> options can be used.
+<DT><B>-denymsg=</B><I>text</I><B></B><DD>
+Specifies an optional message to be returned to the client if the
+<I>-access</I> option rejects them.
+The default is to drop the TCP
+connection without sending back any messages.
+<DT><B>-group=</B><I>group</I><B></B><DD>
+Set <B>couriertcpd</B>'s its
+group ID. <I>group</I> may be specified numerically, or by
+its name. Only the superuser may use <B>-group</B>.
+<DT><B>-listen=</B><I>n</I><B></B><DD>
+Length of the queue which holds pending connections.
+<I>n</I> is a number. If not specified, the system default
+is used.
+<DT><B>-maxperc=</B><I>n</I><B></B><DD>
+Maximum number of connections accepted
+from the same C network block. Using this option is recommended, because
+connection slots are limited. Without this option, the same C network
+block can potentially use up all available connection slots.
+<DT><B>-maxperip=</B><I>n</I><B></B><DD>
+Maximum number of connections
+accepted from the same IP address.  Use both the <B>-maxperc</B>
+and <B>-maxperip</B> options to fine tune connection limits. For
+example, when <B>couriertcpd</B> is listening on the SMTP port it
+makes sense to set an upper limit on the number of connections from the
+same C block. Domains that send a large amount of mail often have
+multiple servers sending outbound mail from the same C block, so it makes
+sense to set limits on individual C blocks. On the other hand, if
+<B>couriertcpd</B> is listening on the POP3 port it makes more
+sense to set limits on individual IP addresses.  If a C block of
+addresses is assigned to a dialup modem pool, it is certainly possible to
+have many IP addresses within the same C block have connections to the
+POP3 server at the same time.
+<DT><B>-maxprocs=</B><I>n</I><B></B><DD>
+Maximum number of connection slots,
+or the maximum number of processes started. This effectively specifies
+the maximum number of connections accepted at the same time. After the
+maximum number of connections has been opened, <B>couriertcpd</B>
+waits for an existing connection to close, before accepting any more
+connections.
+<DT><B>-warn=</B><I>n</I><B></B><DD>
+Log a LOG_WARNING message to
+syslog when the number of active processes exceeds
+<I>n</I>.  The default is 90% of
+<I>maxprocs</I>. <B>couriertcpd</B> logs a
+LOG_ALERT syslog message when the number of active
+processes
+reaches the maximum.
+<DT><B>-nodnslookup</B><DD>
+Do not look up the hostname associated with connecting IP address and the
+local addres, do not initialize the
+<B>TCPREMOTEHOST</B> or <B>TCPLOCALHOST</B> environment
+variables (see below).
+<DT><B>-noidentlookup</B><DD>
+Do not perform an <B>ident</B>
+lookup, and do not initialize the <B>TCPREMOTEINFO</B> environment
+variable.
+<DT><B>-pid=</B><I>filename</I><B></B><DD>
+<B>REQUIRED OPTION</B>: name of a
+file where <B>couriertcpd</B> saves its process ID, usually
+somewhere in <I>/var/run</I>.
+<DT><B>-restart</B><DD>
+Send a SIGHUP to an existing <B>couriertcpd</B> process.  Specify
+the same <B>-pid</B>
+argument as the one that was used to start <B>couriertcpd</B>. The
+process ID is read from the <B>-pid</B> file, and the
+<B>couriertcpd</B> receives a SIGHUP signal.
+<DT><B>-stderr=socket</B><DD>
+Set <B>program</B>'s standard error to
+the network connection, just like its standard input and output.
+<DT><B>-stderr=</B><I>logfile</I><B></B><DD>
+Set <B>program</B>'s standard
+error to the specified file, <I>logfile</I>.
+The file is created, if necessary, and is opened in append mode.
+<DT><B>-stderrlogger=</B><I>logprogram</I><B></B><DD>
+Set <B>program</B>'s
+standard error to a pipe, which is read by <B>logprogram</B>.
+Only one instance of
+<I>logger</I> is started, which receives standard error
+from every
+instance of <B>program</B>.
+The specified <I>logger</I> is executed with
+the output end of the stderr pipe connected as standard input.
+<I>logprogram</I> is
+executed with one argument - <B>program</B>'s name.
+<DT><B>-stderrloggername=name</B><DD>
+Use <I>name</I> as the argument to
+<I>logprogram</I>, instead of the
+<B>program</B>'s name.
+<DT><B>-stop</B><DD>
+Stop (kill) an existing <B>couriertcpd</B>
+process.  Specify the same <B>-pid</B> argument as the one that was
+used to start <B>couriertcpd</B>. The process ID is read from the
+<B>-pid</B> file, and the <B>couriertcpd</B> process is
+killed. All child processes of <B>couriertcpd</B> will receive a
+SIGTERM signal.
+<DT><B>-user=</B><I>user</I><B></B><DD>
+Set <B>couriertcpd</B>'s user
+ID. Also, the group ID is set to the user's group ID. Using both
+<B>-group</B> and <B>-user</B> is not necessary. Only the
+superuser can specify <B>-user</B>.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>MULTIPLE PORT LIST</H2>
+
+<P>
+
+The <I>list</I> argument can be a comma-separated list of
+multiple port
+numbers. <B>couriertcpd</B> will create network connections on any
+listed port. Each port number can be optionally specified as &quot;address.port&quot;,
+for example:
+<P>
+
+<P>
+<PRE>
+couriertcpd -pid=/var/run/smtp.pid 127.0.0.1.25,999 <I>program</I>
+</PRE>
+
+<P>
+
+This instance accepts network connections to either port 25 or port 999,
+however connections on port 25 are created only on the IP address 127.0.0.1,
+the loopback interface.
+<P>
+
+Whenever an IP address is not specified, network connections are
+accepted
+to any IP address (called &quot;wildcarding&quot;). On IPv6-capable systems,
+<B>couriertcpd</B> will attempt to create two incoming network
+connection ports, if an IP address is not specified. After creating the first
+port as an IPv6 wildcard port, couriertcpd will then attept to create an IPv4
+wildcard port, with the same port number. Some BSD-derived systems must use
+separate IPv6 and IPv4 wildcard ports to create incoming network connections.
+Most other systems only need an IPv6 port to create both IPv6 and IPv4
+incoming network connections. <B>couriertcpd</B> quietly ignores a
+failure to create an IPv4 wildcard port, as long as an IPv6 wildcard was
+succesfully created.
+<P>
+
+The <B>-address</B> option can be used to default a specific IP
+address for every listed port number.  For example:
+<P>
+
+<P>
+<PRE>
+couriertcpd -pid=/var/run/smtp.pid 127.0.0.1.25,127.0.0.1.999 <I>program</I>
+</PRE>
+
+<P>
+
+and
+<P>
+
+<P>
+<PRE>
+couriertcpd -pid=/var/run/smtp.pid -address=127.0.0.1 25,999 <I>program</I>
+</PRE>
+
+<P>
+
+will create network connections on ports 25 and 999 of the IP address
+127.0.0.1.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ACCESS FILE</H2>
+
+<P>
+
+The access file lists IP addresses that <B>couriertcpd</B> will
+accept or reject connections from. An access file is optional. Without an
+access file <B>couriertcpd</B> accepts a connection from any IP
+address.
+<P>
+
+Both IPv4 and IPv6 addresses can be specified, if IPv6 support is
+available. A non-standard syntax is currently used to specify IPv6 addresses.
+This is subject to change in the near future. IPv6 support is currently
+considered to be experimental.
+<P>
+
+The access file is a binary database file that's usually created by a
+script, such as
+<B><A HREF="../man8/makesmtpaccess.8.php">makesmtpaccess</A></B>(8),
+from one or more plain text
+files. Blank lines in the text file are ignored. Lines that start with the #
+character are also ignored.
+<A NAME="lbAH">&nbsp;</A>
+<H3>REJECTING AND ACCEPTING CONNECTIONS BY IP ADDRESS</H3>
+
+<P>
+
+The following line instructs <B>couriertcpd</B> to reject all
+connections from an IP address range:
+<P>
+
+<P>
+<PRE>
+netblock&lt;tab&gt;deny
+</PRE>
+
+<P>
+
+<I>netblock</I> is an IP address, such as
+192.68.0.2. &lt;tab&gt;
+is the ASCII tab character. There MUST be exactly one tab character after the
+IP address and the word &quot;deny&quot;.
+<P>
+
+You can also block connections from an entire network C block:
+<P>
+
+<P>
+<PRE>
+192.68.0&lt;tab&gt;deny
+</PRE>
+
+<P>
+
+This blocks connections from IP addresses 192.68.0.0
+through 192.68.0.255.
+Blocking connections from an entire B or A network block works the same
+way.
+<P>
+
+Use the word &quot;allow&quot; instead of &quot;deny&quot;
+to explicitly allow connections
+from that IP address or netblock. For example:
+<P>
+
+<P>
+<PRE>
+192.68.0&lt;tab&gt;deny
+192.68.0.10&lt;tab&gt;allow
+</PRE>
+
+<P>
+
+This blocks all connections from 192.68.0.0 to
+192.68.0.255 except for 192.68.0.10.
+These two lines can occur in any order. <B>couriertcpd</B>
+always uses the line with the most specific IP address.
+<P>
+
+If the IP address of the connection is not found in the access file the
+connection is accepted by default. The following line causes unlisted
+connections to be rejected:
+<P>
+
+<P>
+<PRE>
+*&lt;tab&gt;deny
+</PRE>
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>IPV6 ADDRESSES</H3>
+
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+IPv6 support in the access file is experimental, and is subject to
+change in a future release.  The following syntax is subject to change at any
+time.
+</DL>
+
+<P>
+
+The access file can also specify IPv6 addresses, if IPv6 support is
+available.  The existing IPv4 address format is used for IPv6-mapped IPv4
+addresses, and no changes are required.  For all other IPv6 addresses use the
+following format:
+<P>
+
+<P>
+<PRE>
+:hhhh:hhhh:hhhh:hhhh:hhhh:hhhh:hhhh:hhhh&lt;tab&gt;<I>action</I>
+</PRE>
+
+<P>
+
+The IPv6 address must begin with :. The initial : character is not really
+a part of the IPv6 address, it is only used to designate this record as an
+IPv6 address, allowing an access file to contain a mixture of IPv4 and IPv6
+addresses. The IPv6 address follows the initial : character, and it must be
+spelled out <B>using zero-padded lowercase hexadecimal
+digits</B>.
+For example:
+<P>
+
+<P>
+<PRE>
+:0000:0000:0000:0000:0000:f643:00a2:9354&lt;tab&gt;deny
+</PRE>
+
+<P>
+
+Netblocks must be specified using even-word boundaries only:
+<P>
+
+<P>
+<PRE>
+:0000:0000:0000:e240&lt;tab&gt;deny
+</PRE>
+
+<P>
+
+This puts the entire ::e240/32 IPv6 CIDR into the access file.
+<A NAME="lbAJ">&nbsp;</A>
+<H3>SETTING ENVIRONMENT VARIABLES</H3>
+
+<P>
+
+allow can be optionally followed by a list of environment
+variable
+assignments, separated by commas. The environment variables are set before
+executing <B>program</B> or checking
+access lists (see below). For example:
+<P>
+
+<P>
+<PRE>
+192.68.0&lt;tab&gt;allow,RELAYCLIENT
+192.68.0.10&lt;tab&gt;allow,RELAYCLIENT,SIZELIMIT=1000000
+</PRE>
+
+<P>
+
+This sets <B>RELAYCLIENT</B> environment variable for connections
+from the 192.68.0 block. In addition to that, the <B>SIZELIMIT</B>
+environment variable is set to 1000000 if the connection comes from the IP
+address 192.68.0.10.
+<P>
+
+Note that <B>RELAYCLIENT</B> must be explicitly specified for the IP
+address 192.68.0.10. The first line is NOT used for
+connections from this IP
+address. <B>couriertcpd</B> only reads one entry from the access
+file, the entry for the most specific IP address.
+<A NAME="lbAK">&nbsp;</A>
+<H3>DNS ACCESS LISTS</H3>
+
+<P>
+
+An alternative to listing banned IP addresses is to use an external
+DNS-based IP access list.
+<P>
+
+There is no provision to support IPv6-based lists, because none yet
+exist. IPv6-based access list support will be added in the future.
+<P>
+
+<B>couriertcpd</B> does not automatically reject connections from
+any IP address listed on a DNS-based list. If the connecting IP address is
+listed couriertcpd simply sets an environment variable. It's up to the
+<B>program</B>, run by <B>couriertcpd</B>,
+to read the environment
+variable and choose what to do if the environment variable is set.
+<P>
+
+Please note that if the environment variable is already set,
+<B>couriertcpd</B> will NOT search the access list. This can be used
+to override the access list where <B>program</B> only recognizes the
+access list if the environment variable is not empty. By setting the
+environment variable to an empty string in the access file (see above), you
+can override access lists for selected IP addresses.
+<P>
+
+The <B>-block</B> option queries a DNS list for each connecting IP
+address. The only required argument to <B>-block</B> is the DNS zone
+that is used to publish thelist. The name of the zone can optionally be
+followed by a comma and the name of the environment variable to set if the
+DNS list includes the IP address.  <B>couriertcpd</B> sets the
+environment variable <B>BLOCK</B> if you do not specify the name
+yourself.
+<P>
+
+The name of the environment variable can be optionally followed by a slash
+and an IP address. Normally <B>couriertcpd</B> sets the environment
+variable if the access list includes any A record entry for the specified IP
+address. Some access lists may offer additional information by returning one of
+several possible A records. If the name of the environment variable is
+followed by a slash and an IP address, the environment variable will be
+initialized only if the access list includes an A record containing the
+indicated IP address.
+<P>
+
+The contents of the environment variable will be the contents of any TXT
+record for the listed IP address. <I>var</I>[/<I>n.n.n.n</I>] can be
+optionally followed by a comma and a text message, which will be used instead
+of the TXT record. The text message may include a single @ character
+somewhere in it, which will be replaced by the listed IP address.
+<A NAME="lbAL">&nbsp;</A>
+<H3>MULTIPLE DNS LISTS</H3>
+
+<P>
+
+Multiple <B>-block</B> options can be used. The connecting IP address
+will be looked up in multiple access lists. This is implemented as
+follows.
+<P>
+
+<B>couriertcpd</B> processes all <B>-block</B> options
+one at
+a time. If the indicated environment variable is already set,
+<B>couriertcpd</B> skips the DNS list lookup (this is also true if
+only one <B>-block</B> option is specified). Therefore, if multiple
+<B>-block</B> options are used, and an IP address is found in the
+first
+access list, the remaininglists that use the same environment variable
+will not be checked. But other lists that use a different environment
+variable WILL be checked.
+<P>
+
+The same <I>zone</I> can be specified more than once,
+with different
+environment variables and different IP addresses. For example:
+<P>
+
+<P>
+<PRE>
+couriertcpd -block=block.example.org,BLOCK1/127.0.0.2 \
+            -block=block.example.org,BLOCK2/127.0.0.3
+</PRE>
+
+<P>
+
+If the specified access list contains an A record for the listed address,
+and the A record contains the IP address 127.0.0.2,
+<B>couriertcpd</B>
+initializes the <B>BLOCK1</B> environment variable. If the A record
+contains the IP address 127.0.0.3, <B>couriertcpd</B> initializes
+<B>BLOCK2</B>. If both records are present, both variables are
+initialized.
+<P>
+
+<B>couriertcpd</B> uses the following logic to determine what kind
+of DNS query to issue:
+<P>
+
+If neither the IP address, nor <I>msg</I> is specified,
+<B>couriertcpd</B> will query for existence of TXT records, for the
+IP address.
+<P>
+
+If only <I>msg</I> is specified,
+<B>couriertcpd</B> looks up the
+existence of A records, for the IP address.
+<P>
+
+If <I>/n.n.n.n</I> is used, and
+<I>msg</I> is not specified for at least
+one <B>-block</B> option for this same zone,
+<B>couriertcpd</B>
+will query for existence of ANY records, which should return both TXT and all
+the A records for this IP address.
+<P>
+
+If <I>/n.n.n.n</I> is used, and
+<I>msg</I> is specified for every
+<B>-block</B> option for this same zone,
+<B>couriertcpd</B> will
+query for existence of A records only.
+<A NAME="lbAM">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<P>
+
+<B>couriertcpd</B> also initializes the following environment
+variables prior to running <B>program</B>:
+<DL COMPACT>
+<DT><B>TCPLOCALHOST</B><DD>
+The name of the host on the local end of
+the network connection, looked up in DNS. <B>TCPLOCALHOST</B> will
+not be set if the IP address of the network connection's local end cannot
+be found in DNS, or if <B>-nodnslookup</B> option is specified.
+<B>TCPLOCALHOST</B> will be set to the string
+softdnserr if the DNS lookup fails with a temporary
+error
+(so you cannot tell if the IP address has a valid host name associated
+with it), or if the reverse and forward DNS lookups do not match.
+<B>TCPLOCALHOST</B> will not be set if the reverse DNS lookup fails
+completely.
+<DT><B>TCPLOCALIP</B><DD>
+The IP address of the local end of the network connection.
+<DT><B>TCPLOCALPORT</B><DD>
+Rhe number of the port of the local end of the network connection.
+<DT><B>TCPREMOTEHOST</B><DD>
+The hostname of the connecting host. Like
+<B>TCPLOCALHOST</B>, but for the connecting IP address.
+<DT><B>TCPREMOTEIP</B><DD>
+Connecting IP address.
+<DT><B>TCPREMOTEINFO</B><DD>
+Identification string received from the
+IDENT server on the remote IP address. Not set if the IDENT server
+returned an error, or if the <B>-noidentlookup</B> option was
+specified.
+<DT><B>TCPREMOTEPORT</B><DD>
+TCP port of the remote end of the network connection.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man8/courier.8.php">courier</A></B>(8).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">MULTIPLE PORT LIST</A><DD>
+<DT><A HREF="#lbAG">ACCESS FILE</A><DD>
+<DL>
+<DT><A HREF="#lbAH">REJECTING AND ACCEPTING CONNECTIONS BY IP ADDRESS</A><DD>
+<DT><A HREF="#lbAI">IPV6 ADDRESSES</A><DD>
+<DT><A HREF="#lbAJ">SETTING ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAK">DNS ACCESS LISTS</A><DD>
+<DT><A HREF="#lbAL">MULTIPLE DNS LISTS</A><DD>
+</DL>
+<DT><A HREF="#lbAM">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

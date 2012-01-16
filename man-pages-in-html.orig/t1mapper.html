@@ -1,0 +1,297 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>t1mapper</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>t1mapper</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: 15 October 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+t1mapper - A tool to help xdvi use all your t1 fonts
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>t1mapper</B>
+
+[<I>OPTIONS</I>] <I>TeX-fontdir Type1-font-file-spec</I>
+<P>
+
+<B>t1mapper</B>
+
+[<I>OPTIONS</I>] -gs <I>GS-fontmap GS-fontdir TeX-fontdir</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<B>t1mapper</B>
+
+comes with
+<B>xdvik.</B>
+
+It was made to make it simple to make
+all sorts of Postscript&lt;tm&gt; Type1 (T1) fonts available to
+<B>xdvi.</B>
+
+The first invocation is to make any T1 font you may have floating around
+on your system available to
+<B>xdvi</B>.
+
+The second invocation is for hi-jacking fonts from your Ghostscript
+installation, which will supply
+<B>xdvi</B>
+
+with all the standard T1 fonts it needs.
+<P>
+
+<B>t1mapper</B>
+
+relies on a installed and working
+<B>texk</B>
+
+system to be present. In
+particular it uses
+<B>kpsewhich</B>
+
+to locate the 
+<B>fontname</B>
+
+package .map files which maps between Postscript&lt;tm&gt; font names and TeX
+font names.
+<B>teTeX</B>
+
+is one such
+<B>texk</B>
+
+system.
+<P>
+
+When invoked without the
+<B>-gs</B>
+
+option, t1mapper will examine each of the fonts specified.  It will
+attempt to determine the Postscript name of the font by looking inside
+the font file, and if that name has a TeX equivalent it will copy,
+link or symlink your the file into the TeX font directory you named
+first on the command line.  The name in the TeX font directory will be
+according to the TeX/KB-fontname scheme, so that the font names used
+in
+<B>.dvi</B>
+
+files matches the names found in the TeX font directories.
+<P>
+
+When invoked with the 
+<B>-gs</B>
+
+option
+<B>t1mapper</B>
+
+will read the named GS Fontmap file to determine which GS font files
+correspond to which standard Postscript fonts (GS' version of
+Times-Roman is not called <I>Times-Roman</I>, it's actually called
+<I>NimbusRomNo9L-Regu</I>), and then proceed to copy or link the files
+in the named GS font directory into the named TeX font directory.
+<P>
+
+The program's diagnostic output is also written to a logfile
+<I>t1map.log</I>,
+
+which is created either in the current working directory or in
+<B>/tmp</B>.
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+All options except
+<B>-gs</B>
+
+have to do with how the font files are copied or linked into the TeX
+font directories:
+<DL COMPACT>
+<DT><B>-cp</B>
+
+<DD>
+Copy the files from the <I>GS-fontdir</I> or matching the
+<I>Type1-font-file-spec</I> into the <I>TeX-fontdir</I>.  This is the
+default and will always work.
+<DT><B>-ln</B>
+
+<DD>
+Hard link the files.  This requires the fonts to reside on the same
+disk, but it will save space, and the files will not disappear from
+the <I>TeX-fontdir</I> if they are removed from the source directory.
+<DT><B>-lns</B>
+
+<DD>
+Symlink the files.  This saves space, but if the original files are
+removed the symlinks will be broken.
+<DT><B>-lnlns</B>
+
+<DD>
+Attempt hard-link first, if it fails make symlink.
+<DT><B>-lncp</B>
+
+<DD>
+Attempt hard-link first, if that fails, copy the font.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+If your Ghostscript is installed in 
+<B>/usr/local/share/ghostscript</B>
+
+and your TeX
+lives in 
+<B>/usr/local/teTeX</B>
+
+then this command will make your GS fonts available to xdvi:
+<P>
+
+
+t1mapper -lns -gs \
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/local/share/ghostscript/5.50/Fontmap \<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/local/share/ghostscript/fonts \<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/local/teTeX/share/texmf/fonts/type1/gs<BR>
+
+<P>
+
+The first argument here is the full path to the GS Fontmap.  The
+second is the GS font directory, note the lack of wildcards here (as
+opposed to the next example).  The third argument is the TeX font
+directory.  If it does not exist it will be created.  Texk and teTeX uses
+quite finely structured font directories, and the above reflects this.
+<P>
+
+If you have a Solaris machine with Display Postscript fonts then this
+command will make them available to xdvi:
+<P>
+
+
+t1mapper -lns \
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/local/teTeX/share/texmf/fonts/type1/gs \<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>/usr/openwin/lib/X11/fonts/Type1/*.pfa<BR>
+
+<P>
+
+Here the first argument is the TeX font directory and thereafter comes
+a wildcard that specifies which fonts to examine for copying/linking
+into the TeX font directory.
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<B>fontname</B>
+
+Postscript to TeX name mapping files from 
+<B><A HREF="http://tug.org/fontname/,">http://tug.org/fontname/,</A></B>
+
+these are included in teTeX.
+<P>
+
+<B>Ghostscript</B>
+
+fonts from
+<B><A HREF="http://sourceforge.net/projects/ghostscript/">http://sourceforge.net/projects/ghostscript/</A></B>
+
+or
+<B><A HREF="http://www.gnu.org/software/ghostscript/ghostscript.php">http://www.gnu.org/software/ghostscript/ghostscript.html</A></B>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/kpsewhich.1.php">kpsewhich</A></B>(1),
+
+<B><A HREF="../man1/xdvi.1.php">xdvi</A></B>(1),
+
+<B><A HREF="../man1/ln.1.php">ln</A></B>(1),
+
+<B>README.t1fonts</B>
+
+in the source distribution
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Nicolai Langfeldt for the xdvik project at sourceforge, please see
+<B><A HREF="http://sourceforge.net/projects/xdvi/">http://sourceforge.net/projects/xdvi/</A></B>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

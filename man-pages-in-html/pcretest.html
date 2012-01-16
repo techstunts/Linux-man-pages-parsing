@@ -1,0 +1,435 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PCRETEST</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PCRETEST</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pcretest - a program for testing Perl-compatible regular expressions.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>pcretest [-d] [-i] [-m] [-o osize] [-p] [-t] [source] [destination]</B>
+
+<P>
+<B>pcretest</B> was written as a test program for the PCRE regular expression
+library itself, but it can also be used for experimenting with regular
+expressions. This document describes the features of the test program; for
+details of the regular expressions themselves, see the
+
+<B>pcrepattern</B>
+
+documentation. For details of PCRE and its options, see the
+
+<B>pcreapi</B>
+
+documentation.
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+
+<P>
+<DL COMPACT>
+<DT><B>-C</B><DD>
+Output the version number of the PCRE library, and all available information
+about the optional features that are included, and then exit.
+<DT><B>-d</B><DD>
+Behave as if each regex had the <B>/D</B> modifier (see below); the internal
+form is output after compilation.
+<DT><B>-i</B><DD>
+Behave as if each regex had the <B>/I</B> modifier; information about the
+compiled pattern is given after compilation.
+<DT><B>-m</B><DD>
+Output the size of each compiled pattern after it has been compiled. This is
+equivalent to adding /M to each regular expression. For compatibility with
+earlier versions of pcretest, <B>-s</B> is a synonym for <B>-m</B>.
+<DT><B>-o</B> <I>osize</I><DD>
+Set the number of elements in the output vector that is used when calling PCRE
+to be <I>osize</I>. The default value is 45, which is enough for 14 capturing
+subexpressions. The vector size can be changed for individual matching calls by
+including \O in the data line (see below).
+<DT><B>-p</B><DD>
+Behave as if each regex has <B>/P</B> modifier; the POSIX wrapper API is used
+to call PCRE. None of the other options has any effect when <B>-p</B> is set.
+<DT><B>-t</B><DD>
+Run each compile, study, and match many times with a timer, and output
+resulting time per compile or match (in milliseconds). Do not set <B>-t</B> with
+<B>-m</B>, because you will then get the size output 20000 times and the timing
+will be distorted.
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+<P>
+If <B>pcretest</B> is given two filename arguments, it reads from the first and
+writes to the second. If it is given only one filename argument, it reads from
+that file and writes to stdout. Otherwise, it reads from stdin and writes to
+stdout, and prompts for each line of input, using &quot;re&gt;&quot; to prompt for regular
+expressions, and &quot;data&gt;&quot; to prompt for data lines.
+<P>
+The program handles any number of sets of input on a single input file. Each
+set starts with a regular expression, and continues with any number of data
+lines to be matched against the pattern.
+<P>
+Each line is matched separately and independently. If you want to do
+multiple-line matches, you have to use the \n escape sequence in a single line
+of input to encode the newline characters. The maximum length of data line is
+30,000 characters.
+<P>
+An empty line signals the end of the data lines, at which point a new regular
+expression is read. The regular expressions are given enclosed in any
+non-alphameric delimiters other than backslash, for example
+<P>
+<BR>&nbsp;&nbsp;/(a|bc)x+yz/
+<P>
+White space before the initial delimiter is ignored. A regular expression may
+be continued over several input lines, in which case the newline characters are
+included within it. It is possible to include the delimiter within the pattern
+by escaping it, for example
+<P>
+<BR>&nbsp;&nbsp;/abc\/def/
+<P>
+If you do so, the escape and the delimiter form part of the pattern, but since
+delimiters are always non-alphameric, this does not affect its interpretation.
+If the terminating delimiter is immediately followed by a backslash, for
+example,
+<P>
+<BR>&nbsp;&nbsp;/abc/\
+<P>
+then a backslash is added to the end of the pattern. This is done to provide a
+way of testing the error condition that arises if a pattern finishes with a
+backslash, because
+<P>
+<BR>&nbsp;&nbsp;/abc\/
+<P>
+is interpreted as the first line of a pattern that starts with &quot;abc/&quot;, causing
+pcretest to read the next line as a continuation of the regular expression.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>PATTERN MODIFIERS</H2>
+
+
+<P>
+The pattern may be followed by <B>i</B>, <B>m</B>, <B>s</B>, or <B>x</B> to set the
+PCRE_CASELESS, PCRE_MULTILINE, PCRE_DOTALL, or PCRE_EXTENDED options,
+respectively. For example:
+<P>
+<BR>&nbsp;&nbsp;/caseless/i
+<P>
+These modifier letters have the same effect as they do in Perl. There are
+others that set PCRE options that do not correspond to anything in Perl:
+<B>/A</B>, <B>/E</B>, <B>/N</B>, <B>/U</B>, and <B>/X</B> set PCRE_ANCHORED,
+PCRE_DOLLAR_ENDONLY, PCRE_NO_AUTO_CAPTURE, PCRE_UNGREEDY, and PCRE_EXTRA
+respectively.
+<P>
+Searching for all possible matches within each subject string can be requested
+by the <B>/g</B> or <B>/G</B> modifier. After finding a match, PCRE is called
+again to search the remainder of the subject string. The difference between
+<B>/g</B> and <B>/G</B> is that the former uses the <I>startoffset</I> argument to
+<B>pcre_exec()</B> to start searching at a new point within the entire string
+(which is in effect what Perl does), whereas the latter passes over a shortened
+substring. This makes a difference to the matching process if the pattern
+begins with a lookbehind assertion (including \b or \B).
+<P>
+If any call to <B>pcre_exec()</B> in a <B>/g</B> or <B>/G</B> sequence matches an
+empty string, the next call is done with the PCRE_NOTEMPTY and PCRE_ANCHORED
+flags set in order to search for another, non-empty, match at the same point.
+If this second match fails, the start offset is advanced by one, and the normal
+match is retried. This imitates the way Perl handles such cases when using the
+<B>/g</B> modifier or the <B>split()</B> function.
+<P>
+There are a number of other modifiers for controlling the way <B>pcretest</B>
+operates.
+<P>
+The <B>/+</B> modifier requests that as well as outputting the substring that
+matched the entire pattern, pcretest should in addition output the remainder of
+the subject string. This is useful for tests where the subject contains
+multiple copies of the same substring.
+<P>
+The <B>/L</B> modifier must be followed directly by the name of a locale, for
+example,
+<P>
+<BR>&nbsp;&nbsp;/pattern/Lfr
+<P>
+For this reason, it must be the last modifier letter. The given locale is set,
+<B>pcre_maketables()</B> is called to build a set of character tables for the
+locale, and this is then passed to <B>pcre_compile()</B> when compiling the
+regular expression. Without an <B>/L</B> modifier, NULL is passed as the tables
+pointer; that is, <B>/L</B> applies only to the expression on which it appears.
+<P>
+The <B>/I</B> modifier requests that <B>pcretest</B> output information about the
+compiled expression (whether it is anchored, has a fixed first character, and
+so on). It does this by calling <B>pcre_fullinfo()</B> after compiling an
+expression, and outputting the information it gets back. If the pattern is
+studied, the results of that are also output.
+<P>
+The <B>/D</B> modifier is a PCRE debugging feature, which also assumes <B>/I</B>.
+It causes the internal form of compiled regular expressions to be output after
+compilation. If the pattern was studied, the information returned is also
+output.
+<P>
+The <B>/S</B> modifier causes <B>pcre_study()</B> to be called after the
+expression has been compiled, and the results used when the expression is
+matched.
+<P>
+The <B>/M</B> modifier causes the size of memory block used to hold the compiled
+pattern to be output.
+<P>
+The <B>/P</B> modifier causes <B>pcretest</B> to call PCRE via the POSIX wrapper
+API rather than its native API. When this is done, all other modifiers except
+<B>/i</B>, <B>/m</B>, and <B>/+</B> are ignored. REG_ICASE is set if <B>/i</B> is
+present, and REG_NEWLINE is set if <B>/m</B> is present. The wrapper functions
+force PCRE_DOLLAR_ENDONLY always, and PCRE_DOTALL unless REG_NEWLINE is set.
+<P>
+The <B>/8</B> modifier causes <B>pcretest</B> to call PCRE with the PCRE_UTF8
+option set. This turns on support for UTF-8 character handling in PCRE,
+provided that it was compiled with this support enabled. This modifier also
+causes any non-printing characters in output strings to be printed using the
+\x{hh...} notation if they are valid UTF-8 sequences.
+<P>
+If the <B>/?</B> modifier is used with <B>/8</B>, it causes <B>pcretest</B> to
+call <B>pcre_compile()</B> with the PCRE_NO_UTF8_CHECK option, to suppress the
+checking of the string for UTF-8 validity.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CALLOUTS</H2>
+
+
+<P>
+If the pattern contains any callout requests, <B>pcretest</B>'s callout function
+will be called. By default, it displays the callout number, and the start and
+current positions in the text at the callout time. For example, the output
+<P>
+<BR>&nbsp;&nbsp;---&gt;pqrabcdef
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;^
+<P>
+indicates that callout number 0 occurred for a match attempt starting at the
+fourth character of the subject string, when the pointer was at the seventh
+character. The callout function returns zero (carry on matching) by default.
+<P>
+Inserting callouts may be helpful when using <B>pcretest</B> to check
+complicated regular expressions. For further information about callouts, see
+the
+
+<B>pcrecallout</B>
+
+documentation.
+<P>
+For testing the PCRE library, additional control of callout behaviour is
+available via escape sequences in the data, as described in the following
+section. In particular, it is possible to pass in a number as callout data (the
+default is zero). If the callout function receives a non-zero number, it
+returns that value instead of zero.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>DATA LINES</H2>
+
+
+<P>
+Before each data line is passed to <B>pcre_exec()</B>, leading and trailing
+whitespace is removed, and it is then scanned for \ escapes. Some of these are
+pretty esoteric features, intended for checking out some of the more
+complicated features of PCRE. If you are just testing &quot;ordinary&quot; regular
+expressions, you probably don't need any of these. The following escapes are
+recognized:
+<P>
+<BR>&nbsp;&nbsp;\a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alarm&nbsp;(=&nbsp;BEL)
+<BR>&nbsp;&nbsp;\b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;backspace
+<BR>&nbsp;&nbsp;\e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;escape
+<BR>&nbsp;&nbsp;\f&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formfeed
+<BR>&nbsp;&nbsp;\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newline
+<BR>&nbsp;&nbsp;\r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carriage&nbsp;return
+<BR>&nbsp;&nbsp;\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tab
+<BR>&nbsp;&nbsp;\v&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vertical&nbsp;tab
+<BR>&nbsp;&nbsp;\nnn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;octal&nbsp;character&nbsp;(up&nbsp;to&nbsp;3&nbsp;octal&nbsp;digits)
+<BR>&nbsp;&nbsp;\xhh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hexadecimal&nbsp;character&nbsp;(up&nbsp;to&nbsp;2&nbsp;hex&nbsp;digits)
+<BR>&nbsp;&nbsp;\x{hh...}&nbsp;&nbsp;hexadecimal&nbsp;character,&nbsp;any&nbsp;number&nbsp;of&nbsp;digits
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;UTF-8&nbsp;mode
+<BR>&nbsp;&nbsp;\A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;PCRE_ANCHORED&nbsp;option&nbsp;to&nbsp;<B>pcre_exec()</B>
+<BR>&nbsp;&nbsp;\B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;PCRE_NOTBOL&nbsp;option&nbsp;to&nbsp;<B>pcre_exec()</B>
+<BR>&nbsp;&nbsp;\Cdd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;pcre_copy_substring()&nbsp;for&nbsp;substring&nbsp;dd
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after&nbsp;a&nbsp;successful&nbsp;match&nbsp;(any&nbsp;decimal&nbsp;number
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;less&nbsp;than&nbsp;32)
+<BR>&nbsp;&nbsp;\Cname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;pcre_copy_named_substring()&nbsp;for&nbsp;substring
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;name&quot;&nbsp;after&nbsp;a&nbsp;successful&nbsp;match&nbsp;(name&nbsp;termin-
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ated&nbsp;by&nbsp;next&nbsp;non&nbsp;alphanumeric&nbsp;character)
+<BR>&nbsp;&nbsp;\C+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;show&nbsp;the&nbsp;current&nbsp;captured&nbsp;substrings&nbsp;at&nbsp;callout
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time
+<BR>&nbsp;&nbsp;\C-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do&nbsp;not&nbsp;supply&nbsp;a&nbsp;callout&nbsp;function
+<BR>&nbsp;&nbsp;\C!n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;1&nbsp;instead&nbsp;of&nbsp;0&nbsp;when&nbsp;callout&nbsp;number&nbsp;n&nbsp;is
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reached
+<BR>&nbsp;&nbsp;\C!n!m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;1&nbsp;instead&nbsp;of&nbsp;0&nbsp;when&nbsp;callout&nbsp;number&nbsp;n&nbsp;is
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reached&nbsp;for&nbsp;the&nbsp;nth&nbsp;time
+<BR>&nbsp;&nbsp;\C*n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;number&nbsp;n&nbsp;(may&nbsp;be&nbsp;negative)&nbsp;as&nbsp;callout
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data
+<BR>&nbsp;&nbsp;\Gdd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;pcre_get_substring()&nbsp;for&nbsp;substring&nbsp;dd
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after&nbsp;a&nbsp;successful&nbsp;match&nbsp;(any&nbsp;decimal&nbsp;number
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;less&nbsp;than&nbsp;32)
+<BR>&nbsp;&nbsp;\Gname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;pcre_get_named_substring()&nbsp;for&nbsp;substring
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;name&quot;&nbsp;after&nbsp;a&nbsp;successful&nbsp;match&nbsp;(name&nbsp;termin-
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ated&nbsp;by&nbsp;next&nbsp;non-alphanumeric&nbsp;character)
+<BR>&nbsp;&nbsp;\L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;pcre_get_substringlist()&nbsp;after&nbsp;a
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful&nbsp;match
+<BR>&nbsp;&nbsp;\M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;discover&nbsp;the&nbsp;minimum&nbsp;MATCH_LIMIT&nbsp;setting
+<BR>&nbsp;&nbsp;\N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;PCRE_NOTEMPTY&nbsp;option&nbsp;to&nbsp;<B>pcre_exec()</B>
+<BR>&nbsp;&nbsp;\Odd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;the&nbsp;size&nbsp;of&nbsp;the&nbsp;output&nbsp;vector&nbsp;passed&nbsp;to
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>pcre_exec()</B>&nbsp;to&nbsp;dd&nbsp;(any&nbsp;number&nbsp;of&nbsp;decimal
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;digits)
+<BR>&nbsp;&nbsp;\S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;details&nbsp;of&nbsp;memory&nbsp;get/free&nbsp;calls&nbsp;during&nbsp;matching
+<BR>&nbsp;&nbsp;\Z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;PCRE_NOTEOL&nbsp;option&nbsp;to&nbsp;<B>pcre_exec()</B>
+<BR>&nbsp;&nbsp;\?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;the&nbsp;PCRE_NO_UTF8_CHECK&nbsp;option&nbsp;to
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>pcre_exec()</B>
+<P>
+If \M is present, <B>pcretest</B> calls <B>pcre_exec()</B> several times, with
+different values in the <I>match_limit</I> field of the <B>pcre_extra</B> data
+structure, until it finds the minimum number that is needed for
+<B>pcre_exec()</B> to complete. This number is a measure of the amount of
+recursion and backtracking that takes place, and checking it out can be
+instructive. For most simple matches, the number is quite small, but for
+patterns with very large numbers of matching possibilities, it can become large
+very quickly with increasing length of subject string.
+<P>
+When \O is used, it may be higher or lower than the size set by the <B>-O</B>
+option (or defaulted to 45); \O applies only to the call of <B>pcre_exec()</B>
+for the line in which it appears.
+<P>
+A backslash followed by anything else just escapes the anything else. If the
+very last character is a backslash, it is ignored. This gives a way of passing
+an empty line as data, since a real empty line terminates the data input.
+<P>
+If <B>/P</B> was present on the regex, causing the POSIX wrapper API to be used,
+only <B>B</B>, and <B>Z</B> have any effect, causing REG_NOTBOL and REG_NOTEOL
+to be passed to <B>regexec()</B> respectively.
+<P>
+The use of \x{hh...} to represent UTF-8 characters is not dependent on the use
+of the <B>/8</B> modifier on the pattern. It is recognized always. There may be
+any number of hexadecimal digits inside the braces. The result is from one to
+six bytes, encoded according to the UTF-8 rules.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>OUTPUT FROM PCRETEST</H2>
+
+
+<P>
+When a match succeeds, pcretest outputs the list of captured substrings that
+<B>pcre_exec()</B> returns, starting with number 0 for the string that matched
+the whole pattern. Here is an example of an interactive pcretest run.
+<P>
+<BR>&nbsp;&nbsp;$&nbsp;pcretest
+<BR>&nbsp;&nbsp;PCRE&nbsp;version&nbsp;4.00&nbsp;08-Jan-2003
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;re&gt;&nbsp;/^abc(\d+)/
+<BR>&nbsp;&nbsp;data&gt;&nbsp;abc123
+<BR>&nbsp;&nbsp;&nbsp;0:&nbsp;abc123
+<BR>&nbsp;&nbsp;&nbsp;1:&nbsp;123
+<BR>&nbsp;&nbsp;data&gt;&nbsp;xyz
+<BR>&nbsp;&nbsp;No&nbsp;match
+<P>
+If the strings contain any non-printing characters, they are output as \0x
+escapes, or as \x{...} escapes if the <B>/8</B> modifier was present on the
+pattern. If the pattern has the <B>/+</B> modifier, then the output for
+substring 0 is followed by the the rest of the subject string, identified by
+&quot;0+&quot; like this:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;re&gt;&nbsp;/cat/+
+<BR>&nbsp;&nbsp;data&gt;&nbsp;cataract
+<BR>&nbsp;&nbsp;&nbsp;0:&nbsp;cat
+<BR>&nbsp;&nbsp;&nbsp;0+&nbsp;aract
+<P>
+If the pattern has the <B>/g</B> or <B>/G</B> modifier, the results of successive
+matching attempts are output in sequence, like this:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;re&gt;&nbsp;/\Bi(\w\w)/g
+<BR>&nbsp;&nbsp;data&gt;&nbsp;Mississippi
+<BR>&nbsp;&nbsp;&nbsp;0:&nbsp;iss
+<BR>&nbsp;&nbsp;&nbsp;1:&nbsp;ss
+<BR>&nbsp;&nbsp;&nbsp;0:&nbsp;iss
+<BR>&nbsp;&nbsp;&nbsp;1:&nbsp;ss
+<BR>&nbsp;&nbsp;&nbsp;0:&nbsp;ipp
+<BR>&nbsp;&nbsp;&nbsp;1:&nbsp;pp
+<P>
+&quot;No match&quot; is output only if the first match attempt fails.
+<P>
+If any of the sequences <B>\C</B>, <B>\G</B>, or <B>\L</B> are present in a
+data line that is successfully matched, the substrings extracted by the
+convenience functions are output with C, G, or L after the string number
+instead of a colon. This is in addition to the normal full list. The string
+length (that is, the return from the extraction function) is given in
+parentheses after each string for <B>\C</B> and <B>\G</B>.
+<P>
+Note that while patterns can be continued over several lines (a plain &quot;&gt;&quot;
+prompt is used for continuations), data lines may not. However newlines can be
+included in data by means of the \n escape.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+
+<P>
+Philip Hazel &lt;<A HREF="mailto:ph10@cam.ac.uk">ph10@cam.ac.uk</A>&gt;
+<BR>
+
+University Computing Service,
+<BR>
+
+Cambridge CB2 3QG, England.
+<P>
+
+Last updated: 09 December 2003
+<BR>
+
+Copyright (c) 1997-2003 University of Cambridge.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">PATTERN MODIFIERS</A><DD>
+<DT><A HREF="#lbAG">CALLOUTS</A><DD>
+<DT><A HREF="#lbAH">DATA LINES</A><DD>
+<DT><A HREF="#lbAI">OUTPUT FROM PCRETEST</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

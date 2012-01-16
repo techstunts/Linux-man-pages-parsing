@@ -1,0 +1,1671 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLUNIINTRO</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLUNIINTRO</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perluniintro - Perl Unicode introduction
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document gives a general idea of Unicode and how to use Unicode
+in Perl.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Unicode</H2>
+
+<A NAME="ixAAD"></A>
+Unicode is a character set standard which plans to codify all of the
+writing systems of the world, plus many other symbols.
+<P>
+
+Unicode and <FONT SIZE="-1">ISO/IEC</FONT> 10646 are coordinated standards that provide code
+points for characters in almost all modern character set standards,
+covering more than 30 writing systems and hundreds of languages,
+including all commercially-important modern languages.  All characters
+in the largest Chinese, Japanese, and Korean dictionaries are also
+encoded. The standards will eventually cover almost all characters in
+more than 250 writing systems and thousands of languages.
+Unicode 1.0 was released in October 1991, and 4.0 in April 2003.
+<P>
+
+A Unicode <I>character</I> is an abstract entity.  It is not bound to any
+particular integer width, especially not to the C language <TT>&quot;char&quot;</TT>.
+Unicode is language-neutral and display-neutral: it does not encode the
+language of the text and it does not define fonts or other graphical
+layout details.  Unicode operates on characters and on text built from
+those characters.
+<P>
+
+Unicode defines characters like <TT>&quot;LATIN CAPITAL LETTER A&quot;</TT> or <TT>&quot;GREEK
+SMALL LETTER ALPHA&quot;</TT> and unique numbers for the characters, in this
+case 0x0041 and 0x03B1, respectively.  These unique numbers are called
+<I>code points</I>.
+<P>
+
+The Unicode standard prefers using hexadecimal notation for the code
+points.  If numbers like <TT>0x0041</TT> are unfamiliar to you, take a peek
+at a later section, ``Hexadecimal Notation''.  The Unicode standard
+uses the notation <TT>&quot;U+0041 LATIN CAPITAL LETTER A&quot;</TT>, to give the
+hexadecimal code point and the normative name of the character.
+<P>
+
+Unicode also defines various <I>properties</I> for the characters, like
+``uppercase'' or ``lowercase'', ``decimal digit'', or ``punctuation'';
+these properties are independent of the names of the characters.
+Furthermore, various operations on the characters like uppercasing,
+lowercasing, and collating (sorting) are defined.
+<P>
+
+A Unicode character consists either of a single code point, or a
+<I>base character</I> (like <TT>&quot;LATIN CAPITAL LETTER A&quot;</TT>), followed by one or
+more <I>modifiers</I> (like <TT>&quot;COMBINING ACUTE ACCENT&quot;</TT>).  This sequence of
+base character and modifiers is called a <I>combining character
+sequence</I>.
+<P>
+
+Whether to call these combining character sequences ``characters''
+depends on your point of view. If you are a programmer, you probably
+would tend towards seeing each element in the sequences as one unit,
+or ``character''.  The whole sequence could be seen as one ``character'',
+however, from the user's point of view, since that's probably what it
+looks like in the context of the user's language.
+<P>
+
+With this ``whole sequence'' view of characters, the total number of
+characters is open-ended. But in the programmer's ``one unit is one
+character'' point of view, the concept of ``characters'' is more
+deterministic.  In this document, we take that second  point of view:
+one ``character'' is one Unicode code point, be it a base character or
+a combining character.
+<P>
+
+For some combinations, there are <I>precomposed</I> characters.
+<TT>&quot;LATIN CAPITAL LETTER A WITH ACUTE&quot;</TT>, for example, is defined as
+a single code point.  These precomposed characters are, however,
+only available for some combinations, and are mainly
+meant to support round-trip conversions between Unicode and legacy
+standards (like the <FONT SIZE="-1">ISO</FONT> 8859).  In the general case, the composing
+method is more extensible.  To support conversion between
+different compositions of the characters, various <I>normalization
+forms</I> to standardize representations are also defined.
+<P>
+
+Because of backward compatibility with legacy encodings, the ``a unique
+number for every character'' idea breaks down a bit: instead, there is
+``at least one number for every character''.  The same character could
+be represented differently in several legacy encodings.  The
+converse is also not true: some code points do not have an assigned
+character.  Firstly, there are unallocated code points within
+otherwise used blocks.  Secondly, there are special Unicode control
+characters that do not represent true characters.
+<P>
+
+A common myth about Unicode is that it would be ``16-bit'', that is,
+Unicode is only represented as <TT>0x10000</TT> (or 65536) characters from
+<TT>0x0000</TT> to <TT>0xFFFF</TT>.  <B>This is untrue.</B>  Since Unicode 2.0 (July
+1996), Unicode has been defined all the way up to 21 bits (<TT>0x10FFFF</TT>),
+and since Unicode 3.1 (March 2001), characters have been defined
+beyond <TT>0xFFFF</TT>.  The first <TT>0x10000</TT> characters are called the
+<I>Plane 0</I>, or the <I>Basic Multilingual Plane</I> (<FONT SIZE="-1">BMP</FONT>).  With Unicode
+3.1, 17 (yes, seventeen) planes in all were defined---but they are
+nowhere near full of defined characters, yet.
+<P>
+
+Another myth is that the 256-character blocks have something to
+do with languages---that each block would define the characters used
+by a language or a set of languages.  <B>This is also untrue.</B>
+The division into blocks exists, but it is almost completely
+accidental---an artifact of how the characters have been and
+still are allocated.  Instead, there is a concept called <I>scripts</I>,
+which is more useful: there is <TT>&quot;Latin&quot;</TT> script, <TT>&quot;Greek&quot;</TT> script, and
+so on.  Scripts usually span varied parts of several blocks.
+For further information see Unicode::UCD.
+<P>
+
+The Unicode code points are just abstract numbers.  To input and
+output these abstract numbers, the numbers must be <I>encoded</I> or
+<I>serialised</I> somehow.  Unicode defines several <I>character encoding
+forms</I>, of which <I></I><FONT SIZE="-1"><I>UTF-8</I></FONT><I></I> is perhaps the most popular.  <FONT SIZE="-1">UTF-8</FONT> is a
+variable length encoding that encodes Unicode characters as 1 to 6
+bytes (only 4 with the currently defined characters).  Other encodings
+include <FONT SIZE="-1">UTF-16</FONT> and <FONT SIZE="-1">UTF-32</FONT> and their big- and little-endian variants
+(<FONT SIZE="-1">UTF-8</FONT> is byte-order independent) The <FONT SIZE="-1">ISO/IEC</FONT> 10646 defines the <FONT SIZE="-1">UCS-2</FONT>
+and <FONT SIZE="-1">UCS-4</FONT> encoding forms.
+<P>
+
+For more information about encodings---for instance, to learn what
+<I>surrogates</I> and <I>byte order marks</I> (BOMs) are---see perlunicode.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Perl's Unicode Support</H2>
+
+<A NAME="ixAAE"></A>
+Starting from Perl 5.6.0, Perl has had the capacity to handle Unicode
+natively.  Perl 5.8.0, however, is the first recommended release for
+serious Unicode work.  The maintenance release 5.6.1 fixed many of the
+problems of the initial Unicode implementation, but for example
+regular expressions still do not work with Unicode in 5.6.1.
+<P>
+
+<B>Starting from Perl 5.8.0, the use of </B>&quot;use utf8&quot;<B> is no longer
+necessary.</B> In earlier releases the <TT>&quot;utf8&quot;</TT> pragma was used to declare
+that operations in the current block or file would be Unicode-aware.
+This model was found to be wrong, or at least clumsy: the ``Unicodeness''
+is now carried with the data, instead of being attached to the
+operations.  Only one case remains where an explicit <TT>&quot;use utf8&quot;</TT> is
+needed: if your Perl script itself is encoded in <FONT SIZE="-1">UTF-8</FONT>, you can use
+<FONT SIZE="-1">UTF-8</FONT> in your identifier names, and in string and regular expression
+literals, by saying <TT>&quot;use utf8&quot;</TT>.  This is not the default because
+scripts with legacy 8-bit data in them would break.  See utf8.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Perl's Unicode Model</H2>
+
+<A NAME="ixAAF"></A>
+Perl supports both pre-5.6 strings of eight-bit native bytes, and
+strings of Unicode characters.  The principle is that Perl tries to
+keep its data as eight-bit bytes for as long as possible, but as soon
+as Unicodeness cannot be avoided, the data is transparently upgraded
+to Unicode.
+<P>
+
+Internally, Perl currently uses either whatever the native eight-bit
+character set of the platform (for example Latin-1) is, defaulting to
+<FONT SIZE="-1">UTF-8</FONT>, to encode Unicode strings. Specifically, if all code points in
+the string are <TT>0xFF</TT> or less, Perl uses the native eight-bit
+character set.  Otherwise, it uses <FONT SIZE="-1">UTF-8</FONT>.
+<P>
+
+A user of Perl does not normally need to know nor care how Perl
+happens to encode its internal strings, but it becomes relevant when
+outputting Unicode strings to a stream without a PerlIO layer --- one with
+the ``default'' encoding.  In such a case, the raw bytes used internally
+(the native character set or <FONT SIZE="-1">UTF-8</FONT>, as appropriate for each string)
+will be used, and a ``Wide character'' warning will be issued if those
+strings contain a character beyond 0x00FF.
+<P>
+
+For example,
+<P>
+
+
+
+<PRE>
+      perl -e 'print &quot;\x{DF}\n&quot;, &quot;\x{0100}\x{DF}\n&quot;'
+
+</PRE>
+
+
+<P>
+
+produces a fairly useless mixture of native bytes and <FONT SIZE="-1">UTF-8</FONT>, as well
+as a warning:
+<P>
+
+
+
+<PRE>
+     Wide character in print at ...
+
+</PRE>
+
+
+<P>
+
+To output <FONT SIZE="-1">UTF-8</FONT>, use the <TT>&quot;:utf8&quot;</TT> output layer.  Prepending
+<P>
+
+
+
+<PRE>
+      binmode(STDOUT, &quot;:utf8&quot;);
+
+</PRE>
+
+
+<P>
+
+to this sample program ensures that the output is completely <FONT SIZE="-1">UTF-8</FONT>,
+and removes the program's warning.
+<P>
+
+You can enable automatic UTF-8-ification of your standard file
+handles, default <TT>&quot;open()&quot;</TT> layer, and <TT>@ARGV</TT> by using either
+the <TT>&quot;-C&quot;</TT> command line switch or the <TT>&quot;PERL_UNICODE&quot;</TT> environment
+variable, see perlrun for the documentation of the <TT>&quot;-C&quot;</TT> switch.
+<P>
+
+Note that this means that Perl expects other software to work, too:
+if Perl has been led to believe that <FONT SIZE="-1">STDIN</FONT> should be <FONT SIZE="-1">UTF-8</FONT>, but then
+<FONT SIZE="-1">STDIN</FONT> coming in from another command is not <FONT SIZE="-1">UTF-8</FONT>, Perl will complain
+about the malformed <FONT SIZE="-1">UTF-8</FONT>.
+<P>
+
+All features that combine Unicode and I/O also require using the new
+PerlIO feature.  Almost all Perl 5.8 platforms do use PerlIO, though:
+you can see whether yours is by running ``perl -V'' and looking for
+<TT>&quot;useperlio=define&quot;</TT>.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Unicode and <FONT SIZE="-1">EBCDIC</FONT></H2>
+
+<A NAME="ixAAG"></A>
+Perl 5.8.0 also supports Unicode on <FONT SIZE="-1">EBCDIC</FONT> platforms.  There,
+Unicode support is somewhat more complex to implement since
+additional conversions are needed at every step.  Some problems
+remain, see perlebcdic for details.
+<P>
+
+In any case, the Unicode support on <FONT SIZE="-1">EBCDIC</FONT> platforms is better than
+in the 5.6 series, which didn't work much at all for <FONT SIZE="-1">EBCDIC</FONT> platform.
+On <FONT SIZE="-1">EBCDIC</FONT> platforms, the internal Unicode encoding form is UTF-EBCDIC
+instead of <FONT SIZE="-1">UTF-8</FONT>.  The difference is that as <FONT SIZE="-1">UTF-8</FONT> is ``ASCII-safe'' in
+that <FONT SIZE="-1">ASCII</FONT> characters encode to <FONT SIZE="-1">UTF-8</FONT> as-is, while UTF-EBCDIC is
+``EBCDIC-safe''.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Creating Unicode</H2>
+
+<A NAME="ixAAH"></A>
+To create Unicode characters in literals for code points above <TT>0xFF</TT>,
+use the <TT>&quot;\x{...}&quot;</TT> notation in double-quoted strings:
+<P>
+
+
+
+<PRE>
+    my $smiley = &quot;\x{263a}&quot;;
+
+</PRE>
+
+
+<P>
+
+Similarly, it can be used in regular expression literals
+<P>
+
+
+
+<PRE>
+    $smiley =~ /\x{263a}/;
+
+</PRE>
+
+
+<P>
+
+At run-time you can use <TT>&quot;chr()&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    my $hebrew_alef = chr(0x05d0);
+
+</PRE>
+
+
+<P>
+
+See ``Further Resources'' for how to find all these numeric codes.
+<P>
+
+Naturally, <TT>&quot;ord()&quot;</TT> will do the reverse: it turns a character into
+a code point.
+<P>
+
+Note that <TT>&quot;\x..&quot;</TT> (no <TT>&quot;{}&quot;</TT> and only two hexadecimal digits), <TT>&quot;\x{...}&quot;</TT>,
+and <TT>&quot;chr(...)&quot;</TT> for arguments less than <TT>0x100</TT> (decimal 256)
+generate an eight-bit character for backward compatibility with older
+Perls.  For arguments of <TT>0x100</TT> or more, Unicode characters are
+always produced. If you want to force the production of Unicode
+characters regardless of the numeric value, use <TT>&quot;pack(&quot;U&quot;, ...)&quot;</TT>
+instead of <TT>&quot;\x..&quot;</TT>, <TT>&quot;\x{...}&quot;</TT>, or <TT>&quot;chr()&quot;</TT>.
+<P>
+
+You can also use the <TT>&quot;charnames&quot;</TT> pragma to invoke characters
+by name in double-quoted strings:
+<P>
+
+
+
+<PRE>
+    use charnames ':full';
+    my $arabic_alef = &quot;\N{ARABIC LETTER ALEF}&quot;;
+
+</PRE>
+
+
+<P>
+
+And, as mentioned above, you can also <TT>&quot;pack()&quot;</TT> numbers into Unicode
+characters:
+<P>
+
+
+
+<PRE>
+   my $georgian_an  = pack(&quot;U&quot;, 0x10a0);
+
+</PRE>
+
+
+<P>
+
+Note that both <TT>&quot;\x{...}&quot;</TT> and <TT>&quot;\N{...}&quot;</TT> are compile-time string
+constants: you cannot use variables in them.  if you want similar
+run-time functionality, use <TT>&quot;chr()&quot;</TT> and <TT>&quot;charnames::vianame()&quot;</TT>.
+<P>
+
+If you want to force the result to Unicode characters, use the special
+<TT>&quot;U0&quot;</TT> prefix.  It consumes no arguments but forces the result to be
+in Unicode characters, instead of bytes.
+<P>
+
+
+
+<PRE>
+   my $chars = pack(&quot;U0C*&quot;, 0x80, 0x42);
+
+</PRE>
+
+
+<P>
+
+Likewise, you can force the result to be bytes by using the special
+<TT>&quot;C0&quot;</TT> prefix.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Handling Unicode</H2>
+
+<A NAME="ixAAI"></A>
+Handling Unicode is for the most part transparent: just use the
+strings as usual.  Functions like <TT>&quot;index()&quot;</TT>, <TT>&quot;length()&quot;</TT>, and
+<TT>&quot;substr()&quot;</TT> will work on the Unicode characters; regular expressions
+will work on the Unicode characters (see perlunicode and perlretut).
+<P>
+
+Note that Perl considers combining character sequences to be
+separate characters, so for example
+<P>
+
+
+
+<PRE>
+    use charnames ':full';
+    print length(&quot;\N{LATIN CAPITAL LETTER A}\N{COMBINING ACUTE ACCENT}&quot;), &quot;\n&quot;;
+
+</PRE>
+
+
+<P>
+
+will print 2, not 1.  The only exception is that regular expressions
+have <TT>&quot;\X&quot;</TT> for matching a combining character sequence.
+<P>
+
+Life is not quite so transparent, however, when working with legacy
+encodings, I/O, and certain special cases:
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Legacy Encodings</H2>
+
+<A NAME="ixAAJ"></A>
+When you combine legacy data and Unicode the legacy data needs
+to be upgraded to Unicode.  Normally <FONT SIZE="-1">ISO</FONT> 8859-1 (or <FONT SIZE="-1">EBCDIC</FONT>, if
+applicable) is assumed.  You can override this assumption by
+using the <TT>&quot;encoding&quot;</TT> pragma, for example
+<P>
+
+
+
+<PRE>
+    use encoding 'latin2'; # ISO 8859-2
+
+</PRE>
+
+
+<P>
+
+in which case literals (string or regular expressions), <TT>&quot;chr()&quot;</TT>,
+and <TT>&quot;ord()&quot;</TT> in your whole script are assumed to produce Unicode
+characters from <FONT SIZE="-1">ISO</FONT> 8859-2 code points.  Note that the matching for
+encoding names is forgiving: instead of <TT>&quot;latin2&quot;</TT> you could have
+said <TT>&quot;Latin 2&quot;</TT>, or <TT>&quot;iso8859-2&quot;</TT>, or other variations.  With just
+<P>
+
+
+
+<PRE>
+    use encoding;
+
+</PRE>
+
+
+<P>
+
+the environment variable <TT>&quot;PERL_ENCODING&quot;</TT> will be consulted.
+If that variable isn't set, the encoding pragma will fail.
+<P>
+
+The <TT>&quot;Encode&quot;</TT> module knows about many encodings and has interfaces
+for doing conversions between those encodings:
+<P>
+
+
+
+<PRE>
+    use Encode 'decode';
+    $data = decode(&quot;iso-8859-3&quot;, $data); # convert from legacy to utf-8
+
+</PRE>
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>Unicode I/O</H2>
+
+<A NAME="ixAAK"></A>
+Normally, writing out Unicode data
+<P>
+
+
+
+<PRE>
+    print FH $some_string_with_unicode, &quot;\n&quot;;
+
+</PRE>
+
+
+<P>
+
+produces raw bytes that Perl happens to use to internally encode the
+Unicode string.  Perl's internal encoding depends on the system as
+well as what characters happen to be in the string at the time. If
+any of the characters are at code points <TT>0x100</TT> or above, you will get
+a warning.  To ensure that the output is explicitly rendered in the
+encoding you desire---and to avoid the warning---open the stream with
+the desired encoding. Some examples:
+<P>
+
+
+
+<PRE>
+    open FH, &quot;&gt;:utf8&quot;, &quot;file&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    open FH, &quot;&gt;:encoding(ucs2)&quot;,      &quot;file&quot;;
+    open FH, &quot;&gt;:encoding(UTF-8)&quot;,     &quot;file&quot;;
+    open FH, &quot;&gt;:encoding(shift_jis)&quot;, &quot;file&quot;;
+
+</PRE>
+
+
+<P>
+
+and on already open streams, use <TT>&quot;binmode()&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    binmode(STDOUT, &quot;:utf8&quot;);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    binmode(STDOUT, &quot;:encoding(ucs2)&quot;);
+    binmode(STDOUT, &quot;:encoding(UTF-8)&quot;);
+    binmode(STDOUT, &quot;:encoding(shift_jis)&quot;);
+
+</PRE>
+
+
+<P>
+
+The matching of encoding names is loose: case does not matter, and
+many encodings have several aliases.  Note that the <TT>&quot;:utf8&quot;</TT> layer
+must always be specified exactly like that; it is <I>not</I> subject to
+the loose matching of encoding names.
+<P>
+
+See PerlIO for the <TT>&quot;:utf8&quot;</TT> layer, PerlIO::encoding and
+Encode::PerlIO for the <TT>&quot;:encoding()&quot;</TT> layer, and
+Encode::Supported for many encodings supported by the <TT>&quot;Encode&quot;</TT>
+module.
+<P>
+
+Reading in a file that you know happens to be encoded in one of the
+Unicode or legacy encodings does not magically turn the data into
+Unicode in Perl's eyes.  To do that, specify the appropriate
+layer when opening files
+<P>
+
+
+
+<PRE>
+    open(my $fh,'&lt;:utf8', 'anything');
+    my $line_of_unicode = &lt;$fh&gt;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    open(my $fh,'&lt;:encoding(Big5)', 'anything');
+    my $line_of_unicode = &lt;$fh&gt;;
+
+</PRE>
+
+
+<P>
+
+The I/O layers can also be specified more flexibly with
+the <TT>&quot;open&quot;</TT> pragma.  See open, or look at the following example.
+<P>
+
+
+
+<PRE>
+    use open ':utf8'; # input and output default layer will be UTF-8
+    open X, &quot;&gt;file&quot;;
+    print X chr(0x100), &quot;\n&quot;;
+    close X;
+    open Y, &quot;&lt;file&quot;;
+    printf &quot;%#x\n&quot;, ord(&lt;Y&gt;); # this should print 0x100
+    close Y;
+
+</PRE>
+
+
+<P>
+
+With the <TT>&quot;open&quot;</TT> pragma you can use the <TT>&quot;:locale&quot;</TT> layer
+<P>
+
+
+
+<PRE>
+    BEGIN { $ENV{LC_ALL} = $ENV{LANG} = 'ru_RU.KOI8-R' }
+    # the :locale will probe the locale environment variables like LC_ALL
+    use open OUT =&gt; ':locale'; # russki parusski
+    open(O, &quot;&gt;koi8&quot;);
+    print O chr(0x430); # Unicode CYRILLIC SMALL LETTER A = KOI8-R 0xc1
+    close O;
+    open(I, &quot;&lt;koi8&quot;);
+    printf &quot;%#x\n&quot;, ord(&lt;I&gt;), &quot;\n&quot;; # this should print 0xc1
+    close I;
+
+</PRE>
+
+
+<P>
+
+or you can also use the <TT>':encoding(...)'</TT> layer
+<P>
+
+
+
+<PRE>
+    open(my $epic,'&lt;:encoding(iso-8859-7)','iliad.greek');
+    my $line_of_unicode = &lt;$epic&gt;;
+
+</PRE>
+
+
+<P>
+
+These methods install a transparent filter on the I/O stream that
+converts data from the specified encoding when it is read in from the
+stream.  The result is always Unicode.
+<P>
+
+The open pragma affects all the <TT>&quot;open()&quot;</TT> calls after the pragma by
+setting default layers.  If you want to affect only certain
+streams, use explicit layers directly in the <TT>&quot;open()&quot;</TT> call.
+<P>
+
+You can switch encodings on an already opened stream by using
+<TT>&quot;binmode()&quot;</TT>; see ``binmode'' in perlfunc.
+<P>
+
+The <TT>&quot;:locale&quot;</TT> does not currently (as of Perl 5.8.0) work with
+<TT>&quot;open()&quot;</TT> and <TT>&quot;binmode()&quot;</TT>, only with the <TT>&quot;open&quot;</TT> pragma.  The
+<TT>&quot;:utf8&quot;</TT> and <TT>&quot;:encoding(...)&quot;</TT> methods do work with all of <TT>&quot;open()&quot;</TT>,
+<TT>&quot;binmode()&quot;</TT>, and the <TT>&quot;open&quot;</TT> pragma.
+<P>
+
+Similarly, you may use these I/O layers on output streams to
+automatically convert Unicode to the specified encoding when it is
+written to the stream. For example, the following snippet copies the
+contents of the file ``text.jis'' (encoded as <FONT SIZE="-1">ISO-2022-JP</FONT>, aka <FONT SIZE="-1">JIS</FONT>) to
+the file ``text.utf8'', encoded as <FONT SIZE="-1">UTF-8:</FONT>
+<P>
+
+
+
+<PRE>
+    open(my $nihongo, '&lt;:encoding(iso-2022-jp)', 'text.jis');
+    open(my $unicode, '&gt;:utf8',                  'text.utf8');
+    while (&lt;$nihongo&gt;) { print $unicode $_ }
+
+</PRE>
+
+
+<P>
+
+The naming of encodings, both by the <TT>&quot;open()&quot;</TT> and by the <TT>&quot;open&quot;</TT>
+pragma, is similar to the <TT>&quot;encoding&quot;</TT> pragma in that it allows for
+flexible names: <TT>&quot;koi8-r&quot;</TT> and <TT>&quot;KOI8R&quot;</TT> will both be understood.
+<P>
+
+Common encodings recognized by <FONT SIZE="-1">ISO</FONT>, <FONT SIZE="-1">MIME</FONT>, <FONT SIZE="-1">IANA</FONT>, and various other
+standardisation organisations are recognised; for a more detailed
+list see Encode::Supported.
+<P>
+
+<TT>&quot;read()&quot;</TT> reads characters and returns the number of characters.
+<TT>&quot;seek()&quot;</TT> and <TT>&quot;tell()&quot;</TT> operate on byte counts, as do <TT>&quot;sysread()&quot;</TT>
+and <TT>&quot;sysseek()&quot;</TT>.
+<P>
+
+Notice that because of the default behaviour of not doing any
+conversion upon input if there is no default layer,
+it is easy to mistakenly write code that keeps on expanding a file
+by repeatedly encoding the data:
+<P>
+
+
+
+<PRE>
+    # BAD CODE WARNING
+    open F, &quot;file&quot;;
+    local $/; ## read in the whole file of 8-bit characters
+    $t = &lt;F&gt;;
+    close F;
+    open F, &quot;&gt;:utf8&quot;, &quot;file&quot;;
+    print F $t; ## convert to UTF-8 on output
+    close F;
+
+</PRE>
+
+
+<P>
+
+If you run this code twice, the contents of the <I>file</I> will be twice
+<FONT SIZE="-1">UTF-8</FONT> encoded.  A <TT>&quot;use open ':utf8'&quot;</TT> would have avoided the bug, or
+explicitly opening also the <I>file</I> for input as <FONT SIZE="-1">UTF-8</FONT>.
+<P>
+
+<B></B><FONT SIZE="-1"><B>NOTE</B></FONT><B></B>: the <TT>&quot;:utf8&quot;</TT> and <TT>&quot;:encoding&quot;</TT> features work only if your
+Perl has been built with the new PerlIO feature (which is the default
+on most systems).
+<A NAME="lbAL">&nbsp;</A>
+<H2>Displaying Unicode As Text
+
+</H2>
+
+<A NAME="ixAAL"></A>
+Sometimes you might want to display Perl scalars containing Unicode as
+simple <FONT SIZE="-1">ASCII</FONT> (or <FONT SIZE="-1">EBCDIC</FONT>) text.  The following subroutine converts
+its argument so that Unicode characters with code points greater than
+255 are displayed as <TT>&quot;\x{...}&quot;</TT>, control characters (like <TT>&quot;\n&quot;</TT>) are
+displayed as <TT>&quot;\x..&quot;</TT>, and the rest of the characters as themselves:
+<P>
+
+
+
+<PRE>
+   sub nice_string {
+       join(&quot;&quot;,
+         map { $_ &gt; 255 ?                  # if wide character...
+               sprintf(&quot;\\x{%04X}&quot;, $_) :  # \x{...}
+               chr($_) =~ /[[:cntrl:]]/ ?  # else if control character ...
+               sprintf(&quot;\\x%02X&quot;, $_) :    # \x..
+               quotemeta(chr($_))          # else quoted or as themselves
+         } unpack(&quot;U*&quot;, $_[0]));           # unpack Unicode characters
+   }
+
+</PRE>
+
+
+<P>
+
+For example,
+<P>
+
+
+
+<PRE>
+   nice_string(&quot;foo\x{100}bar\n&quot;)
+
+</PRE>
+
+
+<P>
+
+returns the string
+<P>
+
+
+
+<PRE>
+   'foo\x{0100}bar\x0A'
+
+</PRE>
+
+
+<P>
+
+which is ready to be printed.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Special Cases</H2>
+
+<A NAME="ixAAM"></A>
+<DL COMPACT>
+<DT>*<DD>
+Bit Complement Operator ~ And <I>vec()</I>
+
+
+<P>
+
+
+The bit complement operator <TT>&quot;~&quot;</TT> may produce surprising results if
+used on strings containing characters with ordinal values above
+255. In such a case, the results are consistent with the internal
+encoding of the characters, but not with much else. So don't do
+that. Similarly for <TT>&quot;vec()&quot;</TT>: you will be operating on the
+internally-encoded bit patterns of the Unicode characters, not on
+the code point values, which is very probably not what you want.
+<DT>*<DD>
+Peeking At Perl's Internal Encoding
+
+
+<P>
+
+
+Normal users of Perl should never care how Perl encodes any particular
+Unicode string (because the normal ways to get at the contents of a
+string with Unicode---via input and output---should always be via
+explicitly-defined I/O layers). But if you must, there are two
+ways of looking behind the scenes.
+
+
+<P>
+
+
+One way of peeking inside the internal encoding of Unicode characters
+is to use <TT>&quot;unpack(&quot;C*&quot;, ...&quot;</TT> to get the bytes or <TT>&quot;unpack(&quot;H*&quot;, ...)&quot;</TT>
+to display the bytes:
+
+
+<P>
+
+
+
+
+<PRE>
+    # this prints  c4 80  for the UTF-8 bytes 0xc4 0x80
+    print join(&quot; &quot;, unpack(&quot;H*&quot;, pack(&quot;U&quot;, 0x100))), &quot;\n&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Yet another way would be to use the Devel::Peek module:
+
+
+<P>
+
+
+
+
+<PRE>
+    perl -MDevel::Peek -e 'Dump(chr(0x100))'
+
+</PRE>
+
+
+
+
+<P>
+
+
+That shows the <TT>&quot;UTF8&quot;</TT> flag in <FONT SIZE="-1">FLAGS</FONT> and both the <FONT SIZE="-1">UTF-8</FONT> bytes
+and Unicode characters in <TT>&quot;PV&quot;</TT>.  See also later in this document
+the discussion about the <TT>&quot;utf8::is_utf8()&quot;</TT> function.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H2>Advanced Topics</H2>
+
+<A NAME="ixAAN"></A>
+<DL COMPACT>
+<DT>*<DD>
+String Equivalence
+
+
+<P>
+
+
+The question of string equivalence turns somewhat complicated
+in Unicode: what do you mean by ``equal''?
+
+
+<P>
+
+
+(Is <TT>&quot;LATIN CAPITAL LETTER A WITH ACUTE&quot;</TT> equal to
+<TT>&quot;LATIN CAPITAL LETTER A&quot;</TT>?)
+
+
+<P>
+
+
+The short answer is that by default Perl compares equivalence (<TT>&quot;eq&quot;</TT>,
+<TT>&quot;ne&quot;</TT>) based only on code points of the characters.  In the above
+case, the answer is no (because 0x00C1 != 0x0041).  But sometimes, any
+<FONT SIZE="-1">CAPITAL</FONT> <FONT SIZE="-1">LETTER</FONT> As should be considered equal, or even As of any case.
+
+
+<P>
+
+
+The long answer is that you need to consider character normalization
+and casing issues: see Unicode::Normalize, Unicode Technical
+Reports #15 and #21, <I>Unicode Normalization Forms</I> and <I>Case
+Mappings</I>, <A HREF="http://www.unicode.org/unicode/reports/tr15/">http://www.unicode.org/unicode/reports/tr15/</A> and 
+<A HREF="http://www.unicode.org/unicode/reports/tr21/">http://www.unicode.org/unicode/reports/tr21/</A> 
+
+
+<P>
+
+
+As of Perl 5.8.0, the ``Full'' case-folding of <I>Case
+Mappings/SpecialCasing</I> is implemented.
+<DT>*<DD>
+String Collation
+
+
+<P>
+
+
+People like to see their strings nicely sorted---or as Unicode
+parlance goes, collated.  But again, what do you mean by collate?
+
+
+<P>
+
+
+(Does <TT>&quot;LATIN CAPITAL LETTER A WITH ACUTE&quot;</TT> come before or after
+<TT>&quot;LATIN CAPITAL LETTER A WITH GRAVE&quot;</TT>?)
+
+
+<P>
+
+
+The short answer is that by default, Perl compares strings (<TT>&quot;lt&quot;</TT>,
+<TT>&quot;le&quot;</TT>, <TT>&quot;cmp&quot;</TT>, <TT>&quot;ge&quot;</TT>, <TT>&quot;gt&quot;</TT>) based only on the code points of the
+characters.  In the above case, the answer is ``after'', since
+<TT>0x00C1</TT> &gt; <TT>0x00C0</TT>.
+
+
+<P>
+
+
+The long answer is that ``it depends'', and a good answer cannot be
+given without knowing (at the very least) the language context.
+See Unicode::Collate, and <I>Unicode Collation Algorithm</I>
+<A HREF="http://www.unicode.org/unicode/reports/tr10/">http://www.unicode.org/unicode/reports/tr10/</A>
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>Miscellaneous</H2>
+
+<A NAME="ixAAO"></A>
+<DL COMPACT>
+<DT>*<DD>
+Character Ranges and Classes
+
+
+<P>
+
+
+Character ranges in regular expression character classes (<TT>&quot;/[a-z]/&quot;</TT>)
+and in the <TT>&quot;tr///&quot;</TT> (also known as <TT>&quot;y///&quot;</TT>) operator are not magically
+Unicode-aware.  What this means that <TT>&quot;[A-Za-z]&quot;</TT> will not magically start
+to mean ``all alphabetic letters''; not that it does mean that even for
+8-bit characters, you should be using <TT>&quot;/[[:alpha:]]/&quot;</TT> in that case.
+
+
+<P>
+
+
+For specifying character classes like that in regular expressions,
+you can use the various Unicode properties---<TT>&quot;\pL&quot;</TT>, or perhaps
+<TT>&quot;\p{Alphabetic}&quot;</TT>, in this particular case.  You can use Unicode
+code points as the end points of character ranges, but there is no
+magic associated with specifying a certain range.  For further
+information---there are dozens of Unicode character classes---see
+perlunicode.
+<DT>*<DD>
+String-To-Number Conversions
+
+
+<P>
+
+
+Unicode does define several other decimal---and numeric---characters
+besides the familiar 0 to 9, such as the Arabic and Indic digits.
+Perl does not support string-to-number conversion for digits other
+than <FONT SIZE="-1">ASCII</FONT> 0 to 9 (and <FONT SIZE="-1">ASCII</FONT> a to f for hexadecimal).
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>Questions With Answers</H2>
+
+<A NAME="ixAAP"></A>
+<DL COMPACT>
+<DT>*<DD>
+Will My Old Scripts Break?
+
+
+<P>
+
+
+Very probably not.  Unless you are generating Unicode characters
+somehow, old behaviour should be preserved.  About the only behaviour
+that has changed and which could start generating Unicode is the old
+behaviour of <TT>&quot;chr()&quot;</TT> where supplying an argument more than 255
+produced a character modulo 255.  <TT>&quot;chr(300)&quot;</TT>, for example, was equal
+to <TT>&quot;chr(45)&quot;</TT> or ``-'' (in <FONT SIZE="-1">ASCII</FONT>), now it is <FONT SIZE="-1">LATIN</FONT> <FONT SIZE="-1">CAPITAL</FONT> <FONT SIZE="-1">LETTER</FONT> I <FONT SIZE="-1">WITH</FONT>
+<FONT SIZE="-1">BREVE</FONT>.
+<DT>*<DD>
+How Do I Make My Scripts Work With Unicode?
+
+
+<P>
+
+
+Very little work should be needed since nothing changes until you
+generate Unicode data.  The most important thing is getting input as
+Unicode; for that, see the earlier I/O discussion.
+<DT>*<DD>
+How Do I Know Whether My String Is In Unicode?
+
+
+<P>
+
+
+You shouldn't care.  No, you really shouldn't.  No, really.  If you
+have to care---beyond the cases described above---it means that we
+didn't get the transparency of Unicode quite right.
+
+
+<P>
+
+
+Okay, if you insist:
+
+
+<P>
+
+
+
+
+<PRE>
+    print utf8::is_utf8($string) ? 1 : 0, &quot;\n&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+But note that this doesn't mean that any of the characters in the
+string are necessary <FONT SIZE="-1">UTF-8</FONT> encoded, or that any of the characters have
+code points greater than 0xFF (255) or even 0x80 (128), or that the
+string has any characters at all.  All the <TT>&quot;is_utf8()&quot;</TT> does is to
+return the value of the internal ``utf8ness'' flag attached to the
+<TT>$string</TT>.  If the flag is off, the bytes in the scalar are interpreted
+as a single byte encoding.  If the flag is on, the bytes in the scalar
+are interpreted as the (multi-byte, variable-length) <FONT SIZE="-1">UTF-8</FONT> encoded code
+points of the characters.  Bytes added to an <FONT SIZE="-1">UTF-8</FONT> encoded string are
+automatically upgraded to <FONT SIZE="-1">UTF-8</FONT>.  If mixed non-UTF-8 and <FONT SIZE="-1">UTF-8</FONT> scalars
+are merged (double-quoted interpolation, explicit concatenation, and
+printf/sprintf parameter substitution), the result will be <FONT SIZE="-1">UTF-8</FONT> encoded
+as if copies of the byte strings were upgraded to <FONT SIZE="-1">UTF-8:</FONT> for example,
+
+
+<P>
+
+
+
+
+<PRE>
+    $a = &quot;ab\x80c&quot;;
+    $b = &quot;\x{100}&quot;;
+    print &quot;$a = $b\n&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+the output string will be UTF-8-encoded <TT>&quot;ab\x80c = \x{100}\n&quot;</TT>, but
+<TT>$a</TT> will stay byte-encoded.
+
+
+<P>
+
+
+Sometimes you might really need to know the byte length of a string
+instead of the character length. For that use either the
+<TT>&quot;Encode::encode_utf8()&quot;</TT> function or the <TT>&quot;bytes&quot;</TT> pragma and its only
+defined function <TT>&quot;length()&quot;</TT>:
+
+
+<P>
+
+
+
+
+<PRE>
+    my $unicode = chr(0x100);
+    print length($unicode), &quot;\n&quot;; # will print 1
+    require Encode;
+    print length(Encode::encode_utf8($unicode)), &quot;\n&quot;; # will print 2
+    use bytes;
+    print length($unicode), &quot;\n&quot;; # will also print 2
+                                  # (the 0xC4 0x80 of the UTF-8)
+
+</PRE>
+
+
+<DT>*<DD>
+How Do I Detect Data That's Not Valid In a Particular Encoding?
+
+
+<P>
+
+
+Use the <TT>&quot;Encode&quot;</TT> package to try converting it.
+For example,
+
+
+<P>
+
+
+
+
+<PRE>
+    use Encode 'decode_utf8';
+    if (decode_utf8($string_of_bytes_that_I_think_is_utf8)) {
+        # valid
+    } else {
+        # invalid
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+For <FONT SIZE="-1">UTF-8</FONT> only, you can use:
+
+
+<P>
+
+
+
+
+<PRE>
+    use warnings;
+    @chars = unpack(&quot;U0U*&quot;, $string_of_bytes_that_I_think_is_utf8);
+
+</PRE>
+
+
+
+
+<P>
+
+
+If invalid, a <TT>&quot;Malformed UTF-8 character (byte 0x##) in unpack&quot;</TT>
+warning is produced. The ``U0'' means ``expect strictly <FONT SIZE="-1">UTF-8</FONT> encoded
+Unicode''.  Without that the <TT>&quot;unpack(&quot;U*&quot;, ...)&quot;</TT> would accept also
+data like <TT>&quot;chr(0xFF&quot;</TT>), similarly to the <TT>&quot;pack&quot;</TT> as we saw earlier.
+<DT>*<DD>
+How Do I Convert Binary Data Into a Particular Encoding, Or Vice Versa?
+
+
+<P>
+
+
+This probably isn't as useful as you might think.
+Normally, you shouldn't need to.
+
+
+<P>
+
+
+In one sense, what you are asking doesn't make much sense: encodings
+are for characters, and binary data are not ``characters'', so converting
+``data'' into some encoding isn't meaningful unless you know in what
+character set and encoding the binary data is in, in which case it's
+not just binary data, now is it?
+
+
+<P>
+
+
+If you have a raw sequence of bytes that you know should be
+interpreted via a particular encoding, you can use <TT>&quot;Encode&quot;</TT>:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Encode 'from_to';
+    from_to($data, &quot;iso-8859-1&quot;, &quot;utf-8&quot;); # from latin-1 to utf-8
+
+</PRE>
+
+
+
+
+<P>
+
+
+The call to <TT>&quot;from_to()&quot;</TT> changes the bytes in <TT>$data</TT>, but nothing
+material about the nature of the string has changed as far as Perl is
+concerned.  Both before and after the call, the string <TT>$data</TT>
+contains just a bunch of 8-bit bytes. As far as Perl is concerned,
+the encoding of the string remains as ``system-native 8-bit bytes''.
+
+
+<P>
+
+
+You might relate this to a fictional 'Translate' module:
+
+
+<P>
+
+
+
+
+<PRE>
+   use Translate;
+   my $phrase = &quot;Yes&quot;;
+   Translate::from_to($phrase, 'english', 'deutsch');
+   ## phrase now contains &quot;Ja&quot;
+
+</PRE>
+
+
+
+
+<P>
+
+
+The contents of the string changes, but not the nature of the string.
+Perl doesn't know any more after the call than before that the
+contents of the string indicates the affirmative.
+
+
+<P>
+
+
+Back to converting data.  If you have (or want) data in your system's
+native 8-bit encoding (e.g. Latin-1, <FONT SIZE="-1">EBCDIC</FONT>, etc.), you can use
+pack/unpack to convert to/from Unicode.
+
+
+<P>
+
+
+
+
+<PRE>
+    $native_string  = pack(&quot;C*&quot;, unpack(&quot;U*&quot;, $Unicode_string));
+    $Unicode_string = pack(&quot;U*&quot;, unpack(&quot;C*&quot;, $native_string));
+
+</PRE>
+
+
+
+
+<P>
+
+
+If you have a sequence of bytes you <B>know</B> is valid <FONT SIZE="-1">UTF-8</FONT>,
+but Perl doesn't know it yet, you can make Perl a believer, too:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Encode 'decode_utf8';
+    $Unicode = decode_utf8($bytes);
+
+</PRE>
+
+
+
+
+<P>
+
+
+You can convert well-formed <FONT SIZE="-1">UTF-8</FONT> to a sequence of bytes, but if
+you just want to convert random binary data into <FONT SIZE="-1">UTF-8</FONT>, you can't.
+<B>Any random collection of bytes isn't well-formed </B><FONT SIZE="-1"><B>UTF-8</B></FONT><B></B>.  You can
+use <TT>&quot;unpack(&quot;C*&quot;, $string)&quot;</TT> for the former, and you can create
+well-formed Unicode data by <TT>&quot;pack(&quot;U*&quot;, 0xff, ...)&quot;</TT>.
+<DT>*<DD>
+How Do I Display Unicode?  How Do I Input Unicode?
+
+
+<P>
+
+
+See <A HREF="http://www.alanwood.net/unicode/">http://www.alanwood.net/unicode/</A> and
+<A HREF="http://www.cl.cam.ac.uk/~mgk25/unicode.php">http://www.cl.cam.ac.uk/~mgk25/unicode.html</A>
+<DT>*<DD>
+How Does Unicode Work With Traditional Locales?
+
+
+<P>
+
+
+In Perl, not very well.  Avoid using locales through the <TT>&quot;locale&quot;</TT>
+pragma.  Use only one or the other.  But see perlrun for the
+description of the <TT>&quot;-C&quot;</TT> switch and its environment counterpart,
+<TT>$ENV{PERL_UNICODE}</TT> to see how to enable various Unicode features,
+for example by using locale settings.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Hexadecimal Notation</H2>
+
+<A NAME="ixAAQ"></A>
+The Unicode standard prefers using hexadecimal notation because
+that more clearly shows the division of Unicode into blocks of 256 characters.
+Hexadecimal is also simply shorter than decimal.  You can use decimal
+notation, too, but learning to use hexadecimal just makes life easier
+with the Unicode standard.  The <TT>&quot;U+HHHH&quot;</TT> notation uses hexadecimal,
+for example.
+<P>
+
+The <TT>&quot;0x&quot;</TT> prefix means a hexadecimal number, the digits are 0-9 <I>and</I>
+a-f (or A-F, case doesn't matter).  Each hexadecimal digit represents
+four bits, or half a byte.  <TT>&quot;print 0x..., &quot;\n&quot;&quot;</TT> will show a
+hexadecimal number in decimal, and <TT>&quot;printf &quot;%x\n&quot;, $decimal&quot;</TT> will
+show a decimal number in hexadecimal.  If you have just the
+``hex digits'' of a hexadecimal number, you can use the <TT>&quot;hex()&quot;</TT> function.
+<P>
+
+
+
+<PRE>
+    print 0x0009, &quot;\n&quot;;    # 9
+    print 0x000a, &quot;\n&quot;;    # 10
+    print 0x000f, &quot;\n&quot;;    # 15
+    print 0x0010, &quot;\n&quot;;    # 16
+    print 0x0011, &quot;\n&quot;;    # 17
+    print 0x0100, &quot;\n&quot;;    # 256
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    print 0x0041, &quot;\n&quot;;    # 65
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    printf &quot;%x\n&quot;,  65;    # 41
+    printf &quot;%#x\n&quot;, 65;    # 0x41
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    print hex(&quot;41&quot;), &quot;\n&quot;; # 65
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>Further Resources</H2>
+
+<A NAME="ixAAR"></A>
+<DL COMPACT>
+<DT>*<DD>
+Unicode Consortium
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.unicode.org/">http://www.unicode.org/</A>
+
+</PRE>
+
+
+<DT>*<DD>
+Unicode <FONT SIZE="-1">FAQ</FONT>
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.unicode.org/unicode/faq/">http://www.unicode.org/unicode/faq/</A>
+
+</PRE>
+
+
+<DT>*<DD>
+Unicode Glossary
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.unicode.org/glossary/">http://www.unicode.org/glossary/</A>
+
+</PRE>
+
+
+<DT>*<DD>
+Unicode Useful Resources
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.unicode.org/unicode/onlinedat/resources.php">http://www.unicode.org/unicode/onlinedat/resources.html</A>
+
+</PRE>
+
+
+<DT>*<DD>
+Unicode and Multilingual Support in <FONT SIZE="-1">HTML</FONT>, Fonts, Web Browsers and Other Applications
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.alanwood.net/unicode/">http://www.alanwood.net/unicode/</A>
+
+</PRE>
+
+
+<DT>*<DD>
+<FONT SIZE="-1">UTF-8</FONT> and Unicode <FONT SIZE="-1">FAQ</FONT> for Unix/Linux
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.cl.cam.ac.uk/~mgk25/unicode.php">http://www.cl.cam.ac.uk/~mgk25/unicode.html</A>
+
+</PRE>
+
+
+<DT>*<DD>
+Legacy Character Sets
+
+
+<P>
+
+
+
+
+<PRE>
+    <A HREF="http://www.czyborra.com/">http://www.czyborra.com/</A>
+    <A HREF="http://www.eki.ee/letter/">http://www.eki.ee/letter/</A>
+
+</PRE>
+
+
+<DT>*<DD>
+The Unicode support files live within the Perl installation in the
+directory
+
+
+<P>
+
+
+
+
+<PRE>
+    $Config{installprivlib}/unicore
+
+</PRE>
+
+
+
+
+<P>
+
+
+in Perl 5.8.0 or newer, and 
+
+
+<P>
+
+
+
+
+<PRE>
+    $Config{installprivlib}/unicode
+
+</PRE>
+
+
+
+
+<P>
+
+
+in the Perl 5.6 series.  (The renaming to <I>lib/unicore</I> was done to
+avoid naming conflicts with lib/Unicode in case-insensitive filesystems.)
+The main Unicode data file is <I>UnicodeData.txt</I> (or <I>Unicode.301</I> in
+Perl 5.6.1.)  You can find the <TT>$Config{installprivlib}</TT> by
+
+
+<P>
+
+
+
+
+<PRE>
+    perl &quot;-V:installprivlib&quot;
+
+</PRE>
+
+
+
+
+<P>
+
+
+You can explore various information from the Unicode data files using
+the <TT>&quot;Unicode::UCD&quot;</TT> module.
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H2>UNICODE IN OLDER PERLS</H2>
+
+<A NAME="ixAAS"></A>
+If you cannot upgrade your Perl to 5.8.0 or later, you can still
+do some Unicode processing by using the modules <TT>&quot;Unicode::String&quot;</TT>,
+<TT>&quot;Unicode::Map8&quot;</TT>, and <TT>&quot;Unicode::Map&quot;</TT>, available from <FONT SIZE="-1">CPAN</FONT>.
+If you have the <FONT SIZE="-1">GNU</FONT> recode installed, you can also use the
+Perl front-end <TT>&quot;Convert::Recode&quot;</TT> for character conversions.
+<P>
+
+The following are fast conversions from <FONT SIZE="-1">ISO</FONT> 8859-1 (Latin-1) bytes
+to <FONT SIZE="-1">UTF-8</FONT> bytes and back, the code works even with older Perl 5 versions.
+<P>
+
+
+
+<PRE>
+    # ISO 8859-1 to UTF-8
+    s/([\x80-\xFF])/chr(0xC0|ord($1)&gt;&gt;6).chr(0x80|ord($1)&amp;0x3F)/eg;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # UTF-8 to ISO 8859-1
+    s/([\xC2\xC3])([\x80-\xBF])/chr(ord($1)&lt;&lt;6&amp;0xC0|ord($2)&amp;0x3F)/eg;
+
+</PRE>
+
+
+<A NAME="lbAT">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAT"></A>
+perlunicode, Encode, encoding, open, utf8, bytes,
+perlretut, perlrun, Unicode::Collate, Unicode::Normalize,
+Unicode::UCD
+<A NAME="lbAU">&nbsp;</A>
+<H2>ACKNOWLEDGMENTS</H2>
+
+<A NAME="ixAAU"></A>
+Thanks to the kind readers of the <A HREF="mailto:perl5-porters@perl.org">perl5-porters@perl.org</A>,
+<A HREF="mailto:perl-unicode@perl.org">perl-unicode@perl.org</A>, <A HREF="mailto:linux-utf8@nl.linux.org">linux-utf8@nl.linux.org</A>, and <A HREF="mailto:unicore@unicode.org">unicore@unicode.org</A>
+mailing lists for their valuable feedback.
+<A NAME="lbAV">&nbsp;</A>
+<H2>AUTHOR, COPYRIGHT, AND LICENSE</H2>
+
+<A NAME="ixAAV"></A>
+Copyright 2001-2002 Jarkko Hietaniemi &lt;<A HREF="mailto:jhi@iki.fi">jhi@iki.fi</A>&gt;
+<P>
+
+This document may be distributed under the same terms as Perl itself.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Unicode</A><DD>
+<DT><A HREF="#lbAE">Perl's Unicode Support</A><DD>
+<DT><A HREF="#lbAF">Perl's Unicode Model</A><DD>
+<DT><A HREF="#lbAG">Unicode and <FONT SIZE="-1">EBCDIC</FONT></A><DD>
+<DT><A HREF="#lbAH">Creating Unicode</A><DD>
+<DT><A HREF="#lbAI">Handling Unicode</A><DD>
+<DT><A HREF="#lbAJ">Legacy Encodings</A><DD>
+<DT><A HREF="#lbAK">Unicode I/O</A><DD>
+<DT><A HREF="#lbAL">Displaying Unicode As Text</A><DD>
+<DT><A HREF="#lbAM">Special Cases</A><DD>
+<DT><A HREF="#lbAN">Advanced Topics</A><DD>
+<DT><A HREF="#lbAO">Miscellaneous</A><DD>
+<DT><A HREF="#lbAP">Questions With Answers</A><DD>
+<DT><A HREF="#lbAQ">Hexadecimal Notation</A><DD>
+<DT><A HREF="#lbAR">Further Resources</A><DD>
+<DT><A HREF="#lbAS">UNICODE IN OLDER PERLS</A><DD>
+<DT><A HREF="#lbAT">SEE ALSO</A><DD>
+<DT><A HREF="#lbAU">ACKNOWLEDGMENTS</A><DD>
+<DT><A HREF="#lbAV">AUTHOR, COPYRIGHT, AND LICENSE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

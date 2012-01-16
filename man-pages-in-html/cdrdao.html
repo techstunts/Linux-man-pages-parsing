@@ -1,0 +1,1150 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CDRDAO</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CDRDAO</H1>
+Section: User Commands  (1)<BR>Updated: Oct 6, 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cdrdao - writes audio CD-Rs in disc-at-once mode
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cdrdao</B>
+
+{<B>show-toc|read-toc|read-cd|read-cddb|show-data|read-test|disk-info|msinfo|unlock|simulate|write|copy|blank</B>}
+
+[<B>--device</B>
+
+<I>device</I>]
+
+[<B>--source-device</B>
+
+<I>device</I>]
+
+[<B>--driver</B>
+
+<I>driver-id</I>]
+
+[<B>--source-driver</B>
+
+<I>driver-id</I>]
+
+[<B>--simulate</B>]
+
+[<B>--speed</B>
+
+<I>writing-speed</I>]
+
+[<B>--blank-mode</B>
+
+<I>mode]</I>
+
+[<B>--datafile</B>
+
+<I>file</I>]
+
+[<B>--read-raw</B>]
+
+[<B>--read-subchan</B>
+
+<I>mode</I>]
+
+[<B>--tao-source</B>]
+
+[<B>--tao-source-adjust</B>
+
+<I>link-blocks</I>]
+
+[<B>--fast-toc</B>]
+
+[<B>--buffers</B>
+
+<I>buffer-count</I>]
+
+[<B>--multi</B>]
+
+[<B>--overburn</B>]
+
+[<B>--eject</B>]
+
+[<B>--swap</B>]
+
+[<B>--session</B>]
+
+[<B>--force</B>]
+
+[<B>--reload</B>]
+
+[<B>--keepimage</B>]
+
+[<B>--on-the-fly</B>]
+
+[<B>--paranoia-mode</B>
+
+<I>mode</I>]
+
+[<B>--with-cddb</B>]
+
+[<B>--cddb-servers</B>
+
+<I>server-list</I>]
+
+[<B>--cddb-timeout</B>
+
+<I>timeout</I>]
+
+[<B>--cddb-directory</B>
+
+<I>directory</I>]
+
+[<B>--save</B>]
+
+[<B>-n</B>]
+
+[<B>-v</B>
+
+<I>verbose-level</I>]
+
+toc-file
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>cdrdao</I>
+
+creates audio and data CD-Rs in disk-at-once (DAO) mode driven by a description
+file called
+<I>toc-file.</I>
+
+In DAO mode it is possible to create non standard track pre-gaps that
+have other lengths than 2 seconds and contain nonzero audio
+data. This is for example useful to divide live recordings into
+tracks where 2 second gaps would be kind of irritating.
+<P>
+Instead of a
+<I>toc-file</I>
+
+a cue file (used by a famous DOS/Windows mastering tool) may be used. See
+the CUE FILES section for more details. 
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+<DL COMPACT>
+<DT>The first argument must be one of the following commands:<DD>
+<DT><B>show-toc</B>
+
+<DD>
+Print out a summary about what will be written to the CD-R.  
+<DT><B>read-toc</B>
+
+<DD>
+Analyze each track of the inserted CD and create a
+<I>toc-file</I>
+
+that can be used to make a more or less exact copy of the CD. 
+This command does not read out the audio or data tracks,
+use
+<B>read-cd</B>
+
+for this purpose.
+<P>
+You can specify a filename for the data file via the
+<B>--datafile</B>
+
+option.
+<DT><B>read-cd</B>
+
+<DD>
+Copies all tracks of the inserted CD to an image file and creates a corresponding
+<I>toc-file.</I>
+
+The name of the image file defaults to &quot;data.bin&quot; if no
+<B>--datafile</B>
+
+option is given.
+<DT><B>read-cddb</B>
+
+<DD>
+Tries to retrieve title and artist data from a CDDB server for the CD
+represented by the given toc-file. The retrieved data is added as CD-TEXT
+data for language 0 to the toc-file. Existing CD-TEXT data for language 0 will
+be overwritten.
+<DT><B>show-data</B>
+
+<DD>
+Print out all samples that would be written to the CD-R. Each line
+contains the sample number (starting at 0) and the decimal sample
+value for the left and right channel. Useful to check if the byte
+order of audio files is correct.
+<DT><B>read-test</B>
+
+<DD>
+Check if all data can be read from the audio files that are defined in
+the
+<I>toc-file.</I>
+
+This will also check the communication with the slave process that is
+responsible for writing the audio data to the CD-recorder. Mainly used
+for testing.
+<DT><B>disk-info</B>
+
+<DD>
+Shows information about the inserted CD-R. If the CD-R has an open session
+it will also print the start of the last and current session which is
+used by mkisofs to create an image for a second or higher session.
+<DT><B>msinfo</B>
+
+<DD>
+Shows information required for creating multi session disks with
+mkisofs. The output is meant for processing by scripts.
+<DT><B>unlock</B>
+
+<DD>
+Tries to unlock the recorder device after a failed write or simulation
+run. If you cannot eject the CD after a cdrdao run try this command.
+<DT><B>blank</B>
+
+<DD>
+Blanks a CD-RW. The CD-RW is minimally blanked by default. Use option
+<B>--blank-mode</B>
+
+to select another blanking mode.
+Sometimes the blanking speed must be manually reduced for a successful
+blanking operation. Use option
+<B>--speed</B>
+
+to select another blanking speed.
+<DT><B>simulate</B>
+
+<DD>
+Like
+<B>write</B>
+
+but laser stays cold. It is a shortcut for
+<B>write</B><I>--simulate.</I>
+
+<DT><B>write</B>
+
+<DD>
+Write the CD-R according to the specifications in the
+<I>toc-file.</I>
+
+<DT><B>copy</B>
+
+<DD>
+Performs all steps to copy a CD. The device containing the source CD must
+be specified with option
+<B>--source-device</B>
+
+and the recorder device with option
+<B>--device.</B>
+
+If only a single device is available the option
+<B>--source-device</B>
+
+must be omitted and cdrdao will prompt to insert the CD-R after an image
+of the source CD was created.
+<P>
+The image file with name &quot;cddata&lt;pid&gt;.bin&quot; will be created in the current
+working directory if no
+<B>--datafile</B>
+
+option is given. The created image will be removed after it has been
+written.
+<P>
+If option
+<B>--on-the-fly</B>
+
+is given no image file is created and the data will be directly piped from
+the reading device to the CD recorder.
+<P>
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>--device</B><I> [prot:]bus,id,lun</I>
+
+<DD>
+Sets the SCSI address of the CD-recorder in form of a bus/id/lun
+triple, e.g. '0,2,0' for the logical unit 0 of SCSI device with ID 2
+on bus 0. ATAPI devices can be specified by using the prefix 'ATAPI:',
+e.g. 'ATAPI:0,0,0'. On some systems a device node may be specified
+directly, e.g. '/dev/sg0' on Linux systems. Linux 2.6 users may also
+try the newer ATAPI interface with the 'ATA:' prefix.
+<DT><B>--source-device</B><I> [prot:]bus,id,lun</I>
+
+<DD>
+Like above but used for the
+<B>copy</B>
+
+command to specify the source device.
+<DT><B>--driver</B><I> driver-id:option-flags</I>
+
+<DD>
+Force usage of specified driver instead of the automatically
+determined driver. Available driver IDs:
+<BR>
+
+cdd2600, plextor, plextor-scan, generic-mmc, generic-mmc-raw,
+ricoh-mp6200, yamaha-cdr10x, teac-cdr55, sony-cdu920, sony-cdu948,
+taiyo-yuden, toshiba.
+<BR>
+
+Specifying an illegal driver ID will give a list of available drivers.
+Option flags may be used to modify the behavior of some drivers. See
+<B>README</B>
+
+for details.
+<DT><B>--source-driver</B><I> driver-id:option-flags</I>
+
+<DD>
+Like above but used for the device specified with option
+<B>--source-device.</B>
+
+<DT><B>--speed</B><I> value</I>
+
+<DD>
+Set the writing speed to
+<I>value.</I>
+
+Default is the highest possible speed.
+<DT><B>--blank-mode</B><I> mode</I>
+
+<DD>
+Sets the blanking mode. Available modes are
+<B>full</B>
+
+and
+<B>minimal.</B>
+
+Please consider that the data of minimally blanked disks may be easily
+recovered. Use the
+<B>full</B>
+
+blanking mode for completely erasing all data. The default blanking mode
+is
+<B>minimal.</B>
+
+<DT><B>--datafile</B><I> file</I>
+
+<DD>
+Used for
+<B>read-toc,</B><I>read-cd</I>
+
+and
+<B>copy.</B>
+
+Set the default data file placed in the toc-file by
+<B>read-toc.</B><I>Use</I><B>-</B><I>to</I><B>indicate</B><I>STDIN.</I>
+
+For commands
+<B>read-cd</B>
+
+and
+<B>copy</B>
+
+it specifies the name of the created image file.
+<DT><B>--read-raw</B>
+
+<DD>
+Only used for commands
+<B>read-cd</B>
+
+and
+<B>read-toc.</B>
+
+All data sectors will be written as 2352 byte blocks including the sector
+header and L-EC data to the image file. The track mode will be set to
+MODE1_RAW or MODE2_RAW in the created
+<I>toc-file.</I>
+
+<DT><B>--read-subchan</B><I> mode</I>
+
+<DD>
+Used by commands
+<B>read-cd,</B>
+
+<B>read-toc</B>
+
+and
+<B>copy.</B>
+
+Specifies the type of sub-channel data that is extracted from the source CD
+and written to the track image or copied to the destination CD.
+Mode may be
+<B>rw</B>
+
+for reading packed R-W sub-channel data (de-interleaved and error
+corrected)
+and
+<B>rw_raw</B>
+
+for reading raw R-W sub-channel data (not de-interleaved, not error
+corrected, L-EC data included in the track image).
+If this option is not specified no sub-channel data will be extracted.
+<DT><B>--tao-source</B>
+
+<DD>
+This option indicates to the commands
+<I>read-toc</I>
+
+and
+<I>read-cd</I>
+
+that the source CD was written in TAO mode. It will be assumed that the
+pre-gap length between all tracks (except between two audio tracks) is
+the standard 150 blocks plus the number of link blocks (usually 2). The
+number of link blocks can be controlled with option
+<I>--tao-source-adjust.</I>
+
+<P>
+Use this option only if 
+<I>read-toc</I>
+
+or
+<I>read-cd</I>
+
+give error messages in the transition areas between two tracks. If you use
+this option with pressed CDs or CDs written in DAO mode you will get wrong
+results.
+<DT><B>--tao-source-adjust</B><I> link-blocks</I>
+
+<DD>
+Specifies the number of link blocks for tracks written in TAO mode. This
+option has only an effect if option
+<I>--tao-source</I>
+
+is given.
+<DT><B>--fast-toc</B>
+
+<DD>
+Only used for command
+<B>read-toc.</B>
+
+This option suppresses the pre-gap length and index mark extraction
+which
+speeds up the read-toc process. Standard 2 second pre-gaps (but no
+silence!) will be placed into the toc-file. The resulting CD will
+sound like the source CD. Only the CD player's display will behave
+slightly different in the transition area between two tracks.
+<P>
+This option might help, too, if read-toc fails with your drive otherwise.
+<P>
+<DT><B>--buffers</B><I> buffer-count</I>
+
+<DD>
+Specifies the number of buffers that are allocated to avoid buffer under runs.
+The minimal buffer count is fixed to 10, default is 32 except
+on FreeBSD systems, on which default is 20.
+Each buffer holds 1 second of audio data so that dividing
+<I>buffer-count</I>
+
+by the writing speed gives the maximum time for which reading of audio data
+may be stalled.
+<DT><B>--multi</B>
+
+<DD>
+If this option is given the session will not be closed after the audio data
+is successfully written. It is possible to append another session on such
+disks, e.g. to create a CD-EXTRA.
+<DT><B>--overburn</B>
+
+<DD>
+By default cdrdao will not allow to write more data on a medium than
+specified by the current medium. This option allows to ignore this condition.
+<DT><B>--eject</B>
+
+<DD>
+Eject the CD-R after writing or write simulation.
+<DT><B>--swap</B>
+
+<DD>
+Swap the byte order of all samples that are send to the CD-recorder.
+<DT><B>--session</B><I> session-nr</I>
+
+<DD>
+Used for
+<B>read-toc</B>
+
+and
+<B>read-cd</B>
+
+to specify the session which should be processed on multi session CDs.
+<DT><B>--reload</B>
+
+<DD>
+Indicates that the tray may be opened before writing without prompting
+the user to reset the disk status after a simulation run.
+<DT><B>--force</B>
+
+<DD>
+Forces the execution of an operation that otherwise would not be
+performed.
+<DT><B>--paranoia-mode</B><I> mode</I>
+
+<DD>
+Sets the correction mode for digital audio extraction. 0: No checking,
+data is copied directly from the drive. 1: Perform overlapped reading
+to avoid jitter. 2: Like 1 but with additional checks of the read
+audio data. 3: Like 2 but with additional scratch detection and
+repair.
+<P>
+The extraction speed reduces from 0 to 3.
+<P>
+Default is the full paranoia mode (3).
+<DT><B>--keepimage</B>
+
+<DD>
+If a CD is copied with command
+<I>copy</I>
+
+this option will cause that the created image is not removed after the
+copy process has finished. 
+<DT><B>--on-the-fly</B>
+
+<DD>
+Perform CD copy on the fly without creating an image file.
+<DT><B>--with-cddb</B>
+
+<DD>
+Enables the automatic fetching of CDDB data for use as CD-TEXT data for
+commands
+<I>copy,</I>
+
+<I>read-toc</I>
+
+and
+<I>read-cd.</I>
+
+<DT><B>--cddb-servers</B><I> server-list</I>
+
+<DD>
+Sets space or ',' separated list of CDDB servers used for command
+<I>read-cddb</I>
+
+or for commands where the
+<I>--with-cddb</I>
+
+option is active.
+A server entry may have the following forms:
+<DT>&lt;server&gt;<DD>
+Connect to &lt;server&gt;, default cddbp port (888), use cddbp protocol.
+<DT>&lt;server&gt;:&lt;port&gt;<DD>
+Connect to &lt;server&gt;, port &lt;port&gt;, use cddbp protocol.
+<DT>&lt;server&gt;:&lt;cgi-bin-path&gt;<DD>
+Connect to &lt;server&gt;, default http port (80), use http protocol,
+url: &lt;cgi-bin-path&gt;.
+<DT>&lt;server&gt;:&lt;port&gt;:&lt;cgi-bin-path&gt;<DD>
+Connect to &lt;server&gt;, port &lt;port&gt;, use http protocol, url: &lt;cgi-bin-path&gt;.
+<DT>&lt;server&gt;:&lt;port&gt;:&lt;cgi-bin-path&gt;:&lt;proxy-server&gt;<DD>
+Connect to &lt;proxy-server&gt;, default http port (80), use http protocol,
+url: http://&lt;server&gt;:&lt;port&gt;/&lt;cgi-bin-path&gt;.
+<DT>&lt;server&gt;:&lt;port&gt;:&lt;cgi-bin-path&gt;:&lt;proxy-server&gt;:&lt;proxy-port&gt;<DD>
+Connect to &lt;proxy-server&gt;, port &lt;proxy-port&gt;, use http protocol,
+url: http://&lt;server&gt;:&lt;port&gt;/&lt;cgi-bin-path&gt;.
+<P>
+The &lt;cgi-bin-path&gt; is usually &quot;/~cddb/cddb.cgi&quot;.
+<P>
+All servers of the server list will be tried in the given order until a
+successful connection can be established. For http proxy servers
+the first successful connected http proxy server will be used independent of
+the ability to connect to the target http server.
+<P>
+Example: freedb.freedb.org:/~cddb/cddb.cgi
+<DT><B>--cddb-timeout</B><I> timeout</I>
+
+<DD>
+Sets the timeout in seconds used for connections to CDDB servers.
+<DT><B>--cddb-directory</B><I> directory</I>
+
+<DD>
+Specifies the local CDDB database directory where fetched CDDB records will
+be stored. If this option is not given a fetched CDDB record will not be stored
+locally.
+<DT><B>--save</B>
+
+<DD>
+Saves some of the current options to the settings file
+&quot;$HOME/.cdrdao&quot;. See section 'SETTINGS' for more details.
+<DT><B>-n</B>
+
+<DD>
+Suppresses the 10 second pause before writing or simulating.
+<DT><B>-v</B><I> verbose-level</I>
+
+<DD>
+Sets verbose level. Levels &gt; 2 are debug levels which produce a lot of
+output.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>TOC FILES</H2>
+
+The
+<I>toc-file</I>
+
+describes what data is written to the CD-R and allows control
+over track/index positions, pre-gaps and sub-channel information. It
+is a simple text file, use your favorite text editor to create it.
+<P>
+A
+<I>toc-file</I>
+
+contains an optional header and a sequence of track
+specifications. Comments starting with '//' reaching until end of line can be
+placed anywhere.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Header</H3>
+
+<DL COMPACT>
+<DT>CATALOG&nbsp;ddddddddddddd<DD>
+Specifies the optional catalog number of the CD. The string must
+contain exactly 13 digits.
+</DL>
+<P>
+
+The following flags specify the type of session that will be created. It
+is used to create the correct CD-TOC format and to check the consistency of
+the track modes for the desired session type. If multiple flags are given
+the last one will take effect.
+<DL COMPACT>
+<DT>CD_DA<DD>
+The disc contains only audio tracks.
+<DT>CD_ROM<DD>
+The disc contains just mode 1 tracks or mode 1 and audio tracks (mixed
+mode CD).
+<DT>CD_ROM_XA<DD>
+The disc contains mode 2 form 1 or mode 2 form 2 tracks. Audio tracks
+are allowed, too. This type must be used if multi session disks are
+created (option --multi).
+<DT>CD_TEXT&nbsp;{&nbsp;...&nbsp;}<DD>
+Defines global CD-TEXT data like the album title and the used languages.
+See the CD-TEXT section below for the syntax of the CD-TEXT block contents.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H3>Track&nbsp;Specification</H3>
+
+<DL COMPACT>
+<DT>TRACK&nbsp;&lt;track-mode&gt;&nbsp;[&lt;sub-channel-mode&gt;]<DD>
+Starts a new track, the track number is incremented by 1. The length
+of a track must be at least 4 seconds. The block length of the input
+data depends on the &lt;track-mode&gt;: AUDIO: 2352 bytes (588 samples),
+MODE1: 2048 bytes, MODE1_RAW: 2352 bytes, MODE2: 2336 bytes,
+MODE2_FORM1: 2048 bytes, MODE2_FORM2: 2324 bytes, MODE2_FORM_MIX: 2336 bytes
+including the sub-header, MODE2_RAW: 2352 bytes.
+The &lt;sub-channel-mode&gt; is optional. If given it specifies the type of
+sub-channel data for each sector. RW: packed R-W sub-channel data (96
+bytes, L-EC data will be generated if required), RW_RAW: raw R-W
+sub-channel data (interleaved and L-EC data already calculated, 96
+bytes). The block length is increased by the sub-channel data length
+if a &lt;sub-channel-mode&gt; is specified.
+If the input data length is not a multiple of the block length  it
+will be padded with zeros. 
+</DL>
+<P>
+
+The following flags may follow the track start statement. They are
+used to set sub-channel information for the current track. Each flag
+is optional. If not given the following defaults are used: copy not
+permitted, no pre emphasis, two channel audio, no ISRC code. 
+<DL COMPACT>
+<DT>[ NO ] COPY<DD>
+Sets or clears the copy permitted flag. 
+<DT>[ NO ] PRE_EMPHASIS<DD>
+Sets or clears the pre emphasis flag (only for audio tracks).
+<DT>TWO_CHANNEL_AUDIO<DD>
+Indicates that track contains two channel audio data (only for audio tracks).
+<DT>FOUR_CHANNEL_AUDIO<DD>
+Indicates that track contains four channel audio data (only for audio tracks).
+<DT>ISRC&nbsp;CCOOOYYSSSSS<DD>
+Sets ISRC code of track (only for audio tracks).
+<BR>
+
+C: country code (upper case letters or digits)
+<BR>
+
+O: owner code (upper case letters or digits)
+<BR>
+
+Y: year (digits)
+<BR>
+
+S: serial number (digits)
+</DL>
+<P>
+
+An optional CD-TEXT block that defines the CD-TEXT data for this track
+may follow. See the CD-TEXT section below for the syntax of the CD-TEXT
+block contents.
+<DL COMPACT>
+<DT>CD_TEXT { ... }<DD>
+</DL>
+<P>
+
+At least one of the following statements must appear to specify the
+data for the current track. Lengths and start positions may be
+expressed in samples (1/44100 seconds) for audio tracks or in bytes
+for data tracks. It is also possible to give the length in blocks
+with the MSF format 'MM:SS:FF' specifying minutes, seconds and frames
+(0 &lt;= 'FF' &lt; 75) . A frame equals one block. 
+<P>
+If more than one statement is used the track will be composed by
+concatenating the data in the specified order.
+<DL COMPACT>
+<DT>SILENCE &lt;length&gt;<DD>
+Adds zero audio data of specified length to the current audio track. 
+Useful to create silent pre-gaps.
+<DT>ZERO &lt;length&gt;<DD>
+Adds zero data to data tracks. Must be used to
+define pre- or post-gaps between tracks of different mode.
+<DT>[&nbsp;FILE&nbsp;|&nbsp;AUDIOFILE&nbsp;]&nbsp;&lt;filename&gt;&nbsp;&lt;start&gt;&nbsp;[&nbsp;&lt;length&gt;&nbsp;]<DD>
+Adds the audio data of specified file to the current audio track. It
+is possible to select a portion of an audio file with &lt;start&gt; and
+&lt;length&gt; which allows non destructive cutting. The first sample of an
+audio file is addressed with &lt;start&gt; = 0. If &lt;length&gt; is omitted or
+set to 0 all audio data from &lt;start&gt; until the end of file is used.
+<P>
+Audio files may have raw or WAVE format with 16 bits per sample, 44.1
+kHz sampling rate, stereo. Raw files must have the layout 'MSBLeft
+LSBLeft MSBRight LSBRight ...' (big endian byte order). WAVE files are
+expected to have little endian byte order. The option --swap reverses
+the expected byte order for all raw and WAVE files. Only filenames
+with a &quot;.wav&quot; ending are treated as WAVE files, all other names are
+assumed to be raw audio files. Use tools like <A HREF="../man1/sox.1.php">sox</A>(1) to convert other
+file formats to supported formats.
+<P>
+Specifying a &quot;-&quot; as filename causes data to be read from STDIN. Currently
+only raw files are supported from STDIN.
+<BR>&nbsp;
+If you are unsure about the byte order of your audio files try the
+command 'show-data'. If the byte order is correct you will see a
+sequence of increasing or decreasing numbers for both
+channels. Otherwise numbers are jumping between very high and low
+values - high volume static.
+<DT>DATAFILE&nbsp;&lt;filename&gt;&nbsp;[&nbsp;&lt;length&gt;&nbsp;]<DD>
+Adds data from given file to the current data track. If &lt;length&gt; is omitted
+the actual file length will be used.
+<DT>FIFO&nbsp;&lt;fifo&nbsp;path&gt;&nbsp;&lt;length&gt;<DD>
+Adds data from specified FIFO path to the current audio or data track.
+&lt;length&gt; must specify the amount of data that will be read from the
+FIFO. The value is always in terms of bytes (scalar value) or in terms
+of the block length (MSF value).
+<DT>START [ MM:SS:FF ]<DD>
+Defines the length of the pre-gap (position where index switches from
+0 to 1). If the MSF value is omitted the current track length is
+used. If the current track length is not a multiple of the block
+length the pre-gap length will be rounded up to next block boundary.
+<P>
+If no START statement is given the track will not have a pre-gap.
+<DT>PREGAP MM:SS:FF<DD>
+This is an alternate way to specify a pre-gap with zero audio data. It
+may appear before the first SILENCE, ZERO or FILE statement. Either PREGAP
+or START can be used within a track specification. It is equivalent to
+the sequence
+<BR>
+
+<BR>&nbsp;&nbsp;SILENCE&nbsp;MM:SS:FF
+<BR>
+
+<BR>&nbsp;&nbsp;START
+<BR>
+
+for audio tracks or
+<BR>
+
+<BR>&nbsp;&nbsp;ZERO&nbsp;MM:SS:FF
+<BR>
+
+<BR>&nbsp;&nbsp;START
+<BR>
+
+for data tracks.
+</DL>
+<P>
+
+Nothing prevents mixing 'DATAFILE'/'ZERO' and 'AUDIOFILE'/'SILENCE'
+statements within the same track. The results, however, are undefined.
+<P>
+<P>
+The end of a track specification may contain zero or more index
+increment statements:
+<DL COMPACT>
+<DT>INDEX MM:SS:FF<DD>
+Increments the index number at given position within the track. The
+first statement will increment from 1 to 2. The position is relative
+to the real track start, not counting an existing pre-gap.
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>CD-TEXT Blocks</H3>
+
+A CD-TEXT block may be placed in the global section to define data valid for
+the whole CD and in each track specification of a
+<I>toc-file.</I>
+
+The global section must define a language map that is used to map a
+<I>language-number</I>
+
+to country codes. Up to 8 different languages can be defined:
+<DL COMPACT>
+<DT>LANGUAGE_MAP { 0 : c1  1 : c2  ...  7 : c7 }<DD>
+The country code may be an integer value in the range 0..255 or one of the
+following countries (the corresponding integer value is placed in braces 
+behind the token): EN(9, English)
+<BR>
+
+It is just necessary to define a mapping for the used languages.
+</DL>
+<P>
+
+If no mapping exists for a
+<I>language-number</I>
+
+the data for this language will be ignored.
+<P>
+For each language a language block must exist that defines the actual data
+for a certain language.
+<DL COMPACT>
+<DT>LANGUAGE language-number { cd-text-item cd-text-data cd-text-item cd-text-data ... }<DD>
+Defines the CD-TEXT items for given
+<I>language-number</I>
+
+which must be defined in the language map. 
+</DL>
+<P>
+
+<P>
+The
+<I>cd-text-data</I>
+
+may be either a string enclosed by &quot; or binary data like
+<PRE>
+{ 0, 10, 255, ... }
+</PRE>
+
+where each integer number must be in the range 0..255.
+<BR>
+
+The
+<I>cd-text-item</I>
+
+may be one of the following:
+<DL COMPACT>
+<DT>TITLE<DD>
+String data: Title of CD or track.
+<DT>PERFORMER<DD>
+String data.
+<DT>SONGWRITER<DD>
+String data.
+<DT>COMPOSER<DD>
+String data.
+<DT>ARRANGER<DD>
+String data.
+<DT>MESSAGE<DD>
+String data. Message to the user.
+<DT>DISC_ID<DD>
+String data: Should only appear in the global CD-TEXT block. The format is
+usually: XY12345
+<DT>GENRE<DD>
+Mixture of binary data (genre code) and string data. Should only appear in
+the global CD-TEXT block. Useful entries will be created by
+<I>gcdmaster.</I>
+
+<DT>TOC_INFO1<DD>
+Binary data: Optional table of contents 1. Should only appear in the global
+CD-TEXT block.
+<DT>TOC_INFO2<DD>
+Binary data: Optional table of contents 2. Should only appear in the global
+CD-TEXT block.
+<DT>UPC_EAN<DD>
+String data: This item should only appear in the global CD-TEXT block. Was
+always an empty string on the CD-TEXT CDs I had access to.
+<DT>ISRC<DD>
+String data: ISRC code of track. The format is usually: CC-OOO-YY-SSSSS
+<DT>SIZE_INFO<DD>
+Binary data: Contains summary about all CD-TEXT data and should only appear
+in the global CD-TEXT block. The data will be automatically (re)created when
+the CD-TEXT data is written.
+<P>
+If one of the CD-TEXT items TITLE, PERFORMER, SONGWRITER, COMPOSER, ARRANGER,
+ISRC is defined for at least on track or in the global section it must be
+defined for all tracks and in the global section. If a DISC_ID item is defined
+in the global section, an ISRC entry must be defined for each track.
+<P>
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Examples</H3>
+
+<P>
+Simple track without pre-gap with all audio data from WAVE file
+&quot;data.wav&quot;:
+<PRE>
+CD_DA
+TRACK AUDIO
+FILE &quot;data.wav&quot; 0
+</PRE>
+
+<P>
+Standard track with two second pre-gap, ISRC code and CD-TEXT:
+<PRE>
+CD_DA
+CD_TEXT {
+  LANGUAGE_MAP {
+    0 : EN
+  }
+
+  LANGUAGE 0 {
+    TITLE &quot;CD Title&quot;
+    PERFORMER &quot;Performer&quot;
+    DISC_ID &quot;XY12345&quot;
+    UPC_EAN &quot;&quot;
+  }
+}
+
+TRACK AUDIO
+ISRC &quot;DEXXX9800001&quot;
+CD_TEXT {
+  LANGUAGE 0 {
+    TITLE &quot;Track Title&quot;
+    PERFORMER &quot;Performer&quot;
+    ISRC &quot;DE-XXX-98-00001&quot;
+  }
+}
+PREGAP 0:2:0
+FILE &quot;data.wav&quot; 0
+</PRE>
+
+<P>
+Track with 10 second pre-gap containing audio data from raw file
+&quot;data.cdr&quot;:
+<PRE>
+CD_DA
+TRACK AUDIO
+FILE &quot;data.cdr&quot; 0 
+START 0:10:0
+</PRE>
+
+<P>
+Composed track with data from different files. Pre-gap data and length
+is taken from &quot;pregapdata.wav&quot;. The first minute of
+&quot;track.cdr&quot; is omitted and two seconds silence are inserted at
+'2:0:0'. Index will be incremented after 2 and 4 minutes past track start:
+<PRE>
+CD_DA
+TRACK AUDIO
+FILE &quot;pregapdata.wav&quot; 0 
+START
+FILE &quot;track.cdr&quot; 1:0:0 1:0:0
+SILENCE 0:2:0
+FILE &quot;track.cdr&quot; 2:0:0
+INDEX 2:0:0
+INDEX 4:0:0
+</PRE>
+
+<P>
+Mixed mode CD with a data track as first track followed by two audio tracks.
+<PRE>
+CD_ROM
+TRACK MODE1
+DATAFILE &quot;data_1&quot;
+ZERO 00:02:00 // post-gap
+
+TRACK AUDIO
+SILENCE 00:02:00 // pre-gap
+START
+FILE &quot;data_2.wav&quot; 0 
+
+TRACK AUDIO
+FILE &quot;data_3.wav&quot; 0
+</PRE>
+
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>CUE FILES</H2>
+
+<P>
+Cue files may be used wherever a
+<I>toc-file</I>
+
+is expected. The corresponding bin file is not taken from the FILE statement
+of a cue file but constructed from the cue file name by replacing &quot;.cue&quot; by
+&quot;.bin&quot;. The cue file must have exactly one FILE statement.
+<P>
+Currently, following track modes are supported: MODE1/2048, MODE1/2352,
+MODE2/2336, MODE2/2352. The CATALOG, ISRC and POSTGAP statements are
+parsed but not evaluated, yet. 
+<P>
+<A NAME="lbAM">&nbsp;</A>
+<H2>SETTINGS</H2>
+
+<P>
+Some of the command line options can be stored as settings at
+following locations. The files will be read on startup of
+<I>cdrdao</I>
+
+in that order:
+<P>
+1. /etc/cdrdao.conf
+<P>
+2. /etc/defaults/cdrdao
+<P>
+3. $HOME/.cdrdao
+<P>
+<P>
+Command line options will overwrite the loaded settings.
+The settings file contains name - value pairs separated by a
+colon. String values should be enclosed by &quot;. The file is
+automatically written if the command line option 
+<I>--save</I>
+
+is used but it is also possible to modify it manually. Following
+values are defined:
+<DL COMPACT>
+<DT>write_device<DD>
+Device used for operations 
+<I>simulate, write, copy, blank, disk-info and unlock.</I>
+
+Corresponding option:
+<I>--device</I>
+
+<DT>write_driver<DD>
+Driver (including driver options) that is used for operations
+<I>simulate, write, copy, blank, disk-info and unlock.</I>
+
+Corresponding option:
+<I>--driver</I>
+
+<DT>write_speed<DD>
+Specifies writing speed. Corresponding option: --speed
+<DT>write_buffers<DD>
+Specifies fifo buffers used for recording. Corresponding option: --buffers
+<DT>read_device<DD>
+Device used for operations
+<I>read-toc, read-cd and copy.</I>
+
+Corresponding option: 
+<I>--device</I>
+
+or
+<I>--source-device</I>
+
+<DT>read_driver<DD>
+Driver (including driver options) used for operations
+<I>read-toc, read-cd and copy.</I>
+
+Corresponding option:
+<I>--driver</I>
+
+or
+<I>--source-driver</I>
+
+<DT>read_paranoia_mode<DD>
+Paranoia mode used for operations
+<I>read-cd and copy.</I>
+
+Corresponding option:
+<I>--paranoia-mode</I>
+
+<DT>cddb_server_list<DD>
+CDDB server list for
+<I>read-cddb.</I>
+
+Corresponding option:
+<I>--cddb-servers</I>
+
+<DT>cddb_timeout<DD>
+CDDB connection timeout in seconds used by
+<I>read-cddb.</I>
+
+Corresponding option:
+<I>--cddb-timeout</I>
+
+<DT>cddb_directory<DD>
+Local directory where fetched CDDB records will be stored, used by
+<I>read-cddb.</I>
+
+Corresponding option:
+<I>--cddb-directory</I>
+
+</DL>
+<P>
+
+<P>
+<P>
+<A NAME="lbAN">&nbsp;</A>
+<H2>BUGS</H2>
+
+If the program is terminated during the write/simulation process used IPC
+resources may not be released. Use <A HREF="../man8/ipcs.8.php">ipcs</A>(8) and <A HREF="../man8/ipcrm.8.php">ipcrm</A>(8) to delete them.
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Andreas Mueller <A HREF="mailto:mueller@daneb.ping.de">mueller@daneb.ping.de</A>
+<A NAME="lbAP">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/gcdmaster.1.php">gcdmaster</A></B>(1), <A HREF="../man1/cdrecord.1.php">cdrecord</A><B>(1), <A HREF="../man1/cdda2wav.1.php">cdda2wav</A></B>(1), <A HREF="../man1/cdparanoia.1.php">cdparanoia</A><B>(1), </B><A HREF="../man1/sox.1.php">sox</A><B>(1), <A HREF="../man8/ipcs.8.php">ipcs</A></B>(8), <B><A HREF="../man8/ipcrm.8.php">ipcrm</A></B>(8)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMANDS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">TOC FILES</A><DD>
+<DL>
+<DT><A HREF="#lbAH">Header</A><DD>
+<DT><A HREF="#lbAI">Track&nbsp;Specification</A><DD>
+<DT><A HREF="#lbAJ">CD-TEXT Blocks</A><DD>
+<DT><A HREF="#lbAK">Examples</A><DD>
+</DL>
+<DT><A HREF="#lbAL">CUE FILES</A><DD>
+<DT><A HREF="#lbAM">SETTINGS</A><DD>
+<DT><A HREF="#lbAN">BUGS</A><DD>
+<DT><A HREF="#lbAO">AUTHOR</A><DD>
+<DT><A HREF="#lbAP">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

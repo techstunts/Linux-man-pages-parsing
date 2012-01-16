@@ -1,0 +1,707 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>jdb</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>jdb</H1>
+Section: User Commands  (1)<BR>Updated: 12 Nov 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+jdb - Java debugger
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>jdb </B>
+
+[ 
+<I>options</I>
+
+] [
+<I>class</I>
+
+] [
+<I>arguments</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>PARAMETERS</H2>
+
+<DL COMPACT>
+<DT><I>options</I>
+
+<DD>
+Command-line options.
+<DT><I>class</I>
+
+<DD>
+Name of the class to begin debugging.
+<DT><I>arguments</I>
+
+<DD>
+Arguments passed to the
+<B>main()</B>
+
+method of
+<I>class</I>.
+
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAB"></A>
+<A NAME="ixAAC"></A>
+The Java debugger, 
+<B>jdb</B>,
+
+is a simple command-line debugger for
+Java classes.
+It is a demonstration of the
+<B>Java Platform Debugger Architecture</B>
+
+that provides inspection and debugging of a local or remote Java
+Virtual Machine.
+<A NAME="lbAF">&nbsp;</A>
+<H3>Starting a jdb Session</H3>
+
+<A NAME="ixAAD"></A>
+There are many ways to start a 
+jdb session. 
+The most frequently used way is to have 
+<B>jdb</B>
+
+launch a new Java Virtual Machine (VM)
+with the main class of the application to be debugged.
+This is done by substituting the command 
+<B>jdb</B>
+
+for 
+<B><A HREF="../man1/java.1.php">java</A></B>(1)
+
+in the command line.
+For example,
+if your application's main class is
+<B>MyClass</B>,
+
+you use the following command to debug it under
+<B>jdb</B>:
+
+<P>
+
+<DL COMPACT><DT><DD>
+<B>example% jdb MyClass</B>
+
+</DL>
+
+<P>
+
+When started this way,
+<B>jdb</B>
+
+invokes a second Java VM with any specified parameters,
+loads the specified class,
+and stops the VM before executing that class's first instruction.
+<P>
+
+Another way to use
+<B>jdb</B>
+
+is by attaching it to a Java VM that is already running.
+A VM that is to be
+debugged with
+<B>jdb</B>
+
+must be started with the following options: 
+<P>
+
+<TABLE BORDER><TR><TD><TABLE>
+<TR VALIGN=top><TD ALIGN=center><FONT SIZE="-1"><B>option</B></FONT></TD><TD ALIGN=center><FONT SIZE="-1"><B>purpose</B></FONT><BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR><HR></TD></TR>
+<TR VALIGN=top><TD><B>-Xdebug</B></TD><TD>Enables debugging support in the VM.<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+-Xrunjdwp:transport=dt_socket,
+server=y,suspend=n
+</B></TD><TD>
+
+Loads in-process debugging libraries and
+specifies the kind of connection to be made.
+<BR></TD></TR>
+</TABLE></TABLE>
+
+<P>
+
+For example, the following command
+will run the
+<B>MyClass</B>
+
+application and allow
+<B>jdb</B>
+
+to connect to it at a later time:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>example% java -Xdebug \
+-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n \
+MyClass
+</B></PRE>
+
+</DL>
+
+<P>
+
+You can then attach
+<B>jdb </B>
+
+to the VM with the following commmand:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>example% jdb -attach 8000</B>
+
+</DL>
+
+<P>
+
+Note that
+<B>MyClass</B>
+
+is not specified in the
+<B>jdb</B>
+
+command line in this case because
+<B>jdb</B>
+
+is connecting to an existing VM instead of launching a new one. 
+<P>
+
+There are many other ways to connect the
+debugger to a VM,
+and all of them are supported by
+<B>jdb</B>.
+
+The Java Platform Debugger Architecture has
+additional documentation on these connection options. 
+<A NAME="lbAG">&nbsp;</A>
+<H3>Basic jdb Commands</H3>
+
+<A NAME="ixAAE"></A>
+The following is a list of the basic 
+<B>jdb </B>
+
+commands.
+The Java debugger supports other commands listed with the
+<B>help</B>
+
+command.
+<P>
+
+Notice that to display local (stack) variables, the class 
+must have been compiled with the 
+<B>javac -g </B>
+
+option.
+<DL COMPACT>
+<DT><B>cont</B>
+
+<DD>
+Continues execution of
+the debugged application after a breakpoint,
+exception, or step.
+<DT><B>dump</B>
+
+<DD>
+For primitive values, this command is identical to
+<B>print</B>.
+
+For objects, it prints the
+current value of each field defined in the object.
+Static and instance fields are included. 
+<P>
+The
+<B>dump</B>
+
+command supports the same set of expressions as the
+<B>print</B>
+
+command. 
+<DT><B>help</B>, or <B>?</B>
+
+<DD>
+As the most important 
+<B>jdb </B>
+
+command, 
+<B>help </B>
+
+displays the
+list of recognized commands with a brief
+description.
+<DT><B>print</B>
+
+<DD>
+Displays Java objects and primitive values.
+For variables or fields of primitive types,
+the actual value is printed.
+For objects, a short description is printed.
+See the
+<B>dump</B>
+
+command for
+getting more information about an object. 
+<P>
+<B>print</B>
+
+supports many simple Java expressions
+including those with method
+invocations.
+For example: 
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+<B>print MyClass.myStaticField </B>
+
+
+<DT>*<DD>
+<B>print myObj.myInstanceField </B>
+
+<DT>*<DD>
+<B>print</B> <I>i</I> <B>+</B> <I>j</I> <B>+</B> <I>k</I>  ... where
+<I>i</I>,
+
+<I>j</I>,
+
+and
+<I>k</I>
+
+are primitives and either fields or local variables.
+<DT>*<DD>
+<B>print myObj.myMethod()</B>  ... if
+<B>myMethod</B>
+
+returns a non-null.
+<DT>*<DD>
+<B>print new java.lang.String(Hello).length()</B>
+
+</DL>
+</DL>
+
+
+<DT><B>thread</B>
+
+<DD>
+Selects a thread to be the current thread.
+Many
+<B>jdb</B>
+
+commands are based on the
+setting of the current thread.
+The thread is specified with the thread index
+described in the
+<B>threads command. </B>
+
+<DT><B>threads</B>
+
+<DD>
+Lists the threads
+that are currently running.
+For each thread, its name and current
+status are printed,
+as well as an index that can be used for other commands.
+For example: 
+<P>
+<DL COMPACT><DT><DD>
+<B>4. (java.lang.Thread)0x1 main      running</B>
+
+</DL>
+
+<DL COMPACT><DT><DD>
+<P>
+In this example, the thread index is
+<B>4</B>,
+
+the thread is an instance of
+<B>java.lang.Thread</B>,
+
+the thread name is
+<B>main</B>,
+
+and it is currently running
+</DL>
+
+<DT><B>run</B>
+
+<DD>
+After starting
+<B>jdb</B>,
+
+and setting any necessary breakpoints,
+use this command to start the
+execution of the debugged application.
+This command is available only when
+<B>jdb</B>
+
+launches the debugged application (as opposed to
+attaching to an existing VM). 
+<DT><B>where</B>
+
+<DD>
+The
+<B>where </B>
+
+subcommand with no arguments dumps the stack of the
+current thread (which is set with the 
+<B>thread</B>
+
+command).
+Using
+<B>where all </B>
+
+dumps the stack of all threads
+in the current thread group.
+Using
+<B>where</B><I> threadindex</I>
+
+dumps the stack of the specified thread.
+If the current thread
+is suspended (either through an event such as a
+breakpoint or through the 
+<B>suspend </B>
+
+command), local variables
+and fields can be displayed with the 
+<B>print </B>
+
+and 
+<B>dump </B>
+
+commands.
+The 
+<B>up </B>
+
+and 
+<B>down</B>
+
+commands select which stack frame is current.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Breakpoint Commands</H3>
+
+<A NAME="ixAAF"></A>
+Breakpoints are set in 
+<B>jdb </B>
+
+at line numbers or at the first instruction of a method.
+For example:
+<DL COMPACT>
+<DT><B>stop at MyClass:22</B>
+
+<DD>
+Sets a breakpoint at the first instruction for line
+<B>22</B>
+
+of the source file containing
+<B>MyClass</B>.
+
+<DT><B>stop in java.lang.String.length</B>
+
+<DD>
+Sets a breakpoint at the beginning of the method
+<B>java.lang.String.length</B>.
+
+<DT><B>stop in MyClass.</B><I>init</I>
+
+<DD>
+<I>init</I>
+
+identifies the
+<B>MyClass</B>
+
+constructor.
+<DT><B>stop in MyClass.</B><I>clinit</I>
+
+<DD>
+<I>clinit</I>
+
+identifies the static initialization code for
+<B>MyClass</B>.
+
+</DL>
+<P>
+
+If a method is overloaded,
+you must also specify its argument types so that the proper
+method can be selected for a breakpoint.
+For example,
+<P>
+
+<DL COMPACT><DT><DD>
+<B>MyClass.myMethod(int,java.lang.String)</B>
+
+</DL>
+
+<P>
+
+or
+<P>
+
+<DL COMPACT><DT><DD>
+<B>MyClass.myMethod() </B>
+
+</DL>
+
+<P>
+
+The
+<B>clear</B>
+
+command removes breakpoints using a syntax as in
+<B>clear</B>MyClass:45<B>.</B>
+
+Using the
+<B>clear</B>
+
+command with no argument displays a list of all breakpoints
+currently set.
+The
+<B>cont</B>
+
+command continues execution. 
+<A NAME="lbAI">&nbsp;</A>
+<H3>Stepping Commands</H3>
+
+<A NAME="ixAAG"></A>
+The
+<B>step</B>
+
+command advances execution to
+the next line,
+whether it is in the current
+stack frame or a called method.
+The
+<B>next</B>
+
+command advances execution to the next line
+in the current stack frame. 
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Exception Commands</H3>
+
+<A NAME="ixAAH"></A>
+When an exception occurs for which there is no catch
+statement anywhere in the
+throwing thread's call stack,
+the VM normally prints an exception trace and exits.
+When running under
+<B>jdb</B>,
+
+however, control returns to
+<B>jdb</B>
+
+at the offending throw.
+Use
+<B>jdb</B>
+
+to determine the cause of the exception. 
+<DL COMPACT>
+<DT><B>catch</B>
+
+<DD>
+Causes the debugged application to stop at other thrown exceptions.
+For example:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<B>catch java.io.FileNotFoundException</B>
+
+</DL>
+
+<P>
+<DL COMPACT><DT><DD>
+or
+</DL>
+
+<P>
+
+<DL COMPACT><DT><DD>
+<B>catch mypackage.BigTroubleException</B>
+
+</DL>
+
+<P>
+<DL COMPACT><DT><DD>
+Any exception which is an instance of the specified
+class (or of a subclass) will stop the
+application at the point where it is thrown. 
+</DL>
+
+<DL COMPACT>
+<DT><B>ignore</B>
+
+<DD>
+Negates the effect of a previous
+<B>catch</B>
+
+command.
+Notice that the
+<B>ignore </B>
+
+command does not cause the debugged VM
+to ignore specific exceptions, only the
+debugger.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+When using 
+<B>jdb </B>
+
+in place of the Java application launcher on the command
+line, 
+<B>jdb </B>
+
+accepts many of the same options as the 
+<B><A HREF="../man1/java.1.php">java</A></B>(1)
+
+command, including
+<B>-D</B>,
+
+<B>-classpath</B>,
+
+and
+<B>-X</B><I>option</I>.
+
+<P>
+
+The following additional options are accepted by
+<B>jdb</B>:
+
+<DL COMPACT>
+<DT><B>-sourcepath</B><I> dir1</I>:<I>dir2</I>:...
+
+<DD>
+Uses the given path in searching for source files
+in the specified path.
+If this option is not
+specified, the default path of &quot;.&quot; is used.
+<DT><B>-attach</B><I> address</I>
+
+<DD>
+Attaches the debugger to
+previously running VM using the default connection mechanism.
+<DT><B>-launch</B>
+
+<DD>
+Launches the debugged application
+immediately upon startup of
+<B>jdb</B>.
+
+This option removes the need
+for using the
+<B>run</B>
+
+command.
+The debuged application is launched and then
+stopped just before the initial application class is loaded.
+At that point, you can set any
+necessary breakpoints and use the
+<B>cont</B>
+
+command to continue execution. 
+<DT><B>-J  option</B>
+
+<DD>
+Pass
+<I>option</I>
+
+to the Java virtual machine, where 
+<I>option</I>
+
+is one of the options described on the man page for the
+java application launcher, <A HREF="../man1/java.1.php">java</A>(1). For example,
+<I>-J-Xms48m</I>
+
+sets the startup memory to 48 megabytes. It is a common convention for
+<B>-J</B>
+
+to pass options to the underlying virtual machine.
+<P>
+</DL>
+<P>
+
+Other options are supported for
+alternate mechanisms for connecting the debugger and the VM
+it is to debug.
+The Java Platform Debugger Architecture has
+additional documentation on these
+connection alternatives. 
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/java.1.php">java</A></B>(1),
+
+<B><A HREF="../man1/javac.1.php">javac</A></B>(1),
+
+<B><A HREF="../man1/javadoc.1.php">javadoc</A></B>(1),
+
+<B><A HREF="../man1/javah.1.php">javah</A></B>(1),
+
+<B><A HREF="../man1/javap.1.php">javap</A></B>(1)
+
+<P>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">PARAMETERS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Starting a jdb Session</A><DD>
+<DT><A HREF="#lbAG">Basic jdb Commands</A><DD>
+<DT><A HREF="#lbAH">Breakpoint Commands</A><DD>
+<DT><A HREF="#lbAI">Stepping Commands</A><DD>
+<DT><A HREF="#lbAJ">Exception Commands</A><DD>
+</DL>
+<DT><A HREF="#lbAK">OPTIONS</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

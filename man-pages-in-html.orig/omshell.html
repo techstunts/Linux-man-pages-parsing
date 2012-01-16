@@ -1,0 +1,498 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>omshell</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>omshell</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+omshell - OMAPI Command Shell
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>omshell</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The OMAPI Command Shell, omshell, provides an interactive way to connect to,
+query, and possibly change, the ISC DHCP Server's state via OMAPI, the Object
+Management API.  By using OMAPI and omshell, you do not have to stop, make
+changes, and then restart the DHCP server, but can make the changes
+while the server is running.   Omshell provides a way of accessing
+OMAPI.
+<P>
+
+OMAPI is simply a communications mechanism that allows you to
+manipulate objects.   In order to actually <I>use</I> omshell, you
+<I>must</I>
+
+understand what objects are available and how to use them.
+Documentation for OMAPI objects can be found in the documentation for
+the server that provides them - for example, in the <B><A HREF="../man1/dhcpd.1.php">dhcpd</A>(1)</B>
+manual page and the <B><A HREF="../man1/dhclient.1.php">dhclient</A>(1)</B> manual page.
+<A NAME="lbAE">&nbsp;</A>
+<H2>CONTRIBUTIONS</H2>
+
+<P>
+
+This software is free software.  At various times its development has
+been underwritten by various organizations, including the ISC and
+Vixie Enterprises.  The development of 3.0 has been funded almost
+entirely by Nominum, Inc.
+<P>
+
+At this point development is being shepherded by Ted Lemon, and hosted
+by the ISC, but the future of this project depends on you.  If you
+have features you want, please consider implementing them.
+<A NAME="lbAF">&nbsp;</A>
+<H2>LOCAL AND REMOTE OBJECTS</H2>
+
+<P>
+
+Throughout this document, there are references to local and remote objects.
+Local objects are ones created in omshell with the <B>new</B> command.  Remote
+objects are ones on the server: leases, hosts, and groups that the DHCP
+server knows about.  Local and remote objects are associated together to
+enable viewing and modification of object attributes.  Also, new remote
+objects can be created to match local objects.
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPENING A CONNECTION</H2>
+
+<P>
+
+omshell is started from the command line.  Once omshell is started, there are
+several commands that can be issued:
+<P>
+
+<B>server </B><I>address</I>
+
+<DL COMPACT><DT><DD>
+where address is the IP address of the DHCP server to connect to.  If this is
+not specified, the default server is 127.0.0.1 (localhost).
+</DL>
+
+<P>
+
+<B>port </B><I>number</I>
+
+<DL COMPACT><DT><DD>
+where number is the port that OMAPI listens on.  By default, this is 7911.
+</DL>
+
+<P>
+
+<B>key </B><I>name secret</I>
+
+<DL COMPACT><DT><DD>
+This specifies the TSIG key to use to authenticate the OMAPI transactions.
+<I>name</I> is the name of a key defined in <I>dhcpd.conf</I> with the
+<B>omapi-key</B> statement.  The <I>secret</I> is the secret generated from
+<B>dnssec-keygen</B> or another key generation program.
+</DL>
+
+<P>
+
+<B>connect</B>
+
+<DL COMPACT><DT><DD>
+This starts the OMAPI connection to the server as specified by the <I>server</I>
+statement.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CREATING LOCAL OBJECTS</H2>
+
+<P>
+
+Any object defined in OMAPI can be created, queried, and/or modified.  The
+object types available to OMAPI are defined in <B><A HREF="../man8/dhcpd.8.php">dhcpd</A>(8)</B> and
+<B>dhclient</B>.  When using omshell, objects are first defined locally,
+manipulated as desired, and then associated with an object on the server.
+Only one object can be manipulated at a time.  To create a local object, use
+<P>
+
+<B>new </B><I>object-type</I>
+
+<DL COMPACT><DT><DD>
+<I>object-type</I> is one of group, host, or lease.
+</DL>
+
+<P>
+
+At this point, you now have an object that you can set properties on.  For
+example, if a new lease object was created with <I>new lease</I>, any of a
+lease's attributes can be set as follows:
+<P>
+
+<B>set </B><I>attribute-name = value</I>
+
+<DL COMPACT><DT><DD>
+<B>Attribute names are defined in <A HREF="../man8/dhcpd.8.php">dhcpd</A>(8)</B> and <B><A HREF="../man8/dhclient.8.php">dhclient</A>(8)</B>.
+Values should be quoted if they are strings.  So, to set a lease's IP address,
+you would do the following:
+<B> set ip-address = 192.168.4.50</B>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>ASSOCIATING LOCAL AND REMOTE OBJECTS</H2>
+
+<P>
+
+At this point, you can query the server for information about this lease, by
+<P>
+
+<B>open</B>
+
+<P>
+
+Now, the local lease object you created and set the IP address for is associated
+with the corresponding lease object on the DHCP server.  All of the lease
+attributes from the DHCP server are now also the attributes on the local
+object, and will be shown in omshell.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>VIEWING A REMOTE OBJECT</H2>
+
+<P>
+
+To query a lease of address 192.168.4.50, and find out its attributes, after
+connecting to the server, take the following steps:
+<P>
+
+<B>new lease</B>
+
+<P>
+
+This creates a new local lease object.
+<P>
+
+<B>set ip-address = 192.168.4.50</B>
+
+<P>
+
+This sets the <I>local</I> object's IP address to be 192.168.4.50
+<P>
+
+<B>open</B>
+
+<P>
+
+Now, if a lease with that IP address exists, you will see all the information
+the DHCP server has about that particular lease.  Any data that isn't readily
+printable text will show up in colon-separated hexadecimal values.  In this
+example, output back from the server for the entire transaction might look
+like this:
+<PRE>
+
+&gt; new &quot;lease&quot;
+obj: lease
+&gt; set ip-address = 192.168.4.50
+obj: lease
+ip-address = c0:a8:04:32
+&gt; open
+obj: lease
+ip-address = c0:a8:04:32
+state = 00:00:00:02
+dhcp-client-identifier = 01:00:10:a4:b2:36:2c
+client-hostname = &quot;wendelina&quot;
+subnet = 00:00:00:06
+pool = 00:00:00:07
+hardware-address = 00:10:a4:b2:36:2c
+hardware-type = 00:00:00:01
+ends = dc:d9:0d:3b
+starts = 5c:9f:04:3b
+tstp = 00:00:00:00
+tsfp = 00:00:00:00
+cltt = 00:00:00:00
+</PRE>
+
+<P>
+
+As you can see here, the IP address is represented in hexadecimal, as are the
+starting and ending times of the lease.
+<A NAME="lbAK">&nbsp;</A>
+<H2>MODIFYING A REMOTE OBJECT</H2>
+
+<P>
+
+Attributes of remote objects are updated by using the <B>set</B> command as
+before, and then issuing an <B>update</B> command.  The <B>set</B> command sets
+the attributes on the current local object, and the <B>update</B> command
+pushes those changes out to the server.
+<P>
+
+Continuing with the previous example, if a <B>set client-hostname =
+&quot;something-else&quot;</B> was issued, followed by an <B>update</B> command, the
+output would look about like this:
+<PRE>
+
+&gt; set client-hostname = &quot;something-else&quot;
+obj: lease
+ip-address = c0:a8:04:32
+state = 00:00:00:02
+dhcp-client-identifier = 01:00:10:a4:b2:36:2c
+client-hostname = &quot;something-else&quot;
+subnet = 00:00:00:06
+pool = 00:00:00:07
+hardware-address = 00:10:a4:b2:36:2c
+hardware-type = 00:00:00:01
+ends = dc:d9:0d:3b
+starts = 5c:9f:04:3b
+tstp = 00:00:00:00
+tsfp = 00:00:00:00
+cltt = 00:00:00:00
+&gt; update
+obj: lease
+ip-address = c0:a8:04:32
+state = 00:00:00:02
+dhcp-client-identifier = 01:00:10:a4:b2:36:2c
+client-hostname = &quot;something-else&quot;
+subnet = 00:00:00:06
+pool = 00:00:00:07
+hardware-address = 00:10:a4:b2:36:2c
+hardware-type = 00:00:00:01
+ends = dc:d9:0d:3b
+starts = 5c:9f:04:3b
+tstp = 00:00:00:00
+tsfp = 00:00:00:00
+cltt = 00:00:00:00
+</PRE>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>NEW REMOTE OBJECTS</H2>
+
+<P>
+
+New remote objects are created much in the same way that existing server
+objects are modified.  Create a local object using <B>new</B>, set the
+attributes as you'd wish them to be, and then create the remote object with
+the same properties by using
+<P>
+
+<B>create</B>
+
+<P>
+
+Now a new object exists on the DHCP server which matches the properties that
+you gave your local object.  Objects created via OMAPI are saved into the
+dhcpd.leases file.
+<P>
+
+For example, if a new host with the IP address of 192.168.4.40 needs to be
+created it would be done as follows:
+<PRE>
+
+&gt; new host
+obj: host
+&gt; set name = &quot;some-host&quot;
+obj: host
+name = &quot;some-host&quot;
+&gt; set hardware-address = 00:80:c7:84:b1:94
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+&gt; set hardware-type = 1
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 1
+&gt; set ip-address = 192.168.4.40
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 1
+ip-address = c0:a8:04:28
+&gt; create
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 00:00:00:01
+ip-address = c0:a8:04:28
+&gt; 
+</PRE>
+
+<P>
+
+Your dhcpd.leases file would then have an entry like this in it:
+<PRE>
+
+host some-host {
+  dynamic;
+  hardware ethernet 00:80:c7:84:b1:94;
+  fixed-address 192.168.4.40;
+}
+</PRE>
+
+<P>
+
+The <I>dynamic;</I> line is to denote that this host entry did not come from
+dhcpd.conf, but was created dynamically via OMAPI.  
+<A NAME="lbAM">&nbsp;</A>
+<H2>RESETTING ATTRIBUTES</H2>
+
+<P>
+
+If you want to remove an attribute from an object, you can do this with the
+<B>unset</B> command.   Once you have unset an attribute, you must use the
+<B>update</B> command to update the remote object.  So, if the host &quot;some-host&quot;
+from the previous example will not have a static IP address anymore, the
+commands in omshell would look like this:
+<PRE>
+
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 00:00:00:01
+ip-address = c0:a8:04:28
+&gt; unset ip-address
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 00:00:00:01
+ip-address = &lt;null&gt;
+&gt; 
+</PRE>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>REFRESHING OBJECTS</H2>
+
+<P>
+
+A local object may be refreshed with the current remote object properties
+using the <B>refresh</B> command.  This is useful for object that change
+periodically, like leases, to see if they have been updated.  This isn't
+particularly useful for hosts.
+<A NAME="lbAO">&nbsp;</A>
+<H2>DELETING OBJECTS</H2>
+
+<P>
+
+Any remote object that can be created can also be destroyed.  This is done by
+creating a new local object, setting attributes, associating the local and
+remote object using <B>open</B><I>, and then using the </I><B>remove</B> command. 
+If the host &quot;some-host&quot; from before was created in error, this could be
+corrected as follows:
+<PRE>
+
+obj: host
+name = &quot;some-host&quot;
+hardware-address = 00:80:c7:84:b1:94
+hardware-type = 00:00:00:01
+ip-address = c0:a8:04:28
+&gt; remove
+obj: &lt;null&gt;
+&gt; 
+</PRE>
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>HELP</H2>
+
+<P>
+
+The <B>help</B> command will print out all of the commands available in
+omshell, with some syntax pointers.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man3/dhcpctl.3.php">dhcpctl</A>(3), <A HREF="../man3/omapi.3.php">omapi</A>(3), <A HREF="../man8/dhcpd.8.php">dhcpd</A>(8), <A HREF="../man8/dhclient.8.php">dhclient</A>(8), <A HREF="../man5/dhcpd.conf.5.php">dhcpd.conf</A>(5), <A HREF="../man5/dhclient.conf.5.php">dhclient.conf</A>(5).
+<A NAME="lbAR">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<B>omshell</B>
+
+was written by Ted Lemon of Nominum, Inc.  Information about Nominum
+and support contracts for DHCP and BIND can be found at
+<B><A HREF="http://www.nominum.com.">http://www.nominum.com.</A>   This preliminary documentation was</B>
+
+written by Wendy Verschoor of Nominum, Inc., while she was testing
+omshell.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">CONTRIBUTIONS</A><DD>
+<DT><A HREF="#lbAF">LOCAL AND REMOTE OBJECTS</A><DD>
+<DT><A HREF="#lbAG">OPENING A CONNECTION</A><DD>
+<DT><A HREF="#lbAH">CREATING LOCAL OBJECTS</A><DD>
+<DT><A HREF="#lbAI">ASSOCIATING LOCAL AND REMOTE OBJECTS</A><DD>
+<DT><A HREF="#lbAJ">VIEWING A REMOTE OBJECT</A><DD>
+<DT><A HREF="#lbAK">MODIFYING A REMOTE OBJECT</A><DD>
+<DT><A HREF="#lbAL">NEW REMOTE OBJECTS</A><DD>
+<DT><A HREF="#lbAM">RESETTING ATTRIBUTES</A><DD>
+<DT><A HREF="#lbAN">REFRESHING OBJECTS</A><DD>
+<DT><A HREF="#lbAO">DELETING OBJECTS</A><DD>
+<DT><A HREF="#lbAP">HELP</A><DD>
+<DT><A HREF="#lbAQ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAR">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

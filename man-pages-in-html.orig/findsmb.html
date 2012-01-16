@@ -1,0 +1,192 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FINDSMB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>FINDSMB</H1>
+Section:  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+findsmb - list info about machines that respond to SMB name queries on a subnet
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+<DL COMPACT>
+<DT>
+<B>findsmb</B> [subnet&nbsp;broadcast&nbsp;address]
+
+
+<P>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<P>
+
+<DD>This perl script is part of the <B><A HREF="../man7/samba.7.php">samba</A></B>(7) suite.
+<P>
+<P>
+
+<B>findsmb</B> is a perl script that prints out several pieces of information about machines on a subnet that respond to SMB name query requests. It uses <B><A HREF="../man1/nmblookup.1.php">nmblookup</A></B>(1) and <B><A HREF="../man1/smbclient.1.php">smbclient</A></B>(1) to obtain this information.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT>-r<DD>
+Controls whether <B>findsmb</B> takes bugs in Windows95 into account when trying to find a Netbios name registered of the remote machine. This option is disabled by default because it is specific to Windows 95 and Windows 95 machines only. If set, <B><A HREF="../man1/nmblookup.1.php">nmblookup</A></B>(1) will be called with <B>-B</B> option.
+<P>
+<DT>subnet broadcast address<DD>
+Without this option, <B>findsmb </B> will probe the subnet of the machine where<B><A HREF="../man1/findsmb.1.php">findsmb</A></B>(1) is run. This value is passed to<B><A HREF="../man1/nmblookup.1.php">nmblookup</A></B>(1) as part of the <B>-B</B> option.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+<P>
+
+The output of <B>findsmb</B> lists the following information for all machines that respond to the initial<B>nmblookup</B> for any name: IP address, NetBIOS name, Workgroup name, operating system, and SMB server version.
+<P>
+<P>
+
+There will be a '+' in front of the workgroup name for machines that are local master browsers for that workgroup. There will be an '*' in front of the workgroup name for machines that are the domain master browser for that workgroup. Machines that are running Windows for Workgroups, Windows 95 or Windows 98 will not show any information about the operating system or server version.
+<P>
+<P>
+
+The command with <B>-r</B> option must be run on a system without <B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8)running. If <B>nmbd</B> is running on the system, you will only get the IP address and the DNS name of the machine. To get proper responses from Windows 95 and Windows 98 machines, the command must be run as root and with <B>-r</B> option on a machine without <B>nmbd</B> running.
+<P>
+<P>
+
+For example, running <B>findsmb</B> without <B>-r</B> option set would yield output similar to the following
+<PRE>
+
+IP ADDR         NETBIOS NAME   WORKGROUP/OS/VERSION 
+--------------------------------------------------------------------- 
+192.168.35.10   MINESET-TEST1  [DMVENGR]
+192.168.35.55   LINUXBOX      *[MYGROUP] [Unix] [Samba 2.0.6]
+192.168.35.56   HERBNT2        [HERB-NT]
+192.168.35.63   GANDALF        [MVENGR] [Unix] [Samba 2.0.5a for IRIX]
+192.168.35.65   SAUNA          [WORKGROUP] [Unix] [Samba 1.9.18p10]
+192.168.35.71   FROGSTAR       [ENGR] [Unix] [Samba 2.0.0 for IRIX]
+192.168.35.78   HERBDHCP1     +[HERB]
+192.168.35.88   SCNT2         +[MVENGR] [Windows NT 4.0] [NT LAN Manager 4.0]
+192.168.35.93   FROGSTAR-PC    [MVENGR] [Windows 5.0] [Windows 2000 LAN Manager]
+192.168.35.97   HERBNT1       *[HERB-NT] [Windows NT 4.0] [NT LAN Manager 4.0]
+</PRE>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>VERSION</H2>
+
+<P>
+<P>
+
+This man page is correct for version 3.0 of the Samba suite.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<P>
+
+<B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8),<B><A HREF="../man1/smbclient.1.php">smbclient</A></B>(1), and <B><A HREF="../man1/nmblookup.1.php">nmblookup</A></B>(1) 
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+<P>
+
+The original Samba software and related utilities were created by Andrew Tridgell. Samba is now developed by the Samba Team as an Open Source project similar to the way the Linux kernel is developed.
+<P>
+<P>
+
+The original Samba man pages were written by Karl Auer. The man page sources were converted to YODL format (another excellent piece of Open Source software, available at <A HREF="ftp://ftp.icce.rug.nl/pub/unix/)">ftp://ftp.icce.rug.nl/pub/unix/)</A> and updated for the Samba 2.0 release by Jeremy Allison. The conversion to DocBook for Samba 2.2 was done by Gerald Carter. The conversion to DocBook XML 4.2 for Samba 3.0 was done by Alexander Bokovoy.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">VERSION</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

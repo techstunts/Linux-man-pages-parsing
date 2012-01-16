@@ -1,0 +1,4423 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERL56DELTA</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERL56DELTA</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perl56delta - what's new for perl v5.6.0
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes differences between the 5.005 release and the 5.6.0
+release.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Core Enhancements</H2>
+
+<A NAME="ixAAD"></A>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Interpreter cloning, threads, and concurrency</H2>
+
+<A NAME="ixAAE"></A>
+Perl 5.6.0 introduces the beginnings of support for running multiple
+interpreters concurrently in different threads.  In conjunction with
+the <I>perl_clone()</I> <FONT SIZE="-1">API</FONT> call, which can be used to selectively duplicate
+the state of any given interpreter, it is possible to compile a
+piece of code once in an interpreter, clone that interpreter
+one or more times, and run all the resulting interpreters in distinct
+threads.
+<P>
+
+On the Windows platform, this feature is used to emulate <I>fork()</I> at the
+interpreter level.  See perlfork for details about that.
+<P>
+
+This feature is still in evolution.  It is eventually meant to be used
+to selectively clone a subroutine and data reachable from that
+subroutine in a separate interpreter and run the cloned subroutine
+in a separate thread.  Since there is no shared data between the
+interpreters, little or no locking will be needed (unless parts of
+the symbol table are explicitly shared).  This is obviously intended
+to be an easy-to-use replacement for the existing threads support.
+<P>
+
+Support for cloning interpreters and interpreter concurrency can be
+enabled using the -Dusethreads Configure option (see win32/Makefile for
+how to enable it on Windows.)  The resulting perl executable will be
+functionally identical to one that was built with -Dmultiplicity, but
+the <I>perl_clone()</I> <FONT SIZE="-1">API</FONT> call will only be available in the former.
+<P>
+
+-Dusethreads enables the cpp macro <FONT SIZE="-1">USE_ITHREADS</FONT> by default, which in turn
+enables Perl source code changes that provide a clear separation between
+the op tree and the data it operates with.  The former is immutable, and
+can therefore be shared between an interpreter and all of its clones,
+while the latter is considered local to each interpreter, and is therefore
+copied for each clone.
+<P>
+
+Note that building Perl with the -Dusemultiplicity Configure option
+is adequate if you wish to run multiple <B>independent</B> interpreters
+concurrently in different threads.  -Dusethreads only provides the
+additional functionality of the <I>perl_clone()</I> <FONT SIZE="-1">API</FONT> call and other
+support for running <B>cloned</B> interpreters concurrently.
+<P>
+
+
+
+<PRE>
+    NOTE: This is an experimental feature.  Implementation details are
+    subject to change.
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Lexically scoped warning categories</H2>
+
+<A NAME="ixAAF"></A>
+You can now control the granularity of warnings emitted by perl at a finer
+level using the <TT>&quot;use warnings&quot;</TT> pragma.  warnings and perllexwarn
+have copious documentation on this feature.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Unicode and <FONT SIZE="-1">UTF-8</FONT> support</H2>
+
+<A NAME="ixAAG"></A>
+Perl now uses <FONT SIZE="-1">UTF-8</FONT> as its internal representation for character
+strings.  The <TT>&quot;utf8&quot;</TT> and <TT>&quot;bytes&quot;</TT> pragmas are used to control this support
+in the current lexical scope.  See perlunicode, utf8 and bytes for
+more information.
+<P>
+
+This feature is expected to evolve quickly to support some form of I/O
+disciplines that can be used to specify the kind of input and output data
+(bytes or characters).  Until that happens, additional modules from <FONT SIZE="-1">CPAN</FONT>
+will be needed to complete the toolkit for dealing with Unicode.
+<P>
+
+
+
+<PRE>
+    NOTE: This should be considered an experimental feature.  Implementation
+    details are subject to change.
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>Support for interpolating named characters</H2>
+
+<A NAME="ixAAH"></A>
+The new <TT>&quot;\N&quot;</TT> escape interpolates named characters within strings.
+For example, <TT>&quot;Hi! \N{WHITE SMILING FACE}&quot;</TT> evaluates to a string
+with a unicode smiley face at the end.
+<A NAME="lbAI">&nbsp;</A>
+<H2>our declarations</H2>
+
+
+
+<A NAME="ixAAI"></A>
+An ``our'' declaration introduces a value that can be best understood
+as a lexically scoped symbolic alias to a global variable in the
+package that was current where the variable was declared.  This is
+mostly useful as an alternative to the <TT>&quot;vars&quot;</TT> pragma, but also provides
+the opportunity to introduce typing and other attributes for such
+variables.  See ``our'' in perlfunc.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Support for strings represented as a vector of ordinals</H2>
+
+<A NAME="ixAAJ"></A>
+Literals of the form <TT>&quot;v1.2.3.4&quot;</TT> are now parsed as a string composed
+of characters with the specified ordinals.  This is an alternative, more
+readable way to construct (possibly unicode) strings instead of
+interpolating characters, as in <TT>&quot;\x{1}\x{2}\x{3}\x{4}&quot;</TT>.  The leading
+<TT>&quot;v&quot;</TT> may be omitted if there are more than two ordinals, so <TT>1.2.3</TT> is
+parsed the same as <TT>&quot;v1.2.3&quot;</TT>.
+<P>
+
+Strings written in this form are also useful to represent version ``numbers''.
+It is easy to compare such version ``numbers'' (which are really just plain
+strings) using any of the usual string comparison operators <TT>&quot;eq&quot;</TT>, <TT>&quot;ne&quot;</TT>,
+<TT>&quot;lt&quot;</TT>, <TT>&quot;gt&quot;</TT>, etc., or perform bitwise string operations on them using <TT>&quot;|&quot;</TT>,
+<TT>&quot;&amp;&quot;</TT>, etc.
+<P>
+
+In conjunction with the new <TT>$^V</TT> magic variable (which contains
+the perl version as a string), such literals can be used as a readable way
+to check if you're running a particular version of Perl:
+<P>
+
+
+
+<PRE>
+    # this will parse in older versions of Perl also
+    if ($^V and $^V gt v5.6.0) {
+        # new features supported
+    }
+
+</PRE>
+
+
+<P>
+
+<TT>&quot;require&quot;</TT> and <TT>&quot;use&quot;</TT> also have some special magic to support such
+literals, but this particular usage should be avoided because it leads to
+misleading error messages under versions of Perl which don't support vector
+strings.  Using a true version number will ensure correct behavior in all
+versions of Perl:
+<P>
+
+
+
+<PRE>
+    require 5.006;    # run time check for v5.6
+    use 5.006_001;    # compile time check for v5.6.1
+
+</PRE>
+
+
+<P>
+
+Also, <TT>&quot;sprintf&quot;</TT> and <TT>&quot;printf&quot;</TT> support the Perl-specific format flag <TT>%v</TT>
+to print ordinals of characters in arbitrary strings:
+<P>
+
+
+
+<PRE>
+    printf &quot;v%vd&quot;, $^V;         # prints current version, such as &quot;v5.5.650&quot;
+    printf &quot;%*vX&quot;, &quot;:&quot;, $addr;  # formats IPv6 address
+    printf &quot;%*vb&quot;, &quot; &quot;, $bits;  # displays bitstring
+
+</PRE>
+
+
+<P>
+
+See ``Scalar value constructors'' in perldata for additional information.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Improved Perl version numbering system</H2>
+
+<A NAME="ixAAK"></A>
+Beginning with Perl version 5.6.0, the version number convention has been
+changed to a ``dotted integer'' scheme that is more commonly found in open
+source projects.
+<P>
+
+Maintenance versions of v5.6.0 will be released as v5.6.1, v5.6.2 etc.
+The next development series following v5.6.0 will be numbered v5.7.x,
+beginning with v5.7.0, and the next major production release following
+v5.6.0 will be v5.8.0.
+<P>
+
+The English module now sets <TT>$PERL_VERSION</TT> to $^V (a string value) rather
+than <TT>$]</TT> (a numeric value).  (This is a potential incompatibility.
+Send us a report via perlbug if you are affected by this.)
+<P>
+
+The v1.2.3 syntax is also now legal in Perl.
+See ``Support for strings represented as a vector of ordinals'' for more on that.
+<P>
+
+To cope with the new versioning system's use of at least three significant
+digits for each version component, the method used for incrementing the
+subversion number has also changed slightly.  We assume that versions older
+than v5.6.0 have been incrementing the subversion component in multiples of
+10.  Versions after v5.6.0 will increment them by 1.  Thus, using the new
+notation, 5.005_03 is the ``same'' as v5.5.30, and the first maintenance
+version following v5.6.0 will be v5.6.1 (which should be read as being
+equivalent to a floating point value of 5.006_001 in the older format,
+stored in <TT>$]</TT>).
+<A NAME="lbAL">&nbsp;</A>
+<H2>New syntax for declaring subroutine attributes</H2>
+
+<A NAME="ixAAL"></A>
+Formerly, if you wanted to mark a subroutine as being a method call or
+as requiring an automatic <I>lock()</I> when it is entered, you had to declare
+that with a <TT>&quot;use attrs&quot;</TT> pragma in the body of the subroutine.
+That can now be accomplished with declaration syntax, like this:
+<P>
+
+
+
+<PRE>
+    sub mymethod : locked method ;
+    ...
+    sub mymethod : locked method {
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub othermethod :locked :method ;
+    ...
+    sub othermethod :locked :method {
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+(Note how only the first <TT>&quot;:&quot;</TT> is mandatory, and whitespace surrounding
+the <TT>&quot;:&quot;</TT> is optional.)
+<P>
+
+<I>AutoSplit.pm</I> and <I>SelfLoader.pm</I> have been updated to keep the attributes
+with the stubs they provide.  See attributes.
+<A NAME="lbAM">&nbsp;</A>
+<H2>File and directory handles can be autovivified</H2>
+
+<A NAME="ixAAM"></A>
+Similar to how constructs such as <TT>&quot;$x-&gt;[0]&quot;</TT> autovivify a reference,
+handle constructors (<I>open()</I>, <I>opendir()</I>, <I>pipe()</I>, <I>socketpair()</I>, <I>sysopen()</I>,
+<I>socket()</I>, and <I>accept()</I>) now autovivify a file or directory handle
+if the handle passed to them is an uninitialized scalar variable.  This
+allows the constructs such as <TT>&quot;open(my $fh, ...)&quot;</TT> and <TT>&quot;open(local $fh,...)&quot;</TT>
+to be used to create filehandles that will conveniently be closed
+automatically when the scope ends, provided there are no other references
+to them.  This largely eliminates the need for typeglobs when opening
+filehandles that must be passed around, as in the following example:
+<P>
+
+
+
+<PRE>
+    sub myopen {
+        open my $fh, &quot;@_&quot;
+             or die &quot;Can't open '@_': $!&quot;;
+        return $fh;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    {
+        my $f = myopen(&quot;&lt;/etc/motd&quot;);
+        print &lt;$f&gt;;
+        # $f implicitly closed here
+    }
+
+</PRE>
+
+
+<A NAME="lbAN">&nbsp;</A>
+<H2><I>open()</I> with more than two arguments</H2>
+
+<A NAME="ixAAN"></A>
+If <I>open()</I> is passed three arguments instead of two, the second argument
+is used as the mode and the third argument is taken to be the file name.
+This is primarily useful for protecting against unintended magic behavior
+of the traditional two-argument form.  See ``open'' in perlfunc.
+<A NAME="lbAO">&nbsp;</A>
+<H2>64-bit support</H2>
+
+<A NAME="ixAAO"></A>
+Any platform that has 64-bit integers either
+<P>
+
+
+
+<PRE>
+        (1) natively as longs or ints
+        (2) via special compiler flags
+        (3) using long long or int64_t
+
+</PRE>
+
+
+<P>
+
+is able to use ``quads'' (64-bit integers) as follows:
+<DL COMPACT>
+<DT>*<DD>
+constants (decimal, hexadecimal, octal, binary) in the code 
+<DT>*<DD>
+arguments to <I>oct()</I> and <I>hex()</I>
+<DT>*<DD>
+arguments to <I>print()</I>, <I>printf()</I> and <I>sprintf()</I> (flag prefixes ll, L, q)
+<DT>*<DD>
+printed as such
+<DT>*<DD>
+<I>pack()</I> and <I>unpack()</I> ``q'' and ``Q'' formats
+<DT>*<DD>
+in basic arithmetics: + - * / % (<FONT SIZE="-1">NOTE:</FONT> operating close to the limits
+of the integer values may produce surprising results)
+<DT>*<DD>
+in bit arithmetics: &amp; | ^ ~ &lt;&lt; &gt;&gt; (<FONT SIZE="-1">NOTE:</FONT> these used to be forced 
+to be 32 bits wide but now operate on the full native width.)
+<DT>*<DD>
+<I>vec()</I>
+</DL>
+<P>
+
+Note that unless you have the case (a) you will have to configure
+and compile Perl using the -Duse64bitint Configure flag.
+<P>
+
+
+
+<PRE>
+    NOTE: The Configure flags -Duselonglong and -Duse64bits have been
+    deprecated.  Use -Duse64bitint instead.
+
+</PRE>
+
+
+<P>
+
+There are actually two modes of 64-bitness: the first one is achieved
+using Configure -Duse64bitint and the second one using Configure
+-Duse64bitall.  The difference is that the first one is minimal and
+the second one maximal.  The first works in more places than the second.
+<P>
+
+The <TT>&quot;use64bitint&quot;</TT> does only as much as is required to get 64-bit
+integers into Perl (this may mean, for example, using ``long longs'')
+while your memory may still be limited to 2 gigabytes (because your
+pointers could still be 32-bit).  Note that the name <TT>&quot;64bitint&quot;</TT> does
+not imply that your C compiler will be using 64-bit <TT>&quot;int&quot;</TT>s (it might,
+but it doesn't have to): the <TT>&quot;use64bitint&quot;</TT> means that you will be
+able to have 64 bits wide scalar values.
+<P>
+
+The <TT>&quot;use64bitall&quot;</TT> goes all the way by attempting to switch also
+integers (if it can), longs (and pointers) to being 64-bit.  This may
+create an even more binary incompatible Perl than -Duse64bitint: the
+resulting executable may not run at all in a 32-bit box, or you may
+have to reboot/reconfigure/rebuild your operating system to be 64-bit
+aware.
+<P>
+
+Natively 64-bit systems like Alpha and Cray need neither -Duse64bitint
+nor -Duse64bitall.
+<P>
+
+Last but not least: note that due to Perl's habit of always using
+floating point numbers, the quads are still not true integers.
+When quads overflow their limits (0...18_446_744_073_709_551_615 unsigned,
+-9_223_372_036_854_775_808...9_223_372_036_854_775_807 signed), they
+are silently promoted to floating point numbers, after which they will
+start losing precision (in their lower digits).
+<P>
+
+
+
+<PRE>
+    NOTE: 64-bit support is still experimental on most platforms.
+    Existing support only covers the LP64 data model.  In particular, the
+    LLP64 data model is not yet supported.  64-bit libraries and system
+    APIs on many platforms have not stabilized--your mileage may vary.
+
+</PRE>
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>Large file support</H2>
+
+<A NAME="ixAAP"></A>
+If you have filesystems that support ``large files'' (files larger than
+2 gigabytes), you may now also be able to create and access them from
+Perl.
+<P>
+
+
+
+<PRE>
+    NOTE: The default action is to enable large file support, if
+    available on the platform.
+
+</PRE>
+
+
+<P>
+
+If the large file support is on, and you have a Fcntl constant
+O_LARGEFILE, the O_LARGEFILE is automatically added to the flags
+of <I>sysopen()</I>.
+<P>
+
+Beware that unless your filesystem also supports ``sparse files'' seeking
+to umpteen petabytes may be inadvisable.
+<P>
+
+Note that in addition to requiring a proper file system to do large
+files you may also need to adjust your per-process (or your
+per-system, or per-process-group, or per-user-group) maximum filesize
+limits before running Perl scripts that try to handle large files,
+especially if you intend to write such files.
+<P>
+
+Finally, in addition to your process/process group maximum filesize
+limits, you may have quota limits on your filesystems that stop you
+(your user id or your user group id) from using large files.
+<P>
+
+Adjusting your process/user/group/file system/operating system limits
+is outside the scope of Perl core language.  For process limits, you
+may try increasing the limits using your shell's limits/limit/ulimit
+command before running Perl.  The BSD::Resource extension (not
+included with the standard Perl distribution) may also be of use, it
+offers the getrlimit/setrlimit interface that can be used to adjust
+process resource usage limits, including the maximum filesize limit.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Long doubles</H2>
+
+<A NAME="ixAAQ"></A>
+In some systems you may be able to use long doubles to enhance the
+range and precision of your double precision floating point numbers
+(that is, Perl's numbers).  Use Configure -Duselongdouble to enable
+this support (if it is available).
+<A NAME="lbAR">&nbsp;</A>
+<H2>more bits</H2>
+
+
+
+<A NAME="ixAAR"></A>
+You can ``Configure -Dusemorebits'' to turn on both the 64-bit support
+and the long double support.
+<A NAME="lbAS">&nbsp;</A>
+<H2>Enhanced support for <I>sort()</I> subroutines</H2>
+
+<A NAME="ixAAS"></A>
+Perl subroutines with a prototype of <TT>&quot;($$)&quot;</TT>, and XSUBs in general, can
+now be used as sort subroutines.  In either case, the two elements to
+be compared are passed as normal parameters in <TT>@_</TT>.  See ``sort'' in perlfunc.
+<P>
+
+For unprototyped sort subroutines, the historical behavior of passing 
+the elements to be compared as the global variables <TT>$a</TT> and <TT>$b</TT> remains
+unchanged.
+<A NAME="lbAT">&nbsp;</A>
+<H2>sort $coderef @foo allowed</H2>
+
+
+
+<A NAME="ixAAT"></A>
+<I>sort()</I> did not accept a subroutine reference as the comparison
+function in earlier versions.  This is now permitted.
+<A NAME="lbAU">&nbsp;</A>
+<H2>File globbing implemented internally</H2>
+
+<A NAME="ixAAU"></A>
+Perl now uses the File::Glob implementation of the <I>glob()</I> operator
+automatically.  This avoids using an external csh process and the
+problems associated with it.
+<P>
+
+
+
+<PRE>
+    NOTE: This is currently an experimental feature.  Interfaces and
+    implementation are subject to change.
+
+</PRE>
+
+
+<A NAME="lbAV">&nbsp;</A>
+<H2>Support for <FONT SIZE="-1">CHECK</FONT> blocks</H2>
+
+<A NAME="ixAAV"></A>
+In addition to <TT>&quot;BEGIN&quot;</TT>, <TT>&quot;INIT&quot;</TT>, <TT>&quot;END&quot;</TT>, <TT>&quot;DESTROY&quot;</TT> and <TT>&quot;AUTOLOAD&quot;</TT>,
+subroutines named <TT>&quot;CHECK&quot;</TT> are now special.  These are queued up during
+compilation and behave similar to <FONT SIZE="-1">END</FONT> blocks, except they are called at
+the end of compilation rather than at the end of execution.  They cannot
+be called directly.
+<A NAME="lbAW">&nbsp;</A>
+<H2><FONT SIZE="-1">POSIX</FONT> character class syntax [: :] supported</H2>
+
+<A NAME="ixAAW"></A>
+For example to match alphabetic characters use /[[:alpha:]]/.
+See perlre for details.
+<A NAME="lbAX">&nbsp;</A>
+<H2>Better pseudo-random number generator</H2>
+
+<A NAME="ixAAX"></A>
+In 5.005_0x and earlier, perl's <I>rand()</I> function used the C library
+<I><A HREF="../man3/rand.3.php">rand</A></I>(3) function.  As of 5.005_52, Configure tests for <I>drand48()</I>,
+<I>random()</I>, and <I>rand()</I> (in that order) and picks the first one it finds.
+<P>
+
+These changes should result in better random numbers from <I>rand()</I>.
+<A NAME="lbAY">&nbsp;</A>
+<H2>Improved qw// operator</H2>
+
+
+
+<A NAME="ixAAY"></A>
+The <TT>&quot;qw//&quot;</TT> operator is now evaluated at compile time into a true list
+instead of being replaced with a run time call to <TT>&quot;split()&quot;</TT>.  This
+removes the confusing misbehaviour of <TT>&quot;qw//&quot;</TT> in scalar context, which
+had inherited that behaviour from <I>split()</I>.
+<P>
+
+Thus:
+<P>
+
+
+
+<PRE>
+    $foo = ($bar) = qw(a b c); print &quot;$foo|$bar\n&quot;;
+
+</PRE>
+
+
+<P>
+
+now correctly prints ``3|a'', instead of ``2|a''.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>Better worst-case behavior of hashes</H2>
+
+<A NAME="ixAAZ"></A>
+Small changes in the hashing algorithm have been implemented in
+order to improve the distribution of lower order bits in the
+hashed value.  This is expected to yield better performance on
+keys that are repeated sequences.
+<A NAME="lbBA">&nbsp;</A>
+<H2><I>pack()</I> format 'Z' supported</H2>
+
+<A NAME="ixABA"></A>
+The new format type 'Z' is useful for packing and unpacking null-terminated
+strings.  See ``pack'' in perlfunc.
+<A NAME="lbBB">&nbsp;</A>
+<H2><I>pack()</I> format modifier '!' supported</H2>
+
+<A NAME="ixABB"></A>
+The new format type modifier '!' is useful for packing and unpacking
+native shorts, ints, and longs.  See ``pack'' in perlfunc.
+<A NAME="lbBC">&nbsp;</A>
+<H2><I>pack()</I> and <I>unpack()</I> support counted strings</H2>
+
+<A NAME="ixABC"></A>
+The template character '/' can be used to specify a counted string
+type to be packed or unpacked.  See ``pack'' in perlfunc.
+<A NAME="lbBD">&nbsp;</A>
+<H2>Comments in <I>pack()</I> templates</H2>
+
+<A NAME="ixABD"></A>
+The '#' character in a template introduces a comment up to
+end of the line.  This facilitates documentation of <I>pack()</I>
+templates.
+<A NAME="lbBE">&nbsp;</A>
+<H2>Weak references</H2>
+
+<A NAME="ixABE"></A>
+In previous versions of Perl, you couldn't cache objects so as
+to allow them to be deleted if the last reference from outside 
+the cache is deleted.  The reference in the cache would hold a
+reference count on the object and the objects would never be
+destroyed.
+<P>
+
+Another familiar problem is with circular references.  When an
+object references itself, its reference count would never go
+down to zero, and it would not get destroyed until the program
+is about to exit.
+<P>
+
+Weak references solve this by allowing you to ``weaken'' any
+reference, that is, make it not count towards the reference count.
+When the last non-weak reference to an object is deleted, the object
+is destroyed and all the weak references to the object are
+automatically undef-ed.
+<P>
+
+To use this feature, you need the Devel::WeakRef package from <FONT SIZE="-1">CPAN</FONT>, which
+contains additional documentation.
+<P>
+
+
+
+<PRE>
+    NOTE: This is an experimental feature.  Details are subject to change.
+
+</PRE>
+
+
+<A NAME="lbBF">&nbsp;</A>
+<H2>Binary numbers supported</H2>
+
+<A NAME="ixABF"></A>
+Binary numbers are now supported as literals, in s?printf formats, and
+<TT>&quot;oct()&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    $answer = 0b101010;
+    printf &quot;The answer is: %b\n&quot;, oct(&quot;0b101010&quot;);
+
+</PRE>
+
+
+<A NAME="lbBG">&nbsp;</A>
+<H2>Lvalue subroutines</H2>
+
+<A NAME="ixABG"></A>
+Subroutines can now return modifiable lvalues.
+See ``Lvalue subroutines'' in perlsub.
+<P>
+
+
+
+<PRE>
+    NOTE: This is an experimental feature.  Details are subject to change.
+
+</PRE>
+
+
+<A NAME="lbBH">&nbsp;</A>
+<H2>Some arrows may be omitted in calls through references</H2>
+
+<A NAME="ixABH"></A>
+Perl now allows the arrow to be omitted in many constructs
+involving subroutine calls through references.  For example,
+<TT>&quot;$foo[10]-&gt;('foo')&quot;</TT> may now be written <TT>&quot;$foo[10]('foo')&quot;</TT>.
+This is rather similar to how the arrow may be omitted from
+<TT>&quot;$foo[10]-&gt;{'foo'}&quot;</TT>.  Note however, that the arrow is still
+required for <TT>&quot;foo(10)-&gt;('bar')&quot;</TT>.
+<A NAME="lbBI">&nbsp;</A>
+<H2>Boolean assignment operators are legal lvalues</H2>
+
+<A NAME="ixABI"></A>
+Constructs such as <TT>&quot;($a ||= 2) += 1&quot;</TT> are now allowed.
+<A NAME="lbBJ">&nbsp;</A>
+<H2><I>exists()</I> is supported on subroutine names</H2>
+
+<A NAME="ixABJ"></A>
+The <I>exists()</I> builtin now works on subroutine names.  A subroutine
+is considered to exist if it has been declared (even if implicitly).
+See ``exists'' in perlfunc for examples.
+<A NAME="lbBK">&nbsp;</A>
+<H2><I>exists()</I> and <I>delete()</I> are supported on array elements</H2>
+
+<A NAME="ixABK"></A>
+The <I>exists()</I> and <I>delete()</I> builtins now work on simple arrays as well.
+The behavior is similar to that on hash elements.
+<P>
+
+<I>exists()</I> can be used to check whether an array element has been
+initialized.  This avoids autovivifying array elements that don't exist.
+If the array is tied, the <FONT SIZE="-1"><I>EXISTS</I></FONT><I>()</I> method in the corresponding tied
+package will be invoked.
+<P>
+
+<I>delete()</I> may be used to remove an element from the array and return
+it.  The array element at that position returns to its uninitialized
+state, so that testing for the same element with <I>exists()</I> will return
+false.  If the element happens to be the one at the end, the size of
+the array also shrinks up to the highest element that tests true for
+<I>exists()</I>, or 0 if none such is found.  If the array is tied, the <FONT SIZE="-1"><I>DELETE</I></FONT><I>()</I> 
+method in the corresponding tied package will be invoked.
+<P>
+
+See ``exists'' in perlfunc and ``delete'' in perlfunc for examples.
+<A NAME="lbBL">&nbsp;</A>
+<H2>Pseudo-hashes work better</H2>
+
+<A NAME="ixABL"></A>
+Dereferencing some types of reference values in a pseudo-hash,
+such as <TT>&quot;$ph-&gt;{foo}[1]&quot;</TT>, was accidentally disallowed.  This has
+been corrected.
+<P>
+
+When applied to a pseudo-hash element, <I>exists()</I> now reports whether
+the specified value exists, not merely if the key is valid.
+<P>
+
+<I>delete()</I> now works on pseudo-hashes.  When given a pseudo-hash element
+or slice it deletes the values corresponding to the keys (but not the keys
+themselves).  See ``Pseudo-hashes: Using an array as a hash'' in perlref.
+<P>
+
+Pseudo-hash slices with constant keys are now optimized to array lookups
+at compile-time.
+<P>
+
+List assignments to pseudo-hash slices are now supported.
+<P>
+
+The <TT>&quot;fields&quot;</TT> pragma now provides ways to create pseudo-hashes, via
+<I>fields::new()</I> and <I>fields::phash()</I>.  See fields.
+<P>
+
+
+
+<PRE>
+    NOTE: The pseudo-hash data type continues to be experimental.
+    Limiting oneself to the interface elements provided by the
+    fields pragma will provide protection from any future changes.
+
+</PRE>
+
+
+<A NAME="lbBM">&nbsp;</A>
+<H2>Automatic flushing of output buffers</H2>
+
+<A NAME="ixABM"></A>
+<I>fork()</I>, <I>exec()</I>, <I>system()</I>, qx//, and pipe <I>open()</I>s now flush buffers
+of all files opened for output when the operation was attempted.  This
+mostly eliminates confusing buffering mishaps suffered by users unaware
+of how Perl internally handles I/O.
+<P>
+
+This is not supported on some platforms like Solaris where a suitably
+correct implementation of fflush(<FONT SIZE="-1">NULL</FONT>) isn't available.
+<A NAME="lbBN">&nbsp;</A>
+<H2>Better diagnostics on meaningless filehandle operations</H2>
+
+<A NAME="ixABN"></A>
+Constructs such as <TT>&quot;open(&lt;FH&gt;)&quot;</TT> and <TT>&quot;close(&lt;FH&gt;)&quot;</TT>
+are compile time errors.  Attempting to read from filehandles that
+were opened only for writing will now produce warnings (just as
+writing to read-only filehandles does).
+<A NAME="lbBO">&nbsp;</A>
+<H2>Where possible, buffered data discarded from duped input filehandle</H2>
+
+<A NAME="ixABO"></A>
+<TT>&quot;open(NEW, &quot;&lt;&amp;OLD&quot;)&quot;</TT> now attempts to discard any data that
+was previously read and buffered in <TT>&quot;OLD&quot;</TT> before duping the handle.
+On platforms where doing this is allowed, the next read operation
+on <TT>&quot;NEW&quot;</TT> will return the same data as the corresponding operation
+on <TT>&quot;OLD&quot;</TT>.  Formerly, it would have returned the data from the start
+of the following disk block instead.
+<A NAME="lbBP">&nbsp;</A>
+<H2><I>eof()</I> has the same old magic as &lt;&gt;</H2>
+
+<A NAME="ixABP"></A>
+<TT>&quot;eof()&quot;</TT> would return true if no attempt to read from <TT>&quot;&lt;&gt;&quot;</TT> had
+yet been made.  <TT>&quot;eof()&quot;</TT> has been changed to have a little magic of its
+own, it now opens the <TT>&quot;&lt;&gt;&quot;</TT> files.
+<A NAME="lbBQ">&nbsp;</A>
+<H2><I>binmode()</I> can be used to set :crlf and :raw modes</H2>
+
+<A NAME="ixABQ"></A>
+<I>binmode()</I> now accepts a second argument that specifies a discipline
+for the handle in question.  The two pseudo-disciplines ``:raw'' and
+``:crlf'' are currently supported on DOS-derivative platforms.
+See ``binmode'' in perlfunc and open.
+<A NAME="lbBR">&nbsp;</A>
+<H2>-T filetest recognizes <FONT SIZE="-1">UTF-8</FONT> encoded files as text</H2>
+
+
+
+<A NAME="ixABR"></A>
+The algorithm used for the <TT>&quot;-T&quot;</TT> filetest has been enhanced to
+correctly identify <FONT SIZE="-1">UTF-8</FONT> content as ``text''.
+<A NAME="lbBS">&nbsp;</A>
+<H2><I>system()</I>, backticks and pipe open now reflect <I>exec()</I> failure</H2>
+
+<A NAME="ixABS"></A>
+On Unix and similar platforms, <I>system()</I>, <I>qx()</I> and open(<FONT SIZE="-1">FOO</FONT>, ``cmd |'')
+etc., are implemented via <I>fork()</I> and <I>exec()</I>.  When the underlying
+<I>exec()</I> fails, earlier versions did not report the error properly,
+since the <I>exec()</I> happened to be in a different process.
+<P>
+
+The child process now communicates with the parent about the
+error in launching the external command, which allows these
+constructs to return with their usual error value and set $!.
+<A NAME="lbBT">&nbsp;</A>
+<H2>Improved diagnostics</H2>
+
+<A NAME="ixABT"></A>
+Line numbers are no longer suppressed (under most likely circumstances)
+during the global destruction phase.
+<P>
+
+Diagnostics emitted from code running in threads other than the main
+thread are now accompanied by the thread <FONT SIZE="-1">ID</FONT>.
+<P>
+
+Embedded null characters in diagnostics now actually show up.  They
+used to truncate the message in prior versions.
+<P>
+
+$foo::a and <TT>$foo::b</TT> are now exempt from ``possible typo'' warnings only
+if <I>sort()</I> is encountered in package <TT>&quot;foo&quot;</TT>.
+<P>
+
+Unrecognized alphabetic escapes encountered when parsing quote
+constructs now generate a warning, since they may take on new
+semantics in later versions of Perl.
+<P>
+
+Many diagnostics now report the internal operation in which the warning
+was provoked, like so:
+<P>
+
+
+
+<PRE>
+    Use of uninitialized value in concatenation (.) at (eval 1) line 1.
+    Use of uninitialized value in print at (eval 1) line 1.
+
+</PRE>
+
+
+<P>
+
+Diagnostics  that occur within eval may also report the file and line
+number where the eval is located, in addition to the eval sequence
+number and the line number within the evaluated text itself.  For
+example:
+<P>
+
+
+
+<PRE>
+    Not enough arguments for scalar at (eval 4)[newlib/perl5db.pl:1411] line 2, at EOF
+
+</PRE>
+
+
+<A NAME="lbBU">&nbsp;</A>
+<H2>Diagnostics follow <FONT SIZE="-1">STDERR</FONT></H2>
+
+<A NAME="ixABU"></A>
+Diagnostic output now goes to whichever file the <TT>&quot;STDERR&quot;</TT> handle
+is pointing at, instead of always going to the underlying C runtime
+library's <TT>&quot;stderr&quot;</TT>.
+<A NAME="lbBV">&nbsp;</A>
+<H2>More consistent close-on-exec behavior</H2>
+
+<A NAME="ixABV"></A>
+On systems that support a close-on-exec flag on filehandles, the
+flag is now set for any handles created by <I>pipe()</I>, <I>socketpair()</I>,
+<I>socket()</I>, and <I>accept()</I>, if that is warranted by the value of $^F
+that may be in effect.  Earlier versions neglected to set the flag
+for handles created with these operators.  See ``pipe'' in perlfunc,
+``socketpair'' in perlfunc, ``socket'' in perlfunc, ``accept'' in perlfunc,
+and ``$^F'' in perlvar.
+<A NAME="lbBW">&nbsp;</A>
+<H2><I>syswrite()</I> ease-of-use</H2>
+
+<A NAME="ixABW"></A>
+The length argument of <TT>&quot;syswrite()&quot;</TT> has become optional.
+<A NAME="lbBX">&nbsp;</A>
+<H2>Better syntax checks on parenthesized unary operators</H2>
+
+<A NAME="ixABX"></A>
+Expressions such as:
+<P>
+
+
+
+<PRE>
+    print defined(&amp;foo,&amp;bar,&amp;baz);
+    print uc(&quot;foo&quot;,&quot;bar&quot;,&quot;baz&quot;);
+    undef($foo,&amp;bar);
+
+</PRE>
+
+
+<P>
+
+used to be accidentally allowed in earlier versions, and produced
+unpredictable behaviour.  Some produced ancillary warnings
+when used in this way; others silently did the wrong thing.
+<P>
+
+The parenthesized forms of most unary operators that expect a single
+argument now ensure that they are not called with more than one
+argument, making the cases shown above syntax errors.  The usual
+behaviour of:
+<P>
+
+
+
+<PRE>
+    print defined &amp;foo, &amp;bar, &amp;baz;
+    print uc &quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;;
+    undef $foo, &amp;bar;
+
+</PRE>
+
+
+<P>
+
+remains unchanged.  See perlop.
+<A NAME="lbBY">&nbsp;</A>
+<H2>Bit operators support full native integer width</H2>
+
+<A NAME="ixABY"></A>
+The bit operators (&amp; | ^ ~ &lt;&lt; &gt;&gt;) now operate on the full native
+integral width (the exact size of which is available in <TT>$Config</TT>{ivsize}).
+For example, if your platform is either natively 64-bit or if Perl
+has been configured to use 64-bit integers, these operations apply
+to 8 bytes (as opposed to 4 bytes on 32-bit platforms).
+For portability, be sure to mask off the excess bits in the result of
+unary <TT>&quot;~&quot;</TT>, e.g., <TT>&quot;~$x &amp; 0xffffffff&quot;</TT>.
+<A NAME="lbBZ">&nbsp;</A>
+<H2>Improved security features</H2>
+
+<A NAME="ixABZ"></A>
+More potentially unsafe operations taint their results for improved
+security.
+<P>
+
+The <TT>&quot;passwd&quot;</TT> and <TT>&quot;shell&quot;</TT> fields returned by the <I>getpwent()</I>, <I>getpwnam()</I>,
+and <I>getpwuid()</I> are now tainted, because the user can affect their own
+encrypted password and login shell.
+<P>
+
+The variable modified by <I>shmread()</I>, and messages returned by <I>msgrcv()</I>
+(and its object-oriented interface IPC::SysV::Msg::rcv) are also tainted,
+because other untrusted processes can modify messages and shared memory
+segments for their own nefarious purposes.
+<A NAME="lbCA">&nbsp;</A>
+<H2>More functional bareword prototype (*)</H2>
+
+<A NAME="ixACA"></A>
+Bareword prototypes have been rationalized to enable them to be used
+to override builtins that accept barewords and interpret them in
+a special way, such as <TT>&quot;require&quot;</TT> or <TT>&quot;do&quot;</TT>.
+<P>
+
+Arguments prototyped as <TT>&quot;*&quot;</TT> will now be visible within the subroutine
+as either a simple scalar or as a reference to a typeglob.
+See ``Prototypes'' in perlsub.
+<A NAME="lbCB">&nbsp;</A>
+<H2>require</TT> and <TT>do may be overridden</H2>
+
+
+
+<A NAME="ixACB"></A>
+&quot;require&quot;</TT> and <TT>&quot;do 'file'&quot;</TT> operations may be overridden locally
+by importing subroutines of the same name into the current package 
+(or globally by importing them into the <FONT SIZE="-1">CORE::GLOBAL::</FONT> namespace).
+Overriding <TT>&quot;require&quot;</TT> will also affect <TT>&quot;use&quot;</TT>, provided the override
+is visible at compile-time.
+See ``Overriding Built-in Functions'' in perlsub.
+<A NAME="lbCC">&nbsp;</A>
+<H2>$^X variables may now have names longer than one character</H2>
+
+<A NAME="ixACC"></A>
+Formerly, $^X was synonymous with ${``\cX''}, but $^XY was a syntax
+error.  Now variable names that begin with a control character may be
+arbitrarily long.  However, for compatibility reasons, these variables
+<I>must</I> be written with explicit braces, as <TT>&quot;${^XY}&quot;</TT> for example.
+<TT>&quot;${^XYZ}&quot;</TT> is synonymous with ${``\cXYZ''}.  Variable names with more
+than one control character, such as <TT>&quot;${^XY^Z}&quot;</TT>, are illegal.
+<P>
+
+The old syntax has not changed.  As before, `^X' may be either a
+literal control-X character or the two-character sequence `caret' plus
+`X'.  When braces are omitted, the variable name stops after the
+control character.  Thus <TT>&quot;$^XYZ&quot;</TT> continues to be synonymous with
+<TT>&quot;$^X . &quot;YZ&quot;&quot;</TT> as before.
+<P>
+
+As before, lexical variables may not have names beginning with control
+characters.  As before, variables whose names begin with a control
+character are always forced to be in package `main'.  All such variables
+are reserved for future extensions, except those that begin with
+<TT>&quot;^_&quot;</TT>, which may be used by user programs and are guaranteed not to
+acquire special meaning in any future version of Perl.
+<A NAME="lbCD">&nbsp;</A>
+<H2>New variable $^C reflects -c switch</H2>
+
+
+
+<A NAME="ixACD"></A>
+<TT>$^C</TT> has a boolean value that reflects whether perl is being run
+in compile-only mode (i.e. via the <TT>&quot;-c&quot;</TT> switch).  Since
+<FONT SIZE="-1">BEGIN</FONT> blocks are executed under such conditions, this variable
+enables perl code to determine whether actions that make sense
+only during normal running are warranted.  See perlvar.
+<A NAME="lbCE">&nbsp;</A>
+<H2>New variable $^V contains Perl version as a string</H2>
+
+<A NAME="ixACE"></A>
+<TT>$^V</TT> contains the Perl version number as a string composed of
+characters whose ordinals match the version numbers, i.e. v5.6.0.
+This may be used in string comparisons.
+<P>
+
+See <TT>&quot;Support for strings represented as a vector of ordinals&quot;</TT> for an
+example.
+<A NAME="lbCF">&nbsp;</A>
+<H2>Optional Y2K warnings</H2>
+
+<A NAME="ixACF"></A>
+If Perl is built with the cpp macro <TT>&quot;PERL_Y2KWARN&quot;</TT> defined,
+it emits optional warnings when concatenating the number 19
+with another number.
+<P>
+
+This behavior must be specifically enabled when running Configure.
+See <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> and <I></I><FONT SIZE="-1"><I>README</I></FONT><I>.Y2K</I>.
+<A NAME="lbCG">&nbsp;</A>
+<H2>Arrays now always interpolate into double-quoted strings</H2>
+
+<A NAME="ixACG"></A>
+In double-quoted strings, arrays now interpolate, no matter what.  The
+behavior in earlier versions of perl 5 was that arrays would interpolate
+into strings if the array had been mentioned before the string was
+compiled, and otherwise Perl would raise a fatal compile-time error.
+In versions 5.000 through 5.003, the error was
+<P>
+
+
+
+<PRE>
+        Literal @example now requires backslash
+
+</PRE>
+
+
+<P>
+
+In versions 5.004_01 through 5.6.0, the error was
+<P>
+
+
+
+<PRE>
+        In string, @example now must be written as \@example
+
+</PRE>
+
+
+<P>
+
+The idea here was to get people into the habit of writing
+<TT>&quot;fred\@example.com&quot;</TT> when they wanted a literal <TT>&quot;@&quot;</TT> sign, just as
+they have always written <TT>&quot;Give me back my \$5&quot;</TT> when they wanted a
+literal <TT>&quot;$&quot;</TT> sign.
+<P>
+
+Starting with 5.6.1, when Perl now sees an <TT>&quot;@&quot;</TT> sign in a
+double-quoted string, it <I>always</I> attempts to interpolate an array,
+regardless of whether or not the array has been used or declared
+already.  The fatal error has been downgraded to an optional warning:
+<P>
+
+
+
+<PRE>
+        Possible unintended interpolation of @example in string
+
+</PRE>
+
+
+<P>
+
+This warns you that <TT>&quot;<A HREF="mailto:fred@example.com">fred@example.com</A>&quot;</TT> is going to turn into
+<TT>&quot;fred.com&quot;</TT> if you don't backslash the <TT>&quot;@&quot;</TT>.
+See <A HREF="http://www.plover.com/~mjd/perl/at-error.php">http://www.plover.com/~mjd/perl/at-error.html</A> for more details
+about the history here.
+<A NAME="lbCH">&nbsp;</A>
+<H2>Modules and Pragmata</H2>
+
+<A NAME="ixACH"></A>
+<A NAME="lbCI">&nbsp;</A>
+<H2>Modules</H2>
+
+<A NAME="ixACI"></A>
+<DL COMPACT>
+<DT>attributes<DD>
+<A NAME="ixACJ"></A>
+While used internally by Perl as a pragma, this module also
+provides a way to fetch subroutine and variable attributes.
+See attributes.
+<DT>B<DD>
+<A NAME="ixACK"></A>
+The Perl Compiler suite has been extensively reworked for this
+release.  More of the standard Perl testsuite passes when run
+under the Compiler, but there is still a significant way to
+go to achieve production quality compiled executables.
+
+
+<P>
+
+
+
+
+<PRE>
+    NOTE: The Compiler suite remains highly experimental.  The
+    generated code may not be correct, even when it manages to execute
+    without errors.
+
+</PRE>
+
+
+<DT>Benchmark<DD>
+<A NAME="ixACL"></A>
+Overall, Benchmark results exhibit lower average error and better timing
+accuracy.  
+
+
+<P>
+
+
+You can now run tests for <I>n</I> seconds instead of guessing the right
+number of tests to run: e.g., timethese(-5, ...) will run each 
+code for at least 5 <FONT SIZE="-1">CPU</FONT> seconds.  Zero as the ``number of repetitions''
+means ``for at least 3 <FONT SIZE="-1">CPU</FONT> seconds''.  The output format has also
+changed.  For example:
+
+
+<P>
+
+
+
+
+<PRE>
+   use Benchmark;$x=3;timethese(-5,{a=&gt;sub{$x*$x},b=&gt;sub{$x**2}})
+
+</PRE>
+
+
+
+
+<P>
+
+
+will now output something like this:
+
+
+<P>
+
+
+
+
+<PRE>
+   Benchmark: running a, b, each for at least 5 CPU seconds...
+            a:  5 wallclock secs ( 5.77 usr +  0.00 sys =  5.77 CPU) @ 200551.91/s (n=1156516)
+            b:  4 wallclock secs ( 5.00 usr +  0.02 sys =  5.02 CPU) @ 159605.18/s (n=800686)
+
+</PRE>
+
+
+
+
+<P>
+
+
+New features: ``each for at least N <FONT SIZE="-1">CPU</FONT> seconds...'', ``wallclock secs'',
+and the ``@ operations/CPU second (n=operations)''.
+
+
+<P>
+
+
+<I>timethese()</I> now returns a reference to a hash of Benchmark objects containing
+the test results, keyed on the names of the tests.
+
+
+<P>
+
+
+<I>timethis()</I> now returns the iterations field in the Benchmark result object
+instead of 0.
+
+
+<P>
+
+
+<I>timethese()</I>, <I>timethis()</I>, and the new <I>cmpthese()</I> (see below) can also take
+a format specifier of 'none' to suppress output.
+
+
+<P>
+
+
+A new function <I>countit()</I> is just like <I>timeit()</I> except that it takes a
+<FONT SIZE="-1">TIME</FONT> instead of a <FONT SIZE="-1">COUNT</FONT>.
+
+
+<P>
+
+
+A new function <I>cmpthese()</I> prints a chart comparing the results of each test
+returned from a <I>timethese()</I> call.  For each possible pair of tests, the
+percentage speed difference (iters/sec or seconds/iter) is shown.
+
+
+<P>
+
+
+For other details, see Benchmark.
+<DT>ByteLoader<DD>
+<A NAME="ixACM"></A>
+The ByteLoader is a dedicated extension to generate and run
+Perl bytecode.  See ByteLoader.
+<DT>constant<DD>
+<A NAME="ixACN"></A>
+References can now be used.
+
+
+<P>
+
+
+The new version also allows a leading underscore in constant names, but
+disallows a double leading underscore (as in ``__LINE__'').  Some other names
+are disallowed or warned against, including <FONT SIZE="-1">BEGIN</FONT>, <FONT SIZE="-1">END</FONT>, etc.  Some names
+which were forced into main:: used to fail silently in some cases; now they're
+fatal (outside of main::) and an optional warning (inside of main::).
+The ability to detect whether a constant had been set with a given name has
+been added.
+
+
+<P>
+
+
+See constant.
+<DT>charnames<DD>
+<A NAME="ixACO"></A>
+This pragma implements the <TT>&quot;\N&quot;</TT> string escape.  See charnames.
+<DT>Data::Dumper<DD>
+<A NAME="ixACP"></A>
+A <TT>&quot;Maxdepth&quot;</TT> setting can be specified to avoid venturing
+too deeply into deep data structures.  See Data::Dumper.
+
+
+<P>
+
+
+The <FONT SIZE="-1">XSUB</FONT> implementation of <I>Dump()</I> is now automatically called if the
+<TT>&quot;Useqq&quot;</TT> setting is not in use.
+
+
+<P>
+
+
+Dumping <TT>&quot;qr//&quot;</TT> objects works correctly.
+<DT><FONT SIZE="-1">DB</FONT><DD>
+<A NAME="ixACQ"></A>
+<TT>&quot;DB&quot;</TT> is an experimental module that exposes a clean abstraction
+to Perl's debugging <FONT SIZE="-1">API</FONT>.
+<DT>DB_File<DD>
+<A NAME="ixACR"></A>
+DB_File can now be built with Berkeley <FONT SIZE="-1">DB</FONT> versions 1, 2 or 3.
+See <TT>&quot;ext/DB_File/Changes&quot;</TT>.
+<DT>Devel::DProf<DD>
+<A NAME="ixACS"></A>
+Devel::DProf, a Perl source code profiler has been added.  See
+Devel::DProf and dprofpp.
+<DT>Devel::Peek<DD>
+<A NAME="ixACT"></A>
+The Devel::Peek module provides access to the internal representation
+of Perl variables and data.  It is a data debugging tool for the <FONT SIZE="-1">XS</FONT> programmer.
+<DT>Dumpvalue<DD>
+<A NAME="ixACU"></A>
+The Dumpvalue module provides screen dumps of Perl data.
+<DT>DynaLoader<DD>
+<A NAME="ixACV"></A>
+DynaLoader now supports a <I>dl_unload_file()</I> function on platforms that
+support unloading shared objects using <I>dlclose()</I>.
+
+
+<P>
+
+
+Perl can also optionally arrange to unload all extension shared objects
+loaded by Perl.  To enable this, build Perl with the Configure option
+<TT>&quot;-Accflags=-DDL_UNLOAD_ALL_AT_EXIT&quot;</TT>.  (This maybe useful if you are
+using Apache with mod_perl.)
+<DT>English<DD>
+<A NAME="ixACW"></A>
+$PERL_VERSION now stands for <TT>$^V</TT> (a string value) rather than for <TT>$]</TT>
+(a numeric value).
+<DT>Env<DD>
+<A NAME="ixACX"></A>
+Env now supports accessing environment variables like <FONT SIZE="-1">PATH</FONT> as array
+variables.
+<DT>Fcntl<DD>
+<A NAME="ixACY"></A>
+More Fcntl constants added: F_SETLK64, F_SETLKW64, O_LARGEFILE for
+large file (more than 4GB) access (<FONT SIZE="-1">NOTE:</FONT> the O_LARGEFILE is
+automatically added to <I>sysopen()</I> flags if large file support has been
+configured, as is the default), Free/Net/OpenBSD locking behaviour
+flags F_FLOCK, F_POSIX, Linux F_SHLCK, and O_ACCMODE: the combined
+mask of O_RDONLY, O_WRONLY, and O_RDWR.  The <I>seek()</I>/<I>sysseek()</I>
+constants <FONT SIZE="-1">SEEK_SET</FONT>, <FONT SIZE="-1">SEEK_CUR</FONT>, and <FONT SIZE="-1">SEEK_END</FONT> are available via the
+<TT>&quot;:seek&quot;</TT> tag.  The <I>chmod()</I>/<I>stat()</I> S_IF* constants and S_IS* functions
+are available via the <TT>&quot;:mode&quot;</TT> tag.
+<DT>File::Compare<DD>
+<A NAME="ixACZ"></A>
+A <I>compare_text()</I> function has been added, which allows custom
+comparison functions.  See File::Compare.
+<DT>File::Find<DD>
+<A NAME="ixADA"></A>
+File::Find now works correctly when the <I>wanted()</I> function is either
+autoloaded or is a symbolic reference.
+
+
+<P>
+
+
+A bug that caused File::Find to lose track of the working directory
+when pruning top-level directories has been fixed.
+
+
+<P>
+
+
+File::Find now also supports several other options to control its
+behavior.  It can follow symbolic links if the <TT>&quot;follow&quot;</TT> option is
+specified.  Enabling the <TT>&quot;no_chdir&quot;</TT> option will make File::Find skip
+changing the current directory when walking directories.  The <TT>&quot;untaint&quot;</TT>
+flag can be useful when running with taint checks enabled.
+
+
+<P>
+
+
+See File::Find.
+<DT>File::Glob<DD>
+<A NAME="ixADB"></A>
+This extension implements BSD-style file globbing.  By default,
+it will also be used for the internal implementation of the <I>glob()</I>
+operator.  See File::Glob.
+<DT>File::Spec<DD>
+<A NAME="ixADC"></A>
+New methods have been added to the File::Spec module: <I>devnull()</I> returns
+the name of the null device (/dev/null on Unix) and <I>tmpdir()</I> the name of
+the temp directory (normally /tmp on Unix).  There are now also methods
+to convert between absolute and relative filenames: <I>abs2rel()</I> and
+<I>rel2abs()</I>.  For compatibility with operating systems that specify volume
+names in file paths, the <I>splitpath()</I>, <I>splitdir()</I>, and <I>catdir()</I> methods
+have been added.
+<DT>File::Spec::Functions<DD>
+<A NAME="ixADD"></A>
+The new File::Spec::Functions modules provides a function interface
+to the File::Spec module.  Allows shorthand
+
+
+<P>
+
+
+
+
+<PRE>
+    $fullname = catfile($dir1, $dir2, $file);
+
+</PRE>
+
+
+
+
+<P>
+
+
+instead of
+
+
+<P>
+
+
+
+
+<PRE>
+    $fullname = File::Spec-&gt;catfile($dir1, $dir2, $file);
+
+</PRE>
+
+
+<DT>Getopt::Long<DD>
+<A NAME="ixADE"></A>
+Getopt::Long licensing has changed to allow the Perl Artistic License
+as well as the <FONT SIZE="-1">GPL</FONT>. It used to be <FONT SIZE="-1">GPL</FONT> only, which got in the way of
+non-GPL applications that wanted to use Getopt::Long.
+
+
+<P>
+
+
+Getopt::Long encourages the use of Pod::Usage to produce help
+messages. For example:
+
+
+<P>
+
+
+
+
+<PRE>
+    use Getopt::Long;
+    use Pod::Usage;
+    my $man = 0;
+    my $help = 0;
+    GetOptions('help|?' =&gt; \$help, man =&gt; \$man) or <A HREF="../man2/pod2usage.2.php">pod2usage</A>(2);
+    <A HREF="../man1/pod2usage.1.php">pod2usage</A>(1) if $help;
+    pod2usage(-exitstatus =&gt; 0, -verbose =&gt; 2) if $man;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    __END__
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head1 NAME
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    sample - Using Getopt::Long and Pod::Usage
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head1 SYNOPSIS
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    sample [options] [file ...]
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+     Options:
+       -help            brief help message
+       -man             full documentation
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head1 OPTIONS
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =over 8
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =item B&lt;-help&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    Print a brief help message and exits.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =item B&lt;-man&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    Prints the manual page and exits.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =back
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head1 DESCRIPTION
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    B&lt;This program&gt; will read the given input file(s) and do something
+    useful with the contents thereof.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =cut
+
+</PRE>
+
+
+
+
+<P>
+
+
+See Pod::Usage for details.
+
+
+<P>
+
+
+A bug that prevented the non-option call-back &lt;&gt; from being
+specified as the first argument has been fixed.
+
+
+<P>
+
+
+To specify the characters &lt; and &gt; as option starters, use &gt;&lt;. Note,
+however, that changing option starters is strongly deprecated. 
+<DT><FONT SIZE="-1">IO</FONT><DD>
+<A NAME="ixADF"></A>
+<I>write()</I> and <I>syswrite()</I> will now accept a single-argument
+form of the call, for consistency with Perl's <I>syswrite()</I>.
+
+
+<P>
+
+
+You can now create a TCP-based IO::Socket::INET without forcing
+a connect attempt.  This allows you to configure its options
+(like making it non-blocking) and then call <I>connect()</I> manually.
+
+
+<P>
+
+
+A bug that prevented the <I>IO::Socket::protocol()</I> accessor
+from ever returning the correct value has been corrected.
+
+
+<P>
+
+
+IO::Socket::connect now uses non-blocking <FONT SIZE="-1">IO</FONT> instead of <I>alarm()</I>
+to do connect timeouts.
+
+
+<P>
+
+
+IO::Socket::accept now uses <I>select()</I> instead of <I>alarm()</I> for doing
+timeouts.
+
+
+<P>
+
+
+IO::Socket::INET-&gt;new now sets $! correctly on failure. $@ is
+still set for backwards compatibility.
+<DT><FONT SIZE="-1">JPL</FONT><DD>
+<A NAME="ixADG"></A>
+Java Perl Lingo is now distributed with Perl.  See jpl/README
+for more information.
+<DT>lib<DD>
+<A NAME="ixADH"></A>
+<TT>&quot;use lib&quot;</TT> now weeds out any trailing duplicate entries.
+<TT>&quot;no lib&quot;</TT> removes all named entries.
+<DT>Math::BigInt<DD>
+<A NAME="ixADI"></A>
+The bitwise operations <TT>&quot;&lt;&lt;&quot;</TT>, <TT>&quot;&gt;&gt;&quot;</TT>, <TT>&quot;&amp;&quot;</TT>, <TT>&quot;|&quot;</TT>,
+and <TT>&quot;~&quot;</TT> are now supported on bigints.
+<DT>Math::Complex<DD>
+<A NAME="ixADJ"></A>
+The accessor methods Re, Im, arg, abs, rho, and theta can now also
+act as mutators (accessor <TT>$z</TT>-&gt;<I>Re()</I>, mutator <TT>$z</TT>-&gt;<I><A HREF="../man3/Re.3.php">Re</A></I>(3)).
+
+
+<P>
+
+
+The class method <TT>&quot;display_format&quot;</TT> and the corresponding object method
+<TT>&quot;display_format&quot;</TT>, in addition to accepting just one argument, now can
+also accept a parameter hash.  Recognized keys of a parameter hash are
+<TT>&quot;style&quot;</TT>, which corresponds to the old one parameter case, and two
+new parameters: <TT>&quot;format&quot;</TT>, which is a <I>printf()</I>-style format string
+(defaults usually to <TT>&quot;%.15g&quot;</TT>, you can revert to the default by
+setting the format string to <TT>&quot;undef&quot;</TT>) used for both parts of a
+complex number, and <TT>&quot;polar_pretty_print&quot;</TT> (defaults to true),
+which controls whether an attempt is made to try to recognize small
+multiples and rationals of pi (2pi, pi/2) at the argument (angle) of a
+polar complex number.
+
+
+<P>
+
+
+The potentially disruptive change is that in list context both methods
+now <I>return the parameter hash</I>, instead of only the value of the
+<TT>&quot;style&quot;</TT> parameter.
+<DT>Math::Trig<DD>
+<A NAME="ixADK"></A>
+A little bit of radial trigonometry (cylindrical and spherical),
+radial coordinate conversions, and the great circle distance were added.
+<DT>Pod::Parser, Pod::InputObjects<DD>
+<A NAME="ixADL"></A>
+Pod::Parser is a base class for parsing and selecting sections of
+pod documentation from an input stream.  This module takes care of
+identifying pod paragraphs and commands in the input and hands off the
+parsed paragraphs and commands to user-defined methods which are free
+to interpret or translate them as they see fit.
+
+
+<P>
+
+
+Pod::InputObjects defines some input objects needed by Pod::Parser, and
+for advanced users of Pod::Parser that need more about a command besides
+its name and text.
+
+
+<P>
+
+
+As of release 5.6.0 of Perl, Pod::Parser is now the officially sanctioned
+``base parser code'' recommended for use by all pod2xxx translators.
+Pod::Text (pod2text) and Pod::Man (pod2man) have already been converted
+to use Pod::Parser and efforts to convert Pod::HTML (pod2html) are already
+underway.  For any questions or comments about pod parsing and translating
+issues and utilities, please use the <A HREF="mailto:pod-people@perl.org">pod-people@perl.org</A> mailing list.
+
+
+<P>
+
+
+For further information, please see Pod::Parser and Pod::InputObjects.
+<DT>Pod::Checker, podchecker<DD>
+<A NAME="ixADM"></A>
+This utility checks pod files for correct syntax, according to
+perlpod.  Obvious errors are flagged as such, while warnings are
+printed for mistakes that can be handled gracefully.  The checklist is
+not complete yet.  See Pod::Checker.
+<DT>Pod::ParseUtils, Pod::Find<DD>
+<A NAME="ixADN"></A>
+These modules provide a set of gizmos that are useful mainly for pod
+translators.  Pod::Find traverses directory structures and
+returns found pod files, along with their canonical names (like
+<TT>&quot;File::Spec::Unix&quot;</TT>).  Pod::ParseUtils contains
+<B>Pod::List</B> (useful for storing pod list information), <B>Pod::Hyperlink</B>
+(for parsing the contents of <TT>&quot;L&lt;&gt;&quot;</TT> sequences) and <B>Pod::Cache</B>
+(for caching information about pod files, e.g., link nodes).
+<DT>Pod::Select, podselect<DD>
+<A NAME="ixADO"></A>
+Pod::Select is a subclass of Pod::Parser which provides a function
+named ``<I>podselect()</I>'' to filter out user-specified sections of raw pod
+documentation from an input stream. podselect is a script that provides
+access to Pod::Select from other scripts to be used as a filter.
+See Pod::Select.
+<DT>Pod::Usage, pod2usage<DD>
+<A NAME="ixADP"></A>
+Pod::Usage provides the function ``<I>pod2usage()</I>'' to print usage messages for
+a Perl script based on its embedded pod documentation.  The <I>pod2usage()</I>
+function is generally useful to all script authors since it lets them
+write and maintain a single source (the pods) for documentation, thus
+removing the need to create and maintain redundant usage message text
+consisting of information already in the pods.
+
+
+<P>
+
+
+There is also a pod2usage script which can be used from other kinds of
+scripts to print usage messages from pods (even for non-Perl scripts
+with pods embedded in comments).
+
+
+<P>
+
+
+For details and examples, please see Pod::Usage.
+<DT>Pod::Text and Pod::Man<DD>
+<A NAME="ixADQ"></A>
+Pod::Text has been rewritten to use Pod::Parser.  While <I>pod2text()</I> is
+still available for backwards compatibility, the module now has a new
+preferred interface.  See Pod::Text for the details.  The new Pod::Text
+module is easily subclassed for tweaks to the output, and two such
+subclasses (Pod::Text::Termcap for man-page-style bold and underlining
+using termcap information, and Pod::Text::Color for markup with <FONT SIZE="-1">ANSI</FONT> color
+sequences) are now standard.
+
+
+<P>
+
+
+pod2man has been turned into a module, Pod::Man, which also uses
+Pod::Parser.  In the process, several outstanding bugs related to quotes
+in section headers, quoting of code escapes, and nested lists have been
+fixed.  pod2man is now a wrapper script around this module.
+<DT>SDBM_File<DD>
+<A NAME="ixADR"></A>
+An <FONT SIZE="-1">EXISTS</FONT> method has been added to this module (and <I>sdbm_exists()</I> has
+been added to the underlying sdbm library), so one can now call exists
+on an SDBM_File tied hash and get the correct result, rather than a
+runtime error.
+
+
+<P>
+
+
+A bug that may have caused data loss when more than one disk block
+happens to be read from the database in a single <FONT SIZE="-1"><I>FETCH</I></FONT><I>()</I> has been
+fixed.
+<DT>Sys::Syslog<DD>
+<A NAME="ixADS"></A>
+Sys::Syslog now uses XSUBs to access facilities from syslog.h so it
+no longer requires syslog.ph to exist. 
+<DT>Sys::Hostname<DD>
+<A NAME="ixADT"></A>
+Sys::Hostname now uses XSUBs to call the C library's <I>gethostname()</I> or
+<I>uname()</I> if they exist.
+<DT>Term::ANSIColor<DD>
+<A NAME="ixADU"></A>
+Term::ANSIColor is a very simple module to provide easy and readable
+access to the <FONT SIZE="-1">ANSI</FONT> color and highlighting escape sequences, supported by
+most <FONT SIZE="-1">ANSI</FONT> terminal emulators.  It is now included standard.
+<DT>Time::Local<DD>
+<A NAME="ixADV"></A>
+The <I>timelocal()</I> and <I>timegm()</I> functions used to silently return bogus
+results when the date fell outside the machine's integer range.  They
+now consistently <I>croak()</I> if the date falls in an unsupported range.
+<DT>Win32<DD>
+<A NAME="ixADW"></A>
+The error return value in list context has been changed for all functions
+that return a list of values.  Previously these functions returned a list
+with a single element <TT>&quot;undef&quot;</TT> if an error occurred.  Now these functions
+return the empty list in these situations.  This applies to the following
+functions:
+
+
+<P>
+
+
+
+
+<PRE>
+    Win32::FsType
+    Win32::GetOSVersion
+
+</PRE>
+
+
+
+
+<P>
+
+
+The remaining functions are unchanged and continue to return <TT>&quot;undef&quot;</TT> on
+error even in list context.
+
+
+<P>
+
+
+The Win32::SetLastError(<FONT SIZE="-1">ERROR</FONT>) function has been added as a complement
+to the <I>Win32::GetLastError()</I> function.
+
+
+<P>
+
+
+The new Win32::GetFullPathName(<FONT SIZE="-1">FILENAME</FONT>) returns the full absolute
+pathname for <FONT SIZE="-1">FILENAME</FONT> in scalar context.  In list context it returns
+a two-element list containing the fully qualified directory name and
+the filename.  See Win32.
+<DT>XSLoader<DD>
+<A NAME="ixADX"></A>
+The XSLoader extension is a simpler alternative to DynaLoader.
+See XSLoader.
+<DT><FONT SIZE="-1">DBM</FONT> Filters<DD>
+<A NAME="ixADY"></A>
+A new feature called ``<FONT SIZE="-1">DBM</FONT> Filters'' has been added to all the
+<FONT SIZE="-1">DBM</FONT> modules--DB_File, GDBM_File, NDBM_File, ODBM_File, and SDBM_File.
+<FONT SIZE="-1">DBM</FONT> Filters add four new methods to each <FONT SIZE="-1">DBM</FONT> module:
+
+
+<P>
+
+
+
+
+<PRE>
+    filter_store_key
+    filter_store_value
+    filter_fetch_key
+    filter_fetch_value
+
+</PRE>
+
+
+
+
+<P>
+
+
+These can be used to filter key-value pairs before the pairs are
+written to the database or just after they are read from the database.
+See perldbmfilter for further information.
+</DL>
+<A NAME="lbCJ">&nbsp;</A>
+<H2>Pragmata</H2>
+
+<A NAME="ixADZ"></A>
+<TT>&quot;use attrs&quot;</TT> is now obsolete, and is only provided for
+backward-compatibility.  It's been replaced by the <TT>&quot;sub : attributes&quot;</TT>
+syntax.  See ``Subroutine Attributes'' in perlsub and attributes.
+<P>
+
+Lexical warnings pragma, <TT>&quot;use warnings;&quot;</TT>, to control optional warnings.
+See perllexwarn.
+<P>
+
+<TT>&quot;use filetest&quot;</TT> to control the behaviour of filetests (<TT>&quot;-r&quot;</TT> <TT>&quot;-w&quot;</TT>
+...).  Currently only one subpragma implemented, ``use filetest
+'access';'', that uses <I><A HREF="../man2/access.2.php">access</A></I>(2) or equivalent to check permissions
+instead of using <I><A HREF="../man2/stat.2.php">stat</A></I>(2) as usual.  This matters in filesystems
+where there are ACLs (access control lists): the <I><A HREF="../man2/stat.2.php">stat</A></I>(2) might lie,
+but <I><A HREF="../man2/access.2.php">access</A></I>(2) knows better.
+<P>
+
+The <TT>&quot;open&quot;</TT> pragma can be used to specify default disciplines for
+handle constructors (e.g. <I>open()</I>) and for qx//.  The two
+pseudo-disciplines <TT>&quot;:raw&quot;</TT> and <TT>&quot;:crlf&quot;</TT> are currently supported on
+DOS-derivative platforms (i.e. where binmode is not a no-op).
+See also ``<I>binmode()</I> can be used to set :crlf and :raw modes''.
+<A NAME="lbCK">&nbsp;</A>
+<H2>Utility Changes</H2>
+
+<A NAME="ixAEA"></A>
+<A NAME="lbCL">&nbsp;</A>
+<H2>dprofpp</H2>
+
+<A NAME="ixAEB"></A>
+<TT>&quot;dprofpp&quot;</TT> is used to display profile data generated using <TT>&quot;Devel::DProf&quot;</TT>.
+See dprofpp.
+<A NAME="lbCM">&nbsp;</A>
+<H2>find2perl</H2>
+
+<A NAME="ixAEC"></A>
+The <TT>&quot;find2perl&quot;</TT> utility now uses the enhanced features of the File::Find
+module.  The -depth and -follow options are supported.  Pod documentation
+is also included in the script.
+<A NAME="lbCN">&nbsp;</A>
+<H2>h2xs</H2>
+
+<A NAME="ixAED"></A>
+The <TT>&quot;h2xs&quot;</TT> tool can now work in conjunction with <TT>&quot;C::Scan&quot;</TT> (available
+from <FONT SIZE="-1">CPAN</FONT>) to automatically parse real-life header files.  The <TT>&quot;-M&quot;</TT>,
+<TT>&quot;-a&quot;</TT>, <TT>&quot;-k&quot;</TT>, and <TT>&quot;-o&quot;</TT> options are new.
+<A NAME="lbCO">&nbsp;</A>
+<H2>perlcc</H2>
+
+<A NAME="ixAEE"></A>
+<TT>&quot;perlcc&quot;</TT> now supports the C and Bytecode backends.  By default,
+it generates output from the simple C backend rather than the
+optimized C backend.
+<P>
+
+Support for non-Unix platforms has been improved.
+<A NAME="lbCP">&nbsp;</A>
+<H2>perldoc</H2>
+
+<A NAME="ixAEF"></A>
+<TT>&quot;perldoc&quot;</TT> has been reworked to avoid possible security holes.
+It will not by default let itself be run as the superuser, but you
+may still use the <B>-U</B> switch to try to make it drop privileges
+first.
+<A NAME="lbCQ">&nbsp;</A>
+<H2>The Perl Debugger</H2>
+
+<A NAME="ixAEG"></A>
+Many bug fixes and enhancements were added to <I>perl5db.pl</I>, the
+Perl debugger.  The help documentation was rearranged.  New commands
+include <TT>&quot;&lt; ?&quot;</TT>, <TT>&quot;&gt; ?&quot;</TT>, and <TT>&quot;{ ?&quot;</TT> to list out current
+actions, <TT>&quot;man </TT>docpage<TT>&quot;</TT> to run your doc viewer on some perl
+docset, and support for quoted options.  The help information was
+rearranged, and should be viewable once again if you're using <B>less</B>
+as your pager.  A serious security hole was plugged---you should
+immediately remove all older versions of the Perl debugger as
+installed in previous releases, all the way back to perl3, from
+your system to avoid being bitten by this.
+<A NAME="lbCR">&nbsp;</A>
+<H2>Improved Documentation</H2>
+
+<A NAME="ixAEH"></A>
+Many of the platform-specific <FONT SIZE="-1">README</FONT> files are now part of the perl
+installation.  See perl for the complete list.
+<DL COMPACT>
+<DT>perlapi.pod<DD>
+<A NAME="ixAEI"></A>
+The official list of public Perl <FONT SIZE="-1">API</FONT> functions.
+<DT>perlboot.pod<DD>
+<A NAME="ixAEJ"></A>
+A tutorial for beginners on object-oriented Perl.
+<DT>perlcompile.pod<DD>
+<A NAME="ixAEK"></A>
+An introduction to using the Perl Compiler suite.
+<DT>perldbmfilter.pod<DD>
+<A NAME="ixAEL"></A>
+A howto document on using the <FONT SIZE="-1">DBM</FONT> filter facility.
+<DT>perldebug.pod<DD>
+<A NAME="ixAEM"></A>
+All material unrelated to running the Perl debugger, plus all
+low-level guts-like details that risked crushing the casual user
+of the debugger, have been relocated from the old manpage to the
+next entry below.
+<DT>perldebguts.pod<DD>
+<A NAME="ixAEN"></A>
+This new manpage contains excessively low-level material not related
+to the Perl debugger, but slightly related to debugging Perl itself.
+It also contains some arcane internal details of how the debugging
+process works that may only be of interest to developers of Perl
+debuggers.
+<DT>perlfork.pod<DD>
+<A NAME="ixAEO"></A>
+Notes on the <I>fork()</I> emulation currently available for the Windows platform.
+<DT>perlfilter.pod<DD>
+<A NAME="ixAEP"></A>
+An introduction to writing Perl source filters.
+<DT>perlhack.pod<DD>
+<A NAME="ixAEQ"></A>
+Some guidelines for hacking the Perl source code.
+<DT>perlintern.pod<DD>
+<A NAME="ixAER"></A>
+A list of internal functions in the Perl source code.
+(List is currently empty.)
+<DT>perllexwarn.pod<DD>
+<A NAME="ixAES"></A>
+Introduction and reference information about lexically scoped
+warning categories.
+<DT>perlnumber.pod<DD>
+<A NAME="ixAET"></A>
+Detailed information about numbers as they are represented in Perl.
+<DT>perlopentut.pod<DD>
+<A NAME="ixAEU"></A>
+A tutorial on using <I>open()</I> effectively.
+<DT>perlreftut.pod<DD>
+<A NAME="ixAEV"></A>
+A tutorial that introduces the essentials of references.
+<DT>perltootc.pod<DD>
+<A NAME="ixAEW"></A>
+A tutorial on managing class data for object modules.
+<DT>perltodo.pod<DD>
+<A NAME="ixAEX"></A>
+Discussion of the most often wanted features that may someday be
+supported in Perl.
+<DT>perlunicode.pod<DD>
+<A NAME="ixAEY"></A>
+An introduction to Unicode support features in Perl.
+</DL>
+<A NAME="lbCS">&nbsp;</A>
+<H2>Performance enhancements</H2>
+
+<A NAME="ixAEZ"></A>
+<A NAME="lbCT">&nbsp;</A>
+<H2>Simple </TT><I>sort()</I> using { $a &lt;=&gt; <TT>$b } and the like are optimized</H2>
+
+
+
+<A NAME="ixAFA"></A>
+Many common </TT><I>sort()</I> operations using a simple inlined block are now
+optimized for faster performance.
+<A NAME="lbCU">&nbsp;</A>
+<H2>Optimized assignments to lexical variables</H2>
+
+<A NAME="ixAFB"></A>
+Certain operations in the <FONT SIZE="-1">RHS</FONT> of assignment statements have been
+optimized to directly set the lexical variable on the <FONT SIZE="-1">LHS</FONT>,
+eliminating redundant copying overheads.
+<A NAME="lbCV">&nbsp;</A>
+<H2>Faster subroutine calls</H2>
+
+<A NAME="ixAFC"></A>
+Minor changes in how subroutine calls are handled internally
+provide marginal improvements in performance.
+<A NAME="lbCW">&nbsp;</A>
+<H2><I>delete()</I>, <I>each()</I>, <I>values()</I> and hash iteration are faster</H2>
+
+<A NAME="ixAFD"></A>
+The hash values returned by <I>delete()</I>, <I>each()</I>, <I>values()</I> and hashes in a
+list context are the actual values in the hash, instead of copies.
+This results in significantly better performance, because it eliminates
+needless copying in most situations.
+<A NAME="lbCX">&nbsp;</A>
+<H2>Installation and Configuration Improvements</H2>
+
+<A NAME="ixAFE"></A>
+<A NAME="lbCY">&nbsp;</A>
+<H2>-Dusethreads means something different</H2>
+
+<A NAME="ixAFF"></A>
+The -Dusethreads flag now enables the experimental interpreter-based thread
+support by default.  To get the flavor of experimental threads that was in
+5.005 instead, you need to run Configure with ``-Dusethreads -Duse5005threads''.
+<P>
+
+As of v5.6.0, interpreter-threads support is still lacking a way to
+create new threads from Perl (i.e., <TT>&quot;use Thread;&quot;</TT> will not work with
+interpreter threads).  <TT>&quot;use Thread;&quot;</TT> continues to be available when you
+specify the -Duse5005threads option to Configure, bugs and all.
+<P>
+
+
+
+<PRE>
+    NOTE: Support for threads continues to be an experimental feature.
+    Interfaces and implementation are subject to sudden and drastic changes.
+
+</PRE>
+
+
+<A NAME="lbCZ">&nbsp;</A>
+<H2>New Configure flags</H2>
+
+<A NAME="ixAFG"></A>
+The following new flags may be enabled on the Configure command line
+by running Configure with <TT>&quot;-Dflag&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    usemultiplicity
+    usethreads useithreads      (new interpreter threads: no Perl API yet)
+    usethreads use5005threads   (threads as they were in 5.005)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use64bitint                 (equal to now deprecated 'use64bits')
+    use64bitall
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    uselongdouble
+    usemorebits
+    uselargefiles
+    usesocks                    (only SOCKS v5 supported)
+
+</PRE>
+
+
+<A NAME="lbDA">&nbsp;</A>
+<H2>Threadedness and 64-bitness now more daring</H2>
+
+<A NAME="ixAFH"></A>
+The Configure options enabling the use of threads and the use of
+64-bitness are now more daring in the sense that they no more have an
+explicit list of operating systems of known threads/64-bit
+capabilities.  In other words: if your operating system has the
+necessary APIs and datatypes, you should be able just to go ahead and
+use them, for threads by Configure -Dusethreads, and for 64 bits
+either explicitly by Configure -Duse64bitint or implicitly if your
+system has 64-bit wide datatypes.  See also ``64-bit support''.
+<A NAME="lbDB">&nbsp;</A>
+<H2>Long Doubles</H2>
+
+<A NAME="ixAFI"></A>
+Some platforms have ``long doubles'', floating point numbers of even
+larger range than ordinary ``doubles''.  To enable using long doubles for
+Perl's scalars, use -Duselongdouble.
+<A NAME="lbDC">&nbsp;</A>
+<H2>-Dusemorebits</H2>
+
+<A NAME="ixAFJ"></A>
+You can enable both -Duse64bitint and -Duselongdouble with -Dusemorebits.
+See also ``64-bit support''.
+<A NAME="lbDD">&nbsp;</A>
+<H2>-Duselargefiles</H2>
+
+<A NAME="ixAFK"></A>
+Some platforms support system APIs that are capable of handling large files
+(typically, files larger than two gigabytes).  Perl will try to use these
+APIs if you ask for -Duselargefiles.
+<P>
+
+See ``Large file support'' for more information. 
+<A NAME="lbDE">&nbsp;</A>
+<H2>installusrbinperl</H2>
+
+<A NAME="ixAFL"></A>
+You can use ``Configure -Uinstallusrbinperl'' which causes installperl
+to skip installing perl also as /usr/bin/perl.  This is useful if you
+prefer not to modify /usr/bin for some reason or another but harmful
+because many scripts assume to find Perl in /usr/bin/perl.
+<A NAME="lbDF">&nbsp;</A>
+<H2><FONT SIZE="-1">SOCKS</FONT> support</H2>
+
+<A NAME="ixAFM"></A>
+You can use ``Configure -Dusesocks'' which causes Perl to probe
+for the <FONT SIZE="-1">SOCKS</FONT> proxy protocol library (v5, not v4).  For more information
+on <FONT SIZE="-1">SOCKS</FONT>, see:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.socks.nec.com/">http://www.socks.nec.com/</A>
+
+</PRE>
+
+
+<A NAME="lbDG">&nbsp;</A>
+<H2>-A flag</H2>
+
+
+
+<A NAME="ixAFN"></A>
+You can ``post-edit'' the Configure variables using the Configure <TT>&quot;-A&quot;</TT>
+switch.  The editing happens immediately after the platform specific
+hints files have been processed but before the actual configuration
+process starts.  Run <TT>&quot;Configure -h&quot;</TT> to find out the full <TT>&quot;-A&quot;</TT> syntax.
+<A NAME="lbDH">&nbsp;</A>
+<H2>Enhanced Installation Directories</H2>
+
+<A NAME="ixAFO"></A>
+The installation structure has been enriched to improve the support
+for maintaining multiple versions of perl, to provide locations for
+vendor-supplied modules, scripts, and manpages, and to ease maintenance
+of locally-added modules, scripts, and manpages.  See the section on
+Installation Directories in the <FONT SIZE="-1">INSTALL</FONT> file for complete details.
+For most users building and installing from source, the defaults should
+be fine.
+<P>
+
+If you previously used <TT>&quot;Configure -Dsitelib&quot;</TT> or <TT>&quot;-Dsitearch&quot;</TT> to set
+special values for library directories, you might wish to consider using
+the new <TT>&quot;-Dsiteprefix&quot;</TT> setting instead.  Also, if you wish to re-use a
+config.sh file from an earlier version of perl, you should be sure to
+check that Configure makes sensible choices for the new directories.
+See <FONT SIZE="-1">INSTALL</FONT> for complete details.
+<A NAME="lbDI">&nbsp;</A>
+<H2>Platform specific changes</H2>
+
+<A NAME="ixAFP"></A>
+<A NAME="lbDJ">&nbsp;</A>
+<H2>Supported platforms</H2>
+
+<A NAME="ixAFQ"></A>
+<DL COMPACT>
+<DT>*<DD>
+The Mach CThreads (<FONT SIZE="-1">NEXTSTEP</FONT>, <FONT SIZE="-1">OPENSTEP</FONT>) are now supported by the Thread
+extension.
+<DT>*<DD>
+GNU/Hurd is now supported.
+<DT>*<DD>
+Rhapsody/Darwin is now supported.
+<DT>*<DD>
+<FONT SIZE="-1">EPOC</FONT> is now supported (on Psion 5).
+<DT>*<DD>
+The cygwin port (formerly cygwin32) has been greatly improved.
+</DL>
+<A NAME="lbDK">&nbsp;</A>
+<H2><FONT SIZE="-1">DOS</FONT></H2>
+
+<A NAME="ixAFR"></A>
+<DL COMPACT>
+<DT>*<DD>
+Perl now works with djgpp 2.02 (and 2.03 alpha).
+<DT>*<DD>
+Environment variable names are not converted to uppercase any more.
+<DT>*<DD>
+Incorrect exit codes from backticks have been fixed.
+<DT>*<DD>
+This port continues to use its own builtin globbing (not File::Glob).
+</DL>
+<A NAME="lbDL">&nbsp;</A>
+<H2><FONT SIZE="-1">OS390</FONT> (OpenEdition <FONT SIZE="-1">MVS</FONT>)</H2>
+
+<A NAME="ixAFS"></A>
+Support for this <FONT SIZE="-1">EBCDIC</FONT> platform has not been renewed in this release.
+There are difficulties in reconciling Perl's standardization on <FONT SIZE="-1">UTF-8</FONT>
+as its internal representation for characters with the <FONT SIZE="-1">EBCDIC</FONT> character
+set, because the two are incompatible.
+<P>
+
+It is unclear whether future versions will renew support for this
+platform, but the possibility exists.
+<A NAME="lbDM">&nbsp;</A>
+<H2><FONT SIZE="-1">VMS</FONT></H2>
+
+<A NAME="ixAFT"></A>
+Numerous revisions and extensions to configuration, build, testing, and
+installation process to accommodate core changes and VMS-specific options.
+<P>
+
+Expand <TT>%ENV</TT>-handling code to allow runtime mapping to logical names,
+<FONT SIZE="-1">CLI</FONT> symbols, and <FONT SIZE="-1">CRTL</FONT> environ array.
+<P>
+
+Extension of subprocess invocation code to accept filespecs as command
+``verbs''.
+<P>
+
+Add to Perl command line processing the ability to use default file types and
+to recognize Unix-style <TT>&quot;2&gt;&amp;1&quot;</TT>.
+<P>
+
+Expansion of File::Spec::VMS routines, and integration into ExtUtils::MM_VMS.
+<P>
+
+Extension of ExtUtils::MM_VMS to handle complex extensions more flexibly.
+<P>
+
+Barewords at start of Unix-syntax paths may be treated as text rather than
+only as logical names.
+<P>
+
+Optional secure translation of several logical names used internally by Perl.
+<P>
+
+Miscellaneous bugfixing and porting of new core code to <FONT SIZE="-1">VMS</FONT>.
+<P>
+
+Thanks are gladly extended to the many people who have contributed <FONT SIZE="-1">VMS</FONT>
+patches, testing, and ideas.
+<A NAME="lbDN">&nbsp;</A>
+<H2>Win32</H2>
+
+<A NAME="ixAFU"></A>
+Perl can now emulate <I>fork()</I> internally, using multiple interpreters running
+in different concurrent threads.  This support must be enabled at build
+time.  See perlfork for detailed information.
+<P>
+
+When given a pathname that consists only of a drivename, such as <TT>&quot;A:&quot;</TT>,
+<I>opendir()</I> and <I>stat()</I> now use the current working directory for the drive
+rather than the drive root.
+<P>
+
+The builtin <FONT SIZE="-1">XSUB</FONT> functions in the Win32:: namespace are documented.  See
+Win32.
+<P>
+
+$^X now contains the full path name of the running executable.
+<P>
+
+A <I>Win32::GetLongPathName()</I> function is provided to complement
+<I>Win32::GetFullPathName()</I> and <I>Win32::GetShortPathName()</I>.  See Win32.
+<P>
+
+<I>POSIX::uname()</I> is supported.
+<P>
+
+system(1,...) now returns true process IDs rather than process
+handles.  <I>kill()</I> accepts any real process id, rather than strictly
+return values from system(1,...).
+<P>
+
+For better compatibility with Unix, <TT>&quot;kill(0, $pid)&quot;</TT> can now be used to
+test whether a process exists.
+<P>
+
+The <TT>&quot;Shell&quot;</TT> module is supported.
+<P>
+
+Better support for building Perl under command.com in Windows 95
+has been added.
+<P>
+
+Scripts are read in binary mode by default to allow ByteLoader (and
+the filter mechanism in general) to work properly.  For compatibility,
+the <FONT SIZE="-1">DATA</FONT> filehandle will be set to text mode if a carriage return is
+detected at the end of the line containing the __END__ or __DATA__
+token; if not, the <FONT SIZE="-1">DATA</FONT> filehandle will be left open in binary mode.
+Earlier versions always opened the <FONT SIZE="-1">DATA</FONT> filehandle in text mode.
+<P>
+
+The <I>glob()</I> operator is implemented via the <TT>&quot;File::Glob&quot;</TT> extension,
+which supports glob syntax of the C shell.  This increases the flexibility
+of the <I>glob()</I> operator, but there may be compatibility issues for
+programs that relied on the older globbing syntax.  If you want to
+preserve compatibility with the older syntax, you might want to run
+perl with <TT>&quot;-MFile::DosGlob&quot;</TT>.  For details and compatibility information,
+see File::Glob.
+<A NAME="lbDO">&nbsp;</A>
+<H2>Significant bug fixes</H2>
+
+<A NAME="ixAFV"></A>
+<A NAME="lbDP">&nbsp;</A>
+<H2>&lt;<FONT SIZE="-1">HANDLE</FONT>&gt; on empty files</H2>
+
+<A NAME="ixAFW"></A>
+With <TT>$/</TT> set to <TT>&quot;undef&quot;</TT>, ``slurping'' an empty file returns a string of
+zero length (instead of <TT>&quot;undef&quot;</TT>, as it used to) the first time the
+<FONT SIZE="-1">HANDLE</FONT> is read after <TT>$/</TT> is set to <TT>&quot;undef&quot;</TT>.  Further reads yield
+<TT>&quot;undef&quot;</TT>.
+<P>
+
+This means that the following will append ``foo'' to an empty file (it used
+to do nothing):
+<P>
+
+
+
+<PRE>
+    perl -0777 -pi -e 's/^/foo/' empty_file
+
+</PRE>
+
+
+<P>
+
+The behaviour of:
+<P>
+
+
+
+<PRE>
+    perl -pi -e 's/^/foo/' empty_file
+
+</PRE>
+
+
+<P>
+
+is unchanged (it continues to leave the file empty).
+<A NAME="lbDQ">&nbsp;</A>
+<H2>eval '...' improvements</H2>
+
+
+
+<A NAME="ixAFX"></A>
+Line numbers (as reflected by <I>caller()</I> and most diagnostics) within
+<TT>&quot;eval '...'&quot;</TT> were often incorrect where here documents were involved.
+This has been corrected.
+<P>
+
+Lexical lookups for variables appearing in <TT>&quot;eval '...'&quot;</TT> within
+functions that were themselves called within an <TT>&quot;eval '...'&quot;</TT> were
+searching the wrong place for lexicals.  The lexical search now
+correctly ends at the subroutine's block boundary.
+<P>
+
+The use of <TT>&quot;return&quot;</TT> within <TT>&quot;eval {...}&quot;</TT> caused $@ not to be reset
+correctly when no exception occurred within the eval.  This has
+been fixed.
+<P>
+
+Parsing of here documents used to be flawed when they appeared as
+the replacement expression in <TT>&quot;eval 's/.../.../e'&quot;</TT>.  This has
+been fixed.
+<A NAME="lbDR">&nbsp;</A>
+<H2>All compilation errors are true errors</H2>
+
+<A NAME="ixAFY"></A>
+Some ``errors'' encountered at compile time were by necessity 
+generated as warnings followed by eventual termination of the
+program.  This enabled more such errors to be reported in a
+single run, rather than causing a hard stop at the first error
+that was encountered.
+<P>
+
+The mechanism for reporting such errors has been reimplemented
+to queue compile-time errors and report them at the end of the
+compilation as true errors rather than as warnings.  This fixes
+cases where error messages leaked through in the form of warnings
+when code was compiled at run time using <TT>&quot;eval STRING&quot;</TT>, and
+also allows such errors to be reliably trapped using <TT>&quot;eval &quot;...&quot;&quot;</TT>.
+<A NAME="lbDS">&nbsp;</A>
+<H2>Implicitly closed filehandles are safer</H2>
+
+<A NAME="ixAFZ"></A>
+Sometimes implicitly closed filehandles (as when they are localized,
+and Perl automatically closes them on exiting the scope) could
+inadvertently set $? or $!.  This has been corrected.
+<A NAME="lbDT">&nbsp;</A>
+<H2>Behavior of list slices is more consistent</H2>
+
+<A NAME="ixAGA"></A>
+When taking a slice of a literal list (as opposed to a slice of
+an array or hash), Perl used to return an empty list if the
+result happened to be composed of all undef values.
+<P>
+
+The new behavior is to produce an empty list if (and only if)
+the original list was empty.  Consider the following example:
+<P>
+
+
+
+<PRE>
+    @a = (1,undef,undef,2)[2,1,2];
+
+</PRE>
+
+
+<P>
+
+The old behavior would have resulted in <TT>@a</TT> having no elements.
+The new behavior ensures it has three undefined elements.
+<P>
+
+Note in particular that the behavior of slices of the following
+cases remains unchanged:
+<P>
+
+
+
+<PRE>
+    @a = ()[1,2];
+    @a = (getpwent)[7,0];
+    @a = (anything_returning_empty_list())[2,1,2];
+    @a = @b[2,1,2];
+    @a = @c{'a','b','c'};
+
+</PRE>
+
+
+<P>
+
+See perldata.
+<A NAME="lbDU">&nbsp;</A>
+<H2>(\$)</TT> prototype and <TT>$foo{a}</H2>
+
+
+
+<A NAME="ixAGB"></A>
+A scalar reference prototype now correctly allows a hash or
+array element in that slot.
+</TT><A NAME="lbDV">&nbsp;</A>
+<H2>goto &amp;sub and <FONT SIZE="-1">AUTOLOAD</FONT></H2>
+
+
+
+<A NAME="ixAGC"></A>
+The <TT>&quot;goto &amp;sub&quot;</TT> construct works correctly when <TT>&amp;sub</TT> happens
+to be autoloaded.
+<A NAME="lbDW">&nbsp;</A>
+<H2>-bareword</TT> allowed under <TT>use integer</H2>
+
+
+
+<A NAME="ixAGD"></A>
+The autoquoting of barewords preceded by &quot;-&quot;</TT> did not work
+in prior versions when the <TT>&quot;integer&quot;</TT> pragma was enabled.
+This has been fixed.
+<A NAME="lbDX">&nbsp;</A>
+<H2>Failures in <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I></H2>
+
+<A NAME="ixAGE"></A>
+When code in a destructor threw an exception, it went unnoticed
+in earlier versions of Perl, unless someone happened to be
+looking in $@ just after the point the destructor happened to
+run.  Such failures are now visible as warnings when warnings are
+enabled.
+<A NAME="lbDY">&nbsp;</A>
+<H2>Locale bugs fixed</H2>
+
+<A NAME="ixAGF"></A>
+<I>printf()</I> and <I>sprintf()</I> previously reset the numeric locale
+back to the default ``C'' locale.  This has been fixed.
+<P>
+
+Numbers formatted according to the local numeric locale
+(such as using a decimal comma instead of a decimal dot) caused
+``isn't numeric'' warnings, even while the operations accessing
+those numbers produced correct results.  These warnings have been
+discontinued.
+<A NAME="lbDZ">&nbsp;</A>
+<H2>Memory leaks</H2>
+
+<A NAME="ixAGG"></A>
+The <TT>&quot;eval 'return sub {...}'&quot;</TT> construct could sometimes leak
+memory.  This has been fixed.
+<P>
+
+Operations that aren't filehandle constructors used to leak memory
+when used on invalid filehandles.  This has been fixed.
+<P>
+
+Constructs that modified <TT>@_</TT> could fail to deallocate values
+in <TT>@_</TT> and thus leak memory.  This has been corrected.
+<A NAME="lbEA">&nbsp;</A>
+<H2>Spurious subroutine stubs after failed subroutine calls</H2>
+
+<A NAME="ixAGH"></A>
+Perl could sometimes create empty subroutine stubs when a
+subroutine was not found in the package.  Such cases stopped
+later method lookups from progressing into base packages.
+This has been corrected.
+<A NAME="lbEB">&nbsp;</A>
+<H2>Taint failures under -U</H2>
+
+
+
+<A NAME="ixAGI"></A>
+When running in unsafe mode, taint violations could sometimes
+cause silent failures.  This has been fixed.
+<A NAME="lbEC">&nbsp;</A>
+<H2><FONT SIZE="-1">END</FONT> blocks and the -c switch</H2>
+
+
+
+<A NAME="ixAGJ"></A>
+Prior versions used to run <FONT SIZE="-1">BEGIN</FONT> <B>and</B> <FONT SIZE="-1">END</FONT> blocks when Perl was
+run in compile-only mode.  Since this is typically not the expected
+behavior, <FONT SIZE="-1">END</FONT> blocks are not executed anymore when the <TT>&quot;-c&quot;</TT> switch
+is used, or if compilation fails.
+<P>
+
+See ``Support for <FONT SIZE="-1">CHECK</FONT> blocks'' for how to run things when the compile 
+phase ends.
+<A NAME="lbED">&nbsp;</A>
+<H2>Potential to leak <FONT SIZE="-1">DATA</FONT> filehandles</H2>
+
+<A NAME="ixAGK"></A>
+Using the <TT>&quot;__DATA__&quot;</TT> token creates an implicit filehandle to
+the file that contains the token.  It is the program's
+responsibility to close it when it is done reading from it.
+<P>
+
+This caveat is now better explained in the documentation.
+See perldata.
+<A NAME="lbEE">&nbsp;</A>
+<H2>New or Changed Diagnostics</H2>
+
+<A NAME="ixAGL"></A>
+<DL COMPACT>
+<DT>%s variable %s masks earlier declaration in same <TT>%s<DD>
+
+
+<A NAME="ixAGM"></A>
+(W misc) A ``my'' or ``our'' variable has been redeclared in the current scope or statement,
+effectively eliminating all access to the previous instance.  This is almost
+always a typographical error.  Note that the earlier variable will still exist
+until the end of the scope or until all closure referents to it are
+destroyed.
+<DT>my sub not yet implemented<DD>
+
+
+<A NAME="ixAGN"></A>
+(F) Lexically scoped subroutines are not yet implemented.  Don't try that
+yet.
+<DT>our variable %s redeclared<DD>
+
+
+<A NAME="ixAGO"></A>
+(W misc) You seem to have already declared the same global once before in the
+current lexical scope.
+<DT>'!' allowed only after types %s<DD>
+
+
+<A NAME="ixAGP"></A>
+(F) The '!' is allowed in </TT><I>pack()</I> and <I>unpack()</I> only after certain types.
+See ``pack'' in perlfunc.
+<DT>/ cannot take a count<DD>
+<A NAME="ixAGQ"></A>
+(F) You had an unpack template indicating a counted-length string,
+but you have also specified an explicit size for the string.
+See ``pack'' in perlfunc.
+<DT>/ must be followed by a, A or Z<DD>
+<A NAME="ixAGR"></A>
+(F) You had an unpack template indicating a counted-length string,
+which must be followed by one of the letters a, A or Z
+to indicate what sort of string is to be unpacked.
+See ``pack'' in perlfunc.
+<DT>/ must be followed by a*, A* or Z*<DD>
+<A NAME="ixAGS"></A>
+(F) You had a pack template indicating a counted-length string,
+Currently the only things that can have their length counted are a*, A* or Z*.
+See ``pack'' in perlfunc.
+<DT>/ must follow a numeric type<DD>
+<A NAME="ixAGT"></A>
+(F) You had an unpack template that contained a '#',
+but this did not follow some numeric unpack specification.
+See ``pack'' in perlfunc.
+<DT>/%s/: Unrecognized escape \\%c passed through<DD>
+<A NAME="ixAGU"></A>
+(W regexp) You used a backslash-character combination which is not recognized
+by Perl.  This combination appears in an interpolated variable or a
+<TT>&quot;'&quot;</TT>-delimited regular expression.  The character was understood literally.
+<DT>/%s/: Unrecognized escape \\%c in character class passed through<DD>
+<A NAME="ixAGV"></A>
+(W regexp) You used a backslash-character combination which is not recognized
+by Perl inside character classes.  The character was understood literally.
+<DT>/%s/ should probably be written as %s<DD>
+
+
+<A NAME="ixAGW"></A>
+(W syntax) You have used a pattern where Perl expected to find a string,
+as in the first argument to <TT>&quot;join&quot;</TT>.  Perl will treat the true
+or false result of matching the pattern against <TT>$_</TT> as the string,
+which is probably not what you had in mind.
+<DT>%s() called too early to check prototype<DD>
+<A NAME="ixAGX"></A>
+(W prototype) You've called a function that has a prototype before the parser saw a
+definition or declaration for it, and Perl could not check that the call
+conforms to the prototype.  You need to either add an early prototype
+declaration for the subroutine in question, or move the subroutine
+definition ahead of the call to get proper prototype checking.  Alternatively,
+if you are certain that you're calling the function correctly, you may put
+an ampersand before the name to avoid the warning.  See perlsub.
+<DT>%s argument is not a <FONT SIZE="-1">HASH</FONT> or <FONT SIZE="-1">ARRAY</FONT> element<DD>
+<A NAME="ixAGY"></A>
+(F) The argument to <I>exists()</I> must be a hash or array element, such as:
+
+
+<P>
+
+
+
+
+<PRE>
+    $foo{$bar}
+    $ref-&gt;{&quot;susie&quot;}[12]
+
+</PRE>
+
+
+<DT>%s argument is not a <FONT SIZE="-1">HASH</FONT> or <FONT SIZE="-1">ARRAY</FONT> element or slice<DD>
+<A NAME="ixAGZ"></A>
+(F) The argument to <I>delete()</I> must be either a hash or array element, such as:
+
+
+<P>
+
+
+
+
+<PRE>
+    $foo{$bar}
+    $ref-&gt;{&quot;susie&quot;}[12]
+
+</PRE>
+
+
+
+
+<P>
+
+
+or a hash or array slice, such as:
+
+
+<P>
+
+
+
+
+<PRE>
+    @foo[$bar, $baz, $xyzzy]
+    @{$ref-&gt;[12]}{&quot;susie&quot;, &quot;queue&quot;}
+
+</PRE>
+
+
+<DT>%s argument is not a subroutine name<DD>
+<A NAME="ixAHA"></A>
+(F) The argument to <I>exists()</I> for <TT>&quot;exists &amp;sub&quot;</TT> must be a subroutine
+name, and not a subroutine call.  <TT>&quot;exists &amp;sub()&quot;</TT> will generate this error.
+<DT>%s package attribute may clash with future reserved word: %s<DD>
+
+
+<A NAME="ixAHB"></A>
+(W reserved) A lowercase attribute name was used that had a package-specific handler.
+That name might have a meaning to Perl itself some day, even though it
+doesn't yet.  Perhaps you should use a mixed-case attribute name, instead.
+See attributes.
+<DT>(in cleanup) %s<DD>
+
+
+<A NAME="ixAHC"></A>
+(W misc) This prefix usually indicates that a <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I> method raised
+the indicated exception.  Since destructors are usually called by
+the system at arbitrary points during execution, and often a vast
+number of times, the warning is issued only once for any number
+of failures that would otherwise result in the same message being
+repeated.
+
+
+<P>
+
+
+Failure of user callbacks dispatched using the <TT>&quot;G_KEEPERR&quot;</TT> flag
+could also result in this warning.  See ``G_KEEPERR'' in perlcall.
+<DT>&lt;&gt; should be quotes<DD>
+<A NAME="ixAHD"></A>
+(F) You wrote <TT>&quot;require &lt;file&gt;&quot;</TT> when you should have written
+<TT>&quot;require 'file'&quot;</TT>.
+<DT>Attempt to join self<DD>
+<A NAME="ixAHE"></A>
+(F) You tried to join a thread from within itself, which is an
+impossible task.  You may be joining the wrong thread, or you may
+need to move the <I>join()</I> to some other thread.
+<DT>Bad evalled substitution pattern<DD>
+<A NAME="ixAHF"></A>
+(F) You've used the /e switch to evaluate the replacement for a
+substitution, but perl found a syntax error in the code to evaluate,
+most likely an unexpected right brace '}'.
+<DT>Bad <I>realloc()</I> ignored<DD>
+<A NAME="ixAHG"></A>
+(S) An internal routine called <I>realloc()</I> on something that had never been
+<I>malloc()</I>ed in the first place. Mandatory, but can be disabled by
+setting environment variable <TT>&quot;PERL_BADFREE&quot;</TT> to 1.
+<DT>Bareword found in conditional<DD>
+<A NAME="ixAHH"></A>
+(W bareword) The compiler found a bareword where it expected a conditional,
+which often indicates that an || or &amp;&amp; was parsed as part of the
+last argument of the previous construct, for example:
+
+
+<P>
+
+
+
+
+<PRE>
+    open FOO || die;
+
+</PRE>
+
+
+
+
+<P>
+
+
+It may also indicate a misspelled constant that has been interpreted
+as a bareword:
+
+
+<P>
+
+
+
+
+<PRE>
+    use constant TYPO =&gt; 1;
+    if (TYOP) { print &quot;foo&quot; }
+
+</PRE>
+
+
+
+
+<P>
+
+
+The <TT>&quot;strict&quot;</TT> pragma is useful in avoiding such errors.
+<DT>Binary number &gt; 0b11111111111111111111111111111111 non-portable<DD>
+<A NAME="ixAHI"></A>
+(W portable) The binary number you specified is larger than 2**32-1
+(4294967295) and therefore non-portable between systems.  See
+perlport for more on portability concerns.
+<DT>Bit vector size &gt; 32 non-portable<DD>
+<A NAME="ixAHJ"></A>
+(W portable) Using bit vector sizes larger than 32 is non-portable.
+<DT>Buffer overflow in prime_env_iter: %s<DD>
+
+
+<A NAME="ixAHK"></A>
+(W internal) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  While Perl was preparing to iterate over
+<TT>%ENV</TT>, it encountered a logical name or symbol definition which was too long,
+so it was truncated to the string shown.
+<DT>Can't check filesystem of script %s<DD>
+
+
+<A NAME="ixAHL"></A>
+(P) For some reason you can't check the filesystem of the script for nosuid.
+<DT>Can't declare class for non-scalar %s in %s<DD>
+
+
+<A NAME="ixAHM"></A>
+(S) Currently, only scalar variables can declared with a specific class
+qualifier in a ``my'' or ``our'' declaration.  The semantics may be extended
+for other types of variables in future.
+<DT>Can't declare %s in %s<DD>
+
+
+<A NAME="ixAHN"></A>
+(F) Only scalar, array, and hash variables may be declared as ``my'' or
+``our'' variables.  They must have ordinary identifiers as names.
+<DT>Can't ignore signal <FONT SIZE="-1">CHLD</FONT>, forcing to default<DD>
+<A NAME="ixAHO"></A>
+(W signal) Perl has detected that it is being run with the <FONT SIZE="-1">SIGCHLD</FONT> signal
+(sometimes known as <FONT SIZE="-1">SIGCLD</FONT>) disabled.  Since disabling this signal
+will interfere with proper determination of exit status of child
+processes, Perl has reset the signal to its default value.
+This situation typically indicates that the parent program under
+which Perl may be running (e.g., cron) is being very careless.
+<DT>Can't modify non-lvalue subroutine call<DD>
+<A NAME="ixAHP"></A>
+(F) Subroutines meant to be used in lvalue context should be declared as
+such, see ``Lvalue subroutines'' in perlsub.
+<DT>Can't read <FONT SIZE="-1">CRTL</FONT> environ<DD>
+<A NAME="ixAHQ"></A>
+(S) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  Perl tried to read an element of <TT>%ENV</TT>
+from the <FONT SIZE="-1">CRTL</FONT>'s internal environment array and discovered the array was
+missing.  You need to figure out where your <FONT SIZE="-1">CRTL</FONT> misplaced its environ
+or define <I></I><FONT SIZE="-1"><I>PERL_ENV_TABLES</I></FONT><I></I> (see perlvms) so that environ is not searched.
+<DT>Can't remove %s: <TT>%s, skipping file<DD>
+
+
+<A NAME="ixAHR"></A>
+(S) You requested an inplace edit without creating a backup file.  Perl
+was unable to remove the original file to replace it with the modified
+file.  The file was left unmodified.
+<DT>Can't return %s from lvalue subroutine<DD>
+
+
+<A NAME="ixAHS"></A>
+(F) Perl detected an attempt to return illegal lvalues (such
+as temporary or readonly values) from a subroutine used as an lvalue.
+This is not allowed.
+<DT>Can't weaken a nonreference<DD>
+<A NAME="ixAHT"></A>
+(F) You attempted to weaken something that was not a reference.  Only
+references can be weakened.
+<DT>Character class [:%s:] unknown<DD>
+<A NAME="ixAHU"></A>
+(F) The class in the character class [: :] syntax is unknown.
+See perlre.
+<DT>Character class syntax [%s] belongs inside character classes<DD>
+<A NAME="ixAHV"></A>
+(W unsafe) The character class constructs [: :], [= =], and [. .]  go
+</TT><I>inside</I> character classes, the [] are part of the construct,
+for example: /[012[:alpha:]345]/.  Note that [= =] and [. .]
+are not currently implemented; they are simply placeholders for
+future extensions.
+<DT>Constant is not %s reference<DD>
+
+
+<A NAME="ixAHW"></A>
+(F) A constant value (perhaps declared using the <TT>&quot;use constant&quot;</TT> pragma)
+is being dereferenced, but it amounts to the wrong type of reference.  The
+message indicates the type of reference that was expected. This usually
+indicates a syntax error in dereferencing the constant value.
+See ``Constant Functions'' in perlsub and constant.
+<DT>constant(%s): %s<DD>
+
+
+<A NAME="ixAHX"></A>
+(F) The parser found inconsistencies either while attempting to define an
+overloaded constant, or when trying to find the character name specified
+in the <TT>&quot;\N{...}&quot;</TT> escape.  Perhaps you forgot to load the corresponding
+<TT>&quot;overload&quot;</TT> or <TT>&quot;charnames&quot;</TT> pragma?  See charnames and overload.
+<DT>CORE::%s is not a keyword<DD>
+<A NAME="ixAHY"></A>
+(F) The <FONT SIZE="-1">CORE::</FONT> namespace is reserved for Perl keywords.
+<DT>defined(@array) is deprecated<DD>
+<A NAME="ixAHZ"></A>
+(D) <I>defined()</I> is not usually useful on arrays because it checks for an
+undefined <I>scalar</I> value.  If you want to see if the array is empty,
+just use <TT>&quot;if (@array) { # not empty }&quot;</TT> for example.  
+<DT>defined(%hash) is deprecated<DD>
+<A NAME="ixAIA"></A>
+(D) <I>defined()</I> is not usually useful on hashes because it checks for an
+undefined <I>scalar</I> value.  If you want to see if the hash is empty,
+just use <TT>&quot;if (%hash) { # not empty }&quot;</TT> for example.  
+<DT>Did not produce a valid header<DD>
+<A NAME="ixAIB"></A>
+See Server error.
+<DT>(Did you mean local instead of our?)<DD>
+
+
+<A NAME="ixAIC"></A>
+(W misc) Remember that ``our'' does not localize the declared global variable.
+You have declared it again in the same lexical scope, which seems superfluous.
+<DT>Document contains no data<DD>
+<A NAME="ixAID"></A>
+See Server error.
+<DT>entering effective %s failed<DD>
+
+
+<A NAME="ixAIE"></A>
+(F) While under the <TT>&quot;use filetest&quot;</TT> pragma, switching the real and
+effective uids or gids failed.
+<DT>false [] range %s in regexp<DD>
+
+
+<A NAME="ixAIF"></A>
+(W regexp) A character class range must start and end at a literal character, not
+another character class like <TT>&quot;\d&quot;</TT> or <TT>&quot;[:alpha:]&quot;</TT>.  The ``-'' in your false
+range is interpreted as a literal ``-''.  Consider quoting the ``-'',  ``\-''.
+See perlre.
+<DT>Filehandle %s opened only for output<DD>
+
+
+<A NAME="ixAIG"></A>
+(W io) You tried to read from a filehandle opened only for writing.  If you
+intended it to be a read/write filehandle, you needed to open it with
+``+&lt;'' or ``+&gt;'' or ``+&gt;&gt;'' instead of with ``&lt;'' or nothing.  If
+you intended only to read from the file, use ``&lt;''.  See
+``open'' in perlfunc.
+<DT><I>flock()</I> on closed filehandle %s<DD>
+
+
+<A NAME="ixAIH"></A>
+(W closed) The filehandle you're attempting to <I>flock()</I> got itself closed some
+time before now.  Check your logic flow.  <I>flock()</I> operates on filehandles.
+Are you attempting to call <I>flock()</I> on a dirhandle by the same name?
+<DT>Global symbol %s requires explicit package name<DD>
+
+
+<A NAME="ixAII"></A>
+(F) You've said ``use strict vars'', which indicates that all variables
+must either be lexically scoped (using ``my''), declared beforehand using
+``our'', or explicitly qualified to say which package the global variable
+is in (using ``::'').
+<DT>Hexadecimal number &gt; 0xffffffff non-portable<DD>
+<A NAME="ixAIJ"></A>
+(W portable) The hexadecimal number you specified is larger than 2**32-1
+(4294967295) and therefore non-portable between systems.  See
+perlport for more on portability concerns.
+<DT>Ill-formed <FONT SIZE="-1">CRTL</FONT> environ value %s<DD>
+
+
+<A NAME="ixAIK"></A>
+(W internal) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  Perl tried to read the <FONT SIZE="-1">CRTL</FONT>'s internal
+environ array, and encountered an element without the <TT>&quot;=&quot;</TT> delimiter
+used to separate keys from values.  The element is ignored.
+<DT>Ill-formed message in prime_env_iter: |%s|<DD>
+<A NAME="ixAIL"></A>
+(W internal) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  Perl tried to read a logical name
+or <FONT SIZE="-1">CLI</FONT> symbol definition when preparing to iterate over <TT>%ENV</TT>, and
+didn't see the expected delimiter between key and value, so the
+line was ignored.
+<DT>Illegal binary digit %s<DD>
+
+
+<A NAME="ixAIM"></A>
+(F) You used a digit other than 0 or 1 in a binary number.
+<DT>Illegal binary digit %s ignored<DD>
+
+
+<A NAME="ixAIN"></A>
+(W digit) You may have tried to use a digit other than 0 or 1 in a binary number.
+Interpretation of the binary number stopped before the offending digit.
+<DT>Illegal number of bits in vec<DD>
+<A NAME="ixAIO"></A>
+(F) The number of bits in <I>vec()</I> (the third argument) must be a power of
+two from 1 to 32 (or 64, if your platform supports that).
+<DT>Integer overflow in %s number<DD>
+
+
+<A NAME="ixAIP"></A>
+(W overflow) The hexadecimal, octal or binary number you have specified either
+as a literal or as an argument to <I>hex()</I> or <I>oct()</I> is too big for your
+architecture, and has been converted to a floating point number.  On a
+32-bit architecture the largest hexadecimal, octal or binary number
+representable without overflow is 0xFFFFFFFF, 037777777777, or
+0b11111111111111111111111111111111 respectively.  Note that Perl
+transparently promotes all numbers to a floating point representation
+internally---subject to loss of precision errors in subsequent
+operations.
+<DT>Invalid %s attribute: <TT>%s<DD>
+
+
+<A NAME="ixAIQ"></A>
+The indicated attribute for a subroutine or variable was not recognized
+by Perl or by a user-supplied handler.  See attributes.
+<DT>Invalid %s</TT> attributes: <TT>%s<DD>
+
+
+<A NAME="ixAIR"></A>
+The indicated attributes for a subroutine or variable were not recognized
+by Perl or by a user-supplied handler.  See attributes.
+<DT>invalid [] range %s in regexp<DD>
+
+
+<A NAME="ixAIS"></A>
+The offending range is now explicitly displayed.
+<DT>Invalid separator character %s in attribute list<DD>
+
+
+<A NAME="ixAIT"></A>
+(F) Something other than a colon or whitespace was seen between the
+elements of an attribute list.  If the previous attribute
+had a parenthesised parameter list, perhaps that list was terminated
+too soon.  See attributes.
+<DT>Invalid separator character %s in subroutine attribute list<DD>
+
+
+<A NAME="ixAIU"></A>
+(F) Something other than a colon or whitespace was seen between the
+elements of a subroutine attribute list.  If the previous attribute
+had a parenthesised parameter list, perhaps that list was terminated
+too soon.
+<DT>leaving effective %s failed<DD>
+
+
+<A NAME="ixAIV"></A>
+(F) While under the &quot;use filetest&quot;</TT> pragma, switching the real and
+effective uids or gids failed.
+<DT>Lvalue subs returning %s not implemented yet<DD>
+
+
+<A NAME="ixAIW"></A>
+(F) Due to limitations in the current implementation, array and hash
+values cannot be returned in subroutines used in lvalue context.
+See ``Lvalue subroutines'' in perlsub.
+<DT>Method %s not permitted<DD>
+
+
+<A NAME="ixAIX"></A>
+See Server error.
+<DT>Missing %sbrace%s on \N{}<DD>
+
+
+<A NAME="ixAIY"></A>
+(F) Wrong syntax of character name literal <TT>&quot;\N{charname}&quot;</TT> within
+double-quotish context.
+<DT>Missing command in piped open<DD>
+<A NAME="ixAIZ"></A>
+(W pipe) You used the <TT>&quot;open(FH, &quot;| command&quot;)&quot;</TT> or <TT>&quot;open(FH, &quot;command |&quot;)&quot;</TT>
+construction, but the command was missing or blank.
+<DT>Missing name in my sub<DD>
+
+
+<A NAME="ixAJA"></A>
+(F) The reserved syntax for lexically scoped subroutines requires that they
+have a name with which they can be found.
+<DT>No %s specified for -%c<DD>
+
+
+<A NAME="ixAJB"></A>
+(F) The indicated command line switch needs a mandatory argument, but
+you haven't specified one.
+<DT>No package name allowed for variable %s in our<DD>
+
+
+<A NAME="ixAJC"></A>
+(F) Fully qualified variable names are not allowed in ``our'' declarations,
+because that doesn't make much sense under existing semantics.  Such
+syntax is reserved for future extensions.
+<DT>No space allowed after -%c<DD>
+<A NAME="ixAJD"></A>
+(F) The argument to the indicated command line switch must follow immediately
+after the switch, without intervening spaces.
+<DT>no <FONT SIZE="-1">UTC</FONT> offset information; assuming local time is <FONT SIZE="-1">UTC</FONT><DD>
+<A NAME="ixAJE"></A>
+(S) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  Perl was unable to find the local
+timezone offset, so it's assuming that local system time is equivalent
+to <FONT SIZE="-1">UTC</FONT>.  If it's not, define the logical name <I></I><FONT SIZE="-1"><I>SYS$TIMEZONE_DIFFERENTIAL</I></FONT><I></I>
+to translate to the number of seconds which need to be added to <FONT SIZE="-1">UTC</FONT> to
+get local time.
+<DT>Octal number &gt; 037777777777 non-portable<DD>
+<A NAME="ixAJF"></A>
+(W portable) The octal number you specified is larger than 2**32-1 (4294967295)
+and therefore non-portable between systems.  See perlport for more
+on portability concerns.
+
+
+<P>
+
+
+See also perlport for writing portable code.
+<DT>panic: del_backref<DD>
+<A NAME="ixAJG"></A>
+(P) Failed an internal consistency check while trying to reset a weak
+reference.
+<DT>panic: kid popen errno read<DD>
+<A NAME="ixAJH"></A>
+(F) forked child returned an incomprehensible message about its errno.
+<DT>panic: magic_killbackrefs<DD>
+<A NAME="ixAJI"></A>
+(P) Failed an internal consistency check while trying to reset all weak
+references to an object.
+<DT>Parentheses missing around %s list<DD>
+
+
+<A NAME="ixAJJ"></A>
+(W parenthesis) You said something like
+
+
+<P>
+
+
+
+
+<PRE>
+    my $foo, $bar = @_;
+
+</PRE>
+
+
+
+
+<P>
+
+
+when you meant
+
+
+<P>
+
+
+
+
+<PRE>
+    my ($foo, $bar) = @_;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Remember that ``my'', ``our'', and ``local'' bind tighter than comma.
+<DT>Possible unintended interpolation of %s in string<DD>
+
+
+<A NAME="ixAJK"></A>
+(W ambiguous) It used to be that Perl would try to guess whether you
+wanted an array interpolated or a literal @.  It no longer does this;
+arrays are now <I>always</I> interpolated into strings.  This means that 
+if you try something like:
+
+
+<P>
+
+
+
+
+<PRE>
+        print &quot;<A HREF="mailto:fred@example.com">fred@example.com</A>&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+and the array <TT>@example</TT> doesn't exist, Perl is going to print
+<TT>&quot;fred.com&quot;</TT>, which is probably not what you wanted.  To get a literal
+<TT>&quot;@&quot;</TT> sign in a string, put a backslash before it, just as you would
+to get a literal <TT>&quot;$&quot;</TT> sign.
+<DT>Possible Y2K bug: %s<DD>
+
+
+<A NAME="ixAJL"></A>
+(W y2k) You are concatenating the number 19 with another number, which
+could be a potential Year 2000 problem.
+<DT>pragma attrs is deprecated, use sub <FONT SIZE="-1">NAME</FONT> : <FONT SIZE="-1">ATTRS</FONT> instead<DD>
+
+
+<A NAME="ixAJM"></A>
+(W deprecated) You have written something like this:
+
+
+<P>
+
+
+
+
+<PRE>
+    sub doit
+    {
+        use attrs qw(locked);
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+You should use the new declaration syntax instead.
+
+
+<P>
+
+
+
+
+<PRE>
+    sub doit : locked
+    {
+        ...
+
+</PRE>
+
+
+
+
+<P>
+
+
+The <TT>&quot;use attrs&quot;</TT> pragma is now obsolete, and is only provided for
+backward-compatibility. See ``Subroutine Attributes'' in perlsub.
+<DT>Premature end of script headers<DD>
+<A NAME="ixAJN"></A>
+See Server error.
+<DT>Repeat count in pack overflows<DD>
+<A NAME="ixAJO"></A>
+(F) You can't specify a repeat count so large that it overflows
+your signed integers.  See ``pack'' in perlfunc.
+<DT>Repeat count in unpack overflows<DD>
+<A NAME="ixAJP"></A>
+(F) You can't specify a repeat count so large that it overflows
+your signed integers.  See ``unpack'' in perlfunc.
+<DT><I>realloc()</I> of freed memory ignored<DD>
+<A NAME="ixAJQ"></A>
+(S) An internal routine called <I>realloc()</I> on something that had already
+been freed.
+<DT>Reference is already weak<DD>
+<A NAME="ixAJR"></A>
+(W misc) You have attempted to weaken a reference that is already weak.
+Doing so has no effect.
+<DT>setpgrp can't take arguments<DD>
+<A NAME="ixAJS"></A>
+(F) Your system has the <I>setpgrp()</I> from <FONT SIZE="-1">BSD</FONT> 4.2, which takes no arguments,
+unlike <FONT SIZE="-1">POSIX</FONT> <I>setpgid()</I>, which takes a process <FONT SIZE="-1">ID</FONT> and process group <FONT SIZE="-1">ID</FONT>.
+<DT>Strange *+?{} on zero-length expression<DD>
+<A NAME="ixAJT"></A>
+(W regexp) You applied a regular expression quantifier in a place where it
+makes no sense, such as on a zero-width assertion.
+Try putting the quantifier inside the assertion instead.  For example,
+the way to match ``abc'' provided that it is followed by three
+repetitions of ``xyz'' is <TT>&quot;/abc(?=(?:xyz){3})/&quot;</TT>, not <TT>&quot;/abc(?=xyz){3}/&quot;</TT>.
+<DT>switching effective %s is not implemented<DD>
+
+
+<A NAME="ixAJU"></A>
+(F) While under the <TT>&quot;use filetest&quot;</TT> pragma, we cannot switch the
+real and effective uids or gids.
+<DT>This Perl can't reset <FONT SIZE="-1">CRTL</FONT> environ elements (%s)<DD>
+<A NAME="ixAJV"></A>
+
+<DT>This Perl can't set <FONT SIZE="-1">CRTL</FONT> environ elements (%s=%s)<DD>
+<A NAME="ixAJW"></A>
+
+(W internal) Warnings peculiar to <FONT SIZE="-1">VMS</FONT>.  You tried to change or delete an element
+of the <FONT SIZE="-1">CRTL</FONT>'s internal environ array, but your copy of Perl wasn't
+built with a <FONT SIZE="-1">CRTL</FONT> that contained the <I>setenv()</I> function.  You'll need to
+rebuild Perl with a <FONT SIZE="-1">CRTL</FONT> that does, or redefine <I></I><FONT SIZE="-1"><I>PERL_ENV_TABLES</I></FONT><I></I> (see
+perlvms) so that the environ array isn't the target of the change to
+<TT>%ENV</TT> which produced the warning.
+<DT>Too late to run %s block<DD>
+
+
+<A NAME="ixAJX"></A>
+(W void) A <FONT SIZE="-1">CHECK</FONT> or <FONT SIZE="-1">INIT</FONT> block is being defined during run time proper,
+when the opportunity to run them has already passed.  Perhaps you are
+loading a file with <TT>&quot;require&quot;</TT> or <TT>&quot;do&quot;</TT> when you should be using
+<TT>&quot;use&quot;</TT> instead.  Or perhaps you should put the <TT>&quot;require&quot;</TT> or <TT>&quot;do&quot;</TT>
+inside a <FONT SIZE="-1">BEGIN</FONT> block.
+<DT>Unknown <I>open()</I> mode '%s'<DD>
+<A NAME="ixAJY"></A>
+(F) The second argument of 3-argument <I>open()</I> is not among the list
+of valid modes: <TT>&quot;&lt;&quot;</TT>, <TT>&quot;&gt;&quot;</TT>, <TT>&quot;&gt;&gt;&quot;</TT>, <TT>&quot;+&lt;&quot;</TT>,
+<TT>&quot;+&gt;&quot;</TT>, <TT>&quot;+&gt;&gt;&quot;</TT>, <TT>&quot;-|&quot;</TT>, <TT>&quot;|-&quot;</TT>.
+<DT>Unknown process %x sent message to prime_env_iter: <TT>%s<DD>
+
+
+<A NAME="ixAJZ"></A>
+(P) An error peculiar to </TT><FONT SIZE="-1"><TT>VMS</TT></FONT><TT>.  Perl was reading values for %ENV</TT> before
+iterating over it, and someone else stuck a message in the stream of
+data Perl expected.  Someone's very confused, or perhaps trying to
+subvert Perl's population of <TT>%ENV</TT> for nefarious purposes.
+<DT>Unrecognized escape \\%c passed through<DD>
+<A NAME="ixAKA"></A>
+(W misc) You used a backslash-character combination which is not recognized
+by Perl.  The character was understood literally.
+<DT>Unterminated attribute parameter in attribute list<DD>
+<A NAME="ixAKB"></A>
+(F) The lexer saw an opening (left) parenthesis character while parsing an
+attribute list, but the matching closing (right) parenthesis
+character was not found.  You may need to add (or remove) a backslash
+character to get your parentheses to balance.  See attributes.
+<DT>Unterminated attribute list<DD>
+<A NAME="ixAKC"></A>
+(F) The lexer found something other than a simple identifier at the start
+of an attribute, and it wasn't a semicolon or the start of a
+block.  Perhaps you terminated the parameter list of the previous attribute
+too soon.  See attributes.
+<DT>Unterminated attribute parameter in subroutine attribute list<DD>
+<A NAME="ixAKD"></A>
+(F) The lexer saw an opening (left) parenthesis character while parsing a
+subroutine attribute list, but the matching closing (right) parenthesis
+character was not found.  You may need to add (or remove) a backslash
+character to get your parentheses to balance.
+<DT>Unterminated subroutine attribute list<DD>
+<A NAME="ixAKE"></A>
+(F) The lexer found something other than a simple identifier at the start
+of a subroutine attribute, and it wasn't a semicolon or the start of a
+block.  Perhaps you terminated the parameter list of the previous attribute
+too soon.
+<DT>Value of <FONT SIZE="-1">CLI</FONT> symbol %s too long<DD>
+
+
+<A NAME="ixAKF"></A>
+(W misc) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  Perl tried to read the value of an <TT>%ENV</TT>
+element from a <FONT SIZE="-1">CLI</FONT> symbol table, and found a resultant string longer
+than 1024 characters.  The return value has been truncated to 1024
+characters.
+<DT>Version number must be a constant number<DD>
+<A NAME="ixAKG"></A>
+(P) The attempt to translate a <TT>&quot;use Module n.n LIST&quot;</TT> statement into
+its equivalent <TT>&quot;BEGIN&quot;</TT> block found an internal inconsistency with
+the version number.
+</DL>
+<A NAME="lbEF">&nbsp;</A>
+<H2>New tests</H2>
+
+<A NAME="ixAKH"></A>
+<DL COMPACT>
+<DT>lib/attrs<DD>
+<A NAME="ixAKI"></A>
+Compatibility tests for <TT>&quot;sub : attrs&quot;</TT> vs the older <TT>&quot;use attrs&quot;</TT>.
+<DT>lib/env<DD>
+<A NAME="ixAKJ"></A>
+Tests for new environment scalar capability (e.g., <TT>&quot;use Env qw($BAR);&quot;</TT>).
+<DT>lib/env-array<DD>
+<A NAME="ixAKK"></A>
+Tests for new environment array capability (e.g., <TT>&quot;use Env qw(@PATH);&quot;</TT>).
+<DT>lib/io_const<DD>
+<A NAME="ixAKL"></A>
+<FONT SIZE="-1">IO</FONT> constants (SEEK_*, _IO*).
+<DT>lib/io_dir<DD>
+<A NAME="ixAKM"></A>
+Directory-related <FONT SIZE="-1">IO</FONT> methods (new, read, close, rewind, tied delete).
+<DT>lib/io_multihomed<DD>
+<A NAME="ixAKN"></A>
+<FONT SIZE="-1">INET</FONT> sockets with multi-homed hosts.
+<DT>lib/io_poll<DD>
+<A NAME="ixAKO"></A>
+<FONT SIZE="-1">IO</FONT> <I>poll()</I>.
+<DT>lib/io_unix<DD>
+<A NAME="ixAKP"></A>
+<FONT SIZE="-1">UNIX</FONT> sockets.
+<DT>op/attrs<DD>
+<A NAME="ixAKQ"></A>
+Regression tests for <TT>&quot;my ($x,@y,%z) : attrs&quot;</TT> and &lt;sub : attrs&gt;.
+<DT>op/filetest<DD>
+<A NAME="ixAKR"></A>
+File test operators.
+<DT>op/lex_assign<DD>
+<A NAME="ixAKS"></A>
+Verify operations that access pad objects (lexicals and temporaries).
+<DT>op/exists_sub<DD>
+<A NAME="ixAKT"></A>
+Verify <TT>&quot;exists &amp;sub&quot;</TT> operations.
+</DL>
+<A NAME="lbEG">&nbsp;</A>
+<H2>Incompatible Changes</H2>
+
+<A NAME="ixAKU"></A>
+<A NAME="lbEH">&nbsp;</A>
+<H2>Perl Source Incompatibilities</H2>
+
+<A NAME="ixAKV"></A>
+Beware that any new warnings that have been added or old ones
+that have been enhanced are <B>not</B> considered incompatible changes.
+<P>
+
+Since all new warnings must be explicitly requested via the <TT>&quot;-w&quot;</TT>
+switch or the <TT>&quot;warnings&quot;</TT> pragma, it is ultimately the programmer's
+responsibility to ensure that warnings are enabled judiciously.
+<DL COMPACT>
+<DT><FONT SIZE="-1">CHECK</FONT> is a new keyword<DD>
+<A NAME="ixAKW"></A>
+All subroutine definitions named <FONT SIZE="-1">CHECK</FONT> are now special.  See
+<TT>&quot;/&quot;Support for CHECK blocks&quot;&quot;</TT> for more information.
+<DT>Treatment of list slices of undef has changed<DD>
+<A NAME="ixAKX"></A>
+There is a potential incompatibility in the behavior of list slices
+that are comprised entirely of undefined values.
+See ``Behavior of list slices is more consistent''.
+<DT>Format of $English::PERL_VERSION is different<DD>
+
+
+<A NAME="ixAKY"></A>
+The English module now sets <TT>$PERL_VERSION</TT> to $^V (a string value) rather
+than <TT>$]</TT> (a numeric value).  This is a potential incompatibility.
+Send us a report via perlbug if you are affected by this.
+
+
+<P>
+
+
+See ``Improved Perl version numbering system'' for the reasons for
+this change.
+<DT>Literals of the form 1.2.3 parse differently<DD>
+
+
+<A NAME="ixAKZ"></A>
+Previously, numeric literals with more than one dot in them were
+interpreted as a floating point number concatenated with one or more
+numbers.  Such ``numbers'' are now parsed as strings composed of the
+specified ordinals.
+
+
+<P>
+
+
+For example, <TT>&quot;print 97.98.99&quot;</TT> used to output <TT>97.9899</TT> in earlier
+versions, but now prints <TT>&quot;abc&quot;</TT>.
+
+
+<P>
+
+
+See ``Support for strings represented as a vector of ordinals''.
+<DT>Possibly changed pseudo-random number generator<DD>
+<A NAME="ixALA"></A>
+Perl programs that depend on reproducing a specific set of pseudo-random
+numbers may now produce different output due to improvements made to the
+<I>rand()</I> builtin.  You can use <TT>&quot;sh Configure -Drandfunc=rand&quot;</TT> to obtain
+the old behavior.
+
+
+<P>
+
+
+See ``Better pseudo-random number generator''.
+<DT>Hashing function for hash keys has changed<DD>
+<A NAME="ixALB"></A>
+Even though Perl hashes are not order preserving, the apparently
+random order encountered when iterating on the contents of a hash
+is actually determined by the hashing algorithm used.  Improvements
+in the algorithm may yield a random order that is <B>different</B> from
+that of previous versions, especially when iterating on hashes.
+
+
+<P>
+
+
+See ``Better worst-case behavior of hashes'' for additional
+information.
+<DT>undef fails on read only values<DD>
+
+
+<A NAME="ixALC"></A>
+Using the <TT>&quot;undef&quot;</TT> operator on a readonly value (such as <TT>$1</TT>) has
+the same effect as assigning <TT>&quot;undef&quot;</TT> to the readonly value---it
+throws an exception.
+<DT>Close-on-exec bit may be set on pipe and socket handles<DD>
+<A NAME="ixALD"></A>
+Pipe and socket handles are also now subject to the close-on-exec
+behavior determined by the special variable $^F.
+
+
+<P>
+
+
+See ``More consistent close-on-exec behavior''.
+<DT>Writing $$1 to mean <TT>${$}1 is unsupported<DD>
+
+
+<A NAME="ixALE"></A>
+Perl 5.004 deprecated the interpretation of $$1</TT> and
+similar within interpolated strings to mean <TT>&quot;$$ . &quot;1&quot;&quot;</TT>,
+but still allowed it.
+
+
+<P>
+
+
+In Perl 5.6.0 and later, <TT>&quot;$$1&quot;</TT> always means <TT>&quot;${$1}&quot;</TT>.
+<DT><I>delete()</I>, <I>each()</I>, <I>values()</I> and \(%h)<DD>
+
+
+<A NAME="ixALF"></A>
+operate on aliases to values, not copies
+
+
+<P>
+
+
+<I>delete()</I>, <I>each()</I>, <I>values()</I> and hashes (e.g. <TT>&quot;\(%h)&quot;</TT>)
+in a list context return the actual
+values in the hash, instead of copies (as they used to in earlier
+versions).  Typical idioms for using these constructs copy the
+returned values, but this can make a significant difference when
+creating references to the returned values.  Keys in the hash are still
+returned as copies when iterating on a hash.
+
+
+<P>
+
+
+See also ``<I>delete()</I>, <I>each()</I>, <I>values()</I> and hash iteration are faster''.
+<DT>vec(<FONT SIZE="-1">EXPR</FONT>,OFFSET,BITS) enforces powers-of-two <FONT SIZE="-1">BITS</FONT><DD>
+<A NAME="ixALG"></A>
+<I>vec()</I> generates a run-time error if the <FONT SIZE="-1">BITS</FONT> argument is not
+a valid power-of-two integer.
+<DT>Text of some diagnostic output has changed<DD>
+<A NAME="ixALH"></A>
+Most references to internal Perl operations in diagnostics
+have been changed to be more descriptive.  This may be an
+issue for programs that may incorrectly rely on the exact
+text of diagnostics for proper functioning.
+<DT>%@ has been removed<DD>
+
+
+<A NAME="ixALI"></A>
+The undocumented special variable <TT>&quot;%@&quot;</TT> that used to accumulate
+``background'' errors (such as those that happen in <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I>)
+has been removed, because it could potentially result in memory
+leaks.
+<DT>Parenthesized <I>not()</I> behaves like a list operator<DD>
+<A NAME="ixALJ"></A>
+The <TT>&quot;not&quot;</TT> operator now falls under the ``if it looks like a function,
+it behaves like a function'' rule.
+
+
+<P>
+
+
+As a result, the parenthesized form can be used with <TT>&quot;grep&quot;</TT> and <TT>&quot;map&quot;</TT>.
+The following construct used to be a syntax error before, but it works
+as expected now:
+
+
+<P>
+
+
+
+
+<PRE>
+    grep not($_), @things;
+
+</PRE>
+
+
+
+
+<P>
+
+
+On the other hand, using <TT>&quot;not&quot;</TT> with a literal list slice may not
+work.  The following previously allowed construct:
+
+
+<P>
+
+
+
+
+<PRE>
+    print not (1,2,3)[0];
+
+</PRE>
+
+
+
+
+<P>
+
+
+needs to be written with additional parentheses now:
+
+
+<P>
+
+
+
+
+<PRE>
+    print not((1,2,3)[0]);
+
+</PRE>
+
+
+
+
+<P>
+
+
+The behavior remains unaffected when <TT>&quot;not&quot;</TT> is not followed by parentheses.
+<DT>Semantics of bareword prototype (*) have changed<DD>
+
+
+<A NAME="ixALK"></A>
+The semantics of the bareword prototype <TT>&quot;*&quot;</TT> have changed.  Perl 5.005
+always coerced simple scalar arguments to a typeglob, which wasn't useful
+in situations where the subroutine must distinguish between a simple
+scalar and a typeglob.  The new behavior is to not coerce bareword
+arguments to a typeglob.  The value will always be visible as either
+a simple scalar or as a reference to a typeglob.
+
+
+<P>
+
+
+See ``More functional bareword prototype (*)''.
+<DT>Semantics of bit operators may have changed on 64-bit platforms<DD>
+<A NAME="ixALL"></A>
+If your platform is either natively 64-bit or if Perl has been
+configured to used 64-bit integers, i.e., <TT>$Config</TT>{ivsize} is 8, 
+there may be a potential incompatibility in the behavior of bitwise
+numeric operators (&amp; | ^ ~ &lt;&lt; &gt;&gt;).  These operators used to strictly
+operate on the lower 32 bits of integers in previous versions, but now
+operate over the entire native integral width.  In particular, note
+that unary <TT>&quot;~&quot;</TT> will produce different results on platforms that have
+different <TT>$Config</TT>{ivsize}.  For portability, be sure to mask off
+the excess bits in the result of unary <TT>&quot;~&quot;</TT>, e.g., <TT>&quot;~$x &amp; 0xffffffff&quot;</TT>.
+
+
+<P>
+
+
+See ``Bit operators support full native integer width''.
+<DT>More builtins taint their results<DD>
+<A NAME="ixALM"></A>
+As described in ``Improved security features'', there may be more
+sources of taint in a Perl program.
+
+
+<P>
+
+
+To avoid these new tainting behaviors, you can build Perl with the
+Configure option <TT>&quot;-Accflags=-DINCOMPLETE_TAINTS&quot;</TT>.  Beware that the
+ensuing perl binary may be insecure.
+</DL>
+<A NAME="lbEI">&nbsp;</A>
+<H2>C Source Incompatibilities</H2>
+
+<A NAME="ixALN"></A>
+<DL COMPACT>
+<DT>PERL_POLLUTE<DD>
+
+
+<A NAME="ixALO"></A>
+Release 5.005 grandfathered old global symbol names by providing preprocessor
+macros for extension source compatibility.  As of release 5.6.0, these
+preprocessor definitions are not available by default.  You need to explicitly
+compile perl with <TT>&quot;-DPERL_POLLUTE&quot;</TT> to get these definitions.  For
+extensions still using the old symbols, this option can be
+specified via MakeMaker:
+
+
+<P>
+
+
+
+
+<PRE>
+    perl Makefile.PL POLLUTE=1
+
+</PRE>
+
+
+<DT>PERL_IMPLICIT_CONTEXT<DD>
+
+
+<A NAME="ixALP"></A>
+This new build option provides a set of macros for all <FONT SIZE="-1">API</FONT> functions
+such that an implicit interpreter/thread context argument is passed to
+every <FONT SIZE="-1">API</FONT> function.  As a result of this, something like <TT>&quot;sv_setsv(foo,bar)&quot;</TT>
+amounts to a macro invocation that actually translates to something like
+<TT>&quot;Perl_sv_setsv(my_perl,foo,bar)&quot;</TT>.  While this is generally expected
+to not have any significant source compatibility issues, the difference
+between a macro and a real function call will need to be considered.
+
+
+<P>
+
+
+This means that there <B>is</B> a source compatibility issue as a result of
+this if your extensions attempt to use pointers to any of the Perl <FONT SIZE="-1">API</FONT>
+functions.
+
+
+<P>
+
+
+Note that the above issue is not relevant to the default build of
+Perl, whose interfaces continue to match those of prior versions
+(but subject to the other options described here).
+
+
+<P>
+
+
+See ``The Perl <FONT SIZE="-1">API</FONT>'' in perlguts for detailed information on the
+ramifications of building Perl with this option.
+
+
+<P>
+
+
+
+
+<PRE>
+    NOTE: PERL_IMPLICIT_CONTEXT is automatically enabled whenever Perl is built
+    with one of -Dusethreads, -Dusemultiplicity, or both.  It is not
+    intended to be enabled by users at this time.
+
+</PRE>
+
+
+<DT>PERL_POLLUTE_MALLOC<DD>
+
+
+<A NAME="ixALQ"></A>
+Enabling Perl's malloc in release 5.005 and earlier caused the namespace of
+the system's malloc family of functions to be usurped by the Perl versions,
+since by default they used the same names.  Besides causing problems on
+platforms that do not allow these functions to be cleanly replaced, this
+also meant that the system versions could not be called in programs that
+used Perl's malloc.  Previous versions of Perl have allowed this behaviour
+to be suppressed with the <FONT SIZE="-1">HIDEMYMALLOC</FONT> and <FONT SIZE="-1">EMBEDMYMALLOC</FONT> preprocessor
+definitions.
+
+
+<P>
+
+
+As of release 5.6.0, Perl's malloc family of functions have default names
+distinct from the system versions.  You need to explicitly compile perl with
+<TT>&quot;-DPERL_POLLUTE_MALLOC&quot;</TT> to get the older behaviour.  <FONT SIZE="-1">HIDEMYMALLOC</FONT>
+and <FONT SIZE="-1">EMBEDMYMALLOC</FONT> have no effect, since the behaviour they enabled is now
+the default.
+
+
+<P>
+
+
+Note that these functions do <B>not</B> constitute Perl's memory allocation <FONT SIZE="-1">API</FONT>.
+See ``Memory Allocation'' in perlguts for further information about that.
+</DL>
+<A NAME="lbEJ">&nbsp;</A>
+<H2>Compatible C Source <FONT SIZE="-1">API</FONT> Changes</H2>
+
+<A NAME="ixALR"></A>
+<DL COMPACT>
+<DT>PATCHLEVEL is now <TT>PERL_VERSION<DD>
+
+
+<A NAME="ixALS"></A>
+The cpp macros &quot;PERL_REVISION&quot;</TT>, <TT>&quot;PERL_VERSION&quot;</TT>, and <TT>&quot;PERL_SUBVERSION&quot;</TT>
+are now available by default from perl.h, and reflect the base revision,
+patchlevel, and subversion respectively.  <TT>&quot;PERL_REVISION&quot;</TT> had no
+prior equivalent, while <TT>&quot;PERL_VERSION&quot;</TT> and <TT>&quot;PERL_SUBVERSION&quot;</TT> were
+previously available as <TT>&quot;PATCHLEVEL&quot;</TT> and <TT>&quot;SUBVERSION&quot;</TT>.
+
+
+<P>
+
+
+The new names cause less pollution of the <B>cpp</B> namespace and reflect what
+the numbers have come to stand for in common practice.  For compatibility,
+the old names are still supported when <I>patchlevel.h</I> is explicitly
+included (as required before), so there is no source incompatibility
+from the change.
+</DL>
+<A NAME="lbEK">&nbsp;</A>
+<H2>Binary Incompatibilities</H2>
+
+<A NAME="ixALT"></A>
+In general, the default build of this release is expected to be binary
+compatible for extensions built with the 5.005 release or its maintenance
+versions.  However, specific platforms may have broken binary compatibility
+due to changes in the defaults used in hints files.  Therefore, please be
+sure to always check the platform-specific <FONT SIZE="-1">README</FONT> files for any notes to
+the contrary.
+<P>
+
+The usethreads or usemultiplicity builds are <B>not</B> binary compatible
+with the corresponding builds in 5.005.
+<P>
+
+On platforms that require an explicit list of exports (<FONT SIZE="-1">AIX</FONT>, <FONT SIZE="-1">OS/2</FONT> and Windows,
+among others), purely internal symbols such as parser functions and the
+run time opcodes are not exported by default.  Perl 5.005 used to export
+all functions irrespective of whether they were considered part of the
+public <FONT SIZE="-1">API</FONT> or not.
+<P>
+
+For the full list of public <FONT SIZE="-1">API</FONT> functions, see perlapi.
+<A NAME="lbEL">&nbsp;</A>
+<H2>Known Problems</H2>
+
+<A NAME="ixALU"></A>
+<A NAME="lbEM">&nbsp;</A>
+<H2>Thread test failures</H2>
+
+<A NAME="ixALV"></A>
+The subtests 19 and 20 of lib/thr5005.t test are known to fail due to
+fundamental problems in the 5.005 threading implementation.  These are
+not new failures---Perl 5.005_0x has the same bugs, but didn't have these
+tests.
+<A NAME="lbEN">&nbsp;</A>
+<H2><FONT SIZE="-1">EBCDIC</FONT> platforms not supported</H2>
+
+<A NAME="ixALW"></A>
+In earlier releases of Perl, <FONT SIZE="-1">EBCDIC</FONT> environments like <FONT SIZE="-1">OS390</FONT> (also
+known as Open Edition <FONT SIZE="-1">MVS</FONT>) and VM-ESA were supported.  Due to changes
+required by the <FONT SIZE="-1">UTF-8</FONT> (Unicode) support, the <FONT SIZE="-1">EBCDIC</FONT> platforms are not
+supported in Perl 5.6.0.
+<A NAME="lbEO">&nbsp;</A>
+<H2>In 64-bit HP-UX the lib/io_multihomed test may hang
+
+</H2>
+
+<A NAME="ixALX"></A>
+The lib/io_multihomed test may hang in HP-UX if Perl has been
+configured to be 64-bit.  Because other 64-bit platforms do not
+hang in this test, HP-UX is suspect.  All other tests pass
+in 64-bit <FONT SIZE="-1">HP-UX</FONT>.  The test attempts to create and connect to
+``multihomed'' sockets (sockets which have multiple <FONT SIZE="-1">IP</FONT> addresses).
+<A NAME="lbEP">&nbsp;</A>
+<H2><FONT SIZE="-1">NEXTSTEP</FONT> 3.3 <FONT SIZE="-1">POSIX</FONT> test failure</H2>
+
+<A NAME="ixALY"></A>
+In <FONT SIZE="-1">NEXTSTEP</FONT> 3.3p2 the implementation of the <I><A HREF="../man3/strftime.3.php">strftime</A></I>(3) in the
+operating system libraries is buggy: the <TT>%j</TT> format numbers the days of
+a month starting from zero, which, while being logical to programmers,
+will cause the subtests 19 to 27 of the lib/posix test may fail.
+<A NAME="lbEQ">&nbsp;</A>
+<H2>Tru64 (aka Digital <FONT SIZE="-1">UNIX</FONT>, aka <FONT SIZE="-1">DEC</FONT> <FONT SIZE="-1">OSF/1</FONT>) lib/sdbm test failure with gcc</H2>
+
+<A NAME="ixALZ"></A>
+If compiled with gcc 2.95 the lib/sdbm test will fail (dump core).
+The cure is to use the vendor cc, it comes with the operating system
+and produces good code.
+<A NAME="lbER">&nbsp;</A>
+<H2>UNICOS/mk <FONT SIZE="-1">CC</FONT> failures during Configure run</H2>
+
+<A NAME="ixAMA"></A>
+In UNICOS/mk the following errors may appear during the Configure run:
+<P>
+
+
+
+<PRE>
+        Guessing which symbols your C compiler and preprocessor define...
+        CC-20 cc: ERROR File = try.c, Line = 3
+        ...
+          bad switch yylook 79bad switch yylook 79bad switch yylook 79bad switch yylook 79#ifdef A29K
+        ...
+        4 errors detected in the compilation of &quot;try.c&quot;.
+
+</PRE>
+
+
+<P>
+
+The culprit is the broken awk of UNICOS/mk.  The effect is fortunately
+rather mild: Perl itself is not adversely affected by the error, only
+the h2ph utility coming with Perl, and that is rather rarely needed
+these days.
+<A NAME="lbES">&nbsp;</A>
+<H2>Arrow operator and arrays</H2>
+
+<A NAME="ixAMB"></A>
+When the left argument to the arrow operator <TT>&quot;-&gt;&quot;</TT> is an array, or
+the <TT>&quot;scalar&quot;</TT> operator operating on an array, the result of the
+operation must be considered erroneous. For example:
+<P>
+
+
+
+<PRE>
+    @x-&gt;[2]
+    scalar(@x)-&gt;[2]
+
+</PRE>
+
+
+<P>
+
+These expressions will get run-time errors in some future release of
+Perl.
+<A NAME="lbET">&nbsp;</A>
+<H2>Experimental features</H2>
+
+<A NAME="ixAMC"></A>
+As discussed above, many features are still experimental.  Interfaces and
+implementation of these features are subject to change, and in extreme cases,
+even subject to removal in some future release of Perl.  These features
+include the following:
+<DL COMPACT>
+<DT>Threads<DD>
+<A NAME="ixAMD"></A>
+
+<DT>Unicode<DD>
+<A NAME="ixAME"></A>
+<DT>64-bit support<DD>
+<A NAME="ixAMF"></A>
+<DT>Lvalue subroutines<DD>
+<A NAME="ixAMG"></A>
+<DT>Weak references<DD>
+<A NAME="ixAMH"></A>
+<DT>The pseudo-hash data type<DD>
+<A NAME="ixAMI"></A>
+<DT>The Compiler suite<DD>
+<A NAME="ixAMJ"></A>
+<DT>Internal implementation of file globbing<DD>
+<A NAME="ixAMK"></A>
+<DT>The <FONT SIZE="-1">DB</FONT> module<DD>
+<A NAME="ixAML"></A>
+<DT>The regular expression code constructs:<DD>
+<A NAME="ixAMM"></A>
+
+<TT>&quot;(?{ code })&quot;</TT> and <TT>&quot;(??{ code })&quot;</TT>
+</DL>
+<A NAME="lbEU">&nbsp;</A>
+<H2>Obsolete Diagnostics</H2>
+
+<A NAME="ixAMN"></A>
+<DL COMPACT>
+<DT>Character class syntax [: :] is reserved for future extensions<DD>
+<A NAME="ixAMO"></A>
+(W) Within regular expression character classes ([]) the syntax beginning
+with ``[:'' and ending with ``:]'' is reserved for future extensions.
+If you need to represent those character sequences inside a regular
+expression character class, just quote the square brackets with the
+backslash: ``\[:'' and ``:\]''.
+<DT>Ill-formed logical name |%s| in prime_env_iter<DD>
+<A NAME="ixAMP"></A>
+(W) A warning peculiar to <FONT SIZE="-1">VMS</FONT>.  A logical name was encountered when preparing
+to iterate over <TT>%ENV</TT> which violates the syntactic rules governing logical
+names.  Because it cannot be translated normally, it is skipped, and will not
+appear in <TT>%ENV</TT>.  This may be a benign occurrence, as some software packages
+might directly modify logical name tables and introduce nonstandard names,
+or it may indicate that a logical name table has been corrupted.
+<DT>In string, @%s now must be written as \@%s<DD>
+<A NAME="ixAMQ"></A>
+The description of this error used to say:
+
+
+<P>
+
+
+
+
+<PRE>
+        (Someday it will simply assume that an unbackslashed @
+         interpolates an array.)
+
+</PRE>
+
+
+
+
+<P>
+
+
+That day has come, and this fatal error has been removed.  It has been
+replaced by a non-fatal warning instead.
+See ``Arrays now always interpolate into double-quoted strings'' for
+details.
+<DT>Probable precedence problem on %s<DD>
+
+
+<A NAME="ixAMR"></A>
+(W) The compiler found a bareword where it expected a conditional,
+which often indicates that an || or &amp;&amp; was parsed as part of the
+last argument of the previous construct, for example:
+
+
+<P>
+
+
+
+
+<PRE>
+    open FOO || die;
+
+</PRE>
+
+
+<DT>regexp too big<DD>
+<A NAME="ixAMS"></A>
+(F) The current implementation of regular expressions uses shorts as
+address offsets within a string.  Unfortunately this means that if
+the regular expression compiles to longer than 32767, it'll blow up.
+Usually when you want a regular expression this big, there is a better
+way to do it with multiple statements.  See perlre.
+<DT>Use of $$&lt;digit&gt; to mean ${$}&lt;digit&gt; is deprecated<DD>
+
+
+<A NAME="ixAMT"></A>
+(D) Perl versions before 5.004 misinterpreted any type marker followed
+by ``$'' and a digit.  For example, ``$$0'' was incorrectly taken to mean
+``${$}0'' instead of ``${$0}''.  This bug is (mostly) fixed in Perl 5.004.
+
+
+<P>
+
+
+However, the developers of Perl 5.004 could not fix this bug completely,
+because at least two widely-used modules depend on the old meaning of
+``$$0'' in a string.  So Perl 5.004 still interprets ``$$&lt;digit&gt;'' in the
+old (broken) way inside strings; but it generates this message as a
+warning.  And in Perl 5.005, this special treatment will cease.
+</DL>
+<A NAME="lbEV">&nbsp;</A>
+<H2>Reporting Bugs</H2>
+
+<A NAME="ixAMU"></A>
+If you find what you think is a bug, you might check the
+articles recently posted to the comp.lang.perl.misc newsgroup.
+There may also be information at <A HREF="http://www.perl.com/perl/">http://www.perl.com/perl/</A> , the Perl
+Home Page.
+<P>
+
+If you believe you have an unreported bug, please run the <B>perlbug</B>
+program included with your release.  Be sure to trim your bug down
+to a tiny but sufficient test case.  Your bug report, along with the
+output of <TT>&quot;perl -V&quot;</TT>, will be sent off to <A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A> to be
+analysed by the Perl porting team.
+<A NAME="lbEW">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAMV"></A>
+The <I>Changes</I> file for exhaustive details on what changed.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> file for how to build Perl.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>README</I></FONT><I></I> file for general stuff.
+<P>
+
+The <I>Artistic</I> and <I>Copying</I> files for copyright information.
+<A NAME="lbEX">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAMW"></A>
+Written by Gurusamy Sarathy &lt;<I><A HREF="mailto:gsar@activestate.com">gsar@activestate.com</A></I>&gt;, with many
+contributions from The Perl Porters.
+<P>
+
+Send omissions or corrections to &lt;<I><A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A></I>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Core Enhancements</A><DD>
+<DT><A HREF="#lbAE">Interpreter cloning, threads, and concurrency</A><DD>
+<DT><A HREF="#lbAF">Lexically scoped warning categories</A><DD>
+<DT><A HREF="#lbAG">Unicode and <FONT SIZE="-1">UTF-8</FONT> support</A><DD>
+<DT><A HREF="#lbAH">Support for interpolating named characters</A><DD>
+<DT><A HREF="#lbAI">our declarations</A><DD>
+<DT><A HREF="#lbAJ">Support for strings represented as a vector of ordinals</A><DD>
+<DT><A HREF="#lbAK">Improved Perl version numbering system</A><DD>
+<DT><A HREF="#lbAL">New syntax for declaring subroutine attributes</A><DD>
+<DT><A HREF="#lbAM">File and directory handles can be autovivified</A><DD>
+<DT><A HREF="#lbAN"><I>open()</I> with more than two arguments</A><DD>
+<DT><A HREF="#lbAO">64-bit support</A><DD>
+<DT><A HREF="#lbAP">Large file support</A><DD>
+<DT><A HREF="#lbAQ">Long doubles</A><DD>
+<DT><A HREF="#lbAR">more bits</A><DD>
+<DT><A HREF="#lbAS">Enhanced support for <I>sort()</I> subroutines</A><DD>
+<DT><A HREF="#lbAT">sort $coderef @foo allowed</A><DD>
+<DT><A HREF="#lbAU">File globbing implemented internally</A><DD>
+<DT><A HREF="#lbAV">Support for <FONT SIZE="-1">CHECK</FONT> blocks</A><DD>
+<DT><A HREF="#lbAW"><FONT SIZE="-1">POSIX</FONT> character class syntax [: :] supported</A><DD>
+<DT><A HREF="#lbAX">Better pseudo-random number generator</A><DD>
+<DT><A HREF="#lbAY">Improved qw// operator</A><DD>
+<DT><A HREF="#lbAZ">Better worst-case behavior of hashes</A><DD>
+<DT><A HREF="#lbBA"><I>pack()</I> format 'Z' supported</A><DD>
+<DT><A HREF="#lbBB"><I>pack()</I> format modifier '!' supported</A><DD>
+<DT><A HREF="#lbBC"><I>pack()</I> and <I>unpack()</I> support counted strings</A><DD>
+<DT><A HREF="#lbBD">Comments in <I>pack()</I> templates</A><DD>
+<DT><A HREF="#lbBE">Weak references</A><DD>
+<DT><A HREF="#lbBF">Binary numbers supported</A><DD>
+<DT><A HREF="#lbBG">Lvalue subroutines</A><DD>
+<DT><A HREF="#lbBH">Some arrows may be omitted in calls through references</A><DD>
+<DT><A HREF="#lbBI">Boolean assignment operators are legal lvalues</A><DD>
+<DT><A HREF="#lbBJ"><I>exists()</I> is supported on subroutine names</A><DD>
+<DT><A HREF="#lbBK"><I>exists()</I> and <I>delete()</I> are supported on array elements</A><DD>
+<DT><A HREF="#lbBL">Pseudo-hashes work better</A><DD>
+<DT><A HREF="#lbBM">Automatic flushing of output buffers</A><DD>
+<DT><A HREF="#lbBN">Better diagnostics on meaningless filehandle operations</A><DD>
+<DT><A HREF="#lbBO">Where possible, buffered data discarded from duped input filehandle</A><DD>
+<DT><A HREF="#lbBP"><I>eof()</I> has the same old magic as &lt;&gt;</A><DD>
+<DT><A HREF="#lbBQ"><I>binmode()</I> can be used to set :crlf and :raw modes</A><DD>
+<DT><A HREF="#lbBR">-T filetest recognizes <FONT SIZE="-1">UTF-8</FONT> encoded files as text</A><DD>
+<DT><A HREF="#lbBS"><I>system()</I>, backticks and pipe open now reflect <I>exec()</I> failure</A><DD>
+<DT><A HREF="#lbBT">Improved diagnostics</A><DD>
+<DT><A HREF="#lbBU">Diagnostics follow <FONT SIZE="-1">STDERR</FONT></A><DD>
+<DT><A HREF="#lbBV">More consistent close-on-exec behavior</A><DD>
+<DT><A HREF="#lbBW"><I>syswrite()</I> ease-of-use</A><DD>
+<DT><A HREF="#lbBX">Better syntax checks on parenthesized unary operators</A><DD>
+<DT><A HREF="#lbBY">Bit operators support full native integer width</A><DD>
+<DT><A HREF="#lbBZ">Improved security features</A><DD>
+<DT><A HREF="#lbCA">More functional bareword prototype (*)</A><DD>
+<DT><A HREF="#lbCB">require and <TT>do may be overridden</A><DD>
+<DT><A HREF="#lbCC">$^X variables may now have names longer than one character</A><DD>
+<DT><A HREF="#lbCD">New variable $^C reflects -c switch</A><DD>
+<DT><A HREF="#lbCE">New variable $^V contains Perl version as a string</A><DD>
+<DT><A HREF="#lbCF">Optional Y2K warnings</A><DD>
+<DT><A HREF="#lbCG">Arrays now always interpolate into double-quoted strings</A><DD>
+<DT><A HREF="#lbCH">Modules and Pragmata</A><DD>
+<DT><A HREF="#lbCI">Modules</A><DD>
+<DT><A HREF="#lbCJ">Pragmata</A><DD>
+<DT><A HREF="#lbCK">Utility Changes</A><DD>
+<DT><A HREF="#lbCL">dprofpp</A><DD>
+<DT><A HREF="#lbCM">find2perl</A><DD>
+<DT><A HREF="#lbCN">h2xs</A><DD>
+<DT><A HREF="#lbCO">perlcc</A><DD>
+<DT><A HREF="#lbCP">perldoc</A><DD>
+<DT><A HREF="#lbCQ">The Perl Debugger</A><DD>
+<DT><A HREF="#lbCR">Improved Documentation</A><DD>
+<DT><A HREF="#lbCS">Performance enhancements</A><DD>
+<DT><A HREF="#lbCT">Simple <I>sort()</I> using { $a &lt;=&gt; <TT>$b } and the like are optimized</A><DD>
+<DT><A HREF="#lbCU">Optimized assignments to lexical variables</A><DD>
+<DT><A HREF="#lbCV">Faster subroutine calls</A><DD>
+<DT><A HREF="#lbCW"><I>delete()</I>, <I>each()</I>, <I>values()</I> and hash iteration are faster</A><DD>
+<DT><A HREF="#lbCX">Installation and Configuration Improvements</A><DD>
+<DT><A HREF="#lbCY">-Dusethreads means something different</A><DD>
+<DT><A HREF="#lbCZ">New Configure flags</A><DD>
+<DT><A HREF="#lbDA">Threadedness and 64-bitness now more daring</A><DD>
+<DT><A HREF="#lbDB">Long Doubles</A><DD>
+<DT><A HREF="#lbDC">-Dusemorebits</A><DD>
+<DT><A HREF="#lbDD">-Duselargefiles</A><DD>
+<DT><A HREF="#lbDE">installusrbinperl</A><DD>
+<DT><A HREF="#lbDF"><FONT SIZE="-1">SOCKS</FONT> support</A><DD>
+<DT><A HREF="#lbDG">-A flag</A><DD>
+<DT><A HREF="#lbDH">Enhanced Installation Directories</A><DD>
+<DT><A HREF="#lbDI">Platform specific changes</A><DD>
+<DT><A HREF="#lbDJ">Supported platforms</A><DD>
+<DT><A HREF="#lbDK"><FONT SIZE="-1">DOS</FONT></A><DD>
+<DT><A HREF="#lbDL"><FONT SIZE="-1">OS390</FONT> (OpenEdition <FONT SIZE="-1">MVS</FONT>)</A><DD>
+<DT><A HREF="#lbDM"><FONT SIZE="-1">VMS</FONT></A><DD>
+<DT><A HREF="#lbDN">Win32</A><DD>
+<DT><A HREF="#lbDO">Significant bug fixes</A><DD>
+<DT><A HREF="#lbDP">&lt;<FONT SIZE="-1">HANDLE</FONT>&gt; on empty files</A><DD>
+<DT><A HREF="#lbDQ">eval '...' improvements</A><DD>
+<DT><A HREF="#lbDR">All compilation errors are true errors</A><DD>
+<DT><A HREF="#lbDS">Implicitly closed filehandles are safer</A><DD>
+<DT><A HREF="#lbDT">Behavior of list slices is more consistent</A><DD>
+<DT><A HREF="#lbDU">(\$) prototype and <TT>$foo{a}</A><DD>
+<DT><A HREF="#lbDV">goto &amp;sub and <FONT SIZE="-1">AUTOLOAD</FONT></A><DD>
+<DT><A HREF="#lbDW">-bareword allowed under <TT>use integer</A><DD>
+<DT><A HREF="#lbDX">Failures in <FONT SIZE="-1"><I>DESTROY</I></FONT><I>()</I></A><DD>
+<DT><A HREF="#lbDY">Locale bugs fixed</A><DD>
+<DT><A HREF="#lbDZ">Memory leaks</A><DD>
+<DT><A HREF="#lbEA">Spurious subroutine stubs after failed subroutine calls</A><DD>
+<DT><A HREF="#lbEB">Taint failures under -U</A><DD>
+<DT><A HREF="#lbEC"><FONT SIZE="-1">END</FONT> blocks and the -c switch</A><DD>
+<DT><A HREF="#lbED">Potential to leak <FONT SIZE="-1">DATA</FONT> filehandles</A><DD>
+<DT><A HREF="#lbEE">New or Changed Diagnostics</A><DD>
+<DT><A HREF="#lbEF">New tests</A><DD>
+<DT><A HREF="#lbEG">Incompatible Changes</A><DD>
+<DT><A HREF="#lbEH">Perl Source Incompatibilities</A><DD>
+<DT><A HREF="#lbEI">C Source Incompatibilities</A><DD>
+<DT><A HREF="#lbEJ">Compatible C Source <FONT SIZE="-1">API</FONT> Changes</A><DD>
+<DT><A HREF="#lbEK">Binary Incompatibilities</A><DD>
+<DT><A HREF="#lbEL">Known Problems</A><DD>
+<DT><A HREF="#lbEM">Thread test failures</A><DD>
+<DT><A HREF="#lbEN"><FONT SIZE="-1">EBCDIC</FONT> platforms not supported</A><DD>
+<DT><A HREF="#lbEO">In 64-bit HP-UX the lib/io_multihomed test may hang</A><DD>
+<DT><A HREF="#lbEP"><FONT SIZE="-1">NEXTSTEP</FONT> 3.3 <FONT SIZE="-1">POSIX</FONT> test failure</A><DD>
+<DT><A HREF="#lbEQ">Tru64 (aka Digital <FONT SIZE="-1">UNIX</FONT>, aka <FONT SIZE="-1">DEC</FONT> <FONT SIZE="-1">OSF/1</FONT>) lib/sdbm test failure with gcc</A><DD>
+<DT><A HREF="#lbER">UNICOS/mk <FONT SIZE="-1">CC</FONT> failures during Configure run</A><DD>
+<DT><A HREF="#lbES">Arrow operator and arrays</A><DD>
+<DT><A HREF="#lbET">Experimental features</A><DD>
+<DT><A HREF="#lbEU">Obsolete Diagnostics</A><DD>
+<DT><A HREF="#lbEV">Reporting Bugs</A><DD>
+<DT><A HREF="#lbEW">SEE ALSO</A><DD>
+<DT><A HREF="#lbEX">HISTORY</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

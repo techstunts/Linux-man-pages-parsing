@@ -1,0 +1,208 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PVM_SHMD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PVM_SHMD</H1>
+Section: PVM Version 3.4 (1PVM)<BR>Updated: 11 March, 1999<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pvm_shmd - PVM shared memory (2) daemon
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>
+pvm_shmd
+[
+-options
+]
+[
+hostfile
+]
+&amp;
+</B>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Pvm_shmd</I>
+
+is a daemon process which maintains and handles the usage of shared memory
+resources (memory segments, semaphores, message queues) on a particular PVM
+host.
+One <I>pvm_shmd</I> must run on each host in a virtual machine that wants to 
+use the shmd shared memory message passing layer. The <I>shmd</I> message
+passing layer allows local processes to a host to use shared memory for
+message passing on that host ONLY. See the shmd directory README for further
+notes and restrictions.
+<P>
+The daemon can be started manually as with any other PVM task. 
+Only one <I>pvm_shmd</I> can be active per host. If the <I>pvm_shmd</I>
+detects another <I>pvm_shmd</I> it will shutdown.
+<P>
+The <I>pvm_shmd</I> can be killed from the PVM console by using the reset
+command.
+Local and remote pvm_shmds can also be started from the PVM console
+program <I>pvm</I>.
+<P>
+The name of the daemon executable is <I>pvm_shmd</I>.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Shared Resource Usage</H2>
+
+The <I>pvm_shmd</I> will attempt to create upto <I>MAXSEG</I> shared memory
+segments of upto <I>MAXPAGES</I> memory pages in size. The size of each memory
+page is architecture dependent(see <A HREF="../man3C/getpagesize.3C.php">getpagesize</A>(3C)). 
+The segments are then numbered 0..N-1 where N is the number of segments created.
+The first segement (0) has the shared memory control structure placed in its
+head. This structure allows alien processes to located the other shared memory
+segments and any required controlling information.
+<P>
+The message passing layer, allocates memory from these segments asynchronously
+without any interaction with the <I>pvm_shmd</I> using semaphores to protect
+data during updates to any associated structures. 
+For each segment there is an associated page map of which processes have
+currently locked a page. Each page map for a segment has a separate semaphore
+protecting it. The semaphores are accessed with the SEM_UNDO flag set so that
+if a process holding a semaphore should die, the OS (should) reset the
+semaphore automatically, thus allowing any waiting/blocked processes to
+continue.
+<P>
+The <I>pvm_shmd</I> only
+maintains the segments and their allocation page map(s).
+Thus if a process allocated pages in a segment and then exits, it is the 
+<I>pvm_shmd</I> that detects this and then frees the allocated pages.
+<P>
+The <I>pvm_shmd</I> can have its status checked at any time by using the 
+<I>pvm_shmd_stat</I> process to kick it into reporting onto either stdio or the
+pvm log file (pvml.uid) its internal state.
+<P>
+The shared memory and all associated processes can be cleared by sending the 
+<I>pvm_shmd</I> a HUP signal.
+<P>
+Sending the <I>pvm_shmd</I> a TERM signal will just cause it to clear any shared
+resources and then exit.
+<P>
+The <I>pvm_shmd</I> cannot catch the KILL signal.
+<P>
+If the <I>pvm_shmd</I> is killed without clearing all of its shared resources
+these can be cleared by calling <I>ipcfree</I> which resides in the pvm3/lib
+directory.
+<P>
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Message Passing using SHMD</H2>
+
+The <I>pvm_shmd</I> handles resources that are used by special versions of 
+pvm_psend() and pvm_precv() stored in the libpvmshmd.a library. Thus to use
+these facilities, applications have to link to this library instead of the
+usual libpvm3.a library.
+<P>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options may be specified on the command line when
+starting the pvm_shmd:
+<DL COMPACT>
+<DT>-debug=<I>level</I><DD>
+Sets the <I>pvm_shmd</I> debug level.
+Used to debug the pvm_shmd or libpvmshmd (not intended to be used to debug
+application programs).
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>-maxsegs=<I>maxsegs</I><DD>
+Sets the maximum number of segments that the <I>pvm_shmd</I> can create. This is
+used to over-ride the compiled in value from shmd.h. Note that the value cannot
+be above the MAXSEGS in the shmd.h file.
+<DT>-maxpages=<I>maxpages</I><DD>
+Sets the maximum segment size to <I>maxpages</I> pages of memory. This value
+cannot be above the compiled value MAXPAGES in shmd.h or the actual OS defined
+limit.
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+Remember that <I>pvm_shmd</I> allocated memory from the VM available on the
+machine. Allocating more segements improves performance as there is less
+sharing of segments (semaphores for their page maps). Although you must
+remember to leave some memory available for normal program and OS system
+usage, as the <I>pvm_shmd</I> allocated memory is *ONLY* used for message
+passing.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+
+
+<PRE>
+  $PVM_ROOT/lib/$PVM_ARCH/pvm_shmd PVM shared memory daemon executable
+  $PVM_ROOT/shmd/shmd.h Shared Memory hard limits header file
+  /tmp/pvml.<I>uid</I> Pvmd runtime error log
+</PRE>
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+pvm(1PVM),
+pvmd(1PVM),
+<A HREF="../man3C/getpagesize.3C.php">getpagesize</A>(3C),
+<A HREF="../man1/ipcs.1.php">ipcs</A>(1),
+<A HREF="../man2/msgctl.2.php">msgctl</A>(2),
+<A HREF="../man2/semctl.2.php">semctl</A>(2),
+<A HREF="../man2/shmctl.2.php">shmctl</A>(2),
+<A HREF="../man5/signal.5.php">signal</A>(5)
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Shared Resource Usage</A><DD>
+<DT><A HREF="#lbAF">Message Passing using SHMD</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

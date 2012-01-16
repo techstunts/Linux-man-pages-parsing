@@ -1,0 +1,331 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLDBMFILTER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLDBMFILTER</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perldbmfilter - Perl DBM Filters
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+    $db = tie %hash, 'DBM', ...
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $old_filter = $db-&gt;filter_store_key  ( sub { ... } ) ;
+    $old_filter = $db-&gt;filter_store_value( sub { ... } ) ;
+    $old_filter = $db-&gt;filter_fetch_key  ( sub { ... } ) ;
+    $old_filter = $db-&gt;filter_fetch_value( sub { ... } ) ;
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The four <TT>&quot;filter_*&quot;</TT> methods shown above are available in all the <FONT SIZE="-1">DBM</FONT>
+modules that ship with Perl, namely DB_File, GDBM_File, NDBM_File,
+ODBM_File and SDBM_File.
+<P>
+
+Each of the methods work identically, and are used to install (or
+uninstall) a single <FONT SIZE="-1">DBM</FONT> Filter. The only difference between them is the
+place that the filter is installed.
+<P>
+
+To summarise:
+<DL COMPACT>
+<DT><B>filter_store_key</B><DD>
+<A NAME="ixAAE"></A>
+If a filter has been installed with this method, it will be invoked
+every time you write a key to a <FONT SIZE="-1">DBM</FONT> database.
+<DT><B>filter_store_value</B><DD>
+<A NAME="ixAAF"></A>
+If a filter has been installed with this method, it will be invoked
+every time you write a value to a <FONT SIZE="-1">DBM</FONT> database.
+<DT><B>filter_fetch_key</B><DD>
+<A NAME="ixAAG"></A>
+If a filter has been installed with this method, it will be invoked
+every time you read a key from a <FONT SIZE="-1">DBM</FONT> database.
+<DT><B>filter_fetch_value</B><DD>
+<A NAME="ixAAH"></A>
+If a filter has been installed with this method, it will be invoked
+every time you read a value from a <FONT SIZE="-1">DBM</FONT> database.
+</DL>
+<P>
+
+You can use any combination of the methods from none to all four.
+<P>
+
+All filter methods return the existing filter, if present, or <TT>&quot;undef&quot;</TT>
+in not.
+<P>
+
+To delete a filter pass <TT>&quot;undef&quot;</TT> to it.
+<A NAME="lbAE">&nbsp;</A>
+<H2>The Filter</H2>
+
+<A NAME="ixAAI"></A>
+When each filter is called by Perl, a local copy of <TT>$_</TT> will contain
+the key or value to be filtered. Filtering is achieved by modifying
+the contents of <TT>$_</TT>. The return code from the filter is ignored.
+<A NAME="lbAF">&nbsp;</A>
+<H2>An Example --- the <FONT SIZE="-1">NULL</FONT> termination problem.
+
+</H2>
+
+<A NAME="ixAAJ"></A>
+<FONT SIZE="-1">DBM</FONT> Filters are useful for a class of problems where you <I>always</I>
+want to make the same transformation to all keys, all values or both.
+<P>
+
+For example, consider the following scenario. You have a <FONT SIZE="-1">DBM</FONT> database
+that you need to share with a third-party C application. The C application
+assumes that <I>all</I> keys and values are <FONT SIZE="-1">NULL</FONT> terminated. Unfortunately
+when Perl writes to <FONT SIZE="-1">DBM</FONT> databases it doesn't use <FONT SIZE="-1">NULL</FONT> termination, so
+your Perl application will have to manage <FONT SIZE="-1">NULL</FONT> termination itself. When
+you write to the database you will have to use something like this:
+<P>
+
+
+
+<PRE>
+    $hash{&quot;$key\0&quot;} = &quot;$value\0&quot; ;
+
+</PRE>
+
+
+<P>
+
+Similarly the <FONT SIZE="-1">NULL</FONT> needs to be taken into account when you are considering
+the length of existing keys/values.
+<P>
+
+It would be much better if you could ignore the <FONT SIZE="-1">NULL</FONT> terminations issue
+in the main application code and have a mechanism that automatically
+added the terminating <FONT SIZE="-1">NULL</FONT> to all keys and values whenever you write to
+the database and have them removed when you read from the database. As I'm
+sure you have already guessed, this is a problem that <FONT SIZE="-1">DBM</FONT> Filters can
+fix very easily.
+<P>
+
+
+
+<PRE>
+    use strict ;
+    use warnings ;
+    use SDBM_File ;
+    use Fcntl ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my %hash ;
+    my $filename = &quot;filt&quot; ;
+    unlink $filename ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $db = tie(%hash, 'SDBM_File', $filename, O_RDWR|O_CREAT, 0640)
+      or die &quot;Cannot open $filename: $!\n&quot; ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Install DBM Filters
+    $db-&gt;filter_fetch_key  ( sub { s/\0$//    } ) ;
+    $db-&gt;filter_store_key  ( sub { $_ .= &quot;\0&quot; } ) ;
+    $db-&gt;filter_fetch_value( 
+        sub { no warnings 'uninitialized' ;s/\0$// } ) ;
+    $db-&gt;filter_store_value( sub { $_ .= &quot;\0&quot; } ) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $hash{&quot;abc&quot;} = &quot;def&quot; ;
+    my $a = $hash{&quot;ABC&quot;} ;
+    # ...
+    undef $db ;
+    untie %hash ;
+
+</PRE>
+
+
+<P>
+
+The code above uses SDBM_File, but it will work with any of the <FONT SIZE="-1">DBM</FONT>
+modules.
+<P>
+
+Hopefully the contents of each of the filters should be
+self-explanatory. Both ``fetch'' filters remove the terminating <FONT SIZE="-1">NULL</FONT>,
+and both ``store'' filters add a terminating <FONT SIZE="-1">NULL</FONT>.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Another Example --- Key is a C int.</H2>
+
+<A NAME="ixAAK"></A>
+Here is another real-life example. By default, whenever Perl writes to
+a <FONT SIZE="-1">DBM</FONT> database it always writes the key and value as strings. So when
+you use this:
+<P>
+
+
+
+<PRE>
+    $hash{12345} = &quot;something&quot; ;
+
+</PRE>
+
+
+<P>
+
+the key 12345 will get stored in the <FONT SIZE="-1">DBM</FONT> database as the 5 byte string
+``12345''. If you actually want the key to be stored in the <FONT SIZE="-1">DBM</FONT> database
+as a C int, you will have to use <TT>&quot;pack&quot;</TT> when writing, and <TT>&quot;unpack&quot;</TT>
+when reading.
+<P>
+
+Here is a <FONT SIZE="-1">DBM</FONT> Filter that does it:
+<P>
+
+
+
+<PRE>
+    use strict ;
+    use warnings ;
+    use DB_File ;
+    my %hash ;
+    my $filename = &quot;filt&quot; ;
+    unlink $filename ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $db = tie %hash, 'DB_File', $filename, O_CREAT|O_RDWR, 0666, $DB_HASH 
+      or die &quot;Cannot open $filename: $!\n&quot; ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $db-&gt;filter_fetch_key  ( sub { $_ = unpack(&quot;i&quot;, $_) } ) ;
+    $db-&gt;filter_store_key  ( sub { $_ = pack (&quot;i&quot;, $_) } ) ;
+    $hash{123} = &quot;def&quot; ;
+    # ...
+    undef $db ;
+    untie %hash ;
+
+</PRE>
+
+
+<P>
+
+The code above uses DB_File, but again it will work with any of the
+<FONT SIZE="-1">DBM</FONT> modules.
+<P>
+
+This time only two filters have been used --- we only need to manipulate
+the contents of the key, so it wasn't necessary to install any value
+filters.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAL"></A>
+DB_File, GDBM_File, NDBM_File, ODBM_File and SDBM_File.
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAM"></A>
+Paul Marquess
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">The Filter</A><DD>
+<DT><A HREF="#lbAF">An Example --- the <FONT SIZE="-1">NULL</FONT> termination problem.</A><DD>
+<DT><A HREF="#lbAG">Another Example --- Key is a C int.</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

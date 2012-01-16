@@ -1,0 +1,328 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>WVDIAL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>WVDIAL</H1>
+Section: User Commands  (1)<BR>Updated: May 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+wvdial - PPP dialer with built-in intelligence.
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>wvdial</B>
+
+<I>--help | --version | --chat | --config | option=value | --no-syslog | section...</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>wvdial</B>
+
+is an intelligent PPP dialer, which means that it dials a modem and
+starts PPP in order to connect to the Internet.  It is something like the
+<B><A HREF="../man8/chat.8.php">chat</A></B>(8)
+
+program, except that it uses heuristics to guess how to dial and log
+into your server rather than forcing you to write a login script.
+<P>
+
+When
+<B>wvdial</B>
+
+starts, it first loads its configuration from
+<I>/etc/wvdial.conf</I>
+
+and
+<I>~/.wvdialrc</I>
+
+which contains basic information about the modem port, speed, and init
+string, along with information about your Internet Service Provider (ISP),
+such as the phone number, your username, and your password.
+<P>
+
+Then it initializes your modem and dials the server and waits for a 
+connection (a CONNECT string from the modem).  It understands and responds 
+to typical connection problems (like BUSY and NO DIALTONE).
+<P>
+
+Any time after connecting, 
+<B>wvdial</B>
+
+will start PPP if it sees a PPP sequence from the server.  Otherwise,
+it tries to convince the server to start PPP by doing the following:
+<P>
+
+<DL COMPACT>
+<DT>
+&nbsp;- responding to any login/password prompts it sees;
+<DD>
+<DT>
+&nbsp;- interpreting &quot;choose one of the following&quot;-style menus;
+<DD>
+<DT>
+&nbsp;- eventually, sending the word &quot;ppp&quot; (a common terminal server command).
+</DL>
+<P>
+
+<DD>If all of this fails,
+<B>wvdial</B>
+
+just runs
+<B><A HREF="../man8/pppd.8.php">pppd</A></B>(8)
+
+and hopes for the best. It will bring up the connection, and then wait
+patiently for you to drop the link by pressin CTRL-C.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+Several options are recognized by
+<B>wvdial</B>.
+
+<DL COMPACT>
+<DT><I>--chat</I>
+
+<DD>
+Run wvdial as a chat replacement from within pppd, instead of the more
+normal method of having wvdial negotiate the connection and then call
+pppd.
+<DT><I>--remotename</I>
+
+<DD>
+Override the Remote Name setting in the dialer configuration section of the
+configuration file. This is mainly useful when you dial to multiple systems
+with the same user name and password, and you don't want to use inheritance
+to override this setting (which is the recommended way to do it).
+<DT><I>--config </I>[<I>configfile</I>]
+
+<DD>
+Run wvdial with configfile as the configuration file (instead of
+/etc/wvdial.conf). This is mainly useful only if you want to have per-user
+configurations, or you want to avoid having dial-up information (usernames,
+passwords, calling card numbers, etc.) in a system wide configuration file.
+<DT><I>--no-syslog</I>
+
+<DD>
+Don't output debug information to the syslog daemon (only useful together
+with --chat).
+<DT><I>--help</I>
+
+<DD>
+Prints a short message describing how to use
+<B>wvdial</B>
+
+and exits.
+<DT><I>--version</I>
+
+<DD>
+Displays
+<B>wvdial</B>'s
+
+version number and exits.
+</DL>
+<P>
+
+<B>wvdial</B>
+
+is normally run without command line options, in which case it reads
+its configuration from the
+<I>[Dialer Defaults]</I>
+
+section of
+<I>/etc/wvdial.conf</I>.
+
+(The configuration file is described in more detail in <A HREF="../man5/wvdial.conf.5.php">wvdial.conf</A>(5)
+manual page.)
+<P>
+
+One or more sections of
+<I>/etc/wvdial.conf</I>
+
+may be specified on the command line.  Settings in these sections will
+override settings in
+<I>[Dialer Defaults]</I>.
+
+<DL COMPACT>
+<DT>For example, the command:<DD>
+<B>wvdial phone2</B>
+
+</DL>
+<P>
+
+will read default options from the
+<I>[Dialer Defaults]</I>
+
+section, then override any or all of the options with those found in the
+<I>[Dialer phone2]</I>
+
+section.
+<P>
+
+If more than one section is specified, they are processed in the order they
+are given.  Each section will override all the sections that came before it.
+<DL COMPACT>
+<DT>For example, the command:<DD>
+<B>wvdial phone2 pulse shh</B>
+
+</DL>
+<P>
+
+will read default options from the
+<I>[Dialer Defaults]</I>
+
+section, then override any or all of the options with those found in the
+<I>[Dialer phone2]</I>
+
+section, followed by the
+<I>[Dialer pulse]</I>
+
+section, and lastly the
+<I>[Dialer shh]</I>
+
+section.
+<P>
+
+Using this method, it is possible to easily configure
+<B>wvdial</B>
+
+to switch between different internet providers, modem init strings,
+account names, and so on without specifying the same configuration
+information over and over.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+&quot;Intelligent&quot; programs are frustrating when they don't work right.
+This version of
+<B>wvdial</B>
+
+has only minimal support for disabling or overriding its &quot;intelligence&quot;,
+with the &quot;Stupid Mode&quot;, &quot;Login Prompt&quot;, and &quot;Password Prompt&quot; options.
+So, in general if you have a nice ISP, it will probably work,
+and if you have a weird ISP, it might not.
+<P>
+
+Still, it's not much good if it doesn't work for you, right?  Don't be fooled
+by the fact that
+<B>wvdial</B>
+
+finally made it to version 1.00; it could well contain many bugs and 
+misfeatures.  Let us know if you have problems by sending e-mail to
+<B>&lt;<A HREF="mailto:wvdial@nit.ca">wvdial@nit.ca</A>&gt;</B>.
+
+<P>
+
+Also, there is now a mailing list for discussion about
+<B>wvdial</B>.
+
+If you are having problems, or have anything else to say, send e-mail to
+<B>&lt;<A HREF="mailto:wvdial-list@lists.nit.ca">wvdial-list@lists.nit.ca</A>&gt;</B>.
+
+<P>
+
+You may encounter some error messages if you don't have write access to
+<B>/etc/ppp/pap-secrets</B>
+
+and
+<B>/etc/ppp/chap-secrets</B>.
+
+Unfortunately, there's really no nice way around this yet.
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>/etc/wvdial.conf<DD>
+Configuration file which contains modem, dialing, and login
+information. See 
+
+<DT>/dev/ttyS*<DD>
+Serial port devices.
+<DT>/etc/ppp/peers/wvdial<DD>
+Required for correct authentication in pppd version 2.3.0 or newer.
+<DT>/etc/ppp/{pap,chap}-secrets<DD>
+Contains a list of usernames and passwords used by pppd for authentication.
+<B>wvdial</B>
+
+maintains this list automatically.
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Dave Coombs and Avery Pennarun for Net Integration Technologies, as
+part of the Worldvisions Weaver project. We would like to thank SuSE and
+RedHat for adding a number of various cool features to
+
+Thanks guys!
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man5/wvdial.conf.5.php">wvdial.conf</A></B>(5),
+
+<B><A HREF="../man1/wvdialconf.1.php">wvdialconf</A></B>(1),
+
+<B><A HREF="../man8/pppd.8.php">pppd</A></B>(8),
+
+<B><A HREF="../man8/chat.8.php">chat</A></B>(8).
+
+<DL COMPACT>
+<DT><B>FAQ: </B>
+
+<DD>
+<B><A HREF="http://www.dsb3.com/wvdial/">http://www.dsb3.com/wvdial/</A></B>
+
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

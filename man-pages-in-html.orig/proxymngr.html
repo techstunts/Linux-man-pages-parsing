@@ -1,0 +1,308 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PROXYMNGR</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PROXYMNGR</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+proxymngr - proxy manager service
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>proxymngr</B> [<B>-config</B> <I>filename</I>] [<B>-timeout</B> <I>seconds</I>] [<B>-retries</B> <I>#</I>] [<B>-verbose</B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The proxy manager (proxymngr) is responsible for resolving requests from
+xfindproxy (and other similar clients), starting new proxies when
+appropriate, and keeping track of all of the available proxy services.
+The proxy manager strives to reuse existing proxies whenever possible.
+<P>
+
+There are two types of proxies that the proxy manager deals with, <I>managed</I>
+and <I>unmanaged</I> proxies.
+<P>
+
+A <I>managed</I> proxy is a proxy that is started ``on demand'' by the proxy manager.
+<P>
+
+An <I>unmanaged</I> proxy, on the other hand, is started either at system boot time,
+or manually by a system administrator.  The proxy manager is made aware of
+its existence, but no attempt is made by the proxy manager to start unmanaged
+proxies.
+<P>
+
+The command line options that can be specified to
+<B>proxymngr</B>
+
+are:
+<P>
+
+<DL COMPACT>
+<DT><B>-config</B>
+
+<DD>
+Used to override the default proxymngr config file.
+See below for more details about the config file.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>-timeout</B>
+
+<DD>
+Sets the number of seconds between attempts made by the
+proxy manager to find an unmanaged proxy.  The default is 10.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>-retries</B>
+
+<DD>
+Sets the maximum number of retries made by the proxy
+manager to find an an unmanaged proxy.  The default is 3.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>-verbose</B>
+
+<DD>
+Causes various debugging and tracing records to be displayed as
+requests are received and proxies are started.
+</DL>
+<P>
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>Proxy Manager Config File</H2>
+
+<P>
+
+The proxy manager maintains a local configuration file describing the proxy
+services available.  This configuration file is installed
+in
+<I>/usr/X11R6/lib/X11/proxymngr/pmconfig</I>
+
+during the installation
+of proxymngr.  The location of the configuration file can be overwritten using
+the <B>-config</B> command line option.
+<P>
+
+Aside from lines starting with an exclamation point for comments, each line
+of the configuration file describes either an unmanaged or managed proxy
+service.
+<P>
+
+For unmanaged proxies, the format is:
+<DL COMPACT>
+<DT><DD>
+&lt;service-name&gt; unmanaged &lt;proxy-address&gt;
+</DL>
+<P>
+
+service-name is the name of the unmanaged proxy service, and must not
+contain any spaces, for example ``XFWP''.  service-name is case
+insensitive.
+<P>
+
+proxy-address is the network address of the unmanaged proxy.  The format
+of the address is specific to the service-name.  For example, for the
+``XFWP'' service, the proxy-address might be ``firewall.x.org:100''.
+<P>
+
+If there is more than one entry in the config file with the same
+unmanaged service-name, the proxy manager will try to use the proxies
+in the order presented in the config file.
+<P>
+
+For managed proxies, the format is:
+<DL COMPACT>
+<DT><DD>
+&lt;service-name&gt; managed &lt;command-to-start-proxy&gt;
+</DL>
+<P>
+
+service-name is the name of the managed proxy service, and must not
+contain any spaces, for example ``LBX''.  service-name is case insensitive.
+<P>
+
+command-to-start-proxy is the command executed by the proxy manager to
+start a new instance of the proxy.  If command-to-start-proxy contains
+spaces, the complete command should be surrounded by single quotes.
+If desired, command-to-start-proxy can be used to start a proxy on a
+remote machine.  The specifics of the remote execution method used to
+do this is not specified here.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<P>
+
+Here is a sample configuration file:
+<P>
+
+<PRE>
+
+<DL COMPACT><DT><DD>! proxy manager config file
+!
+! Each line has the format:
+!    &lt;serviceName&gt; managed &lt;startCommand&gt;
+!        or
+!    &lt;serviceName&gt; unmanaged &lt;proxyAddress&gt;
+!
+lbx managed /usr/X11R6/bin/lbxproxy
+!
+! substitute site-specific info
+xfwp unmanaged firewall:4444
+
+</DL>
+</PRE>
+
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>PROXY MANAGER DETAILS</H2>
+
+<P>
+
+When the proxy manager gets a request from xfindproxy (or another similar
+client), its course of action will depend on the service-name in question.
+<P>
+
+For a managed proxy service, the proxy manager will find out if any of the
+already running proxies for this service can handle a new request.  If not,
+the proxy manager will attempt to start up a new instance of the proxy
+(using the command-to-start-proxy found in the config file).  If that fails,
+an error will be returned to the caller.
+<P>
+
+For an unmanaged proxy service, the proxy manager will look in the config
+file to find all unmanaged proxies for this service.  If there is more than
+one entry in the config file with the same unmanaged service-name, the
+proxy manager will try to use the proxies in the order presented in the
+config file.  If none of the unmanaged proxies can satisfy the request, the
+proxy manager will timeout for a configurable amount of time (specified by
+<B>-timeout</B>
+
+or default of 10) and reattempt to find an unmanaged proxy willing
+to satisfy the request.  The number of retries can be specified by the
+<B>-retries</B>
+
+argument, or a default of 3 will be used.  If the retries fail,
+the proxy manager has no choice but to return an error to the caller (since
+the proxy manager can not start unmanaged proxy services).
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+proxy manager listen port should be configurable.
+<P>
+
+<B>-timeout</B>
+
+and
+<B>-retries</B>
+
+is not implemented in proxymngr.
+<P>
+
+proxymngr does not utilize the ``options'' and ``host'' fields in the
+proxy management protocol GetProxyAddr request.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+xfindproxy (1), xfwp (1), Proxy Management Protocol spec V1.0
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Ralph Mor, X Consortium
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Proxy Manager Config File</A><DD>
+<DT><A HREF="#lbAF">EXAMPLE</A><DD>
+<DT><A HREF="#lbAG">PROXY MANAGER DETAILS</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

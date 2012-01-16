@@ -1,0 +1,2224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLFAQ8</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLFAQ8</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlfaq8 - System Interaction ($Revision: 1.17 $, $Date: 2003/01/26 17:44:04 $)
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This section of the Perl <FONT SIZE="-1">FAQ</FONT> covers questions involving operating
+system interaction.  Topics include interprocess communication (<FONT SIZE="-1">IPC</FONT>),
+control over the user-interface (keyboard, screen and pointing
+devices), and most anything else not related to data manipulation.
+<P>
+
+Read the FAQs and documentation specific to the port of perl to your
+operating system (eg, perlvms, perlplan9, ...).  These should
+contain more detailed information on the vagaries of your perl.
+<A NAME="lbAD">&nbsp;</A>
+<H2>How do I find out which operating system I'm running under?</H2>
+
+<A NAME="ixAAD"></A>
+The $^O variable ($OSNAME if you use English) contains an indication of
+the name of the operating system (not its release number) that your perl
+binary was built for.
+<A NAME="lbAE">&nbsp;</A>
+<H2>How come <I>exec()</I> doesn't return?</H2>
+
+<A NAME="ixAAE"></A>
+Because that's what it does: it replaces your currently running
+program with a different one.  If you want to keep going (as is
+probably the case if you're asking this question) use <I>system()</I>
+instead.
+<A NAME="lbAF">&nbsp;</A>
+<H2>How do I do fancy stuff with the keyboard/screen/mouse?</H2>
+
+<A NAME="ixAAF"></A>
+How you access/control keyboards, screens, and pointing devices
+(``mice'') is system-dependent.  Try the following modules:
+<DL COMPACT>
+<DT>Keyboard<DD>
+<A NAME="ixAAG"></A>
+
+
+<PRE>
+    Term::Cap                   Standard perl distribution
+    Term::ReadKey               CPAN
+    Term::ReadLine::Gnu         CPAN
+    Term::ReadLine::Perl        CPAN
+    Term::Screen                CPAN
+
+</PRE>
+
+
+<DT>Screen<DD>
+<A NAME="ixAAH"></A>
+
+
+<PRE>
+    Term::Cap                   Standard perl distribution
+    Curses                      CPAN
+    Term::ANSIColor             CPAN
+
+</PRE>
+
+
+<DT>Mouse<DD>
+<A NAME="ixAAI"></A>
+
+
+<PRE>
+    Tk                          CPAN
+
+</PRE>
+
+
+</DL>
+<P>
+
+Some of these specific cases are shown below.
+<A NAME="lbAG">&nbsp;</A>
+<H2>How do I print something out in color?</H2>
+
+<A NAME="ixAAJ"></A>
+In general, you don't, because you don't know whether
+the recipient has a color-aware display device.  If you
+know that they have an <FONT SIZE="-1">ANSI</FONT> terminal that understands
+color, you can use the Term::ANSIColor module from <FONT SIZE="-1">CPAN:</FONT>
+<P>
+
+
+
+<PRE>
+    use Term::ANSIColor;
+    print color(&quot;red&quot;), &quot;Stop!\n&quot;, color(&quot;reset&quot;);
+    print color(&quot;green&quot;), &quot;Go!\n&quot;, color(&quot;reset&quot;);
+
+</PRE>
+
+
+<P>
+
+Or like this:
+<P>
+
+
+
+<PRE>
+    use Term::ANSIColor qw(:constants);
+    print RED, &quot;Stop!\n&quot;, RESET;
+    print GREEN, &quot;Go!\n&quot;, RESET;
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>How do I read just one key without waiting for a return key?</H2>
+
+<A NAME="ixAAK"></A>
+Controlling input buffering is a remarkably system-dependent matter.
+On many systems, you can just use the <B>stty</B> command as shown in
+``getc'' in perlfunc, but as you see, that's already getting you into
+portability snags.
+<P>
+
+
+
+<PRE>
+    open(TTY, &quot;+&lt;/dev/tty&quot;) or die &quot;no tty: $!&quot;;
+    system &quot;stty  cbreak &lt;/dev/tty &gt;/dev/tty 2&gt;&amp;1&quot;;
+    $key = getc(TTY);           # perhaps this works
+    # OR ELSE
+    sysread(TTY, $key, 1);      # probably this does
+    system &quot;stty -cbreak &lt;/dev/tty &gt;/dev/tty 2&gt;&amp;1&quot;;
+
+</PRE>
+
+
+<P>
+
+The Term::ReadKey module from <FONT SIZE="-1">CPAN</FONT> offers an easy-to-use interface that
+should be more efficient than shelling out to <B>stty</B> for each key.
+It even includes limited support for Windows.
+<P>
+
+
+
+<PRE>
+    use Term::ReadKey;
+    ReadMode('cbreak');
+    $key = ReadKey(0);
+    ReadMode('normal');
+
+</PRE>
+
+
+<P>
+
+However, using the code requires that you have a working C compiler
+and can use it to build and install a <FONT SIZE="-1">CPAN</FONT> module.  Here's a solution
+using the standard <FONT SIZE="-1">POSIX</FONT> module, which is already on your systems
+(assuming your system supports <FONT SIZE="-1">POSIX</FONT>).
+<P>
+
+
+
+<PRE>
+    use HotKey;
+    $key = readkey();
+
+</PRE>
+
+
+<P>
+
+And here's the HotKey module, which hides the somewhat mystifying calls
+to manipulate the <FONT SIZE="-1">POSIX</FONT> termios structures.
+<P>
+
+
+
+<PRE>
+    # HotKey.pm
+    package HotKey;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    @ISA = qw(Exporter);
+    @EXPORT = qw(cbreak cooked readkey);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use strict;
+    use POSIX qw(:termios_h);
+    my ($term, $oterm, $echo, $noecho, $fd_stdin);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $fd_stdin = fileno(STDIN);
+    $term     = POSIX::Termios-&gt;new();
+    $term-&gt;getattr($fd_stdin);
+    $oterm     = $term-&gt;getlflag();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $echo     = ECHO | ECHOK | ICANON;
+    $noecho   = $oterm &amp; ~$echo;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub cbreak {
+        $term-&gt;setlflag($noecho);  # ok, so i don't want echo either
+        $term-&gt;setcc(VTIME, 1);
+        $term-&gt;setattr($fd_stdin, TCSANOW);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub cooked {
+        $term-&gt;setlflag($oterm);
+        $term-&gt;setcc(VTIME, 0);
+        $term-&gt;setattr($fd_stdin, TCSANOW);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub readkey {
+        my $key = '';
+        cbreak();
+        sysread(STDIN, $key, 1);
+        cooked();
+        return $key;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    END { cooked() }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    1;
+
+</PRE>
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>How do I check whether input is ready on the keyboard?</H2>
+
+<A NAME="ixAAL"></A>
+The easiest way to do this is to read a key in nonblocking mode with the
+Term::ReadKey module from <FONT SIZE="-1">CPAN</FONT>, passing it an argument of -1 to indicate
+not to block:
+<P>
+
+
+
+<PRE>
+    use Term::ReadKey;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ReadMode('cbreak');
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if (defined ($char = ReadKey(-1)) ) {
+        # input was waiting and it was $char
+    } else {
+        # no input was waiting
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ReadMode('normal');                  # restore normal tty settings
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>How do I clear the screen?</H2>
+
+<A NAME="ixAAM"></A>
+If you only have do so infrequently, use <TT>&quot;system&quot;</TT>:
+<P>
+
+
+
+<PRE>
+    system(&quot;clear&quot;);
+
+</PRE>
+
+
+<P>
+
+If you have to do this a lot, save the clear string
+so you can print it 100 times without calling a program
+100 times:
+<P>
+
+
+
+<PRE>
+    $clear_string = `clear`;
+    print $clear_string;
+
+</PRE>
+
+
+<P>
+
+If you're planning on doing other screen manipulations, like cursor
+positions, etc, you might wish to use Term::Cap module:
+<P>
+
+
+
+<PRE>
+    use Term::Cap;
+    $terminal = Term::Cap-&gt;Tgetent( {OSPEED =&gt; 9600} );
+    $clear_string = $terminal-&gt;Tputs('cl');
+
+</PRE>
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>How do I get the screen size?</H2>
+
+<A NAME="ixAAN"></A>
+If you have Term::ReadKey module installed from <FONT SIZE="-1">CPAN</FONT>,
+you can use it to fetch the width and height in characters
+and in pixels:
+<P>
+
+
+
+<PRE>
+    use Term::ReadKey;
+    ($wchar, $hchar, $wpixels, $hpixels) = GetTerminalSize();
+
+</PRE>
+
+
+<P>
+
+This is more portable than the raw <TT>&quot;ioctl&quot;</TT>, but not as
+illustrative:
+<P>
+
+
+
+<PRE>
+    require 'sys/ioctl.ph';
+    die &quot;no TIOCGWINSZ &quot; unless defined &amp;TIOCGWINSZ;
+    open(TTY, &quot;+&lt;/dev/tty&quot;)                     or die &quot;No tty: $!&quot;;
+    unless (ioctl(TTY, &amp;TIOCGWINSZ, $winsize='')) {
+        die sprintf &quot;$0: ioctl TIOCGWINSZ (%08x: $!)\n&quot;, &amp;TIOCGWINSZ;
+    }
+    ($row, $col, $xpixel, $ypixel) = unpack('S4', $winsize);
+    print &quot;(row,col) = ($row,$col)&quot;;
+    print &quot;  (xpixel,ypixel) = ($xpixel,$ypixel)&quot; if $xpixel || $ypixel;
+    print &quot;\n&quot;;
+
+</PRE>
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>How do I ask the user for a password?</H2>
+
+<A NAME="ixAAO"></A>
+(This question has nothing to do with the web.  See a different
+<FONT SIZE="-1">FAQ</FONT> for that.)
+<P>
+
+There's an example of this in ``crypt'' in perlfunc).  First, you put the
+terminal into ``no echo'' mode, then just read the password normally.
+You may do this with an old-style <I>ioctl()</I> function, <FONT SIZE="-1">POSIX</FONT> terminal
+control (see <FONT SIZE="-1">POSIX</FONT> or its documentation the Camel Book), or a call
+to the <B>stty</B> program, with varying degrees of portability.
+<P>
+
+You can also do this for most systems using the Term::ReadKey module
+from <FONT SIZE="-1">CPAN</FONT>, which is easier to use and in theory more portable.
+<P>
+
+
+
+<PRE>
+    use Term::ReadKey;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ReadMode('noecho');
+    $password = ReadLine(0);
+
+</PRE>
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>How do I read and write the serial port?</H2>
+
+<A NAME="ixAAP"></A>
+This depends on which operating system your program is running on.  In
+the case of Unix, the serial ports will be accessible through files in
+/dev; on other systems, device names will doubtless differ.
+Several problem areas common to all device interaction are the
+following:
+<DL COMPACT>
+<DT>lockfiles<DD>
+<A NAME="ixAAQ"></A>
+Your system may use lockfiles to control multiple access.  Make sure
+you follow the correct protocol.  Unpredictable behavior can result
+from multiple processes reading from one device.
+<DT>open mode<DD>
+<A NAME="ixAAR"></A>
+If you expect to use both read and write operations on the device,
+you'll have to open it for update (see ``open'' in perlfunc for
+details).  You may wish to open it without running the risk of
+blocking by using <I>sysopen()</I> and <TT>&quot;O_RDWR|O_NDELAY|O_NOCTTY&quot;</TT> from the
+Fcntl module (part of the standard perl distribution).  See
+``sysopen'' in perlfunc for more on this approach.
+<DT>end of line<DD>
+<A NAME="ixAAS"></A>
+Some devices will be expecting a ``\r'' at the end of each line rather
+than a ``\n''.  In some ports of perl, ``\r'' and ``\n'' are different from
+their usual (Unix) <FONT SIZE="-1">ASCII</FONT> values of ``\012'' and ``\015''.  You may have to
+give the numeric values you want directly, using octal (``\015''), hex
+(``0x0D''), or as a control-character specification (``\cM'').
+
+
+<P>
+
+
+
+
+<PRE>
+    print DEV &quot;atv1\012&quot;;       # wrong, for some devices
+    print DEV &quot;atv1\015&quot;;       # right, for some devices
+
+</PRE>
+
+
+
+
+<P>
+
+
+Even though with normal text files a ``\n'' will do the trick, there is
+still no unified scheme for terminating a line that is portable
+between Unix, DOS/Win, and Macintosh, except to terminate <I></I><FONT SIZE="-1"><I>ALL</I></FONT><I></I> line
+ends with ``\015\012'', and strip what you don't need from the output.
+This applies especially to socket I/O and autoflushing, discussed
+next.
+<DT>flushing output<DD>
+<A NAME="ixAAT"></A>
+If you expect characters to get to your device when you <I>print()</I> them,
+you'll want to autoflush that filehandle.  You can use <I>select()</I>
+and the <TT>$|</TT> variable to control autoflushing (see &quot;$|&quot; in perlvar
+and ``select'' in perlfunc, or perlfaq5, ``How do I flush/unbuffer an
+output filehandle?  Why must I do this?''):
+
+
+<P>
+
+
+
+
+<PRE>
+    $oldh = select(DEV);
+    $| = 1;
+    select($oldh);
+
+</PRE>
+
+
+
+
+<P>
+
+
+You'll also see code that does this without a temporary variable, as in
+
+
+<P>
+
+
+
+
+<PRE>
+    select((select(DEV), $| = 1)[0]);
+
+</PRE>
+
+
+
+
+<P>
+
+
+Or if you don't mind pulling in a few thousand lines
+of code just because you're afraid of a little $| variable:
+
+
+<P>
+
+
+
+
+<PRE>
+    use IO::Handle;
+    DEV-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+
+</PRE>
+
+
+
+
+<P>
+
+
+As mentioned in the previous item, this still doesn't work when using
+socket I/O between Unix and Macintosh.  You'll need to hard code your
+line terminators, in that case.
+<DT>non-blocking input<DD>
+<A NAME="ixAAU"></A>
+If you are doing a blocking <I>read()</I> or <I>sysread()</I>, you'll have to
+arrange for an alarm handler to provide a timeout (see
+``alarm'' in perlfunc).  If you have a non-blocking open, you'll likely
+have a non-blocking read, which means you may have to use a 4-arg
+<I>select()</I> to determine whether I/O is ready on that device (see
+``select'' in perlfunc.
+</DL>
+<P>
+
+While trying to read from his caller-id box, the notorious Jamie Zawinski
+&lt;<A HREF="mailto:jwz@netscape.com">jwz@netscape.com</A>&gt;, after much gnashing of teeth and fighting with sysread,
+sysopen, <FONT SIZE="-1">POSIX</FONT>'s tcgetattr business, and various other functions that
+go bump in the night, finally came up with this:
+<P>
+
+
+
+<PRE>
+    sub open_modem {
+        use IPC::Open2;
+        my $stty = `/bin/stty -g`;
+        open2( \*MODEM_IN, \*MODEM_OUT, &quot;cu -l$modem_device -s2400 2&gt;&amp;1&quot;);
+        # starting cu hoses /dev/tty's stty settings, even when it has
+        # been opened on a pipe...
+        system(&quot;/bin/stty $stty&quot;);
+        $_ = &lt;MODEM_IN&gt;;
+        chomp;
+        if ( !m/^Connected/ ) {
+            print STDERR &quot;$0: cu printed `$_' instead of `Connected'\n&quot;;
+        }
+    }
+
+</PRE>
+
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>How do I decode encrypted password files?</H2>
+
+<A NAME="ixAAV"></A>
+You spend lots and lots of money on dedicated hardware, but this is
+bound to get you talked about.
+<P>
+
+Seriously, you can't if they are Unix password files---the Unix
+password system employs one-way encryption.  It's more like hashing than
+encryption.  The best you can check is whether something else hashes to
+the same string.  You can't turn a hash back into the original string.
+Programs like Crack
+can forcibly (and intelligently) try to guess passwords, but don't
+(can't) guarantee quick success.
+<P>
+
+If you're worried about users selecting bad passwords, you should
+proactively check when they try to change their password (by modifying
+<I><A HREF="../man1/passwd.1.php">passwd</A></I>(1), for example).
+<A NAME="lbAO">&nbsp;</A>
+<H2>How do I start a process in the background?</H2>
+
+<A NAME="ixAAW"></A>
+Several modules can start other processes that do not block
+your Perl program.  You can use IPC::Open3, Parallel::Jobs,
+IPC::Run, and some of the <FONT SIZE="-1">POE</FONT> modules.  See <FONT SIZE="-1">CPAN</FONT> for more
+details.
+<P>
+
+You could also use
+<P>
+
+
+
+<PRE>
+    system(&quot;cmd &amp;&quot;)
+
+</PRE>
+
+
+<P>
+
+or you could use fork as documented in ``fork'' in perlfunc, with
+further examples in perlipc.  Some things to be aware of, if you're
+on a Unix-like system:
+<DL COMPACT>
+<DT><FONT SIZE="-1">STDIN</FONT>, <FONT SIZE="-1">STDOUT</FONT>, and <FONT SIZE="-1">STDERR</FONT> are shared<DD>
+<A NAME="ixAAX"></A>
+Both the main process and the backgrounded one (the ``child'' process)
+share the same <FONT SIZE="-1">STDIN</FONT>, <FONT SIZE="-1">STDOUT</FONT> and <FONT SIZE="-1">STDERR</FONT> filehandles.  If both try to
+access them at once, strange things can happen.  You may want to close
+or reopen these for the child.  You can get around this with
+<TT>&quot;open&quot;</TT>ing a pipe (see ``open'' in perlfunc) but on some systems this
+means that the child process cannot outlive the parent.
+<DT>Signals<DD>
+<A NAME="ixAAY"></A>
+You'll have to catch the <FONT SIZE="-1">SIGCHLD</FONT> signal, and possibly <FONT SIZE="-1">SIGPIPE</FONT> too.
+<FONT SIZE="-1">SIGCHLD</FONT> is sent when the backgrounded process finishes.  <FONT SIZE="-1">SIGPIPE</FONT> is
+sent when you write to a filehandle whose child process has closed (an
+untrapped <FONT SIZE="-1">SIGPIPE</FONT> can cause your program to silently die).  This is
+not an issue with <TT>&quot;system(&quot;cmd&amp;&quot;)&quot;</TT>.
+<DT>Zombies<DD>
+<A NAME="ixAAZ"></A>
+You have to be prepared to ``reap'' the child process when it finishes.
+
+
+<P>
+
+
+
+
+<PRE>
+    $SIG{CHLD} = sub { wait };
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    $SIG{CHLD} = 'IGNORE';
+
+</PRE>
+
+
+
+
+<P>
+
+
+You can also use a double fork. You immediately <I>wait()</I> for your
+first child, and the init daemon will <I>wait()</I> for your grandchild once
+it exits.
+
+
+<P>
+
+
+
+
+<PRE>
+        unless ($pid = fork) {
+                unless (fork) {
+            exec &quot;what you really wanna do&quot;;
+            die &quot;exec failed!&quot;;
+                }
+        exit 0;
+        }
+    waitpid($pid,0);
+
+</PRE>
+
+
+
+
+<P>
+
+
+See ``Signals'' in perlipc for other examples of code to do this.
+Zombies are not an issue with <TT>&quot;system(&quot;prog &amp;&quot;)&quot;</TT>.
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>How do I trap control characters/signals?</H2>
+
+<A NAME="ixABA"></A>
+You don't actually ``trap'' a control character.  Instead, that character
+generates a signal which is sent to your terminal's currently
+foregrounded process group, which you then trap in your process.
+Signals are documented in ``Signals'' in perlipc and the
+section on ``Signals'' in the Camel.
+<P>
+
+Be warned that very few C libraries are re-entrant.  Therefore, if you
+attempt to <I>print()</I> in a handler that got invoked during another stdio
+operation your internal structures will likely be in an
+inconsistent state, and your program will dump core.  You can
+sometimes avoid this by using <I>syswrite()</I> instead of <I>print()</I>.
+<P>
+
+Unless you're exceedingly careful, the only safe things to do inside a
+signal handler are (1) set a variable and (2) exit.  In the first case,
+you should only set a variable in such a way that <I>malloc()</I> is not
+called (eg, by setting a variable that already has a value).
+<P>
+
+For example:
+<P>
+
+
+
+<PRE>
+    $Interrupted = 0;   # to ensure it has a value
+    $SIG{INT} = sub {
+        $Interrupted++;
+        syswrite(STDERR, &quot;ouch\n&quot;, 5);
+    }
+
+</PRE>
+
+
+<P>
+
+However, because syscalls restart by default, you'll find that if
+you're in a ``slow'' call, such as &lt;<FONT SIZE="-1">FH</FONT>&gt;, <I>read()</I>, <I>connect()</I>, or
+<I>wait()</I>, that the only way to terminate them is by ``longjumping'' out;
+that is, by raising an exception.  See the time-out handler for a
+blocking <I>flock()</I> in ``Signals'' in perlipc or the section on ``Signals''
+in the Camel book.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>How do I modify the shadow password file on a Unix system?</H2>
+
+<A NAME="ixABB"></A>
+If perl was installed correctly and your shadow library was written
+properly, the getpw*() functions described in perlfunc should in
+theory provide (read-only) access to entries in the shadow password
+file.  To change the file, make a new shadow password file (the format
+varies from system to system---see passwd for specifics) and use
+<I><A HREF="../man8/pwd_mkdb.8.php">pwd_mkdb</A></I>(8) to install it (see pwd_mkdb for more details).
+<A NAME="lbAR">&nbsp;</A>
+<H2>How do I set the time and date?</H2>
+
+<A NAME="ixABC"></A>
+Assuming you're running under sufficient permissions, you should be
+able to set the system-wide date and time by running the <I><A HREF="../man1/date.1.php">date</A></I>(1)
+program.  (There is no way to set the time and date on a per-process
+basis.)  This mechanism will work for Unix, <FONT SIZE="-1">MS-DOS</FONT>, Windows, and <FONT SIZE="-1">NT</FONT>;
+the <FONT SIZE="-1">VMS</FONT> equivalent is <TT>&quot;set time&quot;</TT>.
+<P>
+
+However, if all you want to do is change your time zone, you can
+probably get away with setting an environment variable:
+<P>
+
+
+
+<PRE>
+    $ENV{TZ} = &quot;MST7MDT&quot;;                  # unixish
+    $ENV{'SYS$TIMEZONE_DIFFERENTIAL'}=&quot;-5&quot; # vms
+    system &quot;trn comp.lang.perl.misc&quot;;
+
+</PRE>
+
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>How can I <I>sleep()</I> or <I>alarm()</I> for under a second?</H2>
+
+<A NAME="ixABD"></A>
+If you want finer granularity than the 1 second that the <I>sleep()</I>
+function provides, the easiest way is to use the <I>select()</I> function as
+documented in ``select'' in perlfunc.  Try the Time::HiRes and
+the BSD::Itimer modules (available from <FONT SIZE="-1">CPAN</FONT>, and starting from
+Perl 5.8 Time::HiRes is part of the standard distribution).
+<A NAME="lbAT">&nbsp;</A>
+<H2>How can I measure time under a second?</H2>
+
+<A NAME="ixABE"></A>
+In general, you may not be able to.  The Time::HiRes module (available
+from <FONT SIZE="-1">CPAN</FONT>, and starting from Perl 5.8 part of the standard distribution)
+provides this functionality for some systems.
+<P>
+
+If your system supports both the <I>syscall()</I> function in Perl as well as
+a system call like <I><A HREF="../man2/gettimeofday.2.php">gettimeofday</A></I>(2), then you may be able to do
+something like this:
+<P>
+
+
+
+<PRE>
+    require 'sys/syscall.ph';
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $TIMEVAL_T = &quot;LL&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $done = $start = pack($TIMEVAL_T, ());
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    syscall(&amp;SYS_gettimeofday, $start, 0) != -1
+               or die &quot;gettimeofday: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+       ##########################
+       # DO YOUR OPERATION HERE #
+       ##########################
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    syscall( &amp;SYS_gettimeofday, $done, 0) != -1
+           or die &quot;gettimeofday: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    @start = unpack($TIMEVAL_T, $start);
+    @done  = unpack($TIMEVAL_T, $done);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # fix microseconds
+    for ($done[1], $start[1]) { $_ /= 1_000_000 }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $delta_time = sprintf &quot;%.4f&quot;, ($done[0]  + $done[1]  )
+                                            -
+                                 ($start[0] + $start[1] );
+
+</PRE>
+
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>How can I do an <I>atexit()</I> or <I>setjmp()</I>/<I>longjmp()</I>? (Exception handling)</H2>
+
+<A NAME="ixABF"></A>
+Release 5 of Perl added the <FONT SIZE="-1">END</FONT> block, which can be used to simulate
+<I>atexit()</I>.  Each package's <FONT SIZE="-1">END</FONT> block is called when the program or
+thread ends (see perlmod manpage for more details).
+<P>
+
+For example, you can use this to make sure your filter program
+managed to finish its output without filling up the disk:
+<P>
+
+
+
+<PRE>
+    END {
+        close(STDOUT) || die &quot;stdout close failed: $!&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">END</FONT> block isn't called when untrapped signals kill the program,
+though, so if you use <FONT SIZE="-1">END</FONT> blocks you should also use
+<P>
+
+
+
+<PRE>
+        use sigtrap qw(die normal-signals);
+
+</PRE>
+
+
+<P>
+
+Perl's exception-handling mechanism is its <I>eval()</I> operator.  You can
+use <I>eval()</I> as setjmp and <I>die()</I> as longjmp.  For details of this, see
+the section on signals, especially the time-out handler for a blocking
+<I>flock()</I> in ``Signals'' in perlipc or the section on ``Signals'' in
+the Camel Book.
+<P>
+
+If exception handling is all you're interested in, try the
+exceptions.pl library (part of the standard perl distribution).
+<P>
+
+If you want the <I>atexit()</I> syntax (and an <I>rmexit()</I> as well), try the
+AtExit module available from <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Why doesn't my sockets program work under System V (Solaris)?  What does the error message Protocol not supported mean?</H2>
+
+
+
+<A NAME="ixABG"></A>
+Some Sys-V based systems, notably Solaris 2.X, redefined some of the
+standard socket constants.  Since these were constant across all
+architectures, they were often hardwired into perl code.  The proper
+way to deal with this is to ``use Socket'' to get the correct values.
+<P>
+
+Note that even though SunOS and Solaris are binary compatible, these
+values are different.  Go figure.
+<A NAME="lbAW">&nbsp;</A>
+<H2>How can I call my system's unique C functions from Perl?</H2>
+
+<A NAME="ixABH"></A>
+In most cases, you write an external module to do it---see the answer
+to ``Where can I learn about linking C with Perl? [h2xs, xsubpp]''.
+However, if the function is a system call, and your system supports
+<I>syscall()</I>, you can use the syscall function (documented in
+perlfunc).
+<P>
+
+Remember to check the modules that came with your distribution, and
+<FONT SIZE="-1">CPAN</FONT> as well---someone may already have written a module to do it. On
+Windows, try Win32::API.  On Macs, try Mac::Carbon.  If no module
+has an interface to the C function, you can inline a bit of C in your
+Perl source with Inline::C.
+<A NAME="lbAX">&nbsp;</A>
+<H2>Where do I get the include files to do <I>ioctl()</I> or <I>syscall()</I>?</H2>
+
+<A NAME="ixABI"></A>
+Historically, these would be generated by the h2ph tool, part of the
+standard perl distribution.  This program converts <I><A HREF="../man1/cpp.1.php">cpp</A></I>(1) directives
+in C header files to files containing subroutine definitions, like
+&amp;SYS_getitimer, which you can use as arguments to your functions.
+It doesn't work perfectly, but it usually gets most of the job done.
+Simple files like <I>errno.h</I>, <I>syscall.h</I>, and <I>socket.h</I> were fine,
+but the hard ones like <I>ioctl.h</I> nearly always need to hand-edited.
+Here's how to install the *.ph files:
+<P>
+
+
+
+<PRE>
+    1.  become super-user
+    2.  cd /usr/include
+    3.  h2ph *.h */*.h
+
+</PRE>
+
+
+<P>
+
+If your system supports dynamic loading, for reasons of portability and
+sanity you probably ought to use h2xs (also part of the standard perl
+distribution).  This tool converts C header files to Perl extensions.
+See perlxstut for how to get started with h2xs.
+<P>
+
+If your system doesn't support dynamic loading, you still probably
+ought to use h2xs.  See perlxstut and ExtUtils::MakeMaker for
+more information (in brief, just use <B>make perl</B> instead of a plain
+<B>make</B> to rebuild perl with a new static extension).
+<A NAME="lbAY">&nbsp;</A>
+<H2>Why do setuid perl scripts complain about kernel problems?</H2>
+
+<A NAME="ixABJ"></A>
+Some operating systems have bugs in the kernel that make setuid
+scripts inherently insecure.  Perl gives you a number of options
+(described in perlsec) to work around such systems.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>How can I open a pipe both to and from a command?</H2>
+
+<A NAME="ixABK"></A>
+The IPC::Open2 module (part of the standard perl distribution) is an
+easy-to-use approach that internally uses <I>pipe()</I>, <I>fork()</I>, and <I>exec()</I> to do
+the job.  Make sure you read the deadlock warnings in its documentation,
+though (see IPC::Open2).  See
+``Bidirectional Communication with Another Process'' in perlipc and
+``Bidirectional Communication with Yourself'' in perlipc
+<P>
+
+You may also use the IPC::Open3 module (part of the standard perl
+distribution), but be warned that it has a different order of
+arguments from IPC::Open2 (see IPC::Open3).
+<A NAME="lbBA">&nbsp;</A>
+<H2>Why can't I get the output of a command with <I>system()</I>?</H2>
+
+<A NAME="ixABL"></A>
+You're confusing the purpose of <I>system()</I> and backticks (``).  <I>system()</I>
+runs a command and returns exit status information (as a 16 bit value:
+the low 7 bits are the signal the process died from, if any, and
+the high 8 bits are the actual exit value).  Backticks (``) run a
+command and return what it sent to <FONT SIZE="-1">STDOUT</FONT>.
+<P>
+
+
+
+<PRE>
+    $exit_status   = system(&quot;mail-users&quot;);
+    $output_string = `ls`;
+
+</PRE>
+
+
+<A NAME="lbBB">&nbsp;</A>
+<H2>How can I capture <FONT SIZE="-1">STDERR</FONT> from an external command?</H2>
+
+<A NAME="ixABM"></A>
+There are three basic ways of running external commands:
+<P>
+
+
+
+<PRE>
+    system $cmd;                # using system()
+    $output = `$cmd`;           # using backticks (``)
+    open (PIPE, &quot;cmd |&quot;);       # using open()
+
+</PRE>
+
+
+<P>
+
+With <I>system()</I>, both <FONT SIZE="-1">STDOUT</FONT> and <FONT SIZE="-1">STDERR</FONT> will go the same place as the
+script's <FONT SIZE="-1">STDOUT</FONT> and <FONT SIZE="-1">STDERR</FONT>, unless the <I>system()</I> command redirects them.
+Backticks and <I>open()</I> read <B>only</B> the <FONT SIZE="-1">STDOUT</FONT> of your command.
+<P>
+
+You can also use the <I>open3()</I> function from IPC::Open3.  Benjamin
+Goldberg provides some sample code:
+<P>
+
+To capture a program's <FONT SIZE="-1">STDOUT</FONT>, but discard its <FONT SIZE="-1">STDERR:</FONT>
+<P>
+
+
+
+<PRE>
+    use IPC::Open3;
+    use File::Spec;
+    use Symbol qw(gensym);
+    open(NULL, &quot;&gt;&quot;, File::Spec-&gt;devnull);
+    my $pid = open3(gensym, \*PH, &quot;&gt;&amp;NULL&quot;, &quot;cmd&quot;);
+    while( &lt;PH&gt; ) { }
+    waitpid($pid, 0);
+
+</PRE>
+
+
+<P>
+
+To capture a program's <FONT SIZE="-1">STDERR</FONT>, but discard its <FONT SIZE="-1">STDOUT:</FONT>
+<P>
+
+
+
+<PRE>
+    use IPC::Open3;
+    use File::Spec;
+    use Symbol qw(gensym);
+    open(NULL, &quot;&gt;&quot;, File::Spec-&gt;devnull);
+    my $pid = open3(gensym, &quot;&gt;&amp;NULL&quot;, \*PH, &quot;cmd&quot;);
+    while( &lt;PH&gt; ) { }
+    waitpid($pid, 0);
+
+</PRE>
+
+
+<P>
+
+To capture a program's <FONT SIZE="-1">STDERR</FONT>, and let its <FONT SIZE="-1">STDOUT</FONT> go to our own <FONT SIZE="-1">STDERR:</FONT>
+<P>
+
+
+
+<PRE>
+    use IPC::Open3;
+    use Symbol qw(gensym);
+    my $pid = open3(gensym, &quot;&gt;&amp;STDERR&quot;, \*PH, &quot;cmd&quot;);
+    while( &lt;PH&gt; ) { }
+    waitpid($pid, 0);
+
+</PRE>
+
+
+<P>
+
+To read both a command's <FONT SIZE="-1">STDOUT</FONT> and its <FONT SIZE="-1">STDERR</FONT> separately, you can
+redirect them to temp files, let the command run, then read the temp
+files:
+<P>
+
+
+
+<PRE>
+    use IPC::Open3;
+    use Symbol qw(gensym);
+    use IO::File;
+    local *CATCHOUT = IO::File-&gt;new_tempfile;
+    local *CATCHERR = IO::File-&gt;new_tempfile;
+    my $pid = open3(gensym, &quot;&gt;&amp;CATCHOUT&quot;, &quot;&gt;&amp;CATCHERR&quot;, &quot;cmd&quot;);
+    waitpid($pid, 0);
+    seek $_, 0, 0 for \*CATCHOUT, \*CATCHERR;
+    while( &lt;CATCHOUT&gt; ) {}
+    while( &lt;CATCHERR&gt; ) {}
+
+</PRE>
+
+
+<P>
+
+But there's no real need for *both* to be tempfiles... the following
+should work just as well, without deadlocking:
+<P>
+
+
+
+<PRE>
+    use IPC::Open3;
+    use Symbol qw(gensym);
+    use IO::File;
+    local *CATCHERR = IO::File-&gt;new_tempfile;
+    my $pid = open3(gensym, \*CATCHOUT, &quot;&gt;&amp;CATCHERR&quot;, &quot;cmd&quot;);
+    while( &lt;CATCHOUT&gt; ) {}
+    waitpid($pid, 0);
+    seek CATCHERR, 0, 0;
+    while( &lt;CATCHERR&gt; ) {}
+
+</PRE>
+
+
+<P>
+
+And it'll be faster, too, since we can begin processing the program's
+stdout immediately, rather than waiting for the program to finish.
+<P>
+
+With any of these, you can change file descriptors before the call:
+<P>
+
+
+
+<PRE>
+    open(STDOUT, &quot;&gt;logfile&quot;);
+    system(&quot;ls&quot;);
+
+</PRE>
+
+
+<P>
+
+or you can use Bourne shell file-descriptor redirection:
+<P>
+
+
+
+<PRE>
+    $output = `$cmd 2&gt;some_file`;
+    open (PIPE, &quot;cmd 2&gt;some_file |&quot;);
+
+</PRE>
+
+
+<P>
+
+You can also use file-descriptor redirection to make <FONT SIZE="-1">STDERR</FONT> a
+duplicate of <FONT SIZE="-1">STDOUT:</FONT>
+<P>
+
+
+
+<PRE>
+    $output = `$cmd 2&gt;&amp;1`;
+    open (PIPE, &quot;cmd 2&gt;&amp;1 |&quot;);
+
+</PRE>
+
+
+<P>
+
+Note that you <I>cannot</I> simply open <FONT SIZE="-1">STDERR</FONT> to be a dup of <FONT SIZE="-1">STDOUT</FONT>
+in your Perl program and avoid calling the shell to do the redirection.
+This doesn't work:
+<P>
+
+
+
+<PRE>
+    open(STDERR, &quot;&gt;&amp;STDOUT&quot;);
+    $alloutput = `cmd args`;  # stderr still escapes
+
+</PRE>
+
+
+<P>
+
+This fails because the <I>open()</I> makes <FONT SIZE="-1">STDERR</FONT> go to where <FONT SIZE="-1">STDOUT</FONT> was
+going at the time of the <I>open()</I>.  The backticks then make <FONT SIZE="-1">STDOUT</FONT> go to
+a string, but don't change <FONT SIZE="-1">STDERR</FONT> (which still goes to the old
+<FONT SIZE="-1">STDOUT</FONT>).
+<P>
+
+Note that you <I>must</I> use Bourne shell (<I><A HREF="../man1/sh.1.php">sh</A></I>(1)) redirection syntax in
+backticks, not <I><A HREF="../man1/csh.1.php">csh</A></I>(1)!  Details on why Perl's <I>system()</I> and backtick
+and pipe opens all use the Bourne shell are in the
+<I>versus/csh.whynot</I> article in the ``Far More Than You Ever Wanted To
+Know'' collection in <A HREF="http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz">http://www.cpan.org/misc/olddoc/FMTEYEWTK.tgz</A> .  To
+capture a command's <FONT SIZE="-1">STDERR</FONT> and <FONT SIZE="-1">STDOUT</FONT> together:
+<P>
+
+
+
+<PRE>
+    $output = `cmd 2&gt;&amp;1`;                       # either with backticks
+    $pid = open(PH, &quot;cmd 2&gt;&amp;1 |&quot;);              # or with an open pipe
+    while (&lt;PH&gt;) { }                            #    plus a read
+
+</PRE>
+
+
+<P>
+
+To capture a command's <FONT SIZE="-1">STDOUT</FONT> but discard its <FONT SIZE="-1">STDERR:</FONT>
+<P>
+
+
+
+<PRE>
+    $output = `cmd 2&gt;/dev/null`;                # either with backticks
+    $pid = open(PH, &quot;cmd 2&gt;/dev/null |&quot;);       # or with an open pipe
+    while (&lt;PH&gt;) { }                            #    plus a read
+
+</PRE>
+
+
+<P>
+
+To capture a command's <FONT SIZE="-1">STDERR</FONT> but discard its <FONT SIZE="-1">STDOUT:</FONT>
+<P>
+
+
+
+<PRE>
+    $output = `cmd 2&gt;&amp;1 1&gt;/dev/null`;           # either with backticks
+    $pid = open(PH, &quot;cmd 2&gt;&amp;1 1&gt;/dev/null |&quot;);  # or with an open pipe
+    while (&lt;PH&gt;) { }                            #    plus a read
+
+</PRE>
+
+
+<P>
+
+To exchange a command's <FONT SIZE="-1">STDOUT</FONT> and <FONT SIZE="-1">STDERR</FONT> in order to capture the <FONT SIZE="-1">STDERR</FONT>
+but leave its <FONT SIZE="-1">STDOUT</FONT> to come out our old <FONT SIZE="-1">STDERR:</FONT>
+<P>
+
+
+
+<PRE>
+    $output = `cmd 3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3 3&gt;&amp;-`;        # either with backticks
+    $pid = open(PH, &quot;cmd 3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3 3&gt;&amp;-|&quot;);# or with an open pipe
+    while (&lt;PH&gt;) { }                            #    plus a read
+
+</PRE>
+
+
+<P>
+
+To read both a command's <FONT SIZE="-1">STDOUT</FONT> and its <FONT SIZE="-1">STDERR</FONT> separately, it's easiest
+to redirect them separately to files, and then read from those files
+when the program is done:
+<P>
+
+
+
+<PRE>
+    system(&quot;program args 1&gt;program.stdout 2&gt;program.stderr&quot;);
+
+</PRE>
+
+
+<P>
+
+Ordering is important in all these examples.  That's because the shell
+processes file descriptor redirections in strictly left to right order.
+<P>
+
+
+
+<PRE>
+    system(&quot;prog args 1&gt;tmpfile 2&gt;&amp;1&quot;);
+    system(&quot;prog args 2&gt;&amp;1 1&gt;tmpfile&quot;);
+
+</PRE>
+
+
+<P>
+
+The first command sends both standard out and standard error to the
+temporary file.  The second command sends only the old standard output
+there, and the old standard error shows up on the old standard out.
+<A NAME="lbBC">&nbsp;</A>
+<H2>Why doesn't <I>open()</I> return an error when a pipe open fails?</H2>
+
+<A NAME="ixABN"></A>
+If the second argument to a piped <I>open()</I> contains shell
+metacharacters, perl <I>fork()</I>s, then <I>exec()</I>s a shell to decode the
+metacharacters and eventually run the desired program.  If the program
+couldn't be run, it's the shell that gets the message, not Perl. All
+your Perl program can find out is whether the shell itself could be
+successfully started.  You can still capture the shell's <FONT SIZE="-1">STDERR</FONT> and
+check it for error messages.  See ``How can I capture <FONT SIZE="-1">STDERR</FONT> from an external command?'' elsewhere in this document, or use the
+IPC::Open3 module.
+<P>
+
+If there are no shell metacharacters in the argument of <I>open()</I>, Perl
+runs the command directly, without using the shell, and can correctly
+report whether the command started.
+<A NAME="lbBD">&nbsp;</A>
+<H2>What's wrong with using backticks in a void context?</H2>
+
+<A NAME="ixABO"></A>
+Strictly speaking, nothing.  Stylistically speaking, it's not a good
+way to write maintainable code.  Perl has several operators for
+running external commands.  Backticks are one; they collect the output
+from the command for use in your program.  The <TT>&quot;system&quot;</TT> function is
+another; it doesn't do this.
+<P>
+
+Writing backticks in your program sends a clear message to the readers
+of your code that you wanted to collect the output of the command.
+Why send a clear message that isn't true?
+<P>
+
+Consider this line:
+<P>
+
+
+
+<PRE>
+    `cat /etc/termcap`;
+
+</PRE>
+
+
+<P>
+
+You forgot to check <TT>$?</TT> to see whether the program even ran
+correctly.  Even if you wrote
+<P>
+
+
+
+<PRE>
+    print `cat /etc/termcap`;
+
+</PRE>
+
+
+<P>
+
+this code could and probably should be written as
+<P>
+
+
+
+<PRE>
+    system(&quot;cat /etc/termcap&quot;) == 0
+        or die &quot;cat program failed!&quot;;
+
+</PRE>
+
+
+<P>
+
+which will get the output quickly (as it is generated, instead of only
+at the end) and also check the return value.
+<P>
+
+<I>system()</I> also provides direct control over whether shell wildcard
+processing may take place, whereas backticks do not.
+<A NAME="lbBE">&nbsp;</A>
+<H2>How can I call backticks without shell processing?</H2>
+
+<A NAME="ixABP"></A>
+This is a bit tricky.  You can't simply write the command
+like this:
+<P>
+
+
+
+<PRE>
+    @ok = `grep @opts '$search_string' @filenames`;
+
+</PRE>
+
+
+<P>
+
+As of Perl 5.8.0, you can use <I>open()</I> with multiple arguments.
+Just like the list forms of <I>system()</I> and <I>exec()</I>, no shell
+escapes happen.
+<P>
+
+
+
+<PRE>
+   open( GREP, &quot;-|&quot;, 'grep', @opts, $search_string, @filenames );
+   chomp(@ok = &lt;GREP&gt;);
+   close GREP;
+
+</PRE>
+
+
+<P>
+
+You can also:
+<P>
+
+
+
+<PRE>
+    my @ok = ();
+    if (open(GREP, &quot;-|&quot;)) {
+        while (&lt;GREP&gt;) {
+            chomp;
+            push(@ok, $_);
+        }
+        close GREP;
+    } else {
+        exec 'grep', @opts, $search_string, @filenames;
+    }
+
+</PRE>
+
+
+<P>
+
+Just as with <I>system()</I>, no shell escapes happen when you <I>exec()</I> a list.
+Further examples of this can be found in ``Safe Pipe Opens'' in perlipc.
+<P>
+
+Note that if you're use Microsoft, no solution to this vexing issue
+is even possible.  Even if Perl were to emulate <I>fork()</I>, you'd still
+be stuck, because Microsoft does not have a argc/argv-style <FONT SIZE="-1">API</FONT>.
+<A NAME="lbBF">&nbsp;</A>
+<H2>Why can't my script read from <FONT SIZE="-1">STDIN</FONT> after I gave it <FONT SIZE="-1">EOF</FONT> (^D on Unix, ^Z on <FONT SIZE="-1">MS-DOS</FONT>)?</H2>
+
+<A NAME="ixABQ"></A>
+Some stdio's set error and eof flags that need clearing.  The
+<FONT SIZE="-1">POSIX</FONT> module defines <I>clearerr()</I> that you can use.  That is the
+technically correct way to do it.  Here are some less reliable
+workarounds:
+<DL COMPACT>
+<DT>1<DD>
+<A NAME="ixABR"></A>
+Try keeping around the seekpointer and go there, like this:
+
+
+<P>
+
+
+
+
+<PRE>
+    $where = tell(LOG);
+    seek(LOG, $where, 0);
+
+</PRE>
+
+
+<DT>2<DD>
+<A NAME="ixABS"></A>
+If that doesn't work, try seeking to a different part of the file and
+then back.
+<DT>3<DD>
+<A NAME="ixABT"></A>
+If that doesn't work, try seeking to a different part of
+the file, reading something, and then seeking back.
+<DT>4<DD>
+<A NAME="ixABU"></A>
+If that doesn't work, give up on your stdio package and use sysread.
+</DL>
+<A NAME="lbBG">&nbsp;</A>
+<H2>How can I convert my shell script to perl?</H2>
+
+<A NAME="ixABV"></A>
+Learn Perl and rewrite it.  Seriously, there's no simple converter.
+Things that are awkward to do in the shell are easy to do in Perl, and
+this very awkwardness is what would make a shell-&gt;perl converter
+nigh-on impossible to write.  By rewriting it, you'll think about what
+you're really trying to do, and hopefully will escape the shell's
+pipeline datastream paradigm, which while convenient for some matters,
+causes many inefficiencies.
+<A NAME="lbBH">&nbsp;</A>
+<H2>Can I use perl to run a telnet or ftp session?</H2>
+
+<A NAME="ixABW"></A>
+Try the Net::FTP, TCP::Client, and Net::Telnet modules (available from
+<FONT SIZE="-1">CPAN</FONT>).  <A HREF="http://www.cpan.org/scripts/netstuff/telnet.emul.shar">http://www.cpan.org/scripts/netstuff/telnet.emul.shar</A>
+will also help for emulating the telnet protocol, but Net::Telnet is
+quite probably easier to use..
+<P>
+
+If all you want to do is pretend to be telnet but don't need
+the initial telnet handshaking, then the standard dual-process
+approach will suffice:
+<P>
+
+
+
+<PRE>
+    use IO::Socket;             # new in 5.004
+    $handle = IO::Socket::INET-&gt;new('<A HREF="http://www.perl.com">www.perl.com</A>:80')
+            || die &quot;can't connect to port 80 on <A HREF="http://www.perl.com">www.perl.com</A>: $!&quot;;
+    $handle-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+    if (fork()) {               # XXX: undef means failure
+        select($handle);
+        print while &lt;STDIN&gt;;    # everything from stdin to socket
+    } else {
+        print while &lt;$handle&gt;;  # everything from socket to stdout
+    }
+    close $handle;
+    exit;
+
+</PRE>
+
+
+<A NAME="lbBI">&nbsp;</A>
+<H2>How can I write expect in Perl?</H2>
+
+<A NAME="ixABX"></A>
+Once upon a time, there was a library called chat2.pl (part of the
+standard perl distribution), which never really got finished.  If you
+find it somewhere, <I>don't use it</I>.  These days, your best bet is to
+look at the Expect module available from <FONT SIZE="-1">CPAN</FONT>, which also requires two
+other modules from <FONT SIZE="-1">CPAN</FONT>, IO::Pty and IO::Stty.
+<A NAME="lbBJ">&nbsp;</A>
+<H2>Is there a way to hide perl's command line from programs such as ps?
+
+</H2>
+
+
+
+<A NAME="ixABY"></A>
+First of all note that if you're doing this for security reasons (to
+avoid people seeing passwords, for example) then you should rewrite
+your program so that critical information is never given as an
+argument.  Hiding the arguments won't make your program completely
+secure.
+<P>
+
+To actually alter the visible command line, you can assign to the
+variable <TT>$0</TT> as documented in perlvar.  This won't work on all
+operating systems, though.  Daemon programs like sendmail place their
+state there, as in:
+<P>
+
+
+
+<PRE>
+    $0 = &quot;orcus [accepting connections]&quot;;
+
+</PRE>
+
+
+<A NAME="lbBK">&nbsp;</A>
+<H2>I {changed directory, modified my environment} in a perl script.  How come the change disappeared when I exited the script?  How do I get my changes to be visible?</H2>
+
+<A NAME="ixABZ"></A>
+<DL COMPACT>
+<DT>Unix<DD>
+<A NAME="ixACA"></A>
+In the strictest sense, it can't be done---the script executes as a
+different process from the shell it was started from.  Changes to a
+process are not reflected in its parent---only in any children
+created after the change.  There is shell magic that may allow you to
+fake it by <I>eval()</I>ing the script's output in your shell; check out the
+comp.unix.questions <FONT SIZE="-1">FAQ</FONT> for details.
+</DL>
+<A NAME="lbBL">&nbsp;</A>
+<H2>How do I close a process's filehandle without waiting for it to complete?</H2>
+
+<A NAME="ixACB"></A>
+Assuming your system supports such things, just send an appropriate signal
+to the process (see ``kill'' in perlfunc).  It's common to first send a <FONT SIZE="-1">TERM</FONT>
+signal, wait a little bit, and then send a <FONT SIZE="-1">KILL</FONT> signal to finish it off.
+<A NAME="lbBM">&nbsp;</A>
+<H2>How do I fork a daemon process?</H2>
+
+<A NAME="ixACC"></A>
+If by daemon process you mean one that's detached (disassociated from
+its tty), then the following process is reported to work on most
+Unixish systems.  Non-Unix users should check their Your_OS::Process
+module for other solutions.
+<DL COMPACT>
+<DT>*<DD>
+Open /dev/tty and use the <FONT SIZE="-1">TIOCNOTTY</FONT> ioctl on it.  See tty
+for details.  Or better yet, you can just use the <I>POSIX::setsid()</I>
+function, so you don't have to worry about process groups.
+<DT>*<DD>
+Change directory to /
+<DT>*<DD>
+Reopen <FONT SIZE="-1">STDIN</FONT>, <FONT SIZE="-1">STDOUT</FONT>, and <FONT SIZE="-1">STDERR</FONT> so they're not connected to the old
+tty.
+<DT>*<DD>
+Background yourself like this:
+
+
+<P>
+
+
+
+
+<PRE>
+    fork &amp;&amp; exit;
+
+</PRE>
+
+
+</DL>
+<P>
+
+The Proc::Daemon module, available from <FONT SIZE="-1">CPAN</FONT>, provides a function to
+perform these actions for you.
+<A NAME="lbBN">&nbsp;</A>
+<H2>How do I find out if I'm running interactively or not?</H2>
+
+<A NAME="ixACD"></A>
+Good question.  Sometimes <TT>&quot;-t STDIN&quot;</TT> and <TT>&quot;-t STDOUT&quot;</TT> can give clues,
+sometimes not.
+<P>
+
+
+
+<PRE>
+    if (-t STDIN &amp;&amp; -t STDOUT) {
+        print &quot;Now what? &quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+On <FONT SIZE="-1">POSIX</FONT> systems, you can test whether your own process group matches
+the current process group of your controlling terminal as follows:
+<P>
+
+
+
+<PRE>
+    use POSIX qw/getpgrp tcgetpgrp/;
+    open(TTY, &quot;/dev/tty&quot;) or die $!;
+    $tpgrp = tcgetpgrp(fileno(*TTY));
+    $pgrp = getpgrp();
+    if ($tpgrp == $pgrp) {
+        print &quot;foreground\n&quot;;
+    } else {
+        print &quot;background\n&quot;;
+    }
+
+</PRE>
+
+
+<A NAME="lbBO">&nbsp;</A>
+<H2>How do I timeout a slow event?</H2>
+
+<A NAME="ixACE"></A>
+Use the <I>alarm()</I> function, probably in conjunction with a signal
+handler, as documented in ``Signals'' in perlipc and the section on
+``Signals'' in the Camel.  You may instead use the more flexible
+Sys::AlarmCall module available from <FONT SIZE="-1">CPAN</FONT>.
+<P>
+
+The <I>alarm()</I> function is not implemented on all versions of Windows.
+Check the documentation for your specific version of Perl.
+<A NAME="lbBP">&nbsp;</A>
+<H2>How do I set <FONT SIZE="-1">CPU</FONT> limits?</H2>
+
+<A NAME="ixACF"></A>
+Use the BSD::Resource module from <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbBQ">&nbsp;</A>
+<H2>How do I avoid zombies on a Unix system?</H2>
+
+<A NAME="ixACG"></A>
+Use the reaper code from ``Signals'' in perlipc to call <I>wait()</I> when a
+<FONT SIZE="-1">SIGCHLD</FONT> is received, or else use the double-fork technique described
+in ``How do I start a process in the background?'' in perlfaq8.
+<A NAME="lbBR">&nbsp;</A>
+<H2>How do I use an <FONT SIZE="-1">SQL</FONT> database?</H2>
+
+<A NAME="ixACH"></A>
+The <FONT SIZE="-1">DBI</FONT> module provides an abstract interface to most database
+servers and types, including Oracle, <FONT SIZE="-1">DB2</FONT>, Sybase, mysql, Postgresql,
+<FONT SIZE="-1">ODBC</FONT>, and flat files.  The <FONT SIZE="-1">DBI</FONT> module accesses each database type
+through a database driver, or <FONT SIZE="-1">DBD</FONT>.  You can see a complete list of
+available drivers on <FONT SIZE="-1">CPAN:</FONT> <A HREF="http://www.cpan.org/modules/by-module/DBD/">http://www.cpan.org/modules/by-module/DBD/</A> .
+You can read more about <FONT SIZE="-1">DBI</FONT> on <A HREF="http://dbi.perl.org">http://dbi.perl.org</A> .
+<P>
+
+Other modules provide more specific access: Win32::ODBC, Alzabo, iodbc,
+and others found on <FONT SIZE="-1">CPAN</FONT> Search: <A HREF="http://search.cpan.org">http://search.cpan.org</A> .
+<A NAME="lbBS">&nbsp;</A>
+<H2>How do I make a <I>system()</I> exit on control-C?</H2>
+
+<A NAME="ixACI"></A>
+You can't.  You need to imitate the <I>system()</I> call (see perlipc for
+sample code) and then have a signal handler for the <FONT SIZE="-1">INT</FONT> signal that
+passes the signal on to the subprocess.  Or you can check for it:
+<P>
+
+
+
+<PRE>
+    $rc = system($cmd);
+    if ($rc &amp; 127) { die &quot;signal death&quot; }
+
+</PRE>
+
+
+<A NAME="lbBT">&nbsp;</A>
+<H2>How do I open a file without blocking?</H2>
+
+<A NAME="ixACJ"></A>
+If you're lucky enough to be using a system that supports
+non-blocking reads (most Unixish systems do), you need only to use the
+O_NDELAY or O_NONBLOCK flag from the Fcntl module in conjunction with
+<I>sysopen()</I>:
+<P>
+
+
+
+<PRE>
+    use Fcntl;
+    sysopen(FH, &quot;/foo/somefile&quot;, O_WRONLY|O_NDELAY|O_CREAT, 0644)
+        or die &quot;can't open /foo/somefile: $!&quot;:
+
+</PRE>
+
+
+<A NAME="lbBU">&nbsp;</A>
+<H2>How do I install a module from <FONT SIZE="-1">CPAN</FONT>?</H2>
+
+<A NAME="ixACK"></A>
+The easiest way is to have a module also named <FONT SIZE="-1">CPAN</FONT> do it for you.
+This module comes with perl version 5.004 and later.
+<P>
+
+
+
+<PRE>
+    $ perl -MCPAN -e shell
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    cpan shell -- CPAN exploration and modules installation (v1.59_54)
+    ReadLine support enabled
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    cpan&gt; install Some::Module
+
+</PRE>
+
+
+<P>
+
+To manually install the <FONT SIZE="-1">CPAN</FONT> module, or any well-behaved <FONT SIZE="-1">CPAN</FONT> module
+for that matter, follow these steps:
+<DL COMPACT>
+<DT>1<DD>
+<A NAME="ixACL"></A>
+Unpack the source into a temporary area.
+<DT>2<DD>
+<A NAME="ixACM"></A>
+
+
+<PRE>
+    perl Makefile.PL
+
+</PRE>
+
+
+<DT>3<DD>
+<A NAME="ixACN"></A>
+
+
+<PRE>
+    make
+
+</PRE>
+
+
+<DT>4<DD>
+<A NAME="ixACO"></A>
+
+
+<PRE>
+    make test
+
+</PRE>
+
+
+<DT>5<DD>
+<A NAME="ixACP"></A>
+
+
+<PRE>
+    make install
+
+</PRE>
+
+
+</DL>
+<P>
+
+If your version of perl is compiled without dynamic loading, then you
+just need to replace step 3 (<B>make</B>) with <B>make perl</B> and you will
+get a new <I>perl</I> binary with your extension linked in.
+<P>
+
+See ExtUtils::MakeMaker for more details on building extensions.
+See also the next question, ``What's the difference between require
+and use?''.
+<A NAME="lbBV">&nbsp;</A>
+<H2>What's the difference between require and use?</H2>
+
+<A NAME="ixACQ"></A>
+Perl offers several different ways to include code from one file into
+another.  Here are the deltas between the various inclusion constructs:
+<P>
+
+
+
+<PRE>
+    1)  do $file is like eval `cat $file`, except the former
+        1.1: searches @INC and updates %INC.
+        1.2: bequeaths an *unrelated* lexical scope on the eval'ed code.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    2)  require $file is like do $file, except the former
+        2.1: checks for redundant loading, skipping already loaded files.
+        2.2: raises an exception on failure to find, compile, or execute $file.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    3)  require Module is like require &quot;Module.pm&quot;, except the former
+        3.1: translates each &quot;::&quot; into your system's directory separator.
+        3.2: primes the parser to disambiguate class Module as an indirect object.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    4)  use Module is like require Module, except the former
+        4.1: loads the module at compile time, not run-time.
+        4.2: imports symbols and semantics from that package to the current one.
+
+</PRE>
+
+
+<P>
+
+In general, you usually want <TT>&quot;use&quot;</TT> and a proper Perl module.
+<A NAME="lbBW">&nbsp;</A>
+<H2>How do I keep my own module/library directory?</H2>
+
+<A NAME="ixACR"></A>
+When you build modules, use the <FONT SIZE="-1">PREFIX</FONT> and <FONT SIZE="-1">LIB</FONT> options when generating
+Makefiles:
+<P>
+
+
+
+<PRE>
+    perl Makefile.PL PREFIX=/mydir/perl LIB=/mydir/perl/lib
+
+</PRE>
+
+
+<P>
+
+then either set the <FONT SIZE="-1">PERL5LIB</FONT> environment variable before you run
+scripts that use the modules/libraries (see perlrun) or say
+<P>
+
+
+
+<PRE>
+    use lib '/mydir/perl/lib';
+
+</PRE>
+
+
+<P>
+
+This is almost the same as
+<P>
+
+
+
+<PRE>
+    BEGIN {
+        unshift(@INC, '/mydir/perl/lib');
+    }
+
+</PRE>
+
+
+<P>
+
+except that the lib module checks for machine-dependent subdirectories.
+See Perl's lib for more information.
+<A NAME="lbBX">&nbsp;</A>
+<H2>How do I add the directory my program lives in to the module/library search path?</H2>
+
+<A NAME="ixACS"></A>
+
+
+<PRE>
+    use FindBin;
+    use lib &quot;$FindBin::Bin&quot;;
+    use your_own_modules;
+
+</PRE>
+
+
+<A NAME="lbBY">&nbsp;</A>
+<H2>How do I add a directory to my include path (@INC) at runtime?</H2>
+
+<A NAME="ixACT"></A>
+Here are the suggested ways of modifying your include path:
+<P>
+
+
+
+<PRE>
+    the PERLLIB environment variable
+    the PERL5LIB environment variable
+    the perl -Idir command line flag
+    the use lib pragma, as in
+        use lib &quot;$ENV{HOME}/myown_perllib&quot;;
+
+</PRE>
+
+
+<P>
+
+The latter is particularly useful because it knows about machine
+dependent architectures.  The lib.pm pragmatic module was first
+included with the 5.002 release of Perl.
+<A NAME="lbBZ">&nbsp;</A>
+<H2>What is socket.ph and where do I get it?</H2>
+
+<A NAME="ixACU"></A>
+It's a perl4-style file defining values for system networking
+constants.  Sometimes it is built using h2ph when Perl is installed,
+but other times it is not.  Modern programs <TT>&quot;use Socket;&quot;</TT> instead.
+<A NAME="lbCA">&nbsp;</A>
+<H2>AUTHOR AND COPYRIGHT</H2>
+
+<A NAME="ixACV"></A>
+Copyright (c) 1997-2003 Tom Christiansen and Nathan Torkington.
+All rights reserved.
+<P>
+
+This documentation is free; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+<P>
+
+Irrespective of its distribution, all code examples in this file
+are hereby placed into the public domain.  You are permitted and
+encouraged to use this code in your own programs for fun
+or for profit as you see fit.  A simple comment in the code giving
+credit would be courteous but is not required.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">How do I find out which operating system I'm running under?</A><DD>
+<DT><A HREF="#lbAE">How come <I>exec()</I> doesn't return?</A><DD>
+<DT><A HREF="#lbAF">How do I do fancy stuff with the keyboard/screen/mouse?</A><DD>
+<DT><A HREF="#lbAG">How do I print something out in color?</A><DD>
+<DT><A HREF="#lbAH">How do I read just one key without waiting for a return key?</A><DD>
+<DT><A HREF="#lbAI">How do I check whether input is ready on the keyboard?</A><DD>
+<DT><A HREF="#lbAJ">How do I clear the screen?</A><DD>
+<DT><A HREF="#lbAK">How do I get the screen size?</A><DD>
+<DT><A HREF="#lbAL">How do I ask the user for a password?</A><DD>
+<DT><A HREF="#lbAM">How do I read and write the serial port?</A><DD>
+<DT><A HREF="#lbAN">How do I decode encrypted password files?</A><DD>
+<DT><A HREF="#lbAO">How do I start a process in the background?</A><DD>
+<DT><A HREF="#lbAP">How do I trap control characters/signals?</A><DD>
+<DT><A HREF="#lbAQ">How do I modify the shadow password file on a Unix system?</A><DD>
+<DT><A HREF="#lbAR">How do I set the time and date?</A><DD>
+<DT><A HREF="#lbAS">How can I <I>sleep()</I> or <I>alarm()</I> for under a second?</A><DD>
+<DT><A HREF="#lbAT">How can I measure time under a second?</A><DD>
+<DT><A HREF="#lbAU">How can I do an <I>atexit()</I> or <I>setjmp()</I>/<I>longjmp()</I>? (Exception handling)</A><DD>
+<DT><A HREF="#lbAV">Why doesn't my sockets program work under System V (Solaris)?  What does the error message Protocol not supported mean?</A><DD>
+<DT><A HREF="#lbAW">How can I call my system's unique C functions from Perl?</A><DD>
+<DT><A HREF="#lbAX">Where do I get the include files to do <I>ioctl()</I> or <I>syscall()</I>?</A><DD>
+<DT><A HREF="#lbAY">Why do setuid perl scripts complain about kernel problems?</A><DD>
+<DT><A HREF="#lbAZ">How can I open a pipe both to and from a command?</A><DD>
+<DT><A HREF="#lbBA">Why can't I get the output of a command with <I>system()</I>?</A><DD>
+<DT><A HREF="#lbBB">How can I capture <FONT SIZE="-1">STDERR</FONT> from an external command?</A><DD>
+<DT><A HREF="#lbBC">Why doesn't <I>open()</I> return an error when a pipe open fails?</A><DD>
+<DT><A HREF="#lbBD">What's wrong with using backticks in a void context?</A><DD>
+<DT><A HREF="#lbBE">How can I call backticks without shell processing?</A><DD>
+<DT><A HREF="#lbBF">Why can't my script read from <FONT SIZE="-1">STDIN</FONT> after I gave it <FONT SIZE="-1">EOF</FONT> (^D on Unix, ^Z on <FONT SIZE="-1">MS-DOS</FONT>)?</A><DD>
+<DT><A HREF="#lbBG">How can I convert my shell script to perl?</A><DD>
+<DT><A HREF="#lbBH">Can I use perl to run a telnet or ftp session?</A><DD>
+<DT><A HREF="#lbBI">How can I write expect in Perl?</A><DD>
+<DT><A HREF="#lbBJ">Is there a way to hide perl's command line from programs such as ps?</A><DD>
+<DT><A HREF="#lbBK">I {changed directory, modified my environment} in a perl script.  How come the change disappeared when I exited the script?  How do I get my changes to be visible?</A><DD>
+<DT><A HREF="#lbBL">How do I close a process's filehandle without waiting for it to complete?</A><DD>
+<DT><A HREF="#lbBM">How do I fork a daemon process?</A><DD>
+<DT><A HREF="#lbBN">How do I find out if I'm running interactively or not?</A><DD>
+<DT><A HREF="#lbBO">How do I timeout a slow event?</A><DD>
+<DT><A HREF="#lbBP">How do I set <FONT SIZE="-1">CPU</FONT> limits?</A><DD>
+<DT><A HREF="#lbBQ">How do I avoid zombies on a Unix system?</A><DD>
+<DT><A HREF="#lbBR">How do I use an <FONT SIZE="-1">SQL</FONT> database?</A><DD>
+<DT><A HREF="#lbBS">How do I make a <I>system()</I> exit on control-C?</A><DD>
+<DT><A HREF="#lbBT">How do I open a file without blocking?</A><DD>
+<DT><A HREF="#lbBU">How do I install a module from <FONT SIZE="-1">CPAN</FONT>?</A><DD>
+<DT><A HREF="#lbBV">What's the difference between require and use?</A><DD>
+<DT><A HREF="#lbBW">How do I keep my own module/library directory?</A><DD>
+<DT><A HREF="#lbBX">How do I add the directory my program lives in to the module/library search path?</A><DD>
+<DT><A HREF="#lbBY">How do I add a directory to my include path (@INC) at runtime?</A><DD>
+<DT><A HREF="#lbBZ">What is socket.ph and where do I get it?</A><DD>
+<DT><A HREF="#lbCA">AUTHOR AND COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

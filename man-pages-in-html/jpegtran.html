@@ -1,0 +1,416 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>JPEGTRAN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>JPEGTRAN</H1>
+Section: User Commands  (1)<BR>Updated: 3 August 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+jpegtran - lossless transformation of JPEG files
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>jpegtran</B>
+
+[
+<I>options</I>
+
+]
+[
+<I>filename</I>
+
+]
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>jpegtran</B>
+
+performs various useful transformations of JPEG files.
+It can translate the coded representation from one variant of JPEG to another,
+for example from baseline JPEG to progressive JPEG or vice versa.  It can also
+perform some rearrangements of the image data, for example turning an image
+from landscape to portrait format by rotation.
+<P>
+
+<B>jpegtran</B>
+
+works by rearranging the compressed data (DCT coefficients), without
+ever fully decoding the image.  Therefore, its transformations are lossless:
+there is no image degradation at all, which would not be true if you used
+<B>djpeg</B>
+
+followed by
+<B>cjpeg</B>
+
+to accomplish the same conversion.  But by the same token,
+<B>jpegtran</B>
+
+cannot perform lossy operations such as changing the image quality.
+<P>
+
+<B>jpegtran</B>
+
+reads the named JPEG/JFIF file, or the standard input if no file is
+named, and produces a JPEG/JFIF file on the standard output.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+All switch names may be abbreviated; for example,
+<B>-optimize</B>
+
+may be written
+<B>-opt</B>
+
+or
+<B>-o</B>.
+
+Upper and lower case are equivalent.
+British spellings are also accepted (e.g.,
+<B>-optimise</B>),
+
+though for brevity these are not mentioned below.
+<P>
+
+To specify the coded JPEG representation used in the output file,
+<B>jpegtran</B>
+
+accepts a subset of the switches recognized by
+<B>cjpeg</B>:
+
+<DL COMPACT>
+<DT><B>-optimize</B>
+
+<DD>
+Perform optimization of entropy encoding parameters.
+<DT><B>-progressive</B>
+
+<DD>
+Create progressive JPEG file.
+<DT><B>-restart</B><I> N</I>
+
+<DD>
+Emit a JPEG restart marker every N MCU rows, or every N MCU blocks if &quot;B&quot; is
+attached to the number.
+<DT><B>-scans</B><I> file</I>
+
+<DD>
+Use the scan script given in the specified text file.
+</DL>
+<P>
+
+See
+<B><A HREF="../man1/cjpeg.1.php">cjpeg</A></B>(1)
+
+for more details about these switches.
+If you specify none of these switches, you get a plain baseline-JPEG output
+file.  The quality setting and so forth are determined by the input file.
+<P>
+
+The image can be losslessly transformed by giving one of these switches:
+<DL COMPACT>
+<DT><B>-flip horizontal</B>
+
+<DD>
+Mirror image horizontally (left-right).
+<DT><B>-flip vertical</B>
+
+<DD>
+Mirror image vertically (top-bottom).
+<DT><B>-rotate 90</B>
+
+<DD>
+Rotate image 90 degrees clockwise.
+<DT><B>-rotate 180</B>
+
+<DD>
+Rotate image 180 degrees.
+<DT><B>-rotate 270</B>
+
+<DD>
+Rotate image 270 degrees clockwise (or 90 ccw).
+<DT><B>-transpose</B>
+
+<DD>
+Transpose image (across UL-to-LR axis).
+<DT><B>-transverse</B>
+
+<DD>
+Transverse transpose (across UR-to-LL axis).
+</DL>
+<P>
+
+The transpose transformation has no restrictions regarding image dimensions.
+The other transformations operate rather oddly if the image dimensions are not
+a multiple of the iMCU size (usually 8 or 16 pixels), because they can only
+transform complete blocks of DCT coefficient data in the desired way.
+<P>
+
+<B>jpegtran</B>'s
+
+default behavior when transforming an odd-size image is designed
+to preserve exact reversibility and mathematical consistency of the
+transformation set.  As stated, transpose is able to flip the entire image
+area.  Horizontal mirroring leaves any partial iMCU column at the right edge
+untouched, but is able to flip all rows of the image.  Similarly, vertical
+mirroring leaves any partial iMCU row at the bottom edge untouched, but is
+able to flip all columns.  The other transforms can be built up as sequences
+of transpose and flip operations; for consistency, their actions on edge
+pixels are defined to be the same as the end result of the corresponding
+transpose-and-flip sequence.
+<P>
+
+For practical use, you may prefer to discard any untransformable edge pixels
+rather than having a strange-looking strip along the right and/or bottom edges
+of a transformed image.  To do this, add the
+<B>-trim</B>
+
+switch:
+<DL COMPACT>
+<DT><B>-trim</B>
+
+<DD>
+Drop non-transformable edge blocks.
+</DL>
+<P>
+
+Obviously, a transformation with
+<B>-trim</B>
+
+is not reversible, so strictly speaking
+<B>jpegtran</B>
+
+with this switch is not lossless.  Also, the expected mathematical
+equivalences between the transformations no longer hold.  For example,
+<B>-rot 270 -trim</B>
+
+trims only the bottom edge, but
+<B>-rot 90 -trim</B>
+
+followed by
+<B>-rot 180 -trim</B>
+
+trims both edges.
+<P>
+
+Another not-strictly-lossless transformation switch is:
+<DL COMPACT>
+<DT><B>-grayscale</B>
+
+<DD>
+Force grayscale output.
+</DL>
+<P>
+
+This option discards the chrominance channels if the input image is YCbCr
+(ie, a standard color JPEG), resulting in a grayscale JPEG file.  The
+luminance channel is preserved exactly, so this is a better method of reducing
+to grayscale than decompression, conversion, and recompression.  This switch
+is particularly handy for fixing a monochrome picture that was mistakenly
+encoded as a color JPEG.  (In such a case, the space savings from getting rid
+of the near-empty chroma channels won't be large; but the decoding time for
+a grayscale JPEG is substantially less than that for a color JPEG.)
+<P>
+
+<B>jpegtran</B>
+
+also recognizes these switches that control what to do with &quot;extra&quot; markers,
+such as comment blocks:
+<DL COMPACT>
+<DT><B>-copy none</B>
+
+<DD>
+Copy no extra markers from source file.  This setting suppresses all
+comments and other excess baggage present in the source file.
+<DT><B>-copy comments</B>
+
+<DD>
+Copy only comment markers.  This setting copies comments from the source file,
+but discards any other inessential data.
+<DT><B>-copy all</B>
+
+<DD>
+Copy all extra markers.  This setting preserves miscellaneous markers
+found in the source file, such as JFIF thumbnails and Photoshop settings.
+In some files these extra markers can be sizable.
+</DL>
+<P>
+
+The default behavior is
+<B>-copy comments</B>.
+
+(Note: in IJG releases v6 and v6a,
+<B>jpegtran</B>
+
+always did the equivalent of
+<B>-copy none</B>.)
+
+<P>
+
+Additional switches recognized by jpegtran are:
+<DL COMPACT>
+<DT><B>-maxmemory</B><I> N</I>
+
+<DD>
+Set limit for amount of memory to use in processing large images.  Value is
+in thousands of bytes, or millions of bytes if &quot;M&quot; is attached to the
+number.  For example,
+<B>-max 4m</B>
+
+selects 4000000 bytes.  If more space is needed, temporary files will be used.
+<DT><B>-outfile</B><I> name</I>
+
+<DD>
+Send output image to the named file, not to standard output.
+<DT><B>-verbose</B>
+
+<DD>
+Enable debug printout.  More
+<B>-v</B>'s
+
+give more output.  Also, version information is printed at startup.
+<DT><B>-debug</B>
+
+<DD>
+Same as
+<B>-verbose</B>.
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+This example converts a baseline JPEG file to progressive form:
+<DL COMPACT>
+<DT><DD>
+<B>jpegtran -progressive</B>
+
+<I>foo.jpg</I>
+
+<B>&gt;</B>
+
+<I>fooprog.jpg</I>
+
+</DL>
+<P>
+
+This example rotates an image 90 degrees clockwise, discarding any
+unrotatable edge pixels:
+<DL COMPACT>
+<DT><DD>
+<B>jpegtran -rot 90 -trim</B>
+
+<I>foo.jpg</I>
+
+<B>&gt;</B>
+
+<I>foo90.jpg</I>
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>JPEGMEM</B>
+
+<DD>
+If this environment variable is set, its value is the default memory limit.
+The value is specified as described for the
+<B>-maxmemory</B>
+
+switch.
+<B>JPEGMEM</B>
+
+overrides the default value specified when the program was compiled, and
+itself is overridden by an explicit
+<B>-maxmemory</B>.
+
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cjpeg.1.php">cjpeg</A></B>(1),
+
+<B><A HREF="../man1/djpeg.1.php">djpeg</A></B>(1),
+
+<B><A HREF="../man1/rdjpgcom.1.php">rdjpgcom</A></B>(1),
+
+<B><A HREF="../man1/wrjpgcom.1.php">wrjpgcom</A></B>(1)
+
+<BR>
+
+Wallace, Gregory K.  &quot;The JPEG Still Picture Compression Standard&quot;,
+Communications of the ACM, April 1991 (vol. 34, no. 4), pp. 30-44.
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Independent JPEG Group
+<A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS</H2>
+
+Arithmetic coding is not supported for legal reasons.
+<P>
+
+The transform options can't transform odd-size images perfectly.  Use
+<B>-trim</B>
+
+if you don't like the results without it.
+<P>
+
+The entire image is read into memory and then written out again, even in
+cases where this isn't really necessary.  Expect swapping on large images,
+especially when using the more complex transform options.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+<DT><A HREF="#lbAJ">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

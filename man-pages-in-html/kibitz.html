@@ -1,0 +1,416 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>KIBITZ</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>KIBITZ</H1>
+Section: User Commands  (1)<BR>Updated: 19 October 1994<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+kibitz - allow two people to interact with one shell
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>kibitz</B>
+
+[
+<I>kibitz-args</I>
+
+]
+<I>user</I>
+
+[
+<I>program program-args...</I>
+
+]
+<BR>
+
+<B>kibitz</B>
+
+[
+<I>kibitz-args</I>
+
+]
+<I><A HREF="mailto:user@host">user@host</A></I>
+
+[
+<I>program program-args...</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>INTRODUCTION</H2>
+
+<B>kibitz</B>
+
+allows two (or more) people to interact with one shell (or any arbitrary
+program).  Uses include:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+A novice user can ask an expert user for help.  Using
+<B>kibitz</B>,
+
+the expert can see what the user is doing, and offer advice or
+show how to do it right.
+<DT>*<DD>
+By running
+<B>kibitz</B>
+
+and then starting a full-screen editor, people may carry out a
+conversation, retaining the ability to scroll backwards,
+save the entire conversation, or even edit it while in progress.
+<DT>*<DD>
+People can team up on games, document editing, or other cooperative
+tasks where each person has strengths and weaknesses that complement one
+another.
+</DL>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>USAGE</H2>
+
+To start
+<B>kibitz</B>,
+
+user1
+runs kibitz with the argument of the
+user to kibitz.  For example:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>kibitz user2<BR>
+<P>
+<B>kibitz</B>
+
+starts a new shell (or another program, if given on the command
+line), while prompting user2 to run
+<B>kibitz</B>.
+
+If user2 runs
+<B>kibitz</B>
+
+as directed, the keystrokes of both users become the input of
+the shell.  Similarly, both users receive the output from the
+shell.
+<P>
+To terminate
+<B>kibitz</B>
+
+it suffices to terminate the shell itself.  For example, if either user
+types ^D (and the shell accepts this to be EOF), the shell terminates
+followed by
+<B>kibitz</B>.
+
+<P>
+Normally, all characters are passed uninterpreted.  However, if the
+escape character (described when
+<B>kibitz</B>
+
+starts) is issued, the user
+may talk directly to the
+<B>kibitz</B>
+
+interpreter.  Any
+<B><A HREF="../man1/Expect.1.php">Expect</A></B>(1)
+
+or
+<B><A HREF="../man3/Tcl.3.php">Tcl</A></B>(3)
+
+commands may be given.
+Also, job control may be used while in the interpreter, to, for example,
+suspend or restart
+<B>kibitz</B>.
+
+<P>
+Various processes
+can provide various effects.  For example, you can emulate a two-way <A HREF="../man1/write.1.php">write</A>(1)
+session with the command:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>kibitz user2 sleep 1000000<BR>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ARGUMENTS</H2>
+
+<B>kibitz</B>
+
+takes arguments, these should also be separated by whitespace.
+<P>
+The
+<B>-noproc</B>
+
+flag runs
+<B>kibitz</B>
+
+with no process underneath.  Characters are passed to the other
+<B>kibitz</B>.
+
+This is particularly useful for connecting multiple
+interactive processes together.
+In this mode, characters are not echoed back to the typist.
+<P>
+<B>-noescape</B>
+
+disables the escape character.
+<P>
+<B>-escape</B><I> char</I>
+
+sets the escape character.  The default escape character is ^].
+<P>
+<B>-silent</B>
+
+turns off informational messages describing what kibitz is doing to
+initiate a connection.
+<P>
+<B>-tty</B><I> ttyname</I>
+
+defines the tty to which the invitation should be sent.
+<P>
+If you start
+<B>kibitz</B>
+
+to user2 on a remote computer,
+<B>kibitz</B>
+
+performs a
+<B>rlogin</B>
+
+to the remote computer with your current username. The flag
+<B>-proxy</B><I> username</I>
+
+causes
+<B>rlogin</B>
+
+to use
+<I>username</I>
+
+for the remote login (e.g. if your account on the remote computer has a 
+different username). If the
+<B>-proxy</B>
+
+flag is not given,
+<B>kibitz</B>
+
+tries to determine your current username by (in that order) inspecting the
+environment variables USER and LOGNAME, then by using the commands
+<B>whoami</B>
+
+and
+<B>logname</B>.
+
+<P>
+The arguments
+<B>-noescape</B>
+
+and
+<B>-escape</B>
+
+can also be given by user2 when prompted to run
+<B>kibitz</B>.
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>MORE THAN TWO USERS</H2>
+
+The current implementation of kibitz explicitly understands only two users,
+however, it is nonetheless possible to have a three (or more) -way kibitz,
+by kibitzing another
+<B>kibitz</B>.
+
+For example, the following command runs
+<B>kibitz</B>
+
+with the current user, user2, and user3:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>% kibitz user2 kibitz user3<BR>
+<P>
+Additional users may be added by simply appending more &quot;kibitz user&quot;
+commands.
+<P>
+The
+<B>xkibitz</B>
+
+script is similar to
+<B>kibitz</B>
+
+but supports the ability to add additional users (and drop them)
+dynamically.
+<A NAME="lbAH">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+<B>kibitz</B>
+
+assumes the 2nd user has the same terminal type and size as the 1st user.
+If this assumption is incorrect, graphical programs may display oddly.
+<P>
+<B>kibitz</B>
+
+handles character graphics, but cannot handle bitmapped graphics.  Thus,
+<PRE>
+
+        % xterm -e kibitz    will work
+        % kibitz xterm       will not work
+
+</PRE>
+
+However, you can get the effect of the latter command by using
+<B>xkibitz </B>
+
+(see SEE ALSO below).
+<B>kibitz</B>
+
+uses the same permissions as used by rlogin, rsh, etc.  Thus, you
+can only
+<B>kibitz</B>
+
+to users at hosts for which you can rlogin.
+Similarly,
+<B>kibitz</B>
+
+will prompt for a password on the remote host if
+rlogin would.
+<P>
+If you
+<B>kibitz</B>
+
+to users at remote hosts,
+<B>kibitz</B>
+
+needs to distinguish your prompt from other things that may precede it
+during login.
+(Ideally, the end of it is preferred but any part should suffice.)
+If you have an unusual prompt,
+set the environment variable EXPECT_PROMPT to an <A HREF="../man1/egrep.1.php">egrep</A>(1)-style
+regular expression.
+Brackets should be preceded with one backslash in ranges,
+and three backslashes for literal brackets.
+The default prompt r.e. is &quot;($|%|#)&nbsp;&quot;.
+<P>
+<B>kibitz</B>
+
+requires the
+<B>kibitz</B>
+
+program on both hosts.
+<B>kibitz</B>
+
+requires
+<B><A HREF="../man1/expect.1.php">expect</A></B>(1).
+
+<P>
+By comparison, the
+<B>xkibitz</B>
+
+script uses the X authorization mechanism for inter-host communication
+so it does not need to login, recognize your prompt, or require kibitz
+on the remote host.  It does however need permission to access
+the other X servers.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+An early version of Sun's tmpfs had a bug in it that causes
+<B>kibitz</B>
+
+to blow up.  If
+<B>kibitz</B>
+
+reports &quot;error flushing ...: Is a directory&quot;
+ask Sun for patch #100174.
+<P>
+If your Expect is not compiled with multiple-process support (i.e., you do not 
+have a working select or poll), you will not be able to run kibitz.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+The environment variable SHELL is used to determine the shell to start, if no
+other program is given on the command line.
+<P>
+If the environment variable EXPECT_PROMPT exists, it is taken as a regular
+expression which matches the end of your login prompt (but does not otherwise
+occur while logging in). See also CAVEATS above.
+<P>
+If the environment variables USER or LOGNAME are defined, they are used to 
+determine the current user name for a
+<B>kibitz</B>
+
+to a remote computer. See description of the
+<B>-proxy</B>
+
+option in ARGUMENTS above.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man3/Tcl.3.php">Tcl</A></B>(3),
+
+<B><A HREF="../man3/libexpect.3.php">libexpect</A></B>(3),
+
+<B><A HREF="../man1/xkibitz.1.php">xkibitz</A></B>(1)
+
+<BR>
+
+<I>&quot;Exploring Expect: A Tcl-Based Toolkit for Automating Interactive Programs&quot;</I>
+
+by Don Libes,
+O'Reilly and Associates, January 1995.
+<BR>
+
+<I>&quot;Kibitz - Connecting Multiple Interactive Programs Together&quot;, </I>by Don Libes,
+
+Software - Practice &amp; Experience, John Wiley &amp; Sons, West Sussex, England,
+Vol. 23, No. 5, May, 1993.
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Don Libes, National Institute of Standards and Technology
+<P>
+<B>kibitz</B>
+
+is in the public domain.
+NIST and I would
+appreciate credit if this program or parts of it are used.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">INTRODUCTION</A><DD>
+<DT><A HREF="#lbAE">USAGE</A><DD>
+<DT><A HREF="#lbAF">ARGUMENTS</A><DD>
+<DT><A HREF="#lbAG">MORE THAN TWO USERS</A><DD>
+<DT><A HREF="#lbAH">CAVEATS</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,2265 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLUNICODE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLUNICODE</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlunicode - Unicode support in Perl
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+<A NAME="lbAD">&nbsp;</A>
+<H2>Important Caveats</H2>
+
+<A NAME="ixAAD"></A>
+Unicode support is an extensive requirement. While Perl does not
+implement the Unicode standard or the accompanying technical reports
+from cover to cover, Perl does support many Unicode features.
+<DL COMPACT>
+<DT>Input and Output Layers<DD>
+<A NAME="ixAAE"></A>
+Perl knows when a filehandle uses Perl's internal Unicode encodings
+(<FONT SIZE="-1">UTF-8</FONT>, or UTF-EBCDIC if in <FONT SIZE="-1">EBCDIC</FONT>) if the filehandle is opened with
+the ``:utf8'' layer.  Other encodings can be converted to Perl's
+encoding on input or from Perl's encoding on output by use of the
+``:encoding(...)''  layer.  See open.
+
+
+<P>
+
+
+To indicate that Perl source itself is using a particular encoding,
+see encoding.
+<DT>Regular Expressions<DD>
+<A NAME="ixAAF"></A>
+The regular expression compiler produces polymorphic opcodes.  That is,
+the pattern adapts to the data and automatically switches to the Unicode
+character scheme when presented with Unicode data---or instead uses
+a traditional byte scheme when presented with byte data.
+<DT>use utf8 still needed to enable <FONT SIZE="-1">UTF-8/UTF-EBCDIC</FONT> in scripts<DD>
+
+
+<A NAME="ixAAG"></A>
+As a compatibility measure, the <TT>&quot;use utf8&quot;</TT> pragma must be explicitly
+included to enable recognition of <FONT SIZE="-1">UTF-8</FONT> in the Perl scripts themselves
+(in string or regular expression literals, or in identifier names) on
+ASCII-based machines or to recognize UTF-EBCDIC on EBCDIC-based
+machines.  <B>These are the only times when an explicit </B>&quot;use utf8&quot;<B>
+is needed.</B>  See utf8.
+
+
+<P>
+
+
+You can also use the <TT>&quot;encoding&quot;</TT> pragma to change the default encoding
+of the data in your script; see encoding.
+<DT>BOM-marked scripts and <FONT SIZE="-1">UTF-16</FONT> scripts autodetected<DD>
+<A NAME="ixAAH"></A>
+If a Perl script begins marked with the Unicode <FONT SIZE="-1">BOM</FONT> (<FONT SIZE="-1">UTF-16LE</FONT>, <FONT SIZE="-1">UTF16-BE</FONT>,
+or <FONT SIZE="-1">UTF-8</FONT>), or if the script looks like non-BOM-marked <FONT SIZE="-1">UTF-16</FONT> of either
+endianness, Perl will correctly read in the script as Unicode.
+(BOMless <FONT SIZE="-1">UTF-8</FONT> cannot be effectively recognized or differentiated from
+<FONT SIZE="-1">ISO</FONT> 8859-1 or other eight-bit encodings.)
+<DT>use encoding needed to upgrade non-Latin-1 byte strings<DD>
+
+
+<A NAME="ixAAI"></A>
+By default, there is a fundamental asymmetry in Perl's unicode model:
+implicit upgrading from byte strings to Unicode strings assumes that
+they were encoded in <I></I><FONT SIZE="-1"><I>ISO</I></FONT><I> 8859-1 (Latin-1)</I>, but Unicode strings are
+downgraded with <FONT SIZE="-1">UTF-8</FONT> encoding.  This happens because the first 256
+codepoints in Unicode happens to agree with Latin-1.  
+
+
+<P>
+
+
+If you wish to interpret byte strings as <FONT SIZE="-1">UTF-8</FONT> instead, use the
+<TT>&quot;encoding&quot;</TT> pragma:
+
+
+<P>
+
+
+
+
+<PRE>
+    use encoding 'utf8';
+
+</PRE>
+
+
+
+
+<P>
+
+
+See ``Byte and Character Semantics'' for more details.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Byte and Character Semantics</H2>
+
+<A NAME="ixAAJ"></A>
+Beginning with version 5.6, Perl uses logically-wide characters to
+represent strings internally.
+<P>
+
+In future, Perl-level operations will be expected to work with
+characters rather than bytes.
+<P>
+
+However, as an interim compatibility measure, Perl aims to
+provide a safe migration path from byte semantics to character
+semantics for programs.  For operations where Perl can unambiguously
+decide that the input data are characters, Perl switches to
+character semantics.  For operations where this determination cannot
+be made without additional information from the user, Perl decides in
+favor of compatibility and chooses to use byte semantics.
+<P>
+
+This behavior preserves compatibility with earlier versions of Perl,
+which allowed byte semantics in Perl operations only if
+none of the program's inputs were marked as being as source of Unicode
+character data.  Such data may come from filehandles, from calls to
+external programs, from information provided by the system (such as <TT>%ENV</TT>),
+or from literals and constants in the source text.
+<P>
+
+The <TT>&quot;bytes&quot;</TT> pragma will always, regardless of platform, force byte
+semantics in a particular lexical scope.  See bytes.
+<P>
+
+The <TT>&quot;utf8&quot;</TT> pragma is primarily a compatibility device that enables
+recognition of <FONT SIZE="-1">UTF-</FONT>(8|EBCDIC) in literals encountered by the parser.
+Note that this pragma is only required while Perl defaults to byte
+semantics; when character semantics become the default, this pragma
+may become a no-op.  See utf8.
+<P>
+
+Unless explicitly stated, Perl operators use character semantics
+for Unicode data and byte semantics for non-Unicode data.
+The decision to use character semantics is made transparently.  If
+input data comes from a Unicode source---for example, if a character
+encoding layer is added to a filehandle or a literal Unicode
+string constant appears in a program---character semantics apply.
+Otherwise, byte semantics are in effect.  The <TT>&quot;bytes&quot;</TT> pragma should
+be used to force byte semantics on Unicode data.
+<P>
+
+If strings operating under byte semantics and strings with Unicode
+character data are concatenated, the new string will be created by
+decoding the byte strings as <I></I><FONT SIZE="-1"><I>ISO</I></FONT><I> 8859-1 (Latin-1)</I>, even if the
+old Unicode string used <FONT SIZE="-1">EBCDIC</FONT>.  This translation is done without
+regard to the system's native 8-bit encoding.  To change this for
+systems with non-Latin-1 and non-EBCDIC native encodings, use the
+<TT>&quot;encoding&quot;</TT> pragma.  See encoding.
+<P>
+
+Under character semantics, many operations that formerly operated on
+bytes now operate on characters. A character in Perl is
+logically just a number ranging from 0 to 2**31 or so. Larger
+characters may encode into longer sequences of bytes internally, but
+this internal detail is mostly hidden for Perl code.
+See perluniintro for more.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Effects of Character Semantics</H2>
+
+<A NAME="ixAAK"></A>
+Character semantics have the following effects:
+<DL COMPACT>
+<DT>*<DD>
+Strings---including hash keys---and regular expression patterns may
+contain characters that have an ordinal value larger than 255.
+
+
+<P>
+
+
+If you use a Unicode editor to edit your program, Unicode characters
+may occur directly within the literal strings in one of the various
+Unicode encodings (<FONT SIZE="-1">UTF-8</FONT>, <FONT SIZE="-1">UTF-EBCDIC</FONT>, <FONT SIZE="-1">UCS-2</FONT>, etc.), but will be recognized
+as such and converted to Perl's internal representation only if the
+appropriate encoding is specified.
+
+
+<P>
+
+
+Unicode characters can also be added to a string by using the
+<TT>&quot;\x{...}&quot;</TT> notation.  The Unicode code for the desired character, in
+hexadecimal, should be placed in the braces. For instance, a smiley
+face is <TT>&quot;\x{263A}&quot;</TT>.  This encoding scheme only works for characters
+with a code of 0x100 or above.
+
+
+<P>
+
+
+Additionally, if you
+
+
+<P>
+
+
+
+
+<PRE>
+   use charnames ':full';
+
+</PRE>
+
+
+
+
+<P>
+
+
+you can use the <TT>&quot;\N{...}&quot;</TT> notation and put the official Unicode
+character name within the braces, such as <TT>&quot;\N{WHITE SMILING FACE}&quot;</TT>.
+<DT>*<DD>
+If an appropriate encoding is specified, identifiers within the
+Perl script may contain Unicode alphanumeric characters, including
+ideographs.  Perl does not currently attempt to canonicalize variable
+names.
+<DT>*<DD>
+Regular expressions match characters instead of bytes.  ``.'' matches
+a character instead of a byte.  The <TT>&quot;\C&quot;</TT> pattern is provided to force
+a match a single byte---a <TT>&quot;char&quot;</TT> in C, hence <TT>&quot;\C&quot;</TT>.
+<DT>*<DD>
+Character classes in regular expressions match characters instead of
+bytes and match against the character properties specified in the
+Unicode properties database.  <TT>&quot;\w&quot;</TT> can be used to match a Japanese
+ideograph, for instance.
+
+
+<P>
+
+
+(However, and as a limitation of the current implementation, using
+<TT>&quot;\w&quot;</TT> or <TT>&quot;\W&quot;</TT> <I>inside</I> a <TT>&quot;[...]&quot;</TT> character class will still match
+with byte semantics.)
+<DT>*<DD>
+Named Unicode properties, scripts, and block ranges may be used like
+character classes via the <TT>&quot;\p{}&quot;</TT> ``matches property'' construct and
+the  <TT>&quot;\P{}&quot;</TT> negation, ``doesn't match property''.
+
+
+<P>
+
+
+For instance, <TT>&quot;\p{Lu}&quot;</TT> matches any character with the Unicode ``Lu''
+(Letter, uppercase) property, while <TT>&quot;\p{M}&quot;</TT> matches any character
+with an ``M'' (mark---accents and such) property.  Brackets are not
+required for single letter properties, so <TT>&quot;\p{M}&quot;</TT> is equivalent to
+<TT>&quot;\pM&quot;</TT>. Many predefined properties are available, such as
+<TT>&quot;\p{Mirrored}&quot;</TT> and <TT>&quot;\p{Tibetan}&quot;</TT>.
+
+
+<P>
+
+
+The official Unicode script and block names have spaces and dashes as
+separators, but for convenience you can use dashes, spaces, or
+underbars, and case is unimportant. It is recommended, however, that
+for consistency you use the following naming: the official Unicode
+script, property, or block name (see below for the additional rules
+that apply to block names) with whitespace and dashes removed, and the
+words ``uppercase-first-lowercase-rest''. <TT>&quot;Latin-1 Supplement&quot;</TT> thus
+becomes <TT>&quot;Latin1Supplement&quot;</TT>.
+
+
+<P>
+
+
+You can also use negation in both <TT>&quot;\p{}&quot;</TT> and <TT>&quot;\P{}&quot;</TT> by introducing a caret
+(^) between the first brace and the property name: <TT>&quot;\p{^Tamil}&quot;</TT> is
+equal to <TT>&quot;\P{Tamil}&quot;</TT>.
+
+
+<P>
+
+
+<B></B><FONT SIZE="-1"><B>NOTE:</B></FONT><B> the properties, scripts, and blocks listed here are as of
+Unicode 3.2.0, March 2002, or Perl 5.8.0, July 2002.  Unicode 4.0.0
+came out in April 2003, and Perl 5.8.1 in September 2003.</B>
+
+
+<P>
+
+
+Here are the basic Unicode General Category properties, followed by their
+long form.  You can use either; <TT>&quot;\p{Lu}&quot;</TT> and <TT>&quot;\p{UppercaseLetter}&quot;</TT>,
+for instance, are identical.
+
+
+<P>
+
+
+
+
+<PRE>
+    Short       Long
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    L           Letter
+    LC          CasedLetter
+    Lu          UppercaseLetter
+    Ll          LowercaseLetter
+    Lt          TitlecaseLetter
+    Lm          ModifierLetter
+    Lo          OtherLetter
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    M           Mark
+    Mn          NonspacingMark
+    Mc          SpacingMark
+    Me          EnclosingMark
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    N           Number
+    Nd          DecimalNumber
+    Nl          LetterNumber
+    No          OtherNumber
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    P           Punctuation
+    Pc          ConnectorPunctuation
+    Pd          DashPunctuation
+    Ps          OpenPunctuation
+    Pe          ClosePunctuation
+    Pi          InitialPunctuation
+                (may behave like Ps or Pe depending on usage)
+    Pf          FinalPunctuation
+                (may behave like Ps or Pe depending on usage)
+    Po          OtherPunctuation
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    S           Symbol
+    Sm          MathSymbol
+    Sc          CurrencySymbol
+    Sk          ModifierSymbol
+    So          OtherSymbol
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    Z           Separator
+    Zs          SpaceSeparator
+    Zl          LineSeparator
+    Zp          ParagraphSeparator
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    C           Other
+    Cc          Control
+    Cf          Format
+    Cs          Surrogate   (not usable)
+    Co          PrivateUse
+    Cn          Unassigned
+
+</PRE>
+
+
+
+
+<P>
+
+
+Single-letter properties match all characters in any of the
+two-letter sub-properties starting with the same letter.
+<TT>&quot;LC&quot;</TT> and <TT>&quot;L&amp;&quot;</TT> are special cases, which are aliases for the set of
+<TT>&quot;Ll&quot;</TT>, <TT>&quot;Lu&quot;</TT>, and <TT>&quot;Lt&quot;</TT>.
+
+
+<P>
+
+
+Because Perl hides the need for the user to understand the internal
+representation of Unicode characters, there is no need to implement
+the somewhat messy concept of surrogates. <TT>&quot;Cs&quot;</TT> is therefore not
+supported.
+
+
+<P>
+
+
+Because scripts differ in their directionality---Hebrew is
+written right to left, for example---Unicode supplies these properties in
+the BidiClass class:
+
+
+<P>
+
+
+
+
+<PRE>
+    Property    Meaning
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    L           Left-to-Right
+    LRE         Left-to-Right Embedding
+    LRO         Left-to-Right Override
+    R           Right-to-Left
+    AL          Right-to-Left Arabic
+    RLE         Right-to-Left Embedding
+    RLO         Right-to-Left Override
+    PDF         Pop Directional Format
+    EN          European Number
+    ES          European Number Separator
+    ET          European Number Terminator
+    AN          Arabic Number
+    CS          Common Number Separator
+    NSM         Non-Spacing Mark
+    BN          Boundary Neutral
+    B           Paragraph Separator
+    S           Segment Separator
+    WS          Whitespace
+    ON          Other Neutrals
+
+</PRE>
+
+
+
+
+<P>
+
+
+For example, <TT>&quot;\p{BidiClass:R}&quot;</TT> matches characters that are normally
+written right to left.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Scripts</H2>
+
+<A NAME="ixAAL"></A>
+The script names which can be used by <TT>&quot;\p{...}&quot;</TT> and <TT>&quot;\P{...}&quot;</TT>,
+such as in <TT>&quot;\p{Latin}&quot;</TT> or <TT>&quot;\p{Cyrillic}&quot;</TT>, are as follows:
+<P>
+
+
+
+<PRE>
+    Arabic
+    Armenian
+    Bengali
+    Bopomofo
+    Buhid
+    CanadianAboriginal
+    Cherokee
+    Cyrillic
+    Deseret
+    Devanagari
+    Ethiopic
+    Georgian
+    Gothic
+    Greek
+    Gujarati
+    Gurmukhi
+    Han
+    Hangul
+    Hanunoo
+    Hebrew
+    Hiragana
+    Inherited
+    Kannada
+    Katakana
+    Khmer
+    Lao
+    Latin
+    Malayalam
+    Mongolian
+    Myanmar
+    Ogham
+    OldItalic
+    Oriya
+    Runic
+    Sinhala
+    Syriac
+    Tagalog
+    Tagbanwa
+    Tamil
+    Telugu
+    Thaana
+    Thai
+    Tibetan
+    Yi
+
+</PRE>
+
+
+<P>
+
+Extended property classes can supplement the basic
+properties, defined by the <I>PropList</I> Unicode database:
+<P>
+
+
+
+<PRE>
+    ASCIIHexDigit
+    BidiControl
+    Dash
+    Deprecated
+    Diacritic
+    Extender
+    GraphemeLink
+    HexDigit
+    Hyphen
+    Ideographic
+    IDSBinaryOperator
+    IDSTrinaryOperator
+    JoinControl
+    LogicalOrderException
+    NoncharacterCodePoint
+    OtherAlphabetic
+    OtherDefaultIgnorableCodePoint
+    OtherGraphemeExtend
+    OtherLowercase
+    OtherMath
+    OtherUppercase
+    QuotationMark
+    Radical
+    SoftDotted
+    TerminalPunctuation
+    UnifiedIdeograph
+    WhiteSpace
+
+</PRE>
+
+
+<P>
+
+and there are further derived properties:
+<P>
+
+
+
+<PRE>
+    Alphabetic      Lu + Ll + Lt + Lm + Lo + OtherAlphabetic
+    Lowercase       Ll + OtherLowercase
+    Uppercase       Lu + OtherUppercase
+    Math            Sm + OtherMath
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ID_Start        Lu + Ll + Lt + Lm + Lo + Nl
+    ID_Continue     ID_Start + Mn + Mc + Nd + Pc
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    Any             Any character
+    Assigned        Any non-Cn character (i.e. synonym for \P{Cn})
+    Unassigned      Synonym for \p{Cn}
+    Common          Any character (or unassigned code point)
+                    not explicitly assigned to a script
+
+</PRE>
+
+
+<P>
+
+For backward compatibility (with Perl 5.6), all properties mentioned
+so far may have <TT>&quot;Is&quot;</TT> prepended to their name, so <TT>&quot;\P{IsLu}&quot;</TT>, for
+example, is equal to <TT>&quot;\P{Lu}&quot;</TT>.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Blocks</H2>
+
+<A NAME="ixAAM"></A>
+In addition to <B>scripts</B>, Unicode also defines <B>blocks</B> of
+characters.  The difference between scripts and blocks is that the
+concept of scripts is closer to natural languages, while the concept
+of blocks is more of an artificial grouping based on groups of 256
+Unicode characters. For example, the <TT>&quot;Latin&quot;</TT> script contains letters
+from many blocks but does not contain all the characters from those
+blocks. It does not, for example, contain digits, because digits are
+shared across many scripts. Digits and similar groups, like
+punctuation, are in a category called <TT>&quot;Common&quot;</TT>.
+<P>
+
+For more about scripts, see the <FONT SIZE="-1">UTR</FONT> #24:
+<P>
+
+
+
+<PRE>
+   <A HREF="http://www.unicode.org/unicode/reports/tr24/">http://www.unicode.org/unicode/reports/tr24/</A>
+
+</PRE>
+
+
+<P>
+
+For more about blocks, see:
+<P>
+
+
+
+<PRE>
+   <A HREF="http://www.unicode.org/Public/UNIDATA/Blocks.txt">http://www.unicode.org/Public/UNIDATA/Blocks.txt</A>
+
+</PRE>
+
+
+<P>
+
+Block names are given with the <TT>&quot;In&quot;</TT> prefix. For example, the
+Katakana block is referenced via <TT>&quot;\p{InKatakana}&quot;</TT>.  The <TT>&quot;In&quot;</TT>
+prefix may be omitted if there is no naming conflict with a script
+or any other property, but it is recommended that <TT>&quot;In&quot;</TT> always be used
+for block tests to avoid confusion.
+<P>
+
+These block names are supported:
+<P>
+
+
+
+<PRE>
+    InAlphabeticPresentationForms
+    InArabic
+    InArabicPresentationFormsA
+    InArabicPresentationFormsB
+    InArmenian
+    InArrows
+    InBasicLatin
+    InBengali
+    InBlockElements
+    InBopomofo
+    InBopomofoExtended
+    InBoxDrawing
+    InBraillePatterns
+    InBuhid
+    InByzantineMusicalSymbols
+    InCJKCompatibility
+    InCJKCompatibilityForms
+    InCJKCompatibilityIdeographs
+    InCJKCompatibilityIdeographsSupplement
+    InCJKRadicalsSupplement
+    InCJKSymbolsAndPunctuation
+    InCJKUnifiedIdeographs
+    InCJKUnifiedIdeographsExtensionA
+    InCJKUnifiedIdeographsExtensionB
+    InCherokee
+    InCombiningDiacriticalMarks
+    InCombiningDiacriticalMarksforSymbols
+    InCombiningHalfMarks
+    InControlPictures
+    InCurrencySymbols
+    InCyrillic
+    InCyrillicSupplementary
+    InDeseret
+    InDevanagari
+    InDingbats
+    InEnclosedAlphanumerics
+    InEnclosedCJKLettersAndMonths
+    InEthiopic
+    InGeneralPunctuation
+    InGeometricShapes
+    InGeorgian
+    InGothic
+    InGreekExtended
+    InGreekAndCoptic
+    InGujarati
+    InGurmukhi
+    InHalfwidthAndFullwidthForms
+    InHangulCompatibilityJamo
+    InHangulJamo
+    InHangulSyllables
+    InHanunoo
+    InHebrew
+    InHighPrivateUseSurrogates
+    InHighSurrogates
+    InHiragana
+    InIPAExtensions
+    InIdeographicDescriptionCharacters
+    InKanbun
+    InKangxiRadicals
+    InKannada
+    InKatakana
+    InKatakanaPhoneticExtensions
+    InKhmer
+    InLao
+    InLatin1Supplement
+    InLatinExtendedA
+    InLatinExtendedAdditional
+    InLatinExtendedB
+    InLetterlikeSymbols
+    InLowSurrogates
+    InMalayalam
+    InMathematicalAlphanumericSymbols
+    InMathematicalOperators
+    InMiscellaneousMathematicalSymbolsA
+    InMiscellaneousMathematicalSymbolsB
+    InMiscellaneousSymbols
+    InMiscellaneousTechnical
+    InMongolian
+    InMusicalSymbols
+    InMyanmar
+    InNumberForms
+    InOgham
+    InOldItalic
+    InOpticalCharacterRecognition
+    InOriya
+    InPrivateUseArea
+    InRunic
+    InSinhala
+    InSmallFormVariants
+    InSpacingModifierLetters
+    InSpecials
+    InSuperscriptsAndSubscripts
+    InSupplementalArrowsA
+    InSupplementalArrowsB
+    InSupplementalMathematicalOperators
+    InSupplementaryPrivateUseAreaA
+    InSupplementaryPrivateUseAreaB
+    InSyriac
+    InTagalog
+    InTagbanwa
+    InTags
+    InTamil
+    InTelugu
+    InThaana
+    InThai
+    InTibetan
+    InUnifiedCanadianAboriginalSyllabics
+    InVariationSelectors
+    InYiRadicals
+    InYiSyllables
+
+</PRE>
+
+
+<DL COMPACT>
+<DT>*<DD>
+The special pattern <TT>&quot;\X&quot;</TT> matches any extended Unicode
+sequence--``a combining character sequence'' in Standardese---where the
+first character is a base character and subsequent characters are mark
+characters that apply to the base character.  <TT>&quot;\X&quot;</TT> is equivalent to
+<TT>&quot;(?:\PM\pM*)&quot;</TT>.
+<DT>*<DD>
+The <TT>&quot;tr///&quot;</TT> operator translates characters instead of bytes.  Note
+that the <TT>&quot;tr///CU&quot;</TT> functionality has been removed.  For similar
+functionality see pack('U0', ...) and pack('C0', ...).
+<DT>*<DD>
+Case translation operators use the Unicode case translation tables
+when character input is provided.  Note that <TT>&quot;uc()&quot;</TT>, or <TT>&quot;\U&quot;</TT> in
+interpolated strings, translates to uppercase, while <TT>&quot;ucfirst&quot;</TT>,
+or <TT>&quot;\u&quot;</TT> in interpolated strings, translates to titlecase in languages
+that make the distinction.
+<DT>*<DD>
+Most operators that deal with positions or lengths in a string will
+automatically switch to using character positions, including
+<TT>&quot;chop()&quot;</TT>, <TT>&quot;chomp()&quot;</TT>, <TT>&quot;substr()&quot;</TT>, <TT>&quot;pos()&quot;</TT>, <TT>&quot;index()&quot;</TT>, <TT>&quot;rindex()&quot;</TT>,
+<TT>&quot;sprintf()&quot;</TT>, <TT>&quot;write()&quot;</TT>, and <TT>&quot;length()&quot;</TT>.  Operators that
+specifically do not switch include <TT>&quot;vec()&quot;</TT>, <TT>&quot;pack()&quot;</TT>, and
+<TT>&quot;unpack()&quot;</TT>.  Operators that really don't care include
+operators that treats strings as a bucket of bits such as <TT>&quot;sort()&quot;</TT>,
+and operators dealing with filenames.
+<DT>*<DD>
+The <TT>&quot;pack()&quot;</TT>/<TT>&quot;unpack()&quot;</TT> letters <TT>&quot;c&quot;</TT> and <TT>&quot;C&quot;</TT> do <I>not</I> change,
+since they are often used for byte-oriented formats.  Again, think
+<TT>&quot;char&quot;</TT> in the C language.
+
+
+<P>
+
+
+There is a new <TT>&quot;U&quot;</TT> specifier that converts between Unicode characters
+and code points.
+<DT>*<DD>
+The <TT>&quot;chr()&quot;</TT> and <TT>&quot;ord()&quot;</TT> functions work on characters, similar to
+<TT>&quot;pack(&quot;U&quot;)&quot;</TT> and <TT>&quot;unpack(&quot;U&quot;)&quot;</TT>, <I>not</I> <TT>&quot;pack(&quot;C&quot;)&quot;</TT> and
+<TT>&quot;unpack(&quot;C&quot;)&quot;</TT>.  <TT>&quot;pack(&quot;C&quot;)&quot;</TT> and <TT>&quot;unpack(&quot;C&quot;)&quot;</TT> are methods for
+emulating byte-oriented <TT>&quot;chr()&quot;</TT> and <TT>&quot;ord()&quot;</TT> on Unicode strings.
+While these methods reveal the internal encoding of Unicode strings,
+that is not something one normally needs to care about at all.
+<DT>*<DD>
+The bit string operators, <TT>&quot;&amp; | ^ ~&quot;</TT>, can operate on character data.
+However, for backward compatibility, such as when using bit string
+operations when characters are all less than 256 in ordinal value, one
+should not use <TT>&quot;~&quot;</TT> (the bit complement) with characters of both
+values less than 256 and values greater than 256.  Most importantly,
+DeMorgan's laws (<TT>&quot;~($x|$y) eq ~$x&amp;~$y&quot;</TT> and <TT>&quot;~($x&amp;$y) eq ~$x|~$y&quot;</TT>)
+will not hold.  The reason for this mathematical <I>faux pas</I> is that
+the complement cannot return <B>both</B> the 8-bit (byte-wide) bit
+complement <B>and</B> the full character-wide bit complement.
+<DT>*<DD>
+<I>lc()</I>, <I>uc()</I>, <I>lcfirst()</I>, and <I>ucfirst()</I> work for the following cases:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+the case mapping is from a single Unicode character to another
+single Unicode character, or
+<DT>*<DD>
+the case mapping is from a single Unicode character to more
+than one Unicode character.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+Things to do with locales (Lithuanian, Turkish, Azeri) do <B>not</B> work
+since Perl does not understand the concept of Unicode locales.
+
+
+<P>
+
+
+See the Unicode Technical Report #21, Case Mappings, for more details.
+</DL>
+
+<DT>*<DD>
+And finally, <TT>&quot;scalar reverse()&quot;</TT> reverses by character rather than by byte.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>User-Defined Character Properties</H2>
+
+<A NAME="ixAAN"></A>
+You can define your own character properties by defining subroutines
+whose names begin with ``In'' or ``Is''.  The subroutines can be defined in
+any package.  The user-defined properties can be used in the regular
+expression <TT>&quot;\p&quot;</TT> and <TT>&quot;\P&quot;</TT> constructs; if you are using a user-defined
+property from a package other than the one you are in, you must specify
+its package in the <TT>&quot;\p&quot;</TT> or <TT>&quot;\P&quot;</TT> construct.
+<P>
+
+
+
+<PRE>
+    # assuming property IsForeign defined in Lang::
+    package main;  # property package name required
+    if ($txt =~ /\p{Lang::IsForeign}+/) { ... }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    package Lang;  # property package name not required
+    if ($txt =~ /\p{IsForeign}+/) { ... }
+
+</PRE>
+
+
+<P>
+
+Note that the effect is compile-time and immutable once defined.
+<P>
+
+The subroutines must return a specially-formatted string, with one
+or more newline-separated lines.  Each line must be one of the following:
+<DL COMPACT>
+<DT>*<DD>
+Two hexadecimal numbers separated by horizontal whitespace (space or
+tabular characters) denoting a range of Unicode code points to include.
+<DT>*<DD>
+Something to include, prefixed by ``+'': a built-in character
+property (prefixed by ``utf8::'') or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.
+<DT>*<DD>
+Something to exclude, prefixed by ``-'': an existing character
+property (prefixed by ``utf8::'') or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.
+<DT>*<DD>
+Something to negate, prefixed ``!'': an existing character
+property (prefixed by ``utf8::'') or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.
+<DT>*<DD>
+Something to intersect with, prefixed by ``&amp;'': an existing character
+property (prefixed by ``utf8::'') or a user-defined character property,
+for all the characters except the characters in the property; two
+hexadecimal code points for a range; or a single hexadecimal code point.
+</DL>
+<P>
+
+For example, to define a property that covers both the Japanese
+syllabaries (hiragana and katakana), you can define
+<P>
+
+
+
+<PRE>
+    sub InKana {
+        return &lt;&lt;END;
+    3040\t309F
+    30A0\t30FF
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+Imagine that the here-doc end marker is at the beginning of the line.
+Now you can use <TT>&quot;\p{InKana}&quot;</TT> and <TT>&quot;\P{InKana}&quot;</TT>.
+<P>
+
+You could also have used the existing block property names:
+<P>
+
+
+
+<PRE>
+    sub InKana {
+        return &lt;&lt;'END';
+    +utf8::InHiragana
+    +utf8::InKatakana
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+Suppose you wanted to match only the allocated characters,
+not the raw block ranges: in other words, you want to remove
+the non-characters:
+<P>
+
+
+
+<PRE>
+    sub InKana {
+        return &lt;&lt;'END';
+    +utf8::InHiragana
+    +utf8::InKatakana
+    -utf8::IsCn
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+The negation is useful for defining (surprise!) negated classes.
+<P>
+
+
+
+<PRE>
+    sub InNotKana {
+        return &lt;&lt;'END';
+    !utf8::InHiragana
+    -utf8::InKatakana
+    +utf8::IsCn
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+Intersection is useful for getting the common characters matched by
+two (or more) classes.
+<P>
+
+
+
+<PRE>
+    sub InFooAndBar {
+        return &lt;&lt;'END';
+    +main::Foo
+    &amp;main::Bar
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+It's important to remember not to use ``&amp;'' for the first set --- that
+would be intersecting with nothing (resulting in an empty set).
+<P>
+
+You can also define your own mappings to be used in the <I>lc()</I>,
+<I>lcfirst()</I>, <I>uc()</I>, and <I>ucfirst()</I> (or their string-inlined versions).
+The principle is the same: define subroutines in the <TT>&quot;main&quot;</TT> package
+with names like <TT>&quot;ToLower&quot;</TT> (for <I>lc()</I> and <I>lcfirst()</I>), <TT>&quot;ToTitle&quot;</TT> (for
+the first character in <I>ucfirst()</I>), and <TT>&quot;ToUpper&quot;</TT> (for <I>uc()</I>, and the
+rest of the characters in <I>ucfirst()</I>).
+<P>
+
+The string returned by the subroutines needs now to be three
+hexadecimal numbers separated by tabulators: start of the source
+range, end of the source range, and start of the destination range.
+For example:
+<P>
+
+
+
+<PRE>
+    sub ToUpper {
+        return &lt;&lt;END;
+    0061\t0063\t0041
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+defines an <I>uc()</I> mapping that causes only the characters ``a'', ``b'', and
+``c'' to be mapped to ``A'', ``B'', ``C'', all other characters will remain
+unchanged.
+<P>
+
+If there is no source range to speak of, that is, the mapping is from
+a single character to another single character, leave the end of the
+source range empty, but the two tabulator characters are still needed.
+For example:
+<P>
+
+
+
+<PRE>
+    sub ToLower {
+        return &lt;&lt;END;
+    0041\t\t0061
+    END
+    }
+
+</PRE>
+
+
+<P>
+
+defines a <I>lc()</I> mapping that causes only ``A'' to be mapped to ``a'', all
+other characters will remain unchanged.
+<P>
+
+(For serious hackers only)  If you want to introspect the default
+mappings, you can find the data in the directory
+<TT>$Config{privlib}</TT>/<I>unicore/To/</I>.  The mapping data is returned as
+the here-document, and the <TT>&quot;utf8::ToSpecFoo&quot;</TT> are special exception
+mappings derived from &lt;$Config{privlib}&gt;/<I>unicore/SpecialCasing.txt</I>.
+The <TT>&quot;Digit&quot;</TT> and <TT>&quot;Fold&quot;</TT> mappings that one can see in the directory
+are not directly user-accessible, one can use either the
+<TT>&quot;Unicode::UCD&quot;</TT> module, or just match case-insensitively (that's when
+the <TT>&quot;Fold&quot;</TT> mapping is used).
+<P>
+
+A final note on the user-defined property tests and mappings: they
+will be used only if the scalar has been marked as having Unicode
+characters.  Old byte-style strings will not be affected.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Character Encodings for Input and Output</H2>
+
+<A NAME="ixAAO"></A>
+See Encode.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Unicode Regular Expression Support Level</H2>
+
+<A NAME="ixAAP"></A>
+The following list of Unicode support for regular expressions describes
+all the features currently supported.  The references to ``Level N''
+and the section numbers refer to the Unicode Technical Report 18,
+``Unicode Regular Expression Guidelines'', version 6 (Unicode 3.2.0,
+Perl 5.8.0).
+<DL COMPACT>
+<DT>*<DD>
+Level 1 - Basic Unicode Support
+
+
+<P>
+
+
+
+
+<PRE>
+        2.1 Hex Notation                        - done          [1]
+            Named Notation                      - done          [2]
+        2.2 Categories                          - done          [3][4]
+        2.3 Subtraction                         - MISSING       [5][6]
+        2.4 Simple Word Boundaries              - done          [7]
+        2.5 Simple Loose Matches                - done          [8]
+        2.6 End of Line                         - MISSING       [9][10]
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+        [ 1] \x{...}
+        [ 2] \N{...}
+        [ 3] . \p{...} \P{...}
+        [ 4] support for scripts (see UTR#24 Script Names), blocks,
+             binary properties, enumerated non-binary properties, and
+             numeric properties (as listed in UTR#18 Other Properties)
+        [ 5] have negation
+        [ 6] can use regular expression look-ahead [a]
+             or user-defined character properties [b] to emulate subtraction
+        [ 7] include Letters in word characters
+        [ 8] note that Perl does Full case-folding in matching, not Simple:
+             for example U+1F88 is equivalent with U+1F00 U+03B9,
+             not with 1F80.  This difference matters for certain Greek
+             capital letters with certain modifiers: the Full case-folding
+             decomposes the letter, while the Simple case-folding would map
+             it to a single character.
+        [ 9] see UTR #13 Unicode Newline Guidelines
+        [10] should do ^ and $ also on \x{85}, \x{2028} and \x{2029}
+             (should also affect &lt;&gt;, $., and script line numbers)
+             (the \x{85}, \x{2028} and \x{2029} do match \s)
+
+</PRE>
+
+
+
+
+<P>
+
+
+[a] You can mimic class subtraction using lookahead.
+For example, what <FONT SIZE="-1">UTR</FONT> #18 might write as
+
+
+<P>
+
+
+
+
+<PRE>
+    [{Greek}-[{UNASSIGNED}]]
+
+</PRE>
+
+
+
+
+<P>
+
+
+in Perl can be written as:
+
+
+<P>
+
+
+
+
+<PRE>
+    (?!\p{Unassigned})\p{InGreekAndCoptic}
+    (?=\p{Assigned})\p{InGreekAndCoptic}
+
+</PRE>
+
+
+
+
+<P>
+
+
+But in this particular example, you probably really want
+
+
+<P>
+
+
+
+
+<PRE>
+    \p{GreekAndCoptic}
+
+</PRE>
+
+
+
+
+<P>
+
+
+which will match assigned characters known to be part of the Greek script.
+
+
+<P>
+
+
+Also see the Unicode::Regex::Set module, it does implement the full
+<FONT SIZE="-1">UTR</FONT> #18 grouping, intersection, union, and removal (subtraction) syntax.
+
+
+<P>
+
+
+[b] See ``User-Defined Character Properties''.
+<DT>*<DD>
+Level 2 - Extended Unicode Support
+
+
+<P>
+
+
+
+
+<PRE>
+        3.1 Surrogates                          - MISSING       [11]
+        3.2 Canonical Equivalents               - MISSING       [12][13]
+        3.3 Locale-Independent Graphemes        - MISSING       [14]
+        3.4 Locale-Independent Words            - MISSING       [15]
+        3.5 Locale-Independent Loose Matches    - MISSING       [16]
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+        [11] Surrogates are solely a UTF-16 concept and Perl's internal
+             representation is UTF-8.  The Encode module does UTF-16, though.
+        [12] see UTR#15 Unicode Normalization
+        [13] have Unicode::Normalize but not integrated to regexes
+        [14] have \X but at this level . should equal that
+        [15] need three classes, not just \w and \W
+        [16] see UTR#21 Case Mappings
+
+</PRE>
+
+
+<DT>*<DD>
+Level 3 - Locale-Sensitive Support
+
+
+<P>
+
+
+
+
+<PRE>
+        4.1 Locale-Dependent Categories         - MISSING
+        4.2 Locale-Dependent Graphemes          - MISSING       [16][17]
+        4.3 Locale-Dependent Words              - MISSING
+        4.4 Locale-Dependent Loose Matches      - MISSING
+        4.5 Locale-Dependent Ranges             - MISSING
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+        [16] see UTR#10 Unicode Collation Algorithms
+        [17] have Unicode::Collate but not integrated to regexes
+
+</PRE>
+
+
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>Unicode Encodings</H2>
+
+<A NAME="ixAAQ"></A>
+Unicode characters are assigned to <I>code points</I>, which are abstract
+numbers.  To use these numbers, various encodings are needed.
+<DL COMPACT>
+<DT>*<DD>
+<FONT SIZE="-1">UTF-8</FONT>
+
+
+<P>
+
+
+<FONT SIZE="-1">UTF-8</FONT> is a variable-length (1 to 6 bytes, current character allocations
+require 4 bytes), byte-order independent encoding. For <FONT SIZE="-1">ASCII</FONT> (and we
+really do mean 7-bit <FONT SIZE="-1">ASCII</FONT>, not another 8-bit encoding), <FONT SIZE="-1">UTF-8</FONT> is
+transparent.
+
+
+<P>
+
+
+The following table is from Unicode 3.2.
+
+
+<P>
+
+
+
+
+<PRE>
+ Code Points            1st Byte  2nd Byte  3rd Byte  4th Byte
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+   U+0000..U+007F       00..7F
+   U+0080..U+07FF       C2..DF    80..BF
+   U+0800..U+0FFF       E0        A0..BF    80..BF
+   U+1000..U+CFFF       E1..EC    80..BF    80..BF
+   U+D000..U+D7FF       ED        80..9F    80..BF
+   U+D800..U+DFFF       ******* ill-formed *******
+   U+E000..U+FFFF       EE..EF    80..BF    80..BF
+  U+10000..U+3FFFF      F0        90..BF    80..BF    80..BF
+  U+40000..U+FFFFF      F1..F3    80..BF    80..BF    80..BF
+ U+100000..U+10FFFF     F4        80..8F    80..BF    80..BF
+
+</PRE>
+
+
+
+
+<P>
+
+
+Note the <TT>&quot;A0..BF&quot;</TT> in <TT>&quot;U+0800..U+0FFF&quot;</TT>, the <TT>&quot;80..9F&quot;</TT> in
+<TT>&quot;U+D000...U+D7FF&quot;</TT>, the <TT>&quot;90..B&quot;</TT>F in <TT>&quot;U+10000..U+3FFFF&quot;</TT>, and the
+<TT>&quot;80...8F&quot;</TT> in <TT>&quot;U+100000..U+10FFFF&quot;</TT>.  The ``gaps'' are caused by legal
+<FONT SIZE="-1">UTF-8</FONT> avoiding non-shortest encodings: it is technically possible to
+UTF-8-encode a single code point in different ways, but that is
+explicitly forbidden, and the shortest possible encoding should always
+be used.  So that's what Perl does.
+
+
+<P>
+
+
+Another way to look at it is via bits:
+
+
+<P>
+
+
+
+
+<PRE>
+ Code Points                    1st Byte   2nd Byte  3rd Byte  4th Byte
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+                    0aaaaaaa     0aaaaaaa
+            00000bbbbbaaaaaa     110bbbbb  10aaaaaa
+            ccccbbbbbbaaaaaa     1110cccc  10bbbbbb  10aaaaaa
+  00000dddccccccbbbbbbaaaaaa     11110ddd  10cccccc  10bbbbbb  10aaaaaa
+
+</PRE>
+
+
+
+
+<P>
+
+
+As you can see, the continuation bytes all begin with <TT>10</TT>, and the
+leading bits of the start byte tell how many bytes the are in the
+encoded character.
+<DT>*<DD>
+UTF-EBCDIC
+
+
+<P>
+
+
+Like <FONT SIZE="-1">UTF-8</FONT> but EBCDIC-safe, in the way that <FONT SIZE="-1">UTF-8</FONT> is ASCII-safe.
+<DT>*<DD>
+<FONT SIZE="-1">UTF-16</FONT>, <FONT SIZE="-1">UTF-16BE</FONT>, <FONT SIZE="-1">UTF-16LE</FONT>, Surrogates, and BOMs (Byte Order Marks)
+
+
+<P>
+
+
+The followings items are mostly for reference and general Unicode
+knowledge, Perl doesn't use these constructs internally.
+
+
+<P>
+
+
+<FONT SIZE="-1">UTF-16</FONT> is a 2 or 4 byte encoding.  The Unicode code points
+<TT>&quot;U+0000..U+FFFF&quot;</TT> are stored in a single 16-bit unit, and the code
+points <TT>&quot;U+10000..U+10FFFF&quot;</TT> in two 16-bit units.  The latter case is
+using <I>surrogates</I>, the first 16-bit unit being the <I>high
+surrogate</I>, and the second being the <I>low surrogate</I>.
+
+
+<P>
+
+
+Surrogates are code points set aside to encode the <TT>&quot;U+10000..U+10FFFF&quot;</TT>
+range of Unicode code points in pairs of 16-bit units.  The <I>high
+surrogates</I> are the range <TT>&quot;U+D800..U+DBFF&quot;</TT>, and the <I>low surrogates</I>
+are the range <TT>&quot;U+DC00..U+DFFF&quot;</TT>.  The surrogate encoding is
+
+
+<P>
+
+
+
+
+<PRE>
+        $hi = ($uni - 0x10000) / 0x400 + 0xD800;
+        $lo = ($uni - 0x10000) % 0x400 + 0xDC00;
+
+</PRE>
+
+
+
+
+<P>
+
+
+and the decoding is
+
+
+<P>
+
+
+
+
+<PRE>
+        $uni = 0x10000 + ($hi - 0xD800) * 0x400 + ($lo - 0xDC00);
+
+</PRE>
+
+
+
+
+<P>
+
+
+If you try to generate surrogates (for example by using <I>chr()</I>), you
+will get a warning if warnings are turned on, because those code
+points are not valid for a Unicode character.
+
+
+<P>
+
+
+Because of the 16-bitness, <FONT SIZE="-1">UTF-16</FONT> is byte-order dependent.  <FONT SIZE="-1">UTF-16</FONT>
+itself can be used for in-memory computations, but if storage or
+transfer is required either <FONT SIZE="-1">UTF-16BE</FONT> (big-endian) or <FONT SIZE="-1">UTF-16LE</FONT>
+(little-endian) encodings must be chosen.
+
+
+<P>
+
+
+This introduces another problem: what if you just know that your data
+is <FONT SIZE="-1">UTF-16</FONT>, but you don't know which endianness?  Byte Order Marks, or
+BOMs, are a solution to this.  A special character has been reserved
+in Unicode to function as a byte order marker: the character with the
+code point <TT>&quot;U+FEFF&quot;</TT> is the <FONT SIZE="-1">BOM</FONT>.
+
+
+<P>
+
+
+The trick is that if you read a <FONT SIZE="-1">BOM</FONT>, you will know the byte order,
+since if it was written on a big-endian platform, you will read the
+bytes <TT>&quot;0xFE 0xFF&quot;</TT>, but if it was written on a little-endian platform,
+you will read the bytes <TT>&quot;0xFF 0xFE&quot;</TT>.  (And if the originating platform
+was writing in <FONT SIZE="-1">UTF-8</FONT>, you will read the bytes <TT>&quot;0xEF 0xBB 0xBF&quot;</TT>.)
+
+
+<P>
+
+
+The way this trick works is that the character with the code point
+<TT>&quot;U+FFFE&quot;</TT> is guaranteed not to be a valid Unicode character, so the
+sequence of bytes <TT>&quot;0xFF 0xFE&quot;</TT> is unambiguously ``<FONT SIZE="-1">BOM</FONT>, represented in
+little-endian format'' and cannot be <TT>&quot;U+FFFE&quot;</TT>, represented in big-endian
+format&quot;.
+<DT>*<DD>
+<FONT SIZE="-1">UTF-32</FONT>, <FONT SIZE="-1">UTF-32BE</FONT>, <FONT SIZE="-1">UTF-32LE</FONT>
+
+
+<P>
+
+
+The <FONT SIZE="-1">UTF-32</FONT> family is pretty much like the <FONT SIZE="-1">UTF-16</FONT> family, expect that
+the units are 32-bit, and therefore the surrogate scheme is not
+needed.  The <FONT SIZE="-1">BOM</FONT> signatures will be <TT>&quot;0x00 0x00 0xFE 0xFF&quot;</TT> for <FONT SIZE="-1">BE</FONT> and
+<TT>&quot;0xFF 0xFE 0x00 0x00&quot;</TT> for <FONT SIZE="-1">LE</FONT>.
+<DT>*<DD>
+<FONT SIZE="-1">UCS-2</FONT>, <FONT SIZE="-1">UCS-4</FONT>
+
+
+<P>
+
+
+Encodings defined by the <FONT SIZE="-1">ISO</FONT> 10646 standard.  <FONT SIZE="-1">UCS-2</FONT> is a 16-bit
+encoding.  Unlike <FONT SIZE="-1">UTF-16</FONT>, <FONT SIZE="-1">UCS-2</FONT> is not extensible beyond <TT>&quot;U+FFFF&quot;</TT>,
+because it does not use surrogates.  <FONT SIZE="-1">UCS-4</FONT> is a 32-bit encoding,
+functionally identical to <FONT SIZE="-1">UTF-32</FONT>.
+<DT>*<DD>
+<FONT SIZE="-1">UTF-7</FONT>
+
+
+<P>
+
+
+A seven-bit safe (non-eight-bit) encoding, which is useful if the
+transport or storage is not eight-bit safe.  Defined by <FONT SIZE="-1">RFC</FONT> 2152.
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>Security Implications of Unicode</H2>
+
+<A NAME="ixAAR"></A>
+<DL COMPACT>
+<DT>*<DD>
+Malformed <FONT SIZE="-1">UTF-8</FONT>
+
+
+<P>
+
+
+Unfortunately, the specification of <FONT SIZE="-1">UTF-8</FONT> leaves some room for
+interpretation of how many bytes of encoded output one should generate
+from one input Unicode character.  Strictly speaking, the shortest
+possible sequence of <FONT SIZE="-1">UTF-8</FONT> bytes should be generated,
+because otherwise there is potential for an input buffer overflow at
+the receiving end of a <FONT SIZE="-1">UTF-8</FONT> connection.  Perl always generates the
+shortest length <FONT SIZE="-1">UTF-8</FONT>, and with warnings on Perl will warn about
+non-shortest length <FONT SIZE="-1">UTF-8</FONT> along with other malformations, such as the
+surrogates, which are not real Unicode code points.
+<DT>*<DD>
+Regular expressions behave slightly differently between byte data and
+character (Unicode) data.  For example, the ``word character'' character
+class <TT>&quot;\w&quot;</TT> will work differently depending on if data is eight-bit bytes
+or Unicode.
+
+
+<P>
+
+
+In the first case, the set of <TT>&quot;\w&quot;</TT> characters is either small---the
+default set of alphabetic characters, digits, and the ``_''--or, if you
+are using a locale (see perllocale), the <TT>&quot;\w&quot;</TT> might contain a few
+more letters according to your language and country.
+
+
+<P>
+
+
+In the second case, the <TT>&quot;\w&quot;</TT> set of characters is much, much larger.
+Most importantly, even in the set of the first 256 characters, it will
+probably match different characters: unlike most locales, which are
+specific to a language and country pair, Unicode classifies all the
+characters that are letters <I>somewhere</I> as <TT>&quot;\w&quot;</TT>.  For example, your
+locale might not think that <FONT SIZE="-1">LATIN</FONT> <FONT SIZE="-1">SMALL</FONT> <FONT SIZE="-1">LETTER</FONT> <FONT SIZE="-1">ETH</FONT> is a letter (unless
+you happen to speak Icelandic), but Unicode does.
+
+
+<P>
+
+
+As discussed elsewhere, Perl has one foot (two hooves?) planted in
+each of two worlds: the old world of bytes and the new world of
+characters, upgrading from bytes to characters when necessary.
+If your legacy code does not explicitly use Unicode, no automatic
+switch-over to characters should happen.  Characters shouldn't get
+downgraded to bytes, either.  It is possible to accidentally mix bytes
+and characters, however (see perluniintro), in which case <TT>&quot;\w&quot;</TT> in
+regular expressions might start behaving differently.  Review your
+code.  Use warnings and the <TT>&quot;strict&quot;</TT> pragma.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H2>Unicode in Perl on <FONT SIZE="-1">EBCDIC</FONT></H2>
+
+<A NAME="ixAAS"></A>
+The way Unicode is handled on <FONT SIZE="-1">EBCDIC</FONT> platforms is still
+experimental.  On such platforms, references to <FONT SIZE="-1">UTF-8</FONT> encoding in this
+document and elsewhere should be read as meaning the UTF-EBCDIC
+specified in Unicode Technical Report 16, unless <FONT SIZE="-1">ASCII</FONT> vs. <FONT SIZE="-1">EBCDIC</FONT> issues
+are specifically discussed. There is no <TT>&quot;utfebcdic&quot;</TT> pragma or
+``:utfebcdic'' layer; rather, ``utf8'' and ``:utf8'' are reused to mean
+the platform's ``natural'' 8-bit encoding of Unicode. See perlebcdic
+for more discussion of the issues.
+<A NAME="lbAO">&nbsp;</A>
+<H2>Locales</H2>
+
+<A NAME="ixAAT"></A>
+Usually locale settings and Unicode do not affect each other, but
+there are a couple of exceptions:
+<DL COMPACT>
+<DT>*<DD>
+You can enable automatic UTF-8-ification of your standard file
+handles, default <TT>&quot;open()&quot;</TT> layer, and <TT>@ARGV</TT> by using either
+the <TT>&quot;-C&quot;</TT> command line switch or the <TT>&quot;PERL_UNICODE&quot;</TT> environment
+variable, see perlrun for the documentation of the <TT>&quot;-C&quot;</TT> switch.
+<DT>*<DD>
+Perl tries really hard to work both with Unicode and the old
+byte-oriented world. Most often this is nice, but sometimes Perl's
+straddling of the proverbial fence causes problems.
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>When Unicode Does Not Happen</H2>
+
+<A NAME="ixAAU"></A>
+While Perl does have extensive ways to input and output in Unicode,
+and few other 'entry points' like the <TT>@ARGV</TT> which can be interpreted
+as Unicode (<FONT SIZE="-1">UTF-8</FONT>), there still are many places where Unicode (in some
+encoding or another) could be given as arguments or received as
+results, or both, but it is not.
+<P>
+
+The following are such interfaces.  For all of these interfaces Perl
+currently (as of 5.8.3) simply assumes byte strings both as arguments
+and results, or <FONT SIZE="-1">UTF-8</FONT> strings if the <TT>&quot;encoding&quot;</TT> pragma has been used.
+<P>
+
+One reason why Perl does not attempt to resolve the role of Unicode in
+this cases is that the answers are highly dependent on the operating
+system and the file system(s).  For example, whether filenames can be
+in Unicode, and in exactly what kind of encoding, is not exactly a
+portable concept.  Similarly for the qx and system: how well will the
+'command line interface' (and which of them?) handle Unicode?
+<DL COMPACT>
+<DT>*<DD>
+chmod, chmod, chown, chroot, exec, link, lstat, mkdir, 
+rename, rmdir, stat, symlink, truncate, unlink, utime, -X
+<DT>*<DD>
+%ENV
+<DT>*<DD>
+glob (aka the &lt;*&gt;)
+<DT>*<DD>
+open, opendir, sysopen
+<DT>*<DD>
+qx (aka the backtick operator), system
+<DT>*<DD>
+readdir, readlink
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Forcing Unicode in Perl (<B>Unforcing Unicode in Perl)</B>
+
+</H2>
+
+<A NAME="ixAAV"></A>
+Sometimes (see ``When Unicode Does Not Happen'') there are
+situations where you simply need to force Perl to believe that a byte
+string is <FONT SIZE="-1">UTF-8</FONT>, or vice versa.  The low-level calls
+utf8::upgrade($bytestring) and utf8::downgrade($utf8string) are
+the answers.
+<P>
+
+Do not use them without careful thought, though: Perl may easily get
+very confused, angry, or even crash, if you suddenly change the 'nature'
+of scalar like that.  Especially careful you have to be if you use the
+<I>utf8::upgrade()</I>: any random byte string is not valid <FONT SIZE="-1">UTF-8</FONT>.
+<A NAME="lbAR">&nbsp;</A>
+<H2>Using Unicode in <FONT SIZE="-1">XS</FONT></H2>
+
+<A NAME="ixAAW"></A>
+If you want to handle Perl Unicode in <FONT SIZE="-1">XS</FONT> extensions, you may find the
+following C APIs useful.  See also ``Unicode Support'' in perlguts for an
+explanation about Unicode at the <FONT SIZE="-1">XS</FONT> level, and perlapi for the <FONT SIZE="-1">API</FONT>
+details.
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;DO_UTF8(sv)&quot;</TT> returns true if the <TT>&quot;UTF8&quot;</TT> flag is on and the bytes
+pragma is not in effect.  <TT>&quot;SvUTF8(sv)&quot;</TT> returns true is the <TT>&quot;UTF8&quot;</TT>
+flag is on; the bytes pragma is ignored.  The <TT>&quot;UTF8&quot;</TT> flag being on
+does <B>not</B> mean that there are any characters of code points greater
+than 255 (or 127) in the scalar or that there are even any characters
+in the scalar.  What the <TT>&quot;UTF8&quot;</TT> flag means is that the sequence of
+octets in the representation of the scalar is the sequence of <FONT SIZE="-1">UTF-8</FONT>
+encoded code points of the characters of a string.  The <TT>&quot;UTF8&quot;</TT> flag
+being off means that each octet in this representation encodes a
+single character with code point 0..255 within the string.  Perl's
+Unicode model is not to use <FONT SIZE="-1">UTF-8</FONT> until it is absolutely necessary.
+<DT>*<DD>
+<TT>&quot;uvuni_to_utf8(buf, chr)&quot;</TT> writes a Unicode character code point into
+a buffer encoding the code point as <FONT SIZE="-1">UTF-8</FONT>, and returns a pointer
+pointing after the <FONT SIZE="-1">UTF-8</FONT> bytes.
+<DT>*<DD>
+<TT>&quot;utf8_to_uvuni(buf, lenp)&quot;</TT> reads <FONT SIZE="-1">UTF-8</FONT> encoded bytes from a buffer and
+returns the Unicode character code point and, optionally, the length of
+the <FONT SIZE="-1">UTF-8</FONT> byte sequence.
+<DT>*<DD>
+<TT>&quot;utf8_length(start, end)&quot;</TT> returns the length of the <FONT SIZE="-1">UTF-8</FONT> encoded buffer
+in characters.  <TT>&quot;sv_len_utf8(sv)&quot;</TT> returns the length of the <FONT SIZE="-1">UTF-8</FONT> encoded
+scalar.
+<DT>*<DD>
+<TT>&quot;sv_utf8_upgrade(sv)&quot;</TT> converts the string of the scalar to its <FONT SIZE="-1">UTF-8</FONT>
+encoded form.  <TT>&quot;sv_utf8_downgrade(sv)&quot;</TT> does the opposite, if
+possible.  <TT>&quot;sv_utf8_encode(sv)&quot;</TT> is like sv_utf8_upgrade except that
+it does not set the <TT>&quot;UTF8&quot;</TT> flag.  <TT>&quot;sv_utf8_decode()&quot;</TT> does the
+opposite of <TT>&quot;sv_utf8_encode()&quot;</TT>.  Note that none of these are to be
+used as general-purpose encoding or decoding interfaces: <TT>&quot;use Encode&quot;</TT>
+for that.  <TT>&quot;sv_utf8_upgrade()&quot;</TT> is affected by the encoding pragma
+but <TT>&quot;sv_utf8_downgrade()&quot;</TT> is not (since the encoding pragma is
+designed to be a one-way street).
+<DT>*<DD>
+<TT>is_utf8_char(s)</TT> returns true if the pointer points to a valid <FONT SIZE="-1">UTF-8</FONT>
+character.
+<DT>*<DD>
+<TT>&quot;is_utf8_string(buf, len)&quot;</TT> returns true if <TT>&quot;len&quot;</TT> bytes of the buffer
+are valid <FONT SIZE="-1">UTF-8</FONT>.
+<DT>*<DD>
+<TT>&quot;UTF8SKIP(buf)&quot;</TT> will return the number of bytes in the <FONT SIZE="-1">UTF-8</FONT> encoded
+character in the buffer.  <TT>&quot;UNISKIP(chr)&quot;</TT> will return the number of bytes
+required to UTF-8-encode the Unicode character code point.  <TT>&quot;UTF8SKIP()&quot;</TT>
+is useful for example for iterating over the characters of a <FONT SIZE="-1">UTF-8</FONT>
+encoded buffer; <TT>&quot;UNISKIP()&quot;</TT> is useful, for example, in computing
+the size required for a <FONT SIZE="-1">UTF-8</FONT> encoded buffer.
+<DT>*<DD>
+<TT>&quot;utf8_distance(a, b)&quot;</TT> will tell the distance in characters between the
+two pointers pointing to the same <FONT SIZE="-1">UTF-8</FONT> encoded buffer.
+<DT>*<DD>
+<TT>&quot;utf8_hop(s, off)&quot;</TT> will return a pointer to an <FONT SIZE="-1">UTF-8</FONT> encoded buffer
+that is <TT>&quot;off&quot;</TT> (positive or negative) Unicode characters displaced
+from the <FONT SIZE="-1">UTF-8</FONT> buffer <TT>&quot;s&quot;</TT>.  Be careful not to overstep the buffer:
+<TT>&quot;utf8_hop()&quot;</TT> will merrily run off the end or the beginning of the
+buffer if told to do so.
+<DT>*<DD>
+<TT>&quot;pv_uni_display(dsv, spv, len, pvlim, flags)&quot;</TT> and
+<TT>&quot;sv_uni_display(dsv, ssv, pvlim, flags)&quot;</TT> are useful for debugging the
+output of Unicode strings and scalars.  By default they are useful
+only for debugging---they display <B>all</B> characters as hexadecimal code
+points---but with the flags <TT>&quot;UNI_DISPLAY_ISPRINT&quot;</TT>,
+<TT>&quot;UNI_DISPLAY_BACKSLASH&quot;</TT>, and <TT>&quot;UNI_DISPLAY_QQ&quot;</TT> you can make the
+output more readable.
+<DT>*<DD>
+<TT>&quot;ibcmp_utf8(s1, pe1, u1, l1, u1, s2, pe2, l2, u2)&quot;</TT> can be used to
+compare two strings case-insensitively in Unicode.  For case-sensitive
+comparisons you can just use <TT>&quot;memEQ()&quot;</TT> and <TT>&quot;memNE()&quot;</TT> as usual.
+</DL>
+<P>
+
+For more information, see perlapi, and <I>utf8.c</I> and <I>utf8.h</I>
+in the Perl source code distribution.
+<A NAME="lbAS">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAX"></A>
+<A NAME="lbAT">&nbsp;</A>
+<H2>Interaction with Locales</H2>
+
+<A NAME="ixAAY"></A>
+Use of locales with Unicode data may lead to odd results.  Currently,
+Perl attempts to attach 8-bit locale info to characters in the range
+0..255, but this technique is demonstrably incorrect for locales that
+use characters above that range when mapped into Unicode.  Perl's
+Unicode support will also tend to run slower.  Use of locales with
+Unicode is discouraged.
+<A NAME="lbAU">&nbsp;</A>
+<H2>Interaction with Extensions</H2>
+
+<A NAME="ixAAZ"></A>
+When Perl exchanges data with an extension, the extension should be
+able to understand the <FONT SIZE="-1">UTF-8</FONT> flag and act accordingly. If the
+extension doesn't know about the flag, it's likely that the extension
+will return incorrectly-flagged data.
+<P>
+
+So if you're working with Unicode data, consult the documentation of
+every module you're using if there are any issues with Unicode data
+exchange. If the documentation does not talk about Unicode at all,
+suspect the worst and probably look at the source to learn how the
+module is implemented. Modules written completely in Perl shouldn't
+cause problems. Modules that directly or indirectly access code written
+in other programming languages are at risk.
+<P>
+
+For affected functions, the simple strategy to avoid data corruption is
+to always make the encoding of the exchanged data explicit. Choose an
+encoding that you know the extension can handle. Convert arguments passed
+to the extensions to that encoding and convert results back from that
+encoding. Write wrapper functions that do the conversions for you, so
+you can later change the functions when the extension catches up.
+<P>
+
+To provide an example, let's say the popular Foo::Bar::escape_html
+function doesn't deal with Unicode data yet. The wrapper function
+would convert the argument to raw <FONT SIZE="-1">UTF-8</FONT> and convert the result back to
+Perl's internal representation like so:
+<P>
+
+
+
+<PRE>
+    sub my_escape_html ($) {
+      my($what) = shift;
+      return unless defined $what;
+      Encode::decode_utf8(Foo::Bar::escape_html(Encode::encode_utf8($what)));
+    }
+
+</PRE>
+
+
+<P>
+
+Sometimes, when the extension does not convert data but just stores
+and retrieves them, you will be in a position to use the otherwise
+dangerous <I>Encode::_utf8_on()</I> function. Let's say the popular
+<TT>&quot;Foo::Bar&quot;</TT> extension, written in C, provides a <TT>&quot;param&quot;</TT> method that
+lets you store and retrieve data according to these prototypes:
+<P>
+
+
+
+<PRE>
+    $self-&gt;param($name, $value);            # set a scalar
+    $value = $self-&gt;param($name);           # retrieve a scalar
+
+</PRE>
+
+
+<P>
+
+If it does not yet provide support for any encoding, one could write a
+derived class with such a <TT>&quot;param&quot;</TT> method:
+<P>
+
+
+
+<PRE>
+    sub param {
+      my($self,$name,$value) = @_;
+      utf8::upgrade($name);     # make sure it is UTF-8 encoded
+      if (defined $value)
+        utf8::upgrade($value);  # make sure it is UTF-8 encoded
+        return $self-&gt;SUPER::param($name,$value);
+      } else {
+        my $ret = $self-&gt;SUPER::param($name);
+        Encode::_utf8_on($ret); # we know, it is UTF-8 encoded
+        return $ret;
+      }
+    }
+
+</PRE>
+
+
+<P>
+
+Some extensions provide filters on data entry/exit points, such as
+DB_File::filter_store_key and family. Look out for such filters in
+the documentation of your extensions, they can make the transition to
+Unicode data much easier.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Speed</H2>
+
+<A NAME="ixABA"></A>
+Some functions are slower when working on <FONT SIZE="-1">UTF-8</FONT> encoded strings than
+on byte encoded strings.  All functions that need to hop over
+characters such as <I>length()</I>, <I>substr()</I> or <I>index()</I>, or matching regular
+expressions can work <B>much</B> faster when the underlying data are
+byte-encoded.
+<P>
+
+In Perl 5.8.0 the slowness was often quite spectacular; in Perl 5.8.1
+a caching scheme was introduced which will hopefully make the slowness
+somewhat less spectacular, at least for some operations.  In general,
+operations with <FONT SIZE="-1">UTF-8</FONT> encoded strings are still slower. As an example,
+the Unicode properties (character classes) like <TT>&quot;\p{Nd}&quot;</TT> are known to
+be quite a bit slower (5-20 times) than their simpler counterparts
+like <TT>&quot;\d&quot;</TT> (then again, there 268 Unicode characters matching <TT>&quot;Nd&quot;</TT>
+compared with the 10 <FONT SIZE="-1">ASCII</FONT> characters matching <TT>&quot;d&quot;</TT>).
+<A NAME="lbAW">&nbsp;</A>
+<H2>Porting code from perl-5.6.X</H2>
+
+<A NAME="ixABB"></A>
+Perl 5.8 has a different Unicode model from 5.6. In 5.6 the programmer
+was required to use the <TT>&quot;utf8&quot;</TT> pragma to declare that a given scope
+expected to deal with Unicode data and had to make sure that only
+Unicode data were reaching that scope. If you have code that is
+working with 5.6, you will need some of the following adjustments to
+your code. The examples are written such that the code will continue
+to work under 5.6, so you should be safe to try them out.
+<DL COMPACT>
+<DT>*<DD>
+A filehandle that should read or write <FONT SIZE="-1">UTF-8</FONT>
+
+
+<P>
+
+
+
+
+<PRE>
+  if ($] &gt; 5.007) {
+    binmode $fh, &quot;:utf8&quot;;
+  }
+
+</PRE>
+
+
+<DT>*<DD>
+A scalar that is going to be passed to some extension
+
+
+<P>
+
+
+Be it Compress::Zlib, Apache::Request or any extension that has no
+mention of Unicode in the manpage, you need to make sure that the
+<FONT SIZE="-1">UTF-8</FONT> flag is stripped off. Note that at the time of this writing
+(October 2002) the mentioned modules are not UTF-8-aware. Please
+check the documentation to verify if this is still true.
+
+
+<P>
+
+
+
+
+<PRE>
+  if ($] &gt; 5.007) {
+    require Encode;
+    $val = Encode::encode_utf8($val); # make octets
+  }
+
+</PRE>
+
+
+<DT>*<DD>
+A scalar we got back from an extension
+
+
+<P>
+
+
+If you believe the scalar comes back as <FONT SIZE="-1">UTF-8</FONT>, you will most likely
+want the <FONT SIZE="-1">UTF-8</FONT> flag restored:
+
+
+<P>
+
+
+
+
+<PRE>
+  if ($] &gt; 5.007) {
+    require Encode;
+    $val = Encode::decode_utf8($val);
+  }
+
+</PRE>
+
+
+<DT>*<DD>
+Same thing, if you are really sure it is <FONT SIZE="-1">UTF-8</FONT>
+
+
+<P>
+
+
+
+
+<PRE>
+  if ($] &gt; 5.007) {
+    require Encode;
+    Encode::_utf8_on($val);
+  }
+
+</PRE>
+
+
+<DT>*<DD>
+A wrapper for fetchrow_array and fetchrow_hashref
+
+
+<P>
+
+
+When the database contains only <FONT SIZE="-1">UTF-8</FONT>, a wrapper function or method is
+a convenient way to replace all your fetchrow_array and
+fetchrow_hashref calls. A wrapper function will also make it easier to
+adapt to future enhancements in your database driver. Note that at the
+time of this writing (October 2002), the <FONT SIZE="-1">DBI</FONT> has no standardized way
+to deal with <FONT SIZE="-1">UTF-8</FONT> data. Please check the documentation to verify if
+that is still true.
+
+
+<P>
+
+
+
+
+<PRE>
+  sub fetchrow {
+    my($self, $sth, $what) = @_; # $what is one of fetchrow_{array,hashref}
+    if ($] &lt; 5.007) {
+      return $sth-&gt;$what;
+    } else {
+      require Encode;
+      if (wantarray) {
+        my @arr = $sth-&gt;$what;
+        for (@arr) {
+          defined &amp;&amp; /[^\000-\177]/ &amp;&amp; Encode::_utf8_on($_);
+        }
+        return @arr;
+      } else {
+        my $ret = $sth-&gt;$what;
+        if (ref $ret) {
+          for my $k (keys %$ret) {
+            defined &amp;&amp; /[^\000-\177]/ &amp;&amp; Encode::_utf8_on($_) for $ret-&gt;{$k};
+          }
+          return $ret;
+        } else {
+          defined &amp;&amp; /[^\000-\177]/ &amp;&amp; Encode::_utf8_on($_) for $ret;
+          return $ret;
+        }
+      }
+    }
+  }
+
+</PRE>
+
+
+<DT>*<DD>
+A large scalar that you know can only contain <FONT SIZE="-1">ASCII</FONT>
+
+
+<P>
+
+
+Scalars that contain only <FONT SIZE="-1">ASCII</FONT> and are marked as <FONT SIZE="-1">UTF-8</FONT> are sometimes
+a drag to your program. If you recognize such a situation, just remove
+the <FONT SIZE="-1">UTF-8</FONT> flag:
+
+
+<P>
+
+
+
+
+<PRE>
+  utf8::downgrade($val) if $] &gt; 5.007;
+
+</PRE>
+
+
+</DL>
+<A NAME="lbAX">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABC"></A>
+perluniintro, encoding, Encode, open, utf8, bytes,
+perlretut, ``${^UNICODE}'' in perlvar
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Important Caveats</A><DD>
+<DT><A HREF="#lbAE">Byte and Character Semantics</A><DD>
+<DT><A HREF="#lbAF">Effects of Character Semantics</A><DD>
+<DT><A HREF="#lbAG">Scripts</A><DD>
+<DT><A HREF="#lbAH">Blocks</A><DD>
+<DT><A HREF="#lbAI">User-Defined Character Properties</A><DD>
+<DT><A HREF="#lbAJ">Character Encodings for Input and Output</A><DD>
+<DT><A HREF="#lbAK">Unicode Regular Expression Support Level</A><DD>
+<DT><A HREF="#lbAL">Unicode Encodings</A><DD>
+<DT><A HREF="#lbAM">Security Implications of Unicode</A><DD>
+<DT><A HREF="#lbAN">Unicode in Perl on <FONT SIZE="-1">EBCDIC</FONT></A><DD>
+<DT><A HREF="#lbAO">Locales</A><DD>
+<DT><A HREF="#lbAP">When Unicode Does Not Happen</A><DD>
+<DT><A HREF="#lbAQ">Forcing Unicode in Perl (Or Unforcing Unicode in Perl)</A><DD>
+<DT><A HREF="#lbAR">Using Unicode in <FONT SIZE="-1">XS</FONT></A><DD>
+<DT><A HREF="#lbAS">BUGS</A><DD>
+<DT><A HREF="#lbAT">Interaction with Locales</A><DD>
+<DT><A HREF="#lbAU">Interaction with Extensions</A><DD>
+<DT><A HREF="#lbAV">Speed</A><DD>
+<DT><A HREF="#lbAW">Porting code from perl-5.6.X</A><DD>
+<DT><A HREF="#lbAX">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

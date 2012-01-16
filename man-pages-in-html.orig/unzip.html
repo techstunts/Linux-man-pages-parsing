@@ -1,0 +1,1216 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>UNZIP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>UNZIP</H1>
+Section: Misc. Reference Manual Pages (1L)<BR>Updated: 22 May 2004 (v5.51)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+unzip - list, test and extract compressed files in a ZIP archive
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>unzip</B> [<B>-Z</B>] [<B>-cflptuvz</B>[<B>abjnoqsCLMVX$/:</B>]]
+<I>file</I>[<I>.zip</I>] [<I>file(s)</I>&nbsp;...]
+[<B>-x</B>&nbsp;<I>xfile(s)</I>&nbsp;...] [<B>-d</B>&nbsp;<I>exdir</I>]
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>unzip</I> will list, test, or extract files from a ZIP archive, commonly
+found on MS-DOS systems.  The default behavior (with no options) is to extract
+into the current directory (and subdirectories below it) all files from the
+specified ZIP archive.  A companion program, <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L), creates ZIP
+archives; both programs are compatible with archives created by PKWARE's
+<I>PKZIP</I> and <I>PKUNZIP</I> for MS-DOS, but in many cases the program
+options or default behaviors differ.
+
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>ARGUMENTS</H2>
+
+<DL COMPACT>
+<DT><I>file</I>[<I>.zip</I>]
+
+<DD>
+Path of the ZIP archive(s).  If the file specification is a wildcard,
+each matching file is processed in an order determined by the operating
+system (or file system).  Only the filename can be a wildcard; the path
+itself cannot.  Wildcard expressions are similar to those supported in
+commonly used Unix shells (<I>sh</I>, <I>ksh</I>, <I>csh</I>) and may contain:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+matches a sequence of 0 or more characters
+<DT>?<DD>
+matches exactly 1 character
+<DT>[...]<DD>
+matches any single character found inside the brackets; ranges are specified
+by a beginning character, a hyphen, and an ending character.  If an exclamation
+point or a caret (`!' or `^') follows the left bracket, then the range of
+characters within the brackets is complemented (that is, anything <I>except</I>
+the characters inside the brackets is considered a match).
+</DL>
+</DL>
+
+<DT><DD>
+(Be sure to quote any character that might otherwise be interpreted or
+modified by the operating system, particularly under Unix and VMS.)  If no
+matches are found, the specification is assumed to be a literal filename;
+and if that also fails, the suffix .zip is appended.  Note that
+self-extracting ZIP files are supported, as with any other ZIP archive;
+just specify the .exe suffix (if any) explicitly.
+<DT>[<I>file(s)</I>]<DD>
+An optional list of archive members to be processed, separated by spaces.
+(VMS versions compiled with VMSCLI defined must delimit files with commas
+instead.  See <B>-v</B> in <B>OPTIONS</B> below.)
+Regular expressions (wildcards) may be used to match multiple members; see
+above.  Again, be sure to quote expressions that would otherwise be expanded
+or modified by the operating system.
+<DT>[<B>-x</B>&nbsp;<I>xfile(s)</I>]<DD>
+An optional list of archive members to be excluded from processing.
+Since wildcard characters match directory separators (`/'), this option
+may be used to exclude any files that are in subdirectories.  For
+example, ``unzip foo *.[ch] -x */*'' would extract all C source files
+in the main directory, but none in any subdirectories.  Without the <B>-x</B>
+option, all C source files in all directories within the zipfile would be
+extracted.
+<DT>[<B>-d</B>&nbsp;<I>exdir</I>]<DD>
+An optional directory to which to extract files.  By default, all files
+and subdirectories are recreated in the current directory; the <B>-d</B>
+option allows extraction in an arbitrary directory (always assuming one
+has permission to write to the directory).  This option need not appear
+at the end of the command line; it is also accepted before the zipfile
+specification (with the normal options), immediately after the zipfile
+specification, or between the <I>file(s)</I> and the <B>-x</B> option.
+The option and directory may be concatenated without any white space
+between them, but note that this may cause normal shell behavior to be
+suppressed.  In particular, ``-d&nbsp;~'' (tilde) is expanded by Unix
+C shells into the name of the user's home directory, but ``-d~''
+is treated as a literal subdirectory ``<B>~</B>'' of the current directory.
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+Note that, in order to support obsolescent hardware, <I>unzip</I>'s usage
+screen is limited to 22 or 23 lines and should therefore be considered
+only a reminder of the basic <I>unzip</I> syntax rather than an exhaustive
+list of all possible flags.  The exhaustive list follows:
+<DL COMPACT>
+<DT><B>-Z</B>
+
+<DD>
+<I><A HREF="../man1L/zipinfo.1L.php">zipinfo</A></I>(1L) mode.  If the first option on the command line is <B>-Z</B>,
+the remaining options are taken to be <I><A HREF="../man1L/zipinfo.1L.php">zipinfo</A></I>(1L) options.  See the
+appropriate manual page for a description of these options.
+<DT><B>-A</B>
+
+<DD>
+[OS/2, Unix DLL] print extended help for the DLL's programming interface (API).
+<DT><B>-c</B>
+
+<DD>
+extract files to stdout/screen (``CRT'').  This option is similar to the
+<B>-p</B> option except that the name of each file is printed as it is
+extracted, the <B>-a</B> option is allowed, and ASCII-EBCDIC conversion
+is automatically performed if appropriate.  This option is not listed in
+the <I>unzip</I> usage screen.
+<DT><B>-f</B>
+
+<DD>
+freshen existing files, i.e., extract only those files that
+already exist on disk and that are newer than the disk copies.  By
+default <I>unzip</I> queries before overwriting, but the <B>-o</B> option
+may be used to suppress the queries.  Note that under many operating systems,
+the TZ (timezone) environment variable must be set correctly in order for
+<B>-f</B> and <B>-u</B> to work properly (under Unix the variable is usually
+set automatically).  The reasons for this are somewhat subtle but
+have to do with the differences between DOS-format file times (always local
+time) and Unix-format times (always in GMT/UTC) and the necessity to compare
+the two.  A typical TZ value is ``PST8PDT'' (US Pacific time with automatic
+adjustment for Daylight Savings Time or ``summer time'').
+<DT><B>-l</B>
+
+<DD>
+list archive files (short format).  The names, uncompressed file sizes and
+modification dates and times of the specified files are printed, along
+with totals for all files specified.  If UnZip was compiled with OS2_EAS
+defined, the <B>-l</B> option also lists columns for the sizes of stored
+OS/2 extended attributes (EAs) and OS/2 access control lists (ACLs).  In
+addition, the zipfile comment and individual file comments (if any) are
+displayed.  If a file was archived from a single-case file system (for
+example, the old MS-DOS FAT file system) and the <B>-L</B> option was given,
+the filename is converted to lowercase and is prefixed with a caret (^).
+<DT><B>-p</B>
+
+<DD>
+extract files to pipe (stdout).  Nothing but the file data is sent to
+stdout, and the files are always extracted in binary format, just as they
+are stored (no conversions).
+<DT><B>-t</B>
+
+<DD>
+test archive files.  This option extracts each specified file in memory
+and compares the CRC (cyclic redundancy check, an enhanced checksum) of
+the expanded file with the original file's stored CRC value.
+<DT><B>-T</B>
+
+<DD>
+[most OSes] set the timestamp on the archive(s) to that of the newest file
+in each one.  This corresponds to <I>zip</I>'s <B>-go</B> option except that
+it can be used on wildcard zipfiles (e.g., ``unzip -T \*.zip'') and
+is much faster.
+<DT><B>-u</B>
+
+<DD>
+update existing files and create new ones if needed.  This option performs
+the same function as the <B>-f</B> option, extracting (with query) files
+that are newer than those with the same name on disk, and in addition it
+extracts those files that do not already exist on disk.  See <B>-f</B>
+above for information on setting the timezone properly.
+<DT><B>-v</B>
+
+<DD>
+be verbose or print diagnostic version info.  This option has evolved and
+now behaves as both an option and a modifier.  As an option it has two
+purposes:  when a zipfile is specified with no other options, <B>-v</B> lists
+archive files verbosely, adding to the basic <B>-l</B> info the compression
+method, compressed size, compression ratio and 32-bit CRC.  When no zipfile
+is specified (that is, the complete command is simply ``unzip -v''), a
+diagnostic screen is printed.  In addition to the normal header with release
+date and version, <I>unzip</I> lists the home Info-ZIP ftp site and where to
+find a list of other ftp and non-ftp sites; the target operating system for
+which it was compiled, as well as (possibly) the hardware on which it was
+compiled, the compiler and version used, and the compilation date; any special
+compilation options that might affect the program's operation (see also
+<B>DECRYPTION</B> below); and any options stored in environment variables
+that might do the same (see <B>ENVIRONMENT OPTIONS</B> below).  As a
+modifier it works in conjunction with other options (e.g., <B>-t</B>) to
+produce more verbose or debugging output; this is not yet fully implemented
+but will be in future releases.
+<DT><B>-z</B>
+
+<DD>
+display only the archive comment.
+
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>MODIFIERS</H2>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+convert text files.  Ordinarily all files are extracted exactly as they
+are stored (as ``binary'' files).  The <B>-a</B> option causes files identified
+by <I>zip</I> as text files (those with the `t' label in <I>zipinfo</I>
+listings, rather than `b') to be automatically extracted as such, converting
+line endings, end-of-file characters and the character set itself as necessary.
+(For example, Unix files use line feeds (LFs) for end-of-line (EOL) and
+have no end-of-file (EOF) marker; Macintoshes use carriage returns (CRs)
+for EOLs; and most PC operating systems use CR+LF for EOLs and control-Z for
+EOF.  In addition, IBM mainframes and the Michigan Terminal System use EBCDIC
+rather than the more common ASCII character set, and NT supports Unicode.)
+Note that <I>zip</I>'s identification of text files is by no means perfect; some
+``text'' files may actually be binary and vice versa.  <I>unzip</I> therefore
+prints ``[text]'' or ``[binary]'' as a visual check for each file
+it extracts when using the <B>-a</B> option.  The <B>-aa</B> option forces
+all files to be extracted as text, regardless of the supposed file type.
+<DT><B>-b</B>
+
+<DD>
+[general] treat all files as binary (no text conversions).  This is a shortcut
+for <B>---a</B>.
+<DT><B>-b</B>
+
+<DD>
+[Tandem] force the creation files with filecode type 180 ('C') when
+extracting Zip entries marked as &quot;text&quot;. (On Tandem, <B>-a</B> is enabled
+by default, see above).
+<DT><B>-b</B>
+
+<DD>
+[VMS] auto-convert binary files (see <B>-a</B> above) to fixed-length,
+512-byte record format.  Doubling the option (<B>-bb</B>) forces all files
+to be extracted in this format. When extracting to standard output
+(<B>-c</B> or <B>-p</B> option in effect), the default conversion of text
+record delimiters is disabled for binary (<B>-b</B>) resp. all (<B>-bb</B>)
+files.
+<DT><B>-B</B>
+
+<DD>
+[Unix only, and only if compiled with UNIXBACKUP defined] save a backup copy
+of each overwritten file with a tilde appended (e.g., the old copy of
+``foo'' is renamed to ``foo~'').  This is similar to the default
+behavior of <I><A HREF="../man1/emacs.1.php">emacs</A></I>(1) in many locations.
+<DT><B>-C</B>
+
+<DD>
+match filenames case-insensitively.  <I>unzip</I>'s philosophy is ``you get
+what you ask for'' (this is also responsible for the <B>-L</B>/<B>-U</B>
+change; see the relevant options below).  Because some file systems are fully
+case-sensitive (notably those under the Unix operating system) and because
+both ZIP archives and <I>unzip</I> itself are portable across platforms,
+<I>unzip</I>'s default behavior is to match both wildcard and literal filenames
+case-sensitively.  That is, specifying ``makefile'' on the command line
+will <I>only</I> match ``makefile'' in the archive, not ``Makefile'' or
+``MAKEFILE'' (and similarly for wildcard specifications).  Since this does
+not correspond to the behavior of many other operating/file systems (for
+example, OS/2 HPFS, which preserves mixed case but is not sensitive to it),
+the <B>-C</B> option may be used to force all filename matches to be
+case-insensitive.  In the example above, all three files would then match
+``makefile'' (or ``make*'', or similar).  The <B>-C</B> option
+affects files in both the normal file list and the excluded-file list (xlist).
+<DT><B>-E</B>
+
+<DD>
+[MacOS only] display contents of MacOS extra field during restore operation.
+<DT><B>-F</B>
+
+<DD>
+[Acorn only] suppress removal of NFS filetype extension from stored filenames.
+<DT><B>-F</B>
+
+<DD>
+[non-Acorn systems supporting long filenames with embedded commas,
+and only if compiled with ACORN_FTYPE_NFS defined] translate
+filetype information from ACORN RISC OS extra field blocks into a
+NFS filetype extension and append it to the names of the extracted files.
+(When the stored filename appears to already have an appended NFS filetype
+extension, it is replaced by the info from the extra field.)
+<DT><B>-i</B>
+
+<DD>
+[MacOS only] ignore filenames stored in MacOS extra fields. Instead, the
+most compatible filename stored in the generic part of the entry's header
+is used.
+<DT><B>-j</B>
+
+<DD>
+junk paths.  The archive's directory structure is not recreated; all files
+are deposited in the extraction directory (by default, the current one).
+<DT><B>-J</B>
+
+<DD>
+[BeOS only] junk file attributes.  The file's BeOS file attributes are not
+restored, just the file's data.
+<DT><B>-J</B>
+
+<DD>
+[MacOS only] ignore MacOS extra fields.  All Macintosh specific info
+is skipped. Data-fork and resource-fork are restored as separate files.
+<DT><B>-L</B>
+
+<DD>
+convert to lowercase any filename originating on an uppercase-only operating
+system or file system.  (This was <I>unzip</I>'s default behavior in releases
+prior to 5.11; the new default behavior is identical to the old behavior with
+the <B>-U</B> option, which is now obsolete and will be removed in a future
+release.)  Depending on the archiver, files archived under single-case
+file systems (VMS, old MS-DOS FAT, etc.) may be stored as all-uppercase names;
+this can be ugly or inconvenient when extracting to a case-preserving
+file system such as OS/2 HPFS or a case-sensitive one such as under
+Unix.  By default <I>unzip</I> lists and extracts such filenames exactly as
+they're stored (excepting truncation, conversion of unsupported characters,
+etc.); this option causes the names of all files from certain systems to be
+converted to lowercase.  The <B>-LL</B> option forces conversion of every
+filename to lowercase, regardless of the originating file system.
+<DT><B>-M</B>
+
+<DD>
+pipe all output through an internal pager similar to the Unix <I><A HREF="../man1/more.1.php">more</A></I>(1)
+command.  At the end of a screenful of output, <I>unzip</I> pauses with a
+``--More--'' prompt; the next screenful may be viewed by pressing the
+Enter (Return) key or the space bar.  <I>unzip</I> can be terminated by
+pressing the ``q'' key and, on some systems, the Enter/Return key.  Unlike
+Unix <I><A HREF="../man1/more.1.php">more</A></I>(1), there is no forward-searching or editing capability.
+Also, <I>unzip</I> doesn't notice if long lines wrap at the edge of the screen,
+effectively resulting in the printing of two or more lines and the likelihood
+that some text will scroll off the top of the screen before being viewed.
+On some systems the number of available lines on the screen is not detected,
+in which case <I>unzip</I> assumes the height is 24 lines.
+<DT><B>-n</B>
+
+<DD>
+never overwrite existing files.  If a file already exists, skip the extraction
+of that file without prompting.  By default <I>unzip</I> queries before
+extracting any file that already exists; the user may choose to overwrite
+only the current file, overwrite all files, skip extraction of the current
+file, skip extraction of all existing files, or rename the current file.
+<DT><B>-N</B>
+
+<DD>
+[Amiga] extract file comments as Amiga filenotes.  File comments are created
+with the -c option of <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L), or with the -N option of the Amiga port
+of <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L), which stores filenotes as comments.
+<DT><B>-o</B>
+
+<DD>
+overwrite existing files without prompting.  This is a dangerous option, so
+use it with care.  (It is often used with <B>-f</B>, however, and is the only
+way to overwrite directory EAs under OS/2.)
+<DT><B>-P</B>&nbsp;<I>password</I><DD>
+use <I>password</I> to decrypt encrypted zipfile entries (if any).  <B>THIS IS
+INSECURE!</B>  Many multi-user operating systems provide ways for any user to
+see the current command line of any other user; even on stand-alone systems
+there is always the threat of over-the-shoulder peeking.  Storing the plaintext
+password as part of a command line in an automated script is even worse.
+Whenever possible, use the non-echoing, interactive prompt to enter passwords.
+(And where security is truly important, use strong encryption such as Pretty
+Good Privacy instead of the relatively weak encryption provided by standard
+zipfile utilities.)
+<DT><B>-q</B>
+
+<DD>
+perform operations quietly (<B>-qq</B> = even quieter).  Ordinarily <I>unzip</I>
+prints the names of the files it's extracting or testing, the extraction
+methods, any file or zipfile comments that may be stored in the archive,
+and possibly a summary when finished with each archive.  The <B>-q</B>[<B>q</B>]
+options suppress the printing of some or all of these messages.
+<DT><B>-s</B>
+
+<DD>
+[OS/2, NT, MS-DOS] convert spaces in filenames to underscores.  Since all PC
+operating systems allow spaces in filenames, <I>unzip</I> by default extracts
+filenames with spaces intact (e.g., ``EA&nbsp;DATA.&nbsp;SF'').  This can be
+awkward, however, since MS-DOS in particular does not gracefully support
+spaces in filenames.  Conversion of spaces to underscores can eliminate the
+awkwardness in some cases.
+<DT><B>-U</B>
+
+<DD>
+(obsolete; to be removed in a future release) leave filenames uppercase if
+created under MS-DOS, VMS, etc.  See <B>-L</B> above.
+<DT><B>-V</B>
+
+<DD>
+retain (VMS) file version numbers.  VMS files can be stored with a version
+number, in the format file.ext;##.  By default the ``;##'' version
+numbers are stripped, but this option allows them to be retained.  (On
+file systems that limit filenames to particularly short lengths, the version
+numbers may be truncated or stripped regardless of this option.)
+<DT><B>-X</B>
+
+<DD>
+[VMS, Unix, OS/2, NT] restore owner/protection info (UICs) under VMS, or user
+and group info (UID/GID) under Unix, or access control lists (ACLs) under
+certain network-enabled versions of OS/2 (Warp Server with IBM LAN
+Server/Requester 3.0 to 5.0; Warp Connect with IBM Peer 1.0), or security ACLs
+under Windows NT.  In most cases this will require special system privileges,
+and doubling the option (<B>-XX</B>) under NT instructs <I>unzip</I> to use
+privileges for extraction; but under Unix, for example, a user who belongs to
+several groups can restore files owned by any of those groups, as long as the
+user IDs match his or her own.  Note that ordinary file attributes are always
+restored--this option applies only to optional, extra ownership info available
+on some operating systems.  [NT's access control lists do not appear to be
+especially compatible with OS/2's, so no attempt is made at cross-platform
+portability of access privileges.  It is not clear under what conditions this
+would ever be useful anyway.]
+<DT><B>-$</B>
+
+<DD>
+
+[MS-DOS, OS/2, NT] restore the volume label if the extraction medium is
+removable (e.g., a diskette).  Doubling the option (<B>-$$</B>) allows fixed
+media (hard disks) to be labelled as well.  By default, volume labels are
+ignored.
+<DT><B>-/</B>&nbsp;<I>extensions</I><DD>
+[Acorn only] overrides the extension list supplied by Unzip$Ext environment
+variable. During extraction, filename extensions that match one of the items
+in this extension list are swapped in front of the base name of the extracted
+file.
+<DT><B>-:</B>
+
+<DD>
+[all but Acorn, VM/CMS, MVS, Tandem] allows to extract archive members into
+locations outside of the current `` extraction root folder''. For security
+reasons, <I>unzip</I> normally removes ``parent dir'' path components
+(``../'') from the names of extracted file.  This safety feature (new for
+version 5.50) prevents <I>unzip</I> from accidentally writing files to
+``sensitive'' areas outside the active extraction folder tree head.  The
+<B>-:</B> option lets <I>unzip</I> switch back to its previous, more liberal
+behaviour, to allow exact extraction of (older) archives that used ``../''
+components to create multiple directory trees at the level of the current
+extraction folder.  This option does not enable writing explicitly to the
+root directory (``/'').  To achieve this, it is necessary to set the
+extraction target folder to root (e.g. <B>-d / </B>).  However, when the
+<B>-:</B> option is specified, it is still possible to implicitly write to
+the root directory by specifiying enough ``../'' path components within the
+zip file.
+Use this option with extreme caution.
+<P>
+
+
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT OPTIONS</H2>
+
+<I>unzip</I>'s default behavior may be modified via options placed in
+an environment variable.  This can be done with any option, but it
+is probably most useful with the <B>-a</B>, <B>-L</B>, <B>-C</B>, <B>-q</B>,
+<B>-o</B>, or <B>-n</B> modifiers:  make <I>unzip</I> auto-convert text
+files by default, make it convert filenames from uppercase systems to
+lowercase, make it match names case-insensitively, make it quieter,
+or make it always overwrite or never overwrite files as it extracts
+them.  For example, to make <I>unzip</I> act as quietly as possible, only
+reporting errors, one would use one of the following commands:
+<DL COMPACT>
+<DT><BR>&nbsp;&nbsp;Unix&nbsp;Bourne&nbsp;shell:<DD>
+UNZIP=-qq; export UNZIP
+<DT><BR>&nbsp;&nbsp;Unix&nbsp;C&nbsp;shell:<DD>
+setenv UNZIP -qq
+<DT><BR>&nbsp;&nbsp;OS/2&nbsp;or&nbsp;MS-DOS:<DD>
+set UNZIP=-qq
+<DT><BR>&nbsp;&nbsp;VMS&nbsp;(quotes&nbsp;for&nbsp;<I>lowercase</I>):<DD>
+define UNZIP_OPTS &quot;&quot;-qq&quot;&quot;
+</DL>
+<P>
+
+Environment options are, in effect, considered to be just like any other
+command-line options, except that they are effectively the first options
+on the command line.  To override an environment option, one may use the
+``minus operator'' to remove it.  For instance, to override one of the
+quiet-flags in the example above, use the command
+<P>
+
+
+
+<PRE>
+unzip --q[<I>other options</I>] zipfile
+
+</PRE>
+
+
+
+<P>
+
+The first hyphen is the normal
+switch character, and the second is a minus sign, acting on the q option.
+Thus the effect here is to cancel one quantum of quietness.  To cancel
+both quiet flags, two (or more) minuses may be used:
+<P>
+
+
+
+<PRE>
+unzip -t--q zipfile
+unzip ---qt zipfile
+
+</PRE>
+
+
+
+<P>
+
+(the two are equivalent).  This may seem awkward
+or confusing, but it is reasonably intuitive:  just ignore the first
+hyphen and go from there.  It is also consistent with the behavior of
+Unix <I><A HREF="../man1/nice.1.php">nice</A></I>(1).
+<P>
+
+As suggested by the examples above, the default variable names are UNZIP_OPTS
+for VMS (where the symbol used to install <I>unzip</I> as a foreign command
+would otherwise be confused with the environment variable), and UNZIP
+for all other operating systems.  For compatibility with <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L),
+UNZIPOPT is also accepted (don't ask).  If both UNZIP and UNZIPOPT
+are defined, however, UNZIP takes precedence.  <I>unzip</I>'s diagnostic
+option (<B>-v</B> with no zipfile name) can be used to check the values
+of all four possible <I>unzip</I> and <I>zipinfo</I> environment variables.
+<P>
+
+The timezone variable (TZ) should be set according to the local timezone
+in order for the <B>-f</B> and <B>-u</B> to operate correctly.  See the
+description of <B>-f</B> above for details.  This variable may also be
+necessary in order for timestamps on extracted files to be set correctly.
+Under Windows 95/NT <I>unzip</I> should know the correct timezone even if
+TZ is unset, assuming the timezone is correctly set in the Control Panel.
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>DECRYPTION</H2>
+
+Encrypted archives are fully supported by Info-ZIP software, but due to
+United States export restrictions, de-/encryption support might be disabled
+in your compiled binary.  However, since spring 2000, US export restrictions
+have been liberated, and our source archives do now include full crypt code.
+In case you need binary distributions with crypt support enabled, see the
+file ``WHERE'' in any Info-ZIP source or binary distribution for locations
+both inside and outside the US.
+<P>
+
+Some compiled versions of <I>unzip</I> may not support decryption.
+To check a version for crypt support, either attempt to test or extract
+an encrypted archive, or else check <I>unzip</I>'s diagnostic
+screen (see the <B>-v</B> option above) for ``[decryption]'' as one
+of the special compilation options.
+<P>
+
+As noted above, the <B>-P</B> option may be used to supply a password on
+the command line, but at a cost in security.  The preferred decryption
+method is simply to extract normally; if a zipfile member is encrypted,
+<I>unzip</I> will prompt for the password without echoing what is typed.
+<I>unzip</I> continues to use the same password as long as it appears to be
+valid, by testing a 12-byte header on each file.  The correct password will
+always check out against the header, but there is a 1-in-256 chance that an
+incorrect password will as well.  (This is a security feature of the PKWARE
+zipfile format; it helps prevent brute-force attacks that might otherwise
+gain a large speed advantage by testing only the header.)  In the case that
+an incorrect password is given but it passes the header test anyway, either
+an incorrect CRC will be generated for the extracted data or else <I>unzip</I>
+will fail during the extraction because the ``decrypted'' bytes do not
+constitute a valid compressed data stream.
+<P>
+
+If the first password fails the header check on some file, <I>unzip</I> will
+prompt for another password, and so on until all files are extracted.  If
+a password is not known, entering a null password (that is, just a carriage
+return or ``Enter'') is taken as a signal to skip all further prompting.
+Only unencrypted files in the archive(s) will thereafter be extracted.  (In
+fact, that's not quite true; older versions of <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L) and
+<I><A HREF="../man1L/zipcloak.1L.php">zipcloak</A></I>(1L) allowed null passwords, so <I>unzip</I> checks each encrypted
+file to see if the null password works.  This may result in ``false positives''
+and extraction errors, as noted above.)
+<P>
+
+Archives encrypted with 8-bit passwords (for example, passwords with accented
+European characters) may not be portable across systems and/or other
+archivers.  This problem stems from the use of multiple encoding methods for
+such characters, including Latin-1 (ISO 8859-1) and OEM code page 850.  DOS
+<I>PKZIP</I> 2.04g uses the OEM code page; Windows <I>PKZIP</I> 2.50 uses
+Latin-1 (and is therefore incompatible with DOS <I>PKZIP</I>); Info-ZIP uses
+the OEM code page on DOS, OS/2 and Win3.x ports but Latin-1 everywhere
+else; and Nico Mak's <I>WinZip</I> 6.x does not allow 8-bit passwords at all.
+<I>UnZip</I> 5.3 (or newer) attempts to use the default character set first
+(e.g., Latin-1), followed by the alternate one (e.g., OEM code page) to test
+passwords.  On EBCDIC systems, if both of these fail, EBCDIC encoding will
+be tested as a last resort.  (EBCDIC is not tested on non-EBCDIC systems,
+because there are no known archivers that encrypt using EBCDIC encoding.)
+ISO character encodings other than Latin-1 are not supported.
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+To use <I>unzip</I> to extract all members of the archive <I>letters.zip</I>
+into the current directory and subdirectories below it, creating any
+subdirectories as necessary:
+<P>
+
+
+
+<PRE>
+unzip letters
+
+</PRE>
+
+
+
+<P>
+
+To extract all members of <I>letters.zip</I> into the current directory only:
+<P>
+
+
+
+<PRE>
+unzip -j letters
+
+</PRE>
+
+
+
+<P>
+
+To test <I>letters.zip</I>, printing only a summary message indicating
+whether the archive is OK or not:
+<P>
+
+
+
+<PRE>
+unzip -tq letters
+
+</PRE>
+
+
+
+<P>
+
+To test <I>all</I> zipfiles in the current directory, printing only the
+summaries:
+<P>
+
+
+
+<PRE>
+unzip -tq \*.zip
+
+</PRE>
+
+
+
+<P>
+
+(The backslash before the asterisk is only required if the shell expands
+wildcards, as in Unix; double quotes could have been used instead, as in
+the source examples below.)&nbsp;&nbsp;To extract to standard output all members of
+<I>letters.zip</I> whose names end in <I>.tex</I>, auto-converting to the
+local end-of-line convention and piping the output into <I><A HREF="../man1/more.1.php">more</A></I>(1):
+<P>
+
+
+
+<PRE>
+unzip -ca letters \*.tex | more
+
+</PRE>
+
+
+
+<P>
+
+To extract the binary file <I>paper1.dvi</I> to standard output and pipe it
+to a printing program:
+<P>
+
+
+
+<PRE>
+unzip -p articles paper1.dvi | dvips
+
+</PRE>
+
+
+
+<P>
+
+To extract all FORTRAN and C source files--*.f, *.c, *.h, and Makefile--into
+the /tmp directory:
+<P>
+
+
+
+<PRE>
+unzip source.zip &quot;*.[fch]&quot; Makefile -d /tmp
+
+</PRE>
+
+
+
+<P>
+
+(the double quotes are necessary only in Unix and only if globbing is turned
+on).  To extract all FORTRAN and C source files, regardless of case (e.g.,
+both *.c and *.C, and any makefile, Makefile, MAKEFILE or similar):
+<P>
+
+
+
+<PRE>
+unzip -C source.zip &quot;*.[fch]&quot; makefile -d /tmp
+
+</PRE>
+
+
+
+<P>
+
+To extract any such files but convert any uppercase MS-DOS or VMS names to
+lowercase and convert the line-endings of all of the files to the local
+standard (without respect to any files that might be marked ``binary''):
+<P>
+
+
+
+<PRE>
+unzip -aaCL source.zip &quot;*.[fch]&quot; makefile -d /tmp
+
+</PRE>
+
+
+
+<P>
+
+To extract only newer versions of the files already in the current
+directory, without querying (NOTE:  be careful of unzipping in one timezone a
+zipfile created in another--ZIP archives other than those created by Zip 2.1
+or later contain no timezone information, and a ``newer'' file from an eastern
+timezone may, in fact, be older):
+<P>
+
+
+
+<PRE>
+unzip -fo sources
+
+</PRE>
+
+
+
+<P>
+
+To extract newer versions of the files already in the current directory and
+to create any files not already there (same caveat as previous example):
+<P>
+
+
+
+<PRE>
+unzip -uo sources
+
+</PRE>
+
+
+
+<P>
+
+To display a diagnostic screen showing which <I>unzip</I> and <I>zipinfo</I>
+options are stored in environment variables, whether decryption support was
+compiled in, the compiler with which <I>unzip</I> was compiled, etc.:
+<P>
+
+
+
+<PRE>
+unzip -v
+
+</PRE>
+
+
+
+<P>
+
+In the last five examples, assume that UNZIP or UNZIP_OPTS is set to -q.
+To do a singly quiet listing:
+<P>
+
+
+
+<PRE>
+unzip -l file.zip
+
+</PRE>
+
+
+
+<P>
+
+To do a doubly quiet listing:
+<P>
+
+
+
+<PRE>
+unzip -ql file.zip
+
+</PRE>
+
+
+
+<P>
+
+(Note that the ``.zip'' is generally not necessary.)  To do a standard
+listing:
+<P>
+
+
+
+<PRE>
+unzip --ql file.zip
+
+</PRE>
+
+
+
+or
+
+
+<PRE>
+unzip -l-q file.zip
+
+</PRE>
+
+
+
+or
+
+
+<PRE>
+unzip -l--q file.zip
+
+</PRE>
+
+
+
+(Extra minuses in options don't hurt.)
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>TIPS</H2>
+
+The current maintainer, being a lazy sort, finds it very useful to define
+a pair of aliases:  tt for ``unzip -tq'' and ii for
+``unzip -Z'' (or ``zipinfo'').  One may then simply type
+``tt zipfile'' to test an archive, something that is worth making a
+habit of doing.  With luck <I>unzip</I> will report ``No errors detected
+in compressed data of zipfile.zip,'' after which one may breathe a sigh
+of relief.
+<P>
+
+The maintainer also finds it useful to set the UNZIP environment variable
+to ``-aL'' and is tempted to add ``-C'' as well.  His ZIPINFO
+variable is set to ``-z''.
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+The exit status (or error level) approximates the exit codes defined by PKWARE
+and takes on the following values, except under VMS:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>0<DD>
+normal; no errors or warnings detected.
+<DT>1<DD>
+one or more warning errors were encountered, but processing completed
+successfully anyway.  This includes zipfiles where one or more files
+was skipped due to unsupported compression method or encryption with an
+unknown password.
+<DT>2<DD>
+a generic error in the zipfile format was detected.  Processing may have
+completed successfully anyway; some broken zipfiles created by other
+archivers have simple work-arounds.
+<DT>3<DD>
+a severe error in the zipfile format was detected.  Processing probably
+failed immediately.
+<DT>4<DD>
+<I>unzip</I> was unable to allocate memory for one or more buffers during
+program initialization.
+<DT>5<DD>
+<I>unzip</I> was unable to allocate memory or unable to obtain a tty to read
+the decryption password(s).
+<DT>6<DD>
+<I>unzip</I> was unable to allocate memory during decompression to disk.
+<DT>7<DD>
+<I>unzip</I> was unable to allocate memory during in-memory decompression.
+<DT>8<DD>
+[currently not used]
+<DT>9<DD>
+the specified zipfiles were not found.
+<DT>10<DD>
+invalid options were specified on the command line.
+<DT>11<DD>
+no matching files were found.
+<DT>50<DD>
+the disk is (or was) full during extraction.
+<DT>51<DD>
+the end of the ZIP archive was encountered prematurely.
+<DT>80<DD>
+the user aborted <I>unzip</I> prematurely with control-C (or similar)
+<DT>81<DD>
+testing or extraction of one or more files failed due to unsupported
+compression methods or unsupported decryption.
+<DT>82<DD>
+no files were found due to bad decryption password(s).  (If even one file is
+successfully processed, however, the exit status is 1.)
+</DL>
+</DL>
+
+<P>
+
+VMS interprets standard Unix (or PC) return values as other, scarier-looking
+things, so <I>unzip</I> instead maps them into VMS-style status codes.  The
+current mapping is as follows:   1 (success) for normal exit, 0x7fff0001
+for warning errors, and (0x7fff000? + 16*normal_unzip_exit_status) for all
+other errors, where the `?' is 2 (error) for <I>unzip</I> values 2, 9-11 and
+80-82, and 4 (fatal error) for the remaining ones (3-8, 50, 51).  In addition,
+there is a compilation option to expand upon this behavior:  defining
+RETURN_CODES results in a human-readable explanation of what the error
+status means.
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>BUGS</H2>
+
+Multi-part archives are not yet supported, except in conjunction with
+<I>zip</I>.  (All parts must be concatenated together in order, and then
+``zip -F'' must be performed on the concatenated archive in order
+to ``fix'' it.)  This will definitely be corrected in the next major release.
+<P>
+
+Archives read from standard input are not yet supported, except with
+<I>funzip</I> (and then only the first member of the archive can be extracted).
+<P>
+
+Archives encrypted with 8-bit passwords (e.g., passwords with accented
+European characters) may not be portable across systems and/or other
+archivers.  See the discussion in <B>DECRYPTION</B> above.
+<P>
+
+<I>unzip</I>'s <B>-M</B> (``more'') option tries to take into account automatic
+wrapping of long lines. However, the code may fail to detect the correct
+wrapping locations. First, TAB characters (and similar control sequences) are
+not taken into account, they are handled as ordinary printable characters.
+Second, depending on the actual system / OS port, <I>unzip</I> may not detect
+the true screen geometry but rather rely on &quot;commonly used&quot; default dimensions.
+The correct handling of tabs would require the implementation of a query for
+the actual tabulator setup on the output console.
+<P>
+
+Dates, times and permissions of stored directories are not restored except
+under Unix. (On Windows NT and successors, timestamps are now restored.)
+<P>
+
+[MS-DOS] When extracting or testing files from an archive on a defective
+floppy diskette, if the ``Fail'' option is chosen from DOS's ``Abort, Retry,
+Fail?'' message, older versions of <I>unzip</I> may hang the system, requiring
+a reboot.  This problem appears to be fixed, but control-C (or control-Break)
+can still be used to terminate <I>unzip</I>.
+<P>
+
+Under DEC Ultrix, <I>unzip</I> would sometimes fail on long zipfiles (bad CRC,
+not always reproducible).  This was apparently due either to a hardware bug
+(cache memory) or an operating system bug (improper handling of page faults?).
+Since Ultrix has been abandoned in favor of Digital Unix (OSF/1), this may not
+be an issue anymore.
+<P>
+
+[Unix] Unix special files such as FIFO buffers (named pipes), block devices
+and character devices are not restored even if they are somehow represented
+in the zipfile, nor are hard-linked files relinked.  Basically the only file
+types restored by <I>unzip</I> are regular files, directories and symbolic
+(soft) links.
+<P>
+
+[OS/2] Extended attributes for existing directories are only updated if the
+<B>-o</B> (``overwrite all'') option is given.  This is a limitation of the
+operating system; because directories only have a creation time associated
+with them, <I>unzip</I> has no way to determine whether the stored attributes
+are newer or older than those on disk.  In practice this may mean a two-pass
+approach is required:  first unpack the archive normally (with or without
+freshening/updating existing files), then overwrite just the directory entries
+(e.g., ``unzip -o foo */'').
+<P>
+
+[VMS] When extracting to another directory, only the <I>[.foo]</I> syntax is
+accepted for the <B>-d</B> option; the simple Unix <I>foo</I> syntax is
+silently ignored (as is the less common VMS <I>foo.dir</I> syntax).
+<P>
+
+[VMS] When the file being extracted already exists, <I>unzip</I>'s query only
+allows skipping, overwriting or renaming; there should additionally be a
+choice for creating a new version of the file.  In fact, the ``overwrite''
+choice does create a new version; the old version is not overwritten or
+deleted.
+
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man1L/funzip.1L.php">funzip</A></I>(1L), <I><A HREF="../man1L/zip.1L.php">zip</A></I>(1L), <I><A HREF="../man1L/zipcloak.1L.php">zipcloak</A></I>(1L), <I><A HREF="../man1L/zipgrep.1L.php">zipgrep</A></I>(1L),
+<I><A HREF="../man1L/zipinfo.1L.php">zipinfo</A></I>(1L), <I><A HREF="../man1L/zipnote.1L.php">zipnote</A></I>(1L), <I><A HREF="../man1L/zipsplit.1L.php">zipsplit</A></I>(1L)
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>URL</H2>
+
+The Info-ZIP home page is currently at
+
+
+<PRE>
+<A HREF="http://www.info-zip.org/pub/infozip/">http://www.info-zip.org/pub/infozip/</A>
+
+</PRE>
+
+
+
+or
+
+
+<PRE>
+<A HREF="ftp://ftp.info-zip.org/pub/infozip/">ftp://ftp.info-zip.org/pub/infozip/</A> .
+
+</PRE>
+
+
+
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+The primary Info-ZIP authors (current semi-active members of the Zip-Bugs
+workgroup) are:  Onno van der Linden (Zip);
+Christian Spieler (UnZip maintenance coordination, VMS, MS-DOS, Win32,
+shared code, general Zip and UnZip integration and optimization);
+Mike White (Windows GUI, Windows DLLs); Kai Uwe Rommel (OS/2);
+Paul Kienitz (Amiga, Win32); Chris Herborth (BeOS, QNX, Atari);
+Jonathan Hudson (SMS/QDOS); Sergio Monesi (Acorn RISC OS); Harald
+Denker (Atari, MVS); John Bush (Solaris, Amiga); Hunter Goatley (VMS); Steve
+Salisbury (Win32); Steve Miller (Windows CE GUI), Johnny Lee (MS-DOS,
+Win32); and Dave Smith (Tandem NSK).
+<P>
+
+The following people were former members of the Info-ZIP development group
+and provided major contributions to key parts of the current code:
+Greg ``Cave Newt'' Roelofs (UnZip, unshrink decompression);
+Jean-loup Gailly (deflate compression);
+Mark Adler (inflate decompression, fUnZip).
+<P>
+
+The author of the original unzip code upon which Info-ZIP's was based
+is Samuel H. Smith; Carl Mascott did the first Unix port; and David P.
+Kirschbaum organized and led Info-ZIP in its early days with Keith Petersen
+hosting the original mailing list at WSMR-SimTel20.  The full list of
+contributors to UnZip has grown quite large; please refer to the CONTRIBS
+file in the UnZip source distribution for a relatively complete version.
+
+
+<A NAME="lbAQ">&nbsp;</A>
+<H2>VERSIONS</H2>
+
+
+
+
+<DL COMPACT>
+<DT>v1.2	15 Mar 89<DD>
+Samuel H. Smith
+<DT>v2.0	&nbsp;9 Sep 89<DD>
+Samuel H. Smith
+<DT>v2.x	fall 1989<DD>
+many Usenet contributors
+<DT>v3.0	&nbsp;1 May 90<DD>
+Info-ZIP (DPK, consolidator)
+<DT>v3.1	15 Aug 90<DD>
+Info-ZIP (DPK, consolidator)
+<DT>v4.0	&nbsp;1 Dec 90<DD>
+Info-ZIP (GRR, maintainer)
+<DT>v4.1	12 May 91<DD>
+Info-ZIP
+<DT>v4.2	20 Mar 92<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.0	21 Aug 92<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.01	15 Jan 93<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.1	&nbsp;7 Feb 94<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.11	&nbsp;2 Aug 94<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.12	28 Aug 94<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.2	30 Apr 96<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.3	22 Apr 97<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.31	31 May 97<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.32	&nbsp;3 Nov 97<DD>
+Info-ZIP (Zip-Bugs subgroup, GRR)
+<DT>v5.4	28 Nov 98<DD>
+Info-ZIP (Zip-Bugs subgroup, SPC)
+<DT>v5.41	16 Apr 00<DD>
+Info-ZIP (Zip-Bugs subgroup, SPC)
+<DT>v5.42	14 Jan 01<DD>
+Info-ZIP (Zip-Bugs subgroup, SPC)
+<DT>v5.5	17 Feb 02<DD>
+Info-ZIP (Zip-Bugs subgroup, SPC)
+<DT>v5.51	22 May 04<DD>
+Info-ZIP (Zip-Bugs subgroup, SPC)
+
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">ARGUMENTS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">MODIFIERS</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT OPTIONS</A><DD>
+<DT><A HREF="#lbAI">DECRYPTION</A><DD>
+<DT><A HREF="#lbAJ">EXAMPLES</A><DD>
+<DT><A HREF="#lbAK">TIPS</A><DD>
+<DT><A HREF="#lbAL">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAM">BUGS</A><DD>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+<DT><A HREF="#lbAO">URL</A><DD>
+<DT><A HREF="#lbAP">AUTHORS</A><DD>
+<DT><A HREF="#lbAQ">VERSIONS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,537 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>TN5250</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>TN5250</H1>
+Section: User Commands  (1)<BR>Updated: 30 Jul 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+tn5250 - an implementation of the 5250 telnet protocol
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>tn5250</B>
+
+[<I>OPTIONS</I>]
+
+<I>host</I>[:<I>port</I>]
+
+<BR>
+
+<B>xt5250</B>
+
+[<I>OPTIONS</I>]
+
+[<I>host</I>[:<I>port</I>]]
+
+<BR>
+
+<B>tn5250 -version</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>tn5250</B>
+
+emulates IBM's 5250 compatible terminals to connect over TCP/IP to an
+IBM AS/400.  The terminal emulation works on any local terminal
+supported by curses, and provides 132x27 and full colour support where
+possible.
+<P>
+
+<B>tn5250</B>
+
+will connect to the given
+<I>host</I>'s
+
+telnet port, or a different
+<I>port</I>
+
+if specified.  The host name may be preceded by a
+<I>protocol</I>:
+
+which specifies either to use telnet to the host, if omitted or set to
+<I>telnet</I>
+
+or
+<I>tn5250</I>,
+
+or to replay a session dumped using the
+<B>trace</B>
+
+option if set to
+<I>debug</I>.
+
+<P>
+
+An IBM 5250 terminal supports a number of special keys, and does a lot 
+of processing itself before sending data to the host system.  Because
+a standard ASCII terminal does not support all these keys,
+<B>tn5250</B>
+
+uses control sequences to perform the operations.
+<P>
+
+Named session support (with the
+<B>env.DEVNAME</B>
+
+option) is available for most versions of OS/400, but is only supplied
+with V4R3 and later versions.  For V3R2, V3R7, V4R1 and V4R2, please
+see informational APAR II10918.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>trace=</B><I>FILE</I>
+
+<DD>
+Log all
+<B>tn5250</B>
+
+actions to
+<I>tracefile</I>.
+
+This file will get very large, and may contain sensitive information
+such as the password used to log in.
+<DT><B>map=</B><I>CCSID</I>
+
+<DD>
+Set the translation table between ASCII and EBCDIC.  This should match
+the CCSID of the interactive job.  The default for
+<B>tn5250</B>
+
+is
+<B>37</B>.
+
+See
+<B>Translation Maps</B>
+
+below for more information.
+<DT><B>env.DEVNAME=</B><I>NAME</I>
+
+<DD>
+Set the device name for the AS/400 to assign to the 5250 session.
+This should be up to ten characters long and consist of only letters
+and numbers.  It will be converted to uppercase and used as the name
+of the 5250-compatible device on the AS/400.  There may only be one
+session active with any given name at one time.
+<DT><B>env.TERM=</B><I>TYPE</I>
+
+<DD>
+Set the terminal model name for the emulation session to use.  The
+default depends on whether the terminal supports colour, and whether
+it is large enough to support the large terminal size.  See
+<B>Display Types</B>
+
+below for valid model names.
+<DT><B>env.</B><I>VARIABLE</I><B>=</B><I>VALUE</I>
+
+<DD>
+Set any other environment variables controlling the terminal session.
+A list of relevant variables is given in section 5 of
+<B>RFC2877</B>.
+
+<DT><B>+/-underscores</B>
+
+<DD>
+Force or disable the use of underscore characters instead of the underline
+attribute, for terminals that do not support underlining but where
+<B>tn5250</B>
+
+does not work this out itself.
+<DT><B>+/-ruler</B>
+
+<DD>
+Turn the ruler feature on or off.  When enabled, the row and column of
+the cursor will be highlighted.
+<DT><B>-version</B>
+
+<DD>
+Display the version of
+<B>tn5250</B>
+
+and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+These are some examples of the use of
+<B>tn5250</B>:
+
+<DL COMPACT>
+<DT><I>tn5250 as400sys</I>
+
+<DD>
+Connect to the system
+<I>as400sys</I>,
+
+using the default translation map (37)
+and a generated session name
+(QPADEV<I>####</I>).
+
+<DT><I>tn5250 map=870 env.DEVNAME=session1 env.TERM=IBM-3477-FC as400sys</I>
+
+<DD>
+Connect to
+<I>as400sys</I>
+
+using the translation map for CCSID 870 (Eastern Europe), the session
+name SESSION1 and with a terminal supporting colour and a 132x27
+display.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>USAGE</H2>
+
+This manual assumes that the user is familiar with a real 5250
+terminal, or another 5250 emulator, and only describes features
+relevant to
+<B>tn5250</B>
+
+itself.
+<A NAME="lbAH">&nbsp;</A>
+<H3>Keyboard Mapping</H3>
+
+The following table lists the 5250 functions implemented by
+<B>tn5250</B>,
+
+and the corresponding keypresses.  Keys are represented as Emacs does:
+<B>C-a</B>
+
+means hold
+<B>Ctrl</B>
+
+and press
+<B>A</B>,
+
+<B>M-a</B>
+
+means press
+<B>Esc</B>
+
+or
+<B>C-g</B>
+
+followed by
+<B>A</B>,
+
+and
+<B>C-M-a</B>
+
+means press
+<B>Esc</B>
+
+or
+<B>C-g</B>
+
+followed by
+<B>C-a</B>.
+
+Most setups also let you use the
+<B>Alt</B>
+
+or
+<B>Meta</B>
+
+key for
+<B>M-</B>
+
+keypresses.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>Function</TD><TD>Keypress<BR></TD></TR>
+<TR VALIGN=top><TD><HR></TD><TD><HR></TD></TR>
+<TR VALIGN=top><TD><B>F11</B></TD><TD>f11 [1], M--<BR></TD></TR>
+<TR VALIGN=top><TD><B>F12</B></TD><TD>f12 [1], M-=<BR></TD></TR>
+<TR VALIGN=top><TD><B>F13 - F24</B></TD><TD>f13 to f24 [1], M-! to M-+<BR></TD></TR>
+<TR VALIGN=top><TD><B>Enter</B></TD><TD>return, enter, C-j, C-m<BR></TD></TR>
+<TR VALIGN=top><TD><B>Left</B></TD><TD>left<BR></TD></TR>
+<TR VALIGN=top><TD><B>Right</B></TD><TD>right<BR></TD></TR>
+<TR VALIGN=top><TD><B>Up</B></TD><TD>up<BR></TD></TR>
+<TR VALIGN=top><TD><B>Down</B></TD><TD>down<BR></TD></TR>
+<TR VALIGN=top><TD><B>Roll Up</B></TD><TD>next, pagedown, C-d, C-f<BR></TD></TR>
+<TR VALIGN=top><TD><B>Roll Down</B></TD><TD>prev, pageup, C-b, C-u<BR></TD></TR>
+<TR VALIGN=top><TD><B>Backspace</B></TD><TD>backspace [1]<BR></TD></TR>
+<TR VALIGN=top><TD><B>Home</B></TD><TD>home, C-o<BR></TD></TR>
+<TR VALIGN=top><TD><B>End</B></TD><TD>end<BR></TD></TR>
+<TR VALIGN=top><TD><B>Insert</B></TD><TD>insert, M-i, M-delete<BR></TD></TR>
+<TR VALIGN=top><TD><B>Delete</B></TD><TD>delete [1]<BR></TD></TR>
+<TR VALIGN=top><TD><B>Reset</B></TD><TD>C-r, M-r<BR></TD></TR>
+<TR VALIGN=top><TD><B>Print</B></TD><TD>C-p, M-p<BR></TD></TR>
+<TR VALIGN=top><TD><B>Help</B></TD><TD>M-h<BR></TD></TR>
+<TR VALIGN=top><TD><B>SysReq</B></TD><TD>C-c, M-s<BR></TD></TR>
+<TR VALIGN=top><TD><B>Clear</B></TD><TD>M-c<BR></TD></TR>
+<TR VALIGN=top><TD><B>FieldExit</B></TD><TD>C-k, M-x<BR></TD></TR>
+<TR VALIGN=top><TD><B>TestReq</B></TD><TD>C-t<BR></TD></TR>
+<TR VALIGN=top><TD><B>Toggle</B></TD><TD>M-t<BR></TD></TR>
+<TR VALIGN=top><TD><B>Erase</B></TD><TD>C-e<BR></TD></TR>
+<TR VALIGN=top><TD><B>Attn</B></TD><TD>C-a, M-a<BR></TD></TR>
+<TR VALIGN=top><TD><B>Dup</B></TD><TD>M-d<BR></TD></TR>
+<TR VALIGN=top><TD><B>Field+</B></TD><TD>C-x, + [2]<BR></TD></TR>
+<TR VALIGN=top><TD><B>Field-</B></TD><TD>M-m, - [2]<BR></TD></TR>
+<TR VALIGN=top><TD><B>NewLine</B></TD><TD>C-M-j<BR></TD></TR>
+<TR VALIGN=top><TD><B>Next Field</B></TD><TD>tab, C-i<BR></TD></TR>
+<TR VALIGN=top><TD><B>Prev Field</B></TD><TD>backtab [1]<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD><B>Refresh</B></TD><TD>C-l, M-l<BR></TD></TR>
+<TR VALIGN=top><TD><B>Quit</B></TD><TD>C-q<BR></TD></TR>
+</TABLE>
+
+<DL COMPACT>
+<DT>[1]<DD>
+Which keys generate f11-f24, backtab, backspace and delete is very
+dependent on the configuration of the terminal.
+<DT>[2]<DD>
+<B>+</B>
+
+and
+<B>-</B>
+
+only work as Field+ and Field- in signed numeric fields.
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>Display</H3>
+
+The screen display tries to be the same as a colour 5250 terminal.
+There are some unavoidable differences though:
+<DL COMPACT><DT><DD>
+<P>
+
+ASCII terminals (and curses) do not support the 5250 column
+separators.
+<P>
+
+Some terminals (mostly ones based on the VGA text mode) do not support
+underlining.  If this is the case and
+<B>tn5250</B>
+
+does not detect it automatically, you should pass the
+<B>-u</B>
+
+option.
+<P>
+
+Some terminals (such as
+<B>xterm</B>)
+
+do not support blinking text.
+</DL>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Display Types</H3>
+
+The following values are valid for the terminal name option.
+The default terminal, if none is specified, is selected from the first
+listed below that supports both terminal size and colour support.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>Name</TD><TD>Description</TD><TD>Default<BR></TD></TR>
+<TR VALIGN=top><TD><HR></TD><TD><HR></TD><TD><HR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-5555-B01</B></TD><TD>DBCS monochrome (not supported)</TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-3477-FC</B></TD><TD>27x132 color</TD><TD><B>Yes</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-3477-FG</B></TD><TD>27x132 monochrome</TD><TD><B>Yes</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-3180-2</B></TD><TD>27x132 monochrome</TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-3179-2</B></TD><TD>24x80 color</TD><TD><B>Yes</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-3196-A1</B></TD><TD>24x80 monochrome</TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-5292-2</B></TD><TD>24x80 color</TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-5291-1</B></TD><TD>24x80 monochrome</TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>IBM-5251-11</B></TD><TD>24x80 monochrome</TD><TD><B>Yes</B><BR></TD></TR>
+</TABLE>
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>Translation Maps</H3>
+
+CCSIDs on the AS/400 are listed in Appendix G of IBM manual
+SC41-5101-01, AS/400 National Language Support.  This manual is
+available on the web at
+&lt;<I><A HREF="http://publib.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/QB3AWC01/G.2">http://publib.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/QB3AWC01/G.2</A></I>&gt;.
+
+<P>
+
+Currently recognised values for the translation map are: 37, 256, 273,
+277, 278, 280, 284, 285, 290, 297, 420, 424, 500, 870, 871, 875, 880, 905,
+and 1026.  Most of these are translated to ISO-8859-1, also known as
+Latin 1.  Some of them contain characters only present in another
+encoding, which is used instead.  The valid CCSID values, and the Unix
+encoding used, are listed below.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>CCSID</TD><TD>Unix encoding</TD><TD>Description<BR></TD></TR>
+<TR VALIGN=top><TD><HR></TD><TD><HR></TD><TD><HR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B></B></TD><TD></TD><TD>Portugal, Brazil, Australia,<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B></B></TD><TD></TD><TD>New Zealand<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>256</B></TD><TD>ISO-8859-1</TD><TD>Netherlands<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>273</B></TD><TD>ISO-8859-1</TD><TD>Austria, Germany<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>277</B></TD><TD>ISO-8859-1</TD><TD>Denmark, Norway<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>278</B></TD><TD>ISO-8859-1</TD><TD>Finland, Sweden<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>280</B></TD><TD>ISO-8859-1</TD><TD>Italy<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>284</B></TD><TD>ISO-8859-1</TD><TD>Spanish, Latin America<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>285</B></TD><TD>ISO-8859-1</TD><TD>United Kingdom<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>290</B></TD><TD>JIS_X0201</TD><TD>Katakana Extended<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>297</B></TD><TD>ISO-8859-1</TD><TD>France<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>420</B></TD><TD>ISO-8859-6</TD><TD>Arabic<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>424</B></TD><TD>ISO-8859-8</TD><TD>Hebrew<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>500</B></TD><TD>ISO-8859-1</TD><TD>Belgium, Canada, Switzerland<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>870</B></TD><TD>ISO-8859-2</TD><TD>Eastern Europe<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>871</B></TD><TD>ISO-8859-1</TD><TD>Iceland<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>875</B></TD><TD>ISO-8859-7</TD><TD>Greek<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>880</B></TD><TD>ISO-8859-5</TD><TD>Cyrillic<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>905</B></TD><TD>ISO-8859-3</TD><TD>Turkey - Latin3<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=right><B>1026</B></TD><TD>ISO-8859-9</TD><TD>Turkey - Latin5<BR></TD></TR>
+</TABLE>
+
+<P>
+
+If possible, configure your terminal to use the appropriate encoding
+if your AS/400 uses any of these CCSIDs.
+<A NAME="lbAL">&nbsp;</A>
+<H2>BUGS</H2>
+
+Please report any bugs you find to the bug tracker or to the linux5250
+mailing list.  See the
+<B>tn5250</B>
+
+web site for more details.
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/lp5250d.1.php">lp5250d</A></B>(1),
+
+<B><A HREF="http://tn5250.sourceforge.net/">http://tn5250.sourceforge.net/</A></B>,
+
+<B>RFC1205</B>,
+
+<B>RFC2877</B>,
+
+<B>II10918</B>.
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+<B>tn5250</B>
+
+is copyright
+
+1997 - 2001 Michael Madore.  This manpage is copyright
+
+1999 - 2001 Carey Evans.
+<P>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+<P>
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+<P>
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<B>tn5250</B>
+
+was written by Michael Madore, Jay Felice, Scott Klement
+and others; see the AUTHORS file for details.
+This manual page was written by Carey Evans.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">USAGE</A><DD>
+<DL>
+<DT><A HREF="#lbAH">Keyboard Mapping</A><DD>
+<DT><A HREF="#lbAI">Display</A><DD>
+<DT><A HREF="#lbAJ">Display Types</A><DD>
+<DT><A HREF="#lbAK">Translation Maps</A><DD>
+</DL>
+<DT><A HREF="#lbAL">BUGS</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+<DT><A HREF="#lbAN">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAO">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

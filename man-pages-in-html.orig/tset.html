@@ -1,0 +1,368 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>tset</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>tset</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>tset</B>, <B>reset</B> - terminal initialization
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>tset</B> [<B>-IQVqrs</B>] [<B>-</B>] [<B>-e</B> <I>ch</I>] [<B>-i</B> <I>ch</I>] [<B>-k</B> <I>ch</I>] [<B>-m</B> <I>mapping</I>] [<I>terminal</I>]
+<BR>
+
+A
+<B>reset</B> [<B>-IQVqrs</B>] [<B>-</B>] [<B>-e</B> <I>ch</I>] [<B>-i</B> <I>ch</I>] [<B>-k</B> <I>ch</I>] [<B>-m</B> <I>mapping</I>] [<I>terminal</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Tset</B> initializes terminals.
+<B>Tset</B> first determines the type of terminal that you are using.
+This determination is done as follows, using the first terminal type found.
+<P>
+
+1. The <B>terminal</B> argument specified on the command line.
+<P>
+
+2. The value of the <B>TERM</B> environmental variable.
+<P>
+
+3. (BSD systems only.) The terminal type associated with the standard
+error output device in the <I>/etc/ttys</I> file.  (On Linux and
+System-V-like UNIXes, <I>getty</I> does this job by setting
+<B>TERM</B> according to the type passed to it by <I>/etc/inittab</I>.)
+<P>
+
+4. The default terminal type, ``unknown''.
+<P>
+
+If the terminal type was not specified on the command-line, the <B>-m</B>
+option mappings are then applied (see below for more information).
+Then, if the terminal type begins with a question mark (``?''), the
+user is prompted for confirmation of the terminal type.  An empty
+response confirms the type, or, another type can be entered to specify
+a new type.  Once the terminal type has been determined, the terminfo
+entry for the terminal is retrieved.  If no terminfo entry is found
+for the type, the user is prompted for another terminal type.
+<P>
+
+Once the terminfo entry is retrieved, the window size, backspace, interrupt
+and line kill characters (among many other things) are set and the terminal
+and tab initialization strings are sent to the standard error output.
+Finally, if the erase, interrupt and line kill characters have changed,
+or are not set to their default values, their values are displayed to the
+standard error output.
+<P>
+
+When invoked as <B>reset</B>, <B>tset</B> sets cooked and echo modes,
+turns off cbreak and raw modes, turns on newline translation and
+resets any unset special characters to their default values before
+doing the terminal initialization described above.  This is useful
+after a program dies leaving a terminal in an abnormal state.  Note,
+you may have to type
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>&lt;LF&gt;reset&lt;LF&gt;</B>
+<P>
+(the line-feed character is normally control-J) to get the terminal
+to work, as carriage-return may no longer work in the abnormal state.
+Also, the terminal will often not echo the command.
+<P>
+
+The options are as follows:
+<DL COMPACT>
+<DT><B>-q</B>
+
+<DD>
+The terminal type is displayed to the standard output, and the terminal is
+not initialized in any way.  The option `-' by itself is equivalent but
+archaic.
+<DT><B>-e</B>
+
+<DD>
+Set the erase character to <I>ch</I>.
+<DT><B>-I</B>
+
+<DD>
+Do not send the terminal or tab initialization strings to the terminal.
+<DT><B>-Q</B>
+
+<DD>
+Don't display any values for the erase, interrupt and line kill characters.
+<DT><B>-V</B>
+
+<DD>
+reports the version of ncurses which was used in this program, and exits.
+<DT><B>-i</B>
+
+<DD>
+Set the interrupt character to <I>ch</I>.
+<DT><B>-k</B>
+
+<DD>
+Set the line kill character to <I>ch</I>.
+<DT><B>-m</B>
+
+<DD>
+Specify a mapping from a port type to a terminal.
+See below for more information.
+<DT><B>-r</B>
+
+<DD>
+Print the terminal type to the standard error output.
+<DT><B>-s</B>
+
+<DD>
+Print the sequence of shell commands to initialize the environment variable
+<B>TERM</B> to the standard output.
+See the section below on setting the environment for details.
+</DL>
+<P>
+
+The arguments for the <B>-e</B>, <B>-i</B>, and <B>-k</B>
+options may either be entered as actual characters or by using the `hat'
+notation, i.e. control-h may be specified as ``^H'' or ``^h''.
+<A NAME="lbAE">&nbsp;</A>
+<H2>SETTING THE ENVIRONMENT</H2>
+
+It is often desirable to enter the terminal type and information about
+the terminal's capabilities into the shell's environment.
+This is done using the <B>-s</B> option.
+<P>
+
+When the <B>-s</B> option is specified, the commands to enter the information
+into the shell's environment are written to the standard output.  If
+the <B>SHELL</B> environmental variable ends in ``csh'', the commands
+are for <B>csh</B>, otherwise, they are for <B>sh</B>.
+Note, the <B>csh</B> commands set and unset the shell variable
+<B>noglob</B>, leaving it unset.  The following line in the <B>.login</B>
+or <B>.profile</B> files will initialize the environment correctly:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;eval&nbsp;`tset&nbsp;-s&nbsp;options&nbsp;...&nbsp;`
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>TERMINAL TYPE MAPPING</H2>
+
+When the terminal is not hardwired into the system (or the current
+system information is incorrect) the terminal type derived from the
+<I>/etc/ttys</I> file or the <B>TERM</B> environmental variable is often
+something generic like <B>network</B>, <B>dialup</B>, or <B>unknown</B>.
+When <B>tset</B> is used in a startup script it is often desirable to
+provide information about the type of terminal used on such ports.
+<P>
+
+The purpose of the <B>-m</B> option is to map
+from some set of conditions to a terminal type, that is, to
+tell <B>tset</B>
+``If I'm on this port at a particular speed, guess that I'm on that
+kind of terminal''.
+<P>
+
+The argument to the <B>-m</B> option consists of an optional port type, an
+optional operator, an optional baud rate specification, an optional
+colon (``:'') character and a terminal type.  The port type is a
+string (delimited by either the operator or the colon character).  The
+operator may be any combination of ``&gt;'', ``&lt;'', ``@'', and ``!''; ``&gt;''
+means greater than, ``&lt;'' means less than, ``@'' means equal to
+and ``!'' inverts the sense of the test.
+The baud rate is specified as a number and is compared with the speed
+of the standard error output (which should be the control terminal).
+The terminal type is a string.
+<P>
+
+If the terminal type is not specified on the command line, the <B>-m</B>
+mappings are applied to the terminal type.  If the port type and baud
+rate match the mapping, the terminal type specified in the mapping
+replaces the current type.  If more than one mapping is specified, the
+first applicable mapping is used.
+<P>
+
+For example, consider the following mapping: <B>dialup&gt;9600:vt100</B>.
+The port type is dialup , the operator is &gt;, the baud rate
+specification is 9600, and the terminal type is vt100.  The result of
+this mapping is to specify that if the terminal type is <B>dialup</B>,
+and the baud rate is greater than 9600 baud, a terminal type of
+<B>vt100</B> will be used.
+<P>
+
+If no baud rate is specified, the terminal type will match any baud rate.
+If no port type is specified, the terminal type will match any port type.
+For example, <B>-m dialup:vt100 -m :?xterm</B>
+will cause any dialup port, regardless of baud rate, to match the terminal
+type vt100, and any non-dialup port type to match the terminal type ?xterm.
+Note, because of the leading question mark, the user will be
+queried on a default port as to whether they are actually using an xterm
+terminal.
+<P>
+
+No whitespace characters are permitted in the <B>-m</B> option argument.
+Also, to avoid problems with meta-characters, it is suggested that the
+entire <B>-m</B> option argument be placed within single quote characters,
+and that <B>csh</B> users insert a backslash character (``\'') before
+any exclamation marks (``!'').
+<A NAME="lbAG">&nbsp;</A>
+<H2>HISTORY</H2>
+
+The <B>tset</B> command appeared in BSD 3.0.  The <B>ncurses</B> implementation
+was lightly adapted from the 4.4BSD sources for a terminfo environment by Eric
+S. Raymond &lt;<A HREF="mailto:esr@snark.thyrsus.com">esr@snark.thyrsus.com</A>&gt;.
+<A NAME="lbAH">&nbsp;</A>
+<H2>COMPATIBILITY</H2>
+
+The <B>tset</B> utility has been provided for backward-compatibility with BSD
+environments (under most modern UNIXes, <B>/etc/inittab</B> and <I><A HREF="../man1/getty.1.php">getty</A></I>(1)
+can set <B>TERM</B> appropriately for each dial-up line; this obviates what was
+<B>tset</B>'s most important use).  This implementation behaves like 4.4BSD
+tset, with a few exceptions specified here.
+<P>
+
+The <B>-S</B> option of BSD tset no longer works; it prints an error message to stderr
+and dies.  The <B>-s</B> option only sets <B>TERM</B>, not <B>TERMCAP</B>.  Both these
+changes are because the <B>TERMCAP</B> variable is no longer supported under
+terminfo-based <B>ncurses</B>, which makes <B>tset -S</B> useless (we made it die
+noisily rather than silently induce lossage).
+<P>
+
+There was an undocumented 4.4BSD feature that invoking tset via a link named
+`TSET` (or via any other name beginning with an upper-case letter) set the
+terminal to use upper-case only.  This feature has been omitted.
+<P>
+
+The <B>-A</B>, <B>-E</B>, <B>-h</B>, <B>-u</B> and <B>-v</B>
+options were deleted from the <B>tset</B>
+utility in 4.4BSD.
+None of them were documented in 4.3BSD and all are
+of limited utility at best.
+The <B>-a</B>, <B>-d</B>, and <B>-p</B> options are similarly
+not documented or useful, but were retained as they appear to be in
+widespread use.  It is strongly recommended that any usage of these
+three options be changed to use the <B>-m</B> option instead.  The
+-n option remains, but has no effect.  The <B>-adnp</B> options are therefore
+omitted from the usage summary above.
+<P>
+
+It is still permissible to specify the <B>-e</B>, <B>-i</B>, and <B>-k</B> options without
+arguments, although it is strongly recommended that such usage be fixed to
+explicitly specify the character.
+<P>
+
+As of 4.4BSD, executing <B>tset</B> as <B>reset</B> no longer implies the <B>-Q</B>
+option.  Also, the interaction between the - option and the <I>terminal</I>
+argument in some historic implementations of <B>tset</B> has been removed.
+<A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+The <B>tset</B> command uses the <B>SHELL</B> and <B>TERM</B>
+environment variables.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>/etc/ttys<DD>
+system port name to terminal type mapping database (BSD versions only).
+<DT>/usr/share/terminfo<DD>
+terminal capability database
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/csh.1.php">csh</A>(1),
+<A HREF="../man1/sh.1.php">sh</A>(1),
+<A HREF="../man1/stty.1.php">stty</A>(1),
+<A HREF="../man4/tty.4.php">tty</A>(4),
+<A HREF="../man5/termcap.5.php">termcap</A>(5),
+<A HREF="../man5/ttys.5.php">ttys</A>(5),
+<A HREF="../man7/environ.7.php">environ</A>(7)
+
+
+
+
+
+
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SETTING THE ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAF">TERMINAL TYPE MAPPING</A><DD>
+<DT><A HREF="#lbAG">HISTORY</A><DD>
+<DT><A HREF="#lbAH">COMPATIBILITY</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

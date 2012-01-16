@@ -1,0 +1,382 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>sfxload</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>sfxload</H1>
+Section: User Commands  (1)<BR>Updated: December 1, 1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+sfxload - load a SoundFont file on the AWE32 sound driver
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+sfxload [-options] fontfile
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>sfxload</B>
+
+is a utility program to transfer the sound wave and
+instruments data in a SoundFont file to the AWE32 sound driver.
+This program is necessary for playing MIDI samples
+via sequencer programs supporting AWE driver.
+<P>
+Basically, sfxload behaves as two ways.
+
+% sfxload fontfile
+<BR>
+
+% sfxload -b1 fontfile
+
+<P>
+The first usage is to read SF2 (or SBK) file and transfer to the awe
+driver.  In this case, the samples which were loaded on the driver are
+replaced with the new one.
+In the second case, sfxload reads the file and appends it to the
+pre-loaded samples on the driver with specified bank number.  The old
+samples remain in the driver.  The additional samples can be cleared
+via
+<B>-x</B>
+
+option (see below).
+<P>
+The sound files are searched through the path list.  The path list is
+defined as built-in.  If the environment variable
+<B>SFBANKDIR</B>
+
+or the
+command line option
+<B>-P</B>
+
+is given, it replaces the default search list.
+The file extension .sf2, and .sbk can be abbreviated.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-i, --clear[=bool]</B>
+
+<DD>
+Remove all samples before loading the fonts.
+This is an explicit directive (see -b option).
+If this option is specified alone without soundfont file
+arguments, sfxload does onlay remove samples.
+Either of &quot;on&quot;, &quot;off&quot;, &quot;yes&quot;, &quot;no&quot;, &quot;true&quot;, or &quot;false&quot; can be
+specified as an optional argument.
+<DT><B>-x, --remove[=bool]</B>
+
+<DD>
+Remove the optional samples previouly loaded via -b option.
+Otherwise, all new samples are simply appended.
+<DT><B>-N, --increment[=bool]</B>
+
+<DD>
+Do not clear samples even with the absence of -b option.
+However, this option is not exclusive with -x option.  If both 
+options are specified, and the memory full error is
+encountered during loading fonts, sfxload will try to remove
+samples and load the fonts again.
+<DT><B>-b, --bank=number</B>
+
+<DD>
+Append the sound samples on the specified bank.
+Without this option, all present samples in the driver are
+removed before loading the new fonts unless -N option is
+specified.  Usually, this option is necessary to load user
+bank, typically in bank one.
+For example,
+
+% sfxload synthgm.sbk
+<BR>
+
+% sfxload -b1 surprise.sf2
+<BR>
+
+
+<DT><B>-l, --lock[=bool]</B>
+
+<DD>
+Lock the font.  The locked font is no longer removed via
+remove option (-x) even if it's loaded together with -b option.
+<DT><B>-C, --compat[=bool]</B>
+
+<DD>
+Use the old (v0.4.2) parameter calculations.
+<DT><B>-A, --sense=sensitivity</B>
+
+<DD>
+(Only valid on compatible mode)
+<BR>
+
+Set sample attenuation sensitivity.
+This option controls the sensitivity of initial attenuation parameter
+of each instrument defined in SoundFont file.
+In the program, each parameter is calculated from the value divided
+by this number for the original value.
+The number 1.0 means that the original initial attenuation parameters
+would be used.
+Generally, smaller number makes drum sounds louder.
+(I think -A 2 would be similar to Windows sounds.)
+The default value is 10. 
+Note that this option changes also the default attenuation automatically (see below).
+<DT><B>-a, --atten=attenuation</B>
+
+<DD>
+(Only valid on compatible mode)
+<BR>
+
+Set the default attenuation level.
+This option controls the minimum attenuation of the sample.
+The parameter is given in raw digit number for AWE driver,
+that is, in 8/3 dB unit.
+Since --sense option changes the default attenuation automatically,
+specify this option later from --sense option.
+The default value is 32.
+<DT><B>-d, --decay=scale</B>
+
+<DD>
+(Only valid on compatible mode)
+<BR>
+
+Set the scale of envelope decay time.  Default value is 50.0.
+Sounds decay fast when larger number is set.
+The ver.0.3 sfxload uses 54.8.  If you want to keep the same
+sound, use this number instead.
+<DT><B>-M, --memory[=bool]</B>
+
+<DD>
+Display the left memory size in DRAM on the AWE32 card.
+<DT><B>-c, --chorus=percent</B>
+
+<DD>
+Specify the effects of chorus.
+The value is in percent, from 0 to 100.  The default is unspecified.
+This value may be overwritten by MIDI control messages.
+<DT><B>-r, --reverb=percent</B>
+
+<DD>
+Specify the effects of reverb.
+The value is in percent, from 0 to 100.  The default is unspecified.
+This value may be overwritten by MIDI control messages.
+<DT><B>-B, --addblank[=bool]</B>
+
+<DD>
+Add 48 size of blank loop on each sample data.  Usually, this
+option is not necessary.  Most of soundfont files are designed 
+well for enough blank loops for each sample.
+<DT><B>-L, --extract=source[:map]</B>
+
+<DD>
+Extract and load only the specified preset(s).
+This option is usually employed by drvmidi.
+The preset is given as same as in virtual bank file.
+<DT><B>-v, --verbose[=level]</B>
+
+<DD>
+Increase or set the verbosity level.
+<DT><B>-V, --volume=percent</B>
+
+<DD>
+Specify the total volume of sounds, provided in percent.
+The default volume is 70%.
+<DT><B>-P, --path=path1:path2:pathN</B>
+
+<DD>
+Specify the search path list.
+The sound files are searched from
+<I>path1, path2,</I>
+
+and so on.
+This overrides both the system path and environment variable
+<B>SFBANKDIR.</B>
+
+<DT><B>-d, --device=file</B>
+
+<DD>
+Speicfy the device file name.
+As default, /dev/sequencer is used.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>VIRTUAL BANK FILE</H2>
+
+The virtual bank file is a list of presets treated as one soundfont
+file.  The syntax of virtual bank is as follows:
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT># comments<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>source:map[:soundfont [preset-name]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>source:map[:soundfont [preset-name]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>...<BR>
+
+<P>
+The first and second items are the source and mapped presets,
+respectively.  The former is the existing preset in the soundfont,
+and the latter is the actual preset loaded on the sound driver.
+The preset is described by the following three values,
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>preset/bank/keynote<BR>
+
+If bank and keynote are omitted, bank 0 and keynote -1 (meaning to
+search all keys) are applied.
+<P>
+The third item is the name of soundfont file.  The file is searched
+from the prescribed search-path.  The remaining arguments are
+ignored in sfxload.
+<P>
+If the soundfont name is omitted, sfxload loads it as preset
+mapping.  It just behaves like a symbolic link of file opposing to
+copying of the file.  Any sample data is not referred at this time,
+but searched first when the note is played.
+<P>
+A couple of special commands can be used together with the virtual
+presets above.
+<B>default</B>
+
+command is used to specify the default
+soundfont file.  Any other presets which are not defined in the
+virtual preset lists are loaded from this default font.  For
+example, in the following virtual bank, 2mbgmgs.sf2 is used except
+for standard drumsets which employs drum.sf2:
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>0/128:0/128:drum.sf2<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>default 2mbgmgs.sf2<BR>
+
+<P>
+Another special command is
+<B>include</B>
+
+command.  This simply includes
+another virtual bank file under the current position. For example,
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>default standard.sf2<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>0/128:0/128:drum.sf2<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>include xgsfx.bnk<BR>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SYSTEM RESROUCE FILE</H2>
+
+<P>
+The default option arguments can be stored in the system resource file.
+There are two files loaded as default.
+
+$HOME/.sfxloadrc
+<BR>
+
+/etc/sfxloadrc
+
+<P>
+The syntax is as follows:
+
+fontname -options..
+
+The first argument is soundfont file name for each option.
+The remaining arguments are identical with command line options.
+The font name
+<I>default</I>
+
+is used for default options for all sound
+fonts.  The default options are overridden by specific options or
+command line options.
+<P>
+For example, to set default chorus level 20 except for synthgm font,
+you can write a resource file ~/.sfxloadrc like that:
+
+default<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>--chorus=20<BR>
+<BR>
+
+synthgm --chorus=0
+
+<P>
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>SFBANKDIR</B>
+
+<DD>
+Search path for sound files.  The current directory is always searched
+at first.
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/drvmidi.1.php">drvmidi</A>(1)
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Copyright (C) 1996-1999 Takashi Iwai.
+
+The AWE32 driver and utilties are free software; you can redistribute them
+and/or modify them under the terms of the <I>GNU General Public
+License</I> as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">VIRTUAL BANK FILE</A><DD>
+<DT><A HREF="#lbAG">SYSTEM RESROUCE FILE</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

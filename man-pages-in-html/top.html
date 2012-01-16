@@ -1,0 +1,1305 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>TOP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>TOP</H1>
+Section: Linux User's Manual (1)<BR>Updated: September 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<P>
+<P>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+
+top - display Linux tasks
+<P>
+<P>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<B>top</B> -<B>hv</B> | -<B>bcisS</B> -<B>d</B><I> delay</I> -<B>n</B><I>
+iterations</I> -<B>p</B><I> pid</I> [,<I> pid</I> ...]
+<P>
+The traditional switches '-' and whitespace are optional.
+<P>
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+The <B>top</B> program provides a dynamic real-time view of a running system.
+It can display<B> system</B> summary information as well as a list of<B>
+tasks</B> currently being managed by the Linux kernel.
+The types of system summary information shown and the types, order and
+size of information displayed for tasks are all user configurable and
+that configuration can be made persistent across restarts.
+<P>
+The program provides a limited interactive interface for process
+manipulation as well as a much more extensive interface for personal
+configuration &nbsp;<B>--&nbsp;</B> encompassing every aspect of its operation.
+And while <B>top</B> is referred to throughout this document, you are free
+to name the program anything you wish.
+That new name, possibly an alias, will then be reflected on top's display
+and used when reading and writing a configuration file.
+<P>
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>OVERVIEW</H2>
+
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Documentation</H3>
+
+
+The remaining Table of Contents
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;COMMAND-LINE&nbsp;Options
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;FIELDS&nbsp;/&nbsp;Columns
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;DESCRIPTIONS&nbsp;of&nbsp;Fields
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;SELECTING&nbsp;and&nbsp;ORDERING&nbsp;Columns
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;INTERACTIVE&nbsp;Commands
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;GLOBAL&nbsp;Commands
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;SUMMARY&nbsp;Area&nbsp;Commands
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;TASK&nbsp;Area&nbsp;Commands
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d.&nbsp;COLOR&nbsp;Mapping
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;4.&nbsp;ALTERNATE-DISPLAY&nbsp;Mode
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;WINDOWS&nbsp;Overview
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;COMMANDS&nbsp;for&nbsp;Windows
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;5.&nbsp;FILES
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;SYSTEM&nbsp;Configuration&nbsp;File
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;PERSONAL&nbsp;Configuration&nbsp;File
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;6.&nbsp;STUPID&nbsp;TRICKS&nbsp;Sampler
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;Kernel&nbsp;Magic
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;Bouncing&nbsp;Windows
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;The&nbsp;Big&nbsp;Bird&nbsp;Window
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;7.&nbsp;BUGS,&nbsp;8.&nbsp;HISTORY&nbsp;Former&nbsp;top,&nbsp;9.&nbsp;AUTHOR,&nbsp;10.&nbsp;SEE&nbsp;ALSO
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Operation</H3>
+
+
+When operating top, the two most important keys are help ('h' or '?') and
+quit ('q') key.
+Alternatively, you could simply use the traditional interrupt key ('^C')
+when you're done.
+<P>
+When you start top for the first time, you'll be presented with the
+traditional screen elements: 1) Summary Area; 2) Message/Prompt Line;
+3) Columns Header; 4) Task Area.
+There will, however, be some differences when compared to the former top.
+<P>
+<DL COMPACT>
+<DT><B>Highlighting</B>
+
+<DD>
+<I>Summary_Area</I>:
+
+There is no highlighting for load/uptime and only values are highlighted for
+other elements.
+<P>
+<I>Task_Area</I>:
+
+Tasks running (or ready to run) will be highlighted, and bold is only one way
+of emphasizing such processes.
+<P>
+<DT><B>Content/Labels</B>
+
+<DD>
+<I>Summary_Area</I>:
+
+The program name is shown, perhaps a symlink or alias.
+The Cpu(s) state label hints at other possibilities.
+The memory stats use a lower case 'k'.
+<P>
+<I>Columns_Header</I>:
+
+Will show a new field and some changed labels.
+More new fields will be found as you customize your top.
+<P>
+</DL>
+<P>
+
+<B>Note</B>: the width of top's display will be limited to 512 positions.
+Displaying all fields requires a minimum of 160 characters.
+The remaining width could be used for the 'Command' column.
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Startup Defaults</H3>
+
+
+The following startup defaults assume no configuration file, thus no user customizations.
+Even so, items shown with an asterisk ('*') could be overridden through the
+command-line.
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>Global_defaults</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'A'&nbsp;-&nbsp;Alt&nbsp;display&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off&nbsp;(full-screen)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'d'&nbsp;-&nbsp;Delay&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.0&nbsp;seconds
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'I'&nbsp;-&nbsp;Irix&nbsp;mode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(no,&nbsp;'solaris'&nbsp;smp)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'p'&nbsp;-&nbsp;PID&nbsp;monitoring&nbsp;&nbsp;&nbsp;Off
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'s'&nbsp;-&nbsp;Secure&nbsp;mode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off&nbsp;(unsecured)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'B'&nbsp;-&nbsp;Bold&nbsp;disable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>Summary_Area_defaults</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'l'&nbsp;-&nbsp;Load&nbsp;Avg/Uptime&nbsp;&nbsp;On&nbsp;&nbsp;(thus&nbsp;program&nbsp;name)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'t'&nbsp;-&nbsp;Task/Cpu&nbsp;states&nbsp;&nbsp;On&nbsp;&nbsp;(1+1&nbsp;lines,&nbsp;see&nbsp;'1')
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'m'&nbsp;-&nbsp;Mem/Swap&nbsp;usage&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(2&nbsp;lines&nbsp;worth)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'1'&nbsp;-&nbsp;Single&nbsp;Cpu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(thus&nbsp;1&nbsp;line&nbsp;if&nbsp;smp)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>Task_Area_defaults</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'b'&nbsp;-&nbsp;Bold&nbsp;hilite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(not&nbsp;'reverse')
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'c'&nbsp;-&nbsp;Command&nbsp;line&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off&nbsp;(name,&nbsp;not&nbsp;cmdline)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'i'&nbsp;-&nbsp;Idle&nbsp;tasks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(show&nbsp;all&nbsp;tasks)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'R'&nbsp;-&nbsp;Reverse&nbsp;sort&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(pids&nbsp;high-to-low)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;'S'&nbsp;-&nbsp;Cumulative&nbsp;time&nbsp;&nbsp;Off&nbsp;(no,&nbsp;dead&nbsp;children)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'x'&nbsp;-&nbsp;Column&nbsp;hilite&nbsp;&nbsp;&nbsp;&nbsp;Off&nbsp;(no,&nbsp;sort&nbsp;field)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'y'&nbsp;-&nbsp;Row&nbsp;hilite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;(yes,&nbsp;running&nbsp;tasks)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'z'&nbsp;-&nbsp;color/mono&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off&nbsp;(no,&nbsp;colors)
+<P>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>1. COMMAND-LINE Options</H2>
+
+
+The command-line syntax for top consists of:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-<B>hv</B>&nbsp;|&nbsp;-<B>bcisS</B>&nbsp;-<B>d</B><I>&nbsp;delay</I>&nbsp;-<B>n</B><I>&nbsp;iterations</I>&nbsp;-<B>p</B><I>&nbsp;pid</I>&nbsp;[,<I>pid</I>...]
+<P>
+The typically mandatory switches ('-') and even whitespace are completely
+optional.
+<P>
+<DL COMPACT>
+<DT>-<B>b</B> :<B> Batch mode</B> operation<DD>
+Starts top in 'Batch mode', which could be useful for sending output
+from top to other programs or to a file.
+In this mode, top will not accept input and runs until the iterations
+limit you've set with the '-n' command-line option or until killed.
+<P>
+<DT>-<B>c</B> :<B> Command line/Program name</B> toggle<DD>
+Starts top with the last remembered 'c' state reversed.
+Thus, if top was displaying command lines, now that field will show program
+names, and visa versa.
+See the 'c' interactive command for additional information.
+<P>
+<DT>-<B>d</B> :<B> Delay time</B> interval as:&nbsp;&nbsp;<B>-d ss.tt</B> (<I>seconds</I>.<I>tenths</I>)<DD>
+Specifies the delay between screen updates, and overrides the corresponding
+value in one's personal configuration file or the startup default.
+Later this can be changed with the 'd' or 's' interactive commands.
+<P>
+Fractional seconds are honored, but a negative number is not allowed.
+In all cases, however, such changes are prohibited if top is running
+in 'Secure mode', except for root (unless the 's' command-line option was used).
+For additional information on 'Secure mode' see topic 5a. SYSTEM Configuration File.
+<P>
+<P>
+<DT>-<B>h</B> :<B> Help</B><DD>
+Show library version and the usage prompt, then quit.
+<P>
+<DT>-<B>i</B> :<B> Idle Processes</B> toggle<DD>
+Starts top with the last remembered 'i' state reversed.
+When this toggle is <I>Off</I>, tasks that are idled or zombied will not be displayed.
+<P>
+<DT>-<B>n</B> :<B> Number of iterations</B> limit as:<B>&nbsp;&nbsp;-n number</B><DD>
+Specifies the maximum number of iterations, or frames, top should
+produce before ending.
+<P>
+<DT>-<B>u</B> :<B> Monitor by user</B> as:<B>&nbsp;&nbsp;-u somebody<DD>
+Monitor only processes with an effective UID or user name
+matching that given.
+<P>
+<DT>-U</B> :<B> Monitor by user</B> as:<B>&nbsp;&nbsp;-U somebody<DD>
+Monitor only processes with a UID or user name matching that given.
+This matches real, effective, saved, and filesystem UIDs.
+<P>
+<DT>-p</B> :<B> Monitor PIDs</B> as:<B>&nbsp;&nbsp;-pN1 -pN2 ...</B>&nbsp;&nbsp;or<B>&nbsp;&nbsp;-pN1, N2 [,...]<DD>
+Monitor only processes with specified process IDs.
+This option can be given up to 20 times, or you can provide a comma delimited
+list with up to 20 pids.
+Co-mingling both approaches is permitted.
+<P>
+This is a command-line option only.
+And should you wish to return to normal operation, it is not necessary
+to quit and and restart top &nbsp;<B>--&nbsp;</B> just issue the '=' interactive command.
+<P>
+<DT>-s</B> :<B> Secure mode</B> operation<DD>
+Starts top with secure mode forced, even for root.
+This mode is far better controlled through the system configuration file
+(see topic 5. FILES).
+<P>
+<DT>-<B>S</B> :<B> Cumulative time mode</B> toggle<DD>
+Starts top with the last remembered 'S' state reversed.
+When 'Cumulative mode' is <I>On</I>, each process is listed with the cpu
+time that it and its dead children have used.
+See the 'S' interactive command for additional information regarding this mode.
+<P>
+<DT>-<B>v</B> :<B> Version</B><DD>
+Show library version and the usage prompt, then quit.
+<P>
+<P>
+
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>2. FIELDS / Columns</H2>
+
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>2a. DESCRIPTIONS of Fields</H3>
+
+
+Listed below are top's available fields.
+They are always associated with the letter shown, regardless of the position
+you may have established for them with the 'o' (Order fields) interactive command.
+<P>
+Any field is selectable as the sort field, and you control whether they
+are sorted high-to-low or low-to-high.
+For additional information on sort provisions see topic 3c. TASK Area Commands.
+<P>
+<DL COMPACT>
+<DT>a:<B> PID</B> &nbsp;<B>--&nbsp;</B> Process Id<DD>
+The task's unique process ID, which periodically wraps,
+though never restarting at zero.
+<P>
+<DT>b:<B> PPID</B> &nbsp;<B>--&nbsp;</B> Parent Process Pid<DD>
+The process ID of a task's parent.
+<P>
+<DT>c:<B> RUSER</B> &nbsp;<B>--&nbsp;</B> Real User Name<DD>
+The real user name of the task's owner.
+<P>
+<DT>d:<B> UID</B> &nbsp;<B>--&nbsp;</B> User Id<DD>
+The effective user ID of the task's owner.
+<P>
+<DT>e:<B> USER</B> &nbsp;<B>--&nbsp;</B> User Name<DD>
+The effective user name of the task's owner.
+<P>
+<DT>f:<B> GROUP</B> &nbsp;<B>--&nbsp;</B> Group Name<DD>
+The effective group name of the task's owner.
+<P>
+<DT>g:<B> TTY</B> &nbsp;<B>--&nbsp;</B> Controlling Tty<DD>
+The name of the controlling terminal.
+This is usually the device (serial port, pty, etc.) from which the
+process was started, and which it uses for input or output.
+However, a task need not be associated with a terminal, in which case
+you'll see '?' displayed.
+<P>
+<DT>h:<B> PR</B> &nbsp;<B>--&nbsp;</B> Priority<DD>
+The priority of the task.
+<P>
+<DT>i:<B> NI</B> &nbsp;<B>--&nbsp;</B> Nice value<DD>
+The nice value of the task.
+A negative nice value means higher priority, whereas a positive nice value
+means lower priority.
+Zero in this field simply means priority will not be adjusted in determining a
+task's dispatchability.
+<P>
+<DT>j:<B> #C</B> &nbsp;<B>--&nbsp;</B> Last used CPU (SMP)<DD>
+A number representing the last used processor.
+In a true SMP environment this will likely change frequently since the kernel
+intentionally uses weak affinity.
+Also, the very act of running top may break this weak affinity and cause more
+processes to change CPUs more often (because of the extra demand for
+cpu time).
+<P>
+<DT>k:<B> %CPU</B> &nbsp;<B>--&nbsp;</B> CPU usage<DD>
+The task's share of the elapsed CPU time since the last screen update, expressed
+as a percentage of total CPU time.
+In a true SMP environment, if 'Irix mode' is <I>Off</I>, top will operate in
+'Solaris mode' where a task's cpu usage will be divided by the total
+number of CPUs.
+You toggle 'Irix/Solaris' modes with the 'I' interactive command.
+<P>
+<DT>l:<B> TIME</B> &nbsp;<B>--&nbsp;</B> CPU Time<DD>
+Total CPU time the task has used since it started.
+When 'Cumulative mode' is <I>On</I>, each process is listed with the cpu
+time that it and its dead children has used.
+You toggle 'Cumulative mode' with 'S', which is a command-line option and an interactive command.
+See the 'S' interactive command for additional information regarding this mode.
+<P>
+<DT>m:<B> TIME+</B> &nbsp;<B>--&nbsp;</B> CPU Time, hundredths<DD>
+The same as 'TIME', but reflecting more granularity through hundredths of
+a second.
+<P>
+<DT>n:<B> %MEM</B> &nbsp;<B>--&nbsp;</B> Memory usage (RES)<DD>
+A task's currently used share of available <B>physical</B> memory.
+<P>
+<DT>o:<B> VIRT</B> &nbsp;<B>--&nbsp;</B> Virtual Image (kb)<DD>
+The total amount of <B>virtual</B> memory used by the task.
+It includes all code, data and shared libraries plus pages that have been
+swapped out.
+<P>
+VIRT = SWAP + RES.
+<P>
+<DT>p:<B> SWAP</B> &nbsp;<B>--&nbsp;</B> Swapped size (kb)<DD>
+The swapped out portion of a task's total <B>virtual</B> memory image.
+<P>
+<DT>q:<B> RES</B> &nbsp;<B>--&nbsp;</B> Resident size (kb)<DD>
+The non-swapped <B>physical</B> memory a task has used.
+<P>
+RES = CODE + DATA.
+<P>
+<DT>r:<B> CODE</B> &nbsp;<B>--&nbsp;</B> Code size (kb)<DD>
+The amount of <B>physical</B> memory devoted to executable code, also known as
+the 'text resident set' size or TRS.
+<P>
+<DT>s:<B> DATA</B> &nbsp;<B>--&nbsp;</B> Data+Stack size (kb)<DD>
+The amount of <B>physical</B> memory devoted to other than executable code, also known as
+the 'data resident set' size or DRS.
+<P>
+<DT>t:<B> SHR</B> &nbsp;<B>--&nbsp;</B> Shared Mem size (kb)<DD>
+The amount of <B>shared</B> memory used by a task.
+It simply reflects memory that could be potentially shared with
+other processes.
+<P>
+<DT>u:<B> nFLT</B> &nbsp;<B>--&nbsp;</B> Page Fault count<DD>
+The number of<B> major</B> page faults that have occurred for a task.
+A page fault occurs when a process attempts to read from or write to a virtual
+page that is not currently present in its address space.
+A major page fault is when disk access is involved in making that
+page available.
+<P>
+<DT>v:<B> nDRT</B> &nbsp;<B>--&nbsp;</B> Dirty Pages count<DD>
+The number of pages that have been modified since they were last
+written to disk.
+Dirty pages must be written to disk before the corresponding physical memory
+location can be used for some other virtual page.
+<P>
+<DT>w:<B> S</B> &nbsp;<B>--&nbsp;</B> Process Status<DD>
+The status of the task which can be one of:
+<BR>&nbsp;&nbsp;&nbsp;'<B>D</B>'&nbsp;=&nbsp;uninterruptible&nbsp;sleep
+<BR>&nbsp;&nbsp;&nbsp;'<B>R</B>'&nbsp;=&nbsp;running
+<BR>&nbsp;&nbsp;&nbsp;'<B>S</B>'&nbsp;=&nbsp;sleeping
+<BR>&nbsp;&nbsp;&nbsp;'<B>T</B>'&nbsp;=&nbsp;traced&nbsp;or&nbsp;stopped
+<BR>&nbsp;&nbsp;&nbsp;'<B>Z</B>'&nbsp;=&nbsp;zombie
+<P>
+Tasks shown as running should be more properly thought of as 'ready to run'
+&nbsp;<B>--&nbsp;</B> their task_struct is simply represented on the Linux run-queue.
+Even without a true SMP machine, you may see numerous tasks in this state
+depending on top's delay interval and nice value.
+<P>
+<DT>x:<B> Command</B> &nbsp;<B>--&nbsp;</B> Command<B> line</B> or Program<B> name</B><DD>
+Display the command line used to start a task or the name of the associated
+program.
+You toggle between command<I> line</I> and<I> name</I> with 'c', which is both
+a command-line option and an interactive command.
+<P>
+When you've chosen to display command lines, processes without a command
+line (like kernel threads) will be shown with only the program name in
+parentheses, as in this example:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;mdrecoveryd&nbsp;)
+<P>
+Either form of display is subject to potential truncation if it's too long to
+fit in this field's current width.
+That width depends upon other fields selected, their order and the current
+screen width.
+<P>
+<B>Note</B>: The 'Command' field/column is unique, in that it is not fixed-width.
+When displayed, this column will be allocated all remaining screen width (up
+to the maximum 512 characters) to provide for the potential growth of program
+names into command lines.
+<P>
+<DT>y:<B> WCHAN</B> &nbsp;<B>--&nbsp;</B> Sleeping in Function<DD>
+Depending on the availability of the kernel link map ('System.map'), this field
+will show the name or the address of the kernel function in which the task is
+currently sleeping.
+Running tasks will display a dash ('-') in this column.
+<P>
+<B>Note</B>: By displaying this field, top's own working set will be increased by
+over 700Kb.
+Your only means of reducing that overhead will be to stop and restart top.
+<P>
+<DT>z:<B> Flags</B> &nbsp;<B>--&nbsp;</B> Task Flags<DD>
+This column represents the task's current scheduling flags which are
+expressed in hexadecimal notation and with zeros suppressed.
+These flags are officially documented in &lt;<A HREF="file:/usr/include/linux/sched.h">linux/sched.h</A>&gt;.
+Less formal documentation can also be found on the 'Fields select'
+and 'Order fields' screens.
+<P>
+
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H3>2b. SELECTING and ORDERING Columns</H3>
+
+
+After pressing the interactive commands 'f' (Fields select) or 'o' (Order fields) you will
+be shown a screen containing the current <B>fields string</B> followed by names
+and descriptions for all fields.
+<P>
+Here is a sample<B> fields string</B> from one of top's four windows/field
+groups and an explanation of the conventions used:
+
+<DL COMPACT>
+<DT>-<DD>
+
+Sample fields string:
+<BR>&nbsp;&nbsp;&nbsp;<I>ANOPQRSTUVXbcdefgjlmyzWHIK</I>
+
+<DT>-<DD>
+
+The order of displayed fields corresponds to the order of the letters
+in that string.
+
+<DT>-<DD>
+
+If the letter is<I> upper case</I> the corresponding field itself will
+then be shown as part of the task display (screen width permitting).
+This will also be indicated by a leading asterisk ('*'), as in this excerpt:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;...
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>*&nbsp;K:&nbsp;%CPU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;CPU&nbsp;usage
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;</B>&nbsp;&nbsp;l:&nbsp;TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;CPU&nbsp;Time
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m:&nbsp;TIME+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;CPU&nbsp;Time,&nbsp;hundredths
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>*&nbsp;N:&nbsp;%MEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;Memory&nbsp;usage&nbsp;(RES)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;O:&nbsp;VIRT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;Virtual&nbsp;Image&nbsp;(kb)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;</B>...
+<P>
+<DT><B>Fields select</B> screen &nbsp;<B>--&nbsp;</B> the 'f' interactive command
+
+<DD>
+You<I> toggle</I> the<B> display</B> of a field by simply pressing the
+corresponding letter.
+<P>
+<DT><B>Order fields</B> screen &nbsp;<B>--&nbsp;</B> the 'o' interactive command
+
+<DD>
+You<I> move</I> a field to the<B> left</B> by pressing the corresponding<B>
+upper case</B> letter and to the<B> right</B> with the<B> lower case</B>
+letter.
+<P>
+<P>
+
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>3. INTERACTIVE Commands</H2>
+
+
+Listed below is a brief index of commands within categories.
+Some commands appear more than once &nbsp;<B>--&nbsp;</B> their meaning or scope may vary
+depending on the context in which they are issued.
+<P>
+<BR>&nbsp;&nbsp;3a.<I>&nbsp;GLOBAL_Commands</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Ret/Sp&gt;&nbsp;?,&nbsp;=,&nbsp;A,&nbsp;B,&nbsp;d,&nbsp;G,&nbsp;h,&nbsp;I,&nbsp;k,&nbsp;q,&nbsp;r,&nbsp;s,&nbsp;W,&nbsp;Z
+<BR>&nbsp;&nbsp;3b.<I>&nbsp;SUMMARY_Area_Commands</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l,&nbsp;m,&nbsp;t,&nbsp;1
+<BR>&nbsp;&nbsp;3c.<I>&nbsp;TASK_Area_Commands</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Appearance:&nbsp;&nbsp;b,&nbsp;x,&nbsp;y,&nbsp;z
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Content:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c,&nbsp;f,&nbsp;o,&nbsp;S,&nbsp;u
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Size:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#,&nbsp;i,&nbsp;n
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sorting:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;,&nbsp;&gt;,&nbsp;F,&nbsp;O,&nbsp;R
+<BR>&nbsp;&nbsp;3d.<I>&nbsp;COLOR_Mapping</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Ret&gt;,&nbsp;a,&nbsp;B,&nbsp;b,&nbsp;H,&nbsp;M,&nbsp;q,&nbsp;S,&nbsp;T,&nbsp;w,&nbsp;z,&nbsp;0&nbsp;-&nbsp;7
+<BR>&nbsp;&nbsp;4b.<I>&nbsp;COMMANDS_for_Windows</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-,&nbsp;_,&nbsp;=,&nbsp;+,&nbsp;A,&nbsp;a,&nbsp;G,&nbsp;g,&nbsp;w
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H3>3a. GLOBAL Commands</H3>
+
+The global interactive commands are<B> always</B> available in both full-screen mode and alternate-display mode.
+However, some of these interactive commands are<B> not available</B> when running
+in 'Secure mode'.
+<P>
+If you wish to know in advance whether or not your top has been secured,
+simply ask for help and view the system summary on the second line.
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;&lt;<B>Enter</B>&gt; or &lt;<B>Space</B>&gt; :<I>Refresh_Display</I><DD>
+These commands do nothing, they are simply ignored.
+However, they will awaken top and following receipt of any input
+the entire display will be repainted.
+<P>
+Use either of these keys if you have a large delay interval and wish to
+see current status,
+<P>
+<DT>&nbsp;&nbsp;'<B>?</B>' or '<B>h</B>' :<I>Help</I><DD>
+There are two help levels available.
+The first will provide a reminder of all the basic interactive commands.
+If top is<I> secured</I>, that screen will be abbreviated.
+<P>
+Typing 'h' or '?' on that help screen will take you to help for those interactive commands
+applicable to alternate-display mode.
+<P>
+<DT>&nbsp;&nbsp;'<B>=</B>' :<I>Exit_Task_Limits</I><DD>
+Removes restrictions on which tasks are shown.
+This command will reverse any 'i' (idle tasks) and 'n' (max tasks) commands
+that might be active.
+It also provides for an 'exit' from PID monitoring.
+See the '-p' command-line option for a discussion of PID monitoring.
+<P>
+When operating in alternate-display mode this command has a slightly broader meaning.
+<P>
+<DT>&nbsp;&nbsp;'<B>A</B>' :<I>Alternate_Display_Mode_toggle</I><DD>
+This command will switch between full-screen mode and alternate-display mode.
+See topic 4. ALTERNATE-DISPLAY Mode and the 'G' interactive command for insight into
+'current' windows and field groups.
+<P>
+<DT>&nbsp;&nbsp;'<B>B</B>' :<I>Bold_Disable/Enable_toggle</I><DD>
+This command will influence use of the 'bold' terminfo capability and
+alters<B> both</B> the summary area and task area for the 'current' window.
+While it is intended primarily for use with dumb terminals, it can be
+applied anytime.
+<P>
+<B>Note</B>: When this toggle is <I>On</I> and top is operating in monochrome mode,
+the<B> entire display</B> will appear as normal text.
+Thus, unless the 'x' and/or 'y' toggles are using reverse for emphasis,
+there will be no visual confirmation that they are even on.
+<P>
+<DT>*&nbsp;'<B>d</B>' or '<B>s</B>' :<I>Change_Delay_Time_interval</I><DD>
+You will be prompted to enter the delay time, in seconds, between
+display updates.
+<P>
+Fractional seconds are honored, but a negative number is not allowed.
+Entering 0 causes (nearly) continuous updates, with an unsatisfactory
+display as the system and tty driver try to keep up with top's demands.
+The delay value is inversely proportional to system loading,
+so set it with care.
+<P>
+If at any time you wish to know the current delay time, simply ask for help
+and view the system summary on the second line.
+<P>
+<DT>&nbsp;&nbsp;'<B>G</B>' :<I>Choose_Another_Window/Field_Group</I><DD>
+You will be prompted to enter a number between 1 and 4 designating the
+window/field group which should be made the 'current' window.
+You will soon grow comfortable with these 4 windows, especially after
+experimenting with alternate-display mode.
+<P>
+<DT>&nbsp;&nbsp;'<B>I</B>' :<I>Irix/Solaris_Mode_toggle</I><DD>
+When operating in 'Solaris mode' ('I' toggled <I>Off</I>), a task's cpu usage
+will be divided by the total number of CPUs.
+After issuing this command, you'll be informed of the new state of this toggle.
+<P>
+<DT>&nbsp;&nbsp;'<B>u</B>' :<I>select a user</I><DD>
+You will be prompted for a UID or username. Only processes
+belonging to the selected user will be displayed. This option
+matches on the effective UID.
+<P>
+<DT>&nbsp;&nbsp;'<B>U</B>' :<I>select a user</I><DD>
+You will be prompted for a UID or username. Only processes
+belonging to the selected user will be displayed. This option
+matches on the real, effective, saved, and filesystem UID.
+<P>
+<DT>*&nbsp;'<B>k</B>' :<I>Kill_a_task</I><DD>
+You will be prompted for a PID and then the signal to send.
+The default signal, as reflected in the prompt, is SIGTERM.
+However, you can send any signal, via number or name.
+<P>
+If you wish to abort the kill process, do one of the following
+depending on your progress:
+<BR>&nbsp;&nbsp;&nbsp;1)&nbsp;at&nbsp;the&nbsp;pid&nbsp;prompt,&nbsp;just&nbsp;press&nbsp;&lt;Enter&gt;
+<BR>&nbsp;&nbsp;&nbsp;2)&nbsp;at&nbsp;the&nbsp;signal&nbsp;prompt,&nbsp;type&nbsp;0
+<P>
+<DT>&nbsp;&nbsp;'<B>q</B>' :<I>Quit</I><DD>
+<P>
+<DT>*&nbsp;'<B>r</B>' :<I>Renice_a_Task</I><DD>
+You will be prompted for a PID and then the value to nice it to.
+Entering a positive value will cause a process to lose priority.
+Conversely, a negative value will cause a process to be viewed more
+favorably by the kernel.
+<P>
+<DT>&nbsp;&nbsp;'<B>W</B>' :<I>Write_the_Configuration_File</I><DD>
+This will save all of your options and toggles plus the current
+display mode and delay time.
+By issuing this command just before quitting top, you will be able restart
+later in exactly that same state.
+<P>
+<DT>&nbsp;&nbsp;'<B>Z</B>' :<I>Change_Color_Mapping<DD>
+This key will take you to a separate screen where you can change the
+colors for the 'current' window, or for all windows.
+For details regarding this interactive command see topic 3d. COLOR Mapping.
+<P>
+<DT>*<DD>
+The commands shown with an asterisk ('*') are not available in 'Secure mode',
+nor will they be shown on the level-1 help screen.
+<P>
+
+</DL>
+</I><A NAME="lbAO">&nbsp;</A>
+<H3>3b. SUMMARY Area Commands</H3>
+
+The summary area interactive commands are<B> always available</B> in both full-screen mode and alternate-display mode.
+They affect the beginning lines of your display and will determine the position
+of messages and prompts.
+<P>
+These commands always impact just the 'current' window/field group.
+See topic 4. ALTERNATE-DISPLAY Mode and the 'G' interactive command for insight into
+'current' windows and field groups.
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>l</B>' :<I>Toggle_Load_Average/Uptime</I> &nbsp;<B>--&nbsp;</B> On/Off<DD>
+This is also the line containing the program name (possibly an alias) when
+operating in full-screen mode or the 'current' window name when operating in alternate-display mode.
+<P>
+<DT>&nbsp;&nbsp;'<B>m</B>' :<I>Toggle_Memory/Swap_Usage</I> &nbsp;<B>--&nbsp;</B> On/Off<DD>
+This command affects two summary area lines.
+<P>
+<DT>&nbsp;&nbsp;'<B>t</B>' :<I>Toggle_Task/Cpu_States</I> &nbsp;<B>--&nbsp;</B> On/Off<DD>
+This command affects from 2 to many summary area lines, depending on the state
+of the '1' toggle and whether or not top is running under true SMP.
+<P>
+<DT>&nbsp;&nbsp;'<B>1</B>' :<I>Toggle_Single/Separate_Cpu_States</I> &nbsp;<B>--&nbsp;</B> On/Off<DD>
+This command affects how the 't' command's Cpu States portion is shown.
+Although this toggle exists primarily to serve massively-parallel SMP machines,
+it is not restricted to solely SMP environments.
+<P>
+When you see 'Cpu(s):' in the summary area, the '1' toggle is <I>On</I> and all
+cpu information is gathered in a single line.
+Otherwise, each cpu is displayed separately as: 'Cpu0, Cpu1, ...'
+<P>
+</DL>
+<P>
+
+<B>Note</B>: If the entire summary area has been toggled <I>Off</I> for any window, you would be left
+with just the<B> message line</B>.
+In that way, you will have maximized available task rows but (temporarily)
+sacrificed the program name in full-screen mode or the 'current' window name when in alternate-display mode.
+<P>
+
+<A NAME="lbAP">&nbsp;</A>
+<H3>3c. TASK Area Commands</H3>
+
+The task area interactive commands are<B> always</B> available in full-screen mode.
+<P>
+The task area interactive commands are<B> never available</B> in alternate-display mode<I> if</I> the 'current' window's
+task display has been toggled <I>Off</I> (see topic 4. ALTERNATE-DISPLAY Mode).
+<P>
+<P>
+
+
+<B>APPEARANCE</B> of task window
+
+<BR>
+
+
+The following commands will also be influenced by the state of the
+global 'B' (bold disable) toggle.
+
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>b</B>' :<I>Bold/Reverse_toggle</I><DD>
+This command will impact how the 'x' and 'y' toggles are displayed.
+Further, it will only be available when at least one of those toggles is <I>On</I>.
+<P>
+<DT>&nbsp;&nbsp;'<B>x</B>' :<I>Column_Highlight_toggle</I><DD>
+Changes highlighting for the current sort field.
+You probably don't need a constant visual reminder of the sort field and
+top hopes that you always run with 'column highlight' <I>Off</I>, due to the cost
+in path-length.
+<P>
+If you forget which field is being sorted this command can serve as a quick
+visual reminder.
+<P>
+<DT>&nbsp;&nbsp;'<B>y</B>' :<I>Row_Highlight_toggle</I><DD>
+Changes highlighting for &quot;running&quot; tasks.
+For additional insight into this task state, see topic 2a. DESCRIPTIONS of Fields,
+Process Status.
+<P>
+Use of this provision provides important insight into your system's health.
+The only costs will be a few additional tty escape sequences.
+<P>
+<DT>&nbsp;&nbsp;'<B>z</B>' :<I>Color/Monochrome_toggle</I><DD>
+Switches the 'current' window between your last used color scheme and the older form
+of black-on-white or white-on-black.
+This command will alter<B> both</B> the summary area and task area but does not affect the
+state of the 'x', 'y' or 'b' toggles.
+<P>
+</DL>
+<P>
+
+
+<B>CONTENT</B> of task window
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>c</B>' :<I>Command_Line/Program_Name_toggle</I><DD>
+This command will be honored whether or not the 'Command' column
+is currently visible.
+Later, should that field come into view, the change you applied will be seen.
+<P>
+<DT>&nbsp;&nbsp;'<B>f</B>' and '<B>o</B>' :<I>Fields_select</I> or <I>Order_fields</I><DD>
+These keys display separate screens where you can change which
+fields are displayed and their order.
+For additional information on these interactive commands
+see topic 2b. SELECTING and ORDERING Columns.
+<P>
+<DT>&nbsp;&nbsp;'<B>S</B>' :<I>Cumulative_Time_Mode_toggle</I><DD>
+When 'Cumulative mode' is <I>On</I>, each process is listed with the cpu
+time that it and its dead children have used.
+<P>
+When <I>Off</I>, programs that fork into many separate tasks will appear
+less demanding.
+For programs like 'init' or a shell this is appropriate but for others,
+like compilers, perhaps not.
+Experiment with two task windows sharing the same sort field but with different 'S'
+states and see which representation you prefer.
+<P>
+After issuing this command, you'll be informed of the new state of this toggle.
+If you wish to know in advance whether or not 'Cumulative mode' is in
+effect, simply ask for help and view the window summary on the second line.
+<P>
+<DT>&nbsp;&nbsp;'<B>u</B>' :<I>Show_Specific_User_Only</I><DD>
+You will be prompted to enter the name of the user to display.
+Thereafter, in that task window only matching User ID's will be shown, or possibly
+no tasks will be shown.
+<P>
+Later, if you wish to monitor all tasks again, re-issue this command but
+just press &lt;Enter&gt; at the prompt, without providing a name.
+<P>
+</DL>
+<P>
+
+
+<B>SIZE</B> of task window
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>i</B>' :<I>Idle_Processes_toggle</I><DD>
+Displays all tasks or just active tasks.
+When this toggle is <I>Off</I>, idled or zombied processes will not be displayed.
+<P>
+If this command is applied to the last task display when in alternate-display mode, then it will not
+affect the window's size, as all prior task displays will have already been painted.
+<P>
+<DT>&nbsp;&nbsp;'<B>n</B>' or '#' :<I>Set_Maximum_Tasks</I><DD>
+You will be prompted to enter the number of tasks to display.
+The lessor of your number and available screen rows will be used.
+<P>
+When used in alternate-display mode, this is the command that gives you precise control over
+the size of each currently visible task display, except for the very last.
+It will not affect the last window's size, as all prior task displays will have
+already been painted.
+<P>
+<B>Note</B>: If you wish to increase the size of the last visible task display when in alternate-display mode,
+simply decrease the size of the task display(s) above it.
+<P>
+</DL>
+<P>
+
+
+<B>SORTING</B> of task window
+
+<BR>
+
+
+For compatibility, this top supports most of the former top sort keys.
+Since this is primarily a service to former top users, these commands do
+not appear on any help screen.
+<BR>&nbsp;&nbsp;&nbsp;command&nbsp;&nbsp;&nbsp;sorted&nbsp;field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;supported
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start&nbsp;time&nbsp;(non-display)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%MEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yes
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yes
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%CPU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yes
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TIME+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yes
+<P>
+Before using any of the following sort provisions, top suggests that you
+temporarily turn on column highlighting using the 'x' interactive command.
+That will help ensure that the actual sort environment matches your intent.
+<P>
+The following interactive commands will<B> only</B> be honored when the
+current sort field is<B> visible</B>.
+The sort field might<I> not</I> be visible because:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1)&nbsp;there&nbsp;is&nbsp;insufficient<I>&nbsp;Screen&nbsp;Width</I>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2)&nbsp;the&nbsp;'f'&nbsp;interactive command&nbsp;turned&nbsp;it&nbsp;<I>Off</I>
+
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>&lt;</B>' :<I>Move_Sort_Field_Left</I><DD>
+Moves the sort column to the left unless the current sort field is
+the first field being displayed.
+<P>
+<DT>&nbsp;&nbsp;'<B>&gt;</B>' :<I>Move_Sort_Field_Right</I><DD>
+Moves the sort column to the right unless the current sort field is
+the last field being displayed.
+<P>
+</DL>
+<P>
+
+
+The following interactive commands will<B> always</B> be honored whether or not
+the current sort field is visible.
+
+<P>
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>F</B>' or '<B>O</B>' :<I>Select_Sort_Field</I><DD>
+These keys display a separate screen where you can change which field
+is used as the sort column.
+<P>
+If a field is selected which was not previously being displayed, it will
+be forced <I>On</I> when you return to the top display.
+However, depending upon your screen width and the order of your fields,
+this sort field may not be displayable.
+<P>
+This interactive command can be a convienent way to simply verify the current sort field,
+when running top with column highlighting turned <I>Off</I>.
+<P>
+<DT>&nbsp;&nbsp;'<B>R</B>' :<I>Reverse/Normal_Sort_Field_toggle</I><DD>
+Using this interactive command you can alternate between high-to-low and low-to-high sorts.
+<P>
+</DL>
+<P>
+
+
+<B>Note</B>: Field sorting uses internal values, not those in column display.
+Thus, the TTY and WCHAN fields will violate strict ASCII collating sequence.
+
+<P>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H3>3d. COLOR Mapping</H3>
+
+When you issue the 'Z' interactive command, you will be presented with a separate screen.
+That screen can be used to change the colors in just the 'current' window or
+in all four windows before returning to the top display.
+<P>
+
+<B>Available interactive commands</B>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>4</B>&nbsp;upper&nbsp;case&nbsp;letters&nbsp;to&nbsp;select&nbsp;a<B>&nbsp;target</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>8</B>&nbsp;numbers&nbsp;to&nbsp;select&nbsp;a<B>&nbsp;color</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;normal&nbsp;toggles&nbsp;available
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'B'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:bold&nbsp;disable/enable
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'b'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:running&nbsp;tasks&nbsp;&quot;bold&quot;/reverse
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'z'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:color/mono
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;other&nbsp;commands&nbsp;available
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'a'/'w'&nbsp;&nbsp;&nbsp;:apply,&nbsp;then&nbsp;go&nbsp;to&nbsp;next/prior
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Enter&gt;&nbsp;&nbsp;&nbsp;:apply&nbsp;and&nbsp;exit
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'q'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:abandon&nbsp;current&nbsp;changes&nbsp;and&nbsp;exit
+<P>
+If your use 'a' or 'w' to cycle the targeted window, you will
+have applied the color scheme that was displayed when you left that window.
+You can, of course, easily return to any window and reapply different
+colors or turn colors <I>Off</I> completely with the 'z' toggle.
+<P>
+The Color Mapping screen can also be used to change the 'current' window/field group
+in either full-screen mode or alternate-display mode.
+Whatever was targeted when 'q' or &lt;Enter&gt; was pressed will be made current
+as you return to the top display.
+<P>
+<P>
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>4. ALTERNATE-DISPLAY Mode</H2>
+
+
+
+<A NAME="lbAS">&nbsp;</A>
+<H3>4a. WINDOWS Overview</H3>
+
+<DL COMPACT>
+<DT><B>Field Groups/Windows</B>:
+
+<DD>
+<BR>
+
+In full-screen mode there is a single window represented by the entire screen.
+That single window can still be changed to display 1 of 4 different<B> field
+groups</B> (see the 'G' interactive command, repeated below).
+Each of the 4 field groups has a unique separately configurable<B> summary area</B>
+and its own configurable<B> task area</B>.
+<P>
+In alternate-display mode, those 4 underlying field groups can now be made visible
+simultaneously, or can be turned <I>Off</I> individually at your command.
+<P>
+The summary area will always exist, even if it's only the message line.
+At any given time only<I> one</I> summary area can be displayed.
+However, depending on your commands, there could be from<I> zero</I>
+to<I> four</I> separate task displays currently showing on the screen.
+<P>
+<DT><B>Current Window</B>:
+
+<DD>
+<BR>
+
+The 'current' window is the window associated with the summary area and the window to which
+task related commands are always directed.
+Since in alternate-display mode you can toggle the task display <I>Off</I>, some commands might be
+restricted for the 'current' window.
+<P>
+A further complication arises when you have toggled the first summary area
+line <I>Off</I>.
+With the loss of the window name (the 'l' toggled line), you'll not easily
+know what window is the 'current' window.
+<P>
+
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H3>4b. COMMANDS for Windows</H3>
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;'<B>-</B>' and '<B>_</B>' :<I>Show/Hide_Window(s)_toggles</I><DD>
+The '-' key turns the 'current' window's task display <I>On</I> and <I>Off</I>.
+When <I>On</I>, that task area will show a minimum of the columns header you've
+established with the 'f' and 'o' commands.
+It will also reflect any other task area options/toggles you've applied yielding
+zero or more tasks.
+<P>
+The '_' key does the same for all task displays.
+In other words, it switches between the currently visible task display(s) and any
+task display(s) you had toggled <I>Off</I>.
+If all 4 task displays are currently visible, this interactive command will leave the summary area
+as the only display element.
+<P>
+<DT>*&nbsp;'<B>=</B>' and '<B>+</B>' :<I>Equalize_(re-balance)_Window(s)</I><DD>
+The '=' key forces the 'current' window's task display to be visible.
+It also reverses any 'i' (idle tasks) and 'n' (max tasks) commands that might
+be active.
+<P>
+The '+' key does the same for all windows.
+The four task displays will reappear, evenly balanced.
+They will also have retained any customizations you had previously applied,
+except for the 'i' (idle tasks) and 'n' (max tasks) commands.
+<P>
+<DT>*&nbsp;'<B>A</B>' :<I>Alternate_Display_Mode_toggle</I><DD>
+This command will switch between full-screen mode and alternate-display mode.
+<P>
+The first time you issue this command, all four task displays will be shown.
+Thereafter when you switch modes, you will see only the task display(s) you've
+chosen to make visible.
+<P>
+<DT>*&nbsp;'<B>a</B>' and '<B>w</B>' :<I>Next_Window_Forward/Backward</I><DD>
+This will change the 'current' window, which in turn changes the window to which
+commands are directed.
+These keys act in a circular fashion so you can reach any desired 'current' window
+using either key.
+<P>
+Assuming the window name is visible (you have not toggled 'l' <I>Off</I>),
+whenever the 'current' window name loses its emphasis/color, that's a reminder
+the task display is <I>Off</I> and many commands will be restricted.
+<P>
+<DT>*&nbsp;'<B>G</B>' :<I>Choose_Another_Window/Field_Group</I><DD>
+You will be prompted to enter a number between 1 and 4 designating the
+window/field group which should be made the 'current' window.
+<P>
+In full-screen mode, this command is necessary to alter the 'current' window.
+In alternate-display mode, it is simply a less convenient alternative to the 'a' and 'w'
+commands.
+<P>
+<DT>&nbsp;&nbsp;'<B>g</B>' :<I>Change_Window/Field_Group_Name</I><DD>
+You will be prompted for a new name to be applied to the 'current' window.
+It does not require that the window name be visible
+(the 'l' toggle to be <I>On</I>).
+<P>
+<DT>*<DD>
+The interactive commands shown with an asterisk ('*') have use beyond alternate-display mode.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;'=',&nbsp;'A',&nbsp;'G'&nbsp;&nbsp;are&nbsp;always&nbsp;available
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;'a',&nbsp;'w'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;act&nbsp;the&nbsp;same&nbsp;when&nbsp;color&nbsp;mapping
+<P>
+<P>
+
+</DL>
+<A NAME="lbAU">&nbsp;</A>
+<H2>5. FILES</H2>
+
+
+
+<A NAME="lbAV">&nbsp;</A>
+<H3>5a. SYSTEM Configuration File</H3>
+
+The presence of this file will influence which version of the 'help' screen
+is shown to an ordinary user.
+More importantly, it will limit what ordinary users are allowed
+to do when top is running.
+They will not be able to issue the following commands.
+<BR>&nbsp;&nbsp;&nbsp;k&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Kill&nbsp;a&nbsp;task
+<BR>&nbsp;&nbsp;&nbsp;r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Renice&nbsp;a&nbsp;task
+<BR>&nbsp;&nbsp;&nbsp;d&nbsp;or&nbsp;s&nbsp;&nbsp;&nbsp;&nbsp;Change&nbsp;delay/sleep&nbsp;interval
+<P>
+The system configuration file is<B> not</B> created by top.
+Rather, you create this file manually and place it in the <I>/etc</I>
+directory.
+Its name must be 'toprc' and must have no leading '.' (period).
+It must have only two lines.
+<P>
+Here is an example of the contents of<I> /etc/toprc</I>:
+<BR>&nbsp;&nbsp;&nbsp;s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;1:&nbsp;'secure'&nbsp;mode&nbsp;switch
+<BR>&nbsp;&nbsp;&nbsp;5.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;2:&nbsp;'delay'&nbsp;&nbsp;interval&nbsp;in&nbsp;seconds
+<P>
+
+<A NAME="lbAW">&nbsp;</A>
+<H3>5b. PERSONAL Configuration File</H3>
+
+This file is written as '$HOME/.your-name-4-top' + 'rc'.
+Use the 'W' interactive command to create it or update it.
+<P>
+Here is the general layout:
+<BR>&nbsp;&nbsp;&nbsp;global&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;1:&nbsp;the&nbsp;program&nbsp;name/alias&nbsp;notation
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;2:&nbsp;id,altscr,irixps,delay,curwin
+<BR>&nbsp;&nbsp;&nbsp;per&nbsp;ea&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;a:&nbsp;winname,fieldscur
+<BR>&nbsp;&nbsp;&nbsp;window&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;b:&nbsp;winflags,sortindx,maxtasks
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;line&nbsp;c:&nbsp;summclr,msgsclr,headclr,taskclr
+<P>
+If the $HOME variable is not present, top will try to write the
+personal configuration file to the current directory, subject to permissions.
+<P>
+<P>
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>6. STUPID TRICKS Sampler</H2>
+
+
+Many of these 'tricks' work best when you give top a scheduling boost.
+So plan on starting him with a nice value of -10, assuming you've got
+the authority.
+<P>
+
+<A NAME="lbAY">&nbsp;</A>
+<H3>6a. Kernel Magic</H3>
+
+
+For these stupid tricks, top needs full-screen mode.
+
+<P>
+
+<DL COMPACT>
+<DT>-*-<DD>
+
+The user interface, through prompts and help, intentionally implies
+that the delay interval is limited to tenths of a second.
+However, you're free to set any desired delay.
+If you want to see Linux at his scheduling best, try a delay of .09
+seconds or less.
+<P>
+For this experiment, under x-windows open an xterm and maximize it.
+Then do the following:
+<BR>&nbsp;&nbsp;.&nbsp;provide&nbsp;a&nbsp;scheduling&nbsp;boost&nbsp;and&nbsp;tiny&nbsp;delay&nbsp;via:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nice&nbsp;-n&nbsp;-10&nbsp;top&nbsp;-d.09
+<BR>&nbsp;&nbsp;.&nbsp;keep&nbsp;sorted&nbsp;column&nbsp;highlighting&nbsp;<I>Off</I>&nbsp;to&nbsp;minimize
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;length
+<BR>&nbsp;&nbsp;.&nbsp;turn&nbsp;<I>On</I>&nbsp;reverse&nbsp;row&nbsp;highlighting&nbsp;for&nbsp;emphasis
+<BR>&nbsp;&nbsp;.&nbsp;try&nbsp;various&nbsp;sort&nbsp;columns&nbsp;(TIME/MEM&nbsp;work&nbsp;well),
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;normal&nbsp;or&nbsp;reverse&nbsp;sorts&nbsp;to&nbsp;bring&nbsp;the&nbsp;most
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;active&nbsp;processes&nbsp;into&nbsp;view
+<P>
+What you'll see is a very busy Linux doing what he's always done for you,
+but there was no program available to illustrate this.
+<P>
+
+<DT>-*-<DD>
+
+Under an xterm using 'white-on-black' colors, try setting top's task color
+to black and be sure that task highlighting is set to bold, not reverse.
+Then set the delay interval to around .3 seconds.
+<P>
+After bringing the most active processes into view, what you'll see are
+the ghostly images of just the currently running tasks.
+<P>
+
+<DT>-*-<DD>
+
+Delete the existing rcfile, or create a new symlink.
+Start this new version then type 'T' (a secret key, see topic 3c. TASK Area
+Commands, Sorting) followed by 'W' and 'q'.
+Finally, restart the program with -d0 (zero delay).
+<P>
+Your display will be refreshed at three times the rate of the former top,
+a 300% speed advantage.
+As top climbs the TIME ladder, be as patient as you can while speculating
+on whether or not top will ever reach the top.
+<P>
+
+</DL>
+<A NAME="lbAZ">&nbsp;</A>
+<H3>6b. Bouncing Windows</H3>
+
+For these stupid tricks, top needs alternate-display mode.
+<P>
+
+<DL COMPACT>
+<DT>-*-<DD>
+
+With 3 or 4 task displays visible, pick any window other than the last
+and turn idle processes <I>Off</I>.
+Depending on where you applied 'i', sometimes several task displays are bouncing and
+sometimes it's like an accordion, as top tries his best to allocate space.
+<P>
+
+<DT>-*-<DD>
+
+Set each window's summary lines differently: one with no memory; another with
+no states; maybe one with nothing at all, just the message line.
+Then hold down 'a' or 'w' and watch a variation on bouncing windows &nbsp;<B>--&nbsp;</B>
+hopping windows.
+<P>
+
+<DT>-*-<DD>
+
+Display all 4 windows and for each, in turn, set idle processes to <I>Off</I>.
+You've just entered the &quot;extreme bounce&quot; zone.
+<P>
+
+</DL>
+<A NAME="lbBA">&nbsp;</A>
+<H3>6c. The Big Bird Window</H3>
+
+This stupid trick also requires alternate-display mode.
+<P>
+
+<DL COMPACT>
+<DT>-*-<DD>
+
+Display all 4 windows and make sure that 1:Def is the 'current' window.
+Then, keep increasing window size until the all the other task displays
+are &quot;pushed out of the nest&quot;.
+<P>
+When they've all been displaced, toggle between all visible/invisible windows.
+Then ponder this:
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;is&nbsp;top&nbsp;fibbing&nbsp;or&nbsp;telling&nbsp;honestly&nbsp;your&nbsp;imposed&nbsp;truth?
+<P>
+<P>
+
+</DL>
+<A NAME="lbBB">&nbsp;</A>
+<H2>7. BUGS</H2>
+
+
+Send bug reports to:
+<BR>&nbsp;&nbsp;&nbsp;Albert&nbsp;D.&nbsp;Cahalan,&nbsp;&lt;<A HREF="mailto:albert@users.sf.net">albert@users.sf.net</A>&gt;
+<P>
+<P>
+
+<A NAME="lbBC">&nbsp;</A>
+<H2>8. HISTORY Former top</H2>
+
+
+The original top was written by Roger Binns,
+based on Branko Lankester's &lt;<A HREF="mailto:lankeste@fwi.uva.nl">lankeste@fwi.uva.nl</A>&gt; ps program.
+<P>
+Robert Nation &lt;<A HREF="mailto:nation@rocket.sanders.lockheed.com">nation@rocket.sanders.lockheed.com</A>&gt;
+adapted it for the proc file system.
+<P>
+Helmut Geyer &lt;<A HREF="mailto:Helmut.Geyer@iwr.uni-heidelberg.de">Helmut.Geyer@iwr.uni-heidelberg.de</A>&gt;
+added support for configurable fields.
+<P>
+Plus many other individuals contributed over the years.
+<P>
+<P>
+
+<A NAME="lbBD">&nbsp;</A>
+<H2>9. AUTHOR</H2>
+
+
+This entirely new and enhanced replacement was written by:
+<BR>&nbsp;&nbsp;&nbsp;Jim&nbsp;/&nbsp;James&nbsp;C.&nbsp;Warner,&nbsp;&lt;<A HREF="mailto:warnerjc@worldnet.att.net">warnerjc@worldnet.att.net</A>&gt;
+
+<P>
+With invaluable help from:
+<BR>&nbsp;&nbsp;&nbsp;Albert&nbsp;D.&nbsp;Cahalan,&nbsp;&lt;<A HREF="mailto:albert@users.sf.net">albert@users.sf.net</A>&gt;
+<BR>&nbsp;&nbsp;&nbsp;Craig&nbsp;Small,&nbsp;&lt;<A HREF="mailto:csmall@small.dropbear.id.au">csmall@small.dropbear.id.au</A>&gt;
+<P>
+
+<P>
+
+<A NAME="lbBE">&nbsp;</A>
+<H2>10. SEE ALSO</H2>
+
+
+<B><A HREF="../man1/free.1.php">free</A></B>(1),
+
+<B><A HREF="../man1/ps.1.php">ps</A></B>(1),
+
+<B><A HREF="../man1/uptime.1.php">uptime</A></B>(1),
+
+<B><A HREF="../man1/atop.1.php">atop</A></B>(1),
+
+<B><A HREF="../man1/slabtop.1.php">slabtop</A></B>(1),
+
+<B><A HREF="../man8/vmstat.8.php">vmstat</A></B>(8),
+
+<B><A HREF="../man1/w.1.php">w</A></B>(1).
+
+<P>
+<P>
+
+
+
+
+<P>
+
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OVERVIEW</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Documentation</A><DD>
+<DT><A HREF="#lbAG">Operation</A><DD>
+<DT><A HREF="#lbAH">Startup Defaults</A><DD>
+</DL>
+<DT><A HREF="#lbAI">1. COMMAND-LINE Options</A><DD>
+<DT><A HREF="#lbAJ">2. FIELDS / Columns</A><DD>
+<DL>
+<DT><A HREF="#lbAK">2a. DESCRIPTIONS of Fields</A><DD>
+<DT><A HREF="#lbAL">2b. SELECTING and ORDERING Columns</A><DD>
+</DL>
+<DT><A HREF="#lbAM">3. INTERACTIVE Commands</A><DD>
+<DL>
+<DT><A HREF="#lbAN">3a. GLOBAL Commands</A><DD>
+<DT><A HREF="#lbAO">3b. SUMMARY Area Commands</A><DD>
+<DT><A HREF="#lbAP">3c. TASK Area Commands</A><DD>
+<DT><A HREF="#lbAQ">3d. COLOR Mapping</A><DD>
+</DL>
+<DT><A HREF="#lbAR">4. ALTERNATE-DISPLAY Mode</A><DD>
+<DL>
+<DT><A HREF="#lbAS">4a. WINDOWS Overview</A><DD>
+<DT><A HREF="#lbAT">4b. COMMANDS for Windows</A><DD>
+</DL>
+<DT><A HREF="#lbAU">5. FILES</A><DD>
+<DL>
+<DT><A HREF="#lbAV">5a. SYSTEM Configuration File</A><DD>
+<DT><A HREF="#lbAW">5b. PERSONAL Configuration File</A><DD>
+</DL>
+<DT><A HREF="#lbAX">6. STUPID TRICKS Sampler</A><DD>
+<DL>
+<DT><A HREF="#lbAY">6a. Kernel Magic</A><DD>
+<DT><A HREF="#lbAZ">6b. Bouncing Windows</A><DD>
+<DT><A HREF="#lbBA">6c. The Big Bird Window</A><DD>
+</DL>
+<DT><A HREF="#lbBB">7. BUGS</A><DD>
+<DT><A HREF="#lbBC">8. HISTORY Former top</A><DD>
+<DT><A HREF="#lbBD">9. AUTHOR</A><DD>
+<DT><A HREF="#lbBE">10. SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

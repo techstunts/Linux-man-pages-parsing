@@ -1,0 +1,1013 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ZSHTCPSYS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ZSHTCPSYS</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: March 19, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+zshtcpsys - zsh tcp system
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+A module <B>zsh/net/tcp</B> is provided to provide network I/O over
+TCP/IP from within the shell; see its description in
+<I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1)
+.  This manual page describes a function suite based on the module.  
+If the module is installed, the functions are usually installed at the
+same time, in which case they will be available for
+autoloading in the default function search path.  In addition to the
+<B>zsh/net/tcp</B> module, the <B>zsh/zselect</B> module is used to implement
+timeouts on read operations.  For troubleshooting tips, consult the
+corresponding advice for the <B>zftp</B> functions described in
+<I><A HREF="../man1/zshftpsys.1.php">zshftpsys</A></I>(1)
+.
+<P>
+
+There are functions corresponding to the basic I/O operations open, close,
+read and send, named <B>tcp_open</B> etc., as well as a function
+<B>tcp_expect</B> for pattern match analysis of data read as input.  The
+system makes it easy to receive data from and send data to multiple named
+sessions at once.  In addition, it can be linked with the shell's line
+editor in such a way that input data is automatically shown at the
+terminal.  Other facilities available including logging, filtering and
+configurable output prompts.
+<P>
+
+To use the system where it is available, it should be enough to
+`<B>autoload -U tcp_open</B>' and run <B>tcp_open</B> as documented below to
+start a session.  The <B>tcp_open</B> function will autoload the remaining
+functions.
+<P>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>TCP USER FUNCTIONS</H2>
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Basic I/O</H3>
+
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_open [-qz]</B> <I>host port</I> <B>[</B> <I>sess</I> <B>]</B>
+<DT>
+<DD>
+<B>tcp_open [-qz] [ -s</B> <I>sess</I> <B>| -l</B> <I>sess</I><B>,... ] ... </B>
+<DT>
+<DD>
+<B>tcp_open [-qz] [-a</B> <I>fd</I> <B>| -f</B> <I>fd</I> <B>] [</B> <I>sess</I> <B>]</B>
+Open a new session.  In the first and simplest form, open a TCP connection
+to host <I>host</I> at port <I>port</I>; numeric and symbolic forms are
+understood for both.
+<DL COMPACT><DT><DD>
+<P>
+
+If <I>sess</I> is given, this becomes the name of the session which can be
+used to refer to multiple different TCP connections.  If <I>sess</I> is
+not given, the function will invent a numeric name value (note this is
+<I>not</I> the same as the file descriptor to which the session is attached).
+It is recommended that session names not include `funny' characters, where
+funny characters are not well-defined but certainly do not include
+alphanumerics or underscores, and certainly do include whitespace.
+<P>
+
+In the second case, one or more sessions to be opened are given by name.
+A single session name is given after <B>-s</B> and a comma-separated list
+after <B>-l</B>; both options may be repeated as many times as necessary.
+The host and port are read from the file <B>.ztcp_sessions</B> in the same
+directory as the user's zsh initialisation files, i.e. usually the home
+directory, but <B>$ZDOTDIR</B> if that is set.  The file consists of lines
+each giving a session name and the corresponding host and port, in that
+order (note the session name comes first, not last), separated by
+whitespace.
+<P>
+
+The third form allows passive and fake TCP connections.  If the option
+<B>-a</B> is used, its argument is a file descriptor open for listening for
+connections.  No function front-end is provided to open such a file
+descriptor, but a call to `<B>ztcp -l</B> <I>port</I>' will create one with the
+file descriptor stored in the parameter <B>$REPLY</B>.  The listening port can
+be closed with `<B>ztcp -c</B> <I>fd</I>'.  A call to `<B>tcp_open -a</B> <I>fd</I>'
+will block until a remote TCP connection is made to <I>port</I> on the local
+machine.  At this point, a session is created in the usual way and is
+largely indistinguishable from an active connection created with one of the
+first two forms.
+<P>
+
+If the option <B>-f</B> is used, its argument is a file descriptor which is
+used directly as if it were a TCP session.  How well the remainder of the
+TCP function system copes with this depends on what actually underlies this
+file descriptor.  A regular file is likely to be unusable; a FIFO (pipe) of
+some sort will work better, but note that it is not a good idea for two
+different sessions to attempt to read from the same FIFO at once.
+<P>
+
+If the option <B>-q</B> is given with any of the three forms, <B>tcp_open</B>
+will not print informational messages, although it will in any case exit
+with an appropriate status.
+<P>
+
+If the line editor (zle) is in use, which is typically the case if the
+shell is interactive, <B>tcp_open</B> installs a handler inside <B>zle</B> which
+will check for new data at the same time as it checks for keyboard input.
+This is convenient as the shell consumes no CPU time while waiting; the
+test is performed by the operating system.  Giving the option <B>-z</B> to
+any of the forms of <B>tcp_open</B> prevents the handler from being
+installed, so data must be read explicitly.  Note, however, this is not
+necessary for executing complete sets of send and read commands from a
+function, as zle is not active at this point.  Generally speaking, the
+handler is only active when the shell is waiting for input at a command
+prompt or in the <B>vared</B> builtin.  The option has no effect if zle is not
+active; `<B>[[ -o zle]]</B>' will test for this.
+<P>
+
+The first session to be opened becomes the current session and subsequent
+calls to <B>tcp_open</B> do not change it.  The current session is stored
+in the parameter <B>$TCP_SESS</B>; see below for more detail about the
+parameters used by the system.
+</DL>
+
+<DT><B>tcp_close [-qn] [ -a | -l</B> <I>sess</I><B>,... |</B> <I>sess</I> <B>... ]</B><DD>
+Close the named sessions, or the current session if none is given,
+or all open sessions if <B>-a</B> is given.  The options <B>-l</B> and <B>-s</B> are
+both handled for consistency with <B>tcp_open</B>, although the latter is
+redundant.
+<DL COMPACT><DT><DD>
+<P>
+
+If the session being closed is the current one, <B>$TCP_SESS</B> is unset,
+leaving no current session, even if there are other sessions still open.
+<P>
+
+If the session was opened with <B>tcp_open -f</B>, the file descriptor is
+closed so long as it is in the range 0 to 9 accessible directly from the
+command line.  If the option <B>-n</B> is given, no attempt will be made to
+close file descriptors in this case.  The <B>-n</B> option is not used for
+genuine <B>ztcp</B> session; the file descriptors are always closed with the
+session.
+<P>
+
+If the option <B>-q</B> is given, no informational messages will be printed.
+</DL>
+
+<DT>
+<DD>
+<B>tcp_read [-bdq] [ -t</B> <I>TO</I> <B>] [ -T</B> <I>TO</I> <B>]</B>
+<DT>
+<DD>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>[&nbsp;-a&nbsp;|&nbsp;-u</B>&nbsp;<I>fd</I>&nbsp;<B>...&nbsp;|&nbsp;-l</B>&nbsp;<I>sess</I><B>,...&nbsp;|&nbsp;-s</B>&nbsp;<I>sess</I>&nbsp;<B>...]</B>
+Perform a read operation on the current session, or on a list of
+sessions if any are given with <B>-u</B>, <B>-l</B> or <B>-s</B>, or all open
+sessions if the option <B>-a</B> is given.  Any of the <B>-u</B>, <B>-l</B> or
+<B>-s</B> options may be repeated or mixed together.  The <B>-u</B> option
+specifies a file descriptor directly (only those managed by this system
+are useful), the other two specify sessions as described for
+<B>tcp_open</B> above.
+<DL COMPACT><DT><DD>
+<P>
+
+The function checks for new data available on all the sessions listed.
+Unless the <B>-b</B> option is given, it will not block waiting for new data.
+Any one line of data from any of the available sessions will be read,
+stored in the parameter <B>$TCP_LINE</B>, and displayed to standard output
+unless <B>$TCP_SILENT</B> contains a non-empty string.  When printed to
+standard output the string <B>$TCP_PROMPT</B> will be shown at the start of
+the line; the default form for this includes the name of the session being
+read.  See below for more information on these parameters.  In this mode,
+<B>tcp_read</B> can be called repeatedly until it returns status 2 which
+indicates all pending input from all specified sessions has been handled.
+<P>
+
+With the option <B>-b</B>, equivalent to an infinite timeout, the function
+will block until a line is available to read from one of the specified
+sessions.  However, only a single line is returned.
+<P>
+
+The option <B>-d</B> indicates that all pending input should be drained.  In
+this case <B>tcp_read</B> may process multiple lines in the manner given
+above; only the last is stored in <B>$TCP_LINE</B>, but the complete set is
+stored in the array <B>$tcp_lines</B>.  This is cleared at the start of each
+call to <B>tcp_read</B>.
+<P>
+
+The options <B>-t</B> and <B>-T</B> specify a timeout in seconds, which may be a
+floating point number for increased accuracy.  With <B>-t</B> the timeout is
+applied before each line read.  With <B>-T</B>, the timeout applies to the
+overall operation, possibly including multiple read operations if the
+option <B>-d</B> is present; without this option, there is no distinction
+between <B>-t</B> and <B>-T</B>.
+<P>
+
+The function does not print informational messages, but if the option
+<B>-q</B> is given, no error message is printed for a non-existent session.
+<P>
+
+A return value of 2 indicates a timeout or no data to read.  Any other
+non-zero return value indicates some error condition.
+<P>
+
+See <B>tcp_log</B> for how to control where data is sent by <B>tcp_read</B>.
+</DL>
+
+<DT>
+<DD>
+<B>tcp_send [-nq] [ -s</B> <I>sess</I> <B>| -l</B> <I>sess</I><B>,... ]</B> <I>data</I> <B>...</B>
+<DT>
+<DD>
+<B>tcp_send [-nq] -a</B> <I>data</I> <B>...</B>
+Send the supplied data strings to all the specified sessions in turn.  The
+underlying operation differs little from a `<B>print -r</B>' to the session's
+file descriptor, although it attempts to prevent the shell from dying owing
+to a <B>SIGPIPE</B> caused by an attempt to write to a defunct session.
+<DL COMPACT><DT><DD>
+<P>
+
+The option <B>-n</B> prevents <B>tcp_send</B> from putting a newline at the end
+of the data strings.
+<P>
+
+The remaining options all behave as for <B>tcp_read</B>.
+<P>
+
+The data arguments are not further processed once they have been passed to
+<B>tcp_send</B>; they are simply passed down to <B>print -r</B>.
+<P>
+
+If the parameter <B>$TCP_OUTPUT</B> is a non-empty string and logging is
+enabled then the data sent to each session will be echoed to the log
+file(s) with <B>$TCP_OUTPUT</B> in front where appropriate, much in the manner
+of <B>$TCP_PROMPT</B>.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Session Management</H3>
+
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_alias [-q]</B> <I>alias</I><B>=</B><I>sess</I> <B>...</B>
+<DT>
+<DD>
+<B>tcp_alias [-q] [</B> <I>alias</I> <B>] ...</B>
+<DT>
+<DD>
+<B>tcp_alias -d [-q]</B> <I>alias</I> <B>...</B>
+This function is not particularly well tested.
+<DL COMPACT><DT><DD>
+<P>
+
+The first form creates an alias for a session name; <I>alias</I> can then be
+used to refer to the existing session <I>sess</I>.  As many aliases may be
+listed as required.
+<P>
+
+The second form lists any aliases specified, or all aliases if none.
+<P>
+
+The third form deletes all the aliases listed.  The underlying sessions are
+not affected.
+<P>
+
+The option <B>-q</B> suppresses an inconsistently chosen subset of error
+messages.
+</DL>
+
+<DT><B>tcp_log [-asc] [ -n | -N ] [</B> <I>logfile</I> <B>]</B><DD>
+With an argument <I>logfile</I>, all future input from <B>tcp_read</B> will be
+logged to the named file.  Unless <B>-a</B> (append) is given, this file will
+first be truncated or created empty.  With no arguments, show the current
+status of logging.
+<DL COMPACT><DT><DD>
+<P>
+
+With the option <B>-s</B>, per-session logging is enabled.  Input from
+<B>tcp_read</B> is output to the file <I>logfile</I>.<I>sess</I>.  As the
+session is automatically discriminated by the filename, the contents are
+raw (no <B>$TCP_PROMPT</B>).  The option  <B>-a</B> applies as above.
+Per-session logging and logging of all data in one file are not mutually
+exclusive.
+<P>
+
+The option <B>-c</B> closes all logging, both complete and per-session logs.
+<P>
+
+The options <B>-n</B> and <B>-N</B> respectively turn off or restore output of
+data read by <B>tcp_read</B> to standard output; hence `<B>tcp_log -cn</B>' turns
+off all output by <B>tcp_read</B>.
+<P>
+
+The function is purely a convenient front end to setting the parameters
+<B>$TCP_LOG</B>, <B>$TCP_LOG_SESS</B>, <B>$TCP_SILENT</B>, which are described below.
+</DL>
+
+<DT><B>tcp_rename</B> <I>old</I> <I>new</I><DD>
+Rename session <I>old</I> to session <I>new</I>.  The old name becomes invalid.
+<DT><B>tcp_sess [</B> <I>sess</I> <B>[</B> <I>command</I>  <B>... ] ]</B><DD>
+With no arguments, list all the open sessions and associated file
+descriptors.  The current session is marked with a star.  For use in
+functions, direct access to the parameters <B>$tcp_by_name</B>, <B>$tcp_by_fd</B>
+and <B>$TCP_SESS</B> is probably more convenient; see below.
+<DL COMPACT><DT><DD>
+<P>
+
+With a <I>sess</I> argument, set the current session to <I>sess</I>.
+This is equivalent to changing <B>$TCP_SESS</B> directly.
+<P>
+
+With additional arguments, temporarily set the current session while
+executing the string <B>command ...</B>.  The first argument is re-evaluated
+so as to expand aliases etc., but the remaining arguments are passed
+through as the appear to <B>tcp_sess</B>.  The original session is restored
+when <B>tcp_sess</B> exits.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Advanced I/O</H3>
+
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_command</B> <I>send-options</I> <B>...</B> <I>send-arguments</I> <B>...</B>
+This is a convenient front-end to <B>tcp_send</B>.  All arguments are passed
+to <B>tcp_send</B>, then the function pauses waiting for data.  While data is
+arriving at least every <B>$TCP_TIMEOUT</B> (default 0.3) seconds, data is
+handled and printed out according to the current settings.  Status 0 is
+always returned.
+<DL COMPACT><DT><DD>
+<P>
+
+This is generally only useful for interactive use, to prevent the display
+becoming fragmented by output returned from the connection.  Within a
+programme or function it is generally better to handle reading data by a
+more explicit method.
+</DL>
+
+<DT>
+<DD>
+<B>tcp_expect [ -q ] [ -p</B> <I>var</I> <B>] [ -t </B> <I>to</I> <B>| -T</B> <I>TO</I><B>]</B>
+<DT>
+<DD>
+<B>    [ -a | -s</B> <I>sess</I> <B>... | -l</B> <I>sess</I><B>,... ]</B> <I>pattern</I> ...
+Wait for input matching any of the given <I>pattern</I>s from any of the
+specified sessions.  Input is ignored until an input line matches one of
+the given patterns; at this point status zero is returned, the matching
+line is stored in <B>$TCP_LINE</B>, and the full set of lines read during the
+call to <B>tcp_expect</B> is stored in the array <B>$tcp_expect_lines</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+Sessions are specified in the same way as <B>tcp_read</B>: the default is to
+use the current session, otherwise the sessions specified by <B>-a</B>,
+<B>-s</B>, or <B>-l</B> are used.
+<P>
+
+Each <I>pattern</I> is a standard zsh extended-globbing pattern; note that it
+needs to be quoted to avoid it being expanded immediately by filename
+generation.  It must match the full line, so to match a substring there
+must be a `<B>*</B>' at the start and end.  The line matched against includes
+the <B>$TCP_PROMPT</B> added by <B>tcp_read</B>.  It is possible to include the
+globbing flags `<B>#b</B>' or `<B>#m</B>' in the patterns to make backreferences
+available in the parameters <B>$MATCH</B>, <B>$match</B>, etc., as described in
+the base zsh documentation on pattern matching.
+<P>
+
+Unlike <B>tcp_read</B>, the default behaviour of <B>tcp_expect</B> is to block
+indefinitely until the required input is found.  This can be modified by
+specifying a timeout with <B>-t</B> or <B>-T</B>; these function as in
+<B>tcp_read</B>, specifying a per-read or overall timeout, respectively, in
+seconds, as an integer or floating-point number.  As <B>tcp_read</B>, the
+function returns status 2 if a timeout occurs.
+<P>
+
+The function returns as soon as any one of the patterns given match.  If
+the caller needs to know which of the patterns matched, the option <B>-p</B>
+<I>var</I> can be used; on return, <B>$var</B> is set to the number of the
+pattern using ordinary zsh indexing, i.e. the first is 1, and so on.  Note
+the absence of a `<B>$</B>' in front of <I>var</I>.  To avoid clashes, the
+parameter cannot begin with `<B>_expect</B>'.
+<P>
+
+The option <B>-q</B> is passed directly down to <B>tcp_read</B>.
+<P>
+
+As all input is done via <B>tcp_read</B>, all the usual rules about output of
+lines read apply.  One exception is that the parameter <B>$tcp_lines</B> will
+only reflect the line actually matched by <B>tcp_expect</B>; use
+<B>$tcp_expect_lines</B> for the full set of lines read during the function
+call.
+</DL>
+
+<DT><B>tcp_proxy</B><DD>
+This is a simple-minded function to accept a TCP connection and execute a
+command with I/O redirected to the connection.  Extreme caution should be
+taken as there is no security whatsoever and this can leave your computer
+open to the world.  Ideally, it should only be used behind a firewall.
+<DL COMPACT><DT><DD>
+<P>
+
+The first argument is a TCP port on which the function will listen.
+<P>
+
+The remaining arguments give a command and its arguments to execute with
+standard input, standard output and standard error redirected to the
+file descriptor on which the TCP session has been accepted.
+If no command is given, a new zsh is started.  This gives everyone on
+your network direct access to your account, which in many cases will be a
+bad thing.
+<P>
+
+The command is run in the background, so <B>tcp_proxy</B> can then accept new
+connections.  It continues to accept new connections until interrupted.
+</DL>
+
+<DT><B>tcp_spam [-ertv] [ -a | -s </B> <I>sess</I> <B>| -l</B> <I>sess</I><B>,... ]</B> <I>cmd</I> <B>...</B><DD>
+Execute `<I>cmd</I> <B>...</B>' for each session in turn.  Note this executes
+the command and arguments; it does not send the command line as data
+unless the <B>-t</B> (transmit) option is given.
+<DL COMPACT><DT><DD>
+<P>
+
+The sessions may be selected explicitly with the standard <B>-a</B>, <B>-s</B> or
+<B>-l</B> options, or may be chosen implicitly.  If none of the three options
+is given the rules are: first, if the array <B>$tcp_spam_list</B> is set, this
+is taken as the list of sessions, otherwise all sessions are taken.
+Second, any sessions given in the array <B>$tcp_no_spam_list</B> are removed
+from the list of sessions.
+<P>
+
+Normally, any sessions added by the `<B>-a</B>' flag or when all sessions are
+chosen implicitly are spammed in alphabetic order; sessions given by the
+<B>$tcp_spam_list</B> array or on the command line are spammed in the order
+given.  The <B>-r</B> flag reverses the order however it was arrived it.
+<P>
+
+The <B>-v</B> flag specifies that a <B>$TCP_PROMPT</B> will be output before each
+session.  This is output after any modification to TCP_SESS by the
+user-defined <B>tcp_on_spam</B> function described below.  (Obviously that
+function is able to generate its own output.)
+<P>
+
+If the option <B>-e</B> is present, the line given as <I>cmd ...</I> is executed
+using <B>eval</B>, otherwise it is executed without any further processing.
+</DL>
+
+<DT><B>tcp_talk</B><DD>
+This is a fairly simple-minded attempt to force input to the line editor to
+go straight to the default TCP_SESSION.
+<DL COMPACT><DT><DD>
+<P>
+
+An escape string, <B>$TCP_TALK_ESCAPE</B>, default `:', is used to allow
+access to normal shell operation.  If it is on its own at the start of the
+line, or followed only by whitespace, the line editor returns to normal
+operation.  Otherwise, the string and any following whitespace are skipped
+and the remainder of the line executed as shell input without any change of
+the line editor's operating mode.
+<P>
+
+The current implementation is somewhat deficient in terms of use of the
+command history.  For this reason, many users will prefer to use some form
+of alternative approach for sending data easily to the current session.
+One simple approach is to alias some special character (such as `<B>%</B>') to
+`<B>tcp_command --</B>'.
+</DL>
+
+<DT><B>tcp_wait</B><DD>
+The sole argument is an integer or floating point number which gives the
+seconds to delay.  The shell will do nothing for that period except wait
+for input on all TCP sessions by calling <B>tcp_read -a</B>.  This is similar
+to the interactive behaviour at the command prompt when zle handlers are
+installed.
+</DL>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>`One-shot' file transfer</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_point</B> <I>port</I>
+<DT>
+<DD>
+<B>tcp_shoot</B> <I>host</I> <I>port</I>
+This pair of functions provide a simple way to transfer a file between
+two hosts within the shell.  Note, however, that bulk data transfer is
+currently done using <B>cat</B>.  <B>tcp_point</B> reads any data arriving at
+<I>port</I> and sends it to standard output; <B>tcp_shoot</B> connects to
+<I>port</I> on <I>host</I> and sends its standard input.  Any unused <I>port</I>
+may be used; the standard mechanism for picking a port is to think of a
+random four-digit number above 1024 until one works.
+<DL COMPACT><DT><DD>
+<P>
+
+To transfer a file from host <B>woodcock</B> to host <B>springes</B>, on
+<B>springes</B>:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_point 8091 &gt;output_file</B>
+</PRE>
+
+</DL>
+
+<P>
+
+and on <B>woodcock</B>:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_shoot springes 8091 &lt;input_file</B>
+</PRE>
+
+</DL>
+
+<P>
+
+As these two functions do not require <B>tcp_open</B> to set up a TCP
+connection first, they may need to be autoloaded separately.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>TCP USER-DEFINED FUNCTIONS</H2>
+
+<P>
+
+Certain functions, if defined by the user, will be called by the function
+system in certain contexts.  This facility depends on the module
+<B>zsh/parameter</B>, which is usually available in interactive shells as the
+completion system depends on it.  None of the functions need be defined;
+they simply provide convenient hooks when necessary.
+<P>
+
+Typically, these are called after the requested action has been taken, so
+that the various parameters will reflect the new state.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_on_alias</B> <I>alias</I> <I>fd</I>
+When an alias is defined, this function will be called with two arguments:
+the name of the alias, and the file descriptor of the corresponding session.
+<DT><B>tcp_on_close</B> <I>sess</I> <I>fd</I><DD>
+This is called with the name of a session being closed and the file
+descriptor which corresponded to that session.  Both will be invalid by
+the time the function is called.
+<DT><B>tcp_on_open</B> <I>sess</I> <I>fd</I><DD>
+This is called after a new session has been defined with the session name
+and file descriptor as arguments.
+<DT><B>tcp_on_rename</B> <I>oldsess</I> <I>fd</I> <I>newsess</I><DD>
+This is called after a session has been renamed with the three arguments
+old session name, file descriptor, new session name.
+<DT><B>tcp_on_spam</B> <I>sess</I> <I>command</I> <B>...</B><DD>
+This is called once for each session spammed, just <I>before</I> a command is
+executed for a session by <B>tcp_spam</B>.  The arguments are the session name
+followed by the command list to be executed.  If <B>tcp_spam</B> was called
+with the option <B>-t</B>, the first command will be <B>tcp_send</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+This function is called after <B>$TCP_SESS</B> is set to reflect the session
+to be spammed, but before any use of it is made.  Hence it is possible to
+alter the value of <B>$TCP_SESS</B> within this function.  For example, the
+session arguments to <B>tcp_spam</B> could include extra information to be
+stripped off and processed in <B>tcp_on_spam</B>.
+<P>
+
+If the function sets the parameter <B>$REPLY</B> to `<B>done</B>', the command
+line is not executed; in addition, no prompt is printed for the <B>-v</B>
+option to <B>tcp_spam</B>.
+</DL>
+
+<DT><B>tcp_on_unalias</B> <I>alias</I> <I>fd</I><DD>
+This is called with the name of an alias and the corresponding session's
+file descriptor after an alias has been deleted.
+</DL>
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>TCP UTILITY FUNCTIONS</H2>
+
+<P>
+
+The following functions are used by the TCP function system but will rarely
+if ever need to be called directly.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_fd_handler</B>
+This is the function installed by <B>tcp_open</B> for handling input from
+within the line editor, if that is required.  It is in the format
+documented for the builtin `<B>zle -F</B>' in
+<I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1)
+.
+<DL COMPACT><DT><DD>
+<P>
+
+While active, the function sets the parameter <B>TCP_HANDLER_ACTIVE</B> to 1.
+This allows shell code called internally (for example, by setting
+<B>tcp_on_read</B>) to tell if is being called when the shell is otherwise
+idle at the editor prompt.
+</DL>
+
+<DT><B>tcp_output [ -q ] -P</B> <I>prompt</I> <B>-F</B> <I>fd</I> <B>-S</B> <I>sess</I><DD>
+This function is used for both logging and handling output to standard
+output, from within <B>tcp_read</B> and (if <B>$TCP_OUTPUT</B> is set)
+<B>tcp_send</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+The <I>prompt</I> to use is specified by <B>-P</B>; the default is the empty
+string.  It can contain:
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>%c</B>
+Expands to 1 if the session is the current session, otherwise 0.  Used
+with ternary expresions such as `<B>%(c.-.+)</B>' to
+output `<B>+</B>' for the current session and `<B>-</B>' otherwise.
+<DT><B>%f</B><DD>
+Replaced by the session's file descriptor.
+<DT><B>%s</B><DD>
+Replaced by the session name.
+<DT><B>%%</B><DD>
+Replaced by a single `<B>%</B>'.
+</DL>
+<P>
+
+The option <B>-q</B> suppresses output to standard output, but not to any log
+files which are configured.
+<P>
+
+The <B>-S</B> and <B>-F</B> options are used to pass in the session name and file
+descriptor for possible replacement in the prompt.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>TCP USER PARAMETERS</H2>
+
+<P>
+
+Parameters follow the usual convention that uppercase is used for scalars
+and integers, while lowercase is used for normal and associative array.
+It is always safe for user code to read these parameters.  Some parameters
+may also be set; these are noted explicitly.  Others are included in this
+group as they are set by the function system for the user's benefit,
+i.e. setting them is typically not useful but is benign.
+<P>
+
+It is often also useful to make settable parameters local to a function.
+For example, `<B>local TCP_SILENT=1</B>' specifies that data read during the
+function call will not be printed to standard output, regardless of the
+setting outside the function.  Likewise, `<B>local TCP_SESS=</B><I>sess</I>'
+sets a session for the duration of a function, and `<B>local
+TCP_PROMPT=</B>' specifies that no prompt is used for input during the
+function.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_expect_lines</B>
+Array.  The set of lines read during the last call to <B>tcp_expect</B>,
+including the last (<B>$TCP_LINE</B>).
+<DT><B>tcp_filter</B><DD>
+Array. May be set directly.  A set of extended globbing patterns which,
+if matched in <B>tcp_output</B>, will cause the line not to be printed to
+standard output.  The patterns should be defined as described for the
+arguments to <B>tcp_expect</B>.  Output of line to log files is not affected.
+<DT><B>TCP_HANDLER_ACTIVE</B><DD>
+Scalar.  Set to 1 within <B>tcp_fd_handler</B> to indicate to functions
+called recursively that they have been called during an editor session.
+Otherwise unset.
+<DT><B>TCP_LINE</B><DD>
+The last line read by <B>tcp_read</B>, and hence also <B>tcp_expect</B>.
+<DT><B>TCP_LINE_FD</B><DD>
+The file descriptor from which <B>$TCP_LINE</B> was read.
+<B>${tcp_by_fd[$TCP_LINE_FD]}</B> will give the corresponding session name.
+<DT><B>tcp_lines</B><DD>
+Array. The set of lines read during the last call to <B>tcp_read</B>,
+including the last (<B>$TCP_LINE</B>).
+<DT><B>TCP_LOG</B><DD>
+May be set directly, although it is also controlled by <B>tcp_log</B>.
+The name of a file to which output from all sessions will be sent.
+The output is proceeded by the usual <B>$TCP_PROMPT</B>.  If it is not an
+absolute path name, it will follow the user's current directory.
+<DT><B>TCP_LOG_SESS</B><DD>
+May be set directly, although it is also controlled by <B>tcp_log</B>.
+The prefix for a set of files to which output from each session separately
+will be sent; the full filename is <B>${TCP_LOG_SESS}.</B><I>sess</I>.
+Output to each file is raw; no prompt is added.  If it is not an absolute
+path name, it will follow the user's current directory.
+<DT><B>tcp_no_spam_list</B><DD>
+Array.  May be set directly.  See <B>tcp_spam</B> for how this is used.
+<DT><B>TCP_OUTPUT</B><DD>
+May be set directly.  If a non-empty string, any data sent to a session by
+<B>tcp_send</B> will be logged.  This parameter gives the prompt to be used
+in a file specified by <B>$TCP_LOG</B> but not in a file generated from
+<B>$TCP_LOG_SESS</B>.  The prompt string has the same format as
+<B>TCP_PROMPT</B> and the same rules for its use apply.
+<DT><B>TCP_PROMPT</B><DD>
+May be set directly.  Used as the prefix for data read by <B>tcp_read</B>
+which is printed to standard output or to the log file given by
+<B>$TCP_LOG</B>, if any.  Any `<B>%s</B>', `<B>%f</B>' or `<B>%%</B>' occurring in the
+string will be replaced by the name of the session, the session's
+underlying file descriptor, or a single `<B>%</B>', respectively.  The
+expression `<B>%c</B>' expands to 1 if the session being read is the current
+session, else 0; this is most useful in ternary expressions such as
+`<B>%(c.-.+)</B>' which outputs `<B>+</B>' if the session is
+the current one, else `<B>-</B>'.
+<DT><B>TCP_READ_DEBUG</B><DD>
+May be set directly.  If this has non-zero length, <B>tcp_read</B> will give
+some limited diagnostics about data being read.
+<DT><B>TCP_SECONDS_START</B><DD>
+This value is created and initialised to zero by tcp_open.
+<DL COMPACT><DT><DD>
+<P>
+
+The functions <B>tcp_read</B> and <B>tcp_expect</B> use the shell's
+<B>SECONDS</B> parameter for their own timing purposes.  If that parameter
+is not of floating point type on entry to one of the functions, it will
+create a local parameter <B>SECONDS</B> which is floating point and set the
+parameter <B>TCP_SECONDS_START</B> to the previous value of <B>$SECONDS</B>.
+If the parameter is already floating point, it is used without a local
+copy being created and <B>TCP_SECONDS_START</B> is not set.  As the global
+value is zero, the shell elapsed time is guaranteed to be the sum of
+<B>$SECONDS</B> and <B>$TCP_SECONDS_START</B>.
+<P>
+
+This can be avoided by setting <B>SECONDS</B> globally to a floating point
+value using `<B>typeset -F SECONDS</B>'; then the TCP functions will never
+make a local copy and never set <B>TCP_SECONDS_START</B> to a non-zero value.
+</DL>
+
+<DT><B>TCP_SESS</B><DD>
+May be set directly.  The current session; must refer to one of the
+sessions established by <B>tcp_open</B>.
+<DT><B>TCP_SILENT</B><DD>
+May be set directly, although it is also controlled by <B>tcp_log</B>.
+If of non-zero length, data read by <B>tcp_read</B> will not be written to
+standard output, though may still be written to a log file.
+<DT><B>tcp_spam_list</B><DD>
+Array.  May be set directly.  See the description of the function
+<B>tcp_spam</B> for how this is used.
+<DT><B>TCP_TALK_ESCAPE</B><DD>
+May be set directly.  See the description of the function <B>tcp_talk</B> for
+how this is used.
+<DT><B>TCP_TIMEOUT</B><DD>
+May be set directly.  Currently this is only used by the function
+<B>tcp_command</B>, see above.
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>TCP USER-DEFINED PARAMETERS</H2>
+
+<P>
+
+The following parameters are not set by the function system, but have
+a special effect if set by the user.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_on_read</B>
+This should be an associative array; if it is not, the behaviour is
+undefined.  Each key is the name of a shell function or other command,
+and the corresponding value is a shell pattern (using <B>EXTENDED_GLOB</B>).
+Every line read from a TCP session directly or indirectly using
+<B>tcp_read</B> (which includes lines read by <B>tcp_expect</B>) is compared
+against the pattern.  If the line matches, the command given in the key is
+called with two arguments: the name of the session from which the line was
+read, and the line itself.
+<DL COMPACT><DT><DD>
+<P>
+
+If any function called to handle a line returns a non-zero status, the
+line is not output.  Thus a <B>tcp_on_read</B> handler containing only
+the instruction `<B>return 1</B>' can be used to suppress output of
+particular lines (see, however, <B>tcp_filter</B> above).  However, the line
+is still stored in <B>TCP_LINE</B> and <B>tcp_lines</B>; this occurs after all
+<B>tcp_on_read</B> processing.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>TCP UTILITY PARAMETERS</H2>
+
+<P>
+
+These parameters are controlled by the function system; they may be read
+directly, but should not usually be set by user code.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>tcp_aliases</B>
+Associative array.  The keys are the names of sessions established with
+<B>tcp_open</B>; each value is a space-separated list of aliases which refer
+to that session.
+<DT><B>tcp_by_fd</B><DD>
+Associative array.  The keys are session file descriptors; each
+value is the name of that session.
+<DT><B>tcp_by_name</B><DD>
+Associative array.  The keys are the names of sessions; each value is the
+file descriptor associated with that session.
+</DL>
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>TCP EXAMPLES</H2>
+
+<P>
+
+Here is a trivial example using a remote calculator.
+<P>
+
+TO create a calculator server on port 7337 (see the <B>dc</B> manual page for
+quite how infuriating the underlying command is):
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_proxy 7337 dc</B>
+</PRE>
+
+</DL>
+
+<P>
+
+To connect to this from the same host with a session also named `<B>dc</B>':
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_open localhost 7337 dc</B>
+</PRE>
+
+</DL>
+
+<P>
+
+To send a command to the remote session and wait a short while for output
+(assuming <B>dc</B> is the current session):
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_command 2 4 + p</B>
+</PRE>
+
+</DL>
+
+<P>
+
+To close the session:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>tcp_close</B>
+</PRE>
+
+</DL>
+
+<P>
+
+The <B>tcp_proxy</B> needs to be killed to be stopped.  Note this will not
+usually kill any connections which have already been accepted, and also
+that the port is not immediately available for reuse.
+<P>
+
+The following chunk of code puts a list of sessions into an xterm header,
+with the current session followed by a star.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>print -n &quot;\033]2;TCP:&quot; ${(k)tcp_by_name:/$TCP_SESS/$TCP_SESS\*} &quot;\a&quot;</B>
+</PRE>
+
+</DL>
+
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>TCP BUGS</H2>
+
+<P>
+
+The function <B>tcp_read</B> uses the shell's normal <B>read</B> builtin.  As
+this reads a complete line at once, data arriving without a terminating
+newline can cause the function to block indefinitely.
+<P>
+
+Though the function suite works well for interactive use and for data
+arriving in small amounts, the performance when large amounts of data are
+being exchanged is likely to be extremely poor.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">TCP USER FUNCTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Basic I/O</A><DD>
+<DT><A HREF="#lbAF">Session Management</A><DD>
+<DT><A HREF="#lbAG">Advanced I/O</A><DD>
+<DT><A HREF="#lbAH">`One-shot' file transfer</A><DD>
+</DL>
+<DT><A HREF="#lbAI">TCP USER-DEFINED FUNCTIONS</A><DD>
+<DT><A HREF="#lbAJ">TCP UTILITY FUNCTIONS</A><DD>
+<DT><A HREF="#lbAK">TCP USER PARAMETERS</A><DD>
+<DT><A HREF="#lbAL">TCP USER-DEFINED PARAMETERS</A><DD>
+<DT><A HREF="#lbAM">TCP UTILITY PARAMETERS</A><DD>
+<DT><A HREF="#lbAN">TCP EXAMPLES</A><DD>
+<DT><A HREF="#lbAO">TCP BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

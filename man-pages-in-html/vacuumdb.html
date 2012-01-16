@@ -1,0 +1,227 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>VACUUMDB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>VACUUMDB</H1>
+Section: PostgreSQL Client Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+vacuumdb - garbage-collect and analyze a PostgreSQL database
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>vacuumdb</B> [ <B></B><I>connection-option</I><B></B>...<B> </B>] [ <B>--full</B> | <B>-f</B> ] [ <B>--verbose</B> | <B>-v</B> ] [ <B>--analyze</B> | <B>-z</B> ] [ <B>--table | -t </B><I>table</I><B></B> [ <B>( </B><I>column</I><B> [,...] ) </B>]<B> </B>] [ <B></B><I>dbname</I><B> </B>]
+<P>
+<B>vacuumdb</B> [ <B></B><I>connection-options</I><B></B>...<B> </B>] [ <B>--all</B> | <B>-a</B> ] [ <B>--full</B> | <B>-f</B> ] [ <B>--verbose</B> | <B>-v</B> ] [ <B>--analyze</B> | <B>-z</B> ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>vacuumdb</B> is a utility for cleaning a
+PostgreSQL database.
+<B>vacuumdb</B> will also generate internal statistics
+used by the PostgreSQL query optimizer.
+<P>
+
+<B>vacuumdb</B> is a wrapper around the SQL
+command VACUUM [<B><A HREF="../man7/vacuum.7.php">vacuum</A></B>(7)].
+There is no effective difference between vacuuming databases via
+this utility and via other methods for accessing the server.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<B>vacuumdb</B> accepts the following command-line arguments:
+<DL COMPACT>
+<DT><B>-a</B><DD>
+<DT><B>--all</B><DD>
+Vacuum all databases.
+<DT><B>[-d] </B><I>dbname</I><B></B><DD>
+<DT><B>[--dbname] </B><I>dbname</I><B></B><DD>
+Specifies the name of the database to be cleaned or analyzed.
+If this is not specified and <B>-a</B> (or
+<B>--all</B>) is not used, the database name is read
+from the environment variable <B>PGDATABASE</B>. If
+that is not set, the user name specified for the connection is
+used.
+<DT><B>-e</B><DD>
+<DT><B>--echo</B><DD>
+Echo the commands that <B>vacuumdb</B> generates
+and sends to the server.
+<DT><B>-f</B><DD>
+<DT><B>--full</B><DD>
+Perform ``full'' vacuuming.
+<DT><B>-q</B><DD>
+<DT><B>--quiet</B><DD>
+Do not display a response.
+<DT><B>-t </B><I>table</I><B> [ (</B><I>column</I><B> [,...]) ]</B><DD>
+<DT><B>--table </B><I>table</I><B> [ (</B><I>column</I><B> [,...]) ]</B><DD>
+Clean or analyze <I>table</I> only.
+Column names may be specified only in conjunction with
+the <B>--analyze</B> option.
+<P>
+<DL COMPACT><DT><DD>
+<B>Tip:</B>
+
+If you specify columns, you probably have to escape the parentheses
+from the shell. (See examples below.)
+</DL>
+
+<P>
+<DT><B>-v</B><DD>
+<DT><B>--verbose</B><DD>
+Print detailed information during processing.
+<DT><B>-z</B><DD>
+<DT><B>--analyze</B><DD>
+Calculate statistics for use by the optimizer.
+</DL>
+<P>
+
+<P>
+
+<B>vacuumdb</B> also accepts 
+the following command-line arguments for connection parameters:
+<DL COMPACT>
+<DT><B>-h </B><I>host</I><B></B><DD>
+<DT><B>--host </B><I>host</I><B></B><DD>
+Specifies the host name of the machine on which the 
+server
+is running. If the value begins with a slash, it is used 
+as the directory for the Unix domain socket.
+<DT><B>-p </B><I>port</I><B></B><DD>
+<DT><B>--port </B><I>port</I><B></B><DD>
+Specifies the TCP port or local Unix domain socket file 
+extension on which the server
+is listening for connections.
+<DT><B>-U </B><I>username</I><B></B><DD>
+<DT><B>--username </B><I>username</I><B></B><DD>
+User name to connect as
+<DT><B>-W</B><DD>
+<DT><B>--password</B><DD>
+Force password prompt.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGDATABASE</B><DD>
+<DT><B>PGHOST</B><DD>
+<DT><B>PGPORT</B><DD>
+<DT><B>PGUSER</B><DD>
+Default connection parameters
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<P>
+
+In case of difficulty, see VACUUM [<B><A HREF="../man7/vacuum.7.php">vacuum</A></B>(7)] and <B><A HREF="../man1/psql.1.php">psql</A></B>(1) for
+discussions of potential problems and error messages.
+The database server must be running at the
+targeted host. Also, any default connection settings and environment
+variables used by the <B>libpq</B> front-end
+library will apply.
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+<B>vacuumdb</B> might need to connect several
+times to the PostgreSQL server, asking
+for a password each time. It is convenient to have a
+<I>$HOME/.pgpass</I> file in such cases.
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+To clean the database test:
+<P>
+<PRE>
+$ <B>vacuumdb test</B>
+
+</PRE>
+
+<P>
+
+To clean and analyze for the optimizer a database named
+bigdb:
+<P>
+<PRE>
+$ <B>vacuumdb --analyze bigdb</B>
+
+</PRE>
+
+<P>
+
+To clean a single table
+foo in a database named
+xyzzy, and analyze a single column
+bar of the table for the optimizer:
+<P>
+<PRE>
+$ <B>vacuumdb --analyze --verbose --table 'foo(bar)' xyzzy</B>
+
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+VACUUM [<B><A HREF="../man7/vacuum.7.php">vacuum</A></B>(7)]
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

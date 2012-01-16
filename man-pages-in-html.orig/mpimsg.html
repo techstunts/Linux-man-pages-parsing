@@ -1,0 +1,282 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MPIMSG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MPIMSG</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mpimsg - Monitor MPI message buffers under LAM.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+
+<DD>mpimsg [-gps] [-h] [-O] [-c &lt;seq&gt;] [-d &lt;seq&gt;] [-m &lt;seq&gt;] [-e &lt;#&gt;] [-B &lt;#&gt;] 
+[&lt;nodes&gt;] [&lt;processes&gt;]
+
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-gps</B>
+
+<DD>
+Print process information in GPS format.
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-O</B>
+
+<DD>
+Multicomputer is homogeneous. 
+Do no data conversion.
+See <A HREF="../man1/mpirun.1.php">mpirun</A>(1).
+<DT><B>-c &lt;seq&gt;</B>
+
+<DD>
+Print a description of the communicator used in message &lt;seq&gt;.
+See <A HREF="../man1/mpitask.1.php">mpitask</A>(1).
+<DT><B>-d &lt;seq&gt;</B>
+
+<DD>
+Print a description of the datatype used in message &lt;seq&gt;.
+See <A HREF="../man1/mpitask.1.php">mpitask</A>(1).
+<DT><B>-e &lt;#&gt;</B>
+
+<DD>
+Limit printing the contents of a message to &lt;#&gt; elements.
+<DT><B>-m &lt;seq&gt;</B>
+
+<DD>
+Print the contents of message &lt;seq&gt;.
+See &quot;Message Contents&quot;.
+<DT><B>-B &lt;#&gt;</B>
+
+<DD>
+Change the limit on the number of messages reported.
+</DL>
+<P>
+
+The -c, -d and -m options are mutually exclusive.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>mpimsg</I>
+
+command displays information on buffered messages which were sent
+using the MPI library and are currently buffered on the
+specified nodes and destined to the specified processes.  
+<I>mpimsg</I>
+
+typically only works when the &quot;daemon&quot; mode of communication is used;
+it cannot be used to monitor &quot;client to client&quot; (C2C) communications.
+<P>
+
+With no processes or nodes explicitly specified on the command
+line, all MPI messages on all nodes are reported.
+<P>
+
+<PRE>
+% mpimsg
+SRC (G/L)      DEST (G/L)     TAG     COMM    COUNT     DATATYPE    MSG
+0/0            1/1            123     WORLD   64        INT         n1,#0
+</PRE>
+
+<P>
+
+For each message
+<I>mpimsg</I>
+
+outputs the following information:
+<DL COMPACT>
+<DT>SRC <DD>
+an identification of the source process -
+A `/' followed by the process's rank within the
+message's communicator is also displayed.
+See <A HREF="../man1/mpitask.1.php">mpitask</A>(1) for a discussion of process identification.
+<DT>DEST<DD>
+an identification of the destination process
+<DT>TAG<DD>
+the tag from the message envelope
+<DT>COMM<DD>
+the communicator identifier
+<DT>COUNT<DD>
+the number of data elements in the message
+<DT>DATATYPE<DD>
+the element datatype
+<DT>MSG<DD>
+the message identifier -
+It is expressed in the form n&lt;nodeid&gt;,#&lt;seqnum&gt;, where &lt;nodeid&gt; is
+the physical location of the buffered message and &lt;seqnum&gt; is a
+sequence number assigned to the message by LAM.
+These values are used to get further information on the communicator,
+datatype or message contents.
+</DL>
+<P>
+
+More detailed information on the message's communicator or datatype
+can be obtained with the -c or -d options.
+The information is the same as obtained by <A HREF="../man1/mpitask.1.php">mpitask</A>(1) regarding processes.
+Unlike <A HREF="../man1/mpitask.1.php">mpitask</A>(1), these options in
+<I>mpimsg</I>
+
+require a message identifier to isolate a single message.
+Keep in mind that
+<I>mpimsg</I>
+
+invocations are snapshots of system status.
+It is possible that a buffered message shown in a call of
+<I>mpimsg</I>
+
+may be received prior to a subsequent call to 
+<I>mpimsg</I>
+
+made in order to display further information.
+In this case nothing is printed.
+<A NAME="lbAF">&nbsp;</A>
+<H3>Message Contents</H3>
+
+If the -m option is given then the contents of the specified message are
+displayed.
+<P>
+
+First the destination process identification and the message identification
+is printed and then the message contents are printed in a format somewhat
+similar to that produced by the UNIX utility <A HREF="../man1/od.1.php">od</A>(1).
+On the left hand side of each line the offset from the beginning of the
+data buffer is printed in hexadecimal.  
+After that individual elements are printed according to
+their type as deduced from the type signature.
+Holes in the datatype and changes in basic type force newlines in the output 
+so in effect all elements on the same line of output are actually 
+contiguous in the buffer and of the same basic type.
+<P>
+
+The amount of a message that is to be printed can be limited with the -e
+option.
+The limit is specified in terms of a maximum number of elements
+of a basic datatype that are to be printed.
+For example if a message consists of 100 structures with each structure
+containing three integers, then a limit of 20 would result in the display
+of the first 20 integers in the message, as opposed to the first 20
+structures (or 60 integers).
+<P>
+
+Buffered message data is by default stored in LAM representation and
+will be converted to local representation for display.
+In the case of a homogeneous LAM and MPI processes run with the -O
+switch to <A HREF="../man1/mpirun.1.php">mpirun</A>(1) message data will be stored in the common local
+representation of the machines in the LAM.
+In this case when using the -m option the -O switch can be given
+in order to prevent the data conversion for display.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>mpimsg<DD>
+Report all MPI messages.
+<DT>mpimsg n1 -m 8 -e 20<DD>
+Print the first 20 elements of message #8 on node 1.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+If no buffered messages are found, only the title line is displayed.
+If the message specified by -c, -d or -m is no longer buffered,
+nothing is printed.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/bfctl.1.php">bfctl</A>(1), <A HREF="../man1/bfstate.1.php">bfstate</A>(1), <A HREF="../man3/libmpi.3.php">libmpi</A>(3), <A HREF="../man1/mpitask.1.php">mpitask</A>(1), <A HREF="../man1/sweep.1.php">sweep</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Message Contents</A><DD>
+</DL>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

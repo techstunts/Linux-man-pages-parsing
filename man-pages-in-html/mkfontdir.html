@@ -1,0 +1,262 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MKFONTDIR</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MKFONTDIR</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mkfontdir - create an index of X font files in a directory
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>mkfontdir</B>
+
+[<B>-n</B>]
+
+[<B>-x</B>
+
+<I>suffix</I>]
+
+[<B>-r</B>]
+
+[<B>-p</B>
+
+<I>prefix</I>]
+
+[<B>-e</B>
+
+<I>encoding-directory-name</I>]
+
+...
+[<B>--</B>]
+
+[<I>directory-name</I>
+
+... ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+For each directory argument, 
+<I>mkfontdir</I>
+
+reads all of the font files in the
+directory searching for properties named &quot;FONT&quot;, or (failing that) the name
+of the file stripped of its suffix.  These are converted to lower case and
+used as font names, and,
+along with the name of the font file, are
+written out to the file &quot;fonts.dir&quot; in the directory.
+The X server and font server use &quot;fonts.dir&quot; to find font files.
+<P>
+
+The kinds of font files read by 
+<I>mkfontdir</I>
+
+depend on configuration
+parameters, but typically include PCF (suffix &quot;.pcf&quot;), SNF (suffix &quot;.snf&quot;)
+and BDF (suffix &quot;.bdf&quot;).  If a font exists in multiple formats,
+<I>mkfontdir</I>
+
+will first choose PCF, then SNF and finally BDF.
+<P>
+
+The first line of fonts.dir gives the number of fonts in the file.
+The remaining lines list the fonts themselves, one per line, in two
+fields.  First is the name of the font file, followed by a space and
+the name of the font.
+<A NAME="lbAE">&nbsp;</A>
+<H2>SCALABLE FONTS</H2>
+
+Because scalable font files do not usually include the X font name, the
+file &quot;fonts.scale&quot; can be used to name the scalable fonts in the
+directory.
+The fonts listed in it are copied to fonts.dir by 
+<I>mkfontdir</I>.
+
+&quot;fonts.scale&quot; has the same format as the &quot;fonts.dir&quot; file.
+<A NAME="lbAF">&nbsp;</A>
+<H2>FONT NAME ALIASES</H2>
+
+The file &quot;fonts.alias&quot;, which can be put in any directory of the font-path, is
+used to map new names to existing fonts, and should be edited by hand.  The
+format is two white-space separated columns, the
+first containing aliases and the second containing font-name patterns.
+Lines beginning with &quot;!&quot; are comment lines and are ignored.
+<P>
+
+If neither the alias nor the value specifies the size fields of the
+font name, this is a scalable alias.  A font name of any size that
+matches this alias will be mapped to the same size of the font that
+the alias resolves to.
+<P>
+
+When a font alias is used, the name it references is searched for in the normal
+manner, looking through each font directory in turn.  This means that the
+aliases need not mention fonts in the same directory as the alias file.
+<P>
+
+To embed white space in either name, simply enclose it in double-quote
+marks; to embed double-quote marks (or any other character), precede them
+with back-slash:
+<P>
+
+<PRE>
+&quot;magic-alias with spaces&quot;       &quot;\&quot;font name\&quot; with quotes&quot;
+regular-alias                   fixed
+</PRE>
+
+<P>
+
+If the string &quot;FILE_NAMES_ALIASES&quot; stands alone on a line, each file-name
+in the directory (stripped of its suffix) will be used as an alias for
+that font.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENCODING FILES</H2>
+
+The option 
+<B>-e</B>
+
+can be used to specify a directory with encoding files.  Every such
+directory is scanned for encoding files, the list of which is then
+written to an &quot;encodings.dir&quot; file in every font directory.  The
+&quot;encodings.dir&quot; file is used by the server to find encoding
+information.
+<P>
+
+The &quot;encodings.dir&quot; file has the same format as &quot;fonts.dir&quot;.
+It maps encoding names (strings of the form
+<B>CHARSET_REGISTRY</B><I>-</I><B>CHARSET_ENCODING</B>
+
+) to encoding file names.
+<A NAME="lbAH">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options are supported:
+<DL COMPACT>
+<DT><B>-e</B>
+
+<DD>
+Specify a directory containing encoding files.  The
+<B>-e</B>
+
+option may be specified multiple times, and all the specified
+directories will be read.  The order of the entries is significant, as
+encodings found in earlier directories override those in later ones;
+encoding files in the same directory are discriminated by preferring
+compressed versions.
+<DT><B>-n</B>
+
+<DD>
+do not scan for fonts, do not write font directory files.  This option
+is useful when generating encoding directories only.
+<DT><B>-p</B>
+
+<DD>
+Specify a prefix that is prepended to the encoding file path names
+when they are written to the &quot;encodings.dir&quot; file.  The prefix is
+prepended as-is.  If a `/' is required between the prefix and the path
+names, it must be supplied explicitly as part of the prefix.
+<DT><B>-r</B>
+
+<DD>
+Keep non-absolute encoding directories in their relative form when
+writing the &quot;encodings.dir&quot; file.  The default is to convert relative
+encoding directories to absolute directories by prepending the current
+directory.  The positioning of this options is significant, as this
+option only applies to subsequent
+<B>-e</B>
+
+options.
+<DT><B>-x </B><I>suffix</I>
+
+<DD>
+Ignore fonts files of type
+<I>suffix</I>.
+
+<DT><B>--</B>
+
+<DD>
+End options.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>fonts.dir</B>
+
+<DD>
+List of fonts in the directory and the files they are stored in.
+Created by <I>mkfontdir</I>.  Read by the X server and font server each
+time the font path is set (see <A HREF="../man1/xset.1.php">xset</A>(1)).
+<DT><B>fonts.scale</B>
+
+<DD>
+List of scalable fonts in the directory.  Contents are copied to
+fonts.dir by <I>mkfontdir</I>.
+<DT><B>fonts.alias</B>
+
+<DD>
+List of font name aliases.
+Read by the X server and font server each
+time the font path is set (see <A HREF="../man1/xset.1.php">xset</A>(1)).
+<DT><B>encodings.dir</B>
+
+<DD>
+List of known encodings and the files they are stored in.
+Created by <I>mkfontdir</I>.  Read by the X server and font server each
+time a font with an unknown charset is opened.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <A HREF="../man1/Xserver.1.php">Xserver</A>(1), <A HREF="../man1/xfs.1.php">xfs</A>(1), <A HREF="../man1/xset.1.php">xset</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SCALABLE FONTS</A><DD>
+<DT><A HREF="#lbAF">FONT NAME ALIASES</A><DD>
+<DT><A HREF="#lbAG">ENCODING FILES</A><DD>
+<DT><A HREF="#lbAH">OPTIONS</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

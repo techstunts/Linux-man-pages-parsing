@@ -1,0 +1,986 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GVPR</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GVPR</H1>
+Section: User Commands  (1)<BR>Updated: 14 November 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gvpr - graph pattern scanning and processing language
+<BR>
+
+( previously known as
+<B>gpr</B>
+
+)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>gvpr</B>
+
+[<B>-icV?</B>]
+[
+<B>-o</B>
+
+<I>outfile</I>
+
+]
+[
+<B>-a</B>
+
+<I>args</I>
+
+]
+[
+<I>'prog'</I>
+
+|
+<B>-f</B>
+
+<I>progfile</I>
+
+]
+[ 
+<I>files </I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>gvpr</B>
+
+is a graph stream editor inspired by <B>awk</B>.
+It copies input graphs to its
+output, possibly transforming their structure and attributes,
+creating new graphs, or printing arbitrary information.
+The graph model is that provided by
+<I><A HREF="../man3/libagraph.3.php">libagraph</A></I>(3).
+
+In particular, <B>gvpr</B> reads and writes graphs using the
+dot language.
+<P>
+
+Basically,
+<B>gvpr</B>
+
+traverses each input graph, denoted by <B>$G</B>, visiting each node and edge,
+matching it with the predicate-action rules supplied in the input program.
+The rules are evaluated in order.
+For each predicate evaluating to true, the corresponding 
+action is performed. 
+During the traversal, the current node or edge being visited
+is denoted by <B>$</B>.
+<P>
+
+For each input graph, there is a target subgraph, denoted by
+<B>$T</B>, initially empty and used to accumulate
+chosen entities, and an output graph, <B>$O</B>, used for final processing
+and then written to output. 
+By default, the output graph is the target graph.
+The output graph can be set in the program or, in a limited sense,
+on the command line.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options are supported:
+<DL COMPACT>
+<DT><B>-a</B><I> args</I>
+
+<DD>
+The string <I>args</I> is split into whitespace-separated tokens, 
+with the individual tokens
+available as strings in the <B>gvpr</B> program 
+as <B>ARGV[</B><I>0</I>],...,ARGV[ARGC-1].
+<DT><B>-c</B>
+
+<DD>
+Use the source graph as the output graph.
+<DT><B>-i</B>
+
+<DD>
+Derive the node-induced subgraph extension of the output graph in the context 
+of its root graph.
+<DT><B>-o</B><I> outfile</I>
+
+<DD>
+Causes the output stream to be written to the specified file; by default,
+output is written to <B>stdout</B>.
+<DT><B>-f</B><I> progfile</I>
+
+<DD>
+Use the contents of the specified file as the program to execute
+on the input. If <I>progfile</I> contains a slash character, the name is taken
+as the pathname of the file. Otherwise, <B>gvpr</B> will use the
+directories specified in the environment variable <B>GPRPATH</B> to look
+for the file. If 
+<B>-f</B>
+
+is not given,
+<B>gvpr</B>
+
+will use the first non-option argument as the program.
+<DT><B>-V</B>
+
+<DD>
+Causes the program to print version information and exit.
+<DT><B>-?</B>
+
+<DD>
+Causes the program to print usage information and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPERANDS</H2>
+
+The following operand is supported:
+<DL COMPACT>
+<DT><I>files</I>
+
+<DD>
+Names of files containing 1 or more graphs in the dot language.
+If no
+<B>-f</B>
+
+option is given, the first name is removed from the list and used 
+as the input program. If the list of files is empty, <B>stdin</B> will be used.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>PROGRAMS</H2>
+
+A
+<B>gvpr</B>
+
+program consists of a list of predicate-action clauses, having one
+of the forms:
+<DL COMPACT>
+<DT><DD>
+<B>BEGIN { </B><I>action</I><B> }</B>
+
+<DT><DD>
+<B>BEG_G { </B><I>action</I><B> }</B>
+
+<DT><DD>
+<B>N [ </B><I>predicate</I><B> ] { </B><I>action</I><B> }</B>
+
+<DT><DD>
+<B>E [ </B><I>predicate</I><B> ] { </B><I>action</I><B> }</B>
+
+<DT><DD>
+<B>END_G { </B><I>action</I><B> }</B>
+
+<DT><DD>
+<B>END { </B><I>action</I><B> }</B>
+
+</DL>
+<P>
+
+A program can contain at most one of each of the <B>BEGIN</B>, <B>BEG_G</B>,
+<B>END_G</B> and <B>END</B> clauses. 
+There can be any number of <B>N</B> and <B>E</B> statements,
+the first applied to nodes, the second to edges.
+The top-level semantics of a <B>gvpr</B> program are:
+
+Evaluate the <B>BEGIN</B> clause, if any.
+For each input graph <I>G</I> {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;<I>G</I>&nbsp;as&nbsp;the&nbsp;current&nbsp;graph&nbsp;and&nbsp;current&nbsp;object.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Evaluate&nbsp;the&nbsp;<B>BEG_G</B>&nbsp;clause,&nbsp;if&nbsp;any.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;each&nbsp;node&nbsp;and&nbsp;edge&nbsp;in&nbsp;<I>G</I>&nbsp;{
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;the&nbsp;node&nbsp;or&nbsp;edge&nbsp;as&nbsp;the&nbsp;current&nbsp;object.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Evaluate&nbsp;the&nbsp;<B>N</B>&nbsp;or&nbsp;<B>E</B>&nbsp;clauses,&nbsp;as&nbsp;appropriate.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;<I>G</I>&nbsp;as&nbsp;the&nbsp;current&nbsp;object.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Evaluate&nbsp;the&nbsp;<B>END_G</B>&nbsp;clause,&nbsp;if&nbsp;any.
+} 
+Evaluate the <B>END</B> clause, if any.
+
+The actions of the <B>BEGIN</B>, <B>BEG_G</B>, <B>END_G</B> and <B>END</B> clauses
+are performed when the clauses are evaluated.
+For <B>N</B> or <B>E</B> clauses,
+either the predicate or action may be omitted. 
+If there is no predicate with an action, the action is 
+performed on every node or edge, as appropriate.
+If there is no action and the predicate evaluates to true,
+the associated node or edge is added to the target graph. 
+<P>
+
+Predicates and actions are sequences of statements in the C dialect 
+supported by the
+<I><A HREF="../man3/libexpr.3.php">libexpr</A></I>(3)
+
+library.
+The only difference between predicates and actions is that the former
+must have a type that may interpreted as either true or false.
+Here the usual C convention is followed, in which a non-zero value is
+considered true. This would include non-empty strings and non-empty
+references to nodes, edges, etc. However, if a string can be 
+converted to an integer, this value is used.
+<P>
+
+In addition to the usual C base types
+(void, int, char, float, long, 
+unsigned and double), 
+<B>gvpr</B> provides string as a synonym for char*, and 
+the graph-based types node_t,
+edge_t, graph_t and obj_t.
+The obj_t type can be viewed as a supertype of the other 3 concrete types;
+the correct base type is maintained dynamically.
+Besides these base types, the only other supported type expressions
+are (associative) arrays. 
+<P>
+
+Constants follow C syntax, but strings may be quoted with either
+<B>&quot;...&quot;</B> or <B>'...'</B>. In certain contexts, string values are
+interpreted as patterns for the purpose of regular expression matching.
+Patterns use
+<I><A HREF="../man1/ksh.1.php">ksh</A></I>(1)
+
+file match pattern syntax.
+<B>gvpr</B> uses C++ comments.
+<P>
+
+A statement can be a declaration of a function, a variable
+or an array, or an executable statement. For declarations, there
+is a single scope. Array declarations have the form: 
+<P>
+
+
+
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I> type array </I>[<I> var </I>]
+</PRE>
+
+</DL>
+
+
+
+<P>
+
+where the <I> var </I> is optional. As in C, variables and arrays must
+be declared. In particular, an undeclared variable will be interpreted
+as the name of an attribute of a node, edge or graph, depending on the
+context.
+<P>
+
+Executable statements can be one of the following:
+
+
+
+<DL COMPACT><DT><DD>
+<PRE>
+{ [<I> statement ... </I>] }
+<I>expression</I>               // commonly<I> var = expression</I>
+if(<I> expression </I>)<I> statement </I>[ else<I> statement </I>]
+for(<I> expression </I>;<I> expression </I>;<I> expression </I>)<I> statement</I>
+for(<I> array </I>[<I> var </I>])<I> statement</I>
+while(<I> expression </I>)<I> statement</I>
+switch(<I> expression </I>)<I> case statements</I>
+break [<I> expression </I>]
+continue [<I> expression </I>]
+return [<I> expression </I>]
+</PRE>
+
+</DL>
+
+
+
+<P>
+
+In the second form of the <B>for</B> statement, the variable <I>var</I>
+is set to each value used as an index in the specified array and then
+the associated <I>statement</I> is evaluated. Function definitions can
+only appear in the <B>BEGIN</B> clause.
+<P>
+
+Expressions include the usual C expressions. 
+String comparisons using <B>==</B> and <B>!=</B>
+treat the right hand operand as a pattern.
+<B>gvpr</B> will attempt to use an expression as a string or numeric value 
+as appropriate.
+<P>
+
+Expressions of graphical type (i.e., graph_t, node_t,
+edge_t, obj_t) may be followed by a field reference in the
+form of <B>.</B><I>name</I>. The resulting value is the value
+of the attribute named <I>name</I> of the given object.
+In addition, in certain contexts an undeclared, unmodified
+identifier is taken to be an
+attribute name. Specifically, such identifiers denote attributes
+of the current node or edge, respectively, in <B>N</B>
+and <B>E</B> clauses, and the current graph in <B>BEG_G</B> and <B>END_G</B>
+clauses.
+<P>
+
+As usual in the 
+<I><A HREF="../man3/libagraph.3.php">libagraph</A></I>(3)
+
+model, attributes are string-valued.
+In addition,
+<B>gvpr</B>
+
+supports certain pseudo-attributes of graph objects, not necessarily
+string-valued. These reflect intrinsic properties of the graph objects
+and cannot be set by the user.
+<DL COMPACT>
+<DT><B>head</B> : <B>node_t</B><DD>
+the head of an edge.
+<DT><B>tail</B> : <B>node_t</B><DD>
+the tail of an edge.
+<DT><B>name</B> : <B>string</B><DD>
+the name of an edge, node or graph. The name of an edge has the
+form &quot;<I>&lt;tail-name&gt;&lt;edge-op&gt;&lt;head-name&gt;</I><B>[</B><I>&lt;key&gt;</I><B>]</B>&quot;,
+where <I>&lt;edge-op&gt;</I> is &quot;<B>-&gt;</B>&quot; or &quot;<B>--</B>&quot; depending on
+whether the graph is directed or not. The bracket part <B>[</B><I>&lt;key&gt;</I><B>]</B>
+only appears if the edge has a non-trivial key.
+<DT><B>indegree</B> : <B>int</B><DD>
+the indegree of a node.
+<DT><B>outdegree</B> : <B>int</B><DD>
+the outdegree of a node.
+<DT><B>degree</B> : <B>int</B><DD>
+the degree of a node.
+<DT><B>root</B> : <B>graph_t</B><DD>
+the root graph of an object. The root of a root graph
+is itself.
+<DT><B>parent</B> : <B>graph_t</B><DD>
+the parent graph of a subgraph. The parent of a root graph
+is <B>NULL</B>
+<DT><B>n_edges</B> : <B>int</B><DD>
+the number of edges in the graph
+<DT><B>n_nodes</B> : <B>int</B><DD>
+the number of nodes in the graph
+<DT><B>directed</B> : <B>int</B><DD>
+true (non-zero) if the graph is directed
+<DT><B>strict</B> : <B>int</B><DD>
+true (non-zero) if the graph is strict
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUILT-IN FUNCTIONS</H2>
+
+<P>
+
+The following functions are built into <B>gvpr</B>. Those functions
+returning references to graph objects return <B>NULL</B> in case of failure.
+<A NAME="lbAI">&nbsp;</A>
+<H3>Graphs and subgraph</H3>
+
+<DL COMPACT>
+<DT><B>graph</B>(<I>s</I> : <B>string</B>, <I>t</I> : <B>string</B>) : <B>graph_t</B><DD>
+creates a graph whose name is <I>s</I> and whose type is
+specified by the string <I>t</I>. Ignoring case, the characters
+U, D, S, N have the interpretation undirected, directed,
+strict, and non-strict, respectively. If <I>t</I> is empty,
+a directed, non-strict graph is generated.
+<DT><B>subg</B>(<I>g</I> : <B>graph_t</B>, <I>s</I> : <B>string</B>) : <B>graph_t</B><DD>
+creates a subgraph in graph <I>g</I> with name <I>s</I>. If the subgraph
+already exists, it is returned.
+<DT><B>isSubg</B>(<I>g</I> : <B>graph_t</B>, <I>s</I> : <B>string</B>) : <B>graph_t</B><DD>
+returns the subgraph in graph <I>g</I> with name <I>s</I>, if it exists,
+or <B>NULL</B> otherwise.
+<DT><B>fstsubg</B>(<I>g</I> : <B>graph_t</B>) : <B>graph_t</B><DD>
+returns the first subgraph in graph <I>g</I>, or <B>NULL</B> if none exists.
+<DT><B>nxtsubg</B>(<I>sg</I> : <B>graph_t</B>) : <B>graph_t</B><DD>
+returns the next subgraph after <I>sg</I>, or <B>NULL</B>.
+<DT><B>isDirect</B>(<I>g</I> : <B>graph_t</B>) : <B>int</B><DD>
+returns true if and only if <I>g</I> is directed.
+<DT><B>isStrict</B>(<I>g</I> : <B>graph_t</B>) : <B>int</B><DD>
+returns true if and only if <I>g</I> is strict.
+<DT><B>nNodes</B>(<I>g</I> : <B>graph_t</B>) : <B>int</B><DD>
+returns the number of nodes in <I>g</I>.
+<DT><B>nEdges</B>(<I>g</I> : <B>graph_t</B>) : <B>int</B><DD>
+returns the number of edges in <I>g</I>.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Nodes</H3>
+
+<DL COMPACT>
+<DT><B>node</B>(<I>sg</I> : <B>graph_t</B>, <I>s</I> : <B>string</B>) : <B>node_t</B><DD>
+creates a node in graph <I>g</I> of name <I>s</I>. If such a node
+already exists, it is returned.
+<DT><B>subnode</B>(<I>sg</I> : <B>graph_t</B>, <I>n</I> : <B>node_t</B>) : <B>node_t</B><DD>
+inserts the node <I>n</I> into the subgraph <I>g</I>. Returns the node.
+<DT><B>fstnode</B>(<I>g</I> : <B>graph_t</B>) : <B>node_t</B><DD>
+returns the first node in graph <I>g</I>, or <B>NULL</B> if none exists.
+<DT><B>nxtnode</B>(<I>n</I> : <B>node_t</B>) : <B>node_t</B><DD>
+returns the next node after <I>n</I>, or <B>NULL</B>.
+<DT><B>isNode</B>(<I>sg</I> : <B>graph_t</B>, <I>s</I> : <B>string</B>) : <B>node_t</B><DD>
+looks for a node in graph <I>g</I> of name <I>s</I>. If such a node
+exists, it is returned. Otherwise, <B>NULL</B> is returned.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Edges</H3>
+
+<DL COMPACT>
+<DT><B>edge</B>(<I>t</I> : <B>node_t</B>, <I>h</I> : <B>node_t</B>, <I>s</I> : <B>string</B>) : <B>edge_t</B><DD>
+creates an edge with tail node <I>t</I>, head node <I>h</I> and
+name <I>s</I>. If the graph is undirected, the distinction between
+head and tail nodes is unimportant.
+If such an edge already exists, it is returned.
+<DT><B>subedge</B>(<I>g</I> : <B>graph_t</B>, <I>e</I> : <B>edge_t</B>) : <B>edge_t</B><DD>
+inserts the edge <I>e</I> into the subgraph <I>g</I>. Returns the edge.
+<DT><B>isEdge</B>(<I>t</I> : <B>node_t</B>, <I>h</I> : <B>node_t</B>, <I>s</I> : <B>string</B>) : <B>edge_t</B><DD>
+looks for an edge with tail node <I>t</I>, head node <I>h</I> and
+name <I>s</I>. If the graph is undirected, the distinction between
+head and tail nodes is unimportant.
+If such an edge exists, it is returned. Otherwise, <B>NULL</B> is returned.
+<DT><B>fstout</B>(<I>n</I> : <B>node_t</B>) : <B>edge_t</B><DD>
+returns the first out edge of node <I>n</I>.
+<DT><B>nxtout</B>(<I>e</I> : <B>edge_t</B>) : <B>edge_t</B><DD>
+returns the next out edge after <I>e</I>.
+<DT><B>fstin</B>(<I>n</I> : <B>node_t</B>) : <B>edge_t</B><DD>
+returns the first in edge of node <I>n</I>.
+<DT><B>nxtin</B>(<I>e</I> : <B>edge_t</B>) : <B>edge_t</B><DD>
+returns the next in edge after <I>e</I>.
+<DT><B>fstedge</B>(<I>n</I> : <B>node_t</B>) : <B>edge_t</B><DD>
+returns the first edge of node <I>n</I>.
+<DT><B>nxtedge</B>(<I>e</I> : <B>edge_t</B>, <B>node_t</B>) : <B>edge_t</B><DD>
+returns the next edge after <I>e</I>.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H3>Graph I/O</H3>
+
+<DL COMPACT>
+<DT><B>write</B>(<I>g</I> : <B>graph_t</B>) : <B>void</B><DD>
+prints <I>g</I> in dot format onto the output stream.
+<DT><B>writeG</B>(<I>g</I> : <B>graph_t</B>, <I>fname</I> : <B>string</B>) : <B>void</B><DD>
+prints <I>g</I> in dot format into the file <I>fname</I>.
+<DT><B>fwriteG</B>(<I>g</I> : <B>graph_t</B>, <I>fd</I> : <B>int</B>) : <B>void</B><DD>
+prints <I>g</I> in dot format onto the open stream denoted
+by the integer <I>fd</I>.
+<DT><B>readG</B>(<I>fname</I> : <B>string</B>) : <B>graph_t</B><DD>
+returns a graph read from the file <I>fname</I>. The graph should be
+in dot format. If no graph can be read, <B>NULL</B> is returned.
+<DT><B>freadG</B>(<I>fd</I> : <B>int</B>) : <B>graph_t</B><DD>
+returns the next graph read from the open stream <I>fd</I>.
+Returns <B>NULL</B> at end of file.
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H3>Graph miscellany</H3>
+
+<DL COMPACT>
+<DT><B>delete</B>(<I>g</I> : <B>graph_t</B>, <I>x</I> : <B>obj_t</B>) : <B>void</B><DD>
+deletes object <I>x</I> from graph <I>g</I>.
+If <I>g</I> is <B>NULL</B>, the function uses the root graph of <I>x</I>.
+If <I>x</I> is a graph or subgraph, it is closed unless <I>x</I> is locked.
+<DT><B>isIn</B>(<I>g</I> : <B>graph_t</B>, <I>x</I> : <B>obj_t</B>) : <B>int</B><DD>
+returns true if <I>x</I> is in subgraph <I>g</I>.
+If <I>x</I> is a graph, this indicates that <I>g</I> is the immediate parent
+graph of <I>x</I>.
+<DT><B>clone</B>(<I>g</I> : <B>graph_t</B>, <I>x</I> : <B>obj_t</B>) : <B>obj_t</B><DD>
+creates a clone of object <I>x</I> in graph <I>g</I>.
+In particular, the new object has the same name/value attributes
+and structure as the original object.
+If an object with the same key as <I>x</I> already exists, its attributes
+are overlaid by those of <I>x</I> and the object is returned.
+If an edge is cloned, both endpoints are implicitly cloned.
+If a graph is cloned, all nodes, edges and subgraphs are implicitly
+cloned.
+If <I>x</I> is a graph, <I>g</I> may be <B>NULL</B>, in which case the cloned
+object will be a new root graph.
+<DT><B>copy</B>(<I>g</I> : <B>graph_t</B>, <I>x</I> : <B>obj_t</B>) : <B>obj_t</B><DD>
+creates a copy of object <I>x</I> in graph <I>g</I>,
+where the new object has the same name/value attributes
+as the original object.
+If an object with the same key as <I>x</I> already exists, its attributes
+are overlaid by those of <I>x</I> and the object is returned.
+Note that this is a shallow copy. If <I>x</I> is a graph, none of its nodes, 
+edges or subgraphs are copied into the new graph. If <I>x</I> is an edge,
+the endpoints are created if necessary, but they are not cloned.
+If <I>x</I> is a graph, <I>g</I> may be <B>NULL</B>, in which case the cloned
+object will be a new root graph.
+<DT><B>induce</B>(<I>g</I> : <B>graph_t</B>) : <B>void</B><DD>
+extends <I>g</I> to its node-induced subgraph extension in its root graph.
+<DT><B>compOf</B>(<I>g</I> : <B>graph_t</B>, <I>n</I> : <B>node_t</B>) : <B>graph_t</B><DD>
+returns the connected component of the graph <I>g</I> containing node <I>n</I>,
+as a subgraph of <I>g</I>. The subgraph only contains the nodes. One can
+use <I>induce</I> to add the edges. The function fails and returns <B>NULL</B>
+if <I>n</I> is not in <I>g</I>. Connectivity is based on the underlying
+undirected graph of <I>g</I>.
+<DT><B>lock</B>(<I>g</I> : <B>graph_t</B>, <I>v</I> : <B>int</B>) : <B>int</B><DD>
+implements graph locking on root graphs. If the integer <I>v</I> is positive, the
+graph is set so that future calls to <B>delete</B> have no immediate effect.
+If <I>v</I> is zero, the graph is unlocked. If there has been a call
+to delete the graph while it was locked, the graph is closed.
+If <I>v</I> is negative, nothing is done.
+In all cases, the previous lock value is returned.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H3>Strings</H3>
+
+<DL COMPACT>
+<DT><B>sprintf</B>(<I>fmt</I> : <B>string</B>, <I>...</I>) : <B>string</B><DD>
+returns the string resulting from formatting
+the values of the expressions occurring after <I>fmt</I>
+according to the
+<I><A HREF="../man3/printf.3.php">printf</A></I>(3)
+
+format
+<I>fmt</I>
+
+<DT><B>gsub</B>(<I>str</I> : <B>string</B>, <I>pat</I> : <B>string</B>) : <B>string</B><DD>
+<DT><B>gsub</B>(<I>str</I> : <B>string</B>, <I>pat</I> : <B>string</B>, <I>repl</I> : <B>string</B>) : <B>string</B><DD>
+returns <I>str</I> with all substrings matching <I>pat</I>
+deleted or replaced by <I>repl</I>, respectively.
+<DT><B>sub</B>(<I>str</I> : <B>string</B>, <I>pat</I> : <B>string</B>) : <B>string</B><DD>
+<DT><B>sub</B>(<I>str</I> : <B>string</B>, <I>pat</I> : <B>string</B>, <I>repl</I> : <B>string</B>) : <B>string</B><DD>
+returns <I>str</I> with the leftmost substring matching <I>pat</I>
+deleted or replaced by <I>repl</I>, respectively. The 
+characters '^' and '$'
+may be used at the beginning and end, respectively,
+of <I>pat</I> to anchor the pattern to the beginning or end of <I>str</I>.
+<DT><B>substr</B>(<I>str</I> : <B>string</B>, <I>idx</I> : <B>int</B>) : <B>string</B><DD>
+<DT><B>substr</B>(<I>str</I> : <B>string</B>, <I>idx</I> : <B>int</B>, <I>len</I> : <B>int</B>) : <B>string</B><DD>
+returns the substring of <I>str</I> starting at position <I>idx</I> to
+the end of the string or of length <I>len</I>, respectively.
+Indexing starts at 0. If <I>idx</I> is negative or <I>idx</I> is greater than
+the length of <I>str</I>, a fatal error occurs. Similarly, in the second
+case, if <I>len</I> is negative or <I>idx</I> + <I>len</I> is greater than the
+length of <I>str</I>, a fatal error occurs.
+<DT><B>length</B>(<I>s</I> : <B>string</B>) : <B>int</B><DD>
+returns the length of the string <I>s</I>.
+<DT><B>index</B>(<I>s</I> : <B>string</B>, <I>t</I> : <B>string</B>) : <B>int</B><DD>
+returns the index of the character in string <I>s</I> where the leftmost
+copy of string <I>t</I> can be found, or -1 if <I>t</I> is not a 
+substring of <I>s</I>.
+<DT><B>match</B>(<I>s</I> : <B>string</B>, <I>p</I> : <B>string</B>) : <B>int</B><DD>
+returns the index of the character in string <I>s</I> where the leftmost
+match of pattern <I>p</I> can be found, or -1 if no substring of <I>s</I>
+matches <I>p</I>.
+<DT><B>canon</B>(<I>s</I> : <B>string</B>) : <B>string</B><DD>
+returns a version of <I>s</I> appropriate to be used as an identifier
+in a dot file.
+<DT><B>xOf</B>(<I>s</I> : <B>string</B>) : <B>string</B><DD>
+returns the string &quot;<I>x</I>&quot; if <I>s</I> has the form &quot;<I>x</I>,<I>y</I>&quot;, 
+where both <I>x</I> and <I>y</I> are numeric.
+<DT><B>yOf</B>(<I>s</I> : <B>string</B>) : <B>string</B><DD>
+returns the string &quot;<I>y</I>&quot; if <I>s</I> has the form &quot;<I>x</I>,<I>y</I>&quot;, 
+where both <I>x</I> and <I>y</I> are numeric.
+<DT><B>llOf</B>(<I>s</I> : <B>string</B>) : <B>string</B><DD>
+returns the string &quot;<I>llx</I>,<I>lly</I>&quot; if <I>s</I> has the form 
+&quot;<I>llx</I>,<I>lly</I>,<I>urx</I>,<I>ury</I>&quot;,
+where all of <I>llx</I>, <I>lly</I>, <I>urx</I>, and <I>ury</I> are numeric.
+<DT><B>urOf(</B><I>s</I><B>)</B>
+
+<DD>
+<B>urOf</B>(<I>s</I> : <B>string</B>) : <B>string</B>
+returns the string &quot;<I>urx</I>,<I>ury</I>&quot; if <I>s</I> has the form 
+&quot;<I>llx</I>,<I>lly</I>,<I>urx</I>,<I>ury</I>&quot;,
+where all of <I>llx</I>, <I>lly</I>, <I>urx</I>, and <I>ury</I> are numeric.
+<DT><B>sscanf</B>(<I>s</I> : <B>string</B>, <I>fmt</I> : <B>string</B>, <I>...</I>) : <B>int</B><DD>
+scans the string <I>s</I>, extracting values
+according to the
+<I><A HREF="../man3/sscanf.3.php">sscanf</A></I>(3)
+
+format
+<I>fmt</I>.
+
+The values are stored in the addresses following <I>fmt</I>,
+addresses having the form <B>&amp;</B><I>v</I>, where <I>v</I> is some declared
+variable of the correct type.
+Returns the number of items successfully scanned.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H3>I/O</H3>
+
+<DL COMPACT>
+<DT><B>print</B>(<I>...</I>) : <B>void</B><DD>
+<B>print(</B><I> expr</I><B>,</B><I> ...</I><B> )</B>
+
+prints a string representation of each argument in turn onto
+<B>stdout</B>, followed by a newline.
+<DT><B>printf</B>(<I>fmt</I> : <B>string</B>, <I>...</I>) : <B>int</B><DD>
+<DT><B>printf</B>(<I>fd</I> : <B>int</B>, <I>fmt</I> : <B>string</B>, <I>...</I>) : <B>int</B><DD>
+prints the string resulting from formatting
+the values of the expressions following <I>fmt</I>
+according to the
+<I><A HREF="../man3/printf.3.php">printf</A></I>(3)
+
+format
+<I>fmt</I>.
+
+Returns 0 on success.
+By default, it prints on <B>stdout</B>.
+If the optional integer <I>fd</I> is given, output is written on the open
+stream associated with <I>fd</I>.
+<DT><B>scanf</B>(<I>fmt</I> : <B>string</B>, <I>...</I>) : <B>int</B><DD>
+<DT><B>scanf</B>(<I>fd</I> : <B>int</B>, <I>fmt</I> : <B>string</B>, <I>...</I>) : <B>int</B><DD>
+scans in values from an input stream according to the
+<I><A HREF="../man3/scanf.3.php">scanf</A></I>(3)
+
+format
+<I>fmt</I>.
+
+The values are stored in the addresses following <I>fmt</I>,
+addresses having the form <B>&amp;</B><I>v</I>, where <I>v</I> is some declared
+variable of the correct type.
+By default, it reads from <B>stdin</B>.
+If the optional integer <I>fd</I> is given, input is read from the open
+stream associated with <I>fd</I>.
+Returns the number of items successfully scanned.
+<DT><B>openF</B>(<I>s</I> : <B>string</B>, <I>t</I> : <B>string</B>) : <B>int</B><DD>
+opens the file <I>s</I> as an I/O stream. The string argument <I>t</I>
+specifies how the file is opened. The arguments are the same as for
+the C function
+<I><A HREF="../man3/fopen.3.php">fopen</A></I>(3).
+
+It returns an integer denoting the stream, or -1 on error.
+<P>
+As usual, streams 0, 1 and 2 are already open as <B>stdin</B>, <B>stdout</B>,
+and <B>stderr</B>, respectively. Since <B>gvpr</B> may use <B>stdin</B> to
+read the input graphs, the user should avoid using this stream.
+<DT><B>closeF</B>(<I>fd</I> : <B>int</B>) : <B>int</B><DD>
+closes the open stream denoted by the integer <I>fd</I>.
+Streams  0, 1 and 2 cannot be closed.
+Returns 0 on success.
+<DT><B>readL</B>(<I>fd</I> : <B>int</B>) : <B>string</B><DD>
+returns the next line read from the input stream <I>fd</I>. It returns
+the empty string &quot;&quot; on end of file. Note that the newline character is
+left in the returned string.
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H3>Math</H3>
+
+<DL COMPACT>
+<DT><B>exp</B>(<I>d</I> : <B>double</B>) : <B>double</B><DD>
+returns e to the <I>d</I>th power.
+<DT><B>log</B>(<I>d</I> : <B>double</B>) : <B>double</B><DD>
+returns the natural log of <I>d</I>.
+<DT><B>sqrt</B>(<I>d</I> : <B>double</B>) : <B>double</B><DD>
+returns the square root of the double <I>d</I>.
+<DT><B>pow</B>(<I>d</I> : <B>double</B>, <I>x</I> : <B>double</B>) : <B>double</B><DD>
+returns <I>d</I> raised to the <I>x</I>th power.
+<DT><B>cos</B>(<I>d</I> : <B>double</B>) : <B>double</B><DD>
+returns the cosine of <I>d</I>.
+<DT><B>sin</B>(<I>d</I> : <B>double</B>) : <B>double</B><DD>
+returns the sine of <I>d</I>.
+<DT><B>atan2</B>(<I>y</I> : <B>double</B>, <I>x</I> : <B>double</B>) : <B>double</B><DD>
+returns the arctangent of <I>y/x</I> in the range -pi to pi.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Miscellaneous</H3>
+
+<DL COMPACT>
+<DT><B>exit</B>() : <B>void</B><DD>
+<DT><B>exit</B>(<I>v</I> : <B>int</B>) : <B>void</B><DD>
+causes
+<B>gvpr</B>
+
+to exit with the exit code
+<I>v</I>.
+
+<I>v</I>
+
+defaults to 0 if omitted.
+<DT><B>rand</B>() : <B>double</B><DD>
+returns a pseudo-random double between 0 and 1.
+<DT><B>srand</B>() : <B>int</B><DD>
+<DT><B>srand</B>(<I>v</I> : <B>int</B>) : <B>int</B><DD>
+sets a seed for the random number generator. The optional argument gives
+the seed; if it is omitted, the current time is used. The previous seed
+value is returned. <B>srand</B> should be called before any calls to
+<B>rand</B>.
+</DL>
+<A NAME="lbAR">&nbsp;</A>
+<H2>BUILT-IN VARIABLES</H2>
+
+<P>
+
+<B>gvpr</B>
+
+provides certain special, built-in variables, whose values are set
+automatically by <B>gvpr</B> depending on the context. Except as noted,
+the user cannot modify their values.
+<DL COMPACT>
+<DT><B>$</B> : <B>obj_t</B><DD>
+denotes the current object (node, edge, graph) depending on the
+context.  It is not available in <B>BEGIN</B> or <B>END</B> clauses.
+<DT><B>$F</B> : <B>string</B><DD>
+is the name of the current input file. 
+<DT><B>$G</B> : <B>graph_t</B><DD>
+denotes the current graph being processed. It is not available
+in <B>BEGIN</B> or <B>END</B> clauses.
+<DT><B>$O</B> : <B>graph_t</B><DD>
+denotes the output graph. Before graph traversal, it is initialized
+to the target graph. After traversal and any <B>END_G</B> actions,
+if it refers to a non-empty graph, that graph is printed onto the output stream.
+It is only valid in <B>N</B>, <B>E</B> and <B>END_G</B> clauses.
+The output graph may be set by the user.
+<DT><B>$T</B> : <B>graph_t</B><DD>
+denotes the current target graph. It is a subgraph of <B>$G</B>
+and is available only in <B>N</B>, <B>E</B> and <B>END_G</B> clauses.
+<DT><B>$tgtname</B> : <B>string</B><DD>
+denotes the name of the target graph. 
+By default, it is set to &quot;gvpr_result&quot;.
+If used multiple times during the execution of
+<B>gvpr</B>,
+
+the name will be appended with an integer. 
+This variable may be set by the user.
+<DT><B>$tvroot</B> : <B>node_t</B><DD>
+indicates the starting node for a (directed or undirected)
+depth-first traversal of the
+graph (cf. <B>$tvtype</B> below).
+The default value is <B>NULL</B> for each input graph.
+<DT><B>$tvtype</B> : <B>tvtype_t</B><DD>
+indicates how <B>gvpr</B> traverses a graph. At present, it can only take
+one of six values: <B>TV_flat</B>, <B>TV_dfs</B>, <B>TV_fwd</B>,
+<B>TV_ref</B>, <B>TV_ne</B>, and <B>TV_en</B>. <B>TV_flat</B> is the default.
+The meaning of these values is discussed below.
+<DT><B>ARGC</B> : <B>int</B><DD>
+denotes the number of arguments specified by the 
+<B>-a</B> <I>args</I> command-line argument.
+<DT><B>ARGV</B> : <B>string array</B><DD>
+denotes the array of arguments specified by the 
+<B>-a</B> <I>args</I>
+command-line argument. The <I>i</I>th argument is given
+by <B>ARGV[</B><I>i</I>].
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H2>BUILT-IN CONSTANTS</H2>
+
+<P>
+
+There are several symbolic constants defined by <B>gvpr</B>.
+<DL COMPACT>
+<DT><B>NULL</B> : <I>obj_t</I><DD>
+a null object reference, equivalent to 0.
+<DT><B>TV_flat</B> : <I>tvtype_t</I><DD>
+a simple, flat traversal, with graph objects visited in
+seemingly arbitrary order.
+<DT><B>TV_ne</B> : <I>tvtype_t</I><DD>
+a traversal which first visits all of the nodes, then all
+of the edges.
+<DT><B>TV_en</B> : <I>tvtype_t</I><DD>
+a traversal which first visits all of the edges, then all
+of the nodes.
+<DT><B>TV_dfs</B> : <I>tvtype_t</I><DD>
+a traversal of the graph using a depth-first search on the
+underlying undirected graph. 
+To do the traversal, <B>gvpr</B> will check the value of
+<B>$tvroot</B>. If this has the same value that it had previously
+(at the start, the previous value is initialized to <B>NULL</B>.), <B>gvpr</B>
+will simply look for some unvisited node and traverse its connected
+component. On the other hand, if <B>$tvroot</B> has changed, its connected
+component will be toured, assuming it has not been previously visited or,
+if <B>$tvroot</B> is <B>NULL</B>, the traversal will stop. Note that using
+<B>TV_dfs</B> and <B>$tvroot</B>, it is possible to create an infinite loop.
+<DT><B>TV_fwd</B> : <I>tvtype_t</I><DD>
+a traversal of the graph using a depth-first search on the
+graph following only forward arcs. In
+<I><A HREF="../man3/libagraph.3.php">libagraph</A></I>(3),
+
+edges in undirected graphs are given an arbitrary direction, which is
+used for this traversal. The choice of roots for the traversal is the
+same as described for <B>TV_dfs</B> above.
+<DT><B>TV_rev</B> : <I>tvtype_t</I><DD>
+a traversal of the graph using a depth-first search on the
+graph following only reverse arcs. In
+<I><A HREF="../man3/libagraph.3.php">libagraph</A></I>(3),
+
+edges in undirected graphs are given an arbitrary direction, which is
+used for this traversal. The choice of roots for the traversal is the
+same as described for <B>TV_dfs</B> above.
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+
+gvpr -i 'N[color==&quot;blue&quot;]' file.dot
+
+Generate the node-induced subgraph of all nodes with color blue.
+
+gvpr -c 'N[color==&quot;blue&quot;]{color = &quot;red&quot;}' file.dot
+
+Make all blue nodes red.
+
+BEGIN { int n, e; int tot_n = 0; int tot_e = 0; }
+BEG_G {
+<BR>&nbsp;&nbsp;n&nbsp;=&nbsp;nNodes($G);
+<BR>&nbsp;&nbsp;e&nbsp;=&nbsp;nEdges($G);
+<BR>&nbsp;&nbsp;printf&nbsp;(&quot;%d&nbsp;nodes&nbsp;%d&nbsp;edges&nbsp;%s,&nbsp;n,&nbsp;e,&nbsp;$G.name);
+<BR>&nbsp;&nbsp;tot_n&nbsp;+=&nbsp;n;
+<BR>&nbsp;&nbsp;tot_e&nbsp;+=&nbsp;e;
+}
+END { printf (&quot;%d nodes %d edges total, tot_n, tot_e) }
+
+Version of the program <B>gc</B>.
+
+gvpr -c &quot;&quot;
+
+Equivalent to <B>nop</B>.
+
+BEG_G { graph_t g = graph (&quot;merge&quot;, &quot;S&quot;); }
+E {
+<BR>&nbsp;&nbsp;node_t&nbsp;h&nbsp;=&nbsp;clone(g,$.head);
+<BR>&nbsp;&nbsp;node_t&nbsp;t&nbsp;=&nbsp;clone(g,$.tail);
+<BR>&nbsp;&nbsp;edge_t&nbsp;e&nbsp;=&nbsp;edge(t,h,&quot;&quot;);
+<BR>&nbsp;&nbsp;e.weight&nbsp;=&nbsp;e.weight&nbsp;+&nbsp;1;
+}
+END_G { $O = g; }
+
+Produces a strict version of the input graph, where the weight attribute
+of an edge indicates how many edges from the input graph the edge represents.
+
+BEGIN {node_t n; int deg[]}
+E{deg[head]++; deg[tail]++; }
+END_G {
+<BR>&nbsp;&nbsp;for&nbsp;(deg[n])&nbsp;{
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;printf&nbsp;(&quot;deg[%s]&nbsp;=&nbsp;%d,&nbsp;n.name,&nbsp;deg[n]);
+<BR>&nbsp;&nbsp;}
+}
+
+Computes the degrees of nodes with edges.
+<A NAME="lbAU">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>GPRPATH</B>
+
+<DD>
+Colon-separated list of directories to be searched to find
+the file specified by the -f option.
+</DL>
+<A NAME="lbAV">&nbsp;</A>
+<H2>BUGS</H2>
+
+When the program is given as a command line argument, the usual
+shell interpretation takes place, which may affect some of the
+special names in <B>gvpr</B>. To avoid this, it is best to wrap the
+program in single quotes.
+<P>
+
+The constants <B>TV_flat</B>, <B>TV_dfs</B>, <B>TV_fwd</B>, and <B>TV_rev</B>
+<P>
+
+There is a single global scope, except for formal function parameters,
+and even these can interfere with the type system. Also, the 
+extent of all variables is the entire life of the program. 
+It might be preferable for scope
+to reflect the natural nesting of the clauses, or for the program
+to at least reset locally declared variables.
+For now, it is advisable to use distinct names for all variables.
+<P>
+
+If a function ends with a complex statement, such as an
+IF statement, with each branch doing a return, type checking may fail. 
+Functions should use a return at the end.
+<P>
+
+The expr library does not support string values of (char*)0.
+This means we can't distinguish between &quot;&quot; and (char*)0 edge keys.
+For the purposes of looking up and creating edges, we translate &quot;&quot; 
+to be (char*)0, since this latter value is
+necessary in order to look up any edge with a matching head and tail.
+<P>
+
+The language inherits the usual C problems such as dangling references
+and the confusion between '=' and '=='.
+<A NAME="lbAW">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Emden R. Gansner &lt;<A HREF="mailto:erg@research.att.com">erg@research.att.com</A>&gt;
+<A NAME="lbAX">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<A HREF="../man1/awk.1.php">awk</A>(1), <A HREF="../man1/gc.1.php">gc</A>(1), <A HREF="../man1/dot.1.php">dot</A>(1), <A HREF="../man1/nop.1.php">nop</A>(1), <A HREF="../man3/libexpr.3.php">libexpr</A>(3), <A HREF="../man3/libagraph.3.php">libagraph</A>(3)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">OPERANDS</A><DD>
+<DT><A HREF="#lbAG">PROGRAMS</A><DD>
+<DT><A HREF="#lbAH">BUILT-IN FUNCTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAI">Graphs and subgraph</A><DD>
+<DT><A HREF="#lbAJ">Nodes</A><DD>
+<DT><A HREF="#lbAK">Edges</A><DD>
+<DT><A HREF="#lbAL">Graph I/O</A><DD>
+<DT><A HREF="#lbAM">Graph miscellany</A><DD>
+<DT><A HREF="#lbAN">Strings</A><DD>
+<DT><A HREF="#lbAO">I/O</A><DD>
+<DT><A HREF="#lbAP">Math</A><DD>
+<DT><A HREF="#lbAQ">Miscellaneous</A><DD>
+</DL>
+<DT><A HREF="#lbAR">BUILT-IN VARIABLES</A><DD>
+<DT><A HREF="#lbAS">BUILT-IN CONSTANTS</A><DD>
+<DT><A HREF="#lbAT">EXAMPLES</A><DD>
+<DT><A HREF="#lbAU">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAV">BUGS</A><DD>
+<DT><A HREF="#lbAW">AUTHOR</A><DD>
+<DT><A HREF="#lbAX">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

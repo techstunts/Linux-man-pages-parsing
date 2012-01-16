@@ -1,0 +1,334 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>POSTSUPER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>POSTSUPER</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+postsuper
+-
+Postfix superintendent
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<PRE>
+</PRE>
+
+<B>postsuper</B> [<B>-psv</B>]
+[<B>-c </B><I>config_dir</I>] [<B>-d </B><I>queue_id</I>]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>-h&nbsp;</B><I>queue_id</I>]&nbsp;[<B>-H&nbsp;</B><I>queue_id</I>]
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>-r&nbsp;</B><I>queue_id</I>]&nbsp;[<I>directory&nbsp;...</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+
+The <B>postsuper</B> command does maintenance jobs on the Postfix
+queue. Use of the command is restricted to the superuser.
+See the <B>postqueue</B> command for unprivileged queue operations
+such as listing or flushing the mail queue.
+<P>
+By default, <B>postsuper</B> performs the operations requested with the
+<B>-s</B> and <B>-p</B> command-line options on all Postfix queue
+directories - this includes the <B>incoming</B>, <B>active</B> and
+<B>deferred</B> directories with mail files and the <B>bounce</B>,
+<B>defer</B>, <B>trace</B> and <B>flush</B> directories with log files.
+<P>
+Options:
+<DL COMPACT>
+<DT><B>-c </B><I>config_dir</I><DD>
+The <B>main.cf</B> configuration file is in the named directory
+instead of the default configuration directory. See also the
+MAIL_CONFIG environment setting below.
+<DT><B>-d </B><I>queue_id</I><DD>
+Delete one message with the named queue ID from the named
+mail queue(s) (default: <B>hold</B>, <B>incoming</B>, <B>active</B> and
+<B>deferred</B>).
+If a <I>queue_id</I> of <B>-</B> is specified, the program reads
+queue IDs from standard input. For example, to delete all mail
+from or to <B><A HREF="mailto:user@example.com">user@example.com</A></B>:
+<P>
+mailq | tail +2 | awk  'BEGIN { RS = &quot;&quot; } \
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;
+/ <A HREF="mailto:user@example">user@example</A>\.com$/ { print $1 } \
+<BR>
+
+' | tr -d '*!' | postsuper -d -
+<P>
+Specify <B>-d ALL</B> to remove all messages; for example, specify
+<B>-d ALL deferred</B> to delete mail in the <B>deferred</B> queue.
+As a safety measure, the word <B>ALL</B> must be specified in upper
+case.
+<P>
+Warning: Postfix queue IDs are reused.
+There is a very small possibility that postsuper deletes the
+wrong message file when it is executed while the Postfix mail
+system is delivering mail.
+<P>
+The scenario is as follows:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>1)<DD>
+The Postfix queue manager deletes the message that <B>postsuper</B>
+is asked to delete, because Postfix is finished with the
+message (it is delivered, or it is returned to the sender).
+<DT>2)<DD>
+New mail arrives, and the new message is given the same queue ID
+as the message that <B>postsuper</B> is supposed to delete.
+The probability for reusing a deleted queue ID is about 1 in 2**15
+(the number of different microsecond values that the system clock
+can distinguish within a second).
+<DT>3)<DD>
+<B>postsuper</B> deletes the new message, instead of the old
+message that it should have deleted.
+</DL>
+</DL>
+
+<DT><B>-h </B><I>queue_id</I><DD>
+Put mail &quot;on hold&quot; so that no attempt is made to deliver it.
+Move one message with the named queue ID from the named
+mail queue(s) (default: <B>incoming</B>, <B>active</B> and
+<B>deferred</B>) to the <B>hold</B> queue.
+If a <I>queue_id</I> of <B>-</B> is specified, the program reads
+queue IDs from standard input.
+<P>
+Specify <B>-h ALL</B> to hold all messages; for example, specify
+<B>-h ALL deferred</B> to hold mail in the <B>deferred</B> queue.
+As a safety measure, the word <B>ALL</B> must be specified in upper
+case.
+<P>
+Note: while mail is &quot;on hold&quot; it will not expire when its
+time in the queue exceeds the <B>maximal_queue_lifetime</B>
+or <B>bounce_queue_lifetime</B> setting. It becomes subject to
+expiration after it is released from &quot;hold&quot;.
+<DT><B>-H </B><I>queue_id</I><DD>
+Release mail that was put &quot;on hold&quot;.
+Move one message with the named queue ID from the named
+mail queue(s) (default: <B>hold</B>) to the <B>deferred</B> queue.
+If a <I>queue_id</I> of <B>-</B> is specified, the program reads
+queue IDs from standard input.
+<P>
+Specify <B>-H ALL</B> to release all mail that is &quot;on hold&quot;.
+As a safety measure, the word <B>ALL</B> must be specified in upper
+case.
+<DT><B>-p</B><DD>
+Purge old temporary files that are left over after system or
+software crashes.
+<DT><B>-r </B><I>queue_id</I><DD>
+Requeue the message with the named queue ID from the named
+mail queue(s) (default: <B>hold</B>, <B>incoming</B>, <B>active</B> and
+<B>deferred</B>).
+To requeue multiple messages, specify multiple <B>-r</B>
+command-line options.
+Alternatively, if a <I>queue_id</I> of <B>-</B> is specified,
+the program reads queue IDs from standard input.
+<P>
+Specify <B>-r ALL</B> to requeue all messages. As a safety
+measure, the word <B>ALL</B> must be specified in upper case.
+<P>
+A requeued message is moved to the <B>maildrop</B> queue, from
+where it is copied by the pickup daemon to a new file whose name
+is guaranteed to match the new queue file inode number. The
+new queue file is subjected again to mail address rewriting and
+substitution. This is useful when rewriting rules or virtual
+mappings have changed.
+<P>
+Warning: Postfix queue IDs are reused.
+There is a very small possibility that <B>postsuper</B> requeues
+the wrong message file when it is executed while the Postfix mail
+system is running, but no harm should be done.
+<DT><B>-s</B><DD>
+Structure check and structure repair.  This should be done once
+before Postfix startup.
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+Rename files whose name does not match the message file inode
+number. This operation is necessary after restoring a mail queue
+from a different machine, or from backup media.
+<DT>*<DD>
+Move queue files that are in the wrong place in the file system
+hierarchy and remove subdirectories that are no longer needed.
+File position rearrangements are necessary after a change in the
+<B>hash_queue_names</B> and/or <B>hash_queue_depth</B>
+configuration parameters.
+</DL>
+</DL>
+
+<DT><B>-v</B><DD>
+Enable verbose logging for debugging purposes. Multiple <B>-v</B>
+options make the software increasingly verbose.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+
+
+Problems are reported to the standard error stream and to
+<B><A HREF="../man8/syslogd.8.php">syslogd</A></B>(8).
+<P>
+<B>postsuper</B> reports the number of messages deleted with <B>-d</B>,
+the number of messages requeued with <B>-r</B>, and the number of
+messages whose queue file name was fixed with <B>-s</B>. The report
+is written to the standard error stream and to <B><A HREF="../man8/syslogd.8.php">syslogd</A></B>(8).
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+
+<PRE>
+</PRE>
+
+<DL COMPACT>
+<DT>MAIL_CONFIG<DD>
+Directory with the <B>main.cf</B> file.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+
+
+Mail that is not sanitized by Postfix (i.e. mail in the <B>maildrop</B>
+queue) cannot be placed &quot;on hold&quot;.
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFIGURATION PARAMETERS</H2>
+
+
+<PRE>
+</PRE>
+
+The following <B>main.cf</B> parameters are especially relevant to
+this program.
+The text below provides only a parameter summary. See
+<A HREF="../man5/postconf.5.php">postconf</A>(5) for more details including examples.
+<DL COMPACT>
+<DT><B>config_directory (see 'postconf -d' output)</B><DD>
+The default location of the Postfix main.cf and master.cf
+configuration files.
+<DT><B>hash_queue_depth (1)</B><DD>
+The number of subdirectory levels for queue directories listed with
+the hash_queue_names parameter.
+<DT><B>hash_queue_names (see 'postconf -d' output)</B><DD>
+The names of queue directories that are split across multiple
+subdirectory levels.
+<DT><B>queue_directory (see 'postconf -d' output)</B><DD>
+The location of the Postfix top-level queue directory.
+<DT><B>syslog_facility (mail)</B><DD>
+The syslog facility of Postfix logging.
+<DT><B>syslog_name (postfix)</B><DD>
+The mail system name that is prepended to the process name in syslog
+records, so that &quot;smtpd&quot; becomes, for example, &quot;postfix/smtpd&quot;.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+
+<PRE>
+<A HREF="../man1/sendmail.1.php">sendmail</A>(1), Sendmail-compatible user interface
+<A HREF="../man1/postqueue.1.php">postqueue</A>(1), unprivileged queue operations
+</PRE><A NAME="lbAJ">&nbsp;</A>
+<H2>LICENSE</H2>
+
+
+<PRE>
+</PRE>
+
+The Secure Mailer license must be distributed with this software.
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR(S)</H2>
+
+
+<PRE>
+Wietse Venema
+IBM T.J. Watson Research
+P.O. Box 704
+Yorktown Heights, NY 10598, USA
+
+</PRE>
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">CONFIGURATION PARAMETERS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">LICENSE</A><DD>
+<DT><A HREF="#lbAK">AUTHOR(S)</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

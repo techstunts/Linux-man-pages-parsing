@@ -1,0 +1,1910 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>REFER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>REFER</H1>
+Section: User Commands  (1)<BR>Updated: 27 June 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+refer - preprocess bibliographic references for groff
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+
+
+<BR>
+
+<B>refer</B>
+
+
+[ <B>-benvCPRS</B> ]
+
+[ <B>-a </B><I>n</I> ]
+
+[ <B>-c </B><I>fields</I> ]
+
+[ <B>-f </B><I>n</I> ]
+
+[ <B>-i </B><I>fields</I> ]
+
+[ <B>-k </B><I>field</I> ]
+
+[ <B>-l </B><I>m,n</I> ]
+
+[ <B>-p </B><I>filename</I> ]
+
+[ <B>-s </B><I>fields</I> ]
+
+[ <B>-t </B><I>n</I> ]
+
+[ <B>-B </B><I>field.macro</I> ]
+
+[&nbsp;<I>filename</I>...&nbsp;]
+
+<BR>
+
+
+<P>
+
+It is possible to have whitespace between a command line option and its
+parameter.
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This file documents the GNU version of
+<B>refer</B>,
+
+which is part of the groff document formatting system.
+<B>refer</B>
+
+copies the contents of
+<I>filename</I>...
+
+to the standard output,
+except that lines between
+<B>.[</B>
+
+and
+<B>.]</B>
+
+are interpreted as citations,
+and lines between
+<B>.R1</B>
+
+and
+<B>.R2</B>
+
+are interpreted as commands about how citations are to be processed.
+<P>
+
+Each citation specifies a reference.
+The citation can specify a reference that is contained in
+a bibliographic database by giving a set of keywords
+that only that reference contains.
+Alternatively it can specify a reference by supplying a database
+record in the citation.
+A combination of these alternatives is also possible.
+<P>
+
+For each citation,
+<B>refer</B>
+
+can produce a mark in the text.
+This mark consists of some label which can be separated from
+the text and from other labels in various ways.
+For each reference it also outputs
+<B>groff</B>
+
+commands that can be used by a macro package to produce a formatted
+reference for each citation.
+The output of
+<B>refer</B>
+
+must therefore be processed using a suitable macro package.
+The
+<B>-ms</B>
+
+and
+<B>-me</B>
+
+macros are both suitable.
+The commands to format a citation's reference can be output immediately after
+the citation,
+or the references may be accumulated,
+and the commands output at some later point.
+If the references are accumulated, then multiple citations of the same
+reference will produce a single formatted reference.
+<P>
+
+The interpretation of lines between
+<B>.R1</B>
+
+and
+<B>.R2</B>
+
+as commands is a new feature of GNU refer.
+Documents making use of this feature can still be processed by
+Unix refer just by adding the lines
+<DL COMPACT><DT><DD>
+<P>
+
+<PRE>
+<B>.de R1
+.ig R2
+..
+</B></PRE>
+
+</DL>
+
+to the beginning of the document.
+This will cause
+<B>troff</B>
+
+to ignore everything between
+<B>.R1</B>
+
+and
+<B>.R2</B>.
+
+The effect of some commands can also be achieved by options.
+These options are supported mainly for compatibility with Unix refer.
+It is usually more convenient to use commands.
+<P>
+
+<B>refer</B>
+
+generates
+<B>.lf</B>
+
+lines so that filenames and line numbers in messages produced
+by commands that read
+<B>refer</B>
+
+output will be correct;
+it also interprets lines beginning with
+<B>.lf</B>
+
+so that filenames and line numbers in the messages and
+<B>.lf</B>
+
+lines that it produces will be accurate even if the input has been
+preprocessed by a command such as
+<B><A HREF="../man1/soelim.1.php">soelim</A></B>(1).
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+Most options are equivalent to commands
+(for a description of these commands see the
+<B>Commands</B>
+
+subsection):
+<DL COMPACT>
+<DT><B>-b</B>
+
+<DD>
+<B>no-label-in-text; no-label-in-reference</B>
+
+<DT><B>-e</B>
+
+<DD>
+<B>accumulate</B>
+
+<DT><B>-n</B>
+
+<DD>
+<B>no-default-database</B>
+
+<DT><B>-C</B>
+
+<DD>
+<B>compatible</B>
+
+<DT><B>-P</B>
+
+<DD>
+<B>move-punctuation</B>
+
+<DT><B>-S</B>
+
+<DD>
+<B>label &quot;(A.n|Q) ', ' (D.y|D)&quot;; bracket-label &quot; (&quot; ) &quot;; &quot;</B>
+
+<DT><B>-a</B><I>n</I>
+
+<DD>
+<B>reverse</B>
+
+<B>A</B><I>n</I>
+
+<DT><B>-c</B><I>fields</I>
+
+<DD>
+<B>capitalize</B>
+
+<I>fields</I>
+
+<DT><B>-f</B><I>n</I>
+
+<DD>
+<B>label</B>
+
+<B>%</B><I>n</I>
+
+<DT><B>-i</B><I>fields</I>
+
+<DD>
+<B>search-ignore</B>
+
+<I>fields</I>
+
+<DT><B>-k</B>
+
+<DD>
+<B>label</B>
+
+<B>Lti%a</B>
+
+<DT><B>-k</B><I>field</I>
+
+<DD>
+<B>label</B>
+
+<I>field</I><B>ti%a</B>
+
+<DT><B>-l</B>
+
+<DD>
+<B>label</B>
+
+<B>A.nD.y%a</B>
+
+<DT><B>-l</B><I>m</I>
+
+<DD>
+<B>label</B>
+
+<B>A.n+</B><I>m</I><B>D.y%a</B>
+
+<DT><B>-l,</B><I>n</I>
+
+<DD>
+<B>label</B>
+
+<B>A.nD.y-</B><I>n</I><B>%a</B>
+
+<DT><B>-l</B><I>m</I><B>,</B><I>n</I>
+
+<DD>
+<B>label</B>
+
+<B>A.n+</B><I>m</I><B>D.y-</B><I>n</I><B>%a</B>
+
+<DT><B>-p</B><I>filename</I>
+
+<DD>
+<B>database</B>
+
+<I>filename</I>
+
+<DT><B>-s</B><I>spec</I>
+
+<DD>
+<B>sort</B>
+
+<I>spec</I>
+
+<DT><B>-t</B><I>n</I>
+
+<DD>
+<B>search-truncate</B>
+
+<I>n</I>
+
+</DL>
+<P>
+
+These options are equivalent to the following commands with the
+addition that the filenames specified on the command line are
+processed as if they were arguments to the
+<B>bibliography</B>
+
+command instead of in the normal way:
+<DL COMPACT>
+<DT><B>-B</B>
+
+<DD>
+<B>annotate X AP; no-label-in-reference</B>
+
+<DT><B>-B</B><I>field</I><B>.</B><I>macro</I>
+
+<DD>
+<B>annotate</B>
+
+<I>field</I>
+
+<I>macro</I><B>;</B>
+
+<B>no-label-in-reference</B>
+
+</DL>
+<P>
+
+The following options have no equivalent commands:
+<DL COMPACT>
+<DT><B>-v</B>
+
+<DD>
+Print the version number.
+<DT><B>-R</B>
+
+<DD>
+Don't recognize lines beginning with
+<B>.R1</B>/<B>.R2</B>.
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>USAGE</H2>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Bibliographic databases</H3>
+
+The bibliographic database is a text file consisting of records
+separated by one or more blank lines.
+Within each record fields start with a
+<B>%</B>
+
+at the beginning of a line.
+Each field has a one character name that immediately follows the
+<B>%</B>.
+
+It is best to use only upper and lower case letters for the names
+of fields.
+The name of the field should be followed by exactly one space,
+and then by the contents of the field.
+Empty fields are ignored.
+The conventional meaning of each field is as follows:
+<DL COMPACT>
+<DT><B>A</B>
+
+<DD>
+The name of an author.
+If the name contains a title such as
+<B>Jr.</B>
+
+at the end,
+it should be separated from the last name by a comma.
+There can be multiple occurrences of the
+<B>A</B>
+
+field.
+The order is significant.
+It is a good idea always to supply an
+<B>A</B>
+
+field or a 
+<B>Q</B>
+
+field.
+<DT><B>B</B>
+
+<DD>
+For an article that is part of a book, the title of the book
+<DT><B>C</B>
+
+<DD>
+The place (city) of publication.
+<DT><B>D</B>
+
+<DD>
+The date of publication.
+The year should be specified in full.
+If the month is specified, the name rather than the number of the month
+should be used, but only the first three letters are required.
+It is a good idea always to supply a
+<B>D</B>
+
+field;
+if the date is unknown, a value such as
+<B>in press</B>
+
+or
+<B>unknown</B>
+
+can be used.
+<DT><B>E</B>
+
+<DD>
+For an article that is part of a book, the name of an editor of the book.
+Where the work has editors and no authors,
+the names of the editors should be given as
+<B>A</B>
+
+fields and
+<B>,&nbsp;(ed)</B>
+
+or
+<B>,&nbsp;(eds)</B>
+
+should be appended to the last author.
+<DT><B>G</B>
+
+<DD>
+US Government ordering number.
+<DT><B>I</B>
+
+<DD>
+The publisher (issuer).
+<DT><B>J</B>
+
+<DD>
+For an article in a journal, the name of the journal.
+<DT><B>K</B>
+
+<DD>
+Keywords to be used for searching.
+<DT><B>L</B>
+
+<DD>
+Label.
+<DT><B>N</B>
+
+<DD>
+Journal issue number.
+<DT><B>O</B>
+
+<DD>
+Other information.
+This is usually printed at the end of the reference.
+<DT><B>P</B>
+
+<DD>
+Page number.
+A range of pages can be specified as
+<I>m</I><B>-</B><I>n</I>.
+
+<DT><B>Q</B>
+
+<DD>
+The name of the author, if the author is not a person.
+This will only be used if there are no
+<B>A</B>
+
+fields.
+There can only be one
+<B>Q</B>
+
+field.
+<DT><B>R</B>
+
+<DD>
+Technical report number.
+<DT><B>S</B>
+
+<DD>
+Series name.
+<DT><B>T</B>
+
+<DD>
+Title.
+For an article in a book or journal,
+this should be the title of the article.
+<DT><B>V</B>
+
+<DD>
+Volume number of the journal or book.
+<DT><B>X</B>
+
+<DD>
+Annotation.
+</DL>
+<P>
+
+For all fields except
+<B>A</B>
+
+and
+<B>E</B>,
+
+if there is more than one occurrence of a particular field in a record,
+only the last such field will be used.
+<P>
+
+If accent strings are used, they should follow the character to be accented.
+This means that the
+<B>AM</B>
+
+macro must be used with the
+<B>-ms</B>
+
+macros.
+Accent strings should not be quoted:
+use one
+<B>\</B>
+
+rather than two.
+<A NAME="lbAH">&nbsp;</A>
+<H3>Citations</H3>
+
+The format of a citation is
+<DL COMPACT><DT><DD>
+<B>.[</B><I>opening-text</I>
+
+<BR>
+
+<I>flags keywords</I>
+
+<BR>
+
+<I>fields</I>
+
+<BR>
+
+<B>.]</B><I>closing-text</I>
+
+</DL>
+
+<P>
+
+The
+<I>opening-text</I>,
+
+<I>closing-text</I>
+
+and
+<I>flags</I>
+
+components are optional.
+Only one of the
+<I>keywords</I>
+
+and
+<I>fields</I>
+
+components need be specified.
+<P>
+
+The
+<I>keywords</I>
+
+component says to search the bibliographic databases for a reference
+that contains all the words in
+<I>keywords</I>.
+
+It is an error if more than one reference if found.
+<P>
+
+The
+<I>fields</I>
+
+components specifies additional fields to replace or supplement
+those specified in the reference.
+When references are being accumulated and the
+<I>keywords</I>
+
+component is non-empty,
+then additional fields should be specified only on the first
+occasion that a particular reference is cited,
+and will apply to all citations of that reference.
+<P>
+
+The
+<I>opening-text</I>
+
+and
+<I>closing-text</I>
+
+component specifies strings to be used to bracket the label instead
+of the strings specified in the
+<B>bracket-label</B>
+
+command.
+If either of these components is non-empty,
+the strings specified in the
+<B>bracket-label</B>
+
+command will not be used;
+this behaviour can be altered using the
+<B>[</B>
+
+and
+<B>]</B>
+
+flags.
+Note that leading and trailing spaces are significant for these components.
+<P>
+
+The
+<I>flags</I>
+
+component is a list of
+non-alphanumeric characters each of which modifies the treatment
+of this particular citation.
+Unix refer will treat these flags as part of the keywords and
+so will ignore them since they are non-alphanumeric.
+The following flags are currently recognized:
+<DL COMPACT>
+<DT><B>#</B>
+
+<DD>
+This says to use the label specified by the
+<B>short-label</B>
+
+command,
+instead of that specified by the
+<B>label</B>
+
+command.
+If no short label has been specified, the normal label will be used.
+Typically the short label is used with author-date labels
+and consists of only the date and possibly a disambiguating letter;
+the
+<B>#</B>
+
+is supposed to be suggestive of a numeric type of label.
+<DT><B>[</B>
+
+<DD>
+Precede
+<I>opening-text</I>
+
+with the first string specified in the
+<B>bracket-label</B>
+
+command.
+<DT><B>]</B>
+
+<DD>
+Follow
+<I>closing-text</I>
+
+with the second string specified in the
+<B>bracket-label</B>
+
+command.
+</DL>
+<P>
+
+One advantages of using the
+<B>[</B>
+
+and
+<B>]</B>
+
+flags rather than including the brackets in
+<I>opening-text</I>
+
+and
+<I>closing-text</I>
+
+is that
+you can change the style of bracket used in the document just by changing the
+<B>bracket-label</B>
+
+command.
+Another advantage is that sorting and merging of citations
+will not necessarily be inhibited if the flags are used.
+<P>
+
+If a label is to be inserted into the text,
+it will be attached to the line preceding the
+<B>.[</B>
+
+line.
+If there is no such line, then an extra line will be inserted before the
+<B>.[</B>
+
+line and a warning will be given.
+<P>
+
+There is no special notation for making a citation to multiple references.
+Just use a sequence of citations, one for each reference.
+Don't put anything between the citations.
+The labels for all the citations will be attached to the line preceding
+the first citation.
+The labels may also be sorted or merged.
+See the description of the
+<B>&lt;&gt;</B>
+
+label expression, and of the
+<B>sort-adjacent-labels</B>
+
+and
+<B>abbreviate-label-ranges</B>
+
+command.
+A label will not be merged if its citation has a non-empty
+<I>opening-text</I>
+
+or
+<I>closing-text</I>.
+
+However, the labels for a citation using the
+<B>]</B>
+
+flag and without any
+<I>closing-text</I>
+
+immediately followed by a citation using the
+<B>[</B>
+
+flag and without any
+<I>opening-text</I>
+
+may be sorted and merged
+even though the first citation's
+<I>opening-text</I>
+
+or the second citation's
+<I>closing-text</I>
+
+is non-empty.
+(If you wish to prevent this just make the first citation's
+<I>closing-text</I>
+
+<B>\&amp;</B>.)
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>Commands</H3>
+
+Commands are contained between lines starting with
+<B>.R1</B>
+
+and
+<B>.R2</B>.
+
+Recognition of these lines can be prevented by the
+<B>-R</B>
+
+option.
+When a
+<B>.R1</B>
+
+line is recognized any accumulated references are flushed out.
+Neither
+<B>.R1</B>
+
+nor
+<B>.R2</B>
+
+lines,
+nor anything between them
+is output.
+<P>
+
+Commands are separated by newlines or 
+<B>;</B>s.
+
+<B>#</B>
+
+introduces a comment that extends to the end of the line
+(but does not conceal the newline).
+Each command is broken up into words.
+Words are separated by spaces or tabs.
+A word that begins with
+<B>s</B>
+
+extends to the next
+<B>s</B>
+
+that is not followed by another
+<B>s</B>.
+
+If there is no such
+<B>s</B>
+
+the word extends to the end of the line.
+Pairs of
+<B>s</B>
+
+in a word beginning with
+<B>s</B>
+
+collapse to a single
+<B>s</B>.
+
+Neither
+<B>#</B>
+
+nor
+<B>;</B>
+
+are recognized inside
+<B>s</B>s.
+
+A line can be continued by ending it with
+<B>\</B>;
+
+this works everywhere except after a
+<B>#</B>.
+
+<P>
+
+
+Each command
+<I>name</I>
+
+that is marked with * has an associated negative command
+<B>no-</B><I>name</I>
+
+that undoes the effect of
+<I>name</I>.
+
+For example, the
+<B>no-sort</B>
+
+command specifies that references should not be sorted.
+The negative commands take no arguments.
+<P>
+
+In the following description each argument must be a single word;
+<I>field</I>
+
+is used for a single upper or lower case letter naming a field;
+<I>fields</I>
+
+is used for a sequence of such letters;
+<I>m</I>
+
+and
+<I>n</I>
+
+are used for a non-negative numbers;
+<I>string</I>
+
+is used for an arbitrary string;
+<I>filename</I>
+
+is used for the name of a file.
+
+u+2n<DL COMPACT>
+<DT>
+<DD>
+
+
+<B>abbreviate*&nbsp;</B><I>fields&nbsp;string1&nbsp;string2&nbsp;string3&nbsp;string4</I>
+
+Abbreviate the first names of
+<I>fields</I>.
+
+An initial letter will be separated from another initial letter by
+<I>string1</I>,
+
+from the last name by
+<I>string2</I>,
+
+and from anything else
+(such as a
+<B>von</B>
+
+or
+<B>de</B>)
+
+by
+<I>string3</I>.
+
+These default to a period followed by a space.
+In a hyphenated first name,
+the initial of the first part of the name will be separated from the hyphen by
+<I>string4</I>;
+
+this defaults to a period.
+No attempt is made to handle any ambiguities that might
+result from abbreviation.
+Names are abbreviated before sorting and before
+label construction.
+<DT><B>abbreviate-label-ranges*&nbsp;</B><I>string</I>
+
+<DD>
+Three or more adjacent labels that refer to consecutive references
+will be abbreviated to a label consisting
+of the first label, followed by
+<I>string</I>
+
+followed by the last label.
+This is mainly useful with numeric labels.
+If
+<I>string</I>
+
+is omitted it defaults to
+<B>-</B>.
+
+<DT><B>accumulate*</B>
+
+<DD>
+Accumulate references instead of writing out each reference
+as it is encountered.
+Accumulated references will be written out whenever a reference
+of the form
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>.[</B>
+
+<BR>
+
+<B>$LIST$</B>
+
+<BR>
+
+<B>.]</B>
+
+</DL>
+<P>
+
+is encountered,
+after all input files hve been processed,
+and whenever
+<B>.R1</B>
+
+line is recognized.
+</DL>
+
+<DT><B>annotate*&nbsp;</B><I>field&nbsp;string</I>
+
+<DD>
+<I>field</I>
+
+is an annotation;
+print it at the end of the reference as a paragraph preceded by the line
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>.</B><I>string</I>
+
+</DL>
+<P>
+
+If
+<I>macro</I>
+
+is omitted it will default to
+<B>AP</B>;
+
+if
+<I>field</I>
+
+is also omitted it will default to
+<B>X</B>.
+
+Only one field can be an annotation.
+</DL>
+
+<DT><B>articles&nbsp;</B><I>string</I><B></B>...
+
+<DD>
+<I>string</I>...
+
+are definite or indefinite articles, and should be ignored at the beginning of
+<B>T</B>
+
+fields when sorting.
+Initially,
+<B>the</B>,
+
+<B>a</B>
+
+and
+<B>an</B>
+
+are recognized as articles. 
+<DT><B>bibliography&nbsp;</B><I>filename</I><B></B>...
+
+<DD>
+Write out all the references contained in the bibliographic databases
+<I>filename</I>...
+
+<DT><B>bracket-label&nbsp;</B><I>string1&nbsp;string2&nbsp;string3</I>
+
+<DD>
+In the text, bracket each label
+with
+<I>string1</I>
+
+and
+<I>string2</I>.
+
+An occurrence of
+<I>string2</I>
+
+immediately followed by
+<I>string1</I>
+
+will be turned into
+<I>string3</I>.
+
+The default behaviour is
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>bracket-label \*([. \*(.] &quot;, &quot;</B>
+
+</DL>
+</DL>
+
+<DT><B>capitalize&nbsp;</B><I>fields</I>
+
+<DD>
+Convert
+<I>fields</I>
+
+to caps and small caps.
+<DT><B>compatible*</B>
+
+<DD>
+Recognize
+<B>.R1</B>
+
+and
+<B>.R2</B>
+
+even when followed by a character other than space or newline.
+<DT><B>database&nbsp;</B><I>filename</I><B></B>...
+
+<DD>
+Search the bibliographic databases
+<I>filename</I>...
+
+For each
+<I>filename</I>
+
+if an index
+<I>filename</I><B>.i</B>
+
+created by
+<B><A HREF="../man1/indxbib.1.php">indxbib</A></B>(1)
+
+exists, then it will be searched instead;
+each index can cover multiple databases.
+<DT><B>date-as-label*&nbsp;</B><I>string</I>
+
+<DD>
+<I>string</I>
+
+is a label expression that specifies a string with which to replace the
+<B>D</B>
+
+field after constructing the label.
+See the
+<B>Label expressions</B>
+
+subsection for a description of label expressions.
+This command is useful if you do not want explicit labels in the
+reference list, but instead want to handle any necessary
+disambiguation by qualifying the date in some way.
+The label used in the text would typically be some combination of the
+author and date.
+In most cases you should also use the
+<B>no-label-in-reference</B>
+
+command.
+For example,
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>date-as-label D.+yD.y%a*D.-y</B>
+
+</DL>
+<P>
+
+would attach a disambiguating letter to the year part of the
+<B>D</B>
+
+field in the reference.
+</DL>
+
+<DT><B>default-database*</B>
+
+<DD>
+The default database should be searched.
+This is the default behaviour, so the negative version of
+this command is more useful.
+refer determines whether the default database should be searched
+on the first occasion that it needs to do a search.
+Thus a
+<B>no-default-database</B>
+
+command must be given before then,
+in order to be effective.
+<DT><B>discard*&nbsp;</B><I>fields</I>
+
+<DD>
+When the reference is read,
+<I>fields</I>
+
+should be discarded;
+no string definitions for
+<I>fields</I>
+
+will be output.
+Initially,
+<I>fields</I>
+
+are
+<B>XYZ</B>.
+
+<DT><B>et-al*&nbsp;</B><I>string&nbsp;m&nbsp;n</I>
+
+<DD>
+Control use of
+<B>et al</B>
+
+in the evaluation of
+<B>@</B>
+
+expressions in label expressions.
+If the number of authors needed to make the author sequence
+unambiguous is
+<I>u</I>
+
+and the total number of authors is
+<I>t</I>
+
+then the last
+<I>t</I>-<I>u</I>
+
+authors will be replaced by
+<I>string</I>
+
+provided that
+<I>t</I>-<I>u</I>
+
+is not less than
+<I>m</I>
+
+and
+<I>t</I>
+
+is not less than
+<I>n</I>.
+
+The default behaviour is
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>et-al &quot; et al&quot; 2 3</B>
+
+</DL>
+</DL>
+
+<DT><B>include&nbsp;</B><I>filename</I>
+
+<DD>
+Include
+<I>filename</I>
+
+and interpret the contents as commands.
+<DT><B>join-authors&nbsp;</B><I>string1&nbsp;string2&nbsp;string3</I>
+
+<DD>
+This says how authors should be joined together.
+When there are exactly two authors, they will be joined with
+<I>string1</I>.
+
+When there are more than two authors, all but the last two will
+be joined with
+<I>string2</I>,
+
+and the last two authors will be joined with
+<I>string3</I>.
+
+If
+<I>string3</I>
+
+is omitted,
+it will default to
+<I>string1</I>;
+
+if
+<I>string2</I>
+
+is also omitted it will also default to
+<I>string1</I>.
+
+For example,
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><DD>
+<B>join-authors &quot; and &quot; &quot;, &quot; &quot;, and &quot;</B>
+
+</DL>
+<P>
+
+will restore the default method for joining authors.
+</DL>
+
+<DT><B>label-in-reference*</B>
+
+<DD>
+When outputting the reference,
+define the string
+<B>[F</B>
+
+to be the reference's label.
+This is the default behaviour; so the negative version
+of this command is more useful.
+<DT><B>label-in-text*</B>
+
+<DD>
+For each reference output a label in the text.
+The label will be separated from the surrounding text as described in the
+<B>bracket-label</B>
+
+command.
+This is the default behaviour; so the negative version
+of this command is more useful.
+<DT><B>label&nbsp;</B><I>string</I>
+
+<DD>
+<I>string</I>
+
+is a label expression describing how to label each reference.
+<DT><B>separate-label-second-parts&nbsp;</B><I>string</I>
+
+<DD>
+When merging two-part labels, separate the second part of the second
+label from the first label with
+<I>string</I>.
+
+See the description of the
+<B>&lt;&gt;</B>
+
+label expression.
+<DT><B>move-punctuation*</B>
+
+<DD>
+In the text, move any punctuation at the end of line past the label.
+It is usually a good idea to give this command unless you are using
+superscripted numbers as labels.
+<DT><B>reverse*&nbsp;</B><I>string</I>
+
+<DD>
+Reverse the fields whose names
+are in
+<I>string</I>.
+
+Each field name can be followed by a number which says
+how many such fields should be reversed.
+If no number is given for a field, all such fields will be reversed.
+<DT><B>search-ignore*&nbsp;</B><I>fields</I>
+
+<DD>
+While searching for keys in databases for which no index exists,
+ignore the contents of
+<I>fields</I>.
+
+Initially, fields
+<B>XYZ</B>
+
+are ignored.
+<DT><B>search-truncate*&nbsp;</B><I>n</I>
+
+<DD>
+Only require the first
+<I>n</I>
+
+characters of keys to be given.
+In effect when searching for a given key
+words in the database are truncated to the maximum of
+<I>n</I>
+
+and the length of the key.
+Initially
+<I>n</I>
+
+is 6.
+<DT><B>short-label*&nbsp;</B><I>string</I>
+
+<DD>
+<I>string</I>
+
+is a label expression that specifies an alternative (usually shorter)
+style of label.
+This is used when the
+<B>#</B>
+
+flag is given in the citation.
+When using author-date style labels, the identity of the author
+or authors is sometimes clear from the context, and so it
+may be desirable to omit the author or authors from the label.
+The
+<B>short-label</B>
+
+command will typically be used to specify a label containing just
+a date and possibly a disambiguating letter.
+<DT><B>sort*&nbsp;</B><I>string</I>
+
+<DD>
+Sort references according to
+<B>string</B>.
+
+References will automatically be accumulated.
+<I>string</I>
+
+should be a list of field names, each followed by a number,
+indicating how many fields with the name should be used for sorting.
+<B>+</B>
+
+can be used to indicate that all the fields with the name should be used.
+Also 
+<B>.</B>
+
+can be used to indicate the references should be sorted using the
+(tentative) label.
+(The
+<B>Label expressions</B>
+
+subsection describes the concept of a tentative label.)
+<DT><B>sort-adjacent-labels*</B>
+
+<DD>
+Sort labels that are adjacent in the text according to their
+position in the reference list.
+This command should usually be given if the
+<B>abbreviate-label-ranges</B>
+
+command has been given,
+or if the label expression contains a
+<B>&lt;&gt;</B>
+
+expression.
+This will have no effect unless references are being accumulated.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Label expressions</H3>
+
+<P>
+
+Label expressions can be evaluated both normally and tentatively. 
+The result of normal evaluation is used for output. 
+The result of tentative evaluation, called the
+<I>tentative label,</I>
+
+is used to gather the information
+that normal evaluation needs to disambiguate the label.
+Label expressions specified by the
+<B>date-as-label</B>
+
+and
+<B>short-label</B>
+
+commands are not evaluated tentatively.
+Normal and tentative evaluation are the same for all types
+of expression other than
+<B>@</B>,
+
+<B>*</B>,
+
+and
+<B>%</B>
+
+expressions. 
+The description below applies to normal evaluation,
+except where otherwise specified. 
+<DL COMPACT>
+<DT><I>field</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<I>field&nbsp;n</I>
+
+<DD>The
+<I>n</I>-th
+
+part of
+<I>field</I>.
+
+If
+<I>n</I>
+
+is omitted, it defaults to 1. 
+<DT><B>'</B><I>string</I><B>'</B>
+
+<DD>
+The characters in
+<I>string</I>
+
+literally. 
+<DT><B>@</B>
+
+<DD>
+All the authors joined as specified by the
+<B>join-authors</B>
+
+command.
+The whole of each author's name will be used.
+However, if the references are sorted by author
+(that is the sort specification starts with
+<B>A+</B>),
+
+then authors' last names will be used instead, provided that this does
+not introduce ambiguity,
+and also an initial subsequence of the authors may be used
+instead of all the authors, again provided that this does not
+introduce ambiguity.
+The use of only the last name for the
+<I>i</I>-th
+
+author of some reference
+is considered to be ambiguous if
+there is some other reference,
+such that the first
+<I>i</I>-1
+
+authors of the references are the same,
+the
+<I>i</I>-th
+
+authors are not the same,
+but the
+<I>i</I>-th
+
+authors' last names are the same.
+A proper initial subsequence of the sequence
+of authors for some reference is considered to be ambiguous if there is
+a reference with some other sequence of authors which also has
+that subsequence as a proper initial subsequence.
+When an initial subsequence of authors is used, the remaining
+authors are replaced by the string specified by the
+<B>et-al</B>
+
+command;
+this command may also specify additional requirements that must be
+met before an initial subsequence can be used.
+<B>@</B>
+
+tentatively evaluates to a canonical representation of the authors,
+such that authors that compare equally for sorting purpose
+will have the same representation.
+<DT><B>%</B><I>n</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<B>%a</B>
+
+
+<DD>
+
+<DT>
+
+<B>%A</B>
+
+
+<DD>
+
+<DT>
+
+<B>%i</B>
+
+
+<DD>
+
+<DT>
+
+<B>%I</B>
+
+<DD>The serial number of the reference formatted according to the character
+following the
+<B>%</B>.
+
+The serial number of a reference is 1 plus the number of earlier references
+with same tentative label as this reference.
+These expressions tentatively evaluate to an empty string.
+<DT><I>expr</I><B>*</B>
+
+<DD>
+If there is another reference with the same tentative label as
+this reference, then
+<I>expr</I>,
+
+otherwise an empty string.
+It tentatively evaluates to an empty string.
+<DT><I>expr</I><B>+</B><I>n</I>
+
+<DD>
+
+<BR>
+
+
+<DT>
+
+<I>expr</I><B>-</B><I>n</I>
+
+<DD>The first
+(<B>+</B>)
+
+or last
+(<B>-</B>)
+
+<I>n</I>
+
+upper or lower case letters or digits of
+<I>expr</I>.
+
+Troff special characters (such as
+<B>\('a</B>)
+
+count as a single letter.
+Accent strings are retained but do not count towards the total.
+<DT><I>expr</I><B>.l</B>
+
+<DD>
+<I>expr</I>
+
+converted to lowercase. 
+<DT><I>expr</I><B>.u</B>
+
+<DD>
+<I>expr</I>
+
+converted to uppercase. 
+<DT><I>expr</I><B>.c</B>
+
+<DD>
+<I>expr</I>
+
+converted to caps and small caps. 
+<DT><I>expr</I><B>.r</B>
+
+<DD>
+<I>expr</I>
+
+reversed so that the last name is first.
+<DT><I>expr</I><B>.a</B>
+
+<DD>
+<I>expr</I>
+
+with first names abbreviated.
+Note that fields specified in the
+<B>abbreviate</B>
+
+command are abbreviated before any labels are evaluated.
+Thus
+<B>.a</B>
+
+is useful only when you want a field to be abbreviated in a label
+but not in a reference.
+<DT><I>expr</I><B>.y</B>
+
+<DD>
+The year part of
+<I>expr</I>.
+
+<DT><I>expr</I><B>.+y</B>
+
+<DD>
+The part of
+<I>expr</I>
+
+before the year, or the whole of
+<I>expr</I>
+
+if it does not contain a year.
+<DT><I>expr</I><B>.-y</B>
+
+<DD>
+The part of
+<I>expr</I>
+
+after the year, or an empty string if
+<I>expr</I>
+
+does not contain a year.
+<DT><I>expr</I><B>.n</B>
+
+<DD>
+The last name part of
+<I>expr</I>.
+
+<DT><I>expr1</I><B>ti</B><I>expr2</I>
+
+<DD>
+<I>expr1</I>
+
+except that if the last character of
+<I>expr1</I>
+
+is
+<B>-</B>
+
+then it will be replaced by
+<I>expr2</I>.
+
+<DT><I>expr1&nbsp;expr2</I>
+
+<DD>
+The concatenation of
+<I>expr1</I>
+
+and
+<I>expr2</I>.
+
+<DT><I>expr1</I><B>|</B><I>expr2</I>
+
+<DD>
+If
+<I>expr1</I>
+
+is non-empty then
+<I>expr1</I>
+
+otherwise
+<I>expr2</I>.
+
+<DT><I>expr1</I><B>&amp;</B><I>expr2</I>
+
+<DD>
+If
+<I>expr1</I>
+
+is non-empty
+then
+<I>expr2</I>
+
+otherwise an empty string.
+<DT><I>expr1</I><B>?</B><I>expr2</I><B>:</B><I>expr3</I>
+
+<DD>
+If
+<I>expr1</I>
+
+is non-empty
+then
+<I>expr2</I>
+
+otherwise
+<I>expr3</I>.
+
+<DT><B>&lt;</B><I>expr</I><B>&gt;</B>
+
+<DD>
+The label is in two parts, which are separated by
+<I>expr</I>.
+
+Two adjacent two-part labels which have the same first part will be
+merged by appending the second part of the second label onto the first
+label separated by the string specified in the
+<B>separate-label-second-parts</B>
+
+command (initially, a comma followed by a space); the resulting label
+will also be a two-part label with the same first part as before
+merging, and so additional labels can be merged into it.
+Note that it is permissible for the first part to be empty;
+this maybe desirable for expressions used in the
+<B>short-label</B>
+
+command.
+<DT><B>(</B><I>expr</I><B>)</B>
+
+<DD>
+The same as
+<I>expr</I>.
+
+Used for grouping.
+</DL>
+<P>
+
+The above expressions are listed in order of precedence
+(highest first);
+<B>&amp;</B>
+
+and
+<B>|</B>
+
+have the same precedence.
+<A NAME="lbAK">&nbsp;</A>
+<H3>Macro interface</H3>
+
+Each reference starts with a call to the macro
+<B>]-</B>.
+
+The string
+<B>[F</B>
+
+will be defined to be the label for this reference,
+unless the
+<B>no-label-in-reference</B>
+
+command has been given.
+There then follows a series of string definitions,
+one for each field:
+string
+<B>[</B><I>X</I>
+
+corresponds to field
+<I>X</I>.
+
+The number register
+<B>[P</B>
+
+is set to 1 if the
+<B>P</B>
+
+field contains a range of pages.
+The
+<B>[T</B>,
+
+<B>[A</B>
+
+and
+<B>[O</B>
+
+number registers are set to 1 according as the
+<B>T</B>,
+
+<B>A</B>
+
+and
+<B>O</B>
+
+fields end with one of the characters
+<B>.?!</B>.
+
+The
+<B>[E</B>
+
+number register will be set to 1 if the
+<B>[E</B>
+
+string contains more than one name.
+The reference is followed by a call to the
+<B>][</B>
+
+macro.
+The first argument to this macro gives a number representing
+the type of the reference.
+If a reference contains a
+<B>J</B>
+
+field, it will be classified as type 1,
+otherwise if it contains a
+<B>B</B>
+
+field, it will type 3,
+otherwise if it contains a
+<B>G</B>
+
+or
+<B>R</B>
+
+field it will be type 4,
+otherwise if contains a
+<B>I</B>
+
+field it will be type 2,
+otherwise it will be type 0.
+The second argument is a symbolic name for the type:
+<B>other</B>,
+
+<B>journal-article</B>,
+
+<B>book</B>,
+
+<B>article-in-book</B>
+
+or
+<B>tech-report</B>.
+
+Groups of references that have been accumulated
+or are produced by the
+<B>bibliography</B>
+
+command are preceded by a call to the
+<B>]&lt;</B>
+
+macro and followed by a call to the
+<B>]&gt;</B>
+
+macro.
+<A NAME="lbAL">&nbsp;</A>
+<H2>FILES</H2>
+
+
+u+2n<DL COMPACT>
+<DT>
+<DD>
+
+
+<B>/usr/dict/papers/Ind</B>
+
+Default database.
+<DT><I>file</I><B>.i</B>
+
+<DD>
+Index files.
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/indxbib.1.php">indxbib</A></B>(1),
+
+<B><A HREF="../man1/lookbib.1.php">lookbib</A></B>(1),
+
+<B><A HREF="../man1/lkbib.1.php">lkbib</A></B>(1)
+
+<BR>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>BUGS</H2>
+
+In label expressions,
+<B>&lt;&gt;</B>
+
+expressions are ignored inside
+<B>.</B><I>char</I>
+
+expressions.
+
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">USAGE</A><DD>
+<DL>
+<DT><A HREF="#lbAG">Bibliographic databases</A><DD>
+<DT><A HREF="#lbAH">Citations</A><DD>
+<DT><A HREF="#lbAI">Commands</A><DD>
+<DT><A HREF="#lbAJ">Label expressions</A><DD>
+<DT><A HREF="#lbAK">Macro interface</A><DD>
+</DL>
+<DT><A HREF="#lbAL">FILES</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+<DT><A HREF="#lbAN">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

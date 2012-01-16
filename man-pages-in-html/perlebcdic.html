@@ -1,0 +1,2151 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLEBCDIC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLEBCDIC</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlebcdic - Considerations for running Perl on EBCDIC platforms
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+An exploration of some of the issues facing Perl programmers
+on <FONT SIZE="-1">EBCDIC</FONT> based computers.  We do not cover localization, 
+internationalization, or multi byte character set issues other
+than some discussion of <FONT SIZE="-1">UTF-8</FONT> and <FONT SIZE="-1">UTF-EBCDIC</FONT>.
+<P>
+
+Portions that are still incomplete are marked with <FONT SIZE="-1">XXX</FONT>.
+<A NAME="lbAD">&nbsp;</A>
+<H2>COMMON CHARACTER CODE SETS</H2>
+
+<A NAME="ixAAD"></A>
+<A NAME="lbAE">&nbsp;</A>
+<H2><FONT SIZE="-1">ASCII</FONT></H2>
+
+<A NAME="ixAAE"></A>
+The American Standard Code for Information Interchange is a set of
+integers running from 0 to 127 (decimal) that imply character 
+interpretation by the display and other system(s) of computers.  
+The range 0..127 can be covered by setting the bits in a 7-bit binary 
+digit, hence the set is sometimes referred to as a ``7-bit <FONT SIZE="-1">ASCII</FONT>''.  
+<FONT SIZE="-1">ASCII</FONT> was described by the American National Standards Institute 
+document <FONT SIZE="-1">ANSI</FONT> X3.4-1986.  It was also described by <FONT SIZE="-1">ISO</FONT> 646:1991 
+(with localization for currency symbols).  The full <FONT SIZE="-1">ASCII</FONT> set is 
+given in the table below as the first 128 elements.  Languages that 
+can be written adequately with the characters in <FONT SIZE="-1">ASCII</FONT> include 
+English, Hawaiian, Indonesian, Swahili and some Native American 
+languages.
+<P>
+
+There are many character sets that extend the range of integers
+from 0..2**7-1 up to 2**8-1, or 8 bit bytes (octets if you prefer).
+One common one is the <FONT SIZE="-1">ISO</FONT> 8859-1 character set.
+<A NAME="lbAF">&nbsp;</A>
+<H2><FONT SIZE="-1">ISO</FONT> 8859</H2>
+
+<A NAME="ixAAF"></A>
+The <FONT SIZE="-1">ISO</FONT> 8859-$n are a collection of character code sets from the 
+International Organization for Standardization (<FONT SIZE="-1">ISO</FONT>) each of which 
+adds characters to the <FONT SIZE="-1">ASCII</FONT> set that are typically found in European 
+languages many of which are based on the Roman, or Latin, alphabet.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Latin 1 (<FONT SIZE="-1">ISO</FONT> 8859-1)</H2>
+
+<A NAME="ixAAG"></A>
+A particular 8-bit extension to <FONT SIZE="-1">ASCII</FONT> that includes grave and acute 
+accented Latin characters.  Languages that can employ <FONT SIZE="-1">ISO</FONT> 8859-1 
+include all the languages covered by <FONT SIZE="-1">ASCII</FONT> as well as Afrikaans, 
+Albanian, Basque, Catalan, Danish, Faroese, Finnish, Norwegian, 
+Portuguese, Spanish, and Swedish.  Dutch is covered albeit without 
+the ij ligature.  French is covered too but without the oe ligature. 
+German can use <FONT SIZE="-1">ISO</FONT> 8859-1 but must do so without German-style
+quotation marks.  This set is based on Western European extensions 
+to <FONT SIZE="-1">ASCII</FONT> and is commonly encountered in world wide web work.
+In <FONT SIZE="-1">IBM</FONT> character code set identification terminology <FONT SIZE="-1">ISO</FONT> 8859-1 is
+also known as <FONT SIZE="-1">CCSID</FONT> 819 (or sometimes 0819 or even 00819).
+<A NAME="lbAH">&nbsp;</A>
+<H2><FONT SIZE="-1">EBCDIC</FONT></H2>
+
+<A NAME="ixAAH"></A>
+The Extended Binary Coded Decimal Interchange Code refers to a 
+large collection of slightly different single and multi byte 
+coded character sets that are different from <FONT SIZE="-1">ASCII</FONT> or <FONT SIZE="-1">ISO</FONT> 8859-1 
+and typically run on host computers.  The <FONT SIZE="-1">EBCDIC</FONT> encodings derive 
+from 8 bit byte extensions of Hollerith punched card encodings.
+The layout on the cards was such that high bits were set for the
+upper and lower case alphabet characters [a-z] and [A-Z], but there
+were gaps within each latin alphabet range.
+<P>
+
+Some <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">EBCDIC</FONT> character sets may be known by character code set 
+identification numbers (<FONT SIZE="-1">CCSID</FONT> numbers) or code page numbers.  Leading
+zero digits in <FONT SIZE="-1">CCSID</FONT> numbers within this document are insignificant.
+E.g. <FONT SIZE="-1">CCSID</FONT> 0037 may be referred to as 37 in places.
+<A NAME="lbAI">&nbsp;</A>
+<H2>13 variant characters</H2>
+
+<A NAME="ixAAI"></A>
+Among <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">EBCDIC</FONT> character code sets there are 13 characters that
+are often mapped to different integer values.  Those characters
+are known as the 13 ``variant'' characters and are:
+<P>
+
+
+
+<PRE>
+    \ [ ] { } ^ ~ ! # | $ @ `
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>0037</H2>
+
+<A NAME="ixAAJ"></A>
+Character code set <FONT SIZE="-1">ID</FONT> 0037 is a mapping of the <FONT SIZE="-1">ASCII</FONT> plus Latin-1 
+characters (i.e. <FONT SIZE="-1">ISO</FONT> 8859-1) to an <FONT SIZE="-1">EBCDIC</FONT> set.  0037 is used 
+in North American English locales on the <FONT SIZE="-1">OS/400</FONT> operating system 
+that runs on <FONT SIZE="-1">AS/400</FONT> computers.  <FONT SIZE="-1">CCSID</FONT> 37 differs from <FONT SIZE="-1">ISO</FONT> 8859-1 
+in 237 places, in other words they agree on only 19 code point values.
+<A NAME="lbAK">&nbsp;</A>
+<H2>1047</H2>
+
+<A NAME="ixAAK"></A>
+Character code set <FONT SIZE="-1">ID</FONT> 1047 is also a mapping of the <FONT SIZE="-1">ASCII</FONT> plus 
+Latin-1 characters (i.e. <FONT SIZE="-1">ISO</FONT> 8859-1) to an <FONT SIZE="-1">EBCDIC</FONT> set.  1047 is 
+used under Unix System Services for <FONT SIZE="-1">OS/390</FONT> or z/OS, and OpenEdition 
+for <FONT SIZE="-1">VM/ESA</FONT>.  <FONT SIZE="-1">CCSID</FONT> 1047 differs from <FONT SIZE="-1">CCSID</FONT> 0037 in eight places.
+<A NAME="lbAL">&nbsp;</A>
+<H2>POSIX-BC</H2>
+
+<A NAME="ixAAL"></A>
+The <FONT SIZE="-1">EBCDIC</FONT> code page in use on Siemens' <FONT SIZE="-1">BS2000</FONT> system is distinct from
+1047 and 0037.  It is identified below as the POSIX-BC set.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Unicode code points versus <FONT SIZE="-1">EBCDIC</FONT> code points</H2>
+
+<A NAME="ixAAM"></A>
+In Unicode terminology a <I>code point</I> is the number assigned to a
+character: for example, in <FONT SIZE="-1">EBCDIC</FONT> the character ``A'' is usually assigned
+the number 193.  In Unicode the character ``A'' is assigned the number 65.
+This causes a problem with the semantics of the pack/unpack ``U'', which
+are supposed to pack Unicode code points to characters and back to numbers.
+The problem is: which code points to use for code points less than 256?
+(for 256 and over there's no problem: Unicode code points are used)
+In <FONT SIZE="-1">EBCDIC</FONT>, for the low 256 the <FONT SIZE="-1">EBCDIC</FONT> code points are used.  This
+means that the equivalences
+<P>
+
+
+
+<PRE>
+        pack(&quot;U&quot;, ord($character)) eq $character
+        unpack(&quot;U&quot;, $character) == ord $character
+
+</PRE>
+
+
+<P>
+
+will hold.  (If Unicode code points were applied consistently over
+all the possible code points, pack(``U'',ord(``A'')) would in <FONT SIZE="-1">EBCDIC</FONT>
+equal <I>A with acute</I> or chr(101), and unpack(``U'', ``A'') would equal
+65, or <I>non-breaking space</I>, not 193, or ord ``A''.)
+<A NAME="lbAN">&nbsp;</A>
+<H2>Remaining Perl Unicode problems in <FONT SIZE="-1">EBCDIC</FONT></H2>
+
+<A NAME="ixAAN"></A>
+<DL COMPACT>
+<DT>*<DD>
+Many of the remaining seem to be related to case-insensitive matching:
+for example, <TT>&quot;/[\x{131}]/&quot;</TT> (<FONT SIZE="-1">LATIN</FONT> <FONT SIZE="-1">SMALL</FONT> <FONT SIZE="-1">LETTER</FONT> <FONT SIZE="-1">DOTLESS</FONT> I) does
+not match ``I'' case-insensitively, as it should under Unicode.
+(The match succeeds in ASCII-derived platforms.)
+<DT>*<DD>
+The extensions Unicode::Collate and Unicode::Normalized are not
+supported under <FONT SIZE="-1">EBCDIC</FONT>, likewise for the encoding pragma.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>Unicode and <FONT SIZE="-1">UTF</FONT></H2>
+
+<A NAME="ixAAO"></A>
+<FONT SIZE="-1">UTF</FONT> is a Unicode Transformation Format.  <FONT SIZE="-1">UTF-8</FONT> is a Unicode conforming
+representation of the Unicode standard that looks very much like <FONT SIZE="-1">ASCII</FONT>.
+UTF-EBCDIC is an attempt to represent Unicode characters in an <FONT SIZE="-1">EBCDIC</FONT>
+transparent manner.
+<A NAME="lbAP">&nbsp;</A>
+<H2>Using Encode</H2>
+
+<A NAME="ixAAP"></A>
+Starting from Perl 5.8 you can use the standard new module Encode
+to translate from <FONT SIZE="-1">EBCDIC</FONT> to Latin-1 code points
+<P>
+
+
+
+<PRE>
+        use Encode 'from_to';
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my %ebcdic = ( 176 =&gt; 'cp37', 95 =&gt; 'cp1047', 106 =&gt; 'posix-bc' );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        # $a is in EBCDIC code points
+        from_to($a, $ebcdic{ord '^'}, 'latin1');
+        # $a is ISO 8859-1 code points
+
+</PRE>
+
+
+<P>
+
+and from Latin-1 code points to <FONT SIZE="-1">EBCDIC</FONT> code points
+<P>
+
+
+
+<PRE>
+        use Encode 'from_to';
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my %ebcdic = ( 176 =&gt; 'cp37', 95 =&gt; 'cp1047', 106 =&gt; 'posix-bc' );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        # $a is ISO 8859-1 code points
+        from_to($a, 'latin1', $ebcdic{ord '^'});
+        # $a is in EBCDIC code points
+
+</PRE>
+
+
+<P>
+
+For doing I/O it is suggested that you use the autotranslating features
+of PerlIO, see perluniintro.
+<P>
+
+Since version 5.8 Perl uses the new PerlIO I/O library.  This enables
+you to use different encodings per <FONT SIZE="-1">IO</FONT> channel.  For example you may use
+<P>
+
+
+
+<PRE>
+    use Encode;
+    open($f, &quot;&gt;:encoding(ascii)&quot;, &quot;test.ascii&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(cp37)&quot;, &quot;test.ebcdic&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(latin1)&quot;, &quot;test.latin1&quot;);
+    print $f &quot;Hello World!\n&quot;;
+    open($f, &quot;&gt;:encoding(utf8)&quot;, &quot;test.utf8&quot;);
+    print $f &quot;Hello World!\n&quot;;
+
+</PRE>
+
+
+<P>
+
+to get two files containing ``Hello World!\n'' in <FONT SIZE="-1">ASCII</FONT>, <FONT SIZE="-1">CP</FONT> 37 <FONT SIZE="-1">EBCDIC</FONT>,
+<FONT SIZE="-1">ISO</FONT> 8859-1 (Latin-1) (in this example identical to <FONT SIZE="-1">ASCII</FONT>) respective
+UTF-EBCDIC (in this example identical to normal <FONT SIZE="-1">EBCDIC</FONT>).  See the
+documentation of Encode::PerlIO for details.
+<P>
+
+As the PerlIO layer uses raw <FONT SIZE="-1">IO</FONT> (bytes) internally, all this totally
+ignores things like the type of your filesystem (<FONT SIZE="-1">ASCII</FONT> or <FONT SIZE="-1">EBCDIC</FONT>).
+<A NAME="lbAQ">&nbsp;</A>
+<H2>SINGLE OCTET TABLES</H2>
+
+<A NAME="ixAAQ"></A>
+The following tables list the <FONT SIZE="-1">ASCII</FONT> and Latin 1 ordered sets including
+the subsets: C0 controls (0..31), <FONT SIZE="-1">ASCII</FONT> graphics (32..7e), delete (7f),
+C1 controls (80..9f), and Latin-1 (a.k.a. <FONT SIZE="-1">ISO</FONT> 8859-1) (a0..ff).  In the 
+table non-printing control character names as well as the Latin 1 
+extensions to <FONT SIZE="-1">ASCII</FONT> have been labelled with character names roughly 
+corresponding to <I>The Unicode Standard, Version 3.0</I> albeit with 
+substitutions such as s/LATIN// and s/VULGAR// in all cases, 
+s/CAPITAL <FONT SIZE="-1">LETTER//</FONT> in some cases, and s/SMALL <FONT SIZE="-1">LETTER</FONT> ([A-Z])/\l$1/ 
+in some other cases (the <TT>&quot;charnames&quot;</TT> pragma names unfortunately do 
+not list explicit names for the C0 or C1 control characters).  The 
+``names'' of the C1 control set (128..159 in <FONT SIZE="-1">ISO</FONT> 8859-1) listed here are 
+somewhat arbitrary.  The differences between the 0037 and 1047 sets are 
+flagged with ***.  The differences between the 1047 and POSIX-BC sets 
+are flagged with ###.  All <I>ord()</I> numbers listed are decimal.  If you 
+would rather see this table listing octal values then run the table 
+(that is, the pod version of this document since this recipe may not 
+work with a pod2_other_format translation) through:
+<DL COMPACT>
+<DT>recipe 0<DD>
+<A NAME="ixAAR"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    perl -ne 'if(/(.{33})(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/)' \
+     -e '{printf(&quot;%s%-9o%-9o%-9o%o\n&quot;,$1,$2,$3,$4,$5)}' perlebcdic.pod
+
+</PRE>
+
+
+<P>
+
+If you want to retain the UTF-x code points then in script form you
+might want to write:
+<DL COMPACT>
+<DT>recipe 1<DD>
+<A NAME="ixAAS"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    open(FH,&quot;&lt;perlebcdic.pod&quot;) or die &quot;Could not open perlebcdic.pod: $!&quot;;
+    while (&lt;FH&gt;) {
+        if (/(.{33})(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\.?(\d*)\s+(\d+)\.?(\d*)/)  {
+            if ($7 ne '' &amp;&amp; $9 ne '') {
+                printf(&quot;%s%-9o%-9o%-9o%-9o%-3o.%-5o%-3o.%o\n&quot;,$1,$2,$3,$4,$5,$6,$7,$8,$9);
+            }
+            elsif ($7 ne '') {
+                printf(&quot;%s%-9o%-9o%-9o%-9o%-3o.%-5o%o\n&quot;,$1,$2,$3,$4,$5,$6,$7,$8);
+            }
+            else {
+                printf(&quot;%s%-9o%-9o%-9o%-9o%-9o%o\n&quot;,$1,$2,$3,$4,$5,$6,$8);
+            }
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+If you would rather see this table listing hexadecimal values then
+run the table through:
+<DL COMPACT>
+<DT>recipe 2<DD>
+<A NAME="ixAAT"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    perl -ne 'if(/(.{33})(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/)' \
+     -e '{printf(&quot;%s%-9X%-9X%-9X%X\n&quot;,$1,$2,$3,$4,$5)}' perlebcdic.pod
+
+</PRE>
+
+
+<P>
+
+Or, in order to retain the UTF-x code points in hexadecimal:
+<DL COMPACT>
+<DT>recipe 3<DD>
+<A NAME="ixAAU"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    open(FH,&quot;&lt;perlebcdic.pod&quot;) or die &quot;Could not open perlebcdic.pod: $!&quot;;
+    while (&lt;FH&gt;) {
+        if (/(.{33})(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\.?(\d*)\s+(\d+)\.?(\d*)/)  {
+            if ($7 ne '' &amp;&amp; $9 ne '') {
+                printf(&quot;%s%-9X%-9X%-9X%-9X%-2X.%-6X%-2X.%X\n&quot;,$1,$2,$3,$4,$5,$6,$7,$8,$9);
+            }
+            elsif ($7 ne '') {
+                printf(&quot;%s%-9X%-9X%-9X%-9X%-2X.%-6X%X\n&quot;,$1,$2,$3,$4,$5,$6,$7,$8);
+            }
+            else {
+                printf(&quot;%s%-9X%-9X%-9X%-9X%-9X%X\n&quot;,$1,$2,$3,$4,$5,$6,$8);
+            }
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+                                                                     incomp-  incomp-
+                                 8859-1                              lete     lete
+    chr                          0819     0037     1047     POSIX-BC UTF-8    UTF-EBCDIC
+    ------------------------------------------------------------------------------------
+    &lt;NULL&gt;                       0        0        0        0        0        0 
+    &lt;START OF HEADING&gt;           1        1        1        1        1        1
+    &lt;START OF TEXT&gt;              2        2        2        2        2        2
+    &lt;END OF TEXT&gt;                3        3        3        3        3        3
+    &lt;END OF TRANSMISSION&gt;        4        55       55       55       4        55 
+    &lt;ENQUIRY&gt;                    5        45       45       45       5        45 
+    &lt;ACKNOWLEDGE&gt;                6        46       46       46       6        46 
+    &lt;BELL&gt;                       7        47       47       47       7        47 
+    &lt;BACKSPACE&gt;                  8        22       22       22       8        22 
+    &lt;HORIZONTAL TABULATION&gt;      9        5        5        5        9        5 
+    &lt;LINE FEED&gt;                  10       37       21       21       10       21       ***
+    &lt;VERTICAL TABULATION&gt;        11       11       11       11       11       11
+    &lt;FORM FEED&gt;                  12       12       12       12       12       12
+    &lt;CARRIAGE RETURN&gt;            13       13       13       13       13       13
+    &lt;SHIFT OUT&gt;                  14       14       14       14       14       14
+    &lt;SHIFT IN&gt;                   15       15       15       15       15       15
+    &lt;DATA LINK ESCAPE&gt;           16       16       16       16       16       16
+    &lt;DEVICE CONTROL ONE&gt;         17       17       17       17       17       17
+    &lt;DEVICE CONTROL TWO&gt;         18       18       18       18       18       18
+    &lt;DEVICE CONTROL THREE&gt;       19       19       19       19       19       19
+    &lt;DEVICE CONTROL FOUR&gt;        20       60       60       60       20       60
+    &lt;NEGATIVE ACKNOWLEDGE&gt;       21       61       61       61       21       61
+    &lt;SYNCHRONOUS IDLE&gt;           22       50       50       50       22       50
+    &lt;END OF TRANSMISSION BLOCK&gt;  23       38       38       38       23       38
+    &lt;CANCEL&gt;                     24       24       24       24       24       24
+    &lt;END OF MEDIUM&gt;              25       25       25       25       25       25
+    &lt;SUBSTITUTE&gt;                 26       63       63       63       26       63
+    &lt;ESCAPE&gt;                     27       39       39       39       27       39
+    &lt;FILE SEPARATOR&gt;             28       28       28       28       28       28
+    &lt;GROUP SEPARATOR&gt;            29       29       29       29       29       29
+    &lt;RECORD SEPARATOR&gt;           30       30       30       30       30       30
+    &lt;UNIT SEPARATOR&gt;             31       31       31       31       31       31
+    &lt;SPACE&gt;                      32       64       64       64       32       64
+    !                            33       90       90       90       33       90
+    &quot;                            34       127      127      127      34       127
+    #                            35       123      123      123      35       123
+    $                            36       91       91       91       36       91
+    %                            37       108      108      108      37       108
+    &amp;                            38       80       80       80       38       80
+    '                            39       125      125      125      39       125
+    (                            40       77       77       77       40       77
+    )                            41       93       93       93       41       93
+    *                            42       92       92       92       42       92
+    +                            43       78       78       78       43       78
+    ,                            44       107      107      107      44       107
+    -                            45       96       96       96       45       96
+    .                            46       75       75       75       46       75
+    /                            47       97       97       97       47       97
+    0                            48       240      240      240      48       240
+    1                            49       241      241      241      49       241
+    2                            50       242      242      242      50       242
+    3                            51       243      243      243      51       243
+    4                            52       244      244      244      52       244
+    5                            53       245      245      245      53       245
+    6                            54       246      246      246      54       246
+    7                            55       247      247      247      55       247
+    8                            56       248      248      248      56       248
+    9                            57       249      249      249      57       249
+    :                            58       122      122      122      58       122
+    ;                            59       94       94       94       59       94
+    &lt;                            60       76       76       76       60       76
+    =                            61       126      126      126      61       126
+    &gt;                            62       110      110      110      62       110
+    ?                            63       111      111      111      63       111
+    @                            64       124      124      124      64       124
+    A                            65       193      193      193      65       193
+    B                            66       194      194      194      66       194
+    C                            67       195      195      195      67       195
+    D                            68       196      196      196      68       196
+    E                            69       197      197      197      69       197
+    F                            70       198      198      198      70       198
+    G                            71       199      199      199      71       199
+    H                            72       200      200      200      72       200
+    I                            73       201      201      201      73       201
+    J                            74       209      209      209      74       209
+    K                            75       210      210      210      75       210
+    L                            76       211      211      211      76       211
+    M                            77       212      212      212      77       212
+    N                            78       213      213      213      78       213
+    O                            79       214      214      214      79       214
+    P                            80       215      215      215      80       215
+    Q                            81       216      216      216      81       216
+    R                            82       217      217      217      82       217
+    S                            83       226      226      226      83       226
+    T                            84       227      227      227      84       227
+    U                            85       228      228      228      85       228
+    V                            86       229      229      229      86       229
+    W                            87       230      230      230      87       230
+    X                            88       231      231      231      88       231
+    Y                            89       232      232      232      89       232
+    Z                            90       233      233      233      90       233
+    [                            91       186      173      187      91       173      *** ###
+    \                            92       224      224      188      92       224      ### 
+    ]                            93       187      189      189      93       189      ***
+    ^                            94       176      95       106      94       95       *** ###
+    _                            95       109      109      109      95       109
+    `                            96       121      121      74       96       121      ###
+    a                            97       129      129      129      97       129
+    b                            98       130      130      130      98       130
+    c                            99       131      131      131      99       131
+    d                            100      132      132      132      100      132
+    e                            101      133      133      133      101      133
+    f                            102      134      134      134      102      134
+    g                            103      135      135      135      103      135
+    h                            104      136      136      136      104      136
+    i                            105      137      137      137      105      137
+    j                            106      145      145      145      106      145
+    k                            107      146      146      146      107      146
+    l                            108      147      147      147      108      147
+    m                            109      148      148      148      109      148
+    n                            110      149      149      149      110      149
+    o                            111      150      150      150      111      150
+    p                            112      151      151      151      112      151
+    q                            113      152      152      152      113      152
+    r                            114      153      153      153      114      153
+    s                            115      162      162      162      115      162
+    t                            116      163      163      163      116      163
+    u                            117      164      164      164      117      164
+    v                            118      165      165      165      118      165
+    w                            119      166      166      166      119      166
+    x                            120      167      167      167      120      167
+    y                            121      168      168      168      121      168
+    z                            122      169      169      169      122      169
+    {                            123      192      192      251      123      192      ###
+    |                            124      79       79       79       124      79
+    }                            125      208      208      253      125      208      ###
+    ~                            126      161      161      255      126      161      ###
+    &lt;DELETE&gt;                     127      7        7        7        127      7
+    &lt;C1 0&gt;                       128      32       32       32       194.128  32
+    &lt;C1 1&gt;                       129      33       33       33       194.129  33
+    &lt;C1 2&gt;                       130      34       34       34       194.130  34
+    &lt;C1 3&gt;                       131      35       35       35       194.131  35
+    &lt;C1 4&gt;                       132      36       36       36       194.132  36
+    &lt;C1 5&gt;                       133      21       37       37       194.133  37       ***
+    &lt;C1 6&gt;                       134      6        6        6        194.134  6
+    &lt;C1 7&gt;                       135      23       23       23       194.135  23
+    &lt;C1 8&gt;                       136      40       40       40       194.136  40
+    &lt;C1 9&gt;                       137      41       41       41       194.137  41
+    &lt;C1 10&gt;                      138      42       42       42       194.138  42
+    &lt;C1 11&gt;                      139      43       43       43       194.139  43
+    &lt;C1 12&gt;                      140      44       44       44       194.140  44
+    &lt;C1 13&gt;                      141      9        9        9        194.141  9
+    &lt;C1 14&gt;                      142      10       10       10       194.142  10
+    &lt;C1 15&gt;                      143      27       27       27       194.143  27
+    &lt;C1 16&gt;                      144      48       48       48       194.144  48
+    &lt;C1 17&gt;                      145      49       49       49       194.145  49
+    &lt;C1 18&gt;                      146      26       26       26       194.146  26
+    &lt;C1 19&gt;                      147      51       51       51       194.147  51
+    &lt;C1 20&gt;                      148      52       52       52       194.148  52
+    &lt;C1 21&gt;                      149      53       53       53       194.149  53
+    &lt;C1 22&gt;                      150      54       54       54       194.150  54
+    &lt;C1 23&gt;                      151      8        8        8        194.151  8
+    &lt;C1 24&gt;                      152      56       56       56       194.152  56
+    &lt;C1 25&gt;                      153      57       57       57       194.153  57
+    &lt;C1 26&gt;                      154      58       58       58       194.154  58
+    &lt;C1 27&gt;                      155      59       59       59       194.155  59
+    &lt;C1 28&gt;                      156      4        4        4        194.156  4
+    &lt;C1 29&gt;                      157      20       20       20       194.157  20
+    &lt;C1 30&gt;                      158      62       62       62       194.158  62
+    &lt;C1 31&gt;                      159      255      255      95       194.159  255      ###
+    &lt;NON-BREAKING SPACE&gt;         160      65       65       65       194.160  128.65
+    &lt;INVERTED EXCLAMATION MARK&gt;  161      170      170      170      194.161  128.66
+    &lt;CENT SIGN&gt;                  162      74       74       176      194.162  128.67   ###
+    &lt;POUND SIGN&gt;                 163      177      177      177      194.163  128.68
+    &lt;CURRENCY SIGN&gt;              164      159      159      159      194.164  128.69
+    &lt;YEN SIGN&gt;                   165      178      178      178      194.165  128.70
+    &lt;BROKEN BAR&gt;                 166      106      106      208      194.166  128.71   ###
+    &lt;SECTION SIGN&gt;               167      181      181      181      194.167  128.72
+    &lt;DIAERESIS&gt;                  168      189      187      121      194.168  128.73   *** ###
+    &lt;COPYRIGHT SIGN&gt;             169      180      180      180      194.169  128.74
+    &lt;FEMININE ORDINAL INDICATOR&gt; 170      154      154      154      194.170  128.81
+    &lt;LEFT POINTING GUILLEMET&gt;    171      138      138      138      194.171  128.82
+    &lt;NOT SIGN&gt;                   172      95       176      186      194.172  128.83   *** ###
+    &lt;SOFT HYPHEN&gt;                173      202      202      202      194.173  128.84
+    &lt;REGISTERED TRADE MARK SIGN&gt; 174      175      175      175      194.174  128.85
+    &lt;MACRON&gt;                     175      188      188      161      194.175  128.86   ###
+    &lt;DEGREE SIGN&gt;                176      144      144      144      194.176  128.87
+    &lt;PLUS-OR-MINUS SIGN&gt;         177      143      143      143      194.177  128.88
+    &lt;SUPERSCRIPT TWO&gt;            178      234      234      234      194.178  128.89
+    &lt;SUPERSCRIPT THREE&gt;          179      250      250      250      194.179  128.98
+    &lt;ACUTE ACCENT&gt;               180      190      190      190      194.180  128.99
+    &lt;MICRO SIGN&gt;                 181      160      160      160      194.181  128.100
+    &lt;PARAGRAPH SIGN&gt;             182      182      182      182      194.182  128.101
+    &lt;MIDDLE DOT&gt;                 183      179      179      179      194.183  128.102
+    &lt;CEDILLA&gt;                    184      157      157      157      194.184  128.103
+    &lt;SUPERSCRIPT ONE&gt;            185      218      218      218      194.185  128.104
+    &lt;MASC. ORDINAL INDICATOR&gt;    186      155      155      155      194.186  128.105
+    &lt;RIGHT POINTING GUILLEMET&gt;   187      139      139      139      194.187  128.106
+    &lt;FRACTION ONE QUARTER&gt;       188      183      183      183      194.188  128.112
+    &lt;FRACTION ONE HALF&gt;          189      184      184      184      194.189  128.113
+    &lt;FRACTION THREE QUARTERS&gt;    190      185      185      185      194.190  128.114
+    &lt;INVERTED QUESTION MARK&gt;     191      171      171      171      194.191  128.115
+    &lt;A WITH GRAVE&gt;               192      100      100      100      195.128  138.65
+    &lt;A WITH ACUTE&gt;               193      101      101      101      195.129  138.66
+    &lt;A WITH CIRCUMFLEX&gt;          194      98       98       98       195.130  138.67
+    &lt;A WITH TILDE&gt;               195      102      102      102      195.131  138.68
+    &lt;A WITH DIAERESIS&gt;           196      99       99       99       195.132  138.69
+    &lt;A WITH RING ABOVE&gt;          197      103      103      103      195.133  138.70
+    &lt;CAPITAL LIGATURE AE&gt;        198      158      158      158      195.134  138.71
+    &lt;C WITH CEDILLA&gt;             199      104      104      104      195.135  138.72
+    &lt;E WITH GRAVE&gt;               200      116      116      116      195.136  138.73
+    &lt;E WITH ACUTE&gt;               201      113      113      113      195.137  138.74
+    &lt;E WITH CIRCUMFLEX&gt;          202      114      114      114      195.138  138.81
+    &lt;E WITH DIAERESIS&gt;           203      115      115      115      195.139  138.82
+    &lt;I WITH GRAVE&gt;               204      120      120      120      195.140  138.83
+    &lt;I WITH ACUTE&gt;               205      117      117      117      195.141  138.84
+    &lt;I WITH CIRCUMFLEX&gt;          206      118      118      118      195.142  138.85
+    &lt;I WITH DIAERESIS&gt;           207      119      119      119      195.143  138.86
+    &lt;CAPITAL LETTER ETH&gt;         208      172      172      172      195.144  138.87
+    &lt;N WITH TILDE&gt;               209      105      105      105      195.145  138.88
+    &lt;O WITH GRAVE&gt;               210      237      237      237      195.146  138.89
+    &lt;O WITH ACUTE&gt;               211      238      238      238      195.147  138.98
+    &lt;O WITH CIRCUMFLEX&gt;          212      235      235      235      195.148  138.99
+    &lt;O WITH TILDE&gt;               213      239      239      239      195.149  138.100
+    &lt;O WITH DIAERESIS&gt;           214      236      236      236      195.150  138.101
+    &lt;MULTIPLICATION SIGN&gt;        215      191      191      191      195.151  138.102
+    &lt;O WITH STROKE&gt;              216      128      128      128      195.152  138.103
+    &lt;U WITH GRAVE&gt;               217      253      253      224      195.153  138.104  ###
+    &lt;U WITH ACUTE&gt;               218      254      254      254      195.154  138.105
+    &lt;U WITH CIRCUMFLEX&gt;          219      251      251      221      195.155  138.106  ###
+    &lt;U WITH DIAERESIS&gt;           220      252      252      252      195.156  138.112
+    &lt;Y WITH ACUTE&gt;               221      173      186      173      195.157  138.113  *** ###
+    &lt;CAPITAL LETTER THORN&gt;       222      174      174      174      195.158  138.114
+    &lt;SMALL LETTER SHARP S&gt;       223      89       89       89       195.159  138.115
+    &lt;a WITH GRAVE&gt;               224      68       68       68       195.160  139.65
+    &lt;a WITH ACUTE&gt;               225      69       69       69       195.161  139.66
+    &lt;a WITH CIRCUMFLEX&gt;          226      66       66       66       195.162  139.67
+    &lt;a WITH TILDE&gt;               227      70       70       70       195.163  139.68
+    &lt;a WITH DIAERESIS&gt;           228      67       67       67       195.164  139.69
+    &lt;a WITH RING ABOVE&gt;          229      71       71       71       195.165  139.70
+    &lt;SMALL LIGATURE ae&gt;          230      156      156      156      195.166  139.71
+    &lt;c WITH CEDILLA&gt;             231      72       72       72       195.167  139.72
+    &lt;e WITH GRAVE&gt;               232      84       84       84       195.168  139.73
+    &lt;e WITH ACUTE&gt;               233      81       81       81       195.169  139.74
+    &lt;e WITH CIRCUMFLEX&gt;          234      82       82       82       195.170  139.81
+    &lt;e WITH DIAERESIS&gt;           235      83       83       83       195.171  139.82
+    &lt;i WITH GRAVE&gt;               236      88       88       88       195.172  139.83
+    &lt;i WITH ACUTE&gt;               237      85       85       85       195.173  139.84
+    &lt;i WITH CIRCUMFLEX&gt;          238      86       86       86       195.174  139.85
+    &lt;i WITH DIAERESIS&gt;           239      87       87       87       195.175  139.86
+    &lt;SMALL LETTER eth&gt;           240      140      140      140      195.176  139.87
+    &lt;n WITH TILDE&gt;               241      73       73       73       195.177  139.88
+    &lt;o WITH GRAVE&gt;               242      205      205      205      195.178  139.89
+    &lt;o WITH ACUTE&gt;               243      206      206      206      195.179  139.98
+    &lt;o WITH CIRCUMFLEX&gt;          244      203      203      203      195.180  139.99
+    &lt;o WITH TILDE&gt;               245      207      207      207      195.181  139.100
+    &lt;o WITH DIAERESIS&gt;           246      204      204      204      195.182  139.101
+    &lt;DIVISION SIGN&gt;              247      225      225      225      195.183  139.102
+    &lt;o WITH STROKE&gt;              248      112      112      112      195.184  139.103
+    &lt;u WITH GRAVE&gt;               249      221      221      192      195.185  139.104  ###
+    &lt;u WITH ACUTE&gt;               250      222      222      222      195.186  139.105
+    &lt;u WITH CIRCUMFLEX&gt;          251      219      219      219      195.187  139.106
+    &lt;u WITH DIAERESIS&gt;           252      220      220      220      195.188  139.112
+    &lt;y WITH ACUTE&gt;               253      141      141      141      195.189  139.113
+    &lt;SMALL LETTER thorn&gt;         254      142      142      142      195.190  139.114
+    &lt;y WITH DIAERESIS&gt;           255      223      223      223      195.191  139.115
+
+</PRE>
+
+
+<P>
+
+If you would rather see the above table in <FONT SIZE="-1">CCSID</FONT> 0037 order rather than
+<FONT SIZE="-1">ASCII</FONT> + Latin-1 order then run the table through:
+<DL COMPACT>
+<DT>recipe 4<DD>
+<A NAME="ixAAV"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    perl -ne 'if(/.{33}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}/)'\
+     -e '{push(@l,$_)}' \
+     -e 'END{print map{$_-&gt;[0]}' \
+     -e '          sort{$a-&gt;[1] &lt;=&gt; $b-&gt;[1]}' \
+     -e '          map{[$_,substr($_,42,3)]}@l;}' perlebcdic.pod
+
+</PRE>
+
+
+<P>
+
+If you would rather see it in <FONT SIZE="-1">CCSID</FONT> 1047 order then change the digit
+42 in the last line to 51, like this:
+<DL COMPACT>
+<DT>recipe 5<DD>
+<A NAME="ixAAW"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    perl -ne 'if(/.{33}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}/)'\
+     -e '{push(@l,$_)}' \
+     -e 'END{print map{$_-&gt;[0]}' \
+     -e '          sort{$a-&gt;[1] &lt;=&gt; $b-&gt;[1]}' \
+     -e '          map{[$_,substr($_,51,3)]}@l;}' perlebcdic.pod
+
+</PRE>
+
+
+<P>
+
+If you would rather see it in POSIX-BC order then change the digit
+51 in the last line to 60, like this:
+<DL COMPACT>
+<DT>recipe 6<DD>
+<A NAME="ixAAX"></A>
+</DL>
+<P>
+
+
+
+<PRE>
+    perl -ne 'if(/.{33}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}\s{6,8}\d{1,3}/)'\
+     -e '{push(@l,$_)}' \
+     -e 'END{print map{$_-&gt;[0]}' \
+     -e '          sort{$a-&gt;[1] &lt;=&gt; $b-&gt;[1]}' \
+     -e '          map{[$_,substr($_,60,3)]}@l;}' perlebcdic.pod
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>IDENTIFYING CHARACTER CODE SETS</H2>
+
+<A NAME="ixAAY"></A>
+To determine the character set you are running under from perl one 
+could use the return value of <I>ord()</I> or <I>chr()</I> to test one or more 
+character values.  For example:
+<P>
+
+
+
+<PRE>
+    $is_ascii  = &quot;A&quot; eq chr(65);
+    $is_ebcdic = &quot;A&quot; eq chr(193);
+
+</PRE>
+
+
+<P>
+
+Also, ``\t'' is a <TT>&quot;HORIZONTAL TABULATION&quot;</TT> character so that:
+<P>
+
+
+
+<PRE>
+    $is_ascii  = ord(&quot;\t&quot;) == 9;
+    $is_ebcdic = ord(&quot;\t&quot;) == 5;
+
+</PRE>
+
+
+<P>
+
+To distinguish <FONT SIZE="-1">EBCDIC</FONT> code pages try looking at one or more of
+the characters that differ between them.  For example:
+<P>
+
+
+
+<PRE>
+    $is_ebcdic_37   = &quot;\n&quot; eq chr(37);
+    $is_ebcdic_1047 = &quot;\n&quot; eq chr(21);
+
+</PRE>
+
+
+<P>
+
+Or better still choose a character that is uniquely encoded in any
+of the code sets, e.g.:
+<P>
+
+
+
+<PRE>
+    $is_ascii           = ord('[') == 91;
+    $is_ebcdic_37       = ord('[') == 186;
+    $is_ebcdic_1047     = ord('[') == 173;
+    $is_ebcdic_POSIX_BC = ord('[') == 187;
+
+</PRE>
+
+
+<P>
+
+However, it would be unwise to write tests such as:
+<P>
+
+
+
+<PRE>
+    $is_ascii = &quot;\r&quot; ne chr(13);  #  WRONG
+    $is_ascii = &quot;\n&quot; ne chr(10);  #  ILL ADVISED
+
+</PRE>
+
+
+<P>
+
+Obviously the first of these will fail to distinguish most <FONT SIZE="-1">ASCII</FONT> machines
+from either a <FONT SIZE="-1">CCSID</FONT> 0037, a 1047, or a POSIX-BC <FONT SIZE="-1">EBCDIC</FONT> machine since ``\r'' eq 
+chr(13) under all of those coded character sets.  But note too that 
+because ``\n'' is chr(13) and ``\r'' is chr(10) on the MacIntosh (which is an 
+<FONT SIZE="-1">ASCII</FONT> machine) the second <TT>$is_ascii</TT> test will lead to trouble there.
+<P>
+
+To determine whether or not perl was built under an <FONT SIZE="-1">EBCDIC</FONT> 
+code page you can use the Config module like so:
+<P>
+
+
+
+<PRE>
+    use Config;
+    $is_ebcdic = $Config{'ebcdic'} eq 'define';
+
+</PRE>
+
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>CONVERSIONS</H2>
+
+<A NAME="ixAAZ"></A>
+<A NAME="lbAT">&nbsp;</A>
+<H2>tr///</H2>
+
+<A NAME="ixABA"></A>
+In order to convert a string of characters from one character set to 
+another a simple list of numbers, such as in the right columns in the
+above table, along with perl's tr/// operator is all that is needed.  
+The data in the table are in <FONT SIZE="-1">ASCII</FONT> order hence the <FONT SIZE="-1">EBCDIC</FONT> columns 
+provide easy to use <FONT SIZE="-1">ASCII</FONT> to <FONT SIZE="-1">EBCDIC</FONT> operations that are also easily 
+reversed.
+<P>
+
+For example, to convert <FONT SIZE="-1">ASCII</FONT> to code page 037 take the output of the second 
+column from the output of recipe 0 (modified to add \\ characters) and use 
+it in tr/// like so:
+<P>
+
+
+
+<PRE>
+    $cp_037 = 
+    '\000\001\002\003\234\011\206\177\227\215\216\013\014\015\016\017' .
+    '\020\021\022\023\235\205\010\207\030\031\222\217\034\035\036\037' .
+    '\200\201\202\203\204\012\027\033\210\211\212\213\214\005\006\007' .
+    '\220\221\026\223\224\225\226\004\230\231\232\233\024\025\236\032' .
+    '\040\240\342\344\340\341\343\345\347\361\242\056\074\050\053\174' .
+    '\046\351\352\353\350\355\356\357\354\337\041\044\052\051\073\254' .
+    '\055\057\302\304\300\301\303\305\307\321\246\054\045\137\076\077' .
+    '\370\311\312\313\310\315\316\317\314\140\072\043\100\047\075\042' .
+    '\330\141\142\143\144\145\146\147\150\151\253\273\360\375\376\261' .
+    '\260\152\153\154\155\156\157\160\161\162\252\272\346\270\306\244' .
+    '\265\176\163\164\165\166\167\170\171\172\241\277\320\335\336\256' .
+    '\136\243\245\267\251\247\266\274\275\276\133\135\257\250\264\327' .
+    '\173\101\102\103\104\105\106\107\110\111\255\364\366\362\363\365' .
+    '\175\112\113\114\115\116\117\120\121\122\271\373\374\371\372\377' .
+    '\134\367\123\124\125\126\127\130\131\132\262\324\326\322\323\325' .
+    '\060\061\062\063\064\065\066\067\070\071\263\333\334\331\332\237' ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $ebcdic_string = $ascii_string;
+    eval '$ebcdic_string =~ tr/' . $cp_037 . '/\000-\377/';
+
+</PRE>
+
+
+<P>
+
+To convert from <FONT SIZE="-1">EBCDIC</FONT> 037 to <FONT SIZE="-1">ASCII</FONT> just reverse the order of the tr/// 
+arguments like so:
+<P>
+
+
+
+<PRE>
+    my $ascii_string = $ebcdic_string;
+    eval '$ascii_string =~ tr/\000-\377/' . $cp_037 . '/';
+
+</PRE>
+
+
+<P>
+
+Similarly one could take the output of the third column from recipe 0 to
+obtain a <TT>$cp_1047</TT> table.  The fourth column of the output from recipe
+0 could provide a <TT>$cp_posix_bc</TT> table suitable for transcoding as well.
+<A NAME="lbAU">&nbsp;</A>
+<H2>iconv</H2>
+
+<A NAME="ixABB"></A>
+<FONT SIZE="-1">XPG</FONT> operability often implies the presence of an <I>iconv</I> utility
+available from the shell or from the C library.  Consult your system's
+documentation for information on iconv.
+<P>
+
+On <FONT SIZE="-1">OS/390</FONT> or z/OS see the <I><A HREF="../man1/iconv.1.php">iconv</A></I>(1) manpage.  One way to invoke the iconv 
+shell utility from within perl would be to:
+<P>
+
+
+
+<PRE>
+    # OS/390 or z/OS example
+    $ascii_data = `echo '$ebcdic_data'| iconv -f IBM-1047 -t ISO8859-1`
+
+</PRE>
+
+
+<P>
+
+or the inverse map:
+<P>
+
+
+
+<PRE>
+    # OS/390 or z/OS example
+    $ebcdic_data = `echo '$ascii_data'| iconv -f ISO8859-1 -t IBM-1047`
+
+</PRE>
+
+
+<P>
+
+For other perl based conversion options see the Convert::* modules on <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>C <FONT SIZE="-1">RTL</FONT></H2>
+
+<A NAME="ixABC"></A>
+The <FONT SIZE="-1">OS/390</FONT> and z/OS C run time libraries provide <I>_atoe()</I> and <I>_etoa()</I> functions.
+<A NAME="lbAW">&nbsp;</A>
+<H2>OPERATOR DIFFERENCES</H2>
+
+<A NAME="ixABD"></A>
+The <TT>&quot;..&quot;</TT> range operator treats certain character ranges with 
+care on <FONT SIZE="-1">EBCDIC</FONT> machines.  For example the following array
+will have twenty six elements on either an <FONT SIZE="-1">EBCDIC</FONT> machine
+or an <FONT SIZE="-1">ASCII</FONT> machine:
+<P>
+
+
+
+<PRE>
+    @alphabet = ('A'..'Z');   #  $#alphabet == 25
+
+</PRE>
+
+
+<P>
+
+The bitwise operators such as &amp; ^ | may return different results
+when operating on string or character data in a perl program running 
+on an <FONT SIZE="-1">EBCDIC</FONT> machine than when run on an <FONT SIZE="-1">ASCII</FONT> machine.  Here is
+an example adapted from the one in perlop:
+<P>
+
+
+
+<PRE>
+    # EBCDIC-based examples
+    print &quot;j p \n&quot; ^ &quot; a h&quot;;                      # prints &quot;JAPH\n&quot;
+    print &quot;JA&quot; | &quot;  ph\n&quot;;                        # prints &quot;japh\n&quot; 
+    print &quot;JAPH\nJunk&quot; &amp; &quot;\277\277\277\277\277&quot;;  # prints &quot;japh\n&quot;;
+    print 'p N$' ^ &quot; E&lt;H\n&quot;;                      # prints &quot;Perl\n&quot;;
+
+</PRE>
+
+
+<P>
+
+An interesting property of the 32 C0 control characters
+in the <FONT SIZE="-1">ASCII</FONT> table is that they can ``literally'' be constructed
+as control characters in perl, e.g. <TT>&quot;(chr(0) eq &quot;\c@&quot;)&quot;</TT> 
+<TT>&quot;(<A HREF="../man1/chr.1.php">chr</A>(1) eq &quot;\cA&quot;)&quot;</TT>, and so on.  Perl on <FONT SIZE="-1">EBCDIC</FONT> machines has been 
+ported to take ``\c@'' to <I>chr</I>(0) and ``\cA'' to <I><A HREF="../man1/chr.1.php">chr</A></I>(1) as well, but the
+thirty three characters that result depend on which code page you are
+using.  The table below uses the character names from the previous table 
+but with substitutions such as s/START <FONT SIZE="-1">OF/S</FONT>.O./; s/END <FONT SIZE="-1">OF</FONT> /E.O./; 
+s/TRANSMISSION/TRANS./; s/TABULATION/TAB./; s/VERTICAL/VERT./; 
+s/HORIZONTAL/HORIZ./; s/DEVICE <FONT SIZE="-1">CONTROL/D</FONT>.C./; s/SEPARATOR/SEP./; 
+s/NEGATIVE <FONT SIZE="-1">ACKNOWLEDGE/NEG</FONT>. <FONT SIZE="-1">ACK</FONT>./;.  The POSIX-BC and 1047 sets are
+identical throughout this range and differ from the 0037 set at only 
+one spot (21 decimal).  Note that the <TT>&quot;LINE FEED&quot;</TT> character
+may be generated by ``\cJ'' on <FONT SIZE="-1">ASCII</FONT> machines but by ``\cU'' on 1047 or POSIX-BC 
+machines and cannot be generated as a <TT>&quot;\c.letter.&quot;</TT> control character on 
+0037 machines.  Note also that ``\c\\'' maps to two characters
+not one.
+<P>
+
+
+
+<PRE>
+    chr   ord  8859-1               0037                1047 &amp;&amp; POSIX-BC     
+    ------------------------------------------------------------------------
+    &quot;\c?&quot; 127  &lt;DELETE&gt;             &quot;                   &quot;              ***&gt;&lt;
+    &quot;\c@&quot;   0  &lt;NULL&gt;               &lt;NULL&gt;              &lt;NULL&gt;         ***&gt;&lt;
+    &quot;\cA&quot;   1  &lt;S.O. HEADING&gt;       &lt;S.O. HEADING&gt;      &lt;S.O. HEADING&gt; 
+    &quot;\cB&quot;   2  &lt;S.O. TEXT&gt;          &lt;S.O. TEXT&gt;         &lt;S.O. TEXT&gt;
+    &quot;\cC&quot;   3  &lt;E.O. TEXT&gt;          &lt;E.O. TEXT&gt;         &lt;E.O. TEXT&gt;
+    &quot;\cD&quot;   4  &lt;E.O. TRANS.&gt;        &lt;C1 28&gt;             &lt;C1 28&gt; 
+    &quot;\cE&quot;   5  &lt;ENQUIRY&gt;            &lt;HORIZ. TAB.&gt;       &lt;HORIZ. TAB.&gt;    
+    &quot;\cF&quot;   6  &lt;ACKNOWLEDGE&gt;        &lt;C1 6&gt;              &lt;C1 6&gt;   
+    &quot;\cG&quot;   7  &lt;BELL&gt;               &lt;DELETE&gt;            &lt;DELETE&gt;   
+    &quot;\cH&quot;   8  &lt;BACKSPACE&gt;          &lt;C1 23&gt;             &lt;C1 23&gt;
+    &quot;\cI&quot;   9  &lt;HORIZ. TAB.&gt;        &lt;C1 13&gt;             &lt;C1 13&gt;
+    &quot;\cJ&quot;  10  &lt;LINE FEED&gt;          &lt;C1 14&gt;             &lt;C1 14&gt;
+    &quot;\cK&quot;  11  &lt;VERT. TAB.&gt;         &lt;VERT. TAB.&gt;        &lt;VERT. TAB.&gt;
+    &quot;\cL&quot;  12  &lt;FORM FEED&gt;          &lt;FORM FEED&gt;         &lt;FORM FEED&gt;    
+    &quot;\cM&quot;  13  &lt;CARRIAGE RETURN&gt;    &lt;CARRIAGE RETURN&gt;   &lt;CARRIAGE RETURN&gt; 
+    &quot;\cN&quot;  14  &lt;SHIFT OUT&gt;          &lt;SHIFT OUT&gt;         &lt;SHIFT OUT&gt;
+    &quot;\cO&quot;  15  &lt;SHIFT IN&gt;           &lt;SHIFT IN&gt;          &lt;SHIFT IN&gt;
+    &quot;\cP&quot;  16  &lt;DATA LINK ESCAPE&gt;   &lt;DATA LINK ESCAPE&gt;  &lt;DATA LINK ESCAPE&gt; 
+    &quot;\cQ&quot;  17  &lt;D.C. ONE&gt;           &lt;D.C. ONE&gt;          &lt;D.C. ONE&gt;
+    &quot;\cR&quot;  18  &lt;D.C. TWO&gt;           &lt;D.C. TWO&gt;          &lt;D.C. TWO&gt;
+    &quot;\cS&quot;  19  &lt;D.C. THREE&gt;         &lt;D.C. THREE&gt;        &lt;D.C. THREE&gt; 
+    &quot;\cT&quot;  20  &lt;D.C. FOUR&gt;          &lt;C1 29&gt;             &lt;C1 29&gt; 
+    &quot;\cU&quot;  21  &lt;NEG. ACK.&gt;          &lt;C1 5&gt;              &lt;LINE FEED&gt;    ***
+    &quot;\cV&quot;  22  &lt;SYNCHRONOUS IDLE&gt;   &lt;BACKSPACE&gt;         &lt;BACKSPACE&gt;
+    &quot;\cW&quot;  23  &lt;E.O. TRANS. BLOCK&gt;  &lt;C1 7&gt;              &lt;C1 7&gt;
+    &quot;\cX&quot;  24  &lt;CANCEL&gt;             &lt;CANCEL&gt;            &lt;CANCEL&gt;
+    &quot;\cY&quot;  25  &lt;E.O. MEDIUM&gt;        &lt;E.O. MEDIUM&gt;       &lt;E.O. MEDIUM&gt;
+    &quot;\cZ&quot;  26  &lt;SUBSTITUTE&gt;         &lt;C1 18&gt;             &lt;C1 18&gt;
+    &quot;\c[&quot;  27  &lt;ESCAPE&gt;             &lt;C1 15&gt;             &lt;C1 15&gt;
+    &quot;\c\\&quot; 28  &lt;FILE SEP.&gt;\         &lt;FILE SEP.&gt;\        &lt;FILE SEP.&gt;\
+    &quot;\c]&quot;  29  &lt;GROUP SEP.&gt;         &lt;GROUP SEP.&gt;        &lt;GROUP SEP.&gt;
+    &quot;\c^&quot;  30  &lt;RECORD SEP.&gt;        &lt;RECORD SEP.&gt;       &lt;RECORD SEP.&gt;  ***&gt;&lt;
+    &quot;\c_&quot;  31  &lt;UNIT SEP.&gt;          &lt;UNIT SEP.&gt;         &lt;UNIT SEP.&gt;    ***&gt;&lt;
+
+</PRE>
+
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>FUNCTION DIFFERENCES</H2>
+
+<A NAME="ixABE"></A>
+<DL COMPACT>
+<DT><I>chr()</I><DD>
+<A NAME="ixABF"></A>
+<I>chr()</I> must be given an <FONT SIZE="-1">EBCDIC</FONT> code number argument to yield a desired 
+character return value on an <FONT SIZE="-1">EBCDIC</FONT> machine.  For example:
+
+
+<P>
+
+
+
+
+<PRE>
+    $CAPITAL_LETTER_A = chr(193);
+
+</PRE>
+
+
+<DT><I>ord()</I><DD>
+<A NAME="ixABG"></A>
+<I>ord()</I> will return <FONT SIZE="-1">EBCDIC</FONT> code number values on an <FONT SIZE="-1">EBCDIC</FONT> machine.
+For example:
+
+
+<P>
+
+
+
+
+<PRE>
+    $the_number_193 = ord(&quot;A&quot;);
+
+</PRE>
+
+
+<DT><I>pack()</I><DD>
+<A NAME="ixABH"></A>
+The c and C templates for <I>pack()</I> are dependent upon character set 
+encoding.  Examples of usage on <FONT SIZE="-1">EBCDIC</FONT> include:
+
+
+<P>
+
+
+
+
+<PRE>
+    $foo = pack(&quot;CCCC&quot;,193,194,195,196);
+    # $foo eq &quot;ABCD&quot;
+    $foo = pack(&quot;C4&quot;,193,194,195,196);
+    # same thing
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    $foo = pack(&quot;ccxxcc&quot;,193,194,195,196);
+    # $foo eq &quot;AB\0\0CD&quot;
+
+</PRE>
+
+
+<DT><I>print()</I><DD>
+<A NAME="ixABI"></A>
+One must be careful with scalars and strings that are passed to
+print that contain <FONT SIZE="-1">ASCII</FONT> encodings.  One common place
+for this to occur is in the output of the <FONT SIZE="-1">MIME</FONT> type header for
+<FONT SIZE="-1">CGI</FONT> script writing.  For example, many perl programming guides 
+recommend something similar to:
+
+
+<P>
+
+
+
+
+<PRE>
+    print &quot;Content-type:\ttext/html\015\012\015\012&quot;; 
+    # this may be wrong on EBCDIC
+
+</PRE>
+
+
+
+
+<P>
+
+
+Under the <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">OS/390</FONT> <FONT SIZE="-1">USS</FONT> Web Server or WebSphere on z/OS for example 
+you should instead write that as:
+
+
+<P>
+
+
+
+
+<PRE>
+    print &quot;Content-type:\ttext/html\r\n\r\n&quot;; # OK for DGW et alia
+
+</PRE>
+
+
+
+
+<P>
+
+
+That is because the translation from <FONT SIZE="-1">EBCDIC</FONT> to <FONT SIZE="-1">ASCII</FONT> is done
+by the web server in this case (such code will not be appropriate for
+the Macintosh however).  Consult your web server's documentation for 
+further details.
+<DT><I>printf()</I><DD>
+<A NAME="ixABJ"></A>
+The formats that can convert characters to numbers and vice versa
+will be different from their <FONT SIZE="-1">ASCII</FONT> counterparts when executed
+on an <FONT SIZE="-1">EBCDIC</FONT> machine.  Examples include:
+
+
+<P>
+
+
+
+
+<PRE>
+    printf(&quot;%c%c%c&quot;,193,194,195);  # prints ABC
+
+</PRE>
+
+
+<DT><I>sort()</I><DD>
+<A NAME="ixABK"></A>
+<FONT SIZE="-1">EBCDIC</FONT> sort results may differ from <FONT SIZE="-1">ASCII</FONT> sort results especially for 
+mixed case strings.  This is discussed in more detail below.
+<DT><I>sprintf()</I><DD>
+<A NAME="ixABL"></A>
+See the discussion of <I>printf()</I> above.  An example of the use
+of sprintf would be:
+
+
+<P>
+
+
+
+
+<PRE>
+    $CAPITAL_LETTER_A = sprintf(&quot;%c&quot;,193);
+
+</PRE>
+
+
+<DT><I>unpack()</I><DD>
+<A NAME="ixABM"></A>
+See the discussion of <I>pack()</I> above.
+</DL>
+<A NAME="lbAY">&nbsp;</A>
+<H2>REGULAR EXPRESSION DIFFERENCES</H2>
+
+<A NAME="ixABN"></A>
+As of perl 5.005_03 the letter range regular expression such as 
+[A-Z] and [a-z] have been especially coded to not pick up gap 
+characters.  For example, characters such as o <TT>&quot;o WITH CIRCUMFLEX&quot;</TT> 
+that lie between I and J would not be matched by the 
+regular expression range <TT>&quot;/[H-K]/&quot;</TT>.  This works in
+the other direction, too, if either of the range end points is
+explicitly numeric: <TT>&quot;[\x89-\x91]&quot;</TT> will match <TT>&quot;\x8e&quot;</TT>, even
+though <TT>&quot;\x89&quot;</TT> is <TT>&quot;i&quot;</TT> and <TT>&quot;\x91 &quot;</TT> is <TT>&quot;j&quot;</TT>, and <TT>&quot;\x8e&quot;</TT>
+is a gap character from the alphabetic viewpoint.
+<P>
+
+If you do want to match the alphabet gap characters in a single octet 
+regular expression try matching the hex or octal code such 
+as <TT>&quot;/\313/&quot;</TT> on <FONT SIZE="-1">EBCDIC</FONT> or <TT>&quot;/\364/&quot;</TT> on <FONT SIZE="-1">ASCII</FONT> machines to 
+have your regular expression match <TT>&quot;o WITH CIRCUMFLEX&quot;</TT>.
+<P>
+
+Another construct to be wary of is the inappropriate use of hex or
+octal constants in regular expressions.  Consider the following
+set of subs:
+<P>
+
+
+
+<PRE>
+    sub is_c0 {
+        my $char = substr(shift,0,1);
+        $char =~ /[\000-\037]/;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub is_print_ascii {
+        my $char = substr(shift,0,1);
+        $char =~ /[\040-\176]/;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub is_delete {
+        my $char = substr(shift,0,1);
+        $char eq &quot;\177&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub is_c1 {
+        my $char = substr(shift,0,1);
+        $char =~ /[\200-\237]/;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub is_latin_1 {
+        my $char = substr(shift,0,1);
+        $char =~ /[\240-\377]/;
+    }
+
+</PRE>
+
+
+<P>
+
+The above would be adequate if the concern was only with numeric code points.
+However, the concern may be with characters rather than code points 
+and on an <FONT SIZE="-1">EBCDIC</FONT> machine it may be desirable for constructs such as 
+<TT>&quot;if (is_print_ascii(&quot;A&quot;)) {print &quot;A is a printable character\n&quot;;}&quot;</TT> to print
+out the expected message.  One way to represent the above collection
+of character classification subs that is capable of working across the
+four coded character sets discussed in this document is as follows:
+<P>
+
+
+
+<PRE>
+    sub Is_c0 {
+        my $char = substr(shift,0,1);
+        if (ord('^')==94)  { # ascii
+            return $char =~ /[\000-\037]/;
+        } 
+        if (ord('^')==176) { # 37
+            return $char =~ /[\000-\003\067\055-\057\026\005\045\013-\023\074\075\062\046\030\031\077\047\034-\037]/;
+        }
+        if (ord('^')==95 || ord('^')==106) { # 1047 || posix-bc
+            return $char =~ /[\000-\003\067\055-\057\026\005\025\013-\023\074\075\062\046\030\031\077\047\034-\037]/;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub Is_print_ascii {
+        my $char = substr(shift,0,1);
+        $char =~ /[ !&quot;\#\$%&amp;'()*+,\-.\/0-9:;&lt;=&gt;?\@A-Z[\\\]^_`a-z{|}~]/;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub Is_delete {
+        my $char = substr(shift,0,1);
+        if (ord('^')==94)  { # ascii
+            return $char eq &quot;\177&quot;;
+        }
+        else  {              # ebcdic
+            return $char eq &quot;\007&quot;;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub Is_c1 {
+        my $char = substr(shift,0,1);
+        if (ord('^')==94)  { # ascii
+            return $char =~ /[\200-\237]/;
+        }
+        if (ord('^')==176) { # 37
+            return $char =~ /[\040-\044\025\006\027\050-\054\011\012\033\060\061\032\063-\066\010\070-\073\040\024\076\377]/;
+        }
+        if (ord('^')==95)  { # 1047
+            return $char =~ /[\040-\045\006\027\050-\054\011\012\033\060\061\032\063-\066\010\070-\073\040\024\076\377]/;
+        }
+        if (ord('^')==106) { # posix-bc
+            return $char =~ 
+              /[\040-\045\006\027\050-\054\011\012\033\060\061\032\063-\066\010\070-\073\040\024\076\137]/;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub Is_latin_1 {
+        my $char = substr(shift,0,1);
+        if (ord('^')==94)  { # ascii
+            return $char =~ /[\240-\377]/;
+        }
+        if (ord('^')==176) { # 37
+            return $char =~ 
+              /[\101\252\112\261\237\262\152\265\275\264\232\212\137\312\257\274\220\217\352\372\276\240\266\263\235\332\233\213\267\270\271\253\144\145\142\146\143\147\236\150\164\161-\163\170\165-\167\254\151\355\356\353\357\354\277\200\375\376\373\374\255\256\131\104\105\102\106\103\107\234\110\124\121-\123\130\125-\127\214\111\315\316\313\317\314\341\160\335\336\333\334\215\216\337]/;
+        }
+        if (ord('^')==95)  { # 1047
+            return $char =~
+              /[\101\252\112\261\237\262\152\265\273\264\232\212\260\312\257\274\220\217\352\372\276\240\266\263\235\332\233\213\267\270\271\253\144\145\142\146\143\147\236\150\164\161-\163\170\165-\167\254\151\355\356\353\357\354\277\200\375\376\373\374\272\256\131\104\105\102\106\103\107\234\110\124\121-\123\130\125-\127\214\111\315\316\313\317\314\341\160\335\336\333\334\215\216\337]/; 
+        }
+        if (ord('^')==106) { # posix-bc
+            return $char =~ 
+              /[\101\252\260\261\237\262\320\265\171\264\232\212\272\312\257\241\220\217\352\372\276\240\266\263\235\332\233\213\267\270\271\253\144\145\142\146\143\147\236\150\164\161-\163\170\165-\167\254\151\355\356\353\357\354\277\200\340\376\335\374\255\256\131\104\105\102\106\103\107\234\110\124\121-\123\130\125-\127\214\111\315\316\313\317\314\341\160\300\336\333\334\215\216\337]/;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+Note however that only the <TT>&quot;Is_ascii_print()&quot;</TT> sub is really independent 
+of coded character set.  Another way to write <TT>&quot;Is_latin_1()&quot;</TT> would be 
+to use the characters in the range explicitly:
+<P>
+
+
+
+<PRE>
+    sub Is_latin_1 {
+        my $char = substr(shift,0,1);
+        $char =~ /[&#160;&#161;&#162;&#163;&#164;&#165;&#166;&#167;&#168;&#169;&#170;&#171;&#172;&#173;&#174;&#175;&#176;&#177;&#178;&#179;&#180;&#181;&#182;&#183;&#184;&#185;&#186;&#187;&#188;&#189;&#190;&#191;&#192;&#193;&#194;&#195;&#196;&#197;&#198;&#199;&#200;&#201;&#202;&#203;&#204;&#205;&#206;&#207;&#208;&#209;&#210;&#211;&#212;&#213;&#214;&#215;&#216;&#217;&#218;&#219;&#220;&#221;&#222;&#223;&#224;&#225;&#226;&#227;&#228;&#229;&#230;&#231;&#232;&#233;&#234;&#235;&#236;&#237;&#238;&#239;&#240;&#241;&#242;&#243;&#244;&#245;&#246;&#247;&#248;&#249;&#250;&#251;&#252;&#253;&#254;&#255;]/;
+    }
+
+</PRE>
+
+
+<P>
+
+Although that form may run into trouble in network transit (due to the 
+presence of 8 bit characters) or on non ISO-Latin character sets.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>SOCKETS</H2>
+
+<A NAME="ixABO"></A>
+Most socket programming assumes <FONT SIZE="-1">ASCII</FONT> character encodings in network
+byte order.  Exceptions can include <FONT SIZE="-1">CGI</FONT> script writing under a
+host web server where the server may take care of translation for you.
+Most host web servers convert <FONT SIZE="-1">EBCDIC</FONT> data to <FONT SIZE="-1">ISO-8859-1</FONT> or Unicode on
+output.
+<A NAME="lbBA">&nbsp;</A>
+<H2>SORTING</H2>
+
+<A NAME="ixABP"></A>
+One big difference between <FONT SIZE="-1">ASCII</FONT> based character sets and <FONT SIZE="-1">EBCDIC</FONT> ones
+are the relative positions of upper and lower case letters and the
+letters compared to the digits.  If sorted on an <FONT SIZE="-1">ASCII</FONT> based machine the
+two letter abbreviation for a physician comes before the two letter
+for drive, that is:
+<P>
+
+
+
+<PRE>
+    @sorted = sort(qw(Dr. dr.));  # @sorted holds ('Dr.','dr.') on ASCII,
+                                  # but ('dr.','Dr.') on EBCDIC
+
+</PRE>
+
+
+<P>
+
+The property of lower case before uppercase letters in <FONT SIZE="-1">EBCDIC</FONT> is
+even carried to the Latin 1 <FONT SIZE="-1">EBCDIC</FONT> pages such as 0037 and 1047.
+An example would be that E. <TT>&quot;E WITH DIAERESIS&quot;</TT> (203) comes 
+before e. <TT>&quot;e WITH DIAERESIS&quot;</TT> (235) on an <FONT SIZE="-1">ASCII</FONT> machine, but 
+the latter (83) comes before the former (115) on an <FONT SIZE="-1">EBCDIC</FONT> machine.  
+(Astute readers will note that the upper case version of beta 
+<TT>&quot;SMALL LETTER SHARP S&quot;</TT> is simply ``<FONT SIZE="-1">SS</FONT>'' and that the upper case version of 
+y. <TT>&quot;y WITH DIAERESIS&quot;</TT> is not in the 0..255 range but it is 
+at U+x0178 in Unicode, or <TT>&quot;\x{178}&quot;</TT> in a Unicode enabled Perl).
+<P>
+
+The sort order will cause differences between results obtained on
+<FONT SIZE="-1">ASCII</FONT> machines versus <FONT SIZE="-1">EBCDIC</FONT> machines.  What follows are some suggestions
+on how to deal with these differences.
+<A NAME="lbBB">&nbsp;</A>
+<H2>Ignore <FONT SIZE="-1">ASCII</FONT> vs. <FONT SIZE="-1">EBCDIC</FONT> sort differences.</H2>
+
+<A NAME="ixABQ"></A>
+This is the least computationally expensive strategy.  It may require
+some user education.
+<A NAME="lbBC">&nbsp;</A>
+<H2><FONT SIZE="-1">MONO</FONT> <FONT SIZE="-1">CASE</FONT> then sort data.</H2>
+
+<A NAME="ixABR"></A>
+In order to minimize the expense of mono casing mixed test try to
+<TT>&quot;tr///&quot;</TT> towards the character set case most employed within the data.
+If the data are primarily <FONT SIZE="-1">UPPERCASE</FONT> non Latin 1 then apply tr/[a-z]/[A-Z]/
+then <I>sort()</I>.  If the data are primarily lowercase non Latin 1 then
+apply tr/[A-Z]/[a-z]/ before sorting.  If the data are primarily <FONT SIZE="-1">UPPERCASE</FONT>
+and include Latin-1 characters then apply:  
+<P>
+
+
+
+<PRE>
+    tr/[a-z]/[A-Z]/; 
+    tr/[&#224;&#225;&#226;&#227;&#228;&#229;&#230;&#231;&#232;&#233;&#234;&#235;&#236;&#237;&#238;&#239;&#240;&#241;&#242;&#243;&#244;&#245;&#246;&#248;&#249;&#250;&#251;&#252;&#253;&#254;]/[&#192;&#193;&#194;&#195;&#196;&#197;&#198;&#199;&#200;&#201;&#202;&#203;&#204;&#205;&#206;&#207;&#208;&#209;&#210;&#211;&#212;&#213;&#214;&#216;&#217;&#218;&#219;&#220;&#221;&#222;]/;
+    s/&#223;/SS/g;
+
+</PRE>
+
+
+<P>
+
+then <I>sort()</I>.  Do note however that such Latin-1 manipulation does not 
+address the y. <TT>&quot;y WITH DIAERESIS&quot;</TT> character that will remain at 
+code point 255 on <FONT SIZE="-1">ASCII</FONT> machines, but 223 on most <FONT SIZE="-1">EBCDIC</FONT> machines 
+where it will sort to a place less than the <FONT SIZE="-1">EBCDIC</FONT> numerals.  With a 
+Unicode enabled Perl you might try:
+<P>
+
+
+
+<PRE>
+    tr/^?/\x{178}/;
+
+</PRE>
+
+
+<P>
+
+The strategy of mono casing data before sorting does not preserve the case 
+of the data and may not be acceptable for that reason.
+<A NAME="lbBD">&nbsp;</A>
+<H2>Convert, sort data, then re convert.</H2>
+
+<A NAME="ixABS"></A>
+This is the most expensive proposition that does not employ a network
+connection.
+<A NAME="lbBE">&nbsp;</A>
+<H2>Perform sorting on one type of machine only.</H2>
+
+<A NAME="ixABT"></A>
+This strategy can employ a network connection.  As such
+it would be computationally expensive.
+<A NAME="lbBF">&nbsp;</A>
+<H2>TRANSFORMATION FORMATS</H2>
+
+<A NAME="ixABU"></A>
+There are a variety of ways of transforming data with an intra character set 
+mapping that serve a variety of purposes.  Sorting was discussed in the 
+previous section and a few of the other more popular mapping techniques are 
+discussed next.
+<A NAME="lbBG">&nbsp;</A>
+<H2><FONT SIZE="-1">URL</FONT> decoding and encoding</H2>
+
+<A NAME="ixABV"></A>
+Note that some URLs have hexadecimal <FONT SIZE="-1">ASCII</FONT> code points in them in an
+attempt to overcome character or protocol limitation issues.  For example 
+the tilde character is not on every keyboard hence a <FONT SIZE="-1">URL</FONT> of the form:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.pvhp.com/~pvhp/">http://www.pvhp.com/~pvhp/</A>
+
+</PRE>
+
+
+<P>
+
+may also be expressed as either of:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.pvhp.com/%7Epvhp/">http://www.pvhp.com/%7Epvhp/</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.pvhp.com/%7epvhp/">http://www.pvhp.com/%7epvhp/</A>
+
+</PRE>
+
+
+<P>
+
+where 7E is the hexadecimal <FONT SIZE="-1">ASCII</FONT> code point for '~'.  Here is an example
+of decoding such a <FONT SIZE="-1">URL</FONT> under <FONT SIZE="-1">CCSID</FONT> 1047:
+<P>
+
+
+
+<PRE>
+    $url = '<A HREF="http://www.pvhp.com/%7Epvhp/';">http://www.pvhp.com/%7Epvhp/';</A>
+    # this array assumes code page 1047
+    my @a2e_1047 = (
+          0,  1,  2,  3, 55, 45, 46, 47, 22,  5, 21, 11, 12, 13, 14, 15,
+         16, 17, 18, 19, 60, 61, 50, 38, 24, 25, 63, 39, 28, 29, 30, 31,
+         64, 90,127,123, 91,108, 80,125, 77, 93, 92, 78,107, 96, 75, 97,
+        240,241,242,243,244,245,246,247,248,249,122, 94, 76,126,110,111,
+        124,193,194,195,196,197,198,199,200,201,209,210,211,212,213,214,
+        215,216,217,226,227,228,229,230,231,232,233,173,224,189, 95,109,
+        121,129,130,131,132,133,134,135,136,137,145,146,147,148,149,150,
+        151,152,153,162,163,164,165,166,167,168,169,192, 79,208,161,  7,
+         32, 33, 34, 35, 36, 37,  6, 23, 40, 41, 42, 43, 44,  9, 10, 27,
+         48, 49, 26, 51, 52, 53, 54,  8, 56, 57, 58, 59,  4, 20, 62,255,
+         65,170, 74,177,159,178,106,181,187,180,154,138,176,202,175,188,
+        144,143,234,250,190,160,182,179,157,218,155,139,183,184,185,171,
+        100,101, 98,102, 99,103,158,104,116,113,114,115,120,117,118,119,
+        172,105,237,238,235,239,236,191,128,253,254,251,252,186,174, 89,
+         68, 69, 66, 70, 67, 71,156, 72, 84, 81, 82, 83, 88, 85, 86, 87,
+        140, 73,205,206,203,207,204,225,112,221,222,219,220,141,142,223
+    );
+    $url =~ s/%([0-9a-fA-F]{2})/pack(&quot;c&quot;,$a2e_1047[hex($1)])/ge;
+
+</PRE>
+
+
+<P>
+
+Conversely, here is a partial solution for the task of encoding such 
+a <FONT SIZE="-1">URL</FONT> under the 1047 code page:
+<P>
+
+
+
+<PRE>
+    $url = '<A HREF="http://www.pvhp.com/~pvhp/';">http://www.pvhp.com/~pvhp/';</A>
+    # this array assumes code page 1047
+    my @e2a_1047 = (
+          0,  1,  2,  3,156,  9,134,127,151,141,142, 11, 12, 13, 14, 15,
+         16, 17, 18, 19,157, 10,  8,135, 24, 25,146,143, 28, 29, 30, 31,
+        128,129,130,131,132,133, 23, 27,136,137,138,139,140,  5,  6,  7,
+        144,145, 22,147,148,149,150,  4,152,153,154,155, 20, 21,158, 26,
+         32,160,226,228,224,225,227,229,231,241,162, 46, 60, 40, 43,124,
+         38,233,234,235,232,237,238,239,236,223, 33, 36, 42, 41, 59, 94,
+         45, 47,194,196,192,193,195,197,199,209,166, 44, 37, 95, 62, 63,
+        248,201,202,203,200,205,206,207,204, 96, 58, 35, 64, 39, 61, 34,
+        216, 97, 98, 99,100,101,102,103,104,105,171,187,240,253,254,177,
+        176,106,107,108,109,110,111,112,113,114,170,186,230,184,198,164,
+        181,126,115,116,117,118,119,120,121,122,161,191,208, 91,222,174,
+        172,163,165,183,169,167,182,188,189,190,221,168,175, 93,180,215,
+        123, 65, 66, 67, 68, 69, 70, 71, 72, 73,173,244,246,242,243,245,
+        125, 74, 75, 76, 77, 78, 79, 80, 81, 82,185,251,252,249,250,255,
+         92,247, 83, 84, 85, 86, 87, 88, 89, 90,178,212,214,210,211,213,
+         48, 49, 50, 51, 52, 53, 54, 55, 56, 57,179,219,220,217,218,159
+    );
+    # The following regular expression does not address the 
+    # mappings for: ('.' =&gt; '%2E', '/' =&gt; '%2F', ':' =&gt; '%3A') 
+    $url =~ s/([\t &quot;#%&amp;\(\),;&lt;=&gt;\?\@\[\\\]^`{|}~])/sprintf(&quot;%%%02X&quot;,$e2a_1047[ord($1)])/ge;
+
+</PRE>
+
+
+<P>
+
+where a more complete solution would split the <FONT SIZE="-1">URL</FONT> into components 
+and apply a full s/// substitution only to the appropriate parts.
+<P>
+
+In the remaining examples a <TT>@e2a</TT> or <TT>@a2e</TT> array may be employed
+but the assignment will not be shown explicitly.  For code page 1047
+you could use the <TT>@a2e_1047</TT> or <TT>@e2a_1047</TT> arrays just shown.
+<A NAME="lbBH">&nbsp;</A>
+<H2>uu encoding and decoding</H2>
+
+<A NAME="ixABW"></A>
+The <TT>&quot;u&quot;</TT> template to <I>pack()</I> or <I>unpack()</I> will render <FONT SIZE="-1">EBCDIC</FONT> data in <FONT SIZE="-1">EBCDIC</FONT> 
+characters equivalent to their <FONT SIZE="-1">ASCII</FONT> counterparts.  For example, the 
+following will print ``Yes indeed\n'' on either an <FONT SIZE="-1">ASCII</FONT> or <FONT SIZE="-1">EBCDIC</FONT> computer:
+<P>
+
+
+
+<PRE>
+    $all_byte_chrs = '';
+    for (0..255) { $all_byte_chrs .= chr($_); }
+    $uuencode_byte_chrs = pack('u', $all_byte_chrs);
+    ($uu = &lt;&lt;'ENDOFHEREDOC') =~ s/^\s*//gm;
+    M``$&quot;`P0%!@&lt;(&quot;0H+#`T.#Q`1$A,4%187&amp;!D:&amp;QP='A\@(2(C)&quot;4F)R@I*BLL
+    M+2XO,#$R,S0U-C&lt;X.3H[/#T^/T!!0D-$149'2$E*2TQ-3D]045)35%565UA9
+    M6EM&lt;75Y?8&amp;%B8V1E9F=H:6IK;&amp;UN;W!Q&lt;G-T=79W&gt;'EZ&gt;WQ]?G^`@8*#A(6&amp;
+    MAXB)BHN,C8Z/D)&amp;2DY25EI&gt;8F9J;G)V&gt;GZ&quot;AHJ.DI::GJ*FJJZRMKJ^PL;*S
+    MM+6VM[BYNKN\O;Z_P,'&quot;P\3%QL?(R&lt;K+S,W.S]#1TM/4U=;7V-G:V]S=WM_@
+    ?X&gt;+CY.7FY^CIZNOL[&gt;[O\/'R\_3U]O?X^?K[_/W^_P``
+    ENDOFHEREDOC
+    if ($uuencode_byte_chrs eq $uu) {
+        print &quot;Yes &quot;;
+    }
+    $uudecode_byte_chrs = unpack('u', $uuencode_byte_chrs);
+    if ($uudecode_byte_chrs eq $all_byte_chrs) {
+        print &quot;indeed\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+Here is a very spartan uudecoder that will work on <FONT SIZE="-1">EBCDIC</FONT> provided
+that the <TT>@e2a</TT> array is filled in appropriately:
+<P>
+
+
+
+<PRE>
+    #!/usr/local/bin/perl
+    @e2a = ( # this must be filled in
+           );
+    $_ = &lt;&gt; until ($mode,$file) = /^begin\s*(\d*)\s*(\S*)/;
+    open(OUT, &quot;&gt; $file&quot;) if $file ne &quot;&quot;;
+    while(&lt;&gt;) {
+        last if /^end/;
+        next if /[a-z]/;
+        next unless int(((($e2a[ord()] - 32 ) &amp; 077) + 2) / 3) ==
+            int(length() / 4);
+        print OUT unpack(&quot;u&quot;, $_);
+    }
+    close(OUT);
+    chmod oct($mode), $file;
+
+</PRE>
+
+
+<A NAME="lbBI">&nbsp;</A>
+<H2>Quoted-Printable encoding and decoding</H2>
+
+<A NAME="ixABX"></A>
+On <FONT SIZE="-1">ASCII</FONT> encoded machines it is possible to strip characters outside of
+the printable set using:
+<P>
+
+
+
+<PRE>
+    # This QP encoder works on ASCII only
+    $qp_string =~ s/([=\x00-\x1F\x80-\xFF])/sprintf(&quot;=%02X&quot;,ord($1))/ge;
+
+</PRE>
+
+
+<P>
+
+Whereas a <FONT SIZE="-1">QP</FONT> encoder that works on both <FONT SIZE="-1">ASCII</FONT> and <FONT SIZE="-1">EBCDIC</FONT> machines 
+would look somewhat like the following (where the <FONT SIZE="-1">EBCDIC</FONT> branch <TT>@e2a</TT> 
+array is omitted for brevity):
+<P>
+
+
+
+<PRE>
+    if (ord('A') == 65) {    # ASCII
+        $delete = &quot;\x7F&quot;;    # ASCII
+        @e2a = (0 .. 255)    # ASCII to ASCII identity map
+    }
+    else {                   # EBCDIC
+        $delete = &quot;\x07&quot;;    # EBCDIC
+        @e2a =               # EBCDIC to ASCII map (as shown above)
+    }
+    $qp_string =~
+      s/([^ !&quot;\#\$%&amp;'()*+,\-.\/0-9:;&lt;&gt;?\@A-Z[\\\]^_`a-z{|}~$delete])/sprintf(&quot;=%02X&quot;,$e2a[ord($1)])/ge;
+
+</PRE>
+
+
+<P>
+
+(although in production code the substitutions might be done
+in the <FONT SIZE="-1">EBCDIC</FONT> branch with the <TT>@e2a</TT> array and separately in the 
+<FONT SIZE="-1">ASCII</FONT> branch without the expense of the identity map).
+<P>
+
+Such <FONT SIZE="-1">QP</FONT> strings can be decoded with:
+<P>
+
+
+
+<PRE>
+    # This QP decoder is limited to ASCII only
+    $string =~ s/=([0-9A-Fa-f][0-9A-Fa-f])/chr hex $1/ge;
+    $string =~ s/=[\n\r]+$//;
+
+</PRE>
+
+
+<P>
+
+Whereas a <FONT SIZE="-1">QP</FONT> decoder that works on both <FONT SIZE="-1">ASCII</FONT> and <FONT SIZE="-1">EBCDIC</FONT> machines 
+would look somewhat like the following (where the <TT>@a2e</TT> array is
+omitted for brevity):
+<P>
+
+
+
+<PRE>
+    $string =~ s/=([0-9A-Fa-f][0-9A-Fa-f])/chr $a2e[hex $1]/ge;
+    $string =~ s/=[\n\r]+$//;
+
+</PRE>
+
+
+<A NAME="lbBJ">&nbsp;</A>
+<H2>Caesarian ciphers</H2>
+
+<A NAME="ixABY"></A>
+The practice of shifting an alphabet one or more characters for encipherment
+dates back thousands of years and was explicitly detailed by Gaius Julius
+Caesar in his <B>Gallic Wars</B> text.  A single alphabet shift is sometimes 
+referred to as a rotation and the shift amount is given as a number <TT>$n</TT> after
+the string 'rot' or ``rot$n''.  Rot0 and rot26 would designate identity maps 
+on the 26 letter English version of the Latin alphabet.  Rot13 has the 
+interesting property that alternate subsequent invocations are identity maps 
+(thus rot13 is its own non-trivial inverse in the group of 26 alphabet 
+rotations).  Hence the following is a rot13 encoder and decoder that will 
+work on <FONT SIZE="-1">ASCII</FONT> and <FONT SIZE="-1">EBCDIC</FONT> machines:
+<P>
+
+
+
+<PRE>
+    #!/usr/local/bin/perl
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    while(&lt;&gt;){
+        tr/n-za-mN-ZA-M/a-zA-Z/;
+        print;
+    }
+
+</PRE>
+
+
+<P>
+
+In one-liner form:
+<P>
+
+
+
+<PRE>
+    perl -ne 'tr/n-za-mN-ZA-M/a-zA-Z/;print'
+
+</PRE>
+
+
+<A NAME="lbBK">&nbsp;</A>
+<H2>Hashing order and checksums</H2>
+
+<A NAME="ixABZ"></A>
+To the extent that it is possible to write code that depends on 
+hashing order there may be differences between hashes as stored
+on an <FONT SIZE="-1">ASCII</FONT> based machine and hashes stored on an <FONT SIZE="-1">EBCDIC</FONT> based machine.
+<FONT SIZE="-1">XXX</FONT>
+<A NAME="lbBL">&nbsp;</A>
+<H2>I18N AND L10N</H2>
+
+<A NAME="ixACA"></A>
+Internationalization(I18N) and localization(L10N) are supported at least 
+in principle even on <FONT SIZE="-1">EBCDIC</FONT> machines.  The details are system dependent 
+and discussed under the ``<FONT SIZE="-1">OS</FONT> <FONT SIZE="-1">ISSUES</FONT>'' in perlebcdic section below.
+<A NAME="lbBM">&nbsp;</A>
+<H2>MULTI OCTET CHARACTER SETS</H2>
+
+<A NAME="ixACB"></A>
+Perl may work with an internal UTF-EBCDIC encoding form for wide characters 
+on <FONT SIZE="-1">EBCDIC</FONT> platforms in a manner analogous to the way that it works with 
+the <FONT SIZE="-1">UTF-8</FONT> internal encoding form on <FONT SIZE="-1">ASCII</FONT> based platforms.
+<P>
+
+Legacy multi byte <FONT SIZE="-1">EBCDIC</FONT> code pages <FONT SIZE="-1">XXX</FONT>.
+<A NAME="lbBN">&nbsp;</A>
+<H2>OS ISSUES</H2>
+
+<A NAME="ixACC"></A>
+There may be a few system dependent issues 
+of concern to <FONT SIZE="-1">EBCDIC</FONT> Perl programmers.
+<A NAME="lbBO">&nbsp;</A>
+<H2><FONT SIZE="-1">OS/400</FONT></H2>
+
+<A NAME="ixACD"></A>
+<DL COMPACT>
+<DT><FONT SIZE="-1">PASE</FONT><DD>
+<A NAME="ixACE"></A>
+The <FONT SIZE="-1">PASE</FONT> environment is runtime environment for <FONT SIZE="-1">OS/400</FONT> that can run
+executables built for PowerPC <FONT SIZE="-1">AIX</FONT> in <FONT SIZE="-1">OS/400</FONT>, see perlos400.  <FONT SIZE="-1">PASE</FONT>
+is ASCII-based, not EBCDIC-based as the <FONT SIZE="-1">ILE</FONT>.
+<DT><FONT SIZE="-1">IFS</FONT> access<DD>
+<A NAME="ixACF"></A>
+<FONT SIZE="-1">XXX</FONT>.
+</DL>
+<A NAME="lbBP">&nbsp;</A>
+<H2><FONT SIZE="-1">OS/390</FONT>, z/OS</H2>
+
+<A NAME="ixACG"></A>
+Perl runs under Unix Systems Services or <FONT SIZE="-1">USS</FONT>.
+<DL COMPACT>
+<DT>chcp<DD>
+<A NAME="ixACH"></A>
+<B>chcp</B> is supported as a shell utility for displaying and changing 
+one's code page.  See also chcp.
+<DT>dataset access<DD>
+<A NAME="ixACI"></A>
+For sequential data set access try:
+
+
+<P>
+
+
+
+
+<PRE>
+    my @ds_records = `cat //DSNAME`;
+
+</PRE>
+
+
+
+
+<P>
+
+
+or:
+
+
+<P>
+
+
+
+
+<PRE>
+    my @ds_records = `cat //'HLQ.DSNAME'`;
+
+</PRE>
+
+
+
+
+<P>
+
+
+See also the OS390::Stdio module on <FONT SIZE="-1">CPAN</FONT>.
+<DT><FONT SIZE="-1">OS/390</FONT>, z/OS iconv<DD>
+<A NAME="ixACJ"></A>
+<B>iconv</B> is supported as both a shell utility and a C <FONT SIZE="-1">RTL</FONT> routine.
+See also the <I><A HREF="../man1/iconv.1.php">iconv</A></I>(1) and <I><A HREF="../man3/iconv.3.php">iconv</A></I>(3) manual pages.
+<DT>locales<DD>
+<A NAME="ixACK"></A>
+On <FONT SIZE="-1">OS/390</FONT> or z/OS see locale for information on locales.  The L10N files
+are in <I>/usr/nls/locale</I>.  <TT>$Config</TT>{d_setlocale} is 'define' on <FONT SIZE="-1">OS/390</FONT>
+or z/OS.
+</DL>
+<A NAME="lbBQ">&nbsp;</A>
+<H2><FONT SIZE="-1">VM/ESA</FONT>?</H2>
+
+<A NAME="ixACL"></A>
+<FONT SIZE="-1">XXX</FONT>.
+<A NAME="lbBR">&nbsp;</A>
+<H2><FONT SIZE="-1">POSIX-BC</FONT>?</H2>
+
+<A NAME="ixACM"></A>
+<FONT SIZE="-1">XXX</FONT>.
+<A NAME="lbBS">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixACN"></A>
+This pod document contains literal Latin 1 characters and may encounter 
+translation difficulties.  In particular one popular nroff implementation 
+was known to strip accented characters to their unaccented counterparts 
+while attempting to view this document through the <B>pod2man</B> program 
+(for example, you may see a plain <TT>&quot;y&quot;</TT> rather than one with a diaeresis 
+as in y.).  Another nroff truncated the resultant manpage at
+the first occurrence of 8 bit characters.
+<P>
+
+Not all shells will allow multiple <TT>&quot;-e&quot;</TT> string arguments to perl to
+be concatenated together properly as recipes 0, 2, 4, 5, and 6 might 
+seem to imply.
+<A NAME="lbBT">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixACO"></A>
+perllocale, perlfunc, perlunicode, utf8.
+<A NAME="lbBU">&nbsp;</A>
+<H2>REFERENCES</H2>
+
+<A NAME="ixACP"></A>
+<A HREF="http://anubis.dkuug.dk/i18n/charmaps">http://anubis.dkuug.dk/i18n/charmaps</A>
+<P>
+
+<A HREF="http://www.unicode.org/">http://www.unicode.org/</A>
+<P>
+
+<A HREF="http://www.unicode.org/unicode/reports/tr16/">http://www.unicode.org/unicode/reports/tr16/</A>
+<P>
+
+<A HREF="http://www.wps.com/texts/codes/">http://www.wps.com/texts/codes/</A>
+<B></B><FONT SIZE="-1"><B>ASCII:</B></FONT><B> American Standard Code for Information Infiltration</B> Tom Jennings,
+September 1999.
+<P>
+
+<B>The Unicode Standard, Version 3.0</B> The Unicode Consortium, Lisa Moore ed., 
+<FONT SIZE="-1">ISBN</FONT> 0-201-61633-5, Addison Wesley Developers Press, February 2000. 
+<P>
+
+<B></B><FONT SIZE="-1"><B>CDRA:</B></FONT><B> </B><FONT SIZE="-1"><B>IBM</B></FONT><B> - Character Data Representation Architecture - 
+Reference and Registry</B>, <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">SC09-2190-00</FONT>, December 1996. 
+<P>
+
+``Demystifying Character Sets'', Andrea Vine, Multilingual Computing 
+&amp; Technology, <B>#26 Vol. 10 Issue 4</B>, August/September 1999;
+<FONT SIZE="-1">ISSN</FONT> 1523-0309; Multilingual Computing Inc. Sandpoint <FONT SIZE="-1">ID</FONT>, <FONT SIZE="-1">USA</FONT>.
+<P>
+
+<B>Codes, Ciphers, and Other Cryptic and Clandestine Communication</B>
+Fred B. Wrixon, <FONT SIZE="-1">ISBN</FONT> 1-57912-040-7, Black Dog &amp; Leventhal Publishers,
+1998.
+<P>
+
+<A HREF="http://www.bobbemer.com/P-BIT.HTM">http://www.bobbemer.com/P-BIT.HTM</A>
+<B></B><FONT SIZE="-1"><B>IBM</B></FONT><B> - </B><FONT SIZE="-1"><B>EBCDIC</B></FONT><B> and the P-bit; The biggest Computer Goof Ever</B> Robert Bemer.
+<A NAME="lbBV">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixACQ"></A>
+15 April 2001: added <FONT SIZE="-1">UTF-8</FONT> and UTF-EBCDIC to main table, pvhp.
+<A NAME="lbBW">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixACR"></A>
+Peter Prymmer <A HREF="mailto:pvhp@best.com">pvhp@best.com</A> wrote this in 1999 and 2000 
+with <FONT SIZE="-1">CCSID</FONT> 0819 and 0037 help from Chris Leach and 
+Andre Pirard <A HREF="mailto:A.Pirard@ulg.ac.be">A.Pirard@ulg.ac.be</A> as well as POSIX-BC 
+help from Thomas Dorner <A HREF="mailto:Thomas.Dorner@start.de">Thomas.Dorner@start.de</A>.
+Thanks also to Vickie Cooper, Philip Newton, William Raffloer, and 
+Joe Smith.  Trademarks, registered trademarks, service marks and 
+registered service marks used in this document are the property of 
+their respective owners.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">COMMON CHARACTER CODE SETS</A><DD>
+<DT><A HREF="#lbAE"><FONT SIZE="-1">ASCII</FONT></A><DD>
+<DT><A HREF="#lbAF"><FONT SIZE="-1">ISO</FONT> 8859</A><DD>
+<DT><A HREF="#lbAG">Latin 1 (<FONT SIZE="-1">ISO</FONT> 8859-1)</A><DD>
+<DT><A HREF="#lbAH"><FONT SIZE="-1">EBCDIC</FONT></A><DD>
+<DT><A HREF="#lbAI">13 variant characters</A><DD>
+<DT><A HREF="#lbAJ">0037</A><DD>
+<DT><A HREF="#lbAK">1047</A><DD>
+<DT><A HREF="#lbAL">POSIX-BC</A><DD>
+<DT><A HREF="#lbAM">Unicode code points versus <FONT SIZE="-1">EBCDIC</FONT> code points</A><DD>
+<DT><A HREF="#lbAN">Remaining Perl Unicode problems in <FONT SIZE="-1">EBCDIC</FONT></A><DD>
+<DT><A HREF="#lbAO">Unicode and <FONT SIZE="-1">UTF</FONT></A><DD>
+<DT><A HREF="#lbAP">Using Encode</A><DD>
+<DT><A HREF="#lbAQ">SINGLE OCTET TABLES</A><DD>
+<DT><A HREF="#lbAR">IDENTIFYING CHARACTER CODE SETS</A><DD>
+<DT><A HREF="#lbAS">CONVERSIONS</A><DD>
+<DT><A HREF="#lbAT">tr///</A><DD>
+<DT><A HREF="#lbAU">iconv</A><DD>
+<DT><A HREF="#lbAV">C <FONT SIZE="-1">RTL</FONT></A><DD>
+<DT><A HREF="#lbAW">OPERATOR DIFFERENCES</A><DD>
+<DT><A HREF="#lbAX">FUNCTION DIFFERENCES</A><DD>
+<DT><A HREF="#lbAY">REGULAR EXPRESSION DIFFERENCES</A><DD>
+<DT><A HREF="#lbAZ">SOCKETS</A><DD>
+<DT><A HREF="#lbBA">SORTING</A><DD>
+<DT><A HREF="#lbBB">Ignore <FONT SIZE="-1">ASCII</FONT> vs. <FONT SIZE="-1">EBCDIC</FONT> sort differences.</A><DD>
+<DT><A HREF="#lbBC"><FONT SIZE="-1">MONO</FONT> <FONT SIZE="-1">CASE</FONT> then sort data.</A><DD>
+<DT><A HREF="#lbBD">Convert, sort data, then re convert.</A><DD>
+<DT><A HREF="#lbBE">Perform sorting on one type of machine only.</A><DD>
+<DT><A HREF="#lbBF">TRANSFORMATION FORMATS</A><DD>
+<DT><A HREF="#lbBG"><FONT SIZE="-1">URL</FONT> decoding and encoding</A><DD>
+<DT><A HREF="#lbBH">uu encoding and decoding</A><DD>
+<DT><A HREF="#lbBI">Quoted-Printable encoding and decoding</A><DD>
+<DT><A HREF="#lbBJ">Caesarian ciphers</A><DD>
+<DT><A HREF="#lbBK">Hashing order and checksums</A><DD>
+<DT><A HREF="#lbBL">I18N AND L10N</A><DD>
+<DT><A HREF="#lbBM">MULTI OCTET CHARACTER SETS</A><DD>
+<DT><A HREF="#lbBN">OS ISSUES</A><DD>
+<DT><A HREF="#lbBO"><FONT SIZE="-1">OS/400</FONT></A><DD>
+<DT><A HREF="#lbBP"><FONT SIZE="-1">OS/390</FONT>, z/OS</A><DD>
+<DT><A HREF="#lbBQ"><FONT SIZE="-1">VM/ESA</FONT>?</A><DD>
+<DT><A HREF="#lbBR"><FONT SIZE="-1">POSIX-BC</FONT>?</A><DD>
+<DT><A HREF="#lbBS">BUGS</A><DD>
+<DT><A HREF="#lbBT">SEE ALSO</A><DD>
+<DT><A HREF="#lbBU">REFERENCES</A><DD>
+<DT><A HREF="#lbBV">HISTORY</A><DD>
+<DT><A HREF="#lbBW">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XINIT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XINIT</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xinit - X Window System initializer
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xinit</B>
+
+[ [
+<I>client</I>
+
+]
+<I>options</I>
+
+] [
+<B>--</B>
+
+[
+<I>server</I>
+
+] [
+<I>display</I>
+
+]
+<I>options</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <I>xinit</I> program is used to start the X Window System server and a first
+client program on systems that
+cannot start X directly from <I>/etc/init</I> or in environments
+that use multiple window systems.  When this first client exits, 
+<I>xinit</I> will kill the X server and then terminate.
+<P>
+
+If no specific client program is given on the command line,
+<I>xinit</I> will look for a file in the user's home directory
+called <I>.xinitrc</I> to run as a shell script to start up client programs.
+If no such file exists, <I>xinit</I> will use the following as a default:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>xterm  -geometry  +1+1  -n  login  -display  :0<BR>
+<P>
+<P>
+
+If no specific server program is given on the command line,
+<I>xinit</I> will look for a file in the user's home directory
+called <I>.xserverrc</I> to run as a shell script to start up the server.
+If no such file exists, <I>xinit</I> will use the following as a default:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>X  :0<BR>
+<P>
+Note that this assumes that there is a program named <I>X</I> in the current
+search path.  However, servers are usually named <I>Xdisplaytype</I> where 
+<I>displaytype</I> is the type of graphics display which is driven by this
+server.  The site administrator should, therefore, make a link to the 
+appropriate type of server on the machine, or create a shell script that
+runs <I>xinit</I> with the appropriate server.
+<P>
+
+Note, when using a <I>.xserverrc</I> script be sure to ``exec'' the real X server.
+Failing to do this can make the X server slow to start and exit.  For example:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>exec Xdisplaytype<BR>
+<P>
+
+An important point is that programs which are run by <I>.xinitrc</I>
+should be run in the background if they do 
+not exit right away, so that they don't prevent other programs from
+starting up.
+However, the last long-lived program started (usually
+a window manager or terminal emulator) should be
+left in the foreground so that the script won't exit (which
+indicates that the user is done and that <I>xinit</I> should exit).
+<P>
+
+An alternate client and/or server may be specified on the
+command line.  The desired client program and its arguments should be given
+as the first command line arguments to <I>xinit</I>.  To specify a particular
+server command line, append a double dash (--) to the <I>xinit</I> command
+line (after any client and arguments) followed by the desired server command.
+<P>
+
+Both the client program name and the server program name must begin with a
+slash (/) or a period (.).  Otherwise, they are treated as an arguments to be
+appended to their respective startup lines.  This makes it possible to 
+add arguments (for example, foreground and background colors) without 
+having to retype the whole command line.
+<P>
+
+If an explicit server name is not given and the first argument following the
+double dash (--) is a colon followed by a digit, <I>xinit</I> will use that 
+number as the display 
+number instead of zero.  All remaining arguments are appended to the server 
+command line.
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Below are several examples of how command line arguments in <I>xinit</I> are
+used.
+<DL COMPACT>
+<DT><B>xinit</B>
+
+<DD>
+This will start up a server named <I>X</I> and run the user's <I>.xinitrc</I>,
+if it exists, or else start an <I>xterm</I>.
+<DT><B>xinit -- /usr/X11R6/bin/Xqdss  :1</B>
+
+<DD>
+This is how one could start a specific type of server on an alternate display.
+<DT><B>xinit -geometry =80x65+10+10 -fn 8x13 -j -fg white -bg navy</B>
+
+<DD>
+This will start up a server named <I>X</I>, and will append the given
+arguments to the default <I>xterm</I> command.  It will ignore <I>.xinitrc</I>.
+<DT><B>xinit -e widgets -- ./Xsun -l -c</B>
+
+<DD>
+This will use the command <I>./Xsun -l -c</I> to start the server and will
+append the arguments <I>-e widgets</I> to the default <I>xterm</I> command.
+<DT><B>xinit /usr/ucb/rsh fasthost cpupig -display ws:1 --  :1 -a 2 -t 5</B>
+
+<DD>
+This will start a server named <I>X</I> on display 1 with the arguments
+<I>-a 2 -t 5</I>.  It will then start a remote shell on the machine
+<B>fasthost</B> in which it will run the command <I>cpupig</I>, telling it
+to display back on the local workstation.
+</DL>
+<P>
+
+Below is a sample <I>.xinitrc</I> that starts a clock, several terminals, and
+leaves the window manager running as the ``last'' application.  Assuming that
+the window manager has been configured properly, the user
+then chooses the ``Exit'' menu item to shut down X.
+<P>
+
+<PRE>
+xrdb -load $HOME/.Xresources
+xsetroot -solid gray &amp;
+xclock -g 50x50-0+0 -bw 0 &amp;
+xload -g 50x50-50+0 -bw 0 &amp;
+xterm -g 80x24+0+0 &amp;
+xterm -g 80x24+0-0 &amp;
+twm
+</PRE>
+
+
+<P>
+Sites that want to create a common startup environment could simply create
+a default <I>.xinitrc</I> that references a site-wide startup file:
+<P>
+
+<PRE>
+#!/bin/sh
+. /usr/local/lib/site.xinitrc
+</PRE>
+
+
+<P>
+Another approach is to write a script that starts <I>xinit</I> with a specific
+shell script.  Such scripts are usually named <I>x11</I>, <I>xstart</I>, or
+<I>startx</I> and are a convenient way to provide a simple interface for
+novice users:
+<P>
+
+<PRE>
+#!/bin/sh
+xinit /usr/local/lib/site.xinitrc -- /usr/X11R6/bin/X bc
+</PRE>
+
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<DL COMPACT>
+<DT><B>DISPLAY</B>
+
+<DD>
+This variable gets set to the name of the display to which clients should
+connect.
+<DT><B>XINITRC</B>
+
+<DD>
+This variable specifies an init file containing shell commands to start up the
+initial windows.  By default, <I>.xinitrc</I> in the home directory will be 
+used.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>.xinitrc</I>
+
+<DD>
+default client script
+<DT><I>xterm</I>
+
+<DD>
+client to run if <I>.xinitrc</I> does not exist
+<DT><I>.xserverrc</I>
+
+<DD>
+default server script
+<DT><I>X</I>
+
+<DD>
+server to run if <I>.xserverrc</I> does not exist
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man7/X.7x.php">X</A></I>(7x),
+
+<I><A HREF="../man1/startx.1.php">startx</A></I>(1),
+
+<I><A HREF="../man1/Xserver.1.php">Xserver</A></I>(1),
+
+<I><A HREF="../man1/xterm.1.php">xterm</A></I>(1)
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Bob Scheifler, MIT Laboratory for Computer Science
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EXAMPLES</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

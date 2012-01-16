@@ -1,0 +1,514 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLAIX</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLAIX</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.aix - Perl version 5 on IBM Unix (AIX) systems
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes various features of <FONT SIZE="-1">IBM</FONT>'s Unix operating
+system (<FONT SIZE="-1">AIX</FONT>) that will affect how Perl version 5 (hereafter just Perl)
+is compiled and/or runs.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Compiling Perl 5 on <FONT SIZE="-1">AIX</FONT></H2>
+
+<A NAME="ixAAD"></A>
+When compiling Perl, you must use an <FONT SIZE="-1">ANSI</FONT> C compiler. <FONT SIZE="-1">AIX</FONT> does not ship
+an <FONT SIZE="-1">ANSI</FONT> compliant C-compiler with <FONT SIZE="-1">AIX</FONT> by default, but binary builds of
+gcc for <FONT SIZE="-1">AIX</FONT> are widely available.
+<P>
+
+At the moment of writing, <FONT SIZE="-1">AIX</FONT> supports two different native C compilers,
+for which you have to pay: <B>xlC</B> and <B>vac</B>. If you decide to use either
+of these two (which is quite a lot easier than using gcc), be sure to
+upgrade to the latest available patch level. Currently:
+<P>
+
+
+
+<PRE>
+    xlC.C     3.1.4.10 or 3.6.6.0 or 4.0.2.2 or 5.0.2.9 or 6.0.0.3
+    vac.C     4.4.0.3  or 5.0.2.6 or 6.0.0.1
+
+</PRE>
+
+
+<P>
+
+note that xlC has the <FONT SIZE="-1">OS</FONT> version in the name as of version 4.0.2.0, so
+you will find xlC.C for <FONT SIZE="-1">AIX-5</FONT>.0 as package
+<P>
+
+
+
+<PRE>
+    xlC.aix50.rte   5.0.2.0 or 6.0.0.3
+
+</PRE>
+
+
+<P>
+
+subversions are not the same `latest' on all <FONT SIZE="-1">OS</FONT> versions. For example,
+the latest xlC-5 on aix41 is 5.0.2.9, while on aix43, it is 5.0.2.7.
+<P>
+
+Perl can be compiled with either <FONT SIZE="-1">IBM</FONT>'s <FONT SIZE="-1">ANSI</FONT> C compiler or with gcc.
+The former is recommended, as not only can it compile Perl with no
+difficulty, but also can take advantage of features listed later that
+require the use of <FONT SIZE="-1">IBM</FONT> compiler-specific command-line flags.
+<P>
+
+The <FONT SIZE="-1">IBM</FONT>'s compiler patch levels 5.0.0.0 and 5.0.1.0 have compiler
+optimization bugs that affect compiling perl.c and regcomp.c,
+respectively.  If Perl's configuration detects those compiler patch
+levels, optimization is turned off for the said source code files.
+Upgrading to at least 5.0.2.0 is recommended.
+<P>
+
+If you decide to use gcc, make sure your installation is recent and
+complete, and be sure to read the Perl <FONT SIZE="-1">README</FONT> file for more gcc-specific
+details. Please report any hoops you had to jump through to the development
+team.
+<A NAME="lbAE">&nbsp;</A>
+<H2><FONT SIZE="-1">OS</FONT> level</H2>
+
+<A NAME="ixAAE"></A>
+Before installing the patches to the <FONT SIZE="-1">IBM</FONT> C-compiler you need to know the
+level of patching for the Operating System. <FONT SIZE="-1">IBM</FONT>'s command 'oslevel' will
+show the base, but is not always complete (in this example oslevel shows
+4.3.NULL, whereas the system might run most of 4.3.THREE):
+<P>
+
+
+
+<PRE>
+    # oslevel
+    4.3.0.0
+    # lslpp -l | grep 'bos.rte '
+    bos.rte           4.3.3.75  COMMITTED  Base Operating System Runtime
+    bos.rte            4.3.2.0  COMMITTED  Base Operating System Runtime
+    #
+
+</PRE>
+
+
+<P>
+
+The same might happen to <FONT SIZE="-1">AIX</FONT> 5.1 or other <FONT SIZE="-1">OS</FONT> levels. As a side note, perl
+cannot be built without bos.adt.syscalls and bos.adt.libm installed
+<P>
+
+
+
+<PRE>
+    # lslpp -l | egrep &quot;syscalls|libm&quot;
+    bos.adt.libm      5.1.0.25  COMMITTED  Base Application Development
+    bos.adt.syscalls  5.1.0.36  COMMITTED  System Calls Application
+    #
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Building Dynamic Extensions on <FONT SIZE="-1">AIX</FONT></H2>
+
+<A NAME="ixAAF"></A>
+<FONT SIZE="-1">AIX</FONT> supports dynamically loadable objects as well as shared libraries.
+Shared libraries by convention end with the suffix .a, which is a bit
+misleading, as an archive can contain static as well as dynamic members.
+For perl dynamically loaded objects we use the .so suffix also used on
+many other platforms.
+<P>
+
+Note that starting from Perl 5.7.2 (and consequently 5.8.0) and <FONT SIZE="-1">AIX</FONT> 4.3
+or newer Perl uses the <FONT SIZE="-1">AIX</FONT> native dynamic loading interface in the so
+called runtime linking mode instead of the emulated interface that was
+used in Perl releases 5.6.1 and earlier or, for <FONT SIZE="-1">AIX</FONT> releases 4.2 and
+earlier.  This change does break backward compatibility with compiled
+modules from earlier perl releases.  The change was made to make Perl
+more compliant with other applications like Apache/mod_perl which are
+using the <FONT SIZE="-1">AIX</FONT> native interface. This change also enables the use of C<FONT SIZE="-2">++</FONT>
+code with static constructors and destructors in perl extensions, which
+was not possible using the emulated interface.
+<A NAME="lbAG">&nbsp;</A>
+<H2>The <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">ANSI</FONT> C Compiler</H2>
+
+<A NAME="ixAAG"></A>
+All defaults for Configure can be used.
+<P>
+
+If you've chosen to use vac 4, be sure to run 4.4.0.3. Older versions
+will turn up nasty later on. For vac 5 be sure to run at least 5.0.1.0,
+but vac 5.0.2.6 or up is highly recommended. Note that since <FONT SIZE="-1">IBM</FONT> has
+removed vac 5.0.2.1 through 5.0.2.5 from the software depot, these
+versions should be considered obsolete.
+<P>
+
+Here's a brief lead of how to upgrade the compiler to the latest
+level.  Of course this is subject to changes.  You can only upgrade
+versions from ftp-available updates if the first three digit groups
+are the same (in where you can skip intermediate unlike the patches
+in the developer snapshots of perl), or to one version up where the
+`base' is available.  In other words, the <FONT SIZE="-1">AIX</FONT> compiler patches are
+cumulative.
+<P>
+
+
+
+<PRE>
+ vac.C.4.4.0.1 =&gt; vac.C.4.4.0.3  is OK     (vac.C.4.4.0.2 not needed)
+ xlC.C.3.1.3.3 =&gt; xlC.C.3.1.4.10 is NOT OK (xlC.C.3.1.4.0 is not available)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ # ftp <A HREF="ftp://ftp.software.ibm.com">ftp.software.ibm.com</A>
+ Connected to service.boulder.ibm.com.
+ : welcome message ...
+ Name (<A HREF="ftp://ftp.software.ibm.com">ftp.software.ibm.com</A>:merijn): anonymous
+ 331 Guest login ok, send your complete e-mail address as password.
+ Password:
+ ... accepted login stuff
+ ftp&gt; cd /aix/fixes/v4/
+ ftp&gt; dir other other.ll
+ output to local-file: other.ll? y
+ 200 PORT command successful.
+ 150 Opening ASCII mode data connection for /bin/ls.
+ 226 Transfer complete.
+ ftp&gt; dir xlc xlc.ll
+ output to local-file: xlc.ll? y
+ 200 PORT command successful.
+ 150 Opening ASCII mode data connection for /bin/ls.
+ 226 Transfer complete.
+ ftp&gt; bye
+ ... goodbye messages
+ # ls -l *.ll
+ -rw-rw-rw-   1 merijn   system    1169432 Nov  2 17:29 other.ll
+ -rw-rw-rw-   1 merijn   system      29170 Nov  2 17:29 xlc.ll
+
+</PRE>
+
+
+<P>
+
+On <FONT SIZE="-1">AIX</FONT> 4.2 using xlC, we continue:
+<P>
+
+
+
+<PRE>
+ # lslpp -l | fgrep 'xlC.C '
+   xlC.C                     3.1.4.9  COMMITTED  C for AIX Compiler
+   xlC.C                     3.1.4.0  COMMITTED  C for AIX Compiler
+ # grep 'xlC.C.3.1.4.*.bff' xlc.ll
+ -rw-r--r--   1 45776101 1        6286336 Jul 22 1996  xlC.C.3.1.4.1.bff
+ -rw-rw-r--   1 45776101 1        6173696 Aug 24 1998  xlC.C.3.1.4.10.bff
+ -rw-r--r--   1 45776101 1        6319104 Aug 14 1996  xlC.C.3.1.4.2.bff
+ -rw-r--r--   1 45776101 1        6316032 Oct 21 1996  xlC.C.3.1.4.3.bff
+ -rw-r--r--   1 45776101 1        6315008 Dec 20 1996  xlC.C.3.1.4.4.bff
+ -rw-rw-r--   1 45776101 1        6178816 Mar 28 1997  xlC.C.3.1.4.5.bff
+ -rw-rw-r--   1 45776101 1        6188032 May 22 1997  xlC.C.3.1.4.6.bff
+ -rw-rw-r--   1 45776101 1        6191104 Sep  5 1997  xlC.C.3.1.4.7.bff
+ -rw-rw-r--   1 45776101 1        6185984 Jan 13 1998  xlC.C.3.1.4.8.bff
+ -rw-rw-r--   1 45776101 1        6169600 May 27 1998  xlC.C.3.1.4.9.bff
+ # wget <A HREF="ftp://ftp.software.ibm.com/aix/fixes/v4/xlc/xlC.C.3.1.4.10.bff">ftp://ftp.software.ibm.com/aix/fixes/v4/xlc/xlC.C.3.1.4.10.bff</A>
+ #
+
+</PRE>
+
+
+<P>
+
+On <FONT SIZE="-1">AIX</FONT> 4.3 using vac, we continue:
+<P>
+
+
+
+<PRE>
+ # lslpp -l | grep 'vac.C '
+  vac.C                      5.0.2.2  COMMITTED  C for AIX Compiler
+  vac.C                      5.0.2.0  COMMITTED  C for AIX Compiler
+ # grep 'vac.C.5.0.2.*.bff' other.ll
+ -rw-rw-r--   1 45776101 1        13592576 Apr 16 2001  vac.C.5.0.2.0.bff
+ -rw-rw-r--   1 45776101 1        14133248 Apr  9 2002  vac.C.5.0.2.3.bff
+ -rw-rw-r--   1 45776101 1        14173184 May 20 2002  vac.C.5.0.2.4.bff
+ -rw-rw-r--   1 45776101 1        14192640 Nov 22 2002  vac.C.5.0.2.6.bff
+ # wget <A HREF="ftp://ftp.software.ibm.com/aix/fixes/v4/other/vac.C.5.0.2.6.bff">ftp://ftp.software.ibm.com/aix/fixes/v4/other/vac.C.5.0.2.6.bff</A>
+ #
+
+</PRE>
+
+
+<P>
+
+Likewise on all other <FONT SIZE="-1">OS</FONT> levels. Then execute the following command, and
+fill in its choices
+<P>
+
+
+
+<PRE>
+ # smit install_update
+  -&gt; Install and Update from LATEST Available Software
+  * INPUT device / directory for software [ vac.C.5.0.2.6.bff    ]
+  [ OK ]
+  [ OK ]
+
+</PRE>
+
+
+<P>
+
+Follow the messages ... and you're done.
+<P>
+
+If you like a more web-like approach, a good start point can be
+<A HREF="http://www14.software.ibm.com/webapp/download/downloadaz.jsp">http://www14.software.ibm.com/webapp/download/downloadaz.jsp</A> and click
+``C for <FONT SIZE="-1">AIX</FONT>'', and follow the instructions.
+<A NAME="lbAH">&nbsp;</A>
+<H2>The usenm option</H2>
+
+<A NAME="ixAAH"></A>
+If linking miniperl
+<P>
+
+
+
+<PRE>
+ cc -o miniperl ... miniperlmain.o opmini.o perl.o ... -lm -lc ...
+
+</PRE>
+
+
+<P>
+
+causes error like this
+<P>
+
+
+
+<PRE>
+ ld: 0711-317 ERROR: Undefined symbol: .aintl
+ ld: 0711-317 ERROR: Undefined symbol: .copysignl
+ ld: 0711-317 ERROR: Undefined symbol: .syscall
+ ld: 0711-317 ERROR: Undefined symbol: .eaccess
+ ld: 0711-317 ERROR: Undefined symbol: .setresuid
+ ld: 0711-317 ERROR: Undefined symbol: .setresgid
+ ld: 0711-317 ERROR: Undefined symbol: .setproctitle
+ ld: 0711-345 Use the -bloadmap or -bnoquiet option to obtain more information.
+
+</PRE>
+
+
+<P>
+
+you could retry with
+<P>
+
+
+
+<PRE>
+ make realclean
+ rm config.sh
+ ./Configure -Dusenm ...
+
+</PRE>
+
+
+<P>
+
+which makes Configure to use the <TT>&quot;nm&quot;</TT> tool when scanning for library
+symbols, which usually is not done in <FONT SIZE="-1">AIX</FONT>.
+<P>
+
+Related to this, you probably should not use the <TT>&quot;-r&quot;</TT> option of
+Configure in <FONT SIZE="-1">AIX</FONT>, because that affects of how the <TT>&quot;nm&quot;</TT> tool is used.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Using <FONT SIZE="-1">GNU</FONT>'s gcc for building perl</H2>
+
+<A NAME="ixAAI"></A>
+Using gcc-3.x (tested with 3.0.4, 3.1, and 3.2) now works out of the box,
+as do recent gcc-2.9 builds available directly from <FONT SIZE="-1">IBM</FONT> as part of their
+Linux compatibility packages, available here:
+<P>
+
+
+
+<PRE>
+  <A HREF="http://www.ibm.com/servers/aix/products/aixos/linux/">http://www.ibm.com/servers/aix/products/aixos/linux/</A>
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Using Large Files with Perl</H2>
+
+<A NAME="ixAAJ"></A>
+Should yield no problems.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Threaded Perl</H2>
+
+<A NAME="ixAAK"></A>
+Threads seem to work <FONT SIZE="-1">OK</FONT>, though at the moment not all tests pass when
+threads are used in combination with 64-bit configurations.
+<P>
+
+You may get a warning when doing a threaded build:
+<P>
+
+
+
+<PRE>
+  &quot;pp_sys.c&quot;, line 4640.39: 1506-280 (W) Function argument assignment between types &quot;unsigned char*&quot; and &quot;const void*&quot; is not allowed.
+
+</PRE>
+
+
+<P>
+
+The exact line number may vary, but if the warning (W) comes from a line
+line this
+<P>
+
+
+
+<PRE>
+  hent = PerlSock_gethostbyaddr(addr, (Netdb_hlen_t) addrlen, addrtype);
+
+</PRE>
+
+
+<P>
+
+in the ``pp_ghostent'' function, you may ignore it safely.  The warning
+is caused by the reentrant variant of <I>gethostbyaddr()</I> having a slightly
+different prototype than its non-reentrant variant, but the difference
+is not really significant here.
+<A NAME="lbAL">&nbsp;</A>
+<H2>64-bit Perl</H2>
+
+<A NAME="ixAAL"></A>
+If your <FONT SIZE="-1">AIX</FONT> is installed with 64-bit support, you can expect 64-bit
+configurations to work. In combination with threads some tests might
+still fail.
+<A NAME="lbAM">&nbsp;</A>
+<H2><FONT SIZE="-1">AIX</FONT> 4.2 and extensions using C<FONT SIZE="-2">++</FONT> with statics</H2>
+
+<A NAME="ixAAM"></A>
+In <FONT SIZE="-1">AIX</FONT> 4.2 Perl extensions that use C<FONT SIZE="-2">++</FONT> functions that use statics
+may have problems in that the statics are not getting initialized.
+In newer <FONT SIZE="-1">AIX</FONT> releases this has been solved by linking Perl with
+the libC_r library, but unfortunately in <FONT SIZE="-1">AIX</FONT> 4.2 the said library
+has an obscure bug where the various functions related to time
+(such as <I>time()</I> and <I>gettimeofday()</I>) return broken values, and
+therefore in <FONT SIZE="-1">AIX</FONT> 4.2 Perl is not linked against the libC_r.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAN"></A>
+H.Merijn Brand &lt;<A HREF="mailto:h.m.brand@hccnet.nl">h.m.brand@hccnet.nl</A>&gt;
+<A NAME="lbAO">&nbsp;</A>
+<H2>DATE</H2>
+
+<A NAME="ixAAO"></A>
+Version 0.0.6: 23 Dec 2002
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Compiling Perl 5 on <FONT SIZE="-1">AIX</FONT></A><DD>
+<DT><A HREF="#lbAE"><FONT SIZE="-1">OS</FONT> level</A><DD>
+<DT><A HREF="#lbAF">Building Dynamic Extensions on <FONT SIZE="-1">AIX</FONT></A><DD>
+<DT><A HREF="#lbAG">The <FONT SIZE="-1">IBM</FONT> <FONT SIZE="-1">ANSI</FONT> C Compiler</A><DD>
+<DT><A HREF="#lbAH">The usenm option</A><DD>
+<DT><A HREF="#lbAI">Using <FONT SIZE="-1">GNU</FONT>'s gcc for building perl</A><DD>
+<DT><A HREF="#lbAJ">Using Large Files with Perl</A><DD>
+<DT><A HREF="#lbAK">Threaded Perl</A><DD>
+<DT><A HREF="#lbAL">64-bit Perl</A><DD>
+<DT><A HREF="#lbAM"><FONT SIZE="-1">AIX</FONT> 4.2 and extensions using C<FONT SIZE="-2">++</FONT> with statics</A><DD>
+<DT><A HREF="#lbAN">AUTHOR</A><DD>
+<DT><A HREF="#lbAO">DATE</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RNEWS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RNEWS</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+rnews - receive news from a UUCP connection
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>rnews</B>
+
+[
+<B>-h</B><I> host</I>
+
+]
+[
+<B>-N</B>
+
+]
+[
+<B>-P</B><I> port</I>
+
+]
+[
+<B>-r</B><I> remote</I>
+
+]
+[
+<B>-S</B><I> remote</I>
+
+]
+[
+<B>-U</B>
+
+]
+[
+<B>-v</B>
+
+]
+[
+<I>input</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Rnews</I>
+
+reads messages typically queued by a UUCP newsfeed and
+sends them to the InterNetNews server (either ``localhost'', or the
+value defined by the variable 
+<I>&lt;nnrpdposthost&nbsp;in&nbsp;inn.conf&gt;</I>.
+
+<P>
+
+The message is read from the specified input file, or standard input
+if no input is named.
+<P>
+
+When sent over UUCP, Usenet articles are typically joined in a single
+batch to reduce the UUCP overhead.
+Batches can also be compressed, to reduce the communication time.
+If a message does not start with a number sign (``#'') and an exclamation
+point, then the entire input is taken as a single news article.
+If it does start with with those two characters, then the first line is
+read and interpreted as a batch command.
+<P>
+
+If the command is ``#! rnews nnn'' where
+<I>nnn</I>
+
+is a number, then the next
+<I>nnn</I>
+
+bytes (starting with the next line) are read as a news article.
+<P>
+
+If the command is ``#! cunbatch'' then the rest of input is fed to the
+<I><A HREF="../man1/compress.1.php">compress</A></I>(1)
+
+program with the ``-d'' flag to uncompress it, and
+the output of this pipe is read as
+<I>rnews</I>'s
+
+input.
+This is for historical compatibility --- there is no program named
+<I>cunbatch</I>.
+
+A compressed batch will start with a ``#! cunbatch'' line, then contain a
+series of articles separated by ``#! rnews nnn'' lines.
+If 
+<I>&lt;<A HREF="file:/usr/include/DO_RNEWSPROGS in include/config.h">DO_RNEWSPROGS in include/config.h</A>&gt;</I>
+
+is defined and the command is any other word, then
+<I>rnews</I>
+
+will try to execute a program with that name in the directory
+<I>&lt;pathbin&nbsp;in&nbsp;inn.conf&gt;/bin/rnews.libexec</I>.
+
+<P>
+The batch will be fed into the program's standard input, and the
+standard output will be read back as input into
+<I>rnews</I>.
+
+If 
+<I>&lt;<A HREF="file:/usr/include/DO_RNEWS_SAVE_BAD in include/config.h">DO_RNEWS_SAVE_BAD in include/config.h</A>&gt; </I>
+
+is defined and
+<I>rnews</I>
+
+detects any problems with an article such as a missing header, or
+an unintelligible reply from the server, it will save a copy of the article
+in the
+<I>&lt;pathincoming in inn.conf&gt;/bad</I>
+
+directory.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+If the ``<B>-h</B>'' flag is given, or failing that, the
+environment variable
+<I>&lt;<A HREF="file:/usr/include/_ENV_UUCPHOST in include/paths.h">_ENV_UUCPHOST in include/paths.h</A>&gt;</I>
+
+(typically
+<I>UU_MACHINE</I>)
+
+is set, then
+<I>rnews</I>
+
+will log the Message-ID and host via
+<I><A HREF="../man3/syslog.3.php">syslog</A></I>(3)
+
+for each article offered to the server.
+Logging will only be done if the value is not an empty string.
+<DT><B>-N</B>
+
+<DD>
+Normally, if unpacking the input fails it is re-spooled to
+<I>&lt;pathincoming in inn.conf&gt;</I>
+
+for another attempt later.  If the ``<B>-N</B>'' flag is used then no such
+re-spooling is done and rnews exits with status value ``9'' to indicate
+this.
+<DT><B>-P</B>
+
+<DD>
+If the ``<B>-P</B>'' flag is used, then the articles will be sent to the
+specified port on the remote host.
+<DT><B>-r</B>
+
+<DD>
+If the ``<B>-r</B>'' flag is used, then the articles will be sent to the
+named remote host instead of the default host.
+<DT><B>-S</B>
+
+<DD>
+``<B>-S</B>'' flag is equivalent to ``<B>-r</B>'' flag.
+<DT><B>-U</B>
+
+<DD>
+If the server is not available, the message is spooled into a new file
+created in the
+<I>&lt;pathincoming in inn.conf&gt;</I>
+
+directory.
+The ``<B>-U</B>'' flag may be used to send all spooled messages to the
+server once it becomes available again, and can be invoked regularly
+by
+<I><A HREF="../man8/cron.8.php">cron</A></I>(8).
+
+<DT><B>-v</B>
+
+<DD>
+If the ``<B>-v</B>'' flag is used, it will print a notice of all errors on the
+standard error, naming the input file (if known) and printing the first
+few characters of the input.
+Errors are always logged through
+<I><A HREF="../man3/syslog.3.php">syslog</A></I>(3).
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+<I>Rnews</I>
+
+cannot process articles that have embedded \0's in them.
+<A NAME="lbAG">&nbsp;</A>
+<H2>HISTORY</H2>
+
+Written by Rich $alz &lt;<A HREF="mailto:rsalz@uunet.uu.net">rsalz@uunet.uu.net</A>&gt; for InterNetNews.
+
+
+This is revision 1.10.2.1, dated 2000/08/17.
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man5/inn.conf.5.php">inn.conf</A>(5),
+<A HREF="../man8/innd.8.php">innd</A>(8).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">HISTORY</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

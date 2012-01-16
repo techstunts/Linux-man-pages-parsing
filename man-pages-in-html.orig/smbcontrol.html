@@ -1,0 +1,276 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SMBCONTROL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SMBCONTROL</H1>
+Section:  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+smbcontrol - send messages to smbd, nmbd or winbindd processes
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+<DL COMPACT>
+<DT>
+<B>smbcontrol</B> [-i] [-s]
+
+
+
+
+<DT>
+<B>smbcontrol</B> [destination] [message-type] [parameter]
+
+
+<P>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<P>
+
+<DD>This tool is part of the <B><A HREF="../man7/samba.7.php">samba</A></B>(7) suite.
+<P>
+<P>
+
+<B>smbcontrol</B> is a very small program, which sends messages to a <B><A HREF="../man8/smbd.8.php">smbd</A></B>(8), a <B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8), or a <B><A HREF="../man8/winbindd.8.php">winbindd</A></B>(8) daemon running on the system.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT>-h|--help<DD>
+Print a summary of command line options.
+<P>
+<DT>-s &lt;configuration file&gt;<DD>
+The file specified contains the configuration details required by the server. The information in this file includes server-specific information such as what printcap file to use, as well as descriptions of all the services that the server is to provide. See <I>smb.conf</I> for more information. The default configuration file name is determined at compile time.
+<P>
+<DT>-i<DD>
+Run interactively. Individual commands of the form destination message-type parameters can be entered on STDIN. An empty command line or a &quot;q&quot; will quit the program.
+<P>
+<DT>destination<DD>
+One of <I>nmbd</I>, <I>smbd</I> or a process ID.
+<P>
+The <I>smbd</I> destination causes the message to &quot;broadcast&quot; to all smbd daemons.
+<P>
+The <I>nmbd</I> destination causes the message to be sent to the nmbd daemon specified in the<I>nmbd.pid</I> file.
+<P>
+If a single process ID is given, the message is sent to only that process.
+<P>
+<DT>message-type<DD>
+Type of message to send. See the section <B>MESSAGE-TYPES</B> for details.
+<P>
+<DT>parameters<DD>
+any parameters required for the message-type
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>MESSAGE-TYPES</H2>
+
+<P>
+<P>
+
+Available message types are:
+<P>
+<DL COMPACT>
+<DT>close-share<DD>
+Order smbd to close the client connections to the named share. Note that this doesn't affect client connections to any other shares. This message-type takes an argument of the share name for which client connections will be closed, or the &quot;*&quot; character which will close all currently open shares. This may be useful if you made changes to the access controls on the share. This message can only be sent to <B>smbd</B>.
+<P>
+<DT>debug<DD>
+Set debug level to the value specified by the parameter. This can be sent to any of the destinations.
+<P>
+<DT>force-election<DD>
+This message causes the <B>nmbd</B> daemon to force a new browse master election.
+<P>
+<DT>ping<DD>
+Send specified number of &quot;ping&quot; messages and wait for the same number of reply &quot;pong&quot; messages. This can be sent to any of the destinations.
+<P>
+<DT>profile<DD>
+Change profile settings of a daemon, based on the parameter. The parameter can be &quot;on&quot; to turn on profile stats collection, &quot;off&quot; to turn off profile stats collection, &quot;count&quot; to enable only collection of count stats (time stats are disabled), and &quot;flush&quot; to zero the current profile stats. This can be sent to any smbd or nmbd destinations.
+<P>
+<DT>debuglevel<DD>
+Request debuglevel of a certain daemon and write it to stdout. This can be sent to any of the destinations.
+<P>
+<DT>profilelevel<DD>
+Request profilelevel of a certain daemon and write it to stdout. This can be sent to any smbd or nmbd destinations.
+<P>
+<DT>printnotify<DD>
+Order smbd to send a printer notify message to any Windows NT clients connected to a printer. This message-type takes the following arguments:
+<P>
+<P>
+<DL COMPACT><DT><DD>
+<P>
+<DL COMPACT>
+<DT>queuepause printername<DD>
+Send a queue pause change notify message to the printer specified.
+<P>
+<DT>queueresume printername<DD>
+Send a queue resume change notify message for the printer specified.
+<P>
+<DT>jobpause printername unixjobid<DD>
+Send a job pause change notify message for the printer and unix jobid specified.
+<P>
+<DT>jobresume printername unixjobid<DD>
+Send a job resume change notify message for the printer and unix jobid specified.
+<P>
+<DT>jobdelete printername unixjobid<DD>
+Send a job delete change notify message for the printer and unix jobid specified.
+<P>
+</DL>
+</DL>
+
+Note that this message only sends notification that an event has occured. It doesn't actually cause the event to happen.
+<P>
+This message can only be sent to <B>smbd</B>.
+<P>
+<DT>samsync<DD>
+Order smbd to synchronise sam database from PDC (being BDC). Can only be sent to <B>smbd</B>.
+<P>
+<DL COMPACT><DT><DD>
+</DL>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Note</H2>
+
+Not working at the moment
+<P>
+
+<P>
+<DL COMPACT>
+<DT>samrepl<DD>
+Send sam replication message, with specified serial. Can only be sent to <B>smbd</B>. Should not be used manually.
+<P>
+<DT>dmalloc-mark<DD>
+Set a mark for dmalloc. Can be sent to both smbd and nmbd. Only available if samba is built with dmalloc support.
+<P>
+<DT>dmalloc-log-changed<DD>
+Dump the pointers that have changed since the mark set by dmalloc-mark. Can be sent to both smbd and nmbd. Only available if samba is built with dmalloc support.
+<P>
+<DT>shutdown<DD>
+Shut down specified daemon. Can be sent to both smbd and nmbd.
+<P>
+<DT>pool-usage<DD>
+Print a human-readable description of all talloc(pool) memory usage by the specified daemon/process. Available for both smbd and nmbd.
+<P>
+<DT>drvupgrade<DD>
+Force clients of printers using specified driver to update their local version of the driver. Can only be sent to smbd.
+<P>
+<DT>reload-config<DD>
+Force daemon to reload smb.conf configuration file. Can be sent to <B>smbd</B>, <B>nmbd</B>, or <B>winbindd</B>.
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>VERSION</H2>
+
+<P>
+<P>
+
+This man page is correct for version 3.0 of the Samba suite.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<P>
+
+<B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8) and <B><A HREF="../man8/smbd.8.php">smbd</A></B>(8).
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+<P>
+
+The original Samba software and related utilities were created by Andrew Tridgell. Samba is now developed by the Samba Team as an Open Source project similar to the way the Linux kernel is developed.
+<P>
+<P>
+
+The original Samba man pages were written by Karl Auer. The man page sources were converted to YODL format (another excellent piece of Open Source software, available at <A HREF="ftp://ftp.icce.rug.nl/pub/unix/)">ftp://ftp.icce.rug.nl/pub/unix/)</A> and updated for the Samba 2.0 release by Jeremy Allison. The conversion to DocBook for Samba 2.2 was done by Gerald Carter. The conversion to DocBook XML 4.2 for Samba 3.0 was done by Alexander Bokovoy.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">MESSAGE-TYPES</A><DD>
+<DT><A HREF="#lbAG">Note</A><DD>
+<DT><A HREF="#lbAH">VERSION</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

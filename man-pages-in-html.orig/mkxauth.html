@@ -1,0 +1,517 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>mkxauth</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>mkxauth</H1>
+Section: Linux User's Manual (1x)<BR>Updated: 12-Dec-1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mkxauth - create and merge .Xauthority files
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+(1)
+<B>mkxauth</B>
+
+[ -q ] [ -u
+<I>login</I>
+
+] -c [
+<I>host</I>
+
+[
+<I>host</I>
+
+... ] ]
+<P>
+
+(2)
+<B>mkxauth</B>
+
+[ -q ] [ -u
+<I>login</I>
+
+] -m
+<I>login</I>
+
+<P>
+
+(3)
+<B>mkxauth</B>
+
+[ -q ] [ -u
+<I>login</I>
+
+] -f
+<I>host</I>
+
+<P>
+
+(4)
+<B>mkxauth</B>
+
+[ -q ] [ -u
+<I>login</I>
+
+] -r
+<I>host</I>
+
+[ -l
+<I>login</I>
+
+]
+<P>
+
+(5)
+<B>mkxauth</B>
+
+[ -q ] [ -u
+<I>login</I>
+
+] -z
+<I>host</I>
+
+[ -l
+<I>login</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>mkxauth </B>
+
+aids in the creation and maintenance of X authentication databases
+(.Xauthority files).  Use it to create a ~/.Xauthority file or merge
+keys from another local or remote .Xauthority file.  Remote .Xauthority
+files can be retrieved via FTP (using 
+<B><A HREF="../man1/ncftp.1.php">ncftp</A></B>(1))
+
+or via 
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1).
+
+For a slight measure of security,
+<B>mkxauth </B>
+
+does not create any temporary files containing authentication keys
+(although anyone spying on network packets can see the authentication
+key data as they pass through the network; for secure network
+communications, use 
+<B><A HREF="../man1/ssh.1.php">ssh</A></B>(1)).
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Creating and Adding to a .Xauthority File</H3>
+
+To create a .Xauthority file, use
+<B>mkxauth -c </B>
+
+(see (1) above).
+<B>mkxauth </B>
+
+creates a .Xauthority file in the user's home directory (~/),
+containing a `key' or `magic cookie' for the host it was run on (the
+one returned by
+<B><A HREF="../man1/hostname.1.php">hostname</A></B>(1)).
+
+If a .Xauthority file already exists, the keys are added to it.  If
+keys for that host already exist, they are replaced.
+<P>
+
+To create or add to a .Xauthority file for another user, use
+<B>mkxauth -u</B>
+
+<I>login</I>
+
+<B>-c</B>.
+
+<B>mkxauth</B>
+
+adds keys to
+~<I>login</I>/.Xauthority
+
+(only the root user is allowed to do this).
+<P>
+
+To add a key for more than one host, specify all hosts on the command
+line:
+<B>mkxauth -c daffy porky </B>
+
+<B>bugs</B>.
+
+All hosts specified on the same command line receive the same key.  To
+create different keys for multiple hosts, run
+<B>mkxauth</B>
+
+for each host in succession:
+<P>
+
+<DL COMPACT><DT><DD>
+
+<BR>
+
+
+<DL COMPACT>
+<DT>
+
+<DD>mkxauth -c daffy
+
+<BR>
+
+
+<DT>
+
+<DD>mkxauth -c porky
+
+<BR>
+
+
+<DT>
+
+<DD>mkxauth -c bugs
+</DL>
+</DL>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Merging Keys from Local .Xauthority Files</H3>
+
+To merge keys from another local user's .Xauthority file, use
+<B>mkxauth -m</B>
+
+<I>login </I>
+
+(see (2) above).
+<B>mkxauth</B>
+
+adds the keys in 
+~<I>login</I>/.Xauthority
+
+to ~/.Xauthority, replacing any keys which already exist.
+~<I>login</I>/.Xauthority
+
+must be readable by the user running
+<B>mkxauth</B>
+
+(normally only the root user can read other people's .Xauthority files).
+<A NAME="lbAG">&nbsp;</A>
+<H3>Merging Keys via FTP</H3>
+
+To merge keys from a remote .Xauthority file via FTP, use
+<B>mkxauth -f</B>
+
+<I>host</I>
+
+(see (3) above).
+<B>mkxauth </B>
+
+retrieves the remote .Xauthority from
+<I>host</I>
+
+using
+<B><A HREF="../man1/ncftp.1.php">ncftp</A></B>(1)
+
+and adds those keys to ~/.Xauthority, replacing any keys which already
+exist.
+[<I>NOTE</I>:
+
+you must have a ~/.netrc file set up to automatically log you into
+<I>host</I>,
+
+otherwise the FTP login attempt will fail.]
+<A NAME="lbAH">&nbsp;</A>
+<H3>Merging Keys via <A HREF="../man1/rsh.1.php">rsh</A>(1)</H3>
+
+To merge keys from remote .Xauthority file via
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1),
+
+use
+<B>mkxauth -r</B>
+
+<I>host</I>
+
+(see (4) above).
+<B>mkxauth</B>
+
+retrieves the remote .Xauthority from
+<I>host</I>
+
+using
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1)
+
+and adds those keys to ~/.Xauthority, replacing any keys which already
+exist.  To login as a different user, use
+<B>-l</B>
+
+<I>login</I>.
+
+[<I>NOTE</I>:
+
+you must have a .rhosts file set up properly for this to work,
+otherwise the remote login attempt will fail].
+<A NAME="lbAI">&nbsp;</A>
+<H3>Merging Keys via <A HREF="../man1/rsh.1.php">rsh</A>(1) and <A HREF="../man1/gzip.1.php">gzip</A>(1)</H3>
+
+If your remote .Xauthority file is large, or to make it slightly less
+obvious that you're transferring authentication keys over the network,
+<B>mkxauth</B>
+
+can
+<B><A HREF="../man1/gzip.1.php">gzip</A></B>(1)
+
+your .Xauthority file before retrieving it via 
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1).
+
+To do this, use
+<B>mkxauth -z</B>
+
+<I>host</I>
+
+(see (5) above).
+<B>mkxauth</B>
+
+retrieves the remote .Xauthority from
+<I>host</I>
+
+using
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1)
+
+and adds those keys to ~/.Xauthority, replacing any keys which already
+exist.  To login as a different user, use
+<B>-l</B>
+
+<I>login</I>.
+
+[<I>NOTE</I>:
+
+you must have a .rhosts file set up properly for this to work,
+otherwise the remote login attempt will fail].
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Options</H3>
+
+To make 
+<B>mkxauth</B>
+
+operate quietly, use the
+<B>-q</B>
+
+option.
+<P>
+
+To add to 
+~<I>login</I>/.Xauthority,
+
+use the
+<B>-u</B>
+
+<I>login</I>
+
+option.
+<P>
+
+To use 
+<I>login</I>
+
+for the remote login in 
+<B>mkxauth </B>
+
+<B>-f</B>,
+
+<B>mkxauth</B>
+
+<B>-r</B>,
+
+and
+<B>mkxauth</B>
+
+<B>-z</B>,
+
+use the
+<B>-l</B>
+
+<I>login </I>
+
+option.
+<A NAME="lbAK">&nbsp;</A>
+<H3>Getting Help</H3>
+
+To get quick help about
+<B>mkxauth</B>,
+
+use 
+<B>mkxauth </B>
+
+<B>--help</B>.
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>FILES</H2>
+
+
+<BR>
+
+
+<DL COMPACT>
+<DT>
+
+~/.Xauthority
+
+<DD>
+
+<DT>
+
+~/.netrc
+
+<DD>
+
+<DT>
+
+~/.rhosts
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>COMMENTS</H2>
+
+<B>mkxauth</B>
+
+<DD>is mostly useful for maintaining .Xauthority files in an environment
+which uses
+<B><A HREF="../man1/startx.1x.php">startx</A></B>(1x).
+
+<B><A HREF="../man1/xdm.1x.php">xdm</A></B>(1x)
+
+uses its own method of generating .Xauthority files.  However, 
+<B>mkxauth</B>
+
+is still useful for transferring .Xauthority information to remote
+login sessions so that the user can display remote X clients on the
+local host without too much trouble.
+<P>
+
+Note, however, that using 
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1)
+
+is inherently insecure, and sites concerned about security should use
+<B><A HREF="../man1/ssh.1.php">ssh</A></B>(1)
+
+instead (see <A HREF="http://www.cs.hut.fi/ssh/">http://www.cs.hut.fi/ssh/</A> for more information).
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/X.1x.php">X</A></B>(1x),
+
+<B><A HREF="../man1/Xsecurity.1x.php">Xsecurity</A></B>(1x),
+
+<B><A HREF="../man1/gzip.1.php">gzip</A></B>(1),
+
+<B><A HREF="../man1/mcookie.1.php">mcookie</A></B>(1),
+
+<B><A HREF="../man1/md5sum.1.php">md5sum</A></B>(1),
+
+<B><A HREF="../man1/ncftp.1.php">ncftp</A></B>(1),
+
+<B><A HREF="../man1/rsh.1.php">rsh</A></B>(1),
+
+<B><A HREF="../man1/startx.1x.php">startx</A></B>(1x),
+
+<B><A HREF="../man1/xauth.1x.php">xauth</A></B>(1x),
+
+<B><A HREF="../man1/xdm.1x.php">xdm</A></B>(1x)
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>BUGS</H2>
+
+Does not respect the XAUTHORITY environment variable.
+<A NAME="lbAP">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Conceived and written by Jim Knoble &lt;<A HREF="mailto:jmknoble@redhat.com">jmknoble@redhat.com</A>&gt;.  Copyright
+1996 by Jim Knoble and Red Hat Software.  Distributed under the GNU GPL
+(General Public License); see <A HREF="ftp://prep.ai.mit.edu/pub/gnu/COPYING">ftp://prep.ai.mit.edu/pub/gnu/COPYING</A> for
+more information.
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Creating and Adding to a .Xauthority File</A><DD>
+<DT><A HREF="#lbAF">Merging Keys from Local .Xauthority Files</A><DD>
+<DT><A HREF="#lbAG">Merging Keys via FTP</A><DD>
+<DT><A HREF="#lbAH">Merging Keys via rsh(1)</A><DD>
+<DT><A HREF="#lbAI">Merging Keys via rsh(1) and gzip(1)</A><DD>
+<DT><A HREF="#lbAJ">Options</A><DD>
+<DT><A HREF="#lbAK">Getting Help</A><DD>
+</DL>
+<DT><A HREF="#lbAL">FILES</A><DD>
+<DT><A HREF="#lbAM">COMMENTS</A><DD>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+<DT><A HREF="#lbAO">BUGS</A><DD>
+<DT><A HREF="#lbAP">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

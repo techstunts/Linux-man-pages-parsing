@@ -1,0 +1,251 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>man2html</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>man2html</H1>
+Section: User Commands  (1)<BR>Updated: 1 January 1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+man2html - format a manual page in html
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+man2html [options] [file]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>man2html</B>
+
+converts a manual page as found in
+<I>file</I>
+
+(or stdin, in case no file argument, or the argument &quot;-&quot;, is given)
+from man-style nroff into html, and prints the result on stdout.
+It does support tbl but does not know about eqn.
+The exit status is 0. If something goes wrong,
+an error page is printed on stdout.
+<P>
+This can be used as a stand-alone utility, but is mainly intended
+as an auxiliary, to enable users to browse their man pages using
+a html browser like
+<B><A HREF="../man1/lynx.1.php">lynx</A></B>(1),
+
+<B><A HREF="../man1/xmosaic.1.php">xmosaic</A></B>(1)
+
+or
+<B><A HREF="../man1/netscape.1.php">netscape</A></B>(1).
+
+
+
+
+
+
+
+<P>
+The main part of
+<B>man2html</B>
+
+is the troff-to-html engine written by Richard Verhoeven (<A HREF="mailto:rcb5@win.tue.nl">rcb5@win.tue.nl</A>).
+It adds hyperlinks for the following constructs:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD><A HREF="../man3/foo.3x.php">foo</A>(3x)</TD><TD>&quot;<A HREF="http://localhost/cgi-bin/man/man2html?3x+foo">http://localhost/cgi-bin/man/man2html?3x+foo</A>&quot;<BR></TD></TR>
+<TR VALIGN=top><TD><A HREF="method://string">method://string</A></TD><TD>&quot;<A HREF="method://string">method://string</A>&quot;<BR></TD></TR>
+<TR VALIGN=top><TD><A HREF="http://www.host.name">www.host.name</A></TD><TD>&quot;<A HREF="http://www.host.name">http://www.host.name</A>&quot;<BR></TD></TR>
+<TR VALIGN=top><TD><A HREF="ftp://ftp.host.name">ftp.host.name</A></TD><TD>&quot;<A HREF="ftp://ftp.host.name">ftp://ftp.host.name</A>&quot;<BR></TD></TR>
+<TR VALIGN=top><TD><A HREF="mailto:name@host">name@host</A></TD><TD>&quot;mailto:<A HREF="mailto:name@host">name@host</A>&quot;<BR></TD></TR>
+<TR VALIGN=top><TD>&lt;<A HREF="file:/usr/include/string.h">string.h</A>&gt;</TD><TD>&quot;file:/usr/include/string.h&quot;<BR></TD></TR>
+</TABLE>
+
+<P>
+
+(The first of these can be tuned by options - see below.)
+No lookup is done - the links generated need not exist.
+Also an index with internal hyperlinks to the various sections
+is generated, so that it is easier to find one's way
+in large man pages like
+<B><A HREF="../man1/bash.1.php">bash</A></B>(1).
+
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+When reading from stdin, it is not always clear how to
+do .so expansion. The -D option allows a script to define
+the working directory.
+<P>
+
+<DL COMPACT>
+<DT><B>-D pathname</B>
+
+<DD>
+Strip the last two parts from the pathname, and do a
+<I>chdir</I>(<I>dir</I>) before starting the conversion.
+</DL>
+<P>
+
+The -E option allows the easy generation of error messages
+from a cgi script.
+<P>
+
+<DL COMPACT>
+<DT><B>-E string</B>
+
+<DD>
+Output an error page containing the given error message.
+</DL>
+<P>
+
+The general form of a hyperlink generated for a man page reference is
+<DL COMPACT>
+<DT><DD>
+&lt;method:cgipath&gt;&lt;man2htmlpath&gt;&lt;separator&gt;&lt;manpage&gt;
+</DL>
+<P>
+
+with a default as shown above. The parts of this hyperlink
+are set using the various options.
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+Set method:cgipath to <A HREF="http://localhost.">http://localhost.</A> This is the default.
+<DT><B>-H</B><I> host[.domain][:port]</I>
+
+<DD>
+Set method:cgipath to
+http://<I>host.domain:port</I>.
+
+<DT><B>-l</B>
+
+<DD>
+Set method:cgipath to
+lynxcgi:<I>/home/httpd</I>.
+
+<DT><B>-L</B><I> dir</I>
+
+<DD>
+Set method:cgipath to
+lynxcgi:<I>dir</I>.
+
+<DT><B>-M</B><I> man2htmlpath</I>
+
+<DD>
+Set the man2htmlpath to use. The default is
+<I>/cgi-bin/man/man2html</I>.
+
+<DT><B>-p</B>
+
+<DD>
+Set separator to '/'.
+<DT><B>-q</B>
+
+<DD>
+Set separator to '?'. This is the default.
+<DT><B>-r</B>
+
+<DD>
+Use relative html paths, instead of cgi-bin paths.
+</DL>
+<P>
+
+On a machine without running
+<B>httpd</B>,
+
+one can use
+<B>lynx</B>
+
+to browse the man pages, using the lynxcgi method.
+When some http daemon is running, lynx, or any other browser,
+can be used to browse the man pages, using the http method.
+The option -l (for `lynxcgi') selects the former behaviour.
+With it, the default cgipath is <I>/home/httpd</I>.
+<P>
+In general, a cgi script can be called by
+<DL COMPACT>
+<DT><DD>
+&lt;path_to_script&gt;/&lt;more_path&gt;?&lt;query&gt;
+</DL>
+<P>
+
+and the environment variables PATH_INFO and QUERY_STRING
+will be set to &lt;more_path&gt; and &lt;query&gt;, respectively.
+Since lynxcgi does not handle the PATH_INFO part, we generate
+hyperlinks with `?' as a separator by default.
+The option -p (for `path') selects '/' as a separator, while
+the option -q (for `query') selects '?' as a separator.
+<P>
+The option -H <I>host</I> will specify the host to use
+(instead of <I>localhost</I>).  A cgi script could use
+<DL COMPACT>
+<DT><DD>
+man2html -H $SERVER_NAME
+</DL>
+<P>
+
+if the variable SERVER_NAME is set.  This would allow your machine
+to act as a server and export man pages.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+There are many heuristics.  The output will not always be perfect.
+The lynxcgi method will not work if lynx was compiled without
+selecting support for it.  There may be problems with security.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/lynx.1.php">lynx</A></B>(1),
+
+<B><A HREF="../man1/man.1.php">man</A></B>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

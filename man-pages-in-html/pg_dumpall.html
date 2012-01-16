@@ -1,0 +1,248 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PG_DUMPALL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PG_DUMPALL</H1>
+Section: PostgreSQL Client Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pg_dumpall - extract a PostgreSQL database cluster into a script file
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>pg_dumpall</B> [ <B></B><I>option</I><B></B>...<B> </B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>pg_dumpall</B> is a utility for writing out
+(``dumping'') all PostgreSQL databases
+of a cluster into one script file. The script file contains
+SQL commands that can be used as input to <B><A HREF="../man1/psql.1.php">psql</A></B>(1) to restore the databases. It does this by
+calling <B><A HREF="../man1/pg_dump.1.php">pg_dump</A></B>(1) for each database in a cluster.
+<B>pg_dumpall</B> also dumps global objects
+that are common to all databases.
+(<B>pg_dump</B> does not save these objects.)
+This currently includes information about database users and
+groups, and access permissions that apply to databases as a whole.
+<P>
+
+Thus, <B>pg_dumpall</B> is an integrated
+solution for backing up your databases. But note a limitation:
+it cannot dump ``large objects'', since
+<B>pg_dump</B> cannot dump such objects into
+text files. If you have databases containing large objects,
+they should be dumped using one of <B>pg_dump</B>'s
+non-text output modes.
+<P>
+
+Since <B>pg_dumpall</B> reads tables from all
+databases you will most likely have to connect as a database
+superuser in order to produce a complete dump. Also you will need
+superuser privileges to execute the saved script in order to be
+allowed to add users and groups, and to create databases.
+<P>
+
+The SQL script will be written to the standard output. Shell
+operators should be used to redirect it into a file.
+<P>
+
+<B>pg_dumpall</B> needs to connect several
+times to the PostgreSQL server and might be asking for
+a password each time. It is convenient to have a
+<I>$HOME/.pgpass</I> file in such cases.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+The following command-line options are used to control the content and
+format of the output.
+<DL COMPACT>
+<DT><B>-a</B><DD>
+<DT><B>--data-only</B><DD>
+Dump only the data, not the schema (data definitions).
+<DT><B>-c</B><DD>
+<DT><B>--clean</B><DD>
+Include SQL commands to clean (drop) the databases before
+recreating them.
+<DT><B>-d</B><DD>
+<DT><B>--inserts</B><DD>
+Dump data as <B>INSERT</B> commands (rather
+than <B>COPY</B>). This will make restoration very
+slow, but it makes the output more portable to other SQL database
+packages.
+<DT><B>-D</B><DD>
+<DT><B>--column-inserts</B><DD>
+<DT><B>--attribute-inserts</B><DD>
+Dump data as <B>INSERT</B> commands with explicit
+column names (INSERT INTO
+<I>table</I>
+(<I>column</I>, ...) VALUES
+...). This will make restoration very slow,
+but it is necessary if you desire to rearrange column ordering.
+<DT><B>-g</B><DD>
+<DT><B>--globals-only</B><DD>
+Dump only global objects (users and groups), no databases.
+<DT><B>-i</B><DD>
+<DT><B>--ignore-version</B><DD>
+Ignore version mismatch between
+<B>pg_dumpall</B> and the database server.
+<P>
+<B>pg_dumpall</B> can handle databases
+from previous releases of PostgreSQL, but very
+old versions are not supported anymore (currently prior to
+7.0). Use this option if you need to override the version
+check (and if <B>pg_dumpall</B> then
+fails, don't say you weren't warned).
+<DT><B>-o</B><DD>
+<DT><B>--oids</B><DD>
+Dump object identifiers (OIDs) for every
+table. Use this option if your application references the OID
+columns in some way (e.g., in a foreign key constraint).
+Otherwise, this option should not be used.
+<DT><B>-s</B><DD>
+<DT><B>--schema-only</B><DD>
+Dump only the schema (data definitions), no data.
+<DT><B>-v</B><DD>
+<DT><B>--verbose</B><DD>
+Specifies verbose mode. This will cause
+<B>pg_dumpall</B> to print progress
+messages to standard error.
+<DT><B>-x</B><DD>
+<DT><B>--no-privileges</B><DD>
+<DT><B>--no-acl</B><DD>
+Prevent dumping of access privileges (grant/revoke commands).
+</DL>
+<P>
+
+<P>
+
+The following command-line options control the database connection parameters.
+<DL COMPACT>
+<DT><B>-h </B><I>host</I><B></B><DD>
+Specifies the host name of the machine on which the database
+server is running. If the value begins with a slash, it is
+used as the directory for the Unix domain socket. The default
+is taken from the <B>PGHOST</B> environment variable,
+if set, else a Unix domain socket connection is attempted.
+<DT><B>-p </B><I>port</I><B></B><DD>
+Specifies the TCP port or local Unix domain socket file
+extension on which the server is listening for connections.
+Defaults to the <B>PGPORT</B> environment variable, if
+set, or a compiled-in default.
+<DT><B>-U </B><I>username</I><B></B><DD>
+Connect as the given user.
+<DT><B>-W</B><DD>
+Force a password prompt. This should happen automatically if
+the server requires password authentication.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGHOST</B><DD>
+<DT><B>PGPORT</B><DD>
+<DT><B>PGUSER</B><DD>
+Default connection parameters
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+Since <B>pg_dumpall</B> calls
+<B>pg_dump</B> internally, some diagnostic
+messages will refer to <B>pg_dump</B>.
+<P>
+
+Once restored, it is wise to run <B>ANALYZE</B> on each
+database so the optimizer has useful statistics. You
+can also run <B>vacuumdb -a -z</B> to analyze all
+databases.
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+To dump all databases:
+<P>
+<PRE>
+$ <B>pg_dumpall &gt; db.out</B>
+
+</PRE>
+
+<P>
+
+To reload this database use, for example:
+<P>
+<PRE>
+$ <B>psql -f db.out template1</B>
+
+</PRE>
+
+(It is not important to which database you connect here since the
+script file created by <B>pg_dumpall</B> will
+contain the appropriate commands to create and connect to the saved
+databases.)
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man1/pg_dump.1.php">pg_dump</A></B>(1). Check there for details on possible
+error conditions.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">NOTES</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

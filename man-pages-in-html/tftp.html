@@ -1,0 +1,250 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>TFTP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>TFTP</H1>
+Section: User's Manual (1)<BR>Updated: 2 February 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>tftp</B>
+
+- IPv4 Trivial File Transfer Protocol client
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>tftp</B>
+
+[ <I>options...</I> ]
+[<I>host</I> [<I>port</I>]]
+[<B>-c</B> <I>command</I>]
+<BR>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>tftp</B>
+
+is a client for the IPv4 Trivial file Transfer Protocol, which can be
+used to transfer files to and from remote machines, including some
+very minimalistic, usually embedded, systems.  The remote
+<I>host</I>
+
+may be specified on the command line, in which case
+<B>tftp</B>
+
+uses
+<I>host</I>
+
+as the default host for future transfers (see the
+<B>connect</B>
+
+command below.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-c</B> <I>command</I><DD>
+Execute <I>command</I> as if it had been entered on the tftp prompt.
+Must be specified last on the command line.
+<DT><B>-m</B> <I>mode</I><DD>
+Set the default transfer mode to <I>mode</I>.  This is usually used with -c.
+<DT><B>-v</B>
+
+<DD>
+Default to verbose mode.
+<DT><B>-V</B>
+
+<DD>
+Print the version number and configuration to standard output, then
+exit gracefully.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+Once
+<B>tftp</B>
+
+is running, it issues the prompt
+<TT>tftp&gt;</TT>
+and recognizes the following commands:
+<DL COMPACT>
+<DT><B>?</B> <I>command-name...</I><DD>
+<DT><B>help</B> <I>command-name...</I><DD>
+Print help information
+<DT><B>ascii</B>
+
+<DD>
+Shorthand for
+<B>mode ascii</B>.
+
+<DT><B>binary</B>
+
+<DD>
+Shorthand for
+<B>mode binary</B>.
+
+<DT><B>connect</B> <I>host [port]</I><DD>
+Set the
+<I>host</I>
+
+(and optionally
+<I>port</I>)
+
+for transfers.  Note that the TFTP protocol, unlike the FTP protocol,
+does not maintain connections between transfers; thus, the
+<B>connect</B>
+
+command does not actually create a connection, but merely remembers
+what host is to be used for transfers.  You do not have to use the
+<B>connect</B>
+
+command; the remote host can be specified as part of the
+<B>get</B>
+
+or
+<B>put</B>
+
+commands.
+<DT><B>get</B> <I>file</I><DD>
+<P>
+<DT><B>get</B> <I>remotefile localfile</I><DD>
+<P>
+<DT><B>get</B> <I>file1 file2 file3...</I><DD>
+Get a file or set of files from the specified sources.  A remote
+filename can be in one of two forms: a plain filename on the remote
+host, if the host has already been specified, or a string of the form
+<I>host:filename</I>
+
+to specify both a host and filename at the same time.  If the latter
+form is used, the last hostname specified becomes the default for
+future transfers.
+<DT><B>mode</B> <I>transfer-mode</I><DD>
+Specify the mode for transfers;
+<I>transfer-mode</I>
+
+may be one of
+<B>ascii</B>
+
+(or
+<B>netascii</B>)
+
+or
+<B>binary</B>
+
+(or
+<B>octet</B>.)
+
+The default is
+<B>ascii</B>.
+
+<DT><B>put</B> <I>file</I><DD>
+<P>
+<DT><B>put</B> <I>localfile remotefile</I><DD>
+<P>
+<DT><B>put</B> <I>file1 file2 file3... remote-directory</I><DD>
+Put a file or set of files to the specified remote file or directory.
+The destination can be in one of two forms: a filename on the remote
+host, if the host has already been specified, or a string of the form
+<I>host:filename</I>
+
+to specify both a host and filename at the same time.  If the latter
+form is used, the hostname specified becomes the default for future
+transfers.  If the remote-directory form is used, the remote host is
+assumed to be a UNIX system or another system using
+<B>/</B>
+
+as directory separator.
+<DT><B>quit</B>
+
+<DD>
+Exit
+<B>tftp</B>.
+
+End-of-file will also exit.
+<DT><B>rexmt</B> <I>retransmission-timeout</I><DD>
+Set the per-packet retransmission timeout, in seconds.
+<DT><B>status</B>
+
+<DD>
+Show current status.
+<DT><B>timeout</B> <I>total-transmission-timeout</I><DD>
+Set the total transmission timeout, in seconds.
+<DT><B>trace</B>
+
+<DD>
+Toggle packet tracing (a debugging feature.)
+<DT><B>verbose</B>
+
+<DD>
+Toggle verbose mode.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>NOTES</H2>
+
+The TFTP protocol provides no provisions for authentication or
+security.  Therefore, the remote server will probably implement some
+kinds of access restriction or firewalling.  These access restrictions
+are likely to be site- and server-specific.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+This version of
+<B>tftp</B>
+
+is maintained by H. Peter Anvin &lt;<A HREF="mailto:hpa@zytor.com">hpa@zytor.com</A>&gt;.  It was derived from,
+but has substantially diverged from, an OpenBSD source base, with
+added patches by Markus Gutschke and Gero Kulhman.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man8/tftpd.8.php">tftpd</A></B>(8).
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">COMMANDS</A><DD>
+<DT><A HREF="#lbAG">NOTES</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

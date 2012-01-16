@@ -1,0 +1,272 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ATTR</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ATTR</H1>
+Section: XFS Compatibility API (1)<BR>Updated: Extended Attributes<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+attr - extended attributes on XFS filesystem objects
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<PRE>
+<B>attr</B> [ <B>-LRq</B> ] <B>-s attrname</B> [ <B>-V attrvalue</B> ] <B>pathname</B>
+
+<B>attr</B> [ <B>-LRq</B> ] <B>-g attrname pathname</B>
+
+<B>attr</B> [ <B>-LRq</B> ] <B>-r attrname pathname</B>
+
+</PRE>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>OVERVIEW</H2>
+
+Extended attributes implement the ability for a user to attach
+name:value pairs to objects within the XFS filesystem.
+
+They could be used to store meta-information about the file.
+For example &quot;character-set=kanji&quot; could tell a document browser to
+use the Kanji character set when displaying that document
+and &quot;thumbnail=...&quot; could provide a reduced resolution overview of a
+high resolution graphic image.
+<P>
+
+This document describes the
+<I>attr</I>
+
+command, which is mostly compatible with the IRIX command of the same name.
+It is thus aimed specifically at users of the XFS filesystem - for
+filesystem independent extended attribute manipulation, consult the
+<I><A HREF="../man1/getfattr.1.php">getfattr</A></I>(1)
+
+and 
+<I><A HREF="../man1/setfattr.1.php">setfattr</A></I>(1)
+
+documentation.
+
+In the XFS filesystem, the
+<I>names</I>
+
+can be up to 256 bytes in length, terminated by the first 0 byte.
+The intent is that they be printable ASCII (or other character set)
+names for the attribute.
+The
+<I>values</I>
+
+can be up to 64KB of arbitrary binary data.
+
+Attributes can be attached to all types of XFS inodes:
+regular files, directories, symbolic links, device nodes, etc.
+
+XFS uses 2 disjoint attribute name spaces associated with every
+filesystem object.
+They are the
+<B>root</B>
+
+and
+<B>user</B>
+
+address spaces.
+The
+<B>root</B>
+
+address space is accessable only to the superuser,
+and then only by specifying a flag argument to the function call.
+Other users will not see or be able to modify attributes in the
+<B>root</B>
+
+address space.
+The
+<B>user</B>
+
+address space is protected by the normal file permissions mechanism,
+so the owner of the file can decide who is able to see and/or modify
+the value of attributes on any particular file.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>attr</I>
+
+utility allows the manipulation of extended attributes associated with
+filesystem objects from within shell scripts.
+<P>
+
+There are four main operations that
+<I>attr</I>
+
+can perform:
+<DL COMPACT>
+<DT><B>GET</B>
+
+<DD>
+The
+<B>-g attrname</B>
+
+option tells
+<I>attr</I>
+
+to search the named object and print (to <TT>stdout</TT>) the value
+associated with that attribute name.
+With the
+<B>-q</B>
+
+flag, <TT>stdout</TT> will be exactly and only the value of the attribute,
+suitable for storage directly into a file or processing via a piped command.
+<DT><B>REMOVE</B>
+
+<DD>
+The
+<B>-r attrname</B>
+
+option tells
+<I>attr</I>
+
+to remove an attribute with the given name from the object if the
+attribute exists.
+There is no output on sucessful completion.
+<DT><B>SET/CREATE</B>
+
+<DD>
+The
+<B>-s attrname</B>
+
+option tells
+<I>attr</I>
+
+to set the named attribute of the object to the value read from <TT>stdin</TT>.
+If an attribute with that name already exists,
+its value will be replaced with this one.
+If an attribute with that name does not already exist,
+one will be created with this value.
+With the
+<B>-V attrvalue</B>
+
+flag, the attribute will be set to have a value of
+<B>attrvalue</B>
+
+and <TT>stdin</TT> will not be read.
+With the
+<B>-q</B>
+
+flag, <TT>stdout</TT> will not be used.
+Without the
+<B>-q</B>
+
+flag, a message showing the attribute name and the entire value
+will be printed.
+</DL>
+<P>
+
+When the
+<B>-L</B>
+
+option is given and the named object is a symbolic link,
+operate on the attributes of the object referenced by the symbolic link.
+Without this option, operate on the attributes of the symbolic link itself.
+<P>
+
+When the
+<B>-R</B>
+
+option is given and the process has appropriate privileges,
+operate in the
+<I>root</I>
+
+attribute namespace rather that the
+<I>USER</I>
+
+attribute namespace.
+<P>
+
+When the
+<B>-q</B>
+
+option is given
+<I>attr</I>
+
+will try to keep quiet.
+It will output error messages (to <TT>stderr</TT>)
+but will not print status messages (to <TT>stdout</TT>).
+<A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+The standard file interchange/archive programs
+<I><A HREF="../man1/tar.1.php">tar</A></I>(1),
+
+and
+<I><A HREF="../man1/cpio.1.php">cpio</A></I>(1)
+
+will not archive or restore extended attributes,
+while the
+<I><A HREF="../man8/xfsdump.8.php">xfsdump</A></I>(8)
+
+program will.
+<A NAME="lbAG">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+The list option present in the IRIX version of this command is not supported.
+<I>getfattr</I>
+
+provides a mechanism to retrieve all of the attribute names.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/getfattr.1.php">getfattr</A>(1),
+<A HREF="../man1/setfattr.1.php">setfattr</A>(1),
+<A HREF="../man3/attr_get.3.php">attr_get</A>(3),
+<A HREF="../man3/attr_set.3.php">attr_set</A>(3),
+<A HREF="../man3/attr_multi.3.php">attr_multi</A>(3),
+<A HREF="../man3/attr_remove.3.php">attr_remove</A>(3),
+<A HREF="../man5/attr.5.php">attr</A>(5),
+and
+<A HREF="../man8/xfsdump.8.php">xfsdump</A>(8).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">OVERVIEW</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">CAVEATS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

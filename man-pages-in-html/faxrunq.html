@@ -1,0 +1,263 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>faxrunq</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>faxrunq</H1>
+Section: mgetty+sendfax manual (1)<BR>Updated: 23 Nov 02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="ixAAB"></A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+faxrunq - send fax jobs queued by <A HREF="../man1/faxspool.1.php">faxspool</A>(1)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>faxrunq</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Run the fax queue set up by <A HREF="../man1/faxspool.1.php">faxspool</A>(1), try to send all faxes, record
+result, remove job and send notify mails.
+<P>
+<I>faxrunq </I>
+
+looks for all the jobs queued by <A HREF="../man1/faxspool.1.php">faxspool</A>(1) to
+/var/spool/fax/outgoing/*. For each job in the queue, faxrunq tries to
+send it, using <A HREF="../man8/sendfax.8.php">sendfax</A>(8).
+<P>
+If the send succeeds, the job is removed from the queue, and a &quot;success&quot;
+mail is sent to the originator of the spooled job.
+<P>
+If the send fails, it's logged, and faxrunq proceeds to the next job. If
+the job fails five times &quot;fatally&quot;, that is, not with a locked or engaged
+line, but with &quot;NO CARRIER&quot; (no fax machine, or line noise), the job is
+suspended, and the requestor gets a mail, telling him so.
+<P>
+<I>faxrunq</I>
+
+can be run from the command line (but make sure the user doing this
+has write access to the modem device and to the fax queue, that is,
+usually this should be done by &quot;@FAX_OUT_USER&quot; or &quot;root&quot;).  In a 
+production environment, it's more useful to start 
+<I>faxrunq</I>
+
+from
+<I><A HREF="../man8/cron.8.php">cron</A>(8)</I>
+
+in regular intervals, like &quot;run it every 5 minutes&quot;.  See the
+<I><A HREF="../man8/cron.8.php">cron</A>(8)</I>
+
+and/or
+<I><A HREF="../man1/crontab.1.php">crontab</A>(1)</I>
+
+man pages for this (which man page exists depends on your system).
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-q</B>
+
+<DD>
+Tells
+<I>faxrunq</I>
+
+to be quiet, that is, suppress all status messages.  Error messages will
+still be printed.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>/var/spool/fax/outgoing/stop</B>
+
+<DD>
+if this file exists, 
+<I>faxrunq </I>
+
+(and faxrunqd) will do nothing.  You can use this to stop queue processing
+while testing something, or if you know that the modem(s) are unavailable
+and do not want to run into oany error messages, etc.
+<P>
+<DT><B>/var/spool/fax/outgoing/faxqueue_done</B>
+
+<DD>
+Every time
+<I>faxrunq</I>
+
+(or faxrunqd) run the fax queue, a time stamp is written into that file.
+It is used by
+<I>faxspool</I>
+
+to display a warning if the queue hasn't been run recently (so faxes may
+get stuck).
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CONFIGURATION FILE</H2>
+
+<P>
+Some aspects of the behaviour of 
+<I>faxrunq</I>
+
+can be controlled by a configuration file, /etc/mgetty+sendfax/faxrunq.config.  In
+this file, you can use the following options:
+<DL COMPACT>
+<DT><B>success-send-mail [y/n]</B>
+
+<DD>
+A boolean parameter that controls whether a mail will be sent after
+successful completition of the fax job.
+<P>
+<DT><B>failure-send-mail [y/n]</B>
+
+<DD>
+A boolean parameter that controls whether a mail will be sent after
+the fax job has failed more than the maximum number of times.
+<P>
+<DT><B>success-call-program &lt;name&gt;</B>
+
+<DD>
+Here, you can specify a program that will be run when the fax has been
+successfully sent. It will be passed two command line parameters. The
+first is the full path to the fax JOB file (see <A HREF="../man5/faxq.5.php">faxq</A>(5)), the second
+is the last exit code from
+<I>sendfax</I>
+
+(for success-call-program, this is always &quot;0&quot;).
+<P>
+<DT><B>failure-call-program &lt;name&gt;</B>
+
+<DD>
+Similar to the &quot;success-call-program&quot;, this program will be run when the
+fax has been failed too often and 
+<I>faxrunq</I>
+
+gives up. This script could, for example, print out the fax on a printer
+so that it can be sent manually on a paper fax machine.  
+<P>
+<DT><B>maxfail-costly &lt;n&gt;</B>
+
+<DD>
+This specifies the number of times that a fax may fail &quot;fatally&quot;, that
+is, causing telephone costs (explained above). The default value is 5.
+<P>
+<DT><B>maxfail-total &lt;m&gt;</B>
+
+<DD>
+This is the absolute maximum number of times that 
+<I>faxrunq</I>
+
+will try to send any given fax. The default value is 10. (Right now, 
+it's not yet implemented).
+<P>
+<DT><B>delete-sent-jobs [y/n]</B>
+
+<DD>
+Determines whether
+<I>faxrunq</I>
+
+should delete jobs after sending, or leave them in the fax queue (while
+moving the &quot;JOB&quot; file to &quot;JOB.done&quot;) so that they can be seen at by
+&quot;faxq -o&quot;. The default value is &quot;do not delete sent faxes&quot;.
+<P>
+<DT><B>acct-log &lt;path&gt;</B>
+
+<DD>
+Specifies where
+<I>faxrunq</I>
+
+should protocol success and failure of each try to send a fax job.
+The default location is /var/spool/fax/outgoing/acct.log.
+<P>
+There are some other options that are allowed, but ignored.  These are:
+<I>max-modems,</I>
+
+and
+<I>faxrunqd-log.</I>
+
+<P>
+They are used by <A HREF="../man8/faxrunqd.8.php">faxrunqd</A>(8) (which reads the same config file, but has
+more options).
+<P>
+<A NAME="ixAAC"></A>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<I>faxrunq</I>
+
+doesn't handle proper time scheduling yet
+<P>
+Don't use
+<I>faxrunq</I>
+
+if you have malevolent users with access to the fax spool.  It doesn't
+handle all cases of file movement tricks correctly.  Use
+<I><A HREF="../man8/faxrunqd.8.php">faxrunqd</A>(8)</I>
+
+instead, which does it correctly  (this point is mostly moot if the fax
+queue is set up correctly - that is, owned by 'fax', mode 755,
+and <A HREF="../man1/faxrunq.1.php">faxrunq</A>(1) is also run as user 'fax').
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/faxspool.1.php">faxspool</A>(1), <A HREF="../man8/sendfax.8.php">sendfax</A>(8), <A HREF="../man1/faxq.1.php">faxq</A>(1), <A HREF="../man5/faxqueue.5.php">faxqueue</A>(5), <A HREF="../man8/faxrunqd.8.php">faxrunqd</A>(8)
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<I>faxrunq</I>
+
+is Copyright (C) 1993-2002 by Gert Doering, &lt;<A HREF="mailto:gert@greenie.muc.de">gert@greenie.muc.de</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">CONFIGURATION FILE</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,557 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>bcc</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>bcc</H1>
+Section: User Commands  (1)<BR>Updated: Nov, 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+bcc - Bruce's C compiler
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>bcc</B>
+
+[<B>-03EGNOPSVcegvwxW</B>]
+
+[<B>-Aas_option</B>]
+
+[<B>-Bexecutable_prefix</B>]
+
+[<B>-Ddefine</B>]
+
+[<B>-Uundef</B>]
+
+[<B>-Mc_mode</B>]
+
+[<B>-o&nbsp;outfile</B>]
+
+[<B>-ansi</B>]
+
+[<B>-Ccc1_option</B>]
+
+[<B>-Pcpp_option</B>]
+
+[<B>-Iinclude_dir</B>]
+
+[<B>-Lld_option</B>]
+
+[<B>-Ttmpdir</B>]
+
+[<B>-Qc386_option</B>]
+
+[<B>-ttext_segno</B>]
+
+[<B>ld_options</B>]
+
+[<B>infiles</B>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Bcc</B>
+
+is a simple C compiler that produces 8086 assembler, in addition compiler
+compile time options allow 80386 or 6809 versions. The compiler understands
+traditional K&amp;R C with just the restriction that bit fields are mapped to
+one of the other integer types.
+<P>
+The default operation is to produce an 8086 executable called
+<B>a.out</B>
+
+from the source file.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-ansi</B>
+
+<DD>
+Pass the C source through
+<B>unprotoize</B>
+
+after preprocessing and before code generation. This will allow
+<I>some</I>
+
+ansi C to be compiled but it is definitly
+<B>NOT</B>
+
+a true ansi-C compiler.
+<DT><B>-0</B>
+
+<DD>
+8086 target (works on 80386 host, but not 6809)
+<DT><B>-3</B>
+
+<DD>
+80386 target (may work on 8086 host, but not 6809)
+<DT><B>-A</B>
+
+<DD>
+pass remainder of option to assembler (e.g. -A-l -Alistfile for a listing)
+<DT><B>-B</B>
+
+<DD>
+prefix for executable search path (as usual; the search order is all paths
+specified using
+<B>-B</B>,
+
+in order, then the path given in the environment variable
+<B>BCC_EXEC_PREFIX</B>
+
+if that is set, then the compiled-in defaults
+(something like /usr/lib/bcc/ followed by /usr/bin/)
+<DT><B>-C</B>
+
+<DD>
+pass remainder of option to bcc-cc1, see code generation options.
+<DT><B>-D</B>
+
+<DD>
+preprocessor define
+<DT><B>-E</B>
+
+<DD>
+produce preprocessor output to standard out.
+<DT><B>-G</B>
+
+<DD>
+produce GCC objects (Same as -Mg)
+<DT><B>-Ixyz</B>
+
+<DD>
+include search 'xyz' path
+<DT><B>-I</B>
+
+<DD>
+don't add default include to search list
+<DT><B>-Lxyz</B>
+
+<DD>
+add directory name 'xyz' to the head of the list of library directories searched
+<DT><B>-L</B>
+
+<DD>
+don't add default library to search list
+<DT><B>-Md</B>
+
+<DD>
+alters the arguments for all passes to produce MSDOS executable COM files.
+These are small model executables, use
+<B>-i</B>
+
+to get tiny model.
+<DT><B>-Mf</B>
+
+<DD>
+sets bcc to pass the
+<B>-c</B>
+
+and
+<B>-f</B>
+
+arguments to the code generator for smaller faster code. Note this code is
+not compatible with the standard calling conventions so a different version
+of the C library is linked too.
+<DT><B>-Mc</B>
+
+<DD>
+sets bcc to pass the
+<B>-c</B>
+
+argument to the code generator for smaller faster code. Note the standard
+libc is normally transparent to this, but there are exceptions.
+<DT><B>-Ms</B>
+
+<DD>
+alters the arguments for all passes and selects C-library
+to produce standalone Linux-86 executables
+<DT><B>-Ml</B>
+
+<DD>
+switches to i386-Linux code generator and library.
+This configuration accepts the
+<B>-z</B>
+
+flag to generate QMAGIC a.out files instead of the normal OMAGIC.
+<DT><B>-Mg</B>
+
+<DD>
+switches to i386-Linux code generator and generates OMAGIC object files
+that can be linked with some versions of gcc; unfortunatly the most recent
+versions use 'collect2' to link and this crashes.
+<DT><B>-N</B>
+
+<DD>
+makes the linker produce a native a.out file (Linux OMAGIC) if combined
+with -3 the executable will run under Linux-i386.
+<DT><B>-O</B>
+
+<DD>
+optimize, call
+<B>copt</B>(<B>1</B>)
+
+to optimize 8086 code. Specifiers to choose which rules 
+<B>copt</B>
+
+should use can be appended to the
+<B>-O</B>
+
+and the option can be repeated.
+<DT><B>-P</B>
+
+<DD>
+produce preprocessor output with no line numbers to standard output.
+<DT><B>-Q</B>
+
+<DD>
+pass full option to c386 (Only for c386 version)
+<DT><B>-S</B>
+
+<DD>
+produce assembler file
+<DT><B>-T</B>
+
+<DD>
+temporary directory (overrides previous value and default; default is
+from the environment variable TMPDIR if that is set, otherwise /tmp)
+<DT><B>-U</B>
+
+<DD>
+preprocessor undefine
+<DT><B>-V</B>
+
+<DD>
+print names of files being compiled
+<DT><B>-X</B>
+
+<DD>
+pass remainder of option to linker (e.g. -X-Ofile is passed to the linker
+as -Ofile)
+<DT><B>-c</B>
+
+<DD>
+produce object file
+<DT><B>-f</B>
+
+<DD>
+error (float emulation not supported)
+<DT><B>-g</B>
+
+<DD>
+produce debugging info (does nothing)
+<DT><B>-o</B>
+
+<DD>
+output file name follows (assembler, object or executable) (as usual)
+<DT><B>-p</B>
+
+<DD>
+error (profiling not supported)
+<DT><B>-t1</B>
+
+<DD>
+pass to the assembler to renumber the text segment for multi-segment programs.
+<DT><B>-v</B>
+
+<DD>
+print names and args of subprocesses being run.  Two or more -v's print
+names of files being unlinked.  Three or more -v's print names of paths
+being searched.
+<DT><B>-w</B>
+
+<DD>
+Supress any warning diagnostics.
+<DT><B>-W</B>
+
+<DD>
+Turn
+<B>on</B>
+
+assembler warning messages.
+<DT><B>-x</B>
+
+<DD>
+don't include crt0.o in the link.
+<DT><B>-i</B>
+
+<DD>
+don't pass
+<B>-i</B>
+
+to the linker so that it will create an impure executable.
+
+Other options are passed to the linker, in particular -lx, -M, -m, -s, -H.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>CODE GENERATOR OPTIONS</H2>
+
+These are all options that the code generator pass
+<B>bcc-cc1</B>
+
+understands, only some will be useful for the
+<B>-C</B>
+
+option of bcc.
+<DL COMPACT>
+<DT><B>-0</B>
+
+<DD>
+8086 target (works even on 80386 host, not on 6809)
+<DT><B>-3</B>
+
+<DD>
+80386 target (may work even on 8086 host, not on 6809)
+<DT><B>-D</B>
+
+<DD>
+define (as usual)
+<DT><B>-E</B>
+
+<DD>
+produce preprocessor output (as usual)
+<DT><B>-I</B>
+
+<DD>
+include search path (as usual)
+<DT><B>-P</B>
+
+<DD>
+produce preprocessor output with no line numbers (as usual)
+<DT><B>-c</B>
+
+<DD>
+produce code with caller saving regs before function calls
+<DT><B>-d</B>
+
+<DD>
+print debugging information in assembly output
+<DT><B>-f</B>
+
+<DD>
+produce code with 1st argument passed in a register (AX, EAX or X)
+<DT><B>-l</B>
+
+<DD>
+produce code for 2 3 1 0 long byte order (only works in 16-bit code),
+a special library of compiler helper functions is needed for this mode.
+<DT><B>-o</B>
+
+<DD>
+assembler output file name follows
+<DT><B>-p</B>
+
+<DD>
+produce (almost) position-independent code (only for the 6809)
+<DT><B>-t</B>
+
+<DD>
+print source code in assembly output
+<DT><B>-w</B>
+
+<DD>
+print what cc1 thinks is the location counter in assembly output
+
+All the options except -D, -I and -o may be turned off by following the
+option letter by a '-'.  Options are processed left to right so the last
+setting has precedence.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>PREPROCESSOR DEFINES</H2>
+
+The preprocessor has a number of manifest constants.
+<DL COMPACT>
+<DT><B>__BCC__ 1</B>
+
+<DD>
+The compiler identifier, normally used to avoid compiler limitations.
+<DT><B>__FILE__</B>
+
+<DD>
+stringized name of current input file
+<DT><B>__LINE__</B>
+
+<DD>
+current line number
+<DT><B>__MSDOS__ 1</B>
+
+<DD>
+compiler is configured for generating MSDOS executable COM files.
+<DT><B>__STANDALONE__ 1</B>
+
+<DD>
+compiler is configured for generating standalone executables.
+<DT><B>__AS386_16__ 1</B>
+
+<DD>
+compiler is generating 16 bit 8086 assembler and the
+<B>#asm</B>
+
+keyword is available for including 8086 code.
+<DT><B>__AS386_32__ 1</B>
+
+<DD>
+compiler is generating 32 bit 80386 assembler and the
+<B>#asm</B>
+
+keyword is available for including 80386 code.
+<DT><B>__CALLER_SAVES__ 1</B>
+
+<DD>
+compiler calling conventions are altered so the calling function must save the
+<I>SI</I>
+
+and
+<I>DI</I>
+
+registers if they are in use (ESI and EDI on the 80386)
+<DT><B>__FIRST_ARG_IN_AX__ 1</B>
+
+<DD>
+compiler calling conventions are altered so the calling function is passing
+the first argument to the function in the
+<I>AX</I>
+
+(or
+<I>EAX</I>
+
+)
+register.
+<DT><B>__LONG_BIG_ENDIAN__ 1</B>
+
+<DD>
+alters the word order of code generated by the 8086 compiler.
+
+These defines only occur in the 6809 version of the compiler.
+<DT><B>__AS09__ 1</B>
+
+<DD>
+compiler is generating 6809 code
+<DT><B>__FIRST_ARG_IN_X__ 1</B>
+
+<DD>
+the first argument to functions is passed in the
+<I>X</I>
+
+register.
+<DT><B>__POS_INDEPENDENT__ 1</B>
+
+<DD>
+the code generated is (almost) position independent.
+
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>BCC_EXEC_PREFIX</B>
+
+<DD>
+default directory to seach for compiler passes
+<DT><B>TMPDIR</B>
+
+<DD>
+directory to place temporary files (default /tmp)
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>DIRECTORIES</H2>
+
+All the include, library and compiler components are stored under the
+<I>/usr/bcc</I>
+
+directory under Linux-i386, this is laid out the same as a
+<I>/usr</I>
+
+filesystem and if bcc is to be the primary compiler on a system it should
+be moved there. The configuration for this is in the
+<B>bcc.c</B>
+
+source file only, all other executables are independent of location.
+<P>
+The library installation also creates the file
+<B>/usr/lib/liberror.txt</B>,
+
+this path is hardcoded into the C library.
+<P>
+The 
+<B>bcc</B>
+
+executable itself,
+<B>as86</B>
+
+and
+<B>ld86</B>
+
+are in /usr/bin.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/as86.1.php">as86</A>(1), <A HREF="../man1/ld86.1.php">ld86</A>(1), <A HREF="../man1/elksemu.1.php">elksemu</A>(1)
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+The bcc.c compiler driver source is very untidy.
+<P>
+The linker, ld86, produces a broken a.out object file if given one input and
+the
+<B>-r</B>
+
+option this is so it is compatible with pre-dev86 versions.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">CODE GENERATOR OPTIONS</A><DD>
+<DT><A HREF="#lbAG">PREPROCESSOR DEFINES</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">DIRECTORIES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

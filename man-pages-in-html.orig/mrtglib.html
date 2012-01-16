@@ -1,0 +1,548 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MRTGLIB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MRTGLIB</H1>
+Section: mrtg (1)<BR>Updated: 2004-08-08<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+MRTG_lib.pm - Library for MRTG and support scripts
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+ use MRTG_lib;
+ my ($configfile, @target_names, %globalcfg, %targetcfg);
+ readcfg($configfile, \@target_names, \%globalcfg, \%targetcfg);
+ my (@parsed_targets);
+ cfgcheck(\@target_names, \%globalcfg, \%targetcfg, \@parsed_targets);
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+MRTG_lib is part of <FONT SIZE="-1">MRTG</FONT>, the Multi Router Traffic Grapher. It was separated
+from <FONT SIZE="-1">MRTG</FONT> to allow other programs to easily use the same config files. The
+main part of MRTG_lib is the config file parser but some other funcions are
+there too.
+<DL COMPACT>
+<DT>$MRTG_lib::OS<DD>
+
+
+<A NAME="ixAAE"></A>
+Type of <FONT SIZE="-1">OS:</FONT> <FONT SIZE="-1">WIN</FONT>, <FONT SIZE="-1">UNIX</FONT>, <FONT SIZE="-1">VMS</FONT>
+<DT>$MRTG_lib::SL<DD>
+
+
+<A NAME="ixAAF"></A>
+<I>Slash</I> in the current <FONT SIZE="-1">OS</FONT>.
+<DT>$MRTG_lib::PS<DD>
+
+
+<A NAME="ixAAG"></A>
+Path separator in <FONT SIZE="-1">PATH</FONT> variable
+<DT>readcfg<DD>
+
+
+<A NAME="ixAAH"></A>
+<TT>&quot;readcfg($file, \@targets, \%globalcfg, \%targetcfg [, $prefix, \%extrules])&quot;</TT>
+
+
+<P>
+
+
+Reads a config file, parses it and fills some arrays and hashes. The
+mandatory arguments are: the name of the config file, a ref to an array which
+will be filled with a list of the target names, a hashref for the global
+configuration, a hashref for the target configuration.
+
+
+<P>
+
+
+The configuration file syntax is:
+
+
+<P>
+
+
+
+
+<PRE>
+ globaloption: value
+ targetoption[targetname]: value
+ aprefix*extglobal: value
+ aprefix*exttarget[target2]: value
+
+</PRE>
+
+
+
+
+<P>
+
+
+E.g.
+
+
+<P>
+
+
+
+
+<PRE>
+ workdir: /var/stat/mrtg
+ target[router1]: 2:<A HREF="mailto:public@router1.local.net">public@router1.local.net</A>
+ 14all*columns: 2
+
+</PRE>
+
+
+
+
+<P>
+
+
+The global config hash has the structure
+
+
+<P>
+
+
+
+
+<PRE>
+ $globalcfg{configoption} = 'value'
+
+</PRE>
+
+
+
+
+<P>
+
+
+The target config hash has the structure
+
+
+<P>
+
+
+
+
+<PRE>
+ $targetcfg{configoption}{targetname} = 'value'
+
+</PRE>
+
+
+
+
+<P>
+
+
+See mrtg-reference for more information about the <FONT SIZE="-1">MRTG</FONT> configuration syntax.
+
+
+<P>
+
+
+<TT>&quot;readcfg&quot;</TT> can take two additional arguments to extend the config file
+syntax. This allows programs to put their configuration into the mrtg config
+file. The fifth argument is the prefix of the extension, the sixth argument
+is a hash with the checkrules for these extension settings. E.g. if the
+prefix is ``14all'' <TT>&quot;readcfg&quot;</TT> will check config lines that begin with
+``14all*'', i.e. all lines like
+
+
+<P>
+
+
+
+
+<PRE>
+ 14all*columns: 2
+ 14all*graphsize[target3]: 500 200
+
+</PRE>
+
+
+
+
+<P>
+
+
+against the rules in <TT>%extrules</TT>. The format of this hash is:
+
+
+<P>
+
+
+
+
+<PRE>
+ $extrules{option} = [sub{$_[0] =~ m/^\d+$/}, sub{&quot;Error message for $_[0]&quot;}]
+     i.e.
+ $extrules{option}[0] -&gt; a test expression
+ $extrules{option}[1] -&gt; error message if test fails
+
+</PRE>
+
+
+
+
+<P>
+
+
+The first part of the array is a perl expression to test the value of the
+option. The test can access this value in the variable ``$arg''. The second
+part of the array is an error message to display when the test fails. The
+failed value can be integrated by using the variable ``$arg''.
+
+
+<P>
+
+
+Config settings with an different prefix than the one given in the <TT>&quot;readcfg&quot;</TT>
+call are not checked but inserted into <I>%globalcfg</I> and <I>%targetcfg</I>.
+Prefixed settings keep their prefix in the config hashes:
+
+
+<P>
+
+
+
+
+<PRE>
+ $targetcfg{'14all*graphsize'}{'target3'} = '500 200'
+
+</PRE>
+
+
+<DT>cfgcheck<DD>
+
+
+<A NAME="ixAAI"></A>
+<TT>&quot;cfgcheck(\@target_names, \%globalcfg, \%targetcfg, \@parsed_targets)&quot;</TT>
+
+
+<P>
+
+
+Checks the configuration read by <TT>&quot;readcfg&quot;</TT>. Checks the values in the config
+for syntactical and/or semantical errors. Sets defaults for some options.
+Parses the ``target[...]'' options and filles the array <TT>@parsed_targets</TT> ready
+for mrtg functions.
+
+
+<P>
+
+
+The first three arguments are the same as for <TT>&quot;readcfg&quot;</TT>. The fourth argument
+is an arrayref which will be filled with the parsed target defs.
+
+
+<P>
+
+
+<TT>&quot;cfgcheck&quot;</TT> converts the values of target settings <I>options</I>, e.g.
+
+
+<P>
+
+
+
+
+<PRE>
+ options[router1]: bits, growright
+
+</PRE>
+
+
+
+
+<P>
+
+
+to a hash:
+
+
+<P>
+
+
+
+
+<PRE>
+ $targetcfg{'option'}{'bits'}{'router1'} = 1
+ $targetcfg{'option'}{'growright'}{'router1'} = 1
+
+</PRE>
+
+
+
+
+<P>
+
+
+This is not done by <TT>&quot;readcfg&quot;</TT> so if you don't use <TT>&quot;cfgcheck&quot;</TT> you have to
+check the scalar variable <I>$targetcfg{'option'}{'router1'}</I> (<FONT SIZE="-1">MRTG</FONT> allows
+options to be separated by space or ',').
+<DT>ensureSL<DD>
+
+
+<A NAME="ixAAJ"></A>
+<TT>&quot;ensureSL(\$pathname)&quot;</TT>
+
+
+<P>
+
+
+Checks that the <I>pathname</I> does not contain double path separators and ends
+with a path separator. It uses <TT>$MRTG_lib::SL</TT> as path separator which will be /
+or \ depending on the <FONT SIZE="-1">OS</FONT>.
+<DT>log2rrd<DD>
+
+
+<A NAME="ixAAK"></A>
+<TT>&quot;log2rrd ($router,\%globalcfg,\%targetcfg)&quot;</TT>
+
+
+<P>
+
+
+Convert log file to rrd format. Needs rrdtool.
+<DT>datestr<DD>
+
+
+<A NAME="ixAAL"></A>
+<TT>&quot;datestr(time)&quot;</TT>
+
+
+<P>
+
+
+Returns the time given in the argument as a nicely formated date string.
+The argument has to be in <FONT SIZE="-1">UNIX</FONT> time format (seconds since 1970-1-1).
+<DT>timestamp<DD>
+
+
+<A NAME="ixAAM"></A>
+<TT>&quot;timestamp()&quot;</TT>
+
+
+<P>
+
+
+Return a string representing the current time.
+<DT>setup_loghandlers<DD>
+
+
+<A NAME="ixAAN"></A>
+<TT>&quot;setup_loghandlers(filename)&quot;</TT>
+
+
+<P>
+
+
+Install signalhandlers for __DIE__ and __WARN__ making the errors
+go the the specified destination. If filename is 'eventlog'
+mrtg will log to the windows event logger.
+<DT>expistr<DD>
+
+
+<A NAME="ixAAO"></A>
+<TT>&quot;expistr(time)&quot;</TT>
+
+
+<P>
+
+
+Returns the time given in the argument formatted suitable for <FONT SIZE="-1">HTTP</FONT>
+Expire-Headers.
+<DT>create_pid<DD>
+
+
+<A NAME="ixAAP"></A>
+<TT>&quot;create_pid()&quot;</TT> 
+
+
+<P>
+
+
+Creates a pid file for the mrtg daemon       
+<DT>demonize_me<DD>
+
+
+<A NAME="ixAAQ"></A>
+<TT>&quot;demonize_me()&quot;</TT>
+
+
+<P>
+
+
+Puts the running program into background, detaching it from the terminal.
+<DT>populatecache<DD>
+
+
+<A NAME="ixAAR"></A>
+<TT>&quot;populatecache(\%confcache, $host, $reread, $snmpoptshash)&quot;</TT>
+
+
+<P>
+
+
+Reads the <FONT SIZE="-1">SNMP</FONT> variables <I>ifDescr</I>, <I>ipAdEntIfIndex</I>, <I>ifPhysAddress</I>, <I>ifName</I> from
+the <I>host</I> and stores the values in <I>%confcache</I> as follows:
+
+
+<P>
+
+
+
+
+<PRE>
+ $confcache{$host}{'Descr'}{ifDescr}{oid} = (ifDescr or 'Dup')
+ $confcache{$host}{'IP'}{ipAdEntIfIndex}{oid} = (ipAdEntIfIndex or 'Dup')
+ $confcache{$host}{'Eth'}{ifPhysAddress}{oid} = (ifPhysAddress or 'Dup')
+ $confcache{$host}{'Name'}{ifName}{oid} = (ifName or 'Dup')
+ $confcache{$host}{'Type'}{ifType}{oid} = (ifType or 'Dup')
+
+</PRE>
+
+
+
+
+<P>
+
+
+The value (at the right side of =) is 'Dup' if a value was retrieved
+muliple times, the retrieved value else.
+<DT>readconfcache<DD>
+
+
+<A NAME="ixAAS"></A>
+<TT>&quot;my $confcache = readconfcache($file)&quot;</TT>
+
+
+<P>
+
+
+Preload the confcache from a file.
+<DT>writeconfcache<DD>
+
+
+<A NAME="ixAAT"></A>
+<TT>&quot;writeconfcache($confcache,$file)&quot;</TT>
+
+
+<P>
+
+
+Store the current confcache into a file.
+<DT>debug<DD>
+
+
+<A NAME="ixAAU"></A>
+<TT>&quot;debug($type, $message)&quot;</TT>
+
+
+<P>
+
+
+Prints the <I>message</I> on <FONT SIZE="-1">STDERR</FONT> if debugging is enabled for type <I>type</I>.
+A debug type is enabled if <I>type</I> is in array <TT>@main::DEBUG</TT>.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixAAV"></A>
+Tobias Oetiker &lt;<A HREF="mailto:tobi@oetiker.ch">tobi@oetiker.ch</A>&gt;, Dave Rand &lt;<A HREF="mailto:dlr@bungi.com">dlr@bungi.com</A>&gt;
+and other contributors, mentioned in the file <TT>&quot;CHANGES&quot;</TT>
+<P>
+
+Documentation by Rainer Bawidamann &lt;<A HREF="mailto:Rainer.Bawidamann@rz.uni-ulm.de">Rainer.Bawidamann@rz.uni-ulm.de</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

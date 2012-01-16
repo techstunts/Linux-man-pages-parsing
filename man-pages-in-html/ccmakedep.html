@@ -1,0 +1,260 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ccmakedep</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ccmakedep</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ccmakedep - create dependencies in makefiles using a C compiler
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ccmakedep</B>
+
+[
+<B>cpp-flags</B>
+
+] [
+<B>-w</B><I>width</I>
+
+] [
+<B>-s</B><I>magic-string</I>
+
+] [
+<B>-f</B><I>makefile</I>
+
+] [
+<B>-o</B><I>object-suffix</I>
+
+] [
+<B>-v</B>
+
+] [
+<B>-a</B>
+
+] [
+<B>-cc</B><I>compiler</I>
+
+] [
+--
+<I>options</I>
+
+--
+]
+<I>sourcefile</I>
+
+...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<B>ccmakedep</B>
+
+program calls a C compiler to preprocess each
+<I>sourcefile</I>,
+
+and uses the output to construct
+<I>makefile</I>
+
+rules describing their dependencies.
+These rules instruct
+<B><A HREF="../man1/make.1.php">make</A></B>(1)
+
+on which object files must be recompiled when a dependency has changed.
+<P>
+
+By default,
+<B>ccmakedep</B>
+
+places its output in the file named
+<I>makefile</I>
+
+if it exists, otherwise
+<I>Makefile.</I>
+
+An alternate makefile may be specified with the
+<B>-f</B>
+
+option.
+It first searches the makefile for a line beginning with
+<P>
+    # DO NOT DELETE
+<P>
+or one provided with the
+<B>-s</B>
+
+option, as a delimiter for the dependency output.
+If it finds it, it will delete everything following this up to the end of
+the makefile and put the output after this line.
+If it doesn't find it, the program will append the string to the makefile
+and place the output after that.
+<A NAME="lbAE">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+Normally,
+<B>ccmakedep</B>
+
+will be used in a makefile target so that typing 'make depend' will bring
+the dependencies up to date for the makefile.
+For example,
+<PRE>
+    SRCS&nbsp;=&nbsp;file1.c&nbsp;file2.c&nbsp;...
+    CFLAGS&nbsp;=&nbsp;-O&nbsp;-DHACK&nbsp;-I../foobar&nbsp;-xyz
+    depend:
+            ccmakedep&nbsp;--&nbsp;$(CFLAGS)&nbsp;--&nbsp;$(SRCS)
+</PRE>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The program will ignore any option that it does not understand, so you may
+use the same arguments that you would for
+<B><A HREF="../man1/cc.1.php">cc</A></B>(1),
+
+including
+<B>-D</B>
+
+and
+<B>-U</B>
+
+options to define and undefine symbols and
+<B>-I</B>
+
+to set the include path.
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+Append the dependencies to the file instead of replacing existing
+dependencies.
+<DT><B>-cc</B><I>compiler</I>
+
+<DD>
+Use this compiler to generate dependencies.
+<DT><B>-f</B><I>makefile</I>
+
+<DD>
+Filename.
+This allows you to specify an alternate makefile in which
+<B>ccmakedep</B>
+
+can place its output.
+Specifying lq-rq as the file name (that is,
+<B>-f-</B>)
+
+sends the output to standard output instead of modifying an existing file.
+<DT><B>-s</B><I>string</I>
+
+<DD>
+Starting string delimiter.
+This option permits you to specify a different string for
+<B>ccmakedep</B>
+
+to look for in the makefile.
+The default is lq# DO NOT DELETErq.
+<DT><B>-v</B>
+
+<DD>
+Be verbose: display the C compiler command before running it.
+<DT><B>--</B><I> options </I><B>--</B>
+
+<DD>
+If
+<B>ccmakedep</B>
+
+encounters a double hyphen (--) in the argument list, then any
+unrecognized arguments following it will be silently ignored.
+A second double hyphen terminates this special treatment.
+In this way,
+<B>ccmakedep</B>
+
+can be made to safely ignore esoteric compiler arguments that might
+normally be found in a CFLAGS
+<B>make</B>
+
+macro (see the
+<B>EXAMPLE</B>
+
+section above).
+<B>-D</B>,
+
+<B>-I</B>,
+
+and
+<B>-U</B>
+
+options appearing between the pair of double hyphens are still processed
+normally.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cc.1.php">cc</A></B>(1),
+
+<B><A HREF="../man1/make.1.php">make</A></B>(1),
+
+<B><A HREF="../man1/makedepend.1.php">makedepend</A></B>(1),
+
+<B><A HREF="../man1/ccmakedep.1.php">ccmakedep</A></B>(1).
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<B>ccmakedep</B>
+
+was written by the X Consortium.
+<P>
+
+Colin Watson wrote this manual page, originally for the Debian Project,
+based partly on the manual page for
+<B><A HREF="../man1/makedepend.1.php">makedepend</A></B>(1).
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EXAMPLE</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

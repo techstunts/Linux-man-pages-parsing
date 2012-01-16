@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ECPG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ECPG</H1>
+Section: PostgreSQL Client Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ecpg - embedded SQL C preprocessor
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>ecpg</B> [ <B></B><I>option</I><B></B>...<B> </B>] <B></B><I>file</I><B></B>...<B></B>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>ecpg</B> is the embedded SQL preprocessor for C
+programs. It converts C programs with embedded SQL statements to
+normal C code by replacing the SQL invocations with special
+function calls. The output files can then be processed with any C
+compiler tool chain.
+<P>
+
+<B>ecpg</B> will convert each input file given on the
+command line to the corresponding C output file. Input files
+preferably have the extension <I>.pgc</I>, in which
+case the extension will be replaced by <I>.c</I> to
+determine the output file name. If the extension of the input file
+is not <I>.pgc</I>, then the output file name is
+computed by appending .c to the full file name.
+The output file name can also be overridden using the
+<B>-o</B> option.
+<P>
+
+This reference page does not describe the embedded SQL language.
+See the ECPG chapter in the documentation for more information on that topic.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<B>ecpg</B> accepts the following command-line
+arguments:
+<DL COMPACT>
+<DT><B>-c</B><DD>
+Automatically generate certain C code from SQL code. Currently, this
+works for EXEC SQL TYPE.
+<DT><B>-C </B><I>mode</I><B></B><DD>
+Set a compatibility mode. <I>mode</I> may
+be INFORMIX or
+INFORMIX_SE.
+<DT><B>-D </B><I>symbol</I><B></B><DD>
+Define a C preprocessor symbol.
+<DT><B>-i</B><DD>
+Parse system include files as well.
+<DT><B>-I </B><I>directory</I><B></B><DD>
+Specify an additional include path, used to find files included
+via EXEC SQL INCLUDE. Defaults are
+<I>.</I> (current directory),
+<I>/usr/local/include</I>, the
+PostgreSQL include directory which
+is defined at compile time (default:
+<I>/usr/local/pgsql/include</I>), and
+<I>/usr/include</I>, in that order.
+<DT><B>-o </B><I>filename</I><B></B><DD>
+Specifies that <B>ecpg</B> should write all
+its output to the given <I>filename</I>.
+<DT><B>-r </B><I>option</I><B></B><DD>
+Selects a run-time behavior. Currently,
+<I>option</I> can only be
+no_indicator.
+<DT><B>-t</B><DD>
+Turn on autocommit of transactions. In this mode, each SQL command is
+automatically committed unless it is inside an explicit
+transaction block. In the default mode, commands are committed
+only when <B>EXEC SQL COMMIT</B> is issued.
+<DT><B>-v</B><DD>
+Print additional information including the version and the
+include path.
+<DT><B>--help</B><DD>
+Show a brief summary of the command usage, then exit.
+<DT><B>--version</B><DD>
+Output version information, then exit.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+When compiling the preprocessed C code files, the compiler needs to
+be able to find the <B>ECPG</B> header files in the
+PostgreSQL include directory. Therefore, one might
+have to use the <B>-I</B> option when invoking the compiler
+(e.g., -I/usr/local/pgsql/include).
+<P>
+
+Programs using C code with embedded SQL have to be linked against
+the <I>libecpg</I> library, for example using the
+linker options -L/usr/local/pgsql/lib -lecpg.
+<P>
+
+The value of either of these directories that is appropriate for
+the installation can be found out using <B><A HREF="../man1/pg_config.1.php">pg_config</A></B>(1).
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+If you have an embedded SQL C source file named
+<I>prog1.pgc</I>, you can create an executable
+program using the following sequence of commands:
+<P>
+<PRE>
+ecpg prog1.pgc
+cc -I/usr/local/pgsql/include -c prog1.c
+cc -o prog1 prog1.o -L/usr/local/pgsql/lib -lecpg
+
+</PRE>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

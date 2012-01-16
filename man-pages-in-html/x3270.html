@@ -1,0 +1,6014 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>x3270</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>x3270</H1>
+Section: User Commands  (1)<BR>Updated: 29 November 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+x3270 -
+<FONT SIZE="-1">IBM</FONT> host access tool
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>x3270</B>
+[<I>options</I>]
+[<I>host</I>]
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>x3270</B> opens
+a telnet connection to an <FONT SIZE="-1">IBM</FONT>
+host in an X window.
+It implements RFCs 2355 (TN3270E), 1576 (TN3270) and 1646 (LU name selection),
+and supports IND$FILE file transfer.
+The window created by <B>x3270</B>
+can use its own font for displaying characters, so it is a fairly accurate
+representation of an <FONT SIZE="-1">IBM</FONT> 3278 or 3279.
+It is similar to <I><A HREF="../man1/tn3270.1.php">tn3270</A></I>(1) except that it is X-based, not curses-based.
+<P>
+
+The full syntax for <I>host</I> is:
+<DL COMPACT><DT><DD>
+[<I>prefix</I>:]...[<I>LUname</I>@]<I>hostname</I>[:<I>port</I>]
+</DL>
+
+<P>
+
+Prepending a <B>P:</B> onto <I>hostname</I> causes the connection to go
+through the <I>telnet-passthru</I> service rather than directly to the host.
+See <FONT SIZE="-1">PASSTHRU</FONT> below.
+<P>
+
+Prepending an <B>S:</B> onto <I>hostname</I> removes the &quot;extended data
+stream&quot; option reported to the host.
+See <B>-tn</B> below for further information.
+<P>
+
+Prepending an <B>N:</B> onto <I>hostname</I>
+turns off TN3270E support for the session.
+<P>
+
+Prepending an <B>L:</B> onto <I>hostname</I>
+causes <B>x3270</B> to first create an SSL tunnel to the host, and then
+create a TN3270 session inside the tunnel.  (This function is supported only if
+<B>x3270</B> was built with SSL/TLS support).
+Note that TLS-encrypted sessions using the TELNET START-TLS option are
+negotiated with the host automatically; for these sessions the <B>L:</B> prefix
+should not be used.
+<P>
+
+A specific LU name to use may be specified by prepending it to the
+<I>hostname</I> with an `<B>@</B>'.
+Multiple LU names to try can be separated by commas.
+An empty LU can be placed in the list with an extra comma.
+<P>
+
+On systems that support the <I>forkpty</I> library call, the
+<I>hostname</I> may be replaced with <B>-e</B> and a command string.
+This will cause <B>x3270</B> to connect to a local child process, such as
+a shell.
+<P>
+
+The port to connect to defaults to
+<B>telnet</B>.
+This can be overridden with the <B>-port</B> option, or by appending
+a <I>port</I> to the <I>hostname</I> with a colon
+`<B>:</B>'.
+(For compatability with previous versions of <B>x3270</B>
+and with <I><A HREF="../man1/tn3270.1.php">tn3270</A></I>(1), the <I>port</I>
+may also be specified as a second, separate argument.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>x3270</B> is a toolkit based program, so it understands standard Xt options and
+resources.
+It also understands
+the following options:
+<DL COMPACT>
+<DT><B>-activeicon</B><DD>
+Specifies that the icon should be a miniature version of the screen image.
+See <FONT SIZE="-1">ICONS</FONT> below.
+<DT><B>-apl</B><DD>
+Sets up <FONT SIZE="-1">APL</FONT> mode.
+This is actually an abbreviation for several options.
+See <FONT SIZE="-1">APL SUPPORT</FONT> below.
+<DT><B>-cc</B> <I>range</I>:<I>value</I>[,...]<DD>
+Sets character classes.
+See <FONT SIZE="-1">CHARACTER CLASSES</FONT>, below.
+<DT><B>-charset</B> <I>name</I><DD>
+Specifies an <FONT SIZE="-1">EBCDIC</FONT> host character set.
+See <FONT SIZE="-1">CHARACTER SETS</FONT> below.
+<DT><B>-clear</B> <I>toggle</I><DD>
+Sets the initial value of <I>toggle</I> to <B>false</B>.
+The list of toggle names is under <FONT SIZE="-1">MENUS</FONT>
+below.
+<DT><B>-efont</B> <I>name</I><DD>
+Specifies a font for the emulator window.
+See <FONT SIZE="-1">FONTS</FONT> below.
+<DT><B>-iconname</B> <I>name</I><DD>
+Specifies an alternate title for the program icon.
+<DT><B>-iconx</B> <I>x</I><DD>
+Specifies the initial x coordinate for the program icon.
+<DT><B>-icony</B> <I>y</I><DD>
+Specifies the initial y coordinate for the program icon.
+<DT><B>-im</B> <I>method</I><DD>
+Specifies the name of the input method to use for multi-byte input.
+(Supported only when x3270 is compiled with DBCS support.)
+<DT><B>-keymap</B> <I>name</I><DD>
+Specifies a keymap name and optional modifiers.
+See <FONT SIZE="-1">KEYMAPS</FONT> below.
+<DT><B>-keypad</B><DD>
+Turns on the keypad as soon as <B>x3270</B> starts.
+<DT><B>-km</B> <I>name</I><DD>
+Specifies the local encoding method for multi-byte text.
+<I>name</I> is an encoding name recognized by the ICU library.
+(Supported only when x3270 is compiled with DBCS support, and necessary
+only when x3270 cannot figure it out from the locale.)
+<DT><B>-model</B> <I>name</I><DD>
+The model of 3270 display to be emulated.
+The model name is in two parts, either of which may be omitted:
+<DT><DD>
+The first part is the
+<B>base model</B>,
+which is either <B>3278</B> or <B>3279</B>.
+<B>3278</B> specifies a monochrome 3270 display;
+<B>3279</B> specifies a color 3270 display.
+When 3278 emulation is specified for a color X display, fields are displayed
+using pseudo-colors; see <FONT SIZE="-1">PSEUDO-COLOR</FONT> below.
+<DT><DD>
+The second part is the
+<B>model number</B>,
+which specifies the number of rows and columns.
+Model 4 is the default.
+</DL>
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+Model Number
+</TD><TD ALIGN=center>
+
+
+Columns
+</TD><TD ALIGN=center>
+
+
+Rows
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+2
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+24
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+3
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+30
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+4
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+43
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+5
+</TD><TD ALIGN=center>
+
+
+132
+</TD><TD ALIGN=center>
+
+
+27
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<DL COMPACT>
+<DT><DD>
+Note: Technically, there is no such 3270 display as a 3279-4 or 3279-5, but
+most hosts seem to work with them anyway.
+<DT><DD>
+The default model
+for a color X display
+is <B>3279-4</B>.
+For a monochrome X display, it is
+<B>3278-4</B>.
+(The behavior of early versions of <B>x3270</B> on color X displays
+can be specified as <B>3278-4)</B>.
+<DT><B>-mono</B><DD>
+Forces <B>x3270</B> to believe it is running on a monochrome X display.
+<DT><B>-once</B><DD>
+Causes <B>x3270</B> to exit after a host disconnects.
+This option has effect only if a hostname is specified on the command line.
+<DT><B>-oversize</B> <I>cols</I><B>x</B><I>rows</I><DD>
+Makes the screen larger than the default for the chosen model number.
+This option has effect only in combination with extended data stream support
+(controlled by the &quot;x3270.extended&quot; resource), and only if the host
+supports the Query Reply structured field.
+The number of columns multiplied by the number of rows must not exceed
+16383 (3fff hex), the limit of 14-bit 3270 buffer addressing.
+<DT><B>-port</B> <I>n</I><DD>
+Specifies a different <FONT SIZE="-1">TCP</FONT> port to connect to.
+<I>n</I> can be a name from <B>/etc/services</B> like <B>telnet</B>, or a
+number.
+This option changes the default port number used for all connections.
+(The positional parameter affects only the initial connection.)
+<DT><B>-printerlu </B><I>luname</I><DD>
+Causes <B>x3270</B> to automatically start a <I>pr3287</I> printer
+session.
+If <I>luname</I> is &quot;.&quot;, then the printer session will be associated with the
+interactive terminal session (this requires that the host support TN3270E).
+Otherwise, the value is used as the explicit LU name to associate with the
+printer session.
+<DT><B>-pt</B> <I>type</I><DD>
+Specifies the preedit type for the multi-byte input method.
+Valid values are <B>OverTheSpot</B>, <B>OffTheSpot</B>, <B>Root</B> and
+<B>OnTheSpot</B>.
+The value for <B>OverTheSpot</B> can include an optional suffix, a signed
+number indicating the vertical distance in rows of the preedit window from the
+cursor position, e.g. <B>OverTheSpot+1</B> or <B>OverTheSpot-2</B>.
+The default value is <B>OverTheSpot+1</B>.
+(Supported only when x3270 is compiled with DBCS support.)
+<DT><B>-reconnect</B><DD>
+Causes <B>x3270</B>
+to automatically reconnect to the host if it ever disconnects.
+This option has effect only if a hostname is specified on the command line.
+<DT><B>-sb</B><DD>
+Turns on the scrollbar.
+<DT><B>+sb</B><DD>
+Turns the scrollbar off.
+<DT><B>-scheme</B> <I>name</I><DD>
+Specifes a color scheme to use in 3279 mode.
+This option has effect only in combination with 3279 emulation.
+See <FONT SIZE="-1">COLOR SCHEMES</FONT> below.
+<DT><B>-script</B><DD>
+Causes
+<B>x3270</B>
+to read commands from standard input, with the results written to standard
+output.
+The protocol for these commands is documented in
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1).
+<DT><B>-sl</B> <I>n</I><DD>
+Specifies that <I>n</I> lines should be saved for scrolling back.
+The default is 64.
+<DT><B>-set</B> <I>toggle</I><DD>
+Sets the initial value of <I>toggle</I> to <B>true</B>.
+The list of toggle names is under <FONT SIZE="-1">MENUS</FONT>
+below.
+<DT><B>-tn</B> <I>name</I><DD>
+Specifies the terminal name to be transmitted over the telnet connection.
+The default name is
+<B>IBM-</B><I>model_name</I><B>-E</B>,
+for example,
+<B>IBM-3279-4-E</B>
+for a color X display, or
+<B>IBM-3278-4-E</B>
+for a monochrome X display.
+<DT><DD>
+Some hosts are confused by the <B>-E</B>
+suffix on the terminal name, and will ignore the extra screen area on
+models 3, 4 and 5.
+Prepending an <B>s:</B> on the hostname, or setting the &quot;x3270.extended&quot;
+resource to &quot;false&quot;, removes the <B>-E</B>
+from the terminal name when connecting to such hosts.
+<DT><DD>
+The name can also be specified with the &quot;x3270.termName&quot; resource.
+<DT><B>-trace</B><DD>
+Turns on data stream tracing at startup.
+Unlike turning it on from a menu option,
+there is no pop-up to confirm the file name, which defaults to
+<B>/tmp/x3trc.</B><I>process_id</I>.
+<DT><B>-tracefile</B> <I>file</I><DD>
+Specifies a file to save data stream and event traces into, overriding the
+default of
+<B>/tmp/x3trc.</B><I>process_id</I>.
+If the value <B>stdout</B>
+is given, then traces will be written to standard output.
+If the value <B>none</B>
+is given, then traces will be piped directly to the monitor window, and no
+file will be created.
+<DT><B>-tracefilesize</B> <I>size</I><DD>
+Places a limit on the size of a trace file.
+If this option is not specified, or is specified as <B>0</B> or <B>none</B>,
+the trace file will be unlimited.
+If specified, the trace file cannot already exist, and the (silently enforced)
+minimum size is 64 Kbytes.
+The value of <I>size</I> can have a <B>K</B> or <B>M</B> suffix, indicating
+kilobytes or megabytes respectively.
+</DL>
+<P>
+
+After reading resource definitions from the X server
+and any standandard X11 resource definition files
+(<B>$HOME/.Xdefaults</B>, etc.), <B>x3270</B> will read definitions
+from the file <B>$HOME/.x3270pro</B>.
+This file contains local customizations and is also used to save changed
+options by the <B>Save Changed Options in File</B> menu option.
+<P>
+
+Note that <B>-xrm</B> options override any definitions in
+the <B>.x3270pro</B> file.
+<A NAME="lbAF">&nbsp;</A>
+<H2>FONTS</H2>
+
+<B>x3270</B> does not use the &quot;*font&quot; resource for its main
+window.
+Instead, it uses a custom 14-point font called
+<B>3270</B>,
+which is a close
+approximation of a real 3270 display and allows <B>x3270</B>
+to display the <FONT SIZE="-1">ISO</FONT> 8859-1 (Latin-1)
+character set and special status-line symbols.
+A more compact font, <B>3270-12</B>, is also supported, as are the
+various sized fonts <B>3270gt8</B>, <B>3270gt12</B>, <B>3270gt16</B>,
+<B>3270-20</B>, <B>3270gt24</B>, and <B>3270gt32</B>.
+The fonts <B>3270h</B> and <B>3270gr</B> are also included to allow display of
+Hebrew and Greek text, respectively.
+<P>
+
+The font may be specified with the <B>-efont</B>
+option or the &quot;x3270.emulatorFont&quot; resource.
+<P>
+
+<B>x3270</B> can also use any X11 font that implements the
+display character set required by the host <FONT SIZE="-1">EBCDIC</FONT> character set.
+<P>
+
+An additional font,
+<B>3270d</B>,
+is supplied.
+This font is identical to the default <B>3270</B>
+font, except that it has bitmaps defined for field attribute characters.
+This means that field attributes, which are normally displayed as blanks,
+are now visible on the screen.
+The characters displayed are hexadecimal codes, which can be translated
+using a document provided with the <B>x3270</B> sources.
+<P>
+
+The font can be changed at any time through a menu option.
+It can also be implicitly changed by changing the size of the <B>x3270</B>
+window with the mouse: if the window is made larger, x3270 will try to
+change to a larger font, and vice-versa.
+<A NAME="lbAG">&nbsp;</A>
+<H2>CHARACTER SETS</H2>
+
+The <B>-charset</B>
+option or the &quot;x3270.charset&quot; resource controls the <FONT SIZE="-1">EBCDIC</FONT>
+host character set used by <B>x3270</B>.
+Available sets include:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Charset Name
+</TD><TD>
+
+
+Code Page
+</TD><TD>
+
+
+Display Character Sets
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+apl
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+belgian
+</B></TD><TD>
+
+
+500
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+bracket
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+brazilian
+</B></TD><TD>
+
+
+275
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+finnish
+</B></TD><TD>
+
+
+278
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+french
+</B></TD><TD>
+
+
+297
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+german
+</B></TD><TD>
+
+
+273
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+greek
+</B></TD><TD>
+
+
+423
+</TD><TD>
+
+
+3270cg-7
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+hebrew
+</B></TD><TD>
+
+
+424
+</TD><TD>
+
+
+3270cg-8
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+icelandic
+</B></TD><TD>
+
+
+871
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+iso-hebrew
+</B></TD><TD>
+
+
+424
+</TD><TD>
+
+
+iso8859-8
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+iso-turkish
+</B></TD><TD>
+
+
+1026
+</TD><TD>
+
+
+iso8859-9
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+italian
+</B></TD><TD>
+
+
+280
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+japanese
+</B></TD><TD>
+
+
+1027+300
+</TD><TD>
+
+
+jisx0201.1976-0 + jisx0208.1983-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+norwegian
+</B></TD><TD>
+
+
+277
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+russian
+</B></TD><TD>
+
+
+880
+</TD><TD>
+
+
+koi8-r
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+simplified-chinese
+</B></TD><TD>
+
+
+836+837
+</TD><TD>
+
+
+3270cg-1a iso8859-1 + gb2312.1980-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+slovenian
+</B></TD><TD>
+
+
+870
+</TD><TD>
+
+
+iso8859-2
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+thai
+</B></TD><TD>
+
+
+838
+</TD><TD>
+
+
+iso8859-11 tis620.2529-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+uk
+</B></TD><TD>
+
+
+285
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+us-intl
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+The default character set is
+<B>bracket</B>,
+which is useful for common <FONT SIZE="-1">IBM</FONT> hosts which use <FONT SIZE="-1">EBCDIC</FONT>
+codes 0xAD and 0xBD for the `[' and `]' characters,
+respectively.
+<P>
+
+Most 3270 fonts implement the 3270cg-1 display
+character set, which is a reordered version of
+the <FONT SIZE="-1">ISO</FONT> 8859-1 character set.
+Some implement the 3270cg-1a display character set, which is a superset
+of 3270cg-1 that includes APL2 characters.
+3270h and 3270gr implement special character sets for Hebrew
+and Greek, respectively.
+<P>
+
+You can also specify national-language translations for your keyboard;
+see <FONT SIZE="-1">KEYMAPS</FONT> below.
+<A NAME="lbAH">&nbsp;</A>
+<H2>CHARACTER CLASSES</H2>
+
+<B>x3270</B> supports character classes (groupings of characters chosen
+with a double mouse click) in the same manner as <I><A HREF="../man1/xterm.1.php">xterm</A></I>(1).
+The &quot;x3270.charClass&quot; resource or the
+<B>-cc</B> option can be used to alter the character class table.
+The default table is the same as
+<I>xterm</I>'s;
+It groups letters together, and puts most punctuation characters in individual
+classes.
+To put all non-whitespace characters together in the same class (and
+duplicate the behavior of some early versions of
+<B>x3270</B>,
+use the following value:
+<P>
+
+<DL COMPACT><DT><DD>
+33-127:48,161-255:48
+</DL>
+
+<P>
+
+See <I><A HREF="../man1/xterm.1.php">xterm</A></I>(1) for further syntax details.
+<A NAME="lbAI">&nbsp;</A>
+<H2>KEYPAD</H2>
+
+A keypad may optionally be displayed, with a mouse-clickable button for each
+3270 function key (these functions are also available from the keyboard).
+The keypad can be turned on and off by clicking on the &quot;keypad&quot; button in the
+upper-right-hand corner of the window.
+The &quot;x3270.keypad&quot; resource controls where it is displayed.
+Options are:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+left
+</TD><TD>
+
+
+in a separate window, to the left of the screen
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+right
+</TD><TD>
+
+
+in a separate window, to the right of the screen
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+bottom
+</TD><TD>
+
+
+in a separate window, below the screen
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+integral
+</TD><TD>
+
+
+in the same window as the screen, below it
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+The default is <B>right</B>.
+<P>
+
+If the &quot;x3270.keypadOn&quot; resource is set to
+<B>true</B>,
+the keypad will be displayed at startup.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>HOSTS DATABASE</H2>
+
+<B>x3270</B> uses the <I>ibm_hosts</I> database to
+construct a pull-down menu of hosts to connect to.
+It also allows host name aliases to be defined, as well as specifying
+macros to be executed when a connection is first made.
+See <I><A HREF="../man5/ibm_hosts.5.php">ibm_hosts</A></I>(5) for details.
+<P>
+
+You may specify a different <I>ibm_hosts</I>
+database with the &quot;x3270.hostsFile&quot; resource.
+<A NAME="lbAK">&nbsp;</A>
+<H2>COLOR SCHEMES</H2>
+
+When emulating a 3279 display, the X colors used to draw the display
+are selected by two resources: the &quot;x3270.colorScheme&quot; resource, which gives
+the name of the color scheme to use, and the
+individual &quot;x3270.colorScheme.<I>xxx</I>&quot; resources, which
+give the actual definitions.
+The color scheme resources are documented in the <B>Resources</B>
+file with the <B>x3270</B> source.
+<P>
+
+The color scheme may also be changed while <B>x3270</B>
+is running with a selection from the <B>Options</B> menu.
+<A NAME="lbAL">&nbsp;</A>
+<H2>PSEUDO-COLOR</H2>
+
+When emulating a 3278 display on a color X display, <B>x3270</B>
+does not understand <FONT SIZE="-1">IBM</FONT> 3270 color protocols.
+Instead, it draws text in one of three colors depending on the field attributes.
+Those colors may be customized using the following resources (shown with their
+default values):
+<DL COMPACT><DT><DD>
+<BR>
+
+x3270.normalColor:<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>green<BR>
+<BR>
+
+x3270.boldColor:<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>cyan<BR>
+<BR>
+
+x3270.inputColor:<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>orange<BR>
+<BR>
+
+x3270.colorBackground:<TT>&nbsp;</TT>black<BR>
+<BR>
+
+x3270.selectBackground:<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>dim gray<BR>
+</DL>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>NVT (ANSI) MODE</H2>
+
+Some hosts use an <FONT SIZE="-1">ASCII</FONT> front-end to do initial login negotiation,
+then later switch to 3270 mode.
+<B>x3270</B> will emulate an <FONT SIZE="-1">ANSI</FONT> X.64 terminal until the host
+places it in 3270 mode (telnet <FONT SIZE="-1">BINARY</FONT> and <FONT SIZE="-1">SEND EOR</FONT> modes, or
+<FONT SIZE="-1">TN3270E</FONT> mode negotiation).
+The emulation is fairly complete; however, it is
+not intended to make <B>x3270</B> a replacement for <I><A HREF="../man1/xterm.1.php">xterm</A></I>(1).
+<P>
+
+If the host later negotiates to stop functioning in 3270 mode,
+<B>x3270</B> will return to <FONT SIZE="-1">ANSI</FONT> emulation.
+<P>
+
+In <FONT SIZE="-1">NVT</FONT> mode, <B>x3270</B>
+supports both character-at-a-time mode and line mode operation.
+You may select the mode with a menu option.
+When in line mode, the special characters and operational characteristics are
+defined by resources:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Mode/Character
+</TD><TD ALIGN=center>
+
+
+Resource
+</TD><TD ALIGN=center>
+
+
+Default
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Translate CR to NL
+</TD><TD ALIGN=center>
+
+
+x3270.icrnl
+</TD><TD ALIGN=center>
+
+
+true
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Translate NL to CR
+</TD><TD ALIGN=center>
+
+
+x3270.inlcr
+</TD><TD ALIGN=center>
+
+
+false
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase previous character
+</TD><TD ALIGN=center>
+
+
+x3270.erase
+</TD><TD ALIGN=center>
+
+
+^?
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase entire line
+</TD><TD ALIGN=center>
+
+
+x3270.kill
+</TD><TD ALIGN=center>
+
+
+^U
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase previous word
+</TD><TD ALIGN=center>
+
+
+x3270.werase
+</TD><TD ALIGN=center>
+
+
+^W
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Redisplay line
+</TD><TD ALIGN=center>
+
+
+x3270.rprnt
+</TD><TD ALIGN=center>
+
+
+^R
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ignore special meaning of next character
+</TD><TD ALIGN=center>
+
+
+x3270.lnext
+</TD><TD ALIGN=center>
+
+
+^V
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Interrupt
+</TD><TD ALIGN=center>
+
+
+x3270.intr
+</TD><TD ALIGN=center>
+
+
+^C
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Quit
+</TD><TD ALIGN=center>
+
+
+x3270.quit
+</TD><TD ALIGN=center>
+
+
+^\
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+End of file
+</TD><TD ALIGN=center>
+
+
+x3270.eof
+</TD><TD ALIGN=center>
+
+
+^D
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+Separate keymaps can be defined for use only when <B>x3270</B> is in
+3270 mode or <FONT SIZE="-1">NVT</FONT> mode.
+See <FONT SIZE="-1">KEYMAPS</FONT> for details.
+<A NAME="lbAN">&nbsp;</A>
+<H2>MENUS</H2>
+
+<B>x3270</B> has a menu bar with three pull-down menus (File, Options, and
+Connect) and a button to turn the keypad on and off.
+The pull-down menus are also available as pop-up menus by using the &quot;Ctrl&quot;
+key and the left, middle and right mouse buttons, respectively.
+<P>
+
+The menu bar can be turned off by setting the &quot;x3270.menuBar&quot; resource to
+<B>false.</B>
+<P>
+
+Many sections of the File and Options menus are toggles,
+options that may be either on or off.
+The entries under the File menu are as follows:
+<DL COMPACT>
+<DT><B>File Transfer</B><DD>
+Initiates transferring a file between the IBM host and the local workstation,
+using the <B>IND$FILE</B> protocol.
+A pop-up menu allows specifying the file names and other attributes of the
+transfer.
+<BR>
+
+The IND$FILE program must be installed on the IBM host, and the 3270 cursor
+must be located in a field that will accept a TSO or VM/CMS command.
+<DT><B>Printer Session</B><DD>
+Starts or stops a printer session.
+<DT><B>Trace Data Stream</B><DD>
+If set, network traffic (both a hexadecimal representation and its
+interpretation) are logged to the file
+<B>/tmp/x3trc.</B><I>process_id</I>,
+and a window is popped up to monitor the data.
+The file name is confirmed with a pop-up; the default directory name for the
+trace file can be changed with the &quot;x3270.traceDir&quot; resource.
+<DT><B>Trace Keyboard/Mouse Events</B><DD>
+If set, information about keyboard and mouse events and the actions that
+<B>x3270</B> takes in response are logged to a file.
+This is the same file as used for tracing the data stream, above.
+Event tracing is useful for creating and debugging custom keymaps, macros
+and scripts.
+For example, it will tell you precisely what action was taken in response to
+pressing a particular key.
+If the key is not mapped, it will tell you the keysym name and keycode so you
+can add it to a custom keymap.
+<DT><B>Save Screen(s) in File</B><DD>
+If set, saves an <FONT SIZE="-1">ASCII</FONT> representation of the current screen image in
+the file <B>/tmp/x3scr.</B><I>process_id</I>.
+A pop-up allows the file name to be changed; the default directory name can be
+changed with the &quot;x3270.traceDir&quot; resource.
+The pop-up also has buttons to choose between saving just the current image,
+or continuously saving it as it is redrawn.
+<DT><B>Save Changed Options in File</B><DD>
+Saves into a file the values of all options that have been changed since
+<B>x3270</B> was started.
+A pop-up allows the file name to be changed; the default file
+is <B>.x3270pro</B> in the user's home directory.
+If the file already exists, it is appended to.
+<B>x3270</B> will read the contents of this file the next time it starts up.
+The options settings in the file override any resources defined
+with <B>xrdb</B> or in the user's <B>.Xdefaults</B>
+file; command-line switches override the file.
+A different options file can be specified by the <B>X3270PRO</B>
+environment variable.
+If the environment variable <B>NOX3270PRO</B>
+is set, no options file will be read.
+<DT><B>Execute an Action</B><DD>
+Allows an action name and parameters to be entered from the keyboard.
+This allows experimentation with actions without having to edit keymaps
+and repeatedly restart <B>x3270</B>.
+</DL>
+<P>
+
+The toggles under the Options menu are as follows:
+<DL COMPACT>
+<DT><B>Monocase</B><DD>
+If set, <B>x3270</B> operates in uppercase-only mode.
+<DT><B>Blinking Cursor</B><DD>
+If set, the cursor blinks once per second.
+<DT><B>Blank Fill</B><DD>
+If set, <B>x3270</B> behaves in some un-3270-like ways.
+First, when a character is typed into a field, all nulls in the field to the
+left of that character are changed to blanks.
+This eliminates a common 3270 data-entry surprise.
+Second, in insert mode, trailing blanks in a field are treated like nulls,
+eliminating the annoying `lock-up' that often occurs when inserting into an
+field with (apparent) space at the end.
+<DT><B>Show Timing</B><DD>
+If set, the time taken by the host to process an <FONT SIZE="-1">AID</FONT> is displayed on
+the status line.
+<DT><B>Track Cursor</B><DD>
+If set, the cursor position is displayed on the status line.
+<DT><B>Scrollbar</B><DD>
+If set, the scrollbar appears.
+<DT><B>Wraparound</B><DD>
+If set, the <FONT SIZE="-1">ANSI</FONT> terminal emulator automatically assumes a <FONT SIZE="-1">NEWLINE</FONT>
+character when it reaches the end of a line.
+<DT><B>Paste with Left Margin</B><DD>
+If set, puts restrictions on how pasted text is placed on the screen.
+The position of the cursor at the time the paste operation is begun is
+used as a left margin.
+No pasted text will fill any area of the screen to the left of that
+position.
+This option is useful for pasting into certain <FONT SIZE="-1">IBM</FONT> editors that use the
+left side of the screen for control information.
+<DT><B>Select by Rectangles</B><DD>
+If set, <B>x3270</B> will always select rectangular areas of the screen.
+Otherwise, <B>x3270</B>
+selects by rectangles when in 3270 mode, but in <FONT SIZE="-1">ANSI</FONT> mode it selects
+continuous regions of the screen like <I><A HREF="../man1/xterm.1.php">xterm</A></I>(1).
+<DT><B>Crosshair Cursor</B><DD>
+If set, <B>x3270</B> will display a crosshair over the cursor: lines extending
+the full width and height of the screen, centered over the cursor position.
+This makes locating the cursor on the screen much easier.
+</DL>
+<P>
+
+The names of the toggles for use with the <B>-set</B>
+and <B>-clear</B>
+options are as follows:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Menu Option
+</TD><TD>
+
+
+Name
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Monocase
+</TD><TD>
+
+
+monoCase
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Blinking Cursor
+</TD><TD>
+
+
+cursorBlink
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Blank Fill
+</TD><TD>
+
+
+blankFill
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Show Timing
+</TD><TD>
+
+
+showTiming
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Track Cursor
+</TD><TD>
+
+
+cursorPos
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Trace Data Stream
+</TD><TD>
+
+
+dsTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Trace Keyboard/Mouse Events
+</TD><TD>
+
+
+eventTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Save Screen(s) in File
+</TD><TD>
+
+
+screenTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Scrollbar
+</TD><TD>
+
+
+scrollBar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Wraparound
+</TD><TD>
+
+
+lineWrap
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Paste with Left Margin
+</TD><TD>
+
+
+marginedPaste
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Select by Rectangles
+</TD><TD>
+
+
+rectangleSelect
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Crosshair Cursor
+</TD><TD>
+
+
+crosshair
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+In addition, the toggle <B>altCursor</B> can be used to select the cursor type.
+If set, an underline cursor will be used.
+If clear, the normal block cursor will be used.
+<P>
+
+These names also represent resources that can be set in your .Xdefaults
+or .x3270pro file.
+For example, if you always want to have the scrollbar on, you can add
+the following to your .Xdefaults or .x3270pro:
+<BR>
+
+<DL COMPACT><DT><DD>
+x3270.scrollBar:<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>true<BR>
+</DL>
+
+<BR>
+
+<P>
+
+These names are also used as the first parameter to the <B>Toggle</B>
+action.
+<A NAME="lbAO">&nbsp;</A>
+<H2>STATUS LINE</H2>
+
+The <B>x3270</B> status line contains a variety of information.
+From left to right, the fields are:
+<DL COMPACT>
+<DT><B>comm status</B><DD>
+Three symbols indicate the state of the connection to the host.
+If connected, the right-hand symbol is a solid box; if not, it is a
+question mark.
+<DT><B>keyboard lock</B><DD>
+If the keyboard is locked, an &quot;X&quot; symbol and a message field indicate the
+reason for the keyboard lock.
+<DT><B>shift</B><DD>
+Three characters indicate the keyboard modifier status.
+&quot;M&quot; indicates the Meta key, &quot;A&quot; the Alt key, and an up-arrow or &quot;^&quot;
+indicates the Shift key.
+<DT><B>compose</B><DD>
+The letter &quot;C&quot; indicates that a composite character is in progress.
+If another symbol follows the &quot;C&quot;, it is the first character of the
+composite.
+<DT><B>typeahead</B><DD>
+The letter &quot;T&quot; indicates that one or more keystrokes are in the typeahead
+buffer.
+<DT><B>temporary keymap</B><DD>
+The letter &quot;K&quot; indicates that a temporary keymap is in effect.
+<DT><B>reverse</B><DD>
+The letter &quot;R&quot; indicates that the keyboard is in reverse field entry mode.
+<DT><B>insert mode</B><DD>
+A thick caret &quot;^&quot; or the 
+letter &quot;I&quot; indicates that the keyboard is in insert mode.
+<DT><B>printer session</B><DD>
+The letter &quot;P&quot; indicates that a <I>pr3287</I> session is active.
+<DT><B>script</B><DD>
+The letter &quot;S&quot; indicates that a script is active.
+<DT><B>LU name</B><DD>
+The LU name associated with the session, if there is one.
+<DT><B>timing</B><DD>
+A clock symbol and a time in seconds indicate the time it took to process
+the last <FONT SIZE="-1">AID</FONT> or the time to connect to a host.
+This display is optional.
+<DT><B>cursor position</B><DD>
+The cursor row and column are optionally displayed, separated by a &quot;/&quot;.
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>ICONS</H2>
+
+If the <B>-activeicon</B>
+option is given (or the &quot;x3270.activeIcon&quot; resource is set to
+<B>true</B>),
+<B>x3270</B> will attempt to make its icon a miniature version of the
+current screen image.
+This function is highly dependent on your window manager:
+<DL COMPACT>
+<DT><B>mwm</B><DD>
+The size of the icon is limited by the &quot;Mwm.iconImageMaximum&quot; resource, which
+defaults to <B>50x50</B>.
+The image will be clipped at the bottom and right.
+The icon cannot accept keyboard input.
+<DT><B>olwm</B><DD>
+The full screen image of all 3270 models can be displayed on the icon.
+However, the icon cannot be resized, so if the model is later changed with an
+<B>x3270</B> menu option, the icon image will be corrupted.
+The icon cannot accept keyboard input.
+<DT><B>twm</B> and <B>tvtwm</B><DD>
+The full screen image of all 3270 models can be displayed on the icon, and the
+icon can be resized.
+The icon can accept keyboard input.
+<DT><DD>
+However, <B>twm</B> does not put labels on application-supplied icon windows.
+You can have <B>x3270</B>
+add its own label to the icon by setting the &quot;x3270.labelIcon&quot; resource to
+<B>true</B>.
+The default font for icon labels is
+<B>8x13</B>;
+you may change it with the &quot;x3270.iconLabelFont&quot; resource.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>KEYMAPS</H2>
+
+<P>
+
+The type of keyboard may be specified with the <B>-keymap</B>
+switch or using either the <FONT SIZE="-1">KEYMAP</FONT> or <FONT SIZE="-1">KEYBD</FONT> environment variables.
+The types of supported keyboards include
+<B>sun_k3</B>,
+<B>sun_k4</B>,
+<B>sun_k5</B>,
+<B>hp-k1</B>,
+<B>hp-pc</B>
+and
+<B>ncd</B>.
+<P>
+
+The keymap may also be specified as a comma-separated list of names.
+Later definitions override earlier ones.
+This is used to specify both a primary keyboard type and a set of modifiers.
+The modifiers defined include:
+<DL COMPACT>
+<DT><B>ow</B><DD>
+(OpenWindows) Swaps the middle and right mouse button definitions, so the
+middle button performs the &quot;Extend&quot; function and the right-hand button
+performs the &quot;Paste&quot; function.
+Also changes the cut and paste actions to use the OpenWindows <FONT SIZE="-1">CLIPBOARD</FONT>.
+<DT><B>alt</B><DD>
+Replaces the default &quot;Meta&quot; key definitions with &quot;Alt&quot; definitions,
+for keyboards which do not have a &quot;Meta&quot; key.
+<DT><B>apl</B><DD>
+Allows entry of <FONT SIZE="-1">APL</FONT> characters (see <FONT SIZE="-1">APL SUPPORT</FONT>
+below).
+<DT><B>finnish7</B><DD>
+Replaces the bracket, brace and bar keys with common Finnish characters.
+<DT><B>norwegian7</B><DD>
+Replaces the bracket, brace and bar keys with common Norwegian characters.
+</DL>
+<P>
+
+A temporary keymap can also be specified while <B>x3270</B>
+is running with the <B>Keymap</B> action.
+When the action <B>Keymap</B>(<I>n</I>) is executed, temporary keymap
+<I>n</I>
+is added to or deleted from the current keymap.
+Multiple temporary keymaps can be active simultaneously.
+The action <B>Keymap(None)</B> restores the original keymap.
+<B>Note:</B>
+When Keymap() is specified as part of a list of multiple actions in a keymap,
+it must be the last action in the list.
+<P>
+
+The temporary keymap <B>hebrew</B>
+is provided to allow entry of Hebrew characters.
+<P>
+
+The X Toolkit translation mechanism is used to provide keyboard emulation.
+It maps <B>events</B> into <B>actions.</B>
+The best documentation can be found with X toolkit documents, but the
+following should suffice for simple customization.
+<P>
+
+An Xt event consists of (at least) four fields.  The first is called a
+<B>modifier</B>.
+It may be any combination of <B>Meta</B>, <B>Shift</B> and <B>Ctrl</B>.  If it
+is prefaced by <B>!</B>,
+it means those modifiers only.  The second field is the specific event,
+in <B>x3270</B>
+usually just &lt;Key&gt;.
+The third field is the detail field, which gives the actual key.
+The name of the key may be determined using the <I>xev</I>
+program or with the &quot;Trace X Events&quot; menu option.
+The last field is the action, which is the internal emulator function.
+A complete list of actions may be found later in the manual.
+<P>
+
+There are three levels of translation tables in <B>x3270</B>.
+The first is a defined by the resource
+<B>x3270.keymap.base</B>.
+It defines alphabetic, numeric,
+function keys, and such basic functions as Enter and Delete.
+It allows a minimal useful functionality.
+It is generally compiled in <B>x3270</B>, but can be overridden.
+<P>
+
+The second level is a keyboard specific table, which is selected by the
+<B>x3270.keymap</B> resource, and defined by the
+<B>x3270.keymap.</B><I>name</I> resource (where <I>name</I> is the value
+of the <B>x3270.keymap</B> resource).
+This keymap defines actions for such things as keypad
+keys, and keys unique to certain keyboards.
+Several predefined keymaps are included with <B>x3270</B>.
+<P>
+
+The third level is a user customizable table which may be used to augment or
+override key definitions.
+This keymap is defined by the <B>x3270.keymap.</B><I>name</I><B>.user</B>
+resource.
+<P>
+
+In addition, keymaps may be defined for use in 3270 mode or <FONT SIZE="-1">NVT</FONT> mode
+only.
+These keymaps use the suffixes <B>.3270</B> and <B>.nvt</B> in their names,
+respectively.
+If a keymap <B>x3270.keymap.</B><I>name</I>.<I>mode</I> is defined, it
+will augment the keymap <B>x3270.keymap.</B><I>name</I> when <B>x3270</B>
+is in the given <I>mode</I>.
+If a keymap <B>x3270.keymap.</B><I>name</I>.<B>user</B>.<I>mode</I> is
+defined, it will augment the
+keymap <B>x3270.keymap</B>.<I>name</I>.<B>user</B> when
+<B>x3270</B>
+is in the given <I>mode</I>.
+<P>
+
+The default translation table <B>x3270.keymap.base</B> is:
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Multi_key
+</TD><TD>
+
+
+Compose()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Left
+</TD><TD>
+
+
+KybdSelect(Left,PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Left
+</TD><TD>
+
+
+Left()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;Right
+</TD><TD>
+
+
+NextWord()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Right
+</TD><TD>
+
+
+KybdSelect(Right,PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Right
+</TD><TD>
+
+
+Right()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Up
+</TD><TD>
+
+
+KybdSelect(Up,PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Up
+</TD><TD>
+
+
+Up()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Down
+</TD><TD>
+
+
+KybdSelect(Down,PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Down
+</TD><TD>
+
+
+Down()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Btn1Down&gt;
+</TD><TD>
+
+
+HandleMenu(quitMenu)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Btn2Down&gt;
+</TD><TD>
+
+
+HandleMenu(optionsMenu)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Btn3Down&gt;
+</TD><TD>
+
+
+HandleMenu(hostMenu)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Btn1Down&gt;
+</TD><TD>
+
+
+MoveCursor()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn1Down&gt;
+</TD><TD>
+
+
+select-start()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn1Motion&gt;
+</TD><TD>
+
+
+select-extend()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn2Down&gt;
+</TD><TD>
+
+
+ignore()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn2Motion&gt;
+</TD><TD>
+
+
+ignore()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn2Up&gt;
+</TD><TD>
+
+
+insert-selection(PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn3Down&gt;
+</TD><TD>
+
+
+start-extend()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Btn3Motion&gt;
+</TD><TD>
+
+
+select-extend()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;BtnUp&gt;
+</TD><TD>
+
+
+select-end(PRIMARY)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F1
+</TD><TD>
+
+
+PF(13)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F2
+</TD><TD>
+
+
+PF(14)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F3
+</TD><TD>
+
+
+PF(15)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F4
+</TD><TD>
+
+
+PF(16)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F5
+</TD><TD>
+
+
+PF(17)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F6
+</TD><TD>
+
+
+PF(18)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F7
+</TD><TD>
+
+
+PF(19)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F8
+</TD><TD>
+
+
+PF(20)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F9
+</TD><TD>
+
+
+PF(21)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F10
+</TD><TD>
+
+
+PF(22)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F11
+</TD><TD>
+
+
+PF(23)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;F12
+</TD><TD>
+
+
+PF(24)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F1
+</TD><TD>
+
+
+<A HREF="../man1/PF.1.php">PF</A>(1)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F2
+</TD><TD>
+
+
+<A HREF="../man2/PF.2.php">PF</A>(2)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F3
+</TD><TD>
+
+
+<A HREF="../man3/PF.3.php">PF</A>(3)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F4
+</TD><TD>
+
+
+<A HREF="../man4/PF.4.php">PF</A>(4)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F5
+</TD><TD>
+
+
+<A HREF="../man5/PF.5.php">PF</A>(5)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F6
+</TD><TD>
+
+
+<A HREF="../man6/PF.6.php">PF</A>(6)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F7
+</TD><TD>
+
+
+<A HREF="../man7/PF.7.php">PF</A>(7)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F8
+</TD><TD>
+
+
+<A HREF="../man8/PF.8.php">PF</A>(8)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F9
+</TD><TD>
+
+
+<A HREF="../man9/PF.9.php">PF</A>(9)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F10
+</TD><TD>
+
+
+PF(10)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F11
+</TD><TD>
+
+
+PF(11)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F12
+</TD><TD>
+
+
+PF(12)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Alt&lt;Key&gt;q
+</TD><TD>
+
+
+Quit()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+:&lt;Key&gt;
+</TD><TD>
+
+
+Default()
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+The default 3270-mode table <B>x3270.keymap.base.3270</B> adds the
+following definitions:
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Return
+</TD><TD>
+
+
+Newline()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Return
+</TD><TD>
+
+
+Enter()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Linefeed
+</TD><TD>
+
+
+Newline()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Key&gt;Tab
+</TD><TD>
+
+
+BackTab()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Tab
+</TD><TD>
+
+
+Tab()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Home
+</TD><TD>
+
+
+Home()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;Left
+</TD><TD>
+
+
+PreviousWord()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;Right
+</TD><TD>
+
+
+NextWord()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Insert
+</TD><TD>
+
+
+Insert()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Delete
+</TD><TD>
+
+
+Delete()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;BackSpace
+</TD><TD>
+
+
+BackSpace()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl Shift&lt;Btn1Down&gt;
+</TD><TD>
+
+
+MouseSelect()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Shift&lt;Btn1Down&gt;
+</TD><TD>
+
+
+MoveCursor()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;1
+</TD><TD>
+
+
+<A HREF="../man1/PA.1.php">PA</A>(1)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;2
+</TD><TD>
+
+
+<A HREF="../man2/PA.2.php">PA</A>(2)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;3
+</TD><TD>
+
+
+<A HREF="../man3/PA.3.php">PA</A>(3)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;a
+</TD><TD>
+
+
+Attn()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;b
+</TD><TD>
+
+
+PrintWindow()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;c
+</TD><TD>
+
+
+Clear()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;d
+</TD><TD>
+
+
+Delete()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;h
+</TD><TD>
+
+
+Home()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;i
+</TD><TD>
+
+
+Insert()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;l
+</TD><TD>
+
+
+Redraw()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;p
+</TD><TD>
+
+
+PrintText()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;r
+</TD><TD>
+
+
+Reset()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Meta&lt;Key&gt;u
+</TD><TD>
+
+
+Unselect()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;u
+</TD><TD>
+
+
+DeleteField()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;w
+</TD><TD>
+
+
+DeleteWord()
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+:Meta&lt;Key&gt;asciicircum
+</TD><TD>
+
+
+Key(notsign)
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+Meta is the diamond shaped key on a sun_k4, &quot;Alt&quot; on an <FONT SIZE="-1">NCD</FONT>,
+&quot;Extend Char&quot; on an <FONT SIZE="-1">HP</FONT>.
+The following
+<I>xmodmap</I>
+command must be used on the <FONT SIZE="-1">NCD</FONT> to allow use the the &quot;Alt&quot;
+key:
+<P>
+
+<DL COMPACT><DT><DD>
+xmodmap -e &quot;keysym Alt_L = Meta_L&quot;
+</DL>
+
+<P>
+
+The left mouse button may be used to make a selection.
+Clicking once unselects the current selection.
+Clicking twice selects the word under the mouse cursor.
+Clicking three times selects the line under the mouse cursor.
+Clicking and dragging selects a rectangular area of the display.
+<P>
+
+The middle mouse button may be used to paste a selection.
+<P>
+
+The right mouse button may also be used for selections, selecting the
+rectangular area between the current position and where the left button was
+last pressed.
+<P>
+
+<P>
+
+On color X displays, the &quot;x3270.selectBackground&quot; resource is used to
+distinguish the selected text from the rest of the screen.
+On monochrome X displays, selected text is in reverse video.
+(It can be distinguished from a block cursor because the block cursor covers
+slightly less than an entire character position on the screen.)
+<P>
+
+The left mouse button, when pressed with the &quot;Shift&quot; key held down, moves the
+3270 cursor to the where the mouse cursor is pointing.
+<P>
+
+This is the complete list of keymap-callable actions.
+Other actions are defined for use by scripts and are documented in
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1);
+still others are defined for internal use by <B>x3270</B>
+and are not documented here.
+<P>
+
+Actions marked with an asterisk (*) may block, sending data to the host and
+possibly waiting for a response.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Attn
+</TD><TD ALIGN=right>
+
+
+attention key
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+AltCursor
+</TD><TD ALIGN=right>
+
+
+switch between block and underscore cursor
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+BackSpace
+</TD><TD ALIGN=right>
+
+
+move cursor left (or send <FONT SIZE="-1">ASCII BS</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+BackTab
+</TD><TD ALIGN=right>
+
+
+tab to start of previous input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+CircumNot
+</TD><TD ALIGN=right>
+
+
+input &quot;^&quot; in <FONT SIZE="-1">NVT</FONT> mode, or &quot;notsign&quot; in 3270 mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Clear
+</TD><TD ALIGN=right>
+
+
+clear screen
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Compose
+</TD><TD ALIGN=right>
+
+
+next two keys form a special symbol
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Connect(<I>host</I>)
+</TD><TD ALIGN=right>
+
+
+connect to <I>host</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*CursorSelect
+</TD><TD ALIGN=right>
+
+
+Cursor Select <FONT SIZE="-1">AID</FONT>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Cut
+</TD><TD ALIGN=right>
+
+
+erase selected text
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Default
+</TD><TD ALIGN=right>
+
+
+enter key literally
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Delete
+</TD><TD ALIGN=right>
+
+
+delete character under cursor (or send <FONT SIZE="-1">ASCII DEL</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+DeleteField
+</TD><TD ALIGN=right>
+
+
+delete the entire field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+DeleteWord
+</TD><TD ALIGN=right>
+
+
+delete the current or previous word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Disconnect
+</TD><TD ALIGN=right>
+
+
+disconnect from host
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Down
+</TD><TD ALIGN=right>
+
+
+move cursor down
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Dup
+</TD><TD ALIGN=right>
+
+
+duplicate field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Enter
+</TD><TD ALIGN=right>
+
+
+Enter <FONT SIZE="-1">AID</FONT> (or send <FONT SIZE="-1">ASCII CR</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Erase
+</TD><TD ALIGN=right>
+
+
+erase previous character (or send <FONT SIZE="-1">ASCII BS</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+EraseEOF
+</TD><TD ALIGN=right>
+
+
+erase to end of current field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+EraseInput
+</TD><TD ALIGN=right>
+
+
+erase all input fields
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Execute(<I>cmd</I>)
+</TD><TD ALIGN=right>
+
+
+execute a command in a shell
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldEnd
+</TD><TD ALIGN=right>
+
+
+move cursor to end of field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldExit
+</TD><TD ALIGN=right>
+
+
+clear to end of field and skip to next (5250 emulation)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldMark
+</TD><TD ALIGN=right>
+
+
+mark field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+HandleMenu(<I>name</I>)
+</TD><TD ALIGN=right>
+
+
+pop up a menu
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+HexString(<I>hex_digits</I>)
+</TD><TD ALIGN=right>
+
+
+insert control-character string
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Home
+</TD><TD ALIGN=right>
+
+
+move cursor to first input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Insert
+</TD><TD ALIGN=right>
+
+
+set insert mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Interrupt
+</TD><TD ALIGN=right>
+
+
+send <FONT SIZE="-1">TELNET IP</FONT> to host
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Key(<I>keysym</I>)
+</TD><TD ALIGN=right>
+
+
+insert key <I>keysym</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Key(0x<I>xx</I>)
+</TD><TD ALIGN=right>
+
+
+insert key with <FONT SIZE="-1">ASCII</FONT> code <I>xx</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Keymap(<I>keymap</I>)
+</TD><TD ALIGN=right>
+
+
+toggle alternate <I>keymap</I> (or remove with <B>None</B>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+KybdSelect(<I>direction</I>[,<I>atom</I>...])
+</TD><TD ALIGN=right>
+
+
+Extend selection by one row or column
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Left
+</TD><TD ALIGN=right>
+
+
+move cursor left
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Left2
+</TD><TD ALIGN=right>
+
+
+move cursor left 2 positions
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Macro(<I>macro</I>)
+</TD><TD ALIGN=right>
+
+
+run a macro
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+MonoCase
+</TD><TD ALIGN=right>
+
+
+toggle uppercase-only mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+MoveCursor
+</TD><TD ALIGN=right>
+
+
+move cursor to mouse position
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+MoveCursor(<I>row</I>, <I>col</I>)
+</TD><TD ALIGN=right>
+
+
+move cursor to (<I>row</I>,<I>col</I>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*MoveCursorSelect
+</TD><TD ALIGN=right>
+
+
+move cursor to mouse position, light pen selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Newline
+</TD><TD ALIGN=right>
+
+
+move cursor to first field on next line (or send <FONT SIZE="-1">ASCII LF</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+NextWord
+</TD><TD ALIGN=right>
+
+
+move cursor to next word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*PA(<I>n</I>)
+</TD><TD ALIGN=right>
+
+
+Program Attention <FONT SIZE="-1">AID</FONT> (<I>n</I> from 1 to 3)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*PF(<I>n</I>)
+</TD><TD ALIGN=right>
+
+
+Program Function <FONT SIZE="-1">AID</FONT> (<I>n</I> from 1 to 24)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+PreviousWord
+</TD><TD ALIGN=right>
+
+
+move cursor to previous word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Printer(Start[,<I>lu</I>]|Stop)
+</TD><TD ALIGN=right>
+
+
+Start or stop printer session
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+PrintText(<I>command</I>)
+</TD><TD ALIGN=right>
+
+
+print screen text on printer
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+PrintWindow(<I>command</I>)
+</TD><TD ALIGN=right>
+
+
+print screen image (bitmap) on printer
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Quit
+</TD><TD ALIGN=right>
+
+
+exit <B>x3270</B>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Reconnect
+</TD><TD ALIGN=right>
+
+
+reconnect to previous host
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Redraw
+</TD><TD ALIGN=right>
+
+
+redraw window
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Reset
+</TD><TD ALIGN=right>
+
+
+reset locked keyboard
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Right
+</TD><TD ALIGN=right>
+
+
+move cursor right
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Right2
+</TD><TD ALIGN=right>
+
+
+move cursor right 2 positions
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+SetFont(<I>font</I>)
+</TD><TD ALIGN=right>
+
+
+change emulator font
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Script(<I>command</I>[,<I>arg</I>...])
+</TD><TD ALIGN=right>
+
+
+run a script
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*String(<I>string</I>)
+</TD><TD ALIGN=right>
+
+
+insert string (simple macro facility)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*SysReq
+</TD><TD ALIGN=right>
+
+
+System Request <FONT SIZE="-1">AID</FONT>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Tab
+</TD><TD ALIGN=right>
+
+
+move cursor to next input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Toggle(<I>option</I>[,<I>set|clear</I>])
+</TD><TD ALIGN=right>
+
+
+toggle an option
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ToggleInsert
+</TD><TD ALIGN=right>
+
+
+toggle insert mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ToggleReverse
+</TD><TD ALIGN=right>
+
+
+toggle reverse-input mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Transfer(<I>option</I>=<I>value</I>...)
+</TD><TD ALIGN=right>
+
+
+file transfer
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Unselect
+</TD><TD ALIGN=right>
+
+
+release selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Up
+</TD><TD ALIGN=right>
+
+
+move cursor up
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=5><HR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+(the following are similar to xterm)
+</TD><TD ALIGN=right>&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=5><HR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ignore
+</TD><TD ALIGN=right>
+
+
+do nothing
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+insert-selection([<I>atom</I>[,<I>atom</I>...]])
+</TD><TD ALIGN=right>
+
+
+paste selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+move-select
+</TD><TD ALIGN=right>
+
+
+a combination of <B>MoveCursor</B> and <B>select-start</B>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+select-end(<I>atom</I>[,<I>atom</I>...]])
+</TD><TD ALIGN=right>
+
+
+complete selection and assign to atom(s)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+select-extend
+</TD><TD ALIGN=right>
+
+
+move the end of a selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+select-start
+</TD><TD ALIGN=right>
+
+
+mark the beginning of a selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+set-select(<I>atom</I>[,<I>atom</I>...]])
+</TD><TD ALIGN=right>
+
+
+assign existing selection to atom(s)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+start-extend
+</TD><TD ALIGN=right>
+
+
+begin marking the end of a selection
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+</TABLE>
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>MACROS AND SCRIPTS</H2>
+
+There are several types of
+macros and script functions available.
+<DL COMPACT>
+<DT><B>The String Action</B><DD>
+The simplest method for
+macros is provided via the <B>String</B>
+action.
+The arguments to <B>String</B> are one or more double-quoted strings which are
+inserted directly as if typed.
+The C backslash conventions are honored as follows.
+(Entries marked * mean that after sending the <FONT SIZE="-1">AID</FONT> code to the host,
+<B>x3270</B> will wait for the host to unlock the keyboard before further
+processing the string.)
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+\b
+</TD><TD>
+
+
+Left
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\f
+</TD><TD>
+
+
+Clear*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\n
+</TD><TD>
+
+
+Enter*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\pa<I>n</I>
+</TD><TD>
+
+
+PA(<I>n</I>)*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\pf<I>nn</I>
+</TD><TD>
+
+
+PF(<I>nn</I>)*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\r
+</TD><TD>
+
+
+Newline
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\t
+</TD><TD>
+
+
+Tab
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\T
+</TD><TD>
+
+
+BackTab
+<BR></TD></TR>
+</TABLE>
+
+<DT><DD>
+An example keymap entry would be:
+<DL COMPACT><DT><DD>
+Meta&lt;Key&gt;p: String(&quot;probs clearrdr\n&quot;)
+</DL>
+
+<DT><DD>
+<B>Note:</B>
+The strings are in <FONT SIZE="-1">ASCII</FONT> and converted to <FONT SIZE="-1">EBCDIC</FONT>,
+so beware of inserting
+control codes.
+Also, a backslash before a <B>p</B> may need to be
+doubled so it will not be removed when a resource file is read.
+<DT><DD>
+There is also an alternate form of the <B>String</B> action, <B>HexString</B>,
+which is used to enter non-printing data.
+The argument to <B>HexString</B> is a string of hexadecimal digits, two per
+character.  A leading 0x or 0X is optional.
+In 3270 mode, the hexadecimal data represent <FONT SIZE="-1">EBCDIC</FONT> characters, which
+are entered into the current field.
+In <FONT SIZE="-1">NVT</FONT> mode, the hexadecimal data represent <FONT SIZE="-1">ASCII</FONT> characters,
+which are sent directly to the host.
+<DT><B>The Script Action</B><DD>
+This action causes <B>x3270</B> to start a child process which can
+execute <B>x3270</B> actions.
+Standard input and output from the child process are piped back to
+<B>x3270</B>.
+The <B>Script</B> action is fully documented in
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1).
+<DT><B>The macros Resource</B><DD>
+An alternate method of defining macros is the &quot;x3270.macros&quot; resource.
+This resource is similar to a keymap, but instead of defining keyboard
+mappings, it associates a list of X actions with a name.
+These names are displayed on a Macros menu that appears when <B>x3270</B>
+is connected to a host.
+Selecting one of the names on the menu executes the X actions associated with
+it.
+Typically the actions are <B>String</B> calls, but any action may be specified.
+Here is a sample macros resource definition, which would result in a four-entry
+Macros menu:
+<DL COMPACT><DT><DD>
+x3270.macros: \
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>log off: String(&quot;logout\n&quot;)\n\<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>vtam: String(&quot;dial vtam\n&quot;)\n\<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>pa1: <A HREF="../man1/PA.1.php">PA</A>(1)\n\<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>alt printer: PrintText(&quot;lpr -Plw2&quot;)<BR>
+</DL>
+
+<DT><DD>
+You can also define a different set of macros for each host.
+If there is a resource named
+`x3270.<I>macros</I>.<I>somehost</I>',
+it defines the macros menu for when <B>x3270</B>
+is connected to <I>somehost</I>.
+<DT><B>The -script Option</B><DD>
+This facility allows <B>x3270</B>
+to operate under the complete control of a script.
+<B>x3270</B>
+accepts actions from standard input, and prints results on standard output.
+The <B>-script</B> option is fully documented in
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1).
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H2>COMPOSITE CHARACTERS</H2>
+
+<B>x3270</B>
+allows the direct entry of accented letters and special symbols.
+Pressing and releasing the &quot;Compose&quot; key, followed by two other keys, causes
+entry of the symbol combining those two keys.
+For example, &quot;Compose&quot; followed by the &quot;C&quot; key and the &quot;,&quot; (comma) key, enters
+the &quot;C-cedilla&quot; symbol.
+A C on the status line indicates a pending composite character.
+<P>
+
+The mappings between these pairs of ordinary keys and the symbols they
+represent is controlled by the &quot;x3270.composeMap&quot; resource; it gives the
+name of the map to use.
+The maps themselves are named &quot;x3270.composeMap.<I>name</I>&quot;.
+The default is &quot;latin1&quot;, which gives mappings for most of the symbols in
+the <FONT SIZE="-1">ISO</FONT> 8859-1 Latin-1 character set that are not in the
+7-bit <FONT SIZE="-1">ASCII</FONT>
+character set.
+<P>
+
+<B>Note:</B>
+The default keymap defines
+the &quot;Multi_key&quot; keysym
+as the &quot;Compose&quot; key.
+If your keyboard lacks such a key, you
+may set up your own &quot;Compose&quot; key with
+a keymap that maps some other keysym onto the <B>Compose</B> action.
+<A NAME="lbAT">&nbsp;</A>
+<H2>APL SUPPORT</H2>
+
+<B>x3270</B> supports the full <FONT SIZE="-1">APL2</FONT> character set and the entry of
+<FONT SIZE="-1">APL</FONT> characters from the keyboard.
+<P>
+
+<FONT SIZE="-1">APL</FONT> characters are supported only in the special <B>3270</B> font.
+<P>
+
+Keyboard entry of <FONT SIZE="-1">APL</FONT> characters is supported through the <B>apl</B>
+keymap modifier.
+This modifier defines the &quot;Alt&quot; key as an <FONT SIZE="-1">APL</FONT>  key, with a
+typical <FONT SIZE="-1">APL</FONT> keyboard layout, e.g.,
+&quot;Alt&quot; pressed with the <B>A</B> key results in the <FONT SIZE="-1">APL</FONT> &quot;alpha&quot; symbol.
+Overstruck characters such as &quot;quad-quote&quot; are not defined as single
+keystrokes; instead they are entered as
+composites (see <FONT SIZE="-1">COMPOSITE CHARACTERS</FONT>
+above).
+A special composite map,
+<B>apl</B>,
+is provided for this purpose.
+<P>
+
+<B>Note:</B>
+Some keyboards do not define the &quot;Alt&quot; key as a modifier, so keymaps that use
+the &quot;Alt&quot; key will not function.
+On a Sun for example, this can be remedied with the command:
+<DL COMPACT>
+<DT><DD>
+<DL COMPACT><DT><DD>
+xmodmap -e &quot;add mod2 = Alt_L&quot;
+</DL>
+
+</DL>
+<P>
+
+For convenience, an <B>-apl</B>
+option is defined, which is an abbreviation for the following resource
+definitions:
+<DL COMPACT><DT><DD>
+x3270.keymap: <I>your_keymap_name</I>,apl
+<BR>
+
+x3270.charset: apl
+<BR>
+
+x3270.composeMap: apl
+<BR>
+
+</DL>
+
+<P>
+
+There are a number of <FONT SIZE="-1">APL</FONT> characters that are similar in appearance to
+non-<FONT SIZE="-1">APL</FONT>
+characters.
+In particular, the <FONT SIZE="-1">APL</FONT> &quot;stile&quot;, &quot;slope,&quot; &quot;tilde&quot; and &quot;quotedot&quot;
+characters are similar to the <FONT SIZE="-1">EBCDIC</FONT> &quot;bar&quot;, &quot;backslash,&quot; &quot;tilde&quot;
+and &quot;exclaim&quot; characters.
+The <FONT SIZE="-1">APL</FONT> characters are entered with the &quot;Alt&quot; key, and have slightly
+different appearances.
+<P>
+
+The complete list of special <FONT SIZE="-1">APL</FONT> keysyms is as follows.
+Entries marked with an asterisk (*) represent
+simple aliases for standard <FONT SIZE="-1">EBCDIC</FONT> characters.
+Entries marked with an (S) represent Sharp APL charatcers.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+APL Symbol
+</TD><TD ALIGN=center>
+
+
+Hex
+</TD><TD>
+
+
+x3270 Keysym
+</TD><TD>
+
+
+x3270 Key
+</TD><TD>
+
+
+x3270 Composed Keys
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=5><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+A underbar
+</TD><TD ALIGN=center>
+
+
+41
+</TD><TD>
+
+
+apl_Aunderbar
+</TD><TD>
+
+
+Alt-A
+</TD><TD>
+
+
+A + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+alpha
+</TD><TD ALIGN=center>
+
+
+B0
+</TD><TD>
+
+
+apl_alpha
+</TD><TD>
+
+
+Alt-a
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+B underbar
+</TD><TD ALIGN=center>
+
+
+42
+</TD><TD>
+
+
+apl_Bunderbar
+</TD><TD>
+
+
+Alt-B
+</TD><TD>
+
+
+B + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+bar
+</TD><TD ALIGN=center>
+
+
+60*
+</TD><TD>
+
+
+apl_bar
+</TD><TD>
+
+
+-
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+brace left
+</TD><TD ALIGN=center>
+
+
+C0
+</TD><TD>
+
+
+apl_braceleft
+</TD><TD>
+
+
+Alt-{
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+brace right
+</TD><TD ALIGN=center>
+
+
+D0
+</TD><TD>
+
+
+apl_braceright
+</TD><TD>
+
+
+Alt-}
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+C underbar
+</TD><TD ALIGN=center>
+
+
+43
+</TD><TD>
+
+
+apl_Cunderbar
+</TD><TD>
+
+
+Alt-C
+</TD><TD>
+
+
+C + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+circle
+</TD><TD ALIGN=center>
+
+
+9D
+</TD><TD>
+
+
+apl_circle
+</TD><TD>
+
+
+Alt-o
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+circle bar
+</TD><TD ALIGN=center>
+
+
+ED
+</TD><TD>
+
+
+apl_circlebar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+circle + bar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+circle slope
+</TD><TD ALIGN=center>
+
+
+CF
+</TD><TD>
+
+
+apl_circleslope
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+circle + slope
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+circle star
+</TD><TD ALIGN=center>
+
+
+FD
+</TD><TD>
+
+
+apl_circlestar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+circle + star
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+circle stile
+</TD><TD ALIGN=center>
+
+
+CD
+</TD><TD>
+
+
+apl_circlestile
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+circle + stile
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+colon
+</TD><TD ALIGN=center>
+
+
+7A*
+</TD><TD>
+
+
+apl_colon
+</TD><TD>
+
+
+:
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+comma
+</TD><TD ALIGN=center>
+
+
+6B*
+</TD><TD>
+
+
+apl_comma
+</TD><TD>
+
+
+,
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+comma bar (S)
+</TD><TD ALIGN=center>
+
+
+E5
+</TD><TD>
+
+
+apl_commabar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+comma + bar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+D underbar
+</TD><TD ALIGN=center>
+
+
+44
+</TD><TD>
+
+
+apl_Dunderbar
+</TD><TD>
+
+
+Alt-D
+</TD><TD>
+
+
+D + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+del
+</TD><TD ALIGN=center>
+
+
+BA
+</TD><TD>
+
+
+apl_del
+</TD><TD>
+
+
+Alt-g
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+del stile
+</TD><TD ALIGN=center>
+
+
+DC
+</TD><TD>
+
+
+apl_delstile
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+del + stile
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+del tilde
+</TD><TD ALIGN=center>
+
+
+FB
+</TD><TD>
+
+
+apl_deltilde
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+del + tilde
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+delta
+</TD><TD ALIGN=center>
+
+
+BB
+</TD><TD>
+
+
+apl_delta
+</TD><TD>
+
+
+Alt-h
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+delta stile
+</TD><TD ALIGN=center>
+
+
+DD
+</TD><TD>
+
+
+apl_deltastile
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+delta + stile
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+delta underbar
+</TD><TD ALIGN=center>
+
+
+FC
+</TD><TD>
+
+
+apl_deltaunderbar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+delta + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+diamond
+</TD><TD ALIGN=center>
+
+
+70
+</TD><TD>
+
+
+apl_diamond
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+up caret + down caret
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dieresis
+</TD><TD ALIGN=center>
+
+
+72
+</TD><TD>
+
+
+apl_dieresis
+</TD><TD>
+
+
+Alt-1
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dieresis circle (S)
+</TD><TD ALIGN=center>
+
+
+E5
+</TD><TD>
+
+
+apl_dieresiscircle
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+dieresis + circle
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dieresis dot
+</TD><TD ALIGN=center>
+
+
+EC
+</TD><TD>
+
+
+apl_dieresisdot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+dieresis + dot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dieresis jot (S)
+</TD><TD ALIGN=center>
+
+
+E4
+</TD><TD>
+
+
+apl_dieresisjot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+dieresis + jot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+divide
+</TD><TD ALIGN=center>
+
+
+B8
+</TD><TD>
+
+
+apl_divide
+</TD><TD>
+
+
+Alt-+
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dot
+</TD><TD ALIGN=center>
+
+
+4B*
+</TD><TD>
+
+
+apl_dot
+</TD><TD>
+
+
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down arrow
+</TD><TD ALIGN=center>
+
+
+8B
+</TD><TD>
+
+
+apl_downarrow
+</TD><TD>
+
+
+Alt-u
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down caret
+</TD><TD ALIGN=center>
+
+
+78
+</TD><TD>
+
+
+apl_downcaret
+</TD><TD>
+
+
+Alt-9
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down caret tilde
+</TD><TD ALIGN=center>
+
+
+CB
+</TD><TD>
+
+
+apl_downcarettilde
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+down caret + tilde
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down shoe
+</TD><TD ALIGN=center>
+
+
+AB
+</TD><TD>
+
+
+apl_downshoe
+</TD><TD>
+
+
+Alt-v
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down stile
+</TD><TD ALIGN=center>
+
+
+8E
+</TD><TD>
+
+
+apl_downstile
+</TD><TD>
+
+
+Alt-d
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down tack
+</TD><TD ALIGN=center>
+
+
+AC
+</TD><TD>
+
+
+apl_downtack
+</TD><TD>
+
+
+Alt-b
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down tack jot
+</TD><TD ALIGN=center>
+
+
+FE
+</TD><TD>
+
+
+apl_downtackjot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+down tack + jot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+down tack up tack
+</TD><TD ALIGN=center>
+
+
+DA
+</TD><TD>
+
+
+apl_downtackuptack
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+down tack + up tack
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+E underbar
+</TD><TD ALIGN=center>
+
+
+45
+</TD><TD>
+
+
+apl_Eunderbar
+</TD><TD>
+
+
+Alt-E
+</TD><TD>
+
+
+E + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+epsilon
+</TD><TD ALIGN=center>
+
+
+B1
+</TD><TD>
+
+
+apl_epsilon
+</TD><TD>
+
+
+Alt-e
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+epsilon underbar
+</TD><TD ALIGN=center>
+
+
+75
+</TD><TD>
+
+
+apl_epsilonunderbar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+epsilon + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+equal
+</TD><TD ALIGN=center>
+
+
+7E*
+</TD><TD>
+
+
+apl_equal
+</TD><TD>
+
+
+&quot;=&quot;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+equal underbar
+</TD><TD ALIGN=center>
+
+
+E1
+</TD><TD>
+
+
+apl_equalunderbar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+equal + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+euro (S)
+</TD><TD ALIGN=center>
+
+
+E7
+</TD><TD>
+
+
+apl_euro
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+C + =
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+F underbar
+</TD><TD ALIGN=center>
+
+
+46
+</TD><TD>
+
+
+apl_Funderbar
+</TD><TD>
+
+
+Alt-F
+</TD><TD>
+
+
+F + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+G underbar
+</TD><TD ALIGN=center>
+
+
+47
+</TD><TD>
+
+
+apl_Gunderbar
+</TD><TD>
+
+
+Alt-G
+</TD><TD>
+
+
+G + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+greater
+</TD><TD ALIGN=center>
+
+
+6E*
+</TD><TD>
+
+
+apl_greater
+</TD><TD>
+
+
+&gt;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+H underbar
+</TD><TD ALIGN=center>
+
+
+48
+</TD><TD>
+
+
+apl_Hunderbar
+</TD><TD>
+
+
+Alt-H
+</TD><TD>
+
+
+H + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+I underbar
+</TD><TD ALIGN=center>
+
+
+49
+</TD><TD>
+
+
+apl_Iunderbar
+</TD><TD>
+
+
+Alt-I
+</TD><TD>
+
+
+I + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+iota
+</TD><TD ALIGN=center>
+
+
+B2
+</TD><TD>
+
+
+apl_iota
+</TD><TD>
+
+
+Alt-i
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+iota underbar
+</TD><TD ALIGN=center>
+
+
+74
+</TD><TD>
+
+
+apl_iotaunderbar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+iota + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+J underbar
+</TD><TD ALIGN=center>
+
+
+51
+</TD><TD>
+
+
+apl_Junderbar
+</TD><TD>
+
+
+Alt-J
+</TD><TD>
+
+
+J + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+jot
+</TD><TD ALIGN=center>
+
+
+AF
+</TD><TD>
+
+
+apl_jot
+</TD><TD>
+
+
+alt-j
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+K underbar
+</TD><TD ALIGN=center>
+
+
+52
+</TD><TD>
+
+
+apl_Kunderbar
+</TD><TD>
+
+
+Alt-K
+</TD><TD>
+
+
+K + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+L underbar
+</TD><TD ALIGN=center>
+
+
+53
+</TD><TD>
+
+
+apl_Lunderbar
+</TD><TD>
+
+
+Alt-L
+</TD><TD>
+
+
+L + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+left arrow
+</TD><TD ALIGN=center>
+
+
+9F
+</TD><TD>
+
+
+apl_leftarrow
+</TD><TD>
+
+
+Alt-[
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+left bracket
+</TD><TD ALIGN=center>
+
+
+AD
+</TD><TD>
+
+
+apl_leftbracket
+</TD><TD>
+
+
+[
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+left paren
+</TD><TD ALIGN=center>
+
+
+4D*
+</TD><TD>
+
+
+apl_leftparen
+</TD><TD>
+
+
+(
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+left shoe
+</TD><TD ALIGN=center>
+
+
+9B
+</TD><TD>
+
+
+apl_leftshoe
+</TD><TD>
+
+
+Alt-z
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+less
+</TD><TD ALIGN=center>
+
+
+4C*
+</TD><TD>
+
+
+apl_less
+</TD><TD>
+
+
+&lt;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+M underbar
+</TD><TD ALIGN=center>
+
+
+54
+</TD><TD>
+
+
+apl_Munderbar
+</TD><TD>
+
+
+Alt-M
+</TD><TD>
+
+
+M + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+N underbar
+</TD><TD ALIGN=center>
+
+
+55
+</TD><TD>
+
+
+apl_Nunderbar
+</TD><TD>
+
+
+Alt-N
+</TD><TD>
+
+
+N + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+not equal
+</TD><TD ALIGN=center>
+
+
+BE
+</TD><TD>
+
+
+apl_notequal
+</TD><TD>
+
+
+Alt-8
+</TD><TD>
+
+
+equal + slash
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+not greater
+</TD><TD ALIGN=center>
+
+
+8C
+</TD><TD>
+
+
+apl_notgreater
+</TD><TD>
+
+
+Alt-4
+</TD><TD>
+
+
+less + equal
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+not less
+</TD><TD ALIGN=center>
+
+
+AE
+</TD><TD>
+
+
+apl_notless
+</TD><TD>
+
+
+Alt-6
+</TD><TD>
+
+
+greater + equal
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+O underbar
+</TD><TD ALIGN=center>
+
+
+56
+</TD><TD>
+
+
+apl_Ounderbar
+</TD><TD>
+
+
+Alt-O
+</TD><TD>
+
+
+O + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+omega
+</TD><TD ALIGN=center>
+
+
+B4
+</TD><TD>
+
+
+apl_omega
+</TD><TD>
+
+
+Alt-w
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+overbar
+</TD><TD ALIGN=center>
+
+
+A0
+</TD><TD>
+
+
+apl_overbar
+</TD><TD>
+
+
+Alt-2
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+P underbar
+</TD><TD ALIGN=center>
+
+
+57
+</TD><TD>
+
+
+apl_Punderbar
+</TD><TD>
+
+
+Alt-P
+</TD><TD>
+
+
+P + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+plus
+</TD><TD ALIGN=center>
+
+
+4E*
+</TD><TD>
+
+
+apl_plus
+</TD><TD>
+
+
++
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Q underbar
+</TD><TD ALIGN=center>
+
+
+58
+</TD><TD>
+
+
+apl_Qunderbar
+</TD><TD>
+
+
+Alt-Q
+</TD><TD>
+
+
+Q + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quad
+</TD><TD ALIGN=center>
+
+
+90
+</TD><TD>
+
+
+apl_quad
+</TD><TD>
+
+
+Alt-l
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quad divide
+</TD><TD ALIGN=center>
+
+
+EE
+</TD><TD>
+
+
+apl_quaddivide
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quad + divide
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quad jot
+</TD><TD ALIGN=center>
+
+
+73
+</TD><TD>
+
+
+apl_quadjot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quad + jot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quad quote
+</TD><TD ALIGN=center>
+
+
+DE
+</TD><TD>
+
+
+apl_quadquote
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quad + quote
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quad slope
+</TD><TD ALIGN=center>
+
+
+CE
+</TD><TD>
+
+
+apl_quadslope
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quad + slope
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+query
+</TD><TD ALIGN=center>
+
+
+6F*
+</TD><TD>
+
+
+apl_query
+</TD><TD>
+
+
+?
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quote
+</TD><TD ALIGN=center>
+
+
+7D*
+</TD><TD>
+
+
+apl_quote
+</TD><TD>
+
+
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quote dot
+</TD><TD ALIGN=center>
+
+
+DB
+</TD><TD>
+
+
+apl_quotedot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quote + dot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+R underbar
+</TD><TD ALIGN=center>
+
+
+59
+</TD><TD>
+
+
+apl_Runderbar
+</TD><TD>
+
+
+Alt-R
+</TD><TD>
+
+
+R + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+rho
+</TD><TD ALIGN=center>
+
+
+B3
+</TD><TD>
+
+
+apl_rho
+</TD><TD>
+
+
+Alt-r
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+right arrow
+</TD><TD ALIGN=center>
+
+
+8F
+</TD><TD>
+
+
+apl_rightarrow
+</TD><TD>
+
+
+Alt-]
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+right bracket
+</TD><TD ALIGN=center>
+
+
+BD
+</TD><TD>
+
+
+apl_rightbracket
+</TD><TD>
+
+
+]
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+right paren
+</TD><TD ALIGN=center>
+
+
+5D*
+</TD><TD>
+
+
+apl_rightparen
+</TD><TD>
+
+
+)
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+right shoe
+</TD><TD ALIGN=center>
+
+
+9A
+</TD><TD>
+
+
+apl_rightshoe
+</TD><TD>
+
+
+Alt-x
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+S underbar
+</TD><TD ALIGN=center>
+
+
+62
+</TD><TD>
+
+
+apl_Sunderbar
+</TD><TD>
+
+
+Alt-S
+</TD><TD>
+
+
+S + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+semicolon
+</TD><TD ALIGN=center>
+
+
+5E*
+</TD><TD>
+
+
+apl_semicolon
+</TD><TD>
+
+
+;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+slash
+</TD><TD ALIGN=center>
+
+
+61*
+</TD><TD>
+
+
+apl_slash
+</TD><TD>
+
+
+/
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+slash bar
+</TD><TD ALIGN=center>
+
+
+EA
+</TD><TD>
+
+
+apl_slashbar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+slash + bar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+slope
+</TD><TD ALIGN=center>
+
+
+B7
+</TD><TD>
+
+
+apl_slope
+</TD><TD>
+
+
+Alt-\
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+slope bar
+</TD><TD ALIGN=center>
+
+
+EB
+</TD><TD>
+
+
+apl_slopebar
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+slope + bar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+squad
+</TD><TD ALIGN=center>
+
+
+CC
+</TD><TD>
+
+
+apl_squad
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+quad + quad
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+star
+</TD><TD ALIGN=center>
+
+
+5C*
+</TD><TD>
+
+
+apl_star
+</TD><TD>
+
+
+*
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+stile
+</TD><TD ALIGN=center>
+
+
+BF
+</TD><TD>
+
+
+apl_stile
+</TD><TD>
+
+
+Alt-|
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+T underbar
+</TD><TD ALIGN=center>
+
+
+63
+</TD><TD>
+
+
+apl_Tunderbar
+</TD><TD>
+
+
+Alt-T
+</TD><TD>
+
+
+T + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+tilde
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD>
+
+
+apl_tilde
+</TD><TD>
+
+
+Alt-~
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+times
+</TD><TD ALIGN=center>
+
+
+B6
+</TD><TD>
+
+
+apl_times
+</TD><TD>
+
+
+Alt-=
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+U underbar
+</TD><TD ALIGN=center>
+
+
+64
+</TD><TD>
+
+
+apl_Uunderbar
+</TD><TD>
+
+
+Alt-U
+</TD><TD>
+
+
+U + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+underbar
+</TD><TD ALIGN=center>
+
+
+6D*
+</TD><TD>
+
+
+apl_underbar
+</TD><TD>
+
+
+&quot;_&quot;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up arrow
+</TD><TD ALIGN=center>
+
+
+8A
+</TD><TD>
+
+
+apl_uparrow
+</TD><TD>
+
+
+Alt-y
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up caret
+</TD><TD ALIGN=center>
+
+
+71
+</TD><TD>
+
+
+apl_upcaret
+</TD><TD>
+
+
+Alt-0
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up caret tilde
+</TD><TD ALIGN=center>
+
+
+CA
+</TD><TD>
+
+
+apl_upcarettilde
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+up caret + tilde
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up shoe
+</TD><TD ALIGN=center>
+
+
+AA
+</TD><TD>
+
+
+apl_upshoe
+</TD><TD>
+
+
+Alt-c
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up shoe jot
+</TD><TD ALIGN=center>
+
+
+DF
+</TD><TD>
+
+
+apl_upshoejot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+up shoe + jot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up stile
+</TD><TD ALIGN=center>
+
+
+8D
+</TD><TD>
+
+
+apl_upstile
+</TD><TD>
+
+
+Alt-s
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up tack
+</TD><TD ALIGN=center>
+
+
+BC
+</TD><TD>
+
+
+apl_uptack
+</TD><TD>
+
+
+Alt-n
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+up tack jot
+</TD><TD ALIGN=center>
+
+
+EF
+</TD><TD>
+
+
+apl_uptackjot
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+up tack + jot
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+V underbar
+</TD><TD ALIGN=center>
+
+
+65
+</TD><TD>
+
+
+apl_Vunderbar
+</TD><TD>
+
+
+Alt-V
+</TD><TD>
+
+
+V + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+W underbar
+</TD><TD ALIGN=center>
+
+
+66
+</TD><TD>
+
+
+apl_Wunderbar
+</TD><TD>
+
+
+Alt-W
+</TD><TD>
+
+
+W + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+X underbar
+</TD><TD ALIGN=center>
+
+
+67
+</TD><TD>
+
+
+apl_Xunderbar
+</TD><TD>
+
+
+Alt-X
+</TD><TD>
+
+
+X + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Y underbar
+</TD><TD ALIGN=center>
+
+
+68
+</TD><TD>
+
+
+apl_Yunderbar
+</TD><TD>
+
+
+Alt-Y
+</TD><TD>
+
+
+Y + underbar
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Z underbar
+</TD><TD ALIGN=center>
+
+
+69
+</TD><TD>
+
+
+apl_Zunderbar
+</TD><TD>
+
+
+Alt-Z
+</TD><TD>
+
+
+Z + underbar
+<BR></TD></TR>
+</TABLE>
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>XIM SUPPORT</H2>
+
+When compiled with DBCS support, <B>x3270</B> supports multi-byte input methods
+via the XIM protocol.
+<P>
+
+The input method is selected by the XMODIFIERS environment variable or the
+<B>-im</B> command-line option.
+<P>
+
+The preedit type is specified by the <B>-pt</B> command-line option,
+with a default of <B>OverTheSpot+1</B>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>5250 (AS/400) SUPPORT</H2>
+
+<B>x3270</B> provides limited support for 5250 (AS/400) emulation.
+This is not native 5250 terminal emulation, but rather for use with hosts
+which allow a 3270 terminal to emulate a 5250.
+A <B>5250</B>
+keymap is defined, which maps the keyboard function keys to the 5250 emulators
+PA/PF key sequences, as well as redefining the Return key to use the special
+<B>FieldExit</B> action.
+The command line for 5250 support is:
+<BR>
+
+<DL COMPACT><DT><DD>
+x3270 -model 2 -keymap 5250
+</DL>
+
+<BR>
+
+<A NAME="lbAW">&nbsp;</A>
+<H2>SCREEN PRINTING</H2>
+
+Screen printing is handled through options on the <B>File</B> menu or by the
+<B>PrintText</B> and <B>PrintWindow</B> actions.
+Each results in a pop-up to confirm the print command.
+<P>
+
+The <B>PrintText</B> action (usually assigned to the key &lt;Meta&gt;p) sends
+the current
+screen image to the printer as <FONT SIZE="-1">ASCII</FONT> characters.
+The default command used to print the data is controlled by
+the &quot;x3270.printTextCommand&quot; resource; the default is
+<B>lpr</B>.
+You may also use a keymap definition to pass a print command the
+<B>PrintText</B> action itself.
+The command receives the screen text as its standard input.
+For example, the following keymap will save the screen text in a file:
+<DL COMPACT>
+<DT><DD>
+<DL COMPACT><DT><DD>
+Meta&lt;Key&gt;f: PrintText(&quot;cat &gt;screen.image&quot;)
+</DL>
+
+</DL>
+<P>
+
+Note: <B>HardPrint</B> is an alias for <B>PrintText</B>.
+<P>
+
+The <B>PrintWindow</B> action (usually assigned to the key &lt;Meta&gt;b) sends the current
+screen image to the printer as a bitmap.
+The default command used to print the data is controlled by
+the &quot;x3270.printWindowCommand&quot; resource; the default is
+<DL COMPACT>
+<DT><DD>
+<DL COMPACT><DT><DD>
+<B>xwd -id %d | xpr | lpr</B>.
+</DL>
+
+</DL>
+<P>
+
+You may also use a keymap definition to pass a print command to the
+<B>PrintWindow</B> action itself.
+If the command contains the text &quot;%d&quot;, the window ID of
+<B>x3270</B> will be substituted before it is run.
+For example, the following keymap will pop up a duplicate of the current
+screen image:
+<DL COMPACT>
+<DT><DD>
+<DL COMPACT><DT><DD>
+Meta&lt;Key&gt;g: PrintWindow(&quot;xwd -id %d | xwud &amp;&quot;)
+</DL>
+
+</DL>
+<P>
+
+If the command for PrintWindow or PrintText begins with an &quot;@&quot; character,
+the initial pop-up menu to confirm the print command is not displayed and
+the command cannot be edited.
+<A NAME="lbAX">&nbsp;</A>
+<H2>BUGS</H2>
+
+Cursor highlighting will not work with if you use the <B>NoTitleFocus</B>
+option in your .twmrc file.
+<A NAME="lbAY">&nbsp;</A>
+<H2>PASSTHRU</H2>
+
+<B>x3270</B> supports the Sun <I>telnet-passthru</I>
+service provided by the <I>in.telnet-gw</I> server.
+This allows outbound telnet connections through a firewall machine.
+When a <B>p:</B> is prepended to a hostname, <B>x3270</B>
+acts much like the <I><A HREF="../man1/itelnet.1.php">itelnet</A></I>(1) command.
+It contacts the machine named <B>internet-gateway</B> at the port defined in
+<B>/etc/services</B> as <B>telnet-passthru</B>
+(which defaults to 3514).
+It then passes the requested hostname and port to the
+<B>in.telnet-gw</B> server.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>FILES</H2>
+
+/usr/lib/X11/x3270/ibm_hosts
+<BR>
+
+$HOME/.x3270pro
+<P>
+<A NAME="lbBA">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<B>3270PRO</B> Path of profile file, containing resource definitions.
+Merged after the system resource database, but before <B>X3270RDB</B>.
+Defaults to $HOME/.x3270pro.
+<BR>
+
+<B>NOX3270PRO</B> If set, do not read the profile.
+<BR>
+
+<B>X3270RDB</B> Additional resource definitions, merged after the profile
+file but before the command-line options.
+<BR>
+
+<B>KEYMAP</B> Keymap name.
+<BR>
+
+<B>KEYBD</B> Keymap name.
+<A NAME="lbBB">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/s3270.1.php">s3270</A>(1), <A HREF="../man1/c3270.1.php">c3270</A>(1), <A HREF="../man1/tcl3270.1.php">tcl3270</A>(1), <A HREF="../man5/ibm_hosts.5.php">ibm_hosts</A>(5), <A HREF="../man1/x3270-script.1.php">x3270-script</A>(1), <A HREF="../man1/pr3287.1.php">pr3287</A>(1), <A HREF="../man1/telnet.1.php">telnet</A>(1), <A HREF="../man1/tn3270.1.php">tn3270</A>(1)
+<BR>
+
+X Toolkit Intrinsics
+<BR>
+
+Data Stream Programmer's Reference, IBM GA23-0059
+<BR>
+
+Character Set Reference, IBM GA27-3831
+<BR>
+
+RFC 1576, TN3270 Current Practices
+<BR>
+
+RFC 1646, TN3270 Extensions for LUname and Printer Selection
+<BR>
+
+RFC 2355, TN3270 Enhancements
+<A NAME="lbBC">&nbsp;</A>
+<H2>COPYRIGHTS</H2>
+
+<P>
+
+Modifications Copyright 1993, 1994, 1995, 1996, 1997, 1999, 2000, 2001, 2002 by Paul Mattes.
+<BR>
+
+Original X11 Port Copyright 1990 by Jeff Sparkes.
+<DL COMPACT><DT><DD>
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.
+</DL>
+
+Copyright 1989 by Georgia Tech Research Corporation, Atlanta, GA 30332.
+<DL COMPACT><DT><DD>
+All Rights Reserved.  GTRC hereby grants public use of this software.
+Derivative works based on this software must incorporate this copyright
+notice.
+</DL>
+
+5250 Emulation Code Copyright Minolta (Schweiz) AG, Beat Rubischon.
+<BR>
+
+x3270 is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the file LICENSE for more details.
+<A NAME="lbBD">&nbsp;</A>
+<H2>VERSION</H2>
+
+x3270 3.3.2
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FONTS</A><DD>
+<DT><A HREF="#lbAG">CHARACTER SETS</A><DD>
+<DT><A HREF="#lbAH">CHARACTER CLASSES</A><DD>
+<DT><A HREF="#lbAI">KEYPAD</A><DD>
+<DT><A HREF="#lbAJ">HOSTS DATABASE</A><DD>
+<DT><A HREF="#lbAK">COLOR SCHEMES</A><DD>
+<DT><A HREF="#lbAL">PSEUDO-COLOR</A><DD>
+<DT><A HREF="#lbAM">NVT (ANSI) MODE</A><DD>
+<DT><A HREF="#lbAN">MENUS</A><DD>
+<DT><A HREF="#lbAO">STATUS LINE</A><DD>
+<DT><A HREF="#lbAP">ICONS</A><DD>
+<DT><A HREF="#lbAQ">KEYMAPS</A><DD>
+<DT><A HREF="#lbAR">MACROS AND SCRIPTS</A><DD>
+<DT><A HREF="#lbAS">COMPOSITE CHARACTERS</A><DD>
+<DT><A HREF="#lbAT">APL SUPPORT</A><DD>
+<DT><A HREF="#lbAU">XIM SUPPORT</A><DD>
+<DT><A HREF="#lbAV">5250 (AS/400) SUPPORT</A><DD>
+<DT><A HREF="#lbAW">SCREEN PRINTING</A><DD>
+<DT><A HREF="#lbAX">BUGS</A><DD>
+<DT><A HREF="#lbAY">PASSTHRU</A><DD>
+<DT><A HREF="#lbAZ">FILES</A><DD>
+<DT><A HREF="#lbBA">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbBB">SEE ALSO</A><DD>
+<DT><A HREF="#lbBC">COPYRIGHTS</A><DD>
+<DT><A HREF="#lbBD">VERSION</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

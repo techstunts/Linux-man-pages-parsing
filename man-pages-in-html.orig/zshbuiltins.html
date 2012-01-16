@@ -1,0 +1,2033 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ZSHBUILTINS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ZSHBUILTINS</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: March 19, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+zshbuiltins - zsh built-in commands
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SHELL BUILTIN COMMANDS</H2>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-</B> <I>simple command</I>
+See the section `Precommand Modifiers'.
+<DT><B>.</B> <I>file</I> [ <I>arg</I> ... ]<DD>
+Read commands from <I>file</I> and execute them in the current shell
+environment.
+<DL COMPACT><DT><DD>
+<P>
+
+If <I>file</I> does not contain a slash, or if <B>PATH_DIRS</B> is set,
+the shell looks in the components of <B>$path</B> to find the directory
+containing <I>file</I>.  Files in the current directory are not read
+unless `<B>.</B>' appears somewhere in <B>$path</B>.  If a file named
+`<I>file</I><B>.zwc</B>' is found, is newer than <I>file</I>, and is the
+compiled form (created with the <B>zcompile</B> builtin) of <I>file</I>,
+then commands are read from that file instead of <I>file</I>.
+<P>
+
+If any arguments <I>arg</I> are given,
+they become the positional parameters; the old positional
+parameters are restored when the <I>file</I> is done executing.
+The exit status is the exit status of the last command executed.
+</DL>
+
+<DT><B>:</B> [ <I>arg</I> ... ]<DD>
+This command does nothing, although normal argument expansions is performed
+which may have effects on shell parameters.  A zero exit code is returned.
+<DT><B>alias</B> [ {<B>+|-</B>}<B>gmrsL</B> ] [ <I>name</I>[<B>=</B><I>value</I>] ... ]<DD>
+For each <I>name</I> with a corresponding <I>value</I>, define an alias
+with that value.  A trailing space in <I>value</I> causes the next word
+to be checked for alias expansion.  If the <B>-g</B> flag is present,
+define a global alias; global aliases are expanded even if they do not
+occur in command position.
+<DL COMPACT><DT><DD>
+<P>
+
+If the <B>-s</B> flags is present, define a suffix alias: if the command
+word on a command line is in the form `<I>text</I><B>.</B><I>name</I>', where
+<I>text</I> is any non-empty string, it is replaced by the text
+`<I>value</I> <I>text</I><B>.</B><I>name</I>'.  Note that <I>name</I> is treated as
+a literal string, not a pattern.  A trailing space in <I>value</I> is not
+special in this case.  For example,
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>alias -s ps=gv</B>
+</PRE>
+
+</DL>
+
+<P>
+
+will cause the command `<B>*.ps</B>' to be expanded to `<B>gv *.ps</B>'.  As
+alias expansion is carried out earlier than globbing, the `<B>*.ps</B>' will
+then be expanded.  Suffix aliases constitute a different name space from
+other aliases (so in the above example it is still possible
+to create an alias for the command <B>ps</B>) and the two sets are never
+listed together.
+<P>
+
+For each <I>name</I> with no <I>value</I>,
+print the value of <I>name</I>, if any.  With no arguments, print all
+currently defined aliases other than suffix aliases.  If the <B>-m</B> flag
+is given the arguments are taken as patterns (they should be quoted to
+preserve them from being interpreted as glob patterns), and the aliases
+matching these patterns are printed.  When printing aliases and one of
+the <B>-g</B>, <B>-r</B> or <B>-s</B> flags is present, restrict the printing to
+global, regular or suffix aliases, respectively; a regular alias is one
+which is neither a global nor a suffix alias.   Using `<B>+</B>'
+instead of `<B>-</B>', or ending the option list with a single
+`<B>+</B>', prevents the values of the aliases from being printed.
+<P>
+
+If the <B>-L</B> flag is present, then print each
+alias in a manner suitable for putting in a startup script.  The exit
+status is nonzero if a <I>name</I> (with no <I>value</I>) is given for
+which no alias has been defined.
+</DL>
+
+<DT><B>autoload</B> [ {<B>+</B>|<B>-</B>}<B>UXmt</B> ] [ <B>-wkz</B> ] [ <I>name</I> ... ]<DD>
+Equivalent to <B>functions -u</B>, with the exception of <B>-X</B>/<B>+X</B>,
+<B>-w</B>, <B>-k</B> and <B>-z</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+The flag <B>-X</B> may be used only inside a shell function, and may not be
+followed by a <I>name</I>.  It causes the calling function to be marked for
+autoloading and then immediately loaded and executed, with the current
+array of positional parameters as arguments.  This replaces the previous
+definition of the function.  If no function definition is found, an error
+is printed and the function remains undefined and marked for autoloading.
+<P>
+
+The flag <B>+X</B> attempts to load each <I>name</I> as an autoloaded function,
+but does <I>not</I> execute it.  The exit status is zero (success) if the
+function was not previously defined <I>and</I> a definition for it was found.
+This does <I>not</I> replace any existing definition of the function.  The
+exit status is nonzero (failure) if the function was already defined or
+when no definition was found.  In the latter case the function remains
+undefined and marked for autoloading.
+<P>
+
+The flag <B>+X</B> may be combined with either <B>-k</B> or <B>-z</B> to make
+the function be loaded using ksh-style or zsh-style autoloading,
+respectively. If neither is given, the current setting of the
+<B>KSH_AUTOLOAD</B> options determines how the function is loaded. With
+ksh-style autoloading, the contents of the file will not be executed
+immediately. Instead, the function created will contain the contents of 
+the file plus a call to the function itself appended to it, thus given 
+normal ksh autoloading behaviour on the first call to the function.
+<P>
+
+With the <B>-w</B> flag, the <I>name</I>s are taken as names of files compiled
+with the <B>zcompile</B> builtin, and all functions defined in them are
+marked for autoloading.
+</DL>
+
+<DT>
+<DD>
+<B>bg</B> [ <I>job</I> ... ]
+<DT>
+<DD>
+<I>job</I> ... <B>&amp;</B>
+Put each specified <I>job</I> in the background,
+or the current job if none is specified.
+<DT><B>bindkey</B><DD>
+See the section `Zle Builtins' in <I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1).
+<DT><B>break</B> [ <I>n</I> ]<DD>
+Exit from an enclosing <B>for</B>, <B>while</B>,
+<B>until</B>, <B>select</B> or <B>repeat</B> loop.  If <I>n</I>
+is specified, then break <I>n</I> levels instead of just one.
+<DT><B>builtin</B> <I>name</I> [ <I>args</I> ... ]<DD>
+Executes the builtin <I>name</I>, with the given <I>args</I>.
+<DT><B>bye</B><DD>
+Same as <B>exit</B>.
+<DT><B>cap</B><DD>
+See the section `The zsh/cap Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT>
+<DD>
+<B>cd</B> [ <B>-sLP</B> ] [ <I>arg</I> ]
+<DT>
+<DD>
+<B>cd</B> [ <B>-sLP</B> ] <I>old</I> <I>new</I>
+<DT>
+<DD>
+<B>cd</B> [ <B>-sLP</B> ] {<B>+</B>|<B>-</B>}<I>n</I>
+Change the current directory.  In the first form, change the
+current directory to <I>arg</I>, or to the value of <B>$HOME</B> if
+<I>arg</I> is not specified.  If <I>arg</I> is `<B>-</B>', change to the
+value of <B>$OLDPWD</B>, the previous directory.
+Otherwise, if a directory named <I>arg</I> is not found in the current
+directory and <I>arg</I> does not begin with a slash, search each
+component of the shell parameter <B>cdpath</B>.  If no directory is found
+and the option <B>CDABLE_VARS</B> is set, and a parameter named <I>arg</I>
+exists whose value begins with a slash, treat its value as the
+directory.  In that case, the parameter is added to the named
+directory hash table.
+<DL COMPACT><DT><DD>
+<P>
+
+The second form of <B>cd</B> substitutes the string <I>new</I>
+for the string <I>old</I> in the name of the current directory,
+and tries to change to this new directory.
+<P>
+
+The third form of <B>cd</B> extracts an entry from the directory
+stack, and changes to that directory.  An argument of the form
+`<B>+</B><I>n</I>' identifies a stack entry by counting from the left
+of the list shown by the <B>dirs</B> command, starting with zero.
+An argument of the form `<B>-</B><I>n</I>' counts from the right.
+If the <B>PUSHD_MINUS</B> option is set, the meanings of `<B>+</B>'
+and `<B>-</B>' in this context are swapped.
+<P>
+
+If the <B>-s</B> option is specified, <B>cd</B> refuses to change the current
+directory if the given pathname contains symlinks.  If the <B>-P</B> option
+is given or the <B>CHASE_LINKS</B> option is set, symbolic links are resolved
+to their true values.  If the <B>-L</B> option is given symbolic links are
+followed regardless of the state of the <B>CHASE_LINKS</B> option.
+</DL>
+
+<DT><B>chdir</B><DD>
+Same as <B>cd</B>.
+<DT><B>clone</B><DD>
+See the section `The zsh/clone Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>command</B> [ <B>-pvV</B> ] <I>simple command</I><DD>
+The simple command argument is taken as an external command instead of
+a function or builtin and is executed. If the <B>POSIX_BUILTINS</B> option
+is set, builtins will also be executed but certain special properties
+of them are suppressed. The <B>-p</B> flag causes a default path to be
+searched instead of that in <B>$path</B>. With the <B>-v</B> flag, <B>command</B>
+is similar to <B>whence</B> and with <B>-V</B>, it is equivalent to <B>whence
+-v</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+See also the section `Precommand Modifiers'.
+</DL>
+
+<DT><B>comparguments</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compcall</B><DD>
+See the section `The zsh/compctl Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compctl</B><DD>
+See the section `The zsh/compctl Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compdescribe</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compfiles</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compgroups</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compquote</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>comptags</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>comptry</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>compvalues</B><DD>
+See the section `The zsh/computil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>continue</B> [ <I>n</I> ]<DD>
+Resume the next iteration of the enclosing
+<B>for</B>, <B>while</B>, <B>until</B>, <B>select</B> or
+<B>repeat</B> loop.  If <I>n</I> is specified, break out of
+<I>n</I>-1 loops and resume at the <I>n</I>th enclosing loop.
+<DT><B>declare</B><DD>
+Same as <B>typeset</B>.
+<DT>
+<DD>
+<B>dirs</B> [ <B>-c</B> ] [ <I>arg</I> ... ]
+<DT>
+<DD>
+<B>dirs</B> [ <B>-lpv</B> ]
+With no arguments, print the contents of the directory stack.
+Directories are added to this stack with the <B>pushd</B> command,
+and removed with the <B>cd</B> or <B>popd</B> commands.
+If arguments are specified, load them onto the directory stack,
+replacing anything that was there, and push the current directory
+onto the stack.
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-c</B>
+clear the directory stack.
+<DT><B>-l</B><DD>
+print directory names in full instead of using of using <B>~</B> expressions.
+<DT><B>-p</B><DD>
+print directory entries one per line.
+<DT><B>-v</B><DD>
+number the directories in the stack when printing.
+</DL>
+<P>
+
+</DL>
+
+<DT><B>disable</B> [ <B>-afmrs</B> ] <I>name</I> ...<DD>
+Temporarily disable the <I>name</I>d hash table elements.  The default
+is to disable builtin commands.  This allows you to use an external
+command with the same name as a builtin command.  The <B>-a</B> option
+causes <B>disable</B> to act on regular or global aliases.  The <B>-s</B>
+option causes <B>disable</B> to act on suffix aliases.  The <B>-f</B> option causes
+<B>disable</B> to act on shell functions.  The <B>-r</B> options causes
+<B>disable</B> to act on reserved words.  Without arguments all disabled
+hash table elements from the corresponding hash table are printed.
+With the <B>-m</B> flag the arguments are taken as patterns (which should be
+quoted to prevent them from undergoing filename expansion), and all hash
+table elements from the corresponding hash table matching these patterns
+are disabled.  Disabled objects can be enabled with the <B>enable</B>
+command.
+<DT>
+<DD>
+<B>disown</B> [ <I>job</I> ... ]
+<DT>
+<DD>
+<I>job</I> ... <B>&amp;|</B>
+<DT>
+<DD>
+<I>job</I> ... <B>&amp;!</B>
+Remove the specified <I>job</I>s from the job table; the shell will
+no longer report their status, and will not complain if you
+try to exit an interactive shell with them running or stopped.
+If no <I>job</I> is specified, disown the current job.
+<DL COMPACT><DT><DD>
+<P>
+
+If the <I>job</I>s are currently stopped and the <B>AUTO_CONTINUE</B> option
+is not set, a warning is printed containing information about how to
+make them running after they have been disowned.  If one of the latter
+two forms is used, the <I>job</I>s will automatically be made running,
+independent of the setting of the <B>AUTO_CONTINUE</B> option.
+</DL>
+
+<DT><B>echo</B> [ <B>-neE</B> ] [ <I>arg</I> ... ]<DD>
+Write each <I>arg</I> on the standard output, with a space separating
+each one.
+If the <B>-n</B> flag is not present, print a newline at the end.
+<B>echo</B> recognizes the following escape sequences:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT><B>\a</B><DD>
+bell character
+<DT><B>\b</B><DD>
+backspace
+<DT><B>\c</B><DD>
+suppress final newline
+<DT><B>\e</B><DD>
+escape
+<DT><B>\f</B><DD>
+form feed
+<DT><B>\n</B><DD>
+linefeed (newline)
+<DT><B>\r</B><DD>
+carriage return
+<DT><B>\t</B><DD>
+horizontal tab
+<DT><B>\v</B><DD>
+vertical tab
+<DT><B>\\</B><DD>
+backslash
+<DT><B>\0</B><I>NNN</I><DD>
+character code in octal
+<DT><B>\x</B><I>NN</I><DD>
+character code in hexadecimal
+<DT><B>\u</B><I>NNNN</I><DD>
+unicode character code in hexadecimal
+<DT><B>\U</B><I>NNNNNNNN</I><DD>
+unicode character code in hexadecimal
+
+</DL>
+<P>
+
+The <B>-E</B> flag, or the <B>BSD_ECHO</B> option, can be used to disable
+these escape sequences.  In the latter case, <B>-e</B> flag can be used to
+enable them.
+</DL>
+
+<DT><B>echotc</B><DD>
+See the section `The zsh/termcap Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>echoti</B><DD>
+See the section `The zsh/terminfo Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>emulate</B> [ <B>-LR</B> ] {<B>zsh</B>|<B>sh</B>|<B>ksh</B>|<B>csh</B>}<DD>
+Set up zsh options to emulate the specified shell as much as possible.
+<B>csh</B> will never be fully emulated.
+If the argument is not one of the shells listed above, <B>zsh</B>
+will be used as a default; more precisely, the tests performed on the
+argument are the same as those used to determine the emulation at startup
+based on the shell name, see
+the section `Compatibility' in <I><A HREF="../man1/zshmisc.1.php">zshmisc</A></I>(1)
+.  If the <B>-R</B> option is given, all options
+are reset to their default value corresponding to the specified emulation
+mode, except for certain options describing the interactive
+environment; otherwise, only those options likely to cause portability
+problems in scripts and functions are altered.  If the <B>-L</B> option
+is given, the options <B>LOCAL_OPTIONS</B> and <B>LOCAL_TRAPS</B> will be set as
+well, causing the effects of the <B>emulate</B> command and any <B>setopt</B> and
+<B>trap</B> commands to be local to the immediately surrounding shell
+function, if any; normally these options are turned off in all emulation
+modes except <B>ksh</B>.
+<DT><B>enable</B> [ <B>-afmrs</B> ] <I>name</I> ...<DD>
+Enable the <I>name</I>d hash table elements, presumably disabled
+earlier with <B>disable</B>.  The default is to enable builtin commands.
+The <B>-a</B> option causes <B>enable</B> to act on regular or global aliases.
+The <B>-s</B> option causes <B>enable</B> to act on suffix aliases.
+The <B>-f</B> option causes <B>enable</B> to act on shell functions.  The <B>-r</B>
+option causes <B>enable</B> to act on reserved words.  Without arguments
+all enabled hash table elements from the corresponding hash table are
+printed.  With the <B>-m</B> flag the arguments are taken as patterns
+(should be quoted) and all hash table elements from the corresponding
+hash table matching these patterns are enabled.  Enabled objects can be
+disabled with the <B>disable</B> builtin command.
+<DT><B>eval</B> [ <I>arg</I> ... ]<DD>
+Read the arguments as input to the shell and execute the resulting
+command in the current shell process.
+<DT><B>exec</B> <I>simple command</I><DD>
+See the section `Precommand Modifiers'.
+<DT><B>exit</B> [ <I>n</I> ]<DD>
+Exit the shell with the exit code specified by <I>n</I>; if none
+is specified, use the exit code from the last command executed.
+An EOF condition will also cause the shell to exit, unless
+the <B>IGNORE_EOF</B> option is set.
+<DT><B>export</B> [ <I>name</I>[<B>=</B><I>value</I>] ... ]<DD>
+The specified <I>name</I>s are marked for automatic export
+to the environment of subsequently executed commands.
+Equivalent to <B>typeset -gx</B>.
+If a parameter specified does not
+already exist, it is created in the global scope.
+<DT><B>false</B> [ <I>arg</I> ... ]<DD>
+Do nothing and return an exit code of 1.
+<DT>
+<DD>
+<B>fc</B> [ <B>-e</B> <I>ename</I> ] [ <B>-nlrdDfEim</B> ] [ <I>old</I><B>=</B><I>new</I> ... ] [ <I>first</I> [ <I>last</I> ] ]
+<DT>
+<DD>
+<B>fc</B> <B>-ARWI</B> [ <I>filename</I> ]
+Select a range of commands from <I>first</I> to <I>last</I> from the
+history list.
+The arguments <I>first</I> and <I>last</I> may be specified as a
+number or as a string.  A negative number is used as an offset
+to the current history event number.
+A string specifies the most recent event beginning with the given string.
+All substitutions <I>old</I><B>=</B><I>new</I>, if any, are then performed
+on the commands.
+<DL COMPACT><DT><DD>
+<P>
+
+If the <B>-l</B> flag is given, the resulting commands are listed on
+standard output.
+If the <B>-m</B> flag is also given the first argument is taken as a
+pattern (should be quoted) and only the history events matching this
+pattern will be shown.
+Otherwise the editor program <I>ename</I> is invoked on a file containing
+these history events.  If <I>ename</I> is not given, the value
+of the parameter <B>FCEDIT</B> is used.  If <I>ename</I> is `<B>-</B>',
+no editor is invoked.  When editing is complete, the edited
+command is executed.
+<P>
+
+If <I>first</I> is not specified, it will be set to -1 (the most recent
+event), or to -16 if the <B>-l</B> flag is given.
+If <I>last</I> is not specified, it will be set to <I>first</I>,
+or to -1 if the <B>-l</B> flag is given.
+<P>
+
+The flag <B>-r</B> reverses the order of the commands and the
+flag <B>-n</B> suppresses command numbers when listing.
+Also when listing, <B>-d</B> prints timestamps for each command, and
+<B>-f</B> prints full time-date stamps.  Adding the <B>-E</B> flag
+causes the dates to be printed as `<I>dd</I><B>.</B><I>mm</I><B>.</B><I>yyyy</I>',
+instead of the default `<I>mm</I><B>/</B><I>dd</I><B>/</B><I>yyyy</I>'.
+Adding the <B>-i</B> flag causes the dates to be printed in ISO8601
+`<I>yyyy</I><B>-</B><I>mm</I><B>-</B><I>dd</I>' format.
+With the <B>-D</B> flag, <B>fc</B> prints elapsed times.
+<P>
+
+`<B>fc -R</B>' reads the history from the given file,
+`<B>fc -W</B>' writes the history out to the given file,
+and `<B>fc -A</B>' appends the history out to the given file.
+If no filename is specified, the <B>$HISTFILE</B> is assumed.
+If the <B>-I</B> option is added to <B>-R</B>, only those events that are
+not already contained within the internal history list are added.
+If the <B>-I</B> option is added to <B>-A</B> or <B>-W</B>, only those
+events that are new since last incremental append/write to
+the history file are appended/written.
+In any case, the created file will have no more than <B>$SAVEHIST</B>
+entries.
+</DL>
+
+<DT>
+<DD>
+<B>fg</B> [ <I>job</I> ... ]
+<DT>
+<DD>
+<I>job</I> ...
+Bring each specified <I>job</I> in turn to the foreground.
+If no <I>job</I> is specified, resume the current job.
+<DT><B>float</B> [ {<B>+</B>|<B>-</B>}<B>EFHghlprtux</B> ] [ <I>name</I>[<B>=</B><I>value</I>] ... ]<DD>
+Equivalent to <B>typeset -E</B>, except that options irrelevant to floating
+point numbers are not permitted.
+<DT><B>functions</B> [ {<B>+</B>|<B>-</B>}<B>UXmtu</B> ] [ <I>name</I> ... ]<DD>
+Equivalent to <B>typeset -f</B>.
+<DT><B>getcap</B><DD>
+See the section `The zsh/cap Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>getln</B> [ <B>-AclneE</B> ] <I>name</I> ...<DD>
+Read the top value from the buffer stack and put it in
+the shell parameter <B>name</B>.  Equivalent to
+<B>read -zr</B>.
+<DT><B>getopts</B> <I>optstring</I> <I>name</I> [ <I>arg</I> ... ]<DD>
+Checks the <I>arg</I>s for legal options.  If the <I>arg</I>s are omitted,
+use the positional parameters.  A valid option argument
+begins with a `<B>+</B>' or a `<B>-</B>'.  An argument not beginning with
+a `<B>+</B>' or a `<B>-</B>', or the argument `<B>--</B>', ends the options.
+Note that a single `<B>-</B>' is not considered a valid option argument.
+<I>optstring</I> contains the letters that <B>getopts</B>
+recognizes.  If a letter is followed by a `<B>:</B>', that option
+is expected to have an argument.  The options can be
+separated from the argument by blanks.
+<DL COMPACT><DT><DD>
+<P>
+
+Each time it is invoked, <B>getopts</B> places the option letter it finds
+in the shell parameter <I>name</I>, prepended with a `<B>+</B>' when
+<I>arg</I> begins with a `<B>+</B>'.  The index of the next <I>arg</I>
+is stored in <B>OPTIND</B>.  The option argument, if any,
+is stored in <B>OPTARG</B>.
+<P>
+
+The first option to be examined may be changed by explicitly assigning
+to <B>OPTIND</B>.  <B>OPTIND</B> has an initial value of <B>1</B>, and is
+normally reset to <B>1</B> upon exit from a shell function.  <B>OPTARG</B>
+is not reset and retains its value from the most recent call to
+<B>getopts</B>.  If either of <B>OPTIND</B> or <B>OPTARG</B> is explicitly
+unset, it remains unset, and the index or option argument is not
+stored.  The option itself is still stored in <I>name</I> in this case.
+<P>
+
+A leading `<B>:</B>' in <I>optstring</I> causes <B>getopts</B> to store the
+letter of any invalid option in <B>OPTARG</B>, and to set <I>name</I> to
+`<B>?</B>' for an unknown option and to `<B>:</B>' when a required option is
+missing.  Otherwise, <B>getopts</B> sets <I>name</I> to `<B>?</B>' and prints
+an error message when an option is invalid.  The exit status is
+nonzero when there are no more options.
+</DL>
+
+<DT><B>hash</B> [ <B>-Ldfmrv</B> ] [ <I>name</I>[<B>=</B><I>value</I>] ] ...<DD>
+<B>hash</B> can be used to directly modify the contents of the command
+hash table, and the named directory hash table.  Normally one would
+modify these tables by modifying one's <B>PATH</B>
+(for the command hash table) or by creating appropriate shell parameters
+(for the named directory hash table).
+The choice of hash table to work on is determined by the <B>-d</B> option;
+without the option the command hash table is used, and with the option the
+named directory hash table is used.
+<DL COMPACT><DT><DD>
+<P>
+
+Given no arguments, and neither the <B>-r</B> or <B>-f</B> options,
+the selected hash table will be listed in full.
+<P>
+
+The <B>-r</B> option causes the selected hash table to be emptied.
+It will be subsequently rebuilt in the normal fashion.
+The <B>-f</B> option causes the selected hash table to be fully
+rebuilt immediately.  For the command hash table this hashes
+all the absolute directories in the <B>PATH</B>,
+and for the named directory hash table this adds all users' home directories.
+These two options cannot be used with any arguments.
+<P>
+
+The <B>-m</B> option causes the arguments to be taken as patterns
+(which should be quoted) and the elements of the hash table
+matching those patterns are printed.  This is the only way to display
+a limited selection of hash table elements.
+<P>
+
+For each <I>name</I> with a corresponding <I>value</I>, put `<I>name</I>' in
+the selected hash table, associating it with the pathname `<I>value</I>'.
+In the command hash table, this means that
+whenever `<I>name</I>' is used as a command argument, the shell will try
+to execute the file given by `<I>value</I>'.
+In the named directory hash table, this means
+that `<I>value</I>' may be referred to as `<B>~</B><I>name</I>'.
+<P>
+
+For each <I>name</I> with no
+corresponding <I>value</I>, attempt to add <I>name</I> to the hash table,
+checking what the appropriate <B>value</B> is in the normal manner for
+that hash table.  If an appropriate <B>value</B> can't be found, then
+the hash table will be unchanged.
+<P>
+
+The <B>-v</B> option causes hash table entries to be listed as they are
+added by explicit specification.  If has no effect if used with <B>-f</B>.
+<P>
+
+If the <B>-L</B> flag is present, then each hash table entry is printed in
+the form of a call to hash.
+</DL>
+
+<DT><B>history</B><DD>
+Same as <B>fc -l</B>.
+<DT><B>integer</B> [ {<B>+</B>|<B>-</B>}<B>Hghilprtux</B> ] [ <I>name</I>[<B>=</B><I>value</I>] ... ]<DD>
+Equivalent to <B>typeset -i</B>, except that options irrelevant to
+integers are not permitted.
+<DT>
+<DD>
+<B>jobs</B> [ <B>-dlprs</B> ] [ <I>job</I> ... ]
+<DT>
+<DD>
+<B>jobs -Z</B> <I>string</I>
+Lists information about each given job, or all jobs
+if <I>job</I> is omitted.  The <B>-l</B> flag lists process
+IDs, and the <B>-p</B> flag lists process groups.
+If the <B>-r</B> flag is specified only running jobs will be listed
+and if the <B>-s</B> flag is given only stopped jobs are shown.
+If the <B>-d</B> flag is given, the directory from which the job was
+started (which may not be the current directory of the job) will also
+be shown.
+<DL COMPACT><DT><DD>
+<P>
+
+The <B>-Z</B> option replaces the shell's argument and environment space with
+the given string, truncated if necessary to fit.  This will normally be
+visible in <B>ps</B> (<I><A HREF="../man1/ps.1.php">ps</A></I>(1)) listings.  This feature is typically
+used by daemons, to indicate their state.
+</DL>
+
+<DT>
+<DD>
+<B>kill</B> [ <B>-s</B> <I>signal_name</I> | <B>-n</B> <I>signal_number</I> | <B>-</B><I>sig</I> ] <I>job</I> ...
+<DT>
+<DD>
+<B>kill</B> <B>-l</B> [ <I>sig</I> ... ]
+Sends either <B>SIGTERM</B> or the specified signal to the given
+jobs or processes.
+Signals are given by number or by names, with or without the `<B>SIG</B>'
+prefix.
+If the signal being sent is not `<B>KILL</B>' or `<B>CONT</B>', then the job
+will be sent a `<B>CONT</B>' signal if it is stopped.
+The argument <I>job</I> can be the process ID of a job
+not in the job list.
+In the second form, <B>kill -l</B>, if <I>sig</I> is not
+specified the signal names are listed.  Otherwise, for each
+<I>sig</I> that is a name, the corresponding signal number is
+listed.  For each <I>sig</I> that is a signal number or a number
+representing the exit status of a process which was terminated or
+stopped by a signal the name of the signal is printed.
+<DT><B>let</B> <I>arg</I> ...<DD>
+Evaluate each <I>arg</I> as an arithmetic expression.
+See the section `Arithmetic Evaluation' for a description
+of arithmetic expressions.  The exit status is 0 if the
+value of the last expression is nonzero, and 1 otherwise.
+<DT><B>limit</B> [ <B>-hs</B> ] [ <I>resource</I> [ <I>limit</I> ] ] ...<DD>
+Set or display resource limits.  Unless the <B>-s</B> flag is given,
+the limit applies only the children of the shell.  If <B>-s</B> is
+given without other arguments, the resource limits of the current
+shell is set to the previously set resource limits of the children.
+<DL COMPACT><DT><DD>
+<P>
+
+If <I>limit</I> is not specified, print the current limit placed
+on <I>resource</I>, otherwise
+set the limit to the specified value.  If the <B>-h</B> flag
+is given, use hard limits instead of soft limits.
+If no <I>resource</I> is given, print all limits.
+<P>
+
+<I>resource</I> can be one of:
+<P>
+
+
+<DL COMPACT>
+<DT><B>addressspace</B><DD>
+Maximum amount of address space used.
+<DT><B>aiomemorylocked</B><DD>
+Maximum amount of memory locked in RAM for AIO operations.
+<DT><B>aiooperations</B><DD>
+Maximum number of AIO operations.
+<DT><B>cachedthreads</B><DD>
+Maximum number of cached threads.
+<DT><B>coredumpsize</B><DD>
+Maximum size of a core dump.
+<DT><B>cputime</B><DD>
+Maximum CPU seconds per process.
+<DT><B>datasize</B><DD>
+Maximum data size (including stack) for each process.
+<DT><B>descriptors</B><DD>
+Maximum value for a file descriptor.
+<DT><B>filesize</B><DD>
+Largest single file allowed.
+<DT><B>maxproc</B><DD>
+Maximum number of processes.
+<DT><B>maxpthreads</B><DD>
+Maximum number of threads per process.
+<DT><B>memorylocked</B><DD>
+Maximum amount of memory locked in RAM.
+<DT><B>memoryuse</B><DD>
+Maximum resident set size.
+<DT><B>resident</B><DD>
+Maximum resident set size.
+<DT><B>sockbufsize</B><DD>
+Maximum size of all socket buffers.
+<DT><B>stacksize</B><DD>
+Maximum stack size for each process.
+<DT><B>vmemorysize</B><DD>
+Maximum amount of virtual memory.
+
+</DL>
+<P>
+
+Which of these resource limits are available depends on the system.
+<I>resource</I> can be abbreviated to any unambiguous prefix.
+<P>
+
+<I>limit</I> is a number, with an optional scaling factor, as follows:
+<P>
+
+
+<DL COMPACT>
+<DT><I>n</I><B>h</B><DD>
+hours
+<DT><I>n</I><B>k</B><DD>
+kilobytes (default)
+<DT><I>n</I><B>m</B><DD>
+megabytes or minutes
+<DT>[<I>mm</I><B>:</B>]<I>ss</I><DD>
+minutes and seconds
+
+</DL>
+</DL>
+
+<DT><B>local</B> [ {<B>+</B>|<B>-</B>}<B>AEFHLRUZahilprtux</B> [<I>n</I>]] [ <I>name</I>[<B>=</B><I>value</I>] ] ...<DD>
+Same as <B>typeset</B>, except that the options <B>-g</B>, and
+<B>-f</B> are not permitted.  In this case the <B>-x</B> option does not force
+the use of <B>-g</B>, i.e. exported variables will be local to functions.
+<DT><B>log</B><DD>
+List all users currently logged in who are affected by
+the current setting of the <B>watch</B> parameter.
+<DT><B>logout</B> [ <I>n</I> ]<DD>
+Same as <B>exit</B>, except that it only works in a login shell.
+<DT><B>noglob</B> <I>simple command</I><DD>
+See the section `Precommand Modifiers'.
+<DT><B>popd</B> [ {<B>+</B>|<B>-</B>}<I>n</I> ]<DD>
+Remove an entry from the directory stack, and perform a <B>cd</B> to
+the new top directory.  With no argument, the current top entry is
+removed.  An argument of the form `<B>+</B><I>n</I>' identifies a stack
+entry by counting from the left of the list shown by the <B>dirs</B> command,
+starting with zero.  An argument of the form <B>-n</B> counts from the right.
+If the <B>PUSHD_MINUS</B> option is set, the meanings of `<B>+</B>' and
+`<B>-</B>' in this context are swapped.
+<DT>
+<DD>
+<B>print</B> [ <B>-abcDilmnNoOpPrsz</B> ] [ <B>-u</B> <I>n</I> ] [ <B>-f</B> <I>format</I> ] [ <B>-C</B> <I>cols</I> ]
+<DT>
+<DD>
+<BR>&nbsp;&nbsp;[&nbsp;<B>-R</B>&nbsp;[&nbsp;<B>-en</B>&nbsp;]]&nbsp;[&nbsp;<I>arg</I>&nbsp;...&nbsp;]
+With the `<B>-f</B>' option the arguments are printed as described by <B>printf</B>.
+With no flags or with the flag `<B>-</B>', the arguments are printed on
+the standard output as described by <B>echo</B>, with the following differences:
+the escape sequence `<B>\M-</B><I>x</I>' metafies the character
+<I>x</I> (sets the highest bit),
+`<B>\C-</B><I>x</I>' produces a control character (`<B>\C-@</B>' and `<B>\C-?</B>' give the
+characters NUL and delete), and `<B>\E</B>' is a synonym for `<B>\e</B>'.
+Finally, if not in an escape
+sequence, `<B>\</B>' escapes the following character and is not printed.
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-a</B>
+Print arguments with the column incrementing first.  Only useful with the
+<B>-c</B> and <B>-C</B> options.
+<DT><B>-b</B><DD>
+Recognize all the escape sequences defined for the <B>bindkey</B> command,
+see 
+<I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1).
+<DT><B>-c</B><DD>
+Print the arguments in columns.  Unless <B>-a</B> is also given, arguments are
+printed with the row incrementing first.
+<DT><B>-C</B> <I>cols</I><DD>
+Print the arguments in <I>cols</I> columns.  Unless <B>-a</B> is also given,
+arguments are printed with the row incrementing first.
+<DT><B>-D</B><DD>
+Treat the arguments as directory names, replacing prefixes with <B>~</B>
+expressions, as appropriate.
+<DT><B>-i</B><DD>
+If given together with <B>-o</B> or <B>-O</B>, sorting is performed
+case-independently.
+<DT><B>-l</B><DD>
+Print the arguments separated by newlines instead of spaces.
+<DT><B>-m</B><DD>
+Take the first argument as a pattern (should be quoted), and remove
+it from the argument list together with subsequent arguments that
+do not match this pattern.
+<DT><B>-n</B><DD>
+Do not add a newline to the output.
+<DT><B>-N</B><DD>
+Print the arguments separated and terminated by nulls.
+<DT><B>-o</B><DD>
+Print the arguments sorted in ascending order.
+<DT><B>-O</B><DD>
+Print the arguments sorted in descending order.
+<DT><B>-p</B><DD>
+Print the arguments to the input of the coprocess.
+<DT><B>-P</B><DD>
+Perform prompt expansion (see
+<I><A HREF="../man1/zshmisc.1.php">zshmisc</A></I>(1)).
+<DT><B>-r</B><DD>
+Ignore the escape conventions of <B>echo</B>.
+<DT><B>-R</B><DD>
+Emulate the BSD <B>echo</B> command, which does not process escape sequences
+unless the <B>-e</B> flag is given.  The <B>-n</B> flag suppresses the trailing
+newline.  Only the <B>-e</B> and <B>-n</B> flags are recognized after
+<B>-R</B>; all other arguments and options are printed.
+<DT><B>-s</B><DD>
+Place the results in the history list instead of on the standard output.
+<DT><B>-u</B> <I>n</I><DD>
+Print the arguments to file descriptor <I>n</I>.
+<DT><B>-z</B><DD>
+Push the arguments onto the editing buffer stack, separated by spaces.
+</DL>
+<P>
+
+If any of `<B>-m</B>', `<B>-o</B>' or `<B>-O</B>' are used in combination with
+`<B>-f</B>' and there are no arguments (after the removal process in the
+case of `<B>-m</B>') then nothing is printed.
+</DL>
+
+<DT><B>printf</B> <I>format</I> [ <I>arg</I> ... ]<DD>
+Print the arguments according to the format specification. Formatting
+rules are the same as used in C. The same escape sequences as for <B>echo</B>
+are recognised in the format. All C conversion specifications ending in
+one of csdiouxXeEfgGn are handled. In addition to this, `<B>%b</B>' can be
+used instead of `<B>%s</B>' to cause escape sequences in the argument to be
+recognised and `<B>%q</B>' can be used to quote the argument in such a way
+that allows it to be reused as shell input. With the numeric format
+specifiers, if the corresponding argument starts with a quote character,
+the numeric value of the following character is used as the number to
+print otherwise the argument is evaluated as an arithmetic expression. See
+the section `Arithmetic Evaluation' for a description of arithmetic
+expressions. With `<B>%n</B>', the corresponding argument is taken as an
+identifier which is created as an integer parameter.
+<DL COMPACT><DT><DD>
+<P>
+
+Normally, conversion specifications are applied to each argument in order
+but they can explicitly specify the <I>n</I>th argument is to be used by
+replacing `<B>%</B>' by `<B>%</B><I>n</I><B>$</B>' and `<B>*</B>' by `<B>*</B><I>n</I><B>$</B>'.
+It is recommended that you do not mix references of this explicit style
+with the normal style and the handling of such mixed styles may be subject
+to future change.
+<P>
+
+If arguments remain unused after formatting, the format string is reused
+until all arguments have been consumed. With the <B>print</B> builtin, this
+can be suppressed by using the <B>-r</B> option. If more arguments are
+required by the format than have been specified, the behaviour is as if
+zero or an empty string had been specified as the argument.
+</DL>
+
+<DT>
+<DD>
+<B>pushd</B> [ <B>-sLP</B> ] [ <I>arg</I> ]
+<DT>
+<DD>
+<B>pushd</B> [ <B>-sLP</B> ] <I>old</I> <I>new</I>
+<DT>
+<DD>
+<B>pushd</B> [ <B>-sLP</B> ] {<B>+</B>|<B>-</B>}<I>n</I>
+Change the current directory, and push the old current directory
+onto the directory stack.  In the first form, change the
+current directory to <I>arg</I>.
+If <I>arg</I> is not specified, change to the second directory
+on the stack (that is, exchange the top two entries), or
+change to <B>$HOME</B> if the <B>PUSHD_TO_HOME</B>
+option is set or if there is only one entry on the stack.
+Otherwise, <I>arg</I> is interpreted as it would be by <B>cd</B>.
+The meaning of <I>old</I> and <I>new</I> in the second form is also
+the same as for <B>cd</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+The third form of <B>pushd</B> changes directory by rotating the
+directory list.  An argument of the form `<B>+</B><I>n</I>' identifies a stack
+entry by counting from the left of the list shown by the <B>dirs</B>
+command, starting with zero.  An argument of the form `<B>-</B><I>n</I>' counts
+from the right.  If the <B>PUSHD_MINUS</B> option is set, the meanings
+of `<B>+</B>' and `<B>-</B>' in this context are swapped.
+<P>
+
+If the option <B>PUSHD_SILENT</B> is not set, the directory
+stack will be printed after a <B>pushd</B> is performed.
+<P>
+
+The options <B>-s</B>, <B>-L</B> and <B>-P</B> have the same meanings as for the
+<B>cd</B> builtin.
+</DL>
+
+<DT><B>pushln</B> [ <I>arg</I> ... ]<DD>
+Equivalent to <B>print -nz</B>.
+<DT><B>pwd</B> [ <B>-rLP</B> ]<DD>
+Print the absolute pathname of the current working directory.
+If the <B>-r</B> or the <B>-P</B> flag is specified, or the <B>CHASE_LINKS</B>
+option is set and the <B>-L</B> flag is not given, the printed path will not
+contain symbolic links.
+<DT><B>r</B><DD>
+Same as <B>fc -e -</B>.
+<DT>
+<DD>
+<B>read</B> [ <B>-rszpqAclneE</B> ] [ <B>-t</B> [ <I>num</I> ] ] [ <B>-k</B> [ <I>num</I> ] ] [ <B>-d</B> <I>delim</I> ]
+<DT>
+<DD>
+<BR>&nbsp;[&nbsp;<B>-u</B>&nbsp;<I>n</I>&nbsp;]&nbsp;[&nbsp;<I>name</I>[<B>?</B><I>prompt</I>]&nbsp;]&nbsp;[&nbsp;<I>name</I>&nbsp;...&nbsp;&nbsp;]
+Read one line and break it into fields using the characters
+in <B>$IFS</B> as separators, except as noted below.
+The first field is assigned to the first <I>name</I>, the second field
+to the second <I>name</I>, etc., with leftover
+fields assigned to the last <I>name</I>.
+If <I>name</I> is omitted then
+<B>REPLY</B> is used for scalars and <B>reply</B> for arrays.
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-r</B>
+Raw mode: a `<B>\</B>' at the end of a line does not signify line
+continuation and backslashes in the line don't quote the following
+character and are not removed.
+<DT><B>-s</B><DD>
+Don't echo back characters if reading from the terminal.  Currently does
+not work with the <B>-q</B> option.
+<DT><B>-q</B><DD>
+Read only one character from the terminal and set <I>name</I> to
+`<B>y</B>' if this character was `<B>y</B>' or `<B>Y</B>' and to `<B>n</B>' otherwise.
+With this flag set the return value is zero only if the character was
+`<B>y</B>' or `<B>Y</B>'.  Note that this always reads from the terminal, even
+if used with the <B>-p</B> or <B>-u</B> or <B>-z</B> flags or with redirected input.
+This option may also be used within zle widgets.
+<DT><B>-k</B> [ <I>num</I> ]<DD>
+Read only one (or <I>num</I>) characters.  All are assigned to the first
+<I>name</I>, without word splitting.  This flag is ignored when <B>-q</B> is
+present.  Input is read from the terminal unless one of <B>-u</B> or <B>-p</B>
+is present.  This option may also be used within zle widgets.
+<DT><B>-z</B><DD>
+Read one entry from the editor buffer stack and assign it to the first
+<I>name</I>, without word splitting.  Text is pushed onto the stack with
+`<B>print -z</B>' or with <B>push-line</B> from the line editor (see
+<I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1)).  This flag is ignored when the <B>-k</B> or <B>-q</B> flags are present.
+<DT>
+<DD>
+<B>-e</B>
+<DT>
+<DD>
+<B>-E</B>
+The input read is printed (echoed) to the standard output.  If the <B>-e</B>
+flag is used, no input is assigned to the parameters.
+<DT><B>-A</B><DD>
+The first <I>name</I> is taken as the name of an array and all words are
+assigned to it.
+<DT>
+<DD>
+<B>-c</B>
+<DT>
+<DD>
+<B>-l</B>
+These flags are allowed only if called inside a
+function used for completion (specified with the <B>-K</B> flag to
+<B>compctl</B>).  If the <B>-c</B> flag is given, the words of the
+current command are read. If the <B>-l</B> flag is given, the whole
+line is assigned as a scalar.  If both flags are present, <B>-l</B>
+is used and <B>-c</B> is ignored.
+<DT><B>-n</B><DD>
+Together with <B>-c</B>, the number of the word the cursor is on is
+read.  With <B>-l</B>, the index of the character the cursor is on is
+read.  Note that the command name is word number 1, not word 0,
+and that when the cursor is at the end of the line, its character
+index is the length of the line plus one.
+<DT><B>-u</B> <I>n</I><DD>
+Input is read from file descriptor <I>n</I>.
+<DT><B>-p</B><DD>
+Input is read from the coprocess.
+<DT><B>-d</B> <I>delim</I><DD>
+Input is terminated by the first character of <I>delim</I> instead of
+by newline.
+<DT><B>-t</B> [ <I>num</I> ]<DD>
+Test if input is available before attempting to read.  If <I>num</I>
+is present, it must begin with a digit and will be evaluated
+to give a number of seconds, which may be a floating point number;
+in this case the read times out if input is not available within this
+time.  If <I>num</I> is not present, it is taken to be zero, so that
+<B>read</B> returns immediately if no input is available.
+If no input is available, return status 1 and do not set any variables.
+<BR>&nbsp;
+This option is not available when reading from the editor buffer with
+<B>-z</B>, when called from within completion with <B>-c</B> or <B>-l</B>, with
+<B>-q</B> which clears the input queue before reading, or within zle where
+other mechanisms should be used to test for input.
+<BR>&nbsp;
+Note that read does not attempt to alter the input processing mode.  The
+default mode is canonical input, in which an entire line is read at a time,
+so usually `<B>read -t</B>' will not read anything until an entire line has
+been typed.  However, when reading from the terminal with <B>-k</B>
+input is processed one key at a time; in this case, only availability of
+the first character is tested, so that e.g. `<B>read -t -k 2</B>' can still
+block on the second character.  Use two instances of `<B>read -t -k</B>' if
+this is not what is wanted.
+If the first argument contains a `<B>?</B>', the remainder of this
+word is used as a <I>prompt</I> on standard error when the shell
+is interactive.
+</DL>
+<P>
+
+The value (exit status) of <B>read</B> is 1 when an end-of-file is
+encountered, or when <B>-c</B> or <B>-l</B> is present and the command is
+not called from a <B>compctl</B> function, or as described for <B>-q</B>.
+Otherwise the value is 0.
+<P>
+
+The behavior of some combinations of the <B>-k</B>, <B>-p</B>, <B>-q</B>, <B>-u</B>
+and <B>-z</B> flags is undefined.  Presently <B>-q</B> cancels all the others,
+<B>-p</B> cancels <B>-u</B>, <B>-k</B> cancels <B>-z</B>, and otherwise <B>-z</B>
+cancels both <B>-p</B> and <B>-u</B>.
+<P>
+
+The <B>-c</B> or <B>-l</B> flags cancel any and all of <B>-kpquz</B>.
+</DL>
+
+<DT><B>readonly</B><DD>
+Same as <B>typeset -r</B>.
+<DT><B>rehash</B><DD>
+Same as <B>hash -r</B>.
+<DT><B>return</B> [ <I>n</I> ]<DD>
+Causes a shell function or <B>.</B> script to return to
+the invoking script with the return status specified by <I>n</I>.  If <I>n</I>
+is omitted, the return status is that of the last command
+executed.
+<DL COMPACT><DT><DD>
+<P>
+
+If <B>return</B> was executed from a trap in a <B>TRAP</B><I>NAL</I> function,
+the effect is different for zero and non-zero return status.  With zero
+status (or after an implicit return at the end of the trap), the shell
+will return to whatever it was previously processing; with a non-zero
+status, the shell will behave as interrupted except that the return
+status of the trap is retained.  Note that the numeric value of the signal
+which caused the trap is passed as the first argument, so the statement
+`<B>return $((128+$1))</B>' will return the same status as if the signal
+had not been trapped.
+</DL>
+
+<DT><B>sched</B><DD>
+See the section `The zsh/sched Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>set</B> [ {<B>+</B>|<B>-</B>}<I>options</I> | {<B>+</B>|<B>-</B>}<B>o</B> [ <I>option_name</I> ] ] ... [ {<B>+</B>|<B>-</B>}<B>A</B> [ <I>name</I> ] ] [ <I>arg</I> ... ]<DD>
+Set the options for the shell and/or set the positional parameters, or
+declare and set an array.  If the <B>-s</B> option is given, it causes the
+specified arguments to be sorted before assigning them to the positional
+parameters (or to the array <I>name</I> if <B>-A</B> is used).  With <B>+s</B>
+sort arguments in descending order.  For the meaning of the other flags, see
+<I><A HREF="../man1/zshoptions.1.php">zshoptions</A></I>(1).  Flags may be specified by name using the <B>-o</B> option. If no option
+name is supplied with <B>-o</B>, the current option states are printed.
+With <B>+o</B> they are printed in a form that can be used as input
+to the shell.
+<DL COMPACT><DT><DD>
+<P>
+
+If the <B>-A</B> flag is specified, <I>name</I> is set to an array containing
+the given <I>arg</I>s; if no <I>name</I> is specified, all arrays are printed
+together with their values.
+<P>
+
+If <B>+A</B> is used and <I>name</I> is an array, the
+given arguments will replace the initial elements of that array; if no
+<I>name</I> is specified, all arrays are printed without their values.
+<P>
+
+The behaviour of arguments after <B>-A</B> <I>name</I> or <B>+A</B> <I>name</I>
+depends on whether the option <B>KSH_ARRAYS</B> is set.  If it is not set, all
+arguments following <I>name</I> are treated as values for the array,
+regardless of their form.  If the option is set, normal option processing
+continues at that point; only regular arguments are treated as values for
+the array.  This means that
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>set -A array -x -- foo</B>
+</PRE>
+
+</DL>
+
+<P>
+
+sets <B>array</B> to `<B>-x -- foo</B>' if <B>KSH_ARRAYS</B> is not set, but sets
+the array to <B>foo</B> and turns on the option `<B>-x</B>' if it is set.
+<P>
+
+If the <B>-A</B> flag is not present, but there are arguments beyond the
+options, the positional parameters are set.  If the option list (if any)
+is terminated by `<B>-</B><B>-</B>', and there are no further arguments, the
+positional parameters will be unset.
+<P>
+
+If no arguments and no `<B>-</B><B>-</B>' are given, then the names and values of
+all parameters are printed on the standard output.  If the only argument is
+`<B>+</B>', the names of all parameters are printed.
+</DL>
+
+<DT><B>setcap</B><DD>
+See the section `The zsh/cap Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>setopt</B> [ {<B>+</B>|<B>-</B>}<I>options</I> | {<B>+</B>|<B>-</B>}<B>o</B> <I>option_name</I> ] [ <I>name</I> ... ]<DD>
+Set the options for the shell.  All options specified either
+with flags or by name are set.  If no arguments are supplied,
+the names of all options currently set are printed.
+If the <B>-m</B> flag is given the arguments are taken as patterns
+(which should be quoted to protect them from filename expansion), and all
+options with names matching these patterns are set.
+<DT><B>shift</B> [ <I>n</I> ] [ <I>name</I> ... ]<DD>
+The positional parameters <B>${</B><I>n</I>+1<B>}</B> ... are renamed
+to <B>$1</B> ..., where <I>n</I> is an arithmetic expression that
+defaults to 1.
+If any <I>name</I>s are given then the arrays with these names are
+shifted instead of the positional parameters.
+<DT><B>source</B> <I>file</I> [ <I>arg</I> ... ]<DD>
+Same as <B>.</B>, except that the current directory is always searched and
+is always searched first, before directories in <B>$path</B>.
+<DT><B>stat</B><DD>
+See the section `The zsh/stat Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>suspend</B> [ <B>-f</B> ]<DD>
+Suspend the execution of the shell (send it a <B>SIGTSTP</B>)
+until it receives a <B>SIGCONT</B>.
+Unless the <B>-f</B> option is given, this will refuse to suspend a login shell.
+<DT>
+<DD>
+<B>test</B> [ <I>arg</I> ... ]
+<DT>
+<DD>
+<B>[</B> [ <I>arg</I> ... ] <B>]</B>
+Like the system version of <B>test</B>.  Added for compatibility;
+use conditional expressions instead (see the section `Conditional Expressions').
+<DT><B>times</B><DD>
+Print the accumulated user and system times for the shell
+and for processes run from the shell.
+<DT><B>trap</B> [ <I>arg</I> [ <I>sig</I> ... ] ]<DD>
+<I>arg</I> is a series of commands (usually quoted to protect it from
+immediate evaluation by the shell) to be read and executed when the shell
+receives <I>sig</I>.  Each <I>sig</I> can be given as a number
+or as the name of a signal.
+If <I>arg</I> is `<B>-</B>', then all traps <I>sig</I> are reset to their
+default values.  If <I>arg</I> is the empty string, then this signal
+is ignored by the shell and by the commands it invokes.
+<DL COMPACT><DT><DD>
+<P>
+
+If <I>sig</I> is <B>ZERR</B> then <I>arg</I> will be executed
+after each command with a nonzero exit status.
+If <I>sig</I> is <B>DEBUG</B> then <I>arg</I> will be executed
+after each command.
+If <I>sig</I> is <B>0</B> or <B>EXIT</B>
+and the <B>trap</B> statement is executed inside the body of a function,
+then the command <I>arg</I> is executed after the function completes.
+If <I>sig</I> is <B>0</B> or <B>EXIT</B>
+and the <B>trap</B> statement is not executed inside the body of a function,
+then the command <I>arg</I> is executed when the shell terminates.
+<P>
+
+The <B>trap</B> command with no arguments prints a list of commands
+associated with each signal.
+<P>
+
+Note that traps defined with the <B>trap</B> builtin are slightly different
+from those defined as `<B>TRAP</B><I>NAL</I> () { ... }', as the latter have
+their own function environment (line numbers, local variables, etc.) while
+the former use the environment of the command in which they were called.
+For example,
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>trap 'print $LINENO' DEBUG</B>
+</PRE>
+
+</DL>
+
+<P>
+
+will print the line number of a command executed after it has run, while
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>TRAPDEBUG() { print $LINENO; }</B>
+</PRE>
+
+</DL>
+
+<P>
+
+will always print the number zero.
+</DL>
+
+<DT><B>true</B> [ <I>arg</I> ... ]<DD>
+Do nothing and return an exit code of 0.
+<DT><B>ttyctl</B> <B>-fu</B><DD>
+The <B>-f</B> option freezes the tty, and <B>-u</B> unfreezes it.
+When the tty is frozen, no changes made to the tty settings by
+external programs will be honored by the shell, except for changes in the
+size of the screen; the shell will
+simply reset the settings to their previous values as soon as each
+command exits or is suspended.  Thus, <B>stty</B> and similar programs have
+no effect when the tty is frozen.  Without options it reports whether the
+terminal is frozen or not.
+<DT><B>type</B> [ <B>-wfpams</B> ] <I>name</I> ...<DD>
+Equivalent to <B>whence -v</B>.
+<DT>
+<DD>
+<B>typeset</B> [ {<B>+</B>|<B>-</B>}<B>AEFHLRUZafghilprtuxm</B> [<I>n</I>]] [ <I>name</I>[<B>=</B><I>value</I>] ... ]
+<DT>
+<DD>
+<B>typeset</B> -T [ {<B>+|-</B>}<B>LRUZrux</B> ] <I>SCALAR</I>[<B>=</B><I>value</I>] <I>array</I> <B>[</B> <I>sep</I> <B>]</B>
+Set or display attributes and values for shell parameters.
+<DL COMPACT><DT><DD>
+<P>
+
+A parameter is created for each <I>name</I> that does not already refer
+to one.  When inside a function, a new parameter is created for every
+<I>name</I> (even those that already exist), and is unset again when the
+function completes.  See
+`Local Parameters' in <I><A HREF="../man1/zshparam.1.php">zshparam</A></I>(1).  The same rules apply to special shell parameters, which
+retain their special attributes when made local.
+<P>
+
+For each <I>name</I><B>=</B><I>value</I> assignment, the parameter
+<I>name</I> is set to <I>value</I>.  Note that arrays currently cannot be
+assigned in <B>typeset</B> expressions, only scalars and integers.
+<P>
+
+If the shell option <B>TYPESET_SILENT</B> is not set, for each remaining
+<I>name</I> that refers to a parameter that is set, the name and value of the
+parameter are printed in the form of an assignment.  Nothing is printed for
+newly-created parameters, or when any attribute flags listed below are
+given along with the <I>name</I>.  Using `<B>+</B>' instead of minus to
+introduce an attribute turns it off.
+<P>
+
+If the <B>-p</B> option is given, parameters and values are printed in the
+form of a typeset comand and an assignment (which will be printed
+separately for arrays and associative arrays), regardless of other flags
+and options.  Note that the <B>-h</B> flag on parameters is respected; no
+value will be shown for these parameters.
+<P>
+
+If the <B>-T</B> option is given, two or three arguments must be present (an
+exception is that zero arguments are allowed to show the list of parameters
+created in this fashion).  The first two are the name of a scalar and an
+array parameter (in that order) that will be tied together in the manner of
+<B>$PATH</B> and <B>$path</B>.  The optional third argument is a single-character
+separator which will be used to join the elements of the array to form the
+scalar; if absent, a colon is used, as with <B>$PATH</B>.  Only the first
+character of the separator is significant; any remaining characters are
+ignored.  Only the scalar parameter may be assigned an initial value.  Both
+the scalar and the array may otherwise be manipulated as normal.  If one is
+unset, the other will automatically be unset too.  There is no way of
+untying the variables without unsetting them, or converting the type of one
+of them with another <B>typeset</B> command; <B>+T</B> does not work, assigning
+an array to <I>SCALAR</I> is an error, and assigning a scalar to <I>array</I>
+sets it to be a single-element array.  Note that both `<B>typeset -xT ...</B>'
+and `<B>export -T ...</B>' work, but only the scalar will be marked for
+export.  Setting the value using the scalar version causes a split on all
+separators (which cannot be quoted).
+<P>
+
+The <B>-g</B> (global) flag is treated specially: it means that any
+resulting parameter will not be restricted to local scope.  Note that this
+does not necessarily mean that the parameter will be global, as the flag
+will apply to any existing parameter (even if unset) from an enclosing
+function.  This flag does not affect the parameter after creation, hence it
+has no effect when listing existing parameters, nor does the flag <B>+g</B>
+have any effect except in combination with <B>-m</B> (see below).
+<P>
+
+If no <I>name</I> is present, the names and values of all parameters are
+printed.  In this case the attribute flags restrict the display to only
+those parameters that have the specified attributes, and using `<B>+</B>'
+rather than `<B>-</B>' to introduce the flag suppresses printing of the values
+of parameters when there is no parameter name.  Also, if the last option
+is the word `<B>+</B>', then names are printed but values are not.
+<P>
+
+If the <B>-m</B> flag is given the <I>name</I> arguments are taken as patterns
+(which should be quoted).  With no attribute flags, all parameters (or
+functions with the <B>-f</B> flag) with matching names are printed (the shell
+option <B>TYPESET_SILENT</B> is not used in this case).  Note that <B>-m</B> is
+ignored if no patterns are given.  If the <B>+g</B> flag is combined with
+<B>-m</B>, a new local parameter is created for every matching parameter that
+is not already local.  Otherwise <B>-m</B> applies all other flags or
+assignments to the existing parameters.  Except when assignments are made
+with <I>name</I><B>=</B><I>value</I>, using <B>+m</B> forces the matching parameters
+to be printed, even inside a function.
+<P>
+
+If no attribute flags are given and either no <B>-m</B> flag is present or
+the <B>+m</B> form was used, each parameter name printed is preceded by a
+list of the attributes of that parameter (<B>array</B>, <B>association</B>,
+<B>exported</B>, <B>integer</B>, <B>readonly</B>).  If <B>+m</B> is used with attribute
+flags, and all those flags are introduced with <B>+</B>, the matching
+parameter names are printed but their values are not.
+<P>
+
+The following attribute flags may be specified:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-A</B>
+The names refer to associative array parameters; see
+`Array Parameters' in <I><A HREF="../man1/zshparam.1.php">zshparam</A></I>(1).
+<DT><B>-L</B><DD>
+Left justify and remove leading blanks from <I>value</I>.
+If <I>n</I> is nonzero, it defines the width of the field;
+otherwise it is determined by the width of the value of the first
+assignment.
+When the parameter is expanded, it is filled on the right with
+blanks or truncated if necessary to fit the field.
+Leading zeros are removed if the <B>-Z</B> flag is also set.
+<DT><B>-R</B><DD>
+Right justify and fill with leading blanks.  If <I>n</I> is nonzero
+if defines the width of the field;
+otherwise it is determined by the width of the value of the first
+assignment.
+When the parameter is expanded, the field is left filled with
+blanks or truncated from the end.
+<DT><B>-U</B><DD>
+For arrays (but not for associative arrays), keep only the first
+occurrence of each duplicated value.  This may also be set for
+colon-separated special parameters like <B>PATH</B> or <B>FIGNORE</B>, etc.
+This flag has a different meaning when used with <B>-f</B>; see below.
+<DT><B>-Z</B><DD>
+Right justify and fill with leading zeros if the first non-blank
+character is a digit and the <B>-L</B> flag has not been set.
+If <I>n</I> is nonzero it defines the width of the field;
+otherwise it is determined by the width of the value of the
+first assignment.
+<DT><B>-a</B><DD>
+The names refer to array parameters.  An array parameter may be
+created this way, but it may not be assigned to in the <B>typeset</B>
+statement.  When displaying, both normal and associative arrays are
+shown.
+<DT><B>-f</B><DD>
+The names refer to functions rather than parameters.  No assignments
+can be made, and the only other valid flags are <B>-t</B>, <B>-u</B> and
+<B>-U</B>.  The flag <B>-t</B> turns on execution tracing for this
+function.  The <B>-u</B> and <B>-U</B> flags cause the function to be
+marked for autoloading; <B>-U</B> also causes alias expansion to be
+suppressed when the function is loaded.  The <B>fpath</B> parameter
+will be searched to find the function definition when the function
+is first referenced; see the section `Functions'.
+<DT><B>-h</B><DD>
+Hide: only useful for special parameters (those marked `&lt;S&gt;' in the table in
+<I><A HREF="../man1/zshparams.1.php">zshparams</A></I>(1)), and for local parameters with the same name as a special parameter,
+though harmless for others.  A special parameter with this attribute will
+not retain its special effect when made local.  Thus after `<B>typeset -h
+PATH</B>', a function containing `<B>typeset PATH</B>' will create an ordinary
+local parameter without the usual behaviour of <B>PATH</B>.  Alternatively,
+the local parameter may itself be given this attribute; hence inside a
+function `<B>typeset -h PATH</B>' creates an ordinary local parameter and the
+special <B>PATH</B> parameter is not altered in any way.  It is also possible
+to create a local parameter using `<B>typeset +h </B><I>special</I>', where the
+local copy of <I>special</I> will retain its special properties regardless of
+having the <B>-h</B> attribute.  Global special parameters loaded from shell
+modules (currently those in <B>zsh/mapfile</B> and <B>zsh/parameter</B>) are
+automatically given the <B>-h</B> attribute to avoid name clashes.
+<DT><B>-H</B><DD>
+Hide value: specifies that <B>typeset</B> will not display the value of the
+parameter when listing parameters; the display for such parameters is
+always as if the `<B>+</B>' flag had been given.  Use of the parameter is
+in other respects normal, and the option does not apply if the parameter is
+specified by name, or by pattern with the <B>-m</B> option.  This is on by
+default for the parameters in the <B>zsh/parameter</B> and <B>zsh/mapfile</B>
+modules.  Note, however, that unlike the <B>-h</B> flag this is also useful
+for non-special parameters.
+<DT><B>-i</B><DD>
+Use an internal integer representation.  If <I>n</I> is nonzero it
+defines the output arithmetic base, otherwise it is determined by the
+first assignment.
+<DT><B>-E</B><DD>
+Use an internal double-precision floating point representation.  On output
+the variable will be converted to scientific notation.  If <I>n</I> is
+nonzero it defines the number of significant figures to display; the
+default is ten.
+<DT><B>-F</B><DD>
+Use an internal double-precision floating point representation.  On output
+the variable will be converted to fixed-point decimal notation.  If <I>n</I>
+is nonzero it defines the number of digits to display after the decimal
+point; the default is ten.
+<DT><B>-l</B><DD>
+Convert the result to lower case whenever the parameter is expanded.
+The value is <I>not</I> converted when assigned.
+<DT><B>-r</B><DD>
+The given <I>name</I>s are marked readonly.  Note that if <I>name</I> is a
+special parameter, the readonly attribute can be turned on, but cannot then
+be turned off.
+<DT><B>-t</B><DD>
+Tags the named parameters.  Tags have no special meaning to the shell.
+This flag has a different meaning when used with <B>-f</B>; see above.
+<DT><B>-u</B><DD>
+Convert the result to upper case whenever the parameter is expanded.
+The value is <I>not</I> converted when assigned.
+This flag has a different meaning when used with <B>-f</B>; see above.
+<DT><B>-x</B><DD>
+Mark for automatic export to the environment of subsequently
+executed commands.  If the option <B>GLOBAL_EXPORT</B> is set, this implies
+the option <B>-g</B>, unless <B>+g</B> is also explicitly given; in other words
+the parameter is not made local to the enclosing function.  This is for
+compatibility with previous versions of zsh.
+</DL>
+</DL>
+
+<DT><B>ulimit</B> [ <B>-SHacdflmnpstv</B> [ <I>limit</I> ] ... ]<DD>
+Set or display resource limits of the shell and the processes started by
+the shell.  The value of <I>limit</I> can be a number in the unit specified
+below or the value `<B>unlimited</B>'.  By default, only soft limits are
+manipulated. If the <B>-H</B> flag is given use
+hard limits instead of soft limits.  If the <B>-S</B> flag is given
+together with the <B>-H</B> flag set both hard and soft limits.  If no
+options are used, the file size limit (<B>-f</B>) is assumed.  If
+<I>limit</I> is omitted the current value of the specified resources are
+printed.  When more than one resource values are printed the limit name and
+unit is printed before each value.
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT><B>-a</B><DD>
+Lists all of the current resource limits.
+<DT><B>-c</B><DD>
+512-byte blocks on the size of core dumps.
+<DT><B>-d</B><DD>
+K-bytes on the size of the data segment.
+<DT><B>-f</B><DD>
+512-byte blocks on the size of files written.
+<DT><B>-l</B><DD>
+K-bytes on the size of locked-in memory.
+<DT><B>-m</B><DD>
+K-bytes on the size of physical memory.
+<DT><B>-n</B><DD>
+open file descriptors.
+<DT><B>-s</B><DD>
+K-bytes on the size of the stack.
+<DT><B>-t</B><DD>
+CPU seconds to be used.
+<DT><B>-u</B><DD>
+processes available to the user.
+<DT><B>-v</B><DD>
+K-bytes on the size of virtual memory.  On some systems this
+refers to the limit called `address space'.
+
+</DL>
+</DL>
+
+<DT><B>umask</B> [ <B>-S</B> ] [ <I>mask</I> ]<DD>
+The umask is set to <I>mask</I>.  <I>mask</I> can be either
+an octal number or a symbolic value as described in <I><A HREF="../man1/chmod.1.php">chmod</A></I>(1).
+If <I>mask</I> is omitted, the current value is printed.  The <B>-S</B>
+option causes the mask to be printed as a symbolic value.  Otherwise,
+the mask is printed as an octal number.  Note that in
+the symbolic form the permissions you specify are those which are to be
+allowed (not denied) to the users specified.
+<DT><B>unalias</B><DD>
+Same as <B>unhash -a</B>.
+<DT><B>unfunction</B><DD>
+Same as <B>unhash -f</B>.
+<DT><B>unhash</B> [ <B>-adfms</B> ] <I>name</I> ...<DD>
+Remove the element named <I>name</I> from an internal hash table.  The
+default is remove elements from the command hash table.  The <B>-a</B>
+option causes <B>unhash</B> to remove regular or global aliases.
+The <B>-s</B> option causes <B>unhash</B> to remove suffix aliases.
+The <B>-f</B> option causes
+<B>unhash</B> to remove shell functions.  The <B>-d</B> options causes
+<B>unhash</B> to remove named directories.  If the <B>-m</B> flag is given
+the arguments are taken as patterns (should be quoted) and all elements
+of the corresponding hash table with matching names will be removed.
+<DT><B>unlimit</B> [ <B>-hs</B> ] <I>resource</I> ...<DD>
+The resource limit for each <I>resource</I> is set to the hard limit.
+If the <B>-h</B> flag is given and the shell has appropriate privileges,
+the hard resource limit for each <I>resource</I> is removed.
+The resources of the shell process are only changed if the <B>-s</B>
+flag is given.
+<DT><B>unset</B> [ <B>-fmv</B> ] <I>name</I> ...<DD>
+Each named parameter is unset.
+Local parameters remain local even if unset; they appear unset within scope,
+but the previous value will still reappear when the scope ends.
+<DL COMPACT><DT><DD>
+<P>
+
+Individual elements of associative array parameters may be unset by using
+subscript syntax on <I>name</I>, which should be quoted (or the entire command
+prefixed with <B>noglob</B>) to protect the subscript from filename generation.
+<P>
+
+If the <B>-m</B> flag is specified the arguments are taken as patterns (should
+be quoted) and all parameters with matching names are unset.  Note that this
+cannot be used when unsetting associative array elements, as the subscript
+will be treated as part of the pattern.
+<P>
+
+The <B>-v</B> flag specifies that <I>name</I> refers to parameters. This is the
+default behaviour.
+<P>
+
+<B>unset -f</B> is equivalent to <B>unfunction</B>.
+</DL>
+
+<DT><B>unsetopt</B> [ {<B>+</B>|<B>-</B>}<I>options</I> | {<B>+</B>|<B>-</B>}<B>o</B> <I>option_name</I> ] [ <I>name</I> ... ]<DD>
+Unset the options for the shell.  All options specified either
+with flags or by name are unset.  If no arguments are supplied,
+the names of all options currently unset are printed.
+If the <B>-m</B> flag is given the arguments are taken as patterns
+(which should be quoted to preserve them from being interpreted as glob
+patterns), and all options with names matching these patterns are unset.
+<DT><B>vared</B><DD>
+See the section `Zle Builtins' in <I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1).
+<DT><B>wait</B> [ <I>job</I> ... ]<DD>
+Wait for the specified jobs or processes.  If <I>job</I> is not given
+then all currently active child processes are waited for.
+Each <I>job</I> can be either a job specification or the process ID
+of a job in the job table.
+The exit status from this command is that of the job waited for.
+<DT><B>whence</B> [ <B>-vcwfpams</B> ] <I>name</I> ...<DD>
+For each name, indicate how it would be interpreted if used as a
+command name.
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-v</B>
+Produce a more verbose report.
+<DT><B>-c</B><DD>
+Print the results in a <B>csh</B>-like format.
+This takes precedence over <B>-v</B>.
+<DT><B>-w</B><DD>
+For each <I>name</I>, print `<I>name</I><B>:</B> <I>word</I>' where <I>word</I>
+is one of <B>alias</B>, <B>builtin</B>, <B>command</B>, <B>function</B>,
+<B>hashed</B>, <B>reserved</B> or <B>none</B>, according as <I>name</I>
+corresponds to an alias, a built-in command, an external command, a
+shell function, a command defined with the <B>hash</B> builtin, a
+reserved word, or is not recognised.  This takes precedence over
+<B>-v</B> and <B>-c</B>.
+<DT><B>-f</B><DD>
+Causes the contents of a shell function to be
+displayed, which would otherwise not happen unless the <B>-c</B>
+flag were used.
+<DT><B>-p</B><DD>
+Do a path search for <I>name</I>
+even if it is an alias, reserved word, shell function or builtin.
+<DT><B>-a</B><DD>
+Do a search for all occurrences of <I>name</I>
+throughout the command path.
+Normally only the first occurrence is printed.
+<DT><B>-m</B><DD>
+The arguments are taken as patterns (should be
+quoted), and the information is displayed for each command matching one
+of these patterns.
+<DT><B>-s</B><DD>
+If a pathname contains symlinks, print the symlink-free pathname as well.
+</DL>
+</DL>
+
+<DT><B>where</B> [ <B>-wpms</B> ] <I>name</I> ...<DD>
+Equivalent to <B>whence -ca</B>.
+<DT><B>which</B> [ <B>-wpams</B> ] <I>name</I> ...<DD>
+Equivalent to <B>whence -c</B>.
+<DT>
+<DD>
+<B>zcompile</B> [ <B>-U</B> ] [ <B>-z</B> | <B>-k</B> ] [ <B>-R</B> | <B>-M</B> ] <I>file</I> [ <I>name</I> ... ]
+<DT>
+<DD>
+<B>zcompile</B> <B>-ca</B> [ <B>-m</B> ] [ <B>-R</B> | <B>-M</B> ] <I>file</I> [ <I>name</I> ... ]
+<DT>
+<DD>
+<B>zcompile -t</B> <I>file</I> [ <I>name</I> ... ]
+This builtin command can be used to compile functions or scripts,
+storing the compiled form in a file, and to examine files containing
+the compiled form.  This allows faster autoloading of functions and
+execution of scripts by avoiding parsing of the text when the files
+are read.
+<DL COMPACT><DT><DD>
+<P>
+
+The first form (without the <B>-c</B>, <B>-a</B> or <B>-t</B> options) creates a
+compiled file.  If only the <I>file</I> argument is given, the
+output file has the name `<I>file</I><B>.zwc</B>' and will be placed in
+the same directory as the <I>file</I>.  The shell will load the compiled
+file instead of the normal function file when the function
+is autoloaded; see
+the section `Autoloading Functions' in <I><A HREF="../man1/zshfunc.1.php">zshfunc</A></I>(1)
+for a description of how autoloaded functions are searched.  The
+extension <B>.zwc</B> stands for `zsh word code'.
+<P>
+
+If there is at least one <I>name</I> argument, all the named files
+are compiled into the output <I>file</I> given as the first argument.  If
+<I>file</I> does not end in <B>.zwc</B>, this extension is automatically
+appended.  Files containing multiple compiled functions are called `digest'
+files, and are intended to be used as elements of the <B>FPATH</B>/<B>fpath</B>
+special array.
+<P>
+
+The second form, with the <B>-c</B> or <B>-a</B> options, writes the compiled
+definitions for all the named functions into <I>file</I>.  For <B>-c</B>, the
+names must be functions currently defined in the shell, not those marked
+for autoloading.  Undefined functions that are marked for autoloading
+may be written by using the <B>-a</B> option, in which case the <B>fpath</B>
+is searched and the contents of the definition files for those
+functions, if found, are compiled into <I>file</I>.  If both <B>-c</B> and
+<B>-a</B> are given, names of both defined functions and functions marked
+for autoloading may be given.  In either case, the functions in files
+written with the <B>-c</B> or <B>-a</B> option will be autoloaded as if the
+<B>KSH_AUTOLOAD</B> option were unset.
+<P>
+
+The reason for handling loaded and not-yet-loaded functions with
+different options is that some definition files for autoloading define
+multiple functions, including the function with the same name as the
+file, and, at the end, call that function.  In such cases the output of
+`<B>zcompile -c</B>' does not include the additional functions defined in
+the file, and any other initialization code in the file is lost.  Using
+`<B>zcompile -a</B>' captures all this extra information.
+<P>
+
+If the <B>-m</B> option is combined with <B>-c</B> or <B>-a</B>,
+the <I>name</I>s are used as patterns and all functions whose names
+match one of these patterns will be written. If no <I>name</I> is given,
+the definitions of all functions currently defined or marked as
+autoloaded will be written.
+<P>
+
+The third form, with the <B>-t</B> option, examines an existing
+compiled file.  Without further arguments, the names of the original
+files compiled into it are listed.  The first line of output shows
+the version of the shell which compiled the file and how the file
+will be used (i.e. by reading it directly or by mapping it into memory).
+With arguments, nothing is output and the return value is set to zero if
+definitions for <I>all</I> <I>name</I>s were found in the compiled
+file, and non-zero if the definition for at least one <I>name</I> was not
+found.
+<P>
+
+Other options:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>-U</B>
+Aliases are not expanded when compiling the <I>name</I>d files.
+<DT><B>-R</B><DD>
+When the compiled file is read, its contents are copied into the
+shell's memory, rather than memory-mapped (see <B>-M</B>).  This
+happens automatically on systems that do not support memory mapping.
+<DL COMPACT><DT><DD>
+<P>
+
+When compiling scripts instead of autoloadable functions, it is
+often desirable to use this option; otherwise the whole file, including the
+code to define functions which have already been defined, will
+remain mapped, consequently wasting memory.
+</DL>
+
+<DT><B>-M</B><DD>
+The compiled file is mapped into the shell's memory when read. This
+is done in such a way that multiple instances of the shell running
+on the same host will share this mapped file.  If neither <B>-R</B> nor
+<B>-M</B> is given, the <B>zcompile</B> builtin decides what to do based
+on the size of the compiled file.
+<DT>
+<DD>
+<B>-k</B>
+<DT>
+<DD>
+<B>-z</B>
+These options are used when the compiled file contains functions which
+are to be autoloaded. If <B>-z</B> is given, the
+function will be autoloaded as if the <B>KSH_AUTOLOAD</B> option is
+<I>not</I> set, even if it is set at the time the compiled file is
+read, while if the <B>-k</B> is given, the function will be loaded as if
+<B>KSH_AUTOLOAD</B> <I>is</I> set.  If neither of these options is given, the
+function will be loaded as determined by the setting of the
+<B>KSH_AUTOLOAD</B> option at the time the compiled file is read.
+<BR>&nbsp;
+These options may also appear as many times as necessary between the listed
+<I>name</I>s to specify the loading style of all following functions, up to
+the next <B>-k</B> or <B>-z</B>.
+<P>
+The created file always contains two versions of the compiled
+format, one for big-endian machines and one for small-endian
+machines.  The upshot of this is that the compiled file is machine
+independent and if it is read or mapped, only one half of the file
+is actually used (and mapped).
+</DL>
+</DL>
+
+<DT><B>zformat</B><DD>
+See the section `The zsh/zutil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zftp</B><DD>
+See the section `The zsh/zftp Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zle</B><DD>
+See the section `Zle Builtins' in <I><A HREF="../man1/zshzle.1.php">zshzle</A></I>(1).
+<DT>
+<DD>
+<B>zmodload</B> [ <B>-dL</B> ] [ ... ]
+<DT>
+<DD>
+<B>zmodload -e</B> [ <B>-A</B> ] [ ... ]
+<DT>
+<DD>
+<B>zmodload</B> [ <B>-a</B> [ <B>-bcpf</B> [ <B>-I</B> ] ] ] [ <B>-iL</B> ] ...
+<DT>
+<DD>
+<B>zmodload</B> <B>-u</B> [ <B>-abcdpf</B> [ <B>-I</B> ] ] [ <B>-iL</B> ] ...
+<DT>
+<DD>
+<B>zmodload</B> <B>-A</B> [ <B>-L</B> ] [ <I>modalias</I>[<B>=</B><I>module</I>] ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-R</B> <I>modalias</I> ... 
+Performs operations relating to zsh's loadable modules.
+Loading of modules while the shell is running (`dynamical loading') is not
+available on all operating systems, or on all installations on a particular
+operating system, although the <B>zmodload</B> command itself is always
+available and can be used to manipulate modules built into versions of the
+shell executable without dynamical loading.
+<DL COMPACT><DT><DD>
+<P>
+
+Without arguments the names of all currently loaded binary modules are
+printed.  The <B>-L</B> option causes this list to be in the form of a
+series of <B>zmodload</B> commands.  Forms with arguments are:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zmodload</B> [ <B>-i</B> ] <I>name</I> ... 
+<DT>
+<DD>
+<B>zmodload</B> <B>-u</B> [ <B>-i</B> ] <I>name</I> ...
+In the simplest case, <B>zmodload</B> loads a binary module.  The module must
+be in a file with a name consisting of the specified <I>name</I> followed by
+a standard suffix, usually `<B>.so</B>' (`<B>.sl</B>' on HPUX).
+If the module to be loaded is
+already loaded and the <B>-i</B> option is given, the duplicate module is
+ignored.  Otherwise <B>zmodload</B> prints an error message.
+<DL COMPACT><DT><DD>
+<P>
+
+The <I>name</I>d module is searched for in the same way a command is, using
+<B>$module_path</B> instead of <B>$path</B>.  However, the path search is
+performed even when the module name contains a `<B>/</B>', which it usually does.
+There is no way to prevent the path search.
+<P>
+
+With <B>-u</B>, <B>zmodload</B> unloads modules.  The same <I>name</I>
+must be given that was given when the module was loaded, but it is not
+necessary for the module to exist in the filesystem.
+The <B>-i</B> option suppresses the error if the module is already
+unloaded (or was never loaded).
+<P>
+
+Each module has a boot and a cleanup function.  The module
+will not be loaded if its boot function fails.  Similarly a module
+can only be unloaded if its cleanup function runs successfully.
+</DL>
+
+<DT>
+<DD>
+<B>zmodload</B> <B>-d</B> [ <B>-L</B> ] [ <I>name</I> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-d</B> <I>name</I> <I>dep</I> ...
+<DT>
+<DD>
+<B>zmodload</B> <B>-ud</B> <I>name</I> [ <I>dep</I> ... ]
+The <B>-d</B> option can be used to specify module dependencies.  The modules
+named in the second and subsequent arguments will be loaded before the
+module named in the first argument.
+<DL COMPACT><DT><DD>
+<P>
+
+With <B>-d</B> and one argument, all dependencies for that module are listed.
+With <B>-d</B> and no arguments, all module dependencies are listed.  This
+listing is by default in a Makefile-like format.  The <B>-L</B> option
+changes this format to a list of <B>zmodload -d</B> commands.
+<P>
+
+If <B>-d</B> and <B>-u</B> are both used, dependencies are removed.  If only one
+argument is given, all dependencies for that module are removed.
+</DL>
+
+<DT>
+<DD>
+<B>zmodload</B> <B>-ab</B> [ <B>-L</B> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-ab</B> [ <B>-i</B> ] <I>name</I> [ <I>builtin</I> ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-ub</B> [ <B>-i</B> ] <I>builtin</I> ...
+The <B>-ab</B> option defines autoloaded builtins.  It defines the specified
+<I>builtin</I>s.  When any of those builtins is called, the module specified
+in the first argument is loaded.  If only the <I>name</I> is given, one
+builtin is defined, with the same name as the module.  <B>-i</B> suppresses
+the error if the builtin is already defined or autoloaded, regardless of
+which module it came from.
+<DL COMPACT><DT><DD>
+<P>
+
+With <B>-ab</B> and no arguments, all autoloaded builtins are listed, with the
+module name (if different) shown in parentheses after the builtin name.
+The <B>-L</B> option changes this format to a list of <B>zmodload -a</B>
+commands.
+<P>
+
+If <B>-b</B> is used together with the <B>-u</B> option, it removes builtins
+previously defined with <B>-ab</B>.  This is only possible if the builtin is
+not yet loaded.  <B>-i</B> suppresses the error if the builtin is already
+removed (or never existed).
+</DL>
+
+<DT>
+<DD>
+<B>zmodload</B> <B>-ac</B> [ <B>-IL</B> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-ac</B> [ <B>-iI</B> ] <I>name</I> [ <I>cond</I> ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-uc</B> [ <B>-iI</B> ] <I>cond</I> ...
+The <B>-ac</B> option is used to define autoloaded condition codes. The
+<I>cond</I> strings give the names of the conditions defined by the
+module. The optional <B>-I</B> option is used to define infix condition
+names. Without this option prefix condition names are defined.
+<DL COMPACT><DT><DD>
+<P>
+
+If given no condition names, all defined names are listed (as a series of
+<B>zmodload</B> commands if the <B>-L</B> option is given).
+<P>
+
+The <B>-uc</B> option removes definitions for autoloaded conditions.
+</DL>
+
+<DT>
+<DD>
+<B>zmodload</B> <B>-ap</B> [ <B>-L</B> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-ap</B> [ <B>-i</B> ] <I>name</I> [ <I>parameter</I> ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-up</B> [ <B>-i</B> ] <I>parameter</I> ...
+The <B>-p</B> option is like the <B>-b</B> and <B>-c</B> options, but makes
+<B>zmodload</B> work on autoloaded parameters instead.
+<DT>
+<DD>
+<B>zmodload</B> <B>-af</B> [ <B>-L</B> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-af</B> [ <B>-i</B> ] <I>name</I> [ <I>function</I> ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-uf</B> [ <B>-i</B> ] <I>function</I> ...
+The <B>-f</B> option is like the <B>-b</B>, <B>-p</B>, and <B>-c</B> options, but
+makes <B>zmodload</B> work on autoloaded math functions instead. 
+<DT>
+<DD>
+<B>zmodload</B> <B>-a</B> [ <B>-L</B> ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-a</B> [ <B>-i</B> ] <I>name</I> [ <I>builtin</I> ... ]
+<DT>
+<DD>
+<B>zmodload</B> <B>-ua</B> [ <B>-i</B> ] <I>builtin</I> ...
+Equivalent to <B>-ab</B> and <B>-ub</B>.
+<DT><B>zmodload -e</B> [ <B>-A</B> ] [ <I>string</I> ... ]<DD>
+The <B>-e</B> option without arguments lists all loaded modules; if the <B>-A</B>
+option is also given, module aliases corresponding to loaded modules are
+also shown.  With arguments only the return status is set to zero
+if all <I>string</I>s given as arguments are names of loaded modules
+and to one if at least on <I>string</I> is not the name of a
+loaded module.  This can be used to test for the availability 
+of things implemented by modules.  In this case, any aliases are
+automatically resolved and the <B>-A</B> flag is not used.
+<DT><B>zmodload</B> <B>-A</B> [ <B>-L</B> ] [ <I>modalias</I>[<B>=</B><I>module</I>] ... ]<DD>
+For each argument, if both <I>modalias</I> and <I>module</I> are given,
+define <I>modalias</I> to be an alias for the module <I>module</I>.
+If the module <I>modalias</I> is ever subsequently requested, either via a
+call to <B>zmodload</B> or implicitly, the shell will attempt to load
+<I>module</I> instead.  If <I>module</I> is not given, show the definition of
+<I>modalias</I>.  If no arguments are given, list all defined module aliases.
+When listing, if the <B>-L</B> flag was also given, list the definition as a
+<B>zmodload</B> command to recreate the alias.
+<DL COMPACT><DT><DD>
+<P>
+
+The existence of aliases for modules is completely independent of whether
+the name resolved is actually loaded as a module: while the alias exists,
+loading and unloading the module under any alias has exactly the same
+effect as using the resolved name, and does not affect the connection
+between the alias and the resolved name which can be removed either by
+<B>zmodload -R</B> or by redefining the alias.  Chains of aliases (i.e. where
+the first resolved name is itself an alias) are valid so long as these are
+not circular.  As the aliases take the same format as module names, they
+may include path separators:  in this case, there is no requirement for any
+part of the path named to exist as the alias will be resolved first.  For
+example, `<B>any/old/alias</B>' is always a valid alias.
+<P>
+
+Dependencies added to aliased modules are actually added to the resolved
+module; these remain if the alias is removed.  It is valid to create an
+alias whose name is one of the standard shell modules and which resolves to
+a different module.  However, if a module has dependencies, it
+will not be possible to use the module name as an alias as the module will
+already be marked as a loadable module in its own right.
+<P>
+
+Apart from the above, aliases can be used in the <B>zmodload</B> command
+anywhere module names are required.  However, aliases will not be
+shown in lists of loaded modules with a bare `<B>zmodload</B>'.
+</DL>
+
+<DT><B>zmodload</B> <B>-R</B> <I>modalias</I> ... <DD>
+For each <I>modalias</I> argument that was previously defined as a module
+alias via <B>zmodload -A</B>, delete the alias.  If any was not defined, an
+error is caused and the remainder of the line is ignored.
+</DL>
+<P>
+
+Note that <B>zsh</B> makes no distinction between modules that were linked 
+into the shell and modules that are loaded dynamically. In both cases
+this builtin command has to be used to make available the builtins and
+other things defined by modules (unless the module is autoloaded on
+these definitions). This is true even for systems that don't support
+dynamic loading of modules.
+</DL>
+
+<DT><B>zparseopts</B><DD>
+See the section `The zsh/zutil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zprof</B><DD>
+See the section `The zsh/zprof Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zpty</B><DD>
+See the section `The zsh/zpty Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zregexparse</B><DD>
+See the section `The zsh/zutil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zsocket</B><DD>
+See the section `The zsh/net/socket Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>zstyle</B><DD>
+See the section `The zsh/zutil Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<DT><B>ztcp</B><DD>
+See the section `The zsh/net/tcp Module' in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1).
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SHELL BUILTIN COMMANDS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

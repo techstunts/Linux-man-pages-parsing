@@ -1,0 +1,1166 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MPIRUN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MPIRUN</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mpirun - Run MPI programs on LAM nodes.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+
+<DD>mpirun 
+[-fhvO] 
+[-c &lt;#&gt; | -np &lt;#&gt;] 
+[-D | -wd &lt;dir&gt;]
+[-ger | -nger] 
+[-sigs | -nsigs] 
+[-ssi &lt;key&gt; &lt;value&gt;]
+[-nw | -w] 
+[-nx]
+[-pty | -npty]
+[-s &lt;node&gt;] 
+[-t | -toff | -ton]
+[-tv] 
+[-x VAR1[=VALUE1][,VAR2[=VALUE2],...]]
+[[-p &lt;prefix_str&gt;] [-sa | -sf]]
+[&lt;where&gt;] 
+&lt;program&gt; [-- &lt;args&gt;]
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>
+<DD>mpirun 
+[-fhvO] 
+[-D | -wd &lt;dir&gt;]
+[-ger | -nger] 
+[-sigs | -nsigs] 
+[-ssi &lt;key&gt; &lt;value&gt;]
+[-nw | -w] 
+[-nx]
+[-pty | -npty]
+[-t | -toff | -ton] 
+[-tv]
+[-x VAR1[=VALUE1][,VAR2[=VALUE2],...]]
+&lt;schema&gt;
+<BR>
+
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>
+<B>Note:</B>
+
+<DD>The
+<I>-c2c</I>
+
+and
+<I>-lamd</I>
+
+options are now obsolete.  Use 
+<I>-ssi</I>
+
+instead.  See the &quot;SSI&quot; section, below.
+
+
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+There are two forms of the 
+<I>mpirun</I>
+
+command -- one for programs (i.e., SPMD-style applications), and one
+for application schemas (see <A HREF="../man5/appschema.5.php">appschema</A>(5)).  Both forms of
+<I>mpirun</I>
+
+use the following options by default: 
+<I>-nger </I>
+
+<I>-w</I>.
+
+These may each be overriden by their counterpart options, described
+below.
+<P>
+
+Additionally, 
+<I>mpirun</I>
+
+will send the name of the directory where it was invoked on the local
+node to each of the remote nodes, and attempt to change to that
+directory.  See the &quot;Current Working Directory&quot; section, below.
+<DL COMPACT>
+<DT><B>-c &lt;#&gt;</B>
+
+<DD>
+Synonym for 
+<I>-np </I>
+
+(see below).
+<DT><B>-D</B>
+
+<DD>
+Use the executable program location as the current working directory
+for created processes.  The current working directory of the created
+processes will be set before the user's program is invoked.  This
+option is mutually exclusive with
+<I>-wd</I>.
+
+<DT><B>-f</B>
+
+<DD>
+Do not configure standard I/O file descriptors - use defaults.
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-ger</B>
+
+<DD>
+Enable GER (Guaranteed Envelope Resources) communication protocol
+and error reporting.  See <A HREF="../man7/MPI.7.php">MPI</A>(7) for a description of GER.  This
+option is mutually exclusive with 
+<I>-nger</I>.
+
+<DT><B>-nger</B>
+
+<DD>
+Disable GER (Guaranteed Envelope Resources).  This option is mutually
+exclusive with 
+<I>-ger</I>.
+
+<DT><B>-nsigs</B>
+
+<DD>
+Do not have LAM catch signals in the user application.  This is the
+default, and is mutually exclusive with
+<I>-sigs</I>.
+
+<DT><B>-np &lt;#&gt;</B>
+
+<DD>
+Run this many copies of the program on the given nodes.  This option
+indicates that the specified file is an executable program and not an
+application schema.  If no nodes are specified, all LAM nodes are
+considered for scheduling; LAM will schedule the programs in a
+round-robin fashion, &quot;wrapping around&quot; (and scheduling multiple copies
+on a single node) if necessary.
+<DT><B>-npty</B>
+
+<DD>
+Disable pseudo-tty support.  Unless you are having problems with
+pseudo-tty support, you probably do not need this option.  Mutually
+exlclusive with -pty.
+<DT><B>-nw</B>
+
+<DD>
+Do not wait for all processes to complete before exiting
+<I>mpirun</I>.
+
+This option is mutually exclusive with 
+<I>-w</I>.
+
+<DT><B>-nx</B>
+
+<DD>
+Do not automatically export LAM_MPI_*, LAM_IMPI_*, or IMPI_*
+environment variables to the remote nodes.
+<DT><B>-O</B>
+
+<DD>
+Multicomputer is homogeneous.  Do no data conversion when passing
+messages.  THIS FLAG IS NOW OBSOLETE.
+<DT><B>-pty</B>
+
+<DD>
+Enable pseudo-tty support.  Among other things, this enabled
+line-buffered output (which is probably what you want).  This is the
+default.  Mutually exclusive with -npty.
+<DT><B>-s &lt;node&gt;</B>
+
+<DD>
+Load the program from this node.  This option is not valid on the
+command line if an application schema is specified.
+<DT><B>-sigs</B>
+
+<DD>
+Have LAM catch signals in the user process.  This options is mutually
+exclusive with 
+<I>-nsigs</I>.
+
+<DT><B>-ssi &lt;key&gt; &lt;value&gt;</B>
+
+<DD>
+Send arguments to various SSI modules.  See the &quot;SSI&quot; section, below.
+<DT><B>-t, -ton</B>
+
+<DD>
+Enable execution trace generation for all processes.  Trace generation
+will proceed with no further action.  These options are mutually
+exclusive with 
+<I>-toff</I>.
+
+<DT><B>-toff</B>
+
+<DD>
+Enable execution trace generation for all processes.  Trace generation
+for message passing traffic will begin after processes collectively
+call <A HREF="../man2/MPIL_Trace_on.2.php">MPIL_Trace_on</A>(2).  Note that trace generation for datatypes and
+communicators
+<I>will</I>
+
+proceed regardless of whether trace generation is enabled for messages
+or not.  This option is mutually exclusive with
+<I>-t </I>
+
+and 
+<I>-ton</I>.
+
+<DT><B>-tv</B>
+
+<DD>
+Launch processes under the TotalView Debugger.
+<DT><B>-v</B>
+
+<DD>
+Be verbose; report on important steps as they are done.
+<DT><B>-w</B>
+
+<DD>
+Wait for all applications to exit before 
+<I>mpirun</I>
+
+exits.
+<DT><B>-wd &lt;dir&gt;</B>
+
+<DD>
+Change to the directory &lt;dir&gt; before the user's program executes.
+Note that if the 
+<I>-wd </I>
+
+option appears both on the command line and in an application schema,
+the schema will take precendence over the command line.  This option
+is mutually exclusive with
+<I>-D</I>.
+
+<DT><B>-x</B>
+
+<DD>
+Export the specified environment variables to the remote nodes before
+executing the program.  Existing environment variables can be
+specified (see the Examples section, below), or new variable names
+specified with corresponding values.  The parser for the 
+<I>-x </I>
+
+option is not very sophisticated; it does not even understand quoted
+values.  Users are advised to set variables in the environment, and
+then use
+<I>-x </I>
+
+to export (not define) them.
+<DT><B>-sa</B>
+
+<DD>
+Display the exit status of all MPI processes irrespecive of whether
+they fail or run successfully. 
+<DT><B>-sf</B>
+
+<DD>
+Display the exit status of all processes only if one of them fails.
+<DT><B>-p &lt;prefix_str&gt;</B>
+
+<DD>
+Prefixes each process status line displayed by [-sa] and [-sf] by the
+&lt;prefix_str&gt;.  
+<DT><B>&lt;where&gt;</B>
+
+<DD>
+A set of node and/or CPU identifiers indicating where to start 
+<B>&lt;program&gt;</B>.
+
+See <A HREF="../man5/bhost.5.php">bhost</A>(5) for a description of the node and CPU identifiers.  
+<I>mpirun</I>
+
+will schedule adjoining ranks in 
+<I>MPI_COMM_WORLD </I>
+
+on the same node when CPU identifiers are used.  For example, if LAM
+was booted with a CPU count of 4 on n0 and a CPU count of 2 on n1 and
+<B>&lt;where&gt;</B>
+
+is C, ranks 0 through 3 will be placed on n0, and ranks 4 and 5 will
+be placed on n1.
+<DT><B>&lt;args&gt;</B>
+
+<DD>
+Pass these runtime arguments to every new process.  These must always
+be the last arguments to
+<I>mpirun</I>.
+
+This option is not valid on the command line if an application schema
+is specified.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+One invocation of
+<I>mpirun</I>
+
+starts an MPI application running under LAM.
+If the application is simply SPMD, the application can be specified on the
+<I>mpirun</I>
+
+command line.
+If the application is MIMD, comprising multiple programs, an application
+schema is required in a separate file.
+See <A HREF="../man5/appschema.5.php">appschema</A>(5) for a description of the application schema syntax,
+but it essentially contains multiple
+<I>mpirun</I>
+
+command lines, less the command name itself.  The ability to specify
+different options for different instantiations of a program is another
+reason to use an application schema.
+<A NAME="lbAF">&nbsp;</A>
+<H3>Location Nomenclature</H3>
+
+As described above, 
+<I>mpirun</I>
+
+can specify arbitrary locations in the current LAM universe.
+Locations can be specified either by CPU or by node (noted by the
+&quot;&lt;where&gt;&quot; in the SYNTAX section, above).  Note that LAM does not bind
+processes to CPUs -- specifying a location &quot;by CPU&quot; is really a
+convenience mechanism for SMPs that ultimately maps down to a specific
+node.
+<P>
+
+Note that LAM effectively numbers MPI_COMM_WORLD ranks from
+left-to-right in the &lt;where&gt;, regardless of which nomenclature is
+used.  This can be important because typical MPI programs tend to
+communicate more with their immediate neighbors (i.e., myrank +/- X)
+than distant neighbors.  When neighbors end up on the same node, the
+shmem RPIs can be used for communication rather than the network RPIs,
+which can result in faster MPI performance.
+<P>
+
+Specifying locations by node will launch one copy of an executable per
+specified node.  Using a capitol &quot;N&quot; tells LAM to use all available
+nodes that were lambooted (see <A HREF="../man1/lamboot.1.php">lamboot</A>(1)).  Ranges of specific nodes
+can also be specified in the form &quot;nR[,R]*&quot;, where R specifies either
+a single node number or a valid range of node numbers in the range of
+[0, num_nodes).  For example:
+<DL COMPACT>
+<DT>mpirun N a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on all available nodes in the LAM universe.  MPI_COMM_WORLD rank 0
+will be on n0, rank 1 will be on n1, etc.
+<DT>mpirun n0-3 a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on nodes 0 through 3.  MPI_COMM_WORLD rank 0 will be on n0, rank 1
+will be on n1, etc.
+<DT>mpirun n0-3,8-11,15 a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on nodes 0 through 3, 8 through 11, and 15.  MPI_COMM_WORLD ranks will
+be ordered as follows: (0, n0), (1, n1), (2, n2), (3, n3), (4, n8),
+(5, n9), (6, n10), (7, n11), (8, n15).
+</DL>
+<P>
+
+Specifying by CPU is the preferred method of launching MPI jobs.  The
+intent is that the boot schema used with <A HREF="../man1/lamboot.1.php">lamboot</A>(1) will indicate how
+many CPUs are available on each node, and then a single, simple 
+<I>mpirun</I>
+
+command can be used to launch across all of them.  As noted above,
+specifying CPUs does not actually bind processes to CPUs -- it is only
+a convenience mechanism for launching on SMPs.  Otherwise, the by-CPU
+nodation is the same as the by-node notation, except that &quot;C&quot; and &quot;c&quot;
+are used instead of &quot;N&quot; and &quot;n&quot;.  
+<P>
+
+Assume in the following example that the LAM universe consists of four
+4-way SMPs.  So c0-3 are on n0, c4-7 are on n1, c8-11 are on n2, and
+13-15 are on n3.
+<DL COMPACT>
+<DT>mpirun C a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on all available CPUs in the LAM universe.  This is typically the
+simplest (and preferred) method of launching all MPI jobs (even if it
+resolves to one process per node).  MPI_COMM_WORLD ranks 0-3 will be
+on n0, ranks 4-7 will be on n1, ranks 8-11 will be on n2, and ranks
+13-15 will be on n3.
+<DT>mpirun c0-3 a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on CPUs 0 through 3.  All four ranks of MPI_COMM_WORLD will be on
+MPI_COMM_WORLD.
+<DT>mpirun c0-3,8-11,15 a.out<DD>
+Runs one copy of the the executable
+<I>a.out</I>
+
+on CPUs 0 through 3, 8 through 11, and 15.  MPI_COMM_WORLD ranks 0-3
+will be on n0, 4-7 will be on n2, and 8 will be on n3.
+</DL>
+<P>
+
+The reason that the by-CPU nomenclature is preferred over the by-node
+nomenclature is best shown through example.  Consider trying to run
+the first CPU example (with the same MPI_COMM_WORLD mapping) with the
+by-node nomenclature -- run one copy of 
+<I>a.out</I>
+
+for every available CPU, and maximize the number of local neighbors to
+potentially maximize MPI performance.  One solution would be to use
+the following command:
+<DL COMPACT>
+<DT>mpirun n0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3 a.out<DD>
+</DL>
+<P>
+
+This 
+<I>works</I>,
+
+but is definitely klunky to type.  It is typically easier to use the
+by-CPU notation.  One might think that the following is equivalent:
+<DL COMPACT>
+<DT>mpirun N -np 16 a.out<DD>
+</DL>
+<P>
+
+This is 
+<I>not</I>
+
+equivalent because the MPI_COMM_WORLD rank mappings will be assigned
+by node rather than by CPU.  Hence rank 0 will be on n0, rank 1 will
+be on n1, etc.  Note that the following, however,
+<I>is</I>
+
+equivalent, because LAM interprets lack of a &lt;where&gt; as &quot;C&quot;:
+<DL COMPACT>
+<DT>mpirun -np 16 a.out<DD>
+</DL>
+<P>
+
+However, a &quot;C&quot; can tend to be more convenient, especially for
+batch-queuing scripts because the exact number of processes may vary
+between queue submissions.  Since the batch system will determine the
+final number of CPUs available, having a generic script that
+effectively says &quot;run on everything you gave me&quot; may lead to more
+portable / re-usable scripts.
+<P>
+
+Finally, it should be noted that specifying multiple &lt;where&gt; clauses
+are perfectly acceptable.  As such, mixing of the by-node and by-CPU
+syntax is also valid, albiet typically not useful.  For example:
+<DL COMPACT>
+<DT>mpirun C N a.out<DD>
+</DL>
+<P>
+
+However, in some cases, specifying multiple &lt;where&gt; clauses can be
+useful.  Consider a parallel application where MPI_COMM_WORLD rank 0
+will be a &quot;manager&quot; and therefore consume very few CPU cycles because
+it is usually waiting for &quot;worker&quot; processes to return results.
+Hence, it is probably desirable to run one &quot;worker&quot; process on all
+available CPUs, and run one extra process that will be the &quot;manager&quot;:
+<DL COMPACT>
+<DT>mpirun c0 C manager-worker-program<DD>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Application Schema or Executable Program?</H3>
+
+To distinguish the two different forms,
+<I>mpirun</I>
+
+looks on the command line for &lt;where&gt; or the <I>-c</I> option.  If
+neither is specified, then the file named on the command line is
+assumed to be an application schema.  If either one or both are
+specified, then the file is assumed to be an executable program.  If
+&lt;where&gt; and <I>-c</I> both are specified, then copies of the program
+are started on the specified nodes/CPUs according to an internal LAM
+scheduling policy.  Specifying just one node effectively forces LAM to
+run all copies of the program in one place.  If <I>-c</I> is given, but
+not &lt;where&gt;, then all available CPUs on all LAM nodes are used.  If
+&lt;where&gt; is given, but not <I>-c</I>, then one copy of the program is
+run on each node.
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Program Transfer</H3>
+
+By default, LAM searches for executable programs on the target node
+where a particular instantiation will run.  If the file system is not
+shared, the target nodes are homogeneous, and the program is
+frequently recompiled, it can be convenient to have LAM transfer the
+program from a source node (usually the local node) to each target
+node.  The <I>-s</I> option specifies this behavior and identifies the
+single source node.
+<A NAME="lbAI">&nbsp;</A>
+<H3>Locating Files</H3>
+
+LAM looks for an executable program by searching the directories in
+the user's PATH environment variable as defined on the source node(s).
+This behavior is consistent with logging into the source node and
+executing the program from the shell.  On remote nodes, the &quot;.&quot; path
+is the home directory.
+<P>
+
+LAM looks for an application schema in three directories: the local
+directory, the value of the LAMAPPLDIR environment variable, and
+laminstalldir/boot, where &quot;laminstalldir&quot; is the directory where
+LAM/MPI was installed.
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Standard I/O</H3>
+
+LAM directs UNIX standard input to /dev/null on all remote nodes.  On
+the local node that invoked
+<I>mpirun</I>,
+
+standard input is inherited from
+<I>mpirun</I>.
+
+The default is what used to be the -w option to prevent conflicting
+access to the terminal.
+<P>
+
+LAM directs UNIX standard output and error to the LAM daemon on all
+remote nodes.  LAM ships all captured output/error to the node that
+invoked
+<I>mpirun</I>
+
+and prints it on the standard output/error of
+<I>mpirun</I>.
+
+Local processes inherit the standard output/error of
+<I>mpirun</I>
+
+and transfer to it directly.
+<P>
+
+Thus it is possible to redirect standard I/O for LAM applications by
+using the typical shell redirection procedure on
+<I>mpirun</I>.
+
+<P>
+<DL COMPACT><DT><DD>
+% mpirun C my_app &lt; my_input &gt; my_output
+</DL>
+
+<P>
+
+Note that in this example
+<I>only</I>
+
+the local node (i.e., the node where mpirun was invoked from) will
+receive the stream from my_input on stdin.  The stdin on all the other
+nodes will be tied to /dev/null.  However, the stdout from all nodes
+will be collected into the my_output file.
+<P>
+
+The
+<I>-f</I>
+
+option avoids all the setup required to support standard I/O described
+above.  Remote processes are completely directed to /dev/null and
+local processes inherit file descriptors from <A HREF="../man1/lamboot.1.php">lamboot</A>(1).
+<A NAME="lbAK">&nbsp;</A>
+<H3>Pseudo-tty support</H3>
+
+The 
+<I>-pty</I>
+
+option enabled pseudo-tty support for process output (it is also
+enabled by default).  This allows, among other things, for line
+buffered output from remote nodes (which is probably what you want).
+This option can be disabled with the
+<I>-npty</I>
+
+switch.
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H3>Process Termination / Signal Handling</H3>
+
+During the run of an MPI application, if any rank dies abnormally
+(either exiting before invoking
+<I>MPI_FINALIZE</I>,
+
+or dying as the result of a signal), 
+<I>mpirun</I>
+
+will print out an error message and kill the rest of the MPI
+application.
+<P>
+
+By default, LAM/MPI only installs a signal handler for one signal in
+user programs (SIGUSR2 by default, but this can be overridden when LAM
+is configured and built).  Therefore, it is safe for users to install
+their own signal handlers in LAM/MPI programs (LAM notices
+death-by-signal cases by examining the process' return status provided
+by the operating system).  
+<P>
+
+User signal handlers should probably avoid trying to cleanup MPI state
+-- LAM is neither thread-safe nor async-signal-safe.  For example, if
+a seg fault occurs in
+<I>MPI_SEND</I>
+
+(perhaps because a bad buffer was passed in) and a user signal handler
+is invoked, if this user handler attempts to invoke
+<I>MPI_FINALIZE</I>,
+
+Bad Things could happen since LAM/MPI was already &quot;in&quot; MPI when the
+error occurred.  Since
+<I>mpirun</I>
+
+will notice that the process died due to a signal, it is probably not
+necessary (and safest) for the user to only clean up non-MPI state.
+<P>
+
+If the 
+<I>-sigs</I>
+
+option is used with 
+<I>mpirun</I>,
+
+LAM/MPI will install several signal handlers to locally on each rank
+to catch signals, print out error messages, and kill the rest of the
+MPI application.  This is somewhat redundant behavior since this is
+now all handled by
+<I>mpirun</I>,
+
+but it has been left for backwards compatability.
+<A NAME="lbAM">&nbsp;</A>
+<H3>Process Exit Statuses</H3>
+
+The
+<I>-sa</I>,
+
+&nbsp;
+<I>-sf</I>,
+
+and
+<I>-p</I>
+
+parameters can be used to display the exist statuses of the individual
+MPI processes as they terminate.  
+<I>-sa </I>
+
+forces the exit statuses to be displayed for all processes;
+<I>-sf</I>
+
+only displays the exist statuses if at least one process terminates
+either by a signal or a non-zero exit status (note that exiting before
+invoking
+<I>MPI_FINALIZE</I>
+
+will cause a non-zero exit status).
+<P>
+
+The status of each process is printed out, one per line, in the
+following format:
+<P>
+<DL COMPACT><DT><DD>
+prefix_string node pid killed status
+</DL>
+
+<P>
+
+If
+<I>killed</I>
+
+is 1, then
+<I>status</I>
+
+is the signal number.  If
+<I>killed</I>
+
+is 0, then
+<I>status</I>
+
+is the exit status of the process.
+<P>
+
+The default 
+<I>prefix_string</I>
+
+is &quot;mpirun:&quot;, but the
+<I>-p</I>
+
+option can be used override this string.
+<A NAME="lbAN">&nbsp;</A>
+<H3>Current Working Directory</H3>
+
+The default behavior of mpirun has changed with respect to the
+directory that processes will be started in.
+<P>
+
+The 
+<I>-wd </I>
+
+option to mpirun allows the user to change to an arbitrary directory
+before their program is invoked.  It can also be used in application
+schema files to specify working directories on specific nodes and/or
+for specific applications.
+<P>
+
+If the 
+<I>-wd</I>
+
+option appears both in a schema file and on the command line, the
+schema file directory will override the command line value.
+<P>
+
+The
+<I>-D</I>
+
+option will change the current working directory to the directory
+where the executable resides.  It cannot be used in application schema
+files.
+<I>-wd</I>
+
+is mutually exclusive with 
+<I>-D</I>.
+
+<P>
+
+If neither 
+<I>-wd </I>
+
+nor 
+<I>-D</I>
+
+are specified, the local node will send the directory name where
+mpirun was invoked from to each of the remote nodes.  The remote nodes
+will then try to change to that directory.  If they fail (e.g., if the
+directory does not exists on that node), they will start with from the
+user's home directory.
+<P>
+
+All directory changing occurs before the user's program is invoked; it
+does not wait until 
+<I>MPI_INIT </I>
+
+is called.  
+<A NAME="lbAO">&nbsp;</A>
+<H3>Process Environment</H3>
+
+Processes in the MPI application inherit their environment from the
+LAM daemon upon the node on which they are running.  The environment
+of a LAM daemon is fixed upon booting of the LAM with <A HREF="../man1/lamboot.1.php">lamboot</A>(1) and
+is typically inherited from the user's shell.  On the origin node,
+this will be the shell from which <A HREF="../man1/lamboot.1.php">lamboot</A>(1) was invoked; on remote
+nodes, the exact environment is determined by the boot SSI module used
+by <A HREF="../man1/lamboot.1.php">lamboot</A>(1).  The rsh boot module, for example, uses either rsh/ssh
+to launch the LAM daemon on remote nodes, and typically executes one
+or more of the user's shell-setup files before launching the LAM
+daemon.  When running dynamically linked applications which require
+the LD_LIBRARY_PATH environment variable to be set, care must be taken
+to ensure that it is correctly set when booting the LAM.
+<A NAME="lbAP">&nbsp;</A>
+<H3>Exported Environment Variables</H3>
+
+All environment variables that are named in the form LAM_MPI_*,
+LAM_IMPI_*, or IMPI_* will automatically be exported to new processes
+on the local and remote nodes.  This exporting may be inhibited with
+the
+<I>-nx</I>
+
+option.
+<P>
+
+Additionally, the 
+<I>-x</I>
+
+option to 
+<I>mpirun</I>
+
+can be used to export specific environment variables to the new
+processes.  While the syntax of the 
+<I>-x </I>
+
+option allows the definition of new variables, note that the parser
+for this option is currently not very sophisticated - it does not even
+understand quoted values.  Users are advised to set variables in the
+environment and use 
+<I>-x </I>
+
+to export them; not to define them.
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Trace Generation</H3>
+
+Two switches control trace generation from processes running under LAM
+and both must be in the on position for traces to actually be
+generated.  The first switch is controlled by
+<I>mpirun</I>
+
+and the second switch is initially set by
+<I>mpirun</I>
+
+but can be toggled at runtime with <A HREF="../man2/MPIL_Trace_on.2.php">MPIL_Trace_on</A>(2) and
+<A HREF="../man2/MPIL_Trace_off.2.php">MPIL_Trace_off</A>(2).  The <I>-t</I> (<I>-ton</I> is equivalent) and
+<I>-toff</I> options all turn on the first switch.  Otherwise the first
+switch is off and calls to <A HREF="../man2/MPIL_Trace_on.2.php">MPIL_Trace_on</A>(2) in the application program
+are ineffective.  The <I>-t</I> option also turns on the second switch.
+The <I>-toff</I> option turns off the second switch.  See
+<A HREF="../man2/MPIL_Trace_on.2.php">MPIL_Trace_on</A>(2) and <A HREF="../man1/lamtrace.1.php">lamtrace</A>(1) for more details.
+<A NAME="lbAR">&nbsp;</A>
+<H3>MPI Data Conversion</H3>
+
+LAM's MPI library converts MPI messages from local representation to
+LAM representation upon sending them and then back to local
+representation upon receiving them.  If the case of a LAM consisting
+of a homogeneous network of machines where the local representation
+differs from the LAM representation this can result in unnecessary
+conversions.
+
+The <I>-O</I> switch used to be necessary to indicate to LAM whether
+the mulitcomputer was homogeneous or not.  LAM now automatically
+determines whether a given MPI job is homogeneous or not.  The
+<I>-O</I>
+
+flag will silently be accepted for backwards compatability, but it is
+ignored.
+<A NAME="lbAS">&nbsp;</A>
+<H3>SSI (System Services Interface)</H3>
+
+The
+<I>-ssi</I>
+
+switch allows the passing of parameters to various SSI modules.  LAM's
+SSI modules are described in detail in <A HREF="../man7/lamssi.7.php">lamssi</A>(7).  SSI modules have
+direct impact on MPI programs because they allow tunable parameters to
+be set at run time (such as which RPI communication device driver to
+use, what parameters to pass to that RPI, etc.).
+<P>
+
+The 
+<I>-ssi</I>
+
+switch takes two arguments:
+<I>&lt;key&gt;</I>
+
+and 
+<I>&lt;value&gt;</I>.
+
+The
+<I>&lt;key&gt;</I>
+
+argument generally specifies which SSI module will receive the value.
+For example, the
+<I>&lt;key&gt;</I>
+
+&quot;rpi&quot; is used to select which RPI to be used for transporting MPI
+messages.  The
+<I>&lt;value&gt; </I>
+
+argument is the value that is passed.  For example:
+<DL COMPACT>
+<DT>mpirun -ssi rpi lamd N foo<DD>
+Tells LAM to use the &quot;lamd&quot; RPI and to run a single copy of &quot;foo&quot; on
+every node.
+<DT>mpirun -ssi rpi tcp N foo<DD>
+Tells LAM to use the &quot;tcp&quot; RPI.
+<DT>mpirun -ssi rpi sysv N foo<DD>
+Tells LAM to use the &quot;sysv&quot; RPI.
+</DL>
+<P>
+
+And so on.  LAM's RPI SSI modules are described in <A HREF="../man7/lamssi_rpi.7.php">lamssi_rpi</A>(7).
+<P>
+
+The 
+<I>-ssi</I>
+
+switch can be used multiple times to specify different
+<I>&lt;key&gt;</I>
+
+and/or
+<I>&lt;value&gt;</I>
+
+arguments.  If the same
+<I>&lt;key&gt;</I>
+
+is specified more than once, the
+<I>&lt;value&gt;</I>s
+
+are concatenated with a comma (&quot;,&quot;) separating them.
+<P>
+
+Note that the 
+<I>-ssi</I>
+
+switch is simply a shortcut for setting environment variables.  The
+same effect may be accomplished by setting corresponding environment
+variables before running
+<I>mpirun</I>.
+
+The form of the environment variables that LAM sets are:
+<I>LAM_MPI_SSI_&lt;key&gt;=&lt;value&gt;</I>.
+
+<P>
+
+Note that the
+<I>-ssi</I>
+
+switch overrides any previously set environment variables.  Also note
+that unknown
+<I>&lt;key&gt;</I>
+
+arguments are still set as environment variable -- they are not
+checked (by
+<I>mpirun</I>)
+
+for correctness.  Illegal or incorrect 
+<I>&lt;value&gt;</I>
+
+arguments may or may not be reported -- it depends on the specific SSI
+module.
+<P>
+
+The
+<I>-ssi</I>
+
+switch obsoletes the old
+<I>-c2c</I>
+
+and 
+<I>-lamd</I>
+
+switches.  These switches used to be relevant because LAM could only
+have two RPI's available at a time: the lamd RPI and one of the C2C
+RPIs.  This is no longer true -- all RPI's are now available and
+choosable at run-time.  Selecting the lamd RPI is shown in the
+examples above.  
+The
+<I>-c2c</I>
+
+switch has no direct translation since &quot;C2C&quot; used to refer to all
+other RPI's that were not the lamd RPI.  As such, 
+<I>-ssi rpi &lt;value&gt;</I>
+
+must be used to select the specific desired RPI (whether it is &quot;lamd&quot;
+or one of the other RPI's).
+<A NAME="lbAT">&nbsp;</A>
+<H3>Guaranteed Envelope Resources</H3>
+
+By default, LAM will guarantee a minimum amount of message envelope
+buffering to each MPI process pair and will impede or report an error
+to a process that attempts to overflow this system resource.  This
+robustness and debugging feature is implemented in a machine specific
+manner when direct communication is used.  For normal LAM
+communication via the LAM daemon, a protocol is used.  The <I>-nger</I>
+option disables GER and the measures taken to support it.  The minimum
+GER is configured by the system administrator when LAM is installed.
+See <A HREF="../man7/MPI.7.php">MPI</A>(7) for more details.
+<A NAME="lbAU">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>mpirun N prog1<DD>
+Load and execute prog1 on all nodes.  Search the user's $PATH for the
+executable file on each node.
+<DT>mpirun -c 8 prog1<DD>
+Run 8 copies of prog1 wherever LAM wants to run them.
+<DT>mpirun n8-10 -v -nw -s n3 prog1 -q<DD>
+Load and execute prog1 on nodes 8, 9, and 10.  Search for prog1 on
+node 3 and transfer it to the three target nodes.  Report as each
+process is created.  Give &quot;-q&quot; as a command line to each new process.
+Do not wait for the processes to complete before exiting
+<I>mpirun</I>.
+
+<DT>mpirun -v myapp<DD>
+Parse the application schema, myapp, and start all processes specified
+in it.  Report as each process is created.
+<DT>mpirun -npty -wd /work/output -x DISPLAY C my_application<DD>
+<P>
+Start one copy of &quot;my_application&quot; on each available CPU.  The number
+of available CPUs on each node was previously specified when LAM was
+booted with <A HREF="../man1/lamboot.1.php">lamboot</A>(1).  As noted above,
+<I>mpirun</I>
+
+will schedule adjoining rank in 
+<I>MPI_COMM_WORLD </I>
+
+on the same node where possible.  For example, if n0 has a CPU count
+of 8, and n1 has a CPU count of 4,
+<I>mpirun</I>
+
+will place 
+<I>MPI_COMM_WORLD </I>
+
+ranks 0 through 7 on n0, and 8 through 11 on n1.  This tends to
+maximize on-node communication for many parallel applications; when
+used in conjunction with the multi-protocol network/shared memory RPIs
+in LAM (see the RELEASE_NOTES and INSTALL files with the LAM
+distribution), overall communication performance can be quite good.
+Also disable pseudo-tty support, change directory to /work/output, and
+export the DISPLAY variable to the new processes (perhaps
+my_application will invoke an X application such as xv to display
+output).
+</DL>
+<A NAME="lbAV">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<DL COMPACT>
+<DT>mpirun: Exec format error<DD>
+A non-ASCII character was detected in the application schema.
+This is usually a command line usage error where
+<I>mpirun</I>
+
+is expecting an application schema and an executable file was given.
+<DT>mpirun: syntax error in application schema, line XXX<DD>
+The application schema cannot be parsed because of a usage or syntax error
+on the given line in the file.
+<DT>&lt;filename&gt;: No such file or directory<DD>
+This error can occur in two cases.  Either the named file cannot be
+located or it has been found but the user does not have sufficient
+permissions to execute the program or read the application schema.
+</DL>
+<A NAME="lbAW">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<I>mpirun</I>
+
+returns 0 if all ranks started by
+<I>mpirun</I>
+
+exit after calling MPI_FINALIZE.  A non-zero value is returned if an 
+internal error occurred in mpirun, or one or more ranks exited before 
+calling MPI_FINALIZE.  If an internal error occurred in mpirun, the 
+corresponding error code is returned.  In the event that one or more ranks 
+exit before calling MPI_FINALIZE, the return value of the rank of the 
+process that
+<I>mpirun</I>
+
+first notices died before calling MPI_FINALIZE will be returned.  Note
+that, in general, this will be the first rank that died but is not
+guaranteed to be so.
+<P>
+
+However, note that if the 
+<I>-nw </I>
+
+switch is used, the return value from mpirun does not indicate the exit status
+of the ranks.
+<A NAME="lbAX">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man5/bhost.5.php">bhost</A>(5), <A HREF="../man1/lamexec.1.php">lamexec</A>(1), <A HREF="../man7/lamssi.7.php">lamssi</A>(7), <A HREF="../man7/lamssi_rpi.7.php">lamssi_rpi</A>(7), <A HREF="../man1/lamtrace.1.php">lamtrace</A>(1), <A HREF="../man1/loadgo.1.php">loadgo</A>(1), <A HREF="../man2/MPIL_Trace_on.2.php">MPIL_Trace_on</A>(2), <A HREF="../man1/mpimsg.1.php">mpimsg</A>(1), <A HREF="../man1/mpitask.1.php">mpitask</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Location Nomenclature</A><DD>
+<DT><A HREF="#lbAG">Application Schema or Executable Program?</A><DD>
+<DT><A HREF="#lbAH">Program Transfer</A><DD>
+<DT><A HREF="#lbAI">Locating Files</A><DD>
+<DT><A HREF="#lbAJ">Standard I/O</A><DD>
+<DT><A HREF="#lbAK">Pseudo-tty support</A><DD>
+<DT><A HREF="#lbAL">Process Termination / Signal Handling</A><DD>
+<DT><A HREF="#lbAM">Process Exit Statuses</A><DD>
+<DT><A HREF="#lbAN">Current Working Directory</A><DD>
+<DT><A HREF="#lbAO">Process Environment</A><DD>
+<DT><A HREF="#lbAP">Exported Environment Variables</A><DD>
+<DT><A HREF="#lbAQ">Trace Generation</A><DD>
+<DT><A HREF="#lbAR">MPI Data Conversion</A><DD>
+<DT><A HREF="#lbAS">SSI (System Services Interface)</A><DD>
+<DT><A HREF="#lbAT">Guaranteed Envelope Resources</A><DD>
+</DL>
+<DT><A HREF="#lbAU">EXAMPLES</A><DD>
+<DT><A HREF="#lbAV">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAW">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAX">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

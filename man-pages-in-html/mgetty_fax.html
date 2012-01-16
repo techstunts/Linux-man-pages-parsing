@@ -1,0 +1,320 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>fax</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>fax</H1>
+Section: mgetty+sendfax manual (1)<BR>Updated: 23 Nov 02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="ixAAB"></A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fax - fax sending and receiving with mgetty+sendfax
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>faxspool</B>
+
+[options]
+
+phone-number
+
+file
+
+
+<P>
+<B>faxrm</B>
+
+job-id
+
+<P>
+<B>faxq</B>
+
+[options]
+
+<P>
+<B>faxrunq</B>
+
+[options]
+
+<P>
+<B>faxrunqd</B>
+
+[options]
+
+<P>
+<B>sendfax</B>
+
+[options]
+
+phone-number
+
+file
+
+
+<P>
+<B>mgetty</B>
+
+[options]
+
+tty
+
+<P>
+<B>pbm2g3</B>
+
+[options]
+
+[pbm-file]
+
+<P>
+<B>g32pbm</B>
+
+[options]
+
+[pbm-file]
+
+<P>
+<B>g3cat</B>
+
+[options]
+
+[g3-file(s)]
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This manpage very briefly describes every program from the mgetty+sendfax
+fax/modem software suite. For details, see the manpages for each program.
+<P>
+<I>faxspool</I>
+
+is used to queue jobs for later transmission by fax.
+<I>faxspool</I>
+
+accepts different input formats, converts them into the proper format
+required by
+<I>sendfax</I>
+
+and places the jobs into the outgoing spool directory.
+<P>
+<I>faxq</I>
+
+displays the current FAX work queue.
+<P>
+<I>faxrm</I>
+
+removes one or more jobs from the current fax work queue. You have to
+specify the job id (returned by faxq) on the command line.
+<P>
+<I>faxrunq</I>
+
+processes all the faxes in the fax work queue, and sends them one-by-one.
+If transmission isn't possible, the job will be retried later. While meant
+to be run from 
+<I>cron,</I>
+
+<I>faxrunq</I>
+
+can as well be started from the shell (but you must have access to the fax 
+queue and the modems, which means you must be 'root' or 'fax')
+<P>
+<I>faxrunqd</I>
+
+is a replacement for 
+<I>faxrunq</I>
+
+to be used in environments that send a high number of faxes per day, or
+need more flexibility.
+<P>
+<I>sendfax</I>
+
+is the backend used by faxrunq for actually sending the fax. It is not
+meant to be ever called directly, but can be used in own applications.
+<P>
+<I>faxq-helper</I>
+
+is a helper program that is used by
+<I>faxspool,</I>
+
+<I>faxq</I>
+
+and
+<I>faxrm</I>
+
+to access the fax spool directory (which is not world-writeable since
+mgetty version 1.1.29).
+<P>
+<P>
+<P>
+<I>mgetty</I>
+
+is the part of the program suite that handles incoming calls. Data calls
+are handled as 
+<I>getty</I>
+
+does it (login, shell), while fax calls are handled internally. The
+received faxes are stored in /var/spool/fax/incoming. See the <A HREF="../man1/mgetty.1.php">mgetty</A>(1) manpage for
+details.
+<I>mgetty </I>
+
+can not be called directly, it must be called by /etc/init.
+<P>
+<P>
+<I>pbm2g3 </I>
+
+is used to convert portable bitmaps to G3 fax data (for sendfax). Do not
+use the pbmtog3 program from the pbmplus or netpbm toolkit, it will create
+broken G3 data.
+<P>
+<I>g32pbm</I>
+
+is used to convert received faxes (which are stored in G3 format) to
+portable bitmap format. PBM can be converted to other formats with the
+named pbmplus toolkit.
+<P>
+<I>g3cat</I>
+
+is used to concat multiple G3 files, as
+<I>cat</I>
+
+does with text files.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>/var/spool/fax/outgoing/</B>
+
+<DD>
+outgoing fax spool directory
+<DT><B>/var/spool/fax/incoming/</B>
+
+<DD>
+incoming faxes
+<DT><B>/usr/lib/mgetty+sendfax/</B>
+
+<DD>
+The cover page program, faxq-helper, and a few font files live here.
+<DT><B>/etc/mgetty+sendfax/</B>
+
+<DD>
+most configuration files for mgetty and sendfax live here.
+<DT><B>/usr/sbin</B>
+
+<DD>
+mgetty, sendfax and faxrunqd live here
+<DT><B>/usr/bin</B>
+
+<DD>
+all the other programs
+<DT><B>/etc/mgetty+sendfax/faxaliases</B>
+
+<DD>
+global fax alias file
+<DT><B>$HOME/.faxnrs</B>
+
+<DD>
+private fax alias file
+<DT><B>/etc/mgetty+sendfax/fax.allow</B>
+
+<DD>
+list of allowed users
+<DT><B>/etc/mgetty+sendfax/fax.deny</B>
+
+<DD>
+list of denied users
+<DT><B>/etc/mgetty+sendfax/faxheader</B>
+
+<DD>
+fax page header
+<DT><B>/usr/lib/mgetty+sendfax/make.coverpg</B>
+
+<DD>
+program to create fax cover page (see <A HREF="../man1/coverpg.1.php">coverpg</A>(1)).
+<DT><B>/etc/mgetty+sendfax/login.config</B>
+
+<DD>
+login configuration file for mgetty.
+<DT><B>/etc/mgetty+sendfax/dialin.config</B>
+
+<DD>
+caller ID setup file for mgetty (optional).
+<DT><B>/etc/mgetty+sendfax/mgetty.config</B>
+
+<DD>
+runtime configuration file for mgetty (not implemented yet).
+<DT><B>/etc/mgetty+sendfax/sendfax.config</B>
+
+<DD>
+runtime configuration file for sendfax (optional).
+
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+Look into the responding man pages.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/faxspool.1.php">faxspool</A>(1), <A HREF="../man1/faxq.1.php">faxq</A>(1), <A HREF="../man1/faxrunq.1.php">faxrunq</A>(1), <A HREF="../man8/faxrunqd.8.php">faxrunqd</A>(8), <A HREF="../man8/sendfax.8.php">sendfax</A>(8), <A HREF="../man1/faxrm.1.php">faxrm</A>(1), <A HREF="../man8/mgetty.8.php">mgetty</A>(8),
+<A HREF="../man1/pbm2g3.1.php">pbm2g3</A>(1), <A HREF="../man1/g32pbm.1.php">g32pbm</A>(1), <A HREF="../man1/g3cat.1.php">g3cat</A>(1), <A HREF="../man5/faxqueue.5.php">faxqueue</A>(5), <A HREF="../man4/mgettydefs.4.php">mgettydefs</A>(4), <A HREF="../man1/coverpg.1.php">coverpg</A>(1)
+<P>
+mgetty.info
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+The
+<I>mgetty+sendfax</I>
+
+program suite is Copyright (C) 1993-2002 by Gert Doering, &lt;<A HREF="mailto:gert@greenie.muc.de">gert@greenie.muc.de</A>&gt;. 
+Parts of the programs kindly donated by Chris Lewis, Paul Sutcliffe,
+Klaus Weidner, and numerous others.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">FILES</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

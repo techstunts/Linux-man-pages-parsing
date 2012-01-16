@@ -1,0 +1,230 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GETFACL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GETFACL</H1>
+Section: Access Control Lists (1)<BR>Updated: ACL File Utilities<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+getfacl - get file access control lists
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>getfacl</B>
+
+[-dRLPvh] file ...
+<P>
+<B>getfacl</B>
+
+[-dRLPvh] -
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+For each file, getfacl displays the file name, owner, the group,
+and the Access Control List (ACL). If a directory has a default ACL,
+getfacl also displays the default ACL. Non-directories cannot have default ACLs.
+<P>
+If getfacl is used on a file system that does not support ACLs, getfacl
+displays the access permissions defined by the traditional file mode permission
+bits.
+<P>
+The output format of getfacl is as follows:
+
+<DL COMPACT><DT><DD>
+<PRE>
+ 1:  # file: somedir/
+ 2:  # owner: lisa
+ 3:  # group: staff
+ 4:  user::rwx
+ 5:  user:joe:rwx               #effective:r-x
+ 6:  group::rwx                 #effective:r-x
+ 7:  group:cool:r-x
+ 8:  mask:r-x
+ 9:  other:r-x
+10:  default:user::rwx
+11:  default:user:joe:rwx       #effective:r-x
+12:  default:group::r-x
+13:  default:mask:r-x
+14:  default:other:---
+
+</PRE>
+
+</DL>
+
+
+<P>
+Lines 4, 6 and 9 correspond to the user, group and other fields of
+the file mode permission bits. These three are called the base ACL
+entries. Lines 5 and 7 are named user and named group entries. Line 8 is
+the effective rights mask. This entry limits the effective rights granted
+to all groups and to named users. (The file owner and others permissions
+are not affected by the effective rights mask; all other entries are.)
+Lines 10--14 display
+the default ACL associated with this directory. Directories may
+have a default ACL. Regular files never have a default ACL.
+<P>
+The default behavior for getfacl is to display both the ACL and the
+default ACL, and to include an effective rights comment for lines
+where the rights of the entry differ from the effective rights.
+<P>
+If output is to a terminal, the effective rights comment is aligned to
+column 40. Otherwise, a single tab character separates the ACL entry
+and the effective rights comment.
+<P>
+The ACL listings of multiple files are separated by blank lines.
+The output of getfacl can also be used as input to setfacl.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H3>PERMISSIONS</H3>
+
+Process with search access to a file (i.e., processes with read access
+to the containing directory of a file) are also granted read access
+to the file's ACLs.  This is analogous to the permissions required for
+accessing the file mode.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H3>OPTIONS</H3>
+
+<DL COMPACT>
+<DT><I>--access</I>
+
+<DD>
+Display the file access control list.
+<DT><I>-d, --default</I>
+
+<DD>
+Display the default access control list.
+<DT><I>--omit-header</I>
+
+<DD>
+Do not display the comment header (the first three lines of each file's output).
+<DT><I>--all-effective</I>
+
+<DD>
+Print all effective rights comments, even if identical to the rights defined by the ACL entry.
+<DT><I>--no-effective</I>
+
+<DD>
+Do not print effective rights comments.
+<DT><I>--skip-base</I>
+
+<DD>
+Skip files that only have the base ACL entries (owner, group, others).
+<DT><I>-R, --recursive</I>
+
+<DD>
+List the ACLs of all files and directories recursively.
+<DT><I>-L, --logical</I>
+
+<DD>
+Logical walk, follow symbolic links. The default behavior is to follow
+symbolic link arguments, and to skip symbolic links encountered in
+subdirectories.
+<DT><I>-P, --physical</I>
+
+<DD>
+Physical walk, skip all symbolic links. This also skips symbolic link
+arguments.
+<DT><I>--tabular</I>
+
+<DD>
+Use an alternative tabular output format. The ACL and the default ACL are displayed side by side. Permissions that are ineffective due to the ACL mask entry are displayed capitalized. The entry tag names for the ACL_USER_OBJ and ACL_GROUP_OBJ entries are also displayed in capital letters, which helps in spotting those entries.
+<DT><I>--absolute-names</I>
+
+<DD>
+Do not strip leading slash characters (`/'). The default behavior is to
+strip leading slash characters.
+<DT><I>--version</I>
+
+<DD>
+Print the version of getfacl and exit.
+<DT><I>--help</I>
+
+<DD>
+Print help explaining the command line options.
+<DT><I>--</I>
+
+<DD>
+End of command line options. All remaining parameters are interpreted as file names, even if they start with a dash character.
+<DT><I>-</I>
+
+<DD>
+If the file name parameter is a single dash character, getfacl reads a list of files from standard input.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CONFORMANCE TO POSIX 1003.1e DRAFT STANDARD 17</H2>
+
+If the environment variable POSIXLY_CORRECT is defined, the default behavior of getfacl changes in the following ways: Unless otherwise specified, only the ACL is printed. The default ACL is only printed if the
+<I>-d</I>
+
+option is given. If no command line parameter is given,
+<I>getfacl</I>
+
+behaves as if it was invoked as ``getfacl -''.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Andreas Gruenbacher,
+&lt;<I><A HREF="mailto:a.gruenbacher@computer.org">a.gruenbacher@computer.org</A></I>&gt;.
+
+<P>
+Please send your bug reports and comments to the above address.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/setfacl.1.php">setfacl</A></B>(1), <B><A HREF="../man5/acl.5.php">acl</A></B>(5)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">PERMISSIONS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+</DL>
+<DT><A HREF="#lbAG">CONFORMANCE TO POSIX 1003.1e DRAFT STANDARD 17</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

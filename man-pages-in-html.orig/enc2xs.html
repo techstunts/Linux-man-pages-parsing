@@ -1,0 +1,549 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ENC2XS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ENC2XS</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-10-12<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+enc2xs -- Perl Encode Module Generator
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+  enc2xs -[options]
+  enc2xs -M ModName mapfiles...
+  enc2xs -C
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<I>enc2xs</I> builds a Perl extension for use by Encode from either
+Unicode Character Mapping files (.ucm) or Tcl Encoding Files (.enc).
+Besides being used internally during the build process of the Encode
+module, you can use <I>enc2xs</I> to add your own encoding to perl.
+No knowledge of <FONT SIZE="-1">XS</FONT> is necessary.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Quick Guide</H2>
+
+<A NAME="ixAAE"></A>
+If you want to know as little about Perl as possible but need to
+add a new encoding, just read this chapter and forget the rest.
+<DL COMPACT>
+<DT>0.<DD>
+Have a .ucm file ready.  You can get it from somewhere or you can write
+your own from scratch or you can grab one from the Encode distribution
+and customize it.  For the <FONT SIZE="-1">UCM</FONT> format, see the next Chapter.  In the
+example below, I'll call my theoretical encoding myascii, defined
+in <I>my.ucm</I>.  <TT>&quot;$&quot;</TT> is a shell prompt.
+
+
+<P>
+
+
+
+
+<PRE>
+  $ ls -F
+  my.ucm
+
+</PRE>
+
+
+<DT>1.<DD>
+Issue a command as follows;
+
+
+<P>
+
+
+
+
+<PRE>
+  $ enc2xs -M My my.ucm
+  generating Makefile.PL
+  generating My.pm
+  generating README
+  generating Changes
+
+</PRE>
+
+
+
+
+<P>
+
+
+Now take a look at your current directory.  It should look like this.
+
+
+<P>
+
+
+
+
+<PRE>
+  $ ls -F
+  Makefile.PL   My.pm         my.ucm        t/
+
+</PRE>
+
+
+
+
+<P>
+
+
+The following files were created.
+
+
+<P>
+
+
+
+
+<PRE>
+  Makefile.PL - MakeMaker script
+  My.pm       - Encode submodule
+  t/My.t      - test file
+
+</PRE>
+
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>1.1.<DD>
+<A NAME="ixAAF"></A>
+If you want *.ucm installed together with the modules, do as follows;
+
+
+<P>
+
+
+
+
+<PRE>
+  $ mkdir Encode
+  $ mv *.ucm Encode
+  $ enc2xs -M My Encode/*ucm
+
+</PRE>
+
+
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>2.<DD>
+Edit the files generated.  You don't have to if you have no time <FONT SIZE="-1">AND</FONT> no
+intention to give it to someone else.  But it is a good idea to edit
+the pod and to add more tests.
+<DT>3.<DD>
+Now issue a command all Perl Mongers love:
+
+
+<P>
+
+
+
+
+<PRE>
+  $ perl Makefile.PL
+  Writing Makefile for Encode::My
+
+</PRE>
+
+
+<DT>4.<DD>
+Now all you have to do is make.
+
+
+<P>
+
+
+
+
+<PRE>
+  $ make
+  cp My.pm blib/lib/Encode/My.pm
+  /usr/local/bin/perl /usr/local/bin/enc2xs -Q -O \
+    -o encode_t.c -f encode_t.fnm
+  Reading myascii (myascii)
+  Writing compiled form
+  128 bytes in string tables
+  384 bytes (25%) saved spotting duplicates
+  1 bytes (99.2%) saved using substrings
+  ....
+  chmod 644 blib/arch/auto/Encode/My/My.bs
+  $
+
+</PRE>
+
+
+
+
+<P>
+
+
+The time it takes varies depending on how fast your machine is and
+how large your encoding is.  Unless you are working on something big
+like euc-tw, it won't take too long.
+<DT>5.<DD>
+You can ``make install'' already but you should test first.
+
+
+<P>
+
+
+
+
+<PRE>
+  $ make test
+  PERL_DL_NONLAZY=1 /usr/local/bin/perl -Iblib/arch -Iblib/lib \
+    -e 'use Test::Harness  qw(&amp;runtests $verbose); \
+    $verbose=0; runtests @ARGV;' t/*.t
+  t/My....ok
+  All tests successful.
+  Files=1, Tests=2,  0 wallclock secs
+   ( 0.09 cusr + 0.01 csys = 0.09 CPU)
+
+</PRE>
+
+
+<DT>6.<DD>
+If you are content with the test result, just ``make install''
+<DT>7.<DD>
+If you want to add your encoding to Encode's demand-loading list
+(so you don't have to ``use Encode::YourEncoding''), run
+
+
+<P>
+
+
+
+
+<PRE>
+  enc2xs -C
+
+</PRE>
+
+
+
+
+<P>
+
+
+to update Encode::ConfigLocal, a module that controls local settings.
+After that, ``use Encode;'' is enough to load your encodings on demand.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>The Unicode Character Map</H2>
+
+<A NAME="ixAAG"></A>
+Encode uses the Unicode Character Map (<FONT SIZE="-1">UCM</FONT>) format for source character
+mappings.  This format is used by <FONT SIZE="-1">IBM</FONT>'s <FONT SIZE="-1">ICU</FONT> package and was adopted
+by Nick Ing-Simmons for use with the Encode module.  Since <FONT SIZE="-1">UCM</FONT> is
+more flexible than Tcl's Encoding Map and far more user-friendly,
+this is the recommended formet for Encode now.
+<P>
+
+A <FONT SIZE="-1">UCM</FONT> file looks like this.
+<P>
+
+
+
+<PRE>
+  #
+  # Comments
+  #
+  &lt;code_set_name&gt; &quot;US-ascii&quot; # Required
+  &lt;code_set_alias&gt; &quot;ascii&quot;   # Optional
+  &lt;mb_cur_min&gt; 1             # Required; usually 1
+  &lt;mb_cur_max&gt; 1             # Max. # of bytes/char
+  &lt;subchar&gt; \x3F             # Substitution char
+  #
+  CHARMAP
+  &lt;U0000&gt; \x00 |0 # &lt;control&gt;
+  &lt;U0001&gt; \x01 |0 # &lt;control&gt;
+  &lt;U0002&gt; \x02 |0 # &lt;control&gt;
+  ....
+  &lt;U007C&gt; \x7C |0 # VERTICAL LINE
+  &lt;U007D&gt; \x7D |0 # RIGHT CURLY BRACKET
+  &lt;U007E&gt; \x7E |0 # TILDE
+  &lt;U007F&gt; \x7F |0 # &lt;control&gt;
+  END CHARMAP
+
+</PRE>
+
+
+<DL COMPACT>
+<DT>*<DD>
+Anything that follows <TT>&quot;#&quot;</TT> is treated as a comment.
+<DT>*<DD>
+The header section continues until a line containing the word
+<FONT SIZE="-1">CHARMAP</FONT>. This section has a form of <I>&lt;keyword&gt; value</I>, one
+pair per line.  Strings used as values must be quoted. Barewords are
+treated as numbers.  <I>\xXX</I> represents a byte.
+
+
+<P>
+
+
+Most of the keywords are self-explanatory. <I>subchar</I> means
+substitution character, not subcharacter.  When you decode a Unicode
+sequence to this encoding but no matching character is found, the byte
+sequence defined here will be used.  For most cases, the value here is
+\x3F; in <FONT SIZE="-1">ASCII</FONT>, this is a question mark.
+<DT>*<DD>
+<FONT SIZE="-1">CHARMAP</FONT> starts the character map section.  Each line has a form as
+follows:
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;UXXXX&gt; \xXX.. |0 # comment
+    ^     ^      ^
+    |     |      +- Fallback flag
+    |     +-------- Encoded byte sequence
+    +-------------- Unicode Character ID in hex
+
+</PRE>
+
+
+
+
+<P>
+
+
+The format is roughly the same as a header section except for the
+fallback flag: | followed by 0..3.   The meaning of the possible
+values is as follows:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>|0<DD>
+<A NAME="ixAAH"></A>
+Round trip safe.  A character decoded to Unicode encodes back to the
+same byte sequence.  Most characters have this flag.
+<DT>|1<DD>
+<A NAME="ixAAI"></A>
+Fallback for unicode -&gt; encoding.  When seen, enc2xs adds this
+character for the encode map only.
+<DT>|2<DD>
+<A NAME="ixAAJ"></A>
+Skip sub-char mapping should there be no code point.
+<DT>|3<DD>
+<A NAME="ixAAK"></A>
+Fallback for encoding -&gt; unicode.  When seen, enc2xs adds this
+character for the decode map only.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>*<DD>
+And finally, <FONT SIZE="-1">END</FONT> <FONT SIZE="-1">OF</FONT> <FONT SIZE="-1">CHARMAP</FONT> ends the section.
+</DL>
+<P>
+
+When you are manually creating a <FONT SIZE="-1">UCM</FONT> file, you should copy ascii.ucm
+or an existing encoding which is close to yours, rather than write
+your own from scratch.
+<P>
+
+When you do so, make sure you leave at least <B>U0000</B> to <B>U0020</B> as
+is, unless your environment is <FONT SIZE="-1">EBCDIC</FONT>.
+<P>
+
+<B></B><FONT SIZE="-1"><B>CAVEAT</B></FONT><B></B>: not all features in <FONT SIZE="-1">UCM</FONT> are implemented.  For example,
+icu:state is not used.  Because of that, you need to write a perl
+module if you want to support algorithmical encodings, notably
+the <FONT SIZE="-1">ISO-2022</FONT> series.  Such modules include Encode::JP::2022_JP,
+Encode::KR::2022_KR, and Encode::TW::HZ.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Coping with duplicate mappings</H2>
+
+<A NAME="ixAAL"></A>
+When you create a map, you <FONT SIZE="-1">SHOULD</FONT> make your mappings round-trip safe.
+That is, <TT>&quot;encode('your-encoding', decode('your-encoding', $data)) eq
+$data&quot;</TT> stands for all characters that are marked as <TT>&quot;|0&quot;</TT>.  Here is
+how to make sure:
+<DL COMPACT>
+<DT>*<DD>
+Sort your map in Unicode order.
+<DT>*<DD>
+When you have a duplicate entry, mark either one with '|1' or '|3'.
+<DT>*<DD>
+And make sure the '|1' or '|3' entry <FONT SIZE="-1">FOLLOWS</FONT> the '|0' entry.
+</DL>
+<P>
+
+Here is an example from big5-eten.
+<P>
+
+
+
+<PRE>
+  &lt;U2550&gt; \xF9\xF9 |0
+  &lt;U2550&gt; \xA2\xA4 |3
+
+</PRE>
+
+
+<P>
+
+Internally Encoding -&gt; Unicode and Unicode -&gt; Encoding Map looks like
+this;
+<P>
+
+
+
+<PRE>
+  E to U               U to E
+  --------------------------------------
+  \xF9\xF9 =&gt; U2550    U2550 =&gt; \xF9\xF9
+  \xA2\xA4 =&gt; U2550
+
+</PRE>
+
+
+<P>
+
+So it is round-trip safe for \xF9\xF9.  But if the line above is upside
+down, here is what happens.
+<P>
+
+
+
+<PRE>
+  E to U               U to E
+  --------------------------------------
+  \xA2\xA4 =&gt; U2550    U2550 =&gt; \xF9\xF9
+  (\xF9\xF9 =&gt; U2550 is now overwritten!)
+
+</PRE>
+
+
+<P>
+
+The Encode package comes with <I>ucmlint</I>, a crude but sufficient
+utility to check the integrity of a <FONT SIZE="-1">UCM</FONT> file.  Check under the
+Encode/bin directory for this.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Bookmarks</H2>
+
+<A NAME="ixAAM"></A>
+<DL COMPACT>
+<DT>*<DD>
+<FONT SIZE="-1">ICU</FONT> Home Page 
+&lt;<A HREF="http://oss.software.ibm.com/icu/">http://oss.software.ibm.com/icu/</A>&gt;
+<DT>*<DD>
+<FONT SIZE="-1">ICU</FONT> Character Mapping Tables
+&lt;<A HREF="http://oss.software.ibm.com/icu/charset/">http://oss.software.ibm.com/icu/charset/</A>&gt;
+<DT>*<DD>
+ICU:Conversion Data
+&lt;<A HREF="http://oss.software.ibm.com/icu/userguide/conversion-data.php">http://oss.software.ibm.com/icu/userguide/conversion-data.html</A>&gt;
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAN"></A>
+Encode,
+perlmod,
+perlpod
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Quick Guide</A><DD>
+<DT><A HREF="#lbAF">The Unicode Character Map</A><DD>
+<DT><A HREF="#lbAG">Coping with duplicate mappings</A><DD>
+<DT><A HREF="#lbAH">Bookmarks</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

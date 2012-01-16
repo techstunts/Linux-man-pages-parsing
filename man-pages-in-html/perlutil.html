@@ -1,0 +1,263 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLUTIL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLUTIL</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlutil - utilities packaged with the Perl distribution
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+Along with the Perl interpreter itself, the Perl distribution installs a
+range of utilities on your system. There are also several utilities
+which are used by the Perl distribution itself as part of the install
+process. This document exists to list all of these utilities, explain
+what they are for and provide pointers to each module's documentation,
+if appropriate.
+<A NAME="lbAD">&nbsp;</A>
+<H2><FONT SIZE="-1">DOCUMENTATION</FONT></H2>
+
+<A NAME="ixAAD"></A>
+<DL COMPACT>
+<DT>perldoc<DD>
+<A NAME="ixAAE"></A>
+The main interface to Perl's documentation is <TT>&quot;perldoc&quot;</TT>, although
+if you're reading this, it's more than likely that you've already found
+it. <I>perldoc</I> will extract and format the documentation from any file
+in the current directory, any Perl module installed on the system, or
+any of the standard documentation pages, such as this one. Use 
+<TT>&quot;perldoc &lt;name&gt;&quot;</TT> to get information on any of the utilities
+described in this document.
+<DT>pod2man and pod2text<DD>
+<A NAME="ixAAF"></A>
+If it's run from a terminal, <I>perldoc</I> will usually call <I>pod2man</I> to
+translate <FONT SIZE="-1">POD</FONT> (Plain Old Documentation - see perlpod for an
+explanation) into a manpage, and then run <I>man</I> to display it; if
+<I>man</I> isn't available, <I>pod2text</I> will be used instead and the output
+piped through your favourite pager.
+<DT>pod2html and pod2latex<DD>
+<A NAME="ixAAG"></A>
+As well as these two, there are two other converters: <I>pod2html</I> will
+produce <FONT SIZE="-1">HTML</FONT> pages from <FONT SIZE="-1">POD</FONT>, and <I>pod2latex</I>, which produces LaTeX
+files.
+<DT>pod2usage<DD>
+<A NAME="ixAAH"></A>
+If you just want to know how to use the utilities described here,
+<I>pod2usage</I> will just extract the ``<FONT SIZE="-1">USAGE</FONT>'' section; some of
+the utilities will automatically call <I>pod2usage</I> on themselves when
+you call them with <TT>&quot;-help&quot;</TT>.
+<DT>podselect<DD>
+<A NAME="ixAAI"></A>
+<I>pod2usage</I> is a special case of <I>podselect</I>, a utility to extract
+named sections from documents written in <FONT SIZE="-1">POD</FONT>. For instance, while
+utilities have ``<FONT SIZE="-1">USAGE</FONT>'' sections, Perl modules usually have ``<FONT SIZE="-1">SYNOPSIS</FONT>''
+sections: <TT>&quot;podselect -s &quot;SYNOPSIS&quot; ...&quot;</TT> will extract this section for
+a given file.
+<DT>podchecker<DD>
+<A NAME="ixAAJ"></A>
+If you're writing your own documentation in <FONT SIZE="-1">POD</FONT>, the <I>podchecker</I>
+utility will look for errors in your markup.
+<DT>splain<DD>
+<A NAME="ixAAK"></A>
+<I>splain</I> is an interface to perldiag - paste in your error message
+to it, and it'll explain it for you.
+<DT>roffitall<DD>
+<A NAME="ixAAL"></A>
+The <TT>&quot;roffitall&quot;</TT> utility is not installed on your system but lives in
+the <I>pod/</I> directory of your Perl source kit; it converts all the
+documentation from the distribution to <I>*roff</I> format, and produces a
+typeset PostScript or text file of the whole lot.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2><FONT SIZE="-1">CONVERTORS</FONT></H2>
+
+<A NAME="ixAAM"></A>
+To help you convert legacy programs to Perl, we've included three
+conversion filters:
+<DL COMPACT>
+<DT>a2p<DD>
+<A NAME="ixAAN"></A>
+<I>a2p</I> converts <I>awk</I> scripts to Perl programs; for example, <TT>&quot;a2p -F:&quot;</TT>
+on the simple <I>awk</I> script <TT>&quot;{print $2}&quot;</TT> will produce a Perl program
+based around this code:
+
+
+<P>
+
+
+
+
+<PRE>
+    while (&lt;&gt;) {
+        ($Fld1,$Fld2) = split(/[:\n]/, $_, 9999);
+        print $Fld2;
+    }
+
+</PRE>
+
+
+<DT>s2p<DD>
+<A NAME="ixAAO"></A>
+Similarly, <I>s2p</I> converts <I>sed</I> scripts to Perl programs. <I>s2p</I> run
+on <TT>&quot;s/foo/bar&quot;</TT> will produce a Perl program based around this:
+
+
+<P>
+
+
+
+
+<PRE>
+    while (&lt;&gt;) {
+        chomp;
+        s/foo/bar/g;
+        print if $printit;
+    }
+
+</PRE>
+
+
+<DT>find2perl<DD>
+<A NAME="ixAAP"></A>
+Finally, <I>find2perl</I> translates <TT>&quot;find&quot;</TT> commands to Perl equivalents which 
+use the File::Find module. As an example, 
+<TT>&quot;find2perl . -user root -perm 4000 -print&quot;</TT> produces the following callback
+subroutine for <TT>&quot;File::Find&quot;</TT>:
+
+
+<P>
+
+
+
+
+<PRE>
+    sub wanted {
+        my ($dev,$ino,$mode,$nlink,$uid,$gid);
+        (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &amp;&amp;
+        $uid == $uid{'root'}) &amp;&amp;
+        (($mode &amp; 0777) == 04000);
+        print(&quot;$name\n&quot;);
+    }
+
+</PRE>
+
+
+</DL>
+<P>
+
+As well as these filters for converting other languages, the
+pl2pm utility will help you convert old-style Perl 4 libraries to 
+new-style Perl5 modules.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Administration</H2>
+
+<A NAME="ixAAQ"></A>
+<DL COMPACT>
+<DT>libnetcfg<DD>
+<A NAME="ixAAR"></A>
+To display and change the libnet configuration run the libnetcfg command.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Development</H2>
+
+<A NAME="ixAAS"></A>
+There are a set of utilities which help you in developing Perl programs, 
+and in particular, extending Perl with C.
+<DL COMPACT>
+<DT>perlbug<DD>
+<A NAME="ixAAT"></A>
+<I>perlbug</I> is the recommended way to report bugs in the perl interpreter
+itself or any of the standard library modules back to the developers;
+please read through the documentation for <I>perlbug</I> thoroughly before
+using it to submit a bug report.
+<DT>h2ph<DD>
+<A NAME="ixAAU"></A>
+Back before Perl had the <FONT SIZE="-1">XS</FONT> system for connecting with C libraries,
+programmers used to get library constants by reading through the C
+header files. You may still see <TT>&quot;require 'syscall.ph'&quot;</TT> or similar
+around - the <I>.ph</I> file should be created by running <I>h2ph</I> on the
+corresponding <I>.h</I> file. See the <I>h2ph</I> documentation for more on how
+to convert a whole bunch of header files at once.
+<DT>c2ph and pstruct<DD>
+<A NAME="ixAAV"></A>
+<I>c2ph</I> and <I>pstruct</I>, which are actually the same program but behave
+differently depending on how they are called, provide another way of
+getting at C with Perl - they'll convert C structures and union declarations
+to Perl code. This is deprecated in favour of <I>h2xs</I> these days.
+<DT>h2xs<DD>
+<A NAME="ixAAW"></A>
+<I>h2xs</I> converts C header files into <FONT SIZE="-1">XS</FONT> modules, and will try and write
+as much glue between C libraries and Perl modules as it can. It's also
+very useful for creating skeletons of pure Perl modules.
+<DT>dprofpp<DD>
+<A NAME="ixAAX"></A>
+Perl comes with a profiler, the <I>Devel::DProf</I> module. The
+<I>dprofpp</I> utility analyzes the output of this profiler and tells you
+which subroutines are taking up the most run time. See Devel::DProf
+for more information.
+<DT>perlcc<DD>
+<A NAME="ixAAY"></A>
+<I>perlcc</I> is the interface to the experimental Perl compiler suite.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2><FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT></H2>
+
+<A NAME="ixAAZ"></A>
+perldoc, pod2man, perlpod,
+pod2html, pod2usage, podselect,
+podchecker, splain, perldiag,
+roffitall, a2p, s2p, find2perl,
+File::Find, pl2pm, perlbug,
+h2ph, c2ph, h2xs, dprofpp,
+Devel::DProf, perlcc
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD"><FONT SIZE="-1">DOCUMENTATION</FONT></A><DD>
+<DT><A HREF="#lbAE"><FONT SIZE="-1">CONVERTORS</FONT></A><DD>
+<DT><A HREF="#lbAF">Administration</A><DD>
+<DT><A HREF="#lbAG">Development</A><DD>
+<DT><A HREF="#lbAH"><FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT></A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,449 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>POSTMASTER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>POSTMASTER</H1>
+Section: PostgreSQL Server Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+postmaster - PostgreSQL multiuser database server
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>postmaster</B> [ <B>-A  </B><B> 0</B> | <B>1</B><B> </B>] [ <B>-B </B><I>nbuffers</I><B> </B>] [ <B>-c </B><I>name</I><B>=</B><I>value</I><B> </B>] [ <B>-d </B><I>debug-level</I><B> </B>] [ <B>-D </B><I>datadir</I><B> </B>] [ <B>-F </B>] [ <B>-h </B><I>hostname</I><B> </B>] [ <B>-i </B>] [ <B>-k </B><I>directory</I><B> </B>] [ <B>-l </B>] [ <B>-N </B><I>max-connections</I><B> </B>] [ <B>-o </B><I>extra-options</I><B> </B>] [ <B>-p </B><I>port</I><B> </B>] [ <B>-S </B>] [ <B>--</B><I>name</I><B>=</B><I>value</I><B> </B>] [ <B>-n</B> | <B>-s</B> ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>postmaster</B> is the
+PostgreSQL multiuser database server.
+In order for a client application to access a database it connects
+(over a network or locally) to a running
+<B>postmaster</B>. The
+<B>postmaster</B> then starts a separate server
+process (``<B><A HREF="../man1/postgres.1.php">postgres</A></B>(1)'') to handle
+the connection. The <B>postmaster</B> also
+manages the communication among server processes.
+<P>
+
+By default the <B>postmaster</B> starts in the
+foreground and prints log messages to the standard error stream. In
+practical applications the <B>postmaster</B>
+should be started as a background process, perhaps at boot time.
+<P>
+
+One <B>postmaster</B> always manages the data
+from exactly one database cluster. A database cluster is a
+collection of databases that is stored at a common file system
+location. When the <B>postmaster</B> starts it needs to know the location
+of the database cluster files (``data area''). This is
+done with the <B>-D</B> invocation option or the
+<B>PGDATA</B> environment variable; there is no default.
+More than one <B>postmaster</B> process can run on a system at one time,
+as long as they use different data areas and different
+communication ports (see below). A data area is created with <B><A HREF="../man1/initdb.1.php">initdb</A></B>(1).
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<B>postmaster</B> accepts the following
+command line arguments. For a detailed discussion of the options
+consult the section called ``Run-time Configuration'' in the documentation. You can also save typing most of these
+options by setting up a configuration file.
+<DL COMPACT>
+<DT><B>-A 0|1</B><DD>
+Enables run-time assertion checks, which is a debugging aid to
+detect programming mistakes. This is only available if it was
+enabled during compilation. If so, the default is on.
+<DT><B>-B </B><I>nbuffers</I><B></B><DD>
+Sets the number of shared buffers for use by the server
+processes. This value defaults to 64 buffers, where each
+buffer is 8 kB.
+<DT><B>-c </B><I>name</I><B>=</B><I>value</I><B></B><DD>
+Sets a named run-time parameter. Consult the section called ``Run-time Configuration'' in the documentation for
+a list and descriptions. Most of the other command line
+options are in fact short forms of such a parameter
+assignment. <B>-c</B> can appear multiple times to set
+multiple parameters.
+<DT><B>-d </B><I>debug-level</I><B></B><DD>
+Sets the debug level. The higher this value is set, the more
+debugging output is written to the server log. Values are from
+1 to 5.
+<DT><B>-D </B><I>datadir</I><B></B><DD>
+Specifies the file system location of the data directory. See
+discussion above.
+<DT><B>-F</B><DD>
+Disables <B>fsync</B> calls for performance
+improvement, at the risk of data corruption in event of a
+system crash. This option corresponds to setting
+fsync=false in <I>postgresql.conf</I>. Read the detailed
+documentation before using this!
+<P>
+<B>--fsync=true</B> has the opposite effect
+of this option.
+<DT><B>-h </B><I>hostname</I><B></B><DD>
+Specifies the IP host name or address on which the
+<B>postmaster</B> is to listen for
+connections from client applications. Defaults to
+listening on all configured addresses (including
+<B>localhost</B>).
+<DT><B>-i</B><DD>
+Allows clients to connect via TCP/IP (Internet domain)
+connections. Without this option, only local Unix domain
+socket connections are accepted. This option corresponds
+to setting tcpip_socket=true in <I>postgresql.conf</I>.
+<P>
+<B>--tcpip-socket=false</B> has the opposite
+effect of this option.
+<DT><B>-k </B><I>directory</I><B></B><DD>
+Specifies the directory of the Unix-domain socket on which the
+<B>postmaster</B> is to listen for
+connections from client applications. The default is normally
+<I>/tmp</I>, but can be changed at build time.
+<DT><B>-l</B><DD>
+Enables secure connections using SSL. The <B>-i</B>
+option is also required. You must have compiled with SSL
+enabled to use this option.
+<DT><B>-N </B><I>max-connections</I><B></B><DD>
+Sets the maximum number of client connections that this
+<B>postmaster</B> will accept. By
+default, this value is 32, but it can be set as high as your
+system will support. (Note that
+<B>-B</B> is required to be at least twice
+<B>-N</B>. See the section called ``Managing Kernel Resources'' in the documentation for a discussion of
+system resource requirements for large numbers of client
+connections.)
+<DT><B>-o </B><I>extra-options</I><B></B><DD>
+The command line-style options specified in <I>extra-options</I> are passed to
+all server processes started by this
+<B>postmaster</B>. See <B><A HREF="../man1/postgres.1.php">postgres</A></B>(1) for possibilities. If the option
+string contains any spaces, the entire string must be quoted.
+<DT><B>-p </B><I>port</I><B></B><DD>
+Specifies the TCP/IP port or local Unix domain socket file
+extension on which the <B>postmaster</B>
+is to listen for connections from client applications.
+Defaults to the value of the <B>PGPORT</B> environment
+variable, or if <B>PGPORT</B> is not set, then
+defaults to the value established during compilation (normally
+5432). If you specify a port other than the default port,
+then all client applications must specify the same port using
+either command-line options or <B>PGPORT</B>.
+<DT><B>-S</B><DD>
+Specifies that the <B>postmaster</B>
+process should start up in silent mode. That is, it will
+disassociate from the user's (controlling) terminal, start its
+own process group, and redirect its standard output and
+standard error to <I>/dev/null</I>.
+<P>
+Using this switch discards all logging output, which is
+probably not what you want, since it makes it very difficult
+to troubleshoot problems. See below for a better way to start
+the <B>postmaster</B> in the background.
+<P>
+<B>--silent-mode=false</B> has the opposite effect
+of this option.
+<DT><B>--</B><I>name</I><B>=</B><I>value</I><B></B><DD>
+Sets a named run-time parameter; a shorter form of
+<B>-c</B>.
+</DL>
+<P>
+
+<P>
+
+Two additional command line options are available for debugging
+problems that cause a server process to die abnormally. The
+ordinary strategy in this situation is to notify all other server
+processes that they must terminate and then reinitialize the
+shared memory and semaphores. This is because an errant server
+process could have corrupted some shared state before terminating.
+These options select alternative behaviors of the
+<B>postmaster</B> in this situation.
+<B>Neither option is intended for use in ordinary
+operation.</B>
+<P>
+
+<P>
+
+These special-case options are:
+<DL COMPACT>
+<DT><B>-n</B><DD>
+<B>postmaster</B>
+will not reinitialize shared data structures. A knowledgeable system
+programmer can then use a debugger
+to examine shared memory and semaphore state.
+<DT><B>-s</B><DD>
+<B>postmaster</B>
+will stop all other server processes by sending the signal
+SIGSTOP,
+but will not cause them to terminate. This permits system programmers
+to collect core dumps from all server processes by hand.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGCLIENTENCODING</B><DD>
+Default character encoding used by clients. (The clients may
+override this individually.) This value can also be set in the
+configuration file.
+<DT><B>PGDATA</B><DD>
+Default data direction location
+<DT><B>PGDATESTYLE</B><DD>
+Default value of the DATESTYLE run-time
+parameter. (The use of this environment variable is deprecated.)
+<DT><B>PGPORT</B><DD>
+Default port (preferably set in the configuration file)
+<DT><B>TZ</B><DD>
+Server time zone
+<DT><B>others</B><DD>
+Other environment variables may be used to designate alternative
+data storage locations. See the chapter called ``Managing Databases'' in the documentation for more
+information.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<P>
+
+A failure message mentioning semget or shmget
+probably indicates you need to configure your kernel to provide adequate
+shared memory and semaphores. For more discussion see the section called ``Managing Kernel Resouces'' in the documentation.
+<P>
+<DL COMPACT><DT><DD>
+<B>Tip:</B>
+
+You may be able to postpone reconfiguring your kernel by decreasing
+shared_buffers to reduce the shared memory consumption
+of PostgreSQL, and/or by reducing
+max_connections to reduce the semaphore consumption.
+</DL>
+
+<P>
+<P>
+
+A failure message suggesting that another postmaster is already running
+should be checked carefully, for example by using the command
+<P>
+<PRE>
+$ <B>ps ax | grep postmaster</B>
+
+</PRE>
+
+or
+<P>
+<PRE>
+$ <B>ps -ef | grep postmaster</B>
+
+</PRE>
+
+depending on your system. If you are certain that no conflicting
+postmaster is running, you may remove the lock file mentioned in the
+message and try again.
+<P>
+
+A failure message indicating inability to bind to a port may indicate
+that that port is already in use by some non-PostgreSQL process.
+You may also get this error if you terminate the
+<B>postmaster</B>
+and immediately restart it using the same port; in this case, you must
+simply wait a few seconds until the operating system closes the port
+before trying again. Finally, you may get this error if you specify
+a port number that your operating system considers to be reserved.
+For example, many versions of Unix consider port numbers under 1024 to
+be ``trusted''
+and only permit the Unix superuser to access them.
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+If at all possible, <B>do not</B> use
+SIGKILL to kill the
+<B>postmaster</B>. Doing so will prevent
+<B>postmaster</B> from freeing the system
+resources (e.g., shared memory and semaphores) that it holds before
+terminating. This may cause problems for starting a fresh
+<B>postmaster</B> run.
+<P>
+
+To terminate the <B>postmaster</B> normally,
+the signals SIGTERM, SIGINT,
+or SIGQUIT can be used. The first will wait for
+all clients to terminate before quitting, the second will
+forcefully disconnect all clients, and the third will quit
+immediately without proper shutdown, resulting in a recovery run
+during restart. The SIGHUP signal will 
+reload the server configuration files.
+<P>
+
+The utility command <B><A HREF="../man1/pg_ctl.1.php">pg_ctl</A></B>(1) can be used to
+start and shut down the <B>postmaster</B>
+safely and comfortably.
+<P>
+
+The <B>--</B> options will not work on <B>FreeBSD</B> or <B>OpenBSD</B>.
+Use <B>-c</B> instead. This is a bug in the affected operating
+systems; a future release of PostgreSQL
+will provide a workaround if this is not fixed.
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+To start <B>postmaster</B> in the background
+using default values, type:
+<P>
+<PRE>
+$ <B>nohup postmaster &gt;logfile 2&gt;&amp;1 &lt;/dev/null &amp;</B>
+
+</PRE>
+
+<P>
+
+To start <B>postmaster</B> with a specific
+port:
+<P>
+<PRE>
+$ <B>postmaster -p 1234</B>
+
+</PRE>
+
+This command will start up <B>postmaster</B>
+communicating through the port 1234. In order to connect to this
+<B>postmaster</B> using <B>psql</B>, you would need to
+run it as
+<P>
+<PRE>
+$ <B>psql -p 1234</B>
+
+</PRE>
+
+or set the environment variable <B>PGPORT</B>:
+<P>
+<PRE>
+$ <B>export PGPORT=1234</B>
+$ <B>psql</B>
+
+</PRE>
+
+<P>
+
+Named run-time parameters can be set in either of these styles:
+<P>
+<PRE>
+$ <B>postmaster -c sort_mem=1234</B>
+$ <B>postmaster --sort-mem=1234</B>
+
+</PRE>
+
+Either form overrides whatever setting might exist for SORT_MEM
+in <I>postgresql.conf</I>. Notice that underscores in parameter
+names can be written as either underscore or dash on the command line.
+<P>
+<DL COMPACT><DT><DD>
+<B>Tip:</B>
+
+Except for short-term experiments,
+it's probably better practice to edit the setting in
+<I>postgresql.conf</I> than to rely on a command-line switch
+to set a parameter.
+</DL>
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man1/initdb.1.php">initdb</A></B>(1),
+<B><A HREF="../man1/pg_ctl.1.php">pg_ctl</A></B>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

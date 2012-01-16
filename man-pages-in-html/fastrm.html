@@ -1,0 +1,318 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FASTRM</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>FASTRM</H1>
+Section: InterNetNews Documentation (1)<BR>Updated: INN 2.3.2<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fastrm - Quickly remove a list of files
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>fastrm</B> [<B>-de</B>] [<B>-u</B>|<B>-u</B><I>N</I>] [<B>-s</B>|<B>-s</B><I>M</I>] [<B>-c</B>|<B>-c</B><I>I</I>]
+<I>base-directory</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>fastrm</B> reads a list of either file names or storage <FONT SIZE="-1">API</FONT> tokens, one per
+line, from its standard input and removes them.  Storage <FONT SIZE="-1">API</FONT> tokens are
+removed via the <I>SMcancel()</I> interface.
+<P>
+
+If a file name is not an absolute path name, it is considered to be
+relative to <I>base-directory</I> as given on the command line.  The
+<I>base-directory</I> parameter must be a simple absolute pathname (it must
+not contain multiple consecutive slashes or references to the special
+directories <TT>&quot;.&quot;</TT> or <TT>&quot;..&quot;</TT>).
+<P>
+
+<B>fastrm</B> is designed to be faster than the typical <TT>&quot;| xargs rm&quot;</TT> pipeline
+when given a sorted list of file names as input.  For example, <B>fastrm</B>
+will usually <I><A HREF="../man2/chdir.2.php">chdir</A></I>(2) into a directory before removing files from it,
+meaning that if its input is sorted, most names passed to <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2) will
+be simple names.  This can substantially reduce the operating system
+overhead from directory lookups.
+<P>
+
+<B>fastrm</B> assumes that its input is valid and that it is safe to call
+<I><A HREF="../man2/unlink.2.php">unlink</A></I>(2) on every file name it is given.  As a safety measure, however,
+<B>fastrm</B> when running as root will check with <I><A HREF="../man2/stat.2.php">stat</A></I>(2) that a file name
+doesn't specify a directory before removing it.  (In some operating
+systems, root is allowed to unlink directories, even directories which
+aren't empty, which can cause file system corruption.)
+<P>
+
+The input to <B>fastrm</B> should always be sorted --- or even better be in the
+order file names are output by <I><A HREF="../man1/find.1.php">find</A></I>(1) --- if speed is an issue and the
+input isn't solely storage <FONT SIZE="-1">API</FONT> tokens.  (It deals fine with unsorted
+input, but is unlikely to be any faster in that case than a simple <TT>&quot;xargs
+rm&quot;</TT> command.)  Sorting may even slightly speed up the removal of storage
+<FONT SIZE="-1">API</FONT> tokens due to caching effects, since sorting will tend to keep all of
+the tokens from a particular storage method together.
+<P>
+
+Various additional optimizations for removing files can be turned on
+and/or tuned with options (see below).  Which options will be most
+effective depends heavily on the underlying structure of the file system,
+the way in which directories are stored and searched, and similar often
+underdocumented operating system implementation details.  The more
+sophisticated the underlying operating system and file system, the more
+likely that it will already perform the equivalent of these optimizations
+internally.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+
+<BR>
+
+
+
+
+<DL COMPACT>
+<DT><B>-d</B><DD>
+
+<A NAME="ixAAF"></A>
+Don't remove any files.  Instead, print a list of the files that would be
+removed to standard output.  Each line contains either the current
+directory of <B>fastrm</B> at the time it would do the unlink and the relative
+path name it would pass to <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2) as two fields separated by whitespace
+and a <TT>&quot;/&quot;</TT>, the absolute path name (as a single field) that would be
+passed to <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2), or the string <TT>&quot;Token&quot;</TT> and the storage <FONT SIZE="-1">API</FONT> token that
+would be removed.
+
+<BR>
+
+
+
+
+<DT><B>-e</B><DD>
+
+<A NAME="ixAAG"></A>
+Treat an empty input file as an error.  This is most useful when <B>fastrm</B>
+is last in a pipeline after a preceding <I><A HREF="../man1/sort.1.php">sort</A></I>(1) command, ensuring that
+<B>fastrm</B> will fail if the sort fails.
+
+<BR>
+
+
+
+
+<DT><B>-c</B><I>I</I><DD>
+
+<A NAME="ixAAH"></A>
+Controls when <B>fastrm</B> calls <I><A HREF="../man2/chdir.2.php">chdir</A></I>(2).  If the number of files to be
+unlinked from a given directory is at least <I>I</I>, then <B>fastrm</B> will
+change to that directory before unlinking those files.  Otherwise, it will
+use either the absolute path names or a path name relative to the current
+directory (whichever is likely more efficient).  The <I>I</I> parameter is
+optional; if just <B>-c</B> is given, <B>-c1</B> is assumed, which will cause
+<B>fastrm</B> to always chdir before calling <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2).  The default is
+<B>-c3</B>.  Use <B>-c0</B> to prevent <B>fastrm</B> from ever using <I><A HREF="../man2/chdir.2.php">chdir</A></I>(2).
+
+<BR>
+
+
+
+
+<DT><B>-s</B><I>M</I><DD>
+
+<A NAME="ixAAI"></A>
+When <B>-s</B> is given and the number of files to remove in a directory is
+greater than <I>M</I>, rather than remove files in the order given, <B>fastrm</B>
+will open the directory and read it, unlinking files in the order that
+they appear in the directory.  On systems with a per-process directory
+cache or that use a linear search to find files in a directory, this
+should make directory lookups faster.  The <I>M</I> parameter is optional; if
+just <B>-s</B> is given, <B>-s5</B> is assumed.
+
+
+<P>
+
+
+When this option is in effect, <B>fastrm</B> won't attempt to remove files
+that it doesn't see in the directory, possibly significantly speeding it
+up if most of the files to be removed have already been deleted.  However,
+using this option requires <B>fastrm</B> to do more internal work and it also
+assumes that the order of directory listings is stable in the presence of
+calls to <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2) between calls to <I><A HREF="../man3/readdir.3.php">readdir</A></I>(3).  This may be a dangerous
+assumption with some sophisticated file systems (and in general this
+option is only useful with file systems that use unindexed linear searches
+to find files in directories or when most of the files to be removed have
+already been deleted).
+
+
+<P>
+
+
+This optimization is off by default.
+
+<BR>
+
+
+
+
+<DT><B>-u</B><I>N</I><DD>
+
+<A NAME="ixAAJ"></A>
+Specifying this option promises that there are no symbolic links in the
+directory tree from which files are being removed.  This allows <B>fastrm</B>
+to make an additional optimization to its calls to <I><A HREF="../man2/chdir.2.php">chdir</A></I>(2), constructing
+a relative path using <TT>&quot;../..&quot;</TT> and the like to pass to <I><A HREF="../man2/chdir.2.php">chdir</A></I>(2) rather
+than always using absolute paths.  Since this reduces the number of
+directory lookups needed with deeply nested directory structures (such as
+that typically created by traditional news spool storage), it can be a
+significant optimization, but it breaks horribly in the presence of
+symbolic links to directories.
+
+
+<P>
+
+
+When <B>-u</B> is given, <B>fastrm</B> will use at most <I>N</I> levels of <TT>&quot;..&quot;</TT>
+segments to construct paths.  <I>N</I> is optional; if just <B>-u</B> is given,
+<B>-u1</B> is assumed.
+
+
+<P>
+
+
+This optimization is off by default.
+</DL>
+<P>
+
+<B>fastrm</B> also accepts <B>-a</B> and <B>-r</B> options, which do nothing at all
+except allow you to say <TT>&quot;fastrm -usa&quot;</TT>, <TT>&quot;fastrm -ussr&quot;</TT>, or <TT>&quot;fastrm
+-user&quot;</TT>.  These happen to often be convenient sets of options to use.
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXIT STATUS</H2>
+
+<A NAME="ixAAK"></A>
+<B>fastrm</B> exits with a status of zero if there were no problems, and an
+exit status of 1 if something went wrong.  Attempting to remove a file
+that does not exist is not considered a problem.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAL"></A>
+<B>fastrm</B> is typically invoked by <FONT SIZE="-1">INN</FONT> via <I><A HREF="../man8/expirerm.8.php">expirerm</A></I>(8) using a command
+like:
+<P>
+
+
+
+<PRE>
+    fastrm -e /usr/local/news/spool/articles &lt; expire.list
+
+
+</PRE>
+
+
+To enable all optimizations and see the affect on the order of removal
+caused by <B>-s</B>, use:
+<P>
+
+
+
+<PRE>
+    fastrm -d -s -e -u ~news/spool/articles &lt; expire.list
+
+
+</PRE>
+
+
+If your file system has indexed directory lookups, but you have a deeply
+nested directory structure, you may want to use a set of flags like:
+<P>
+
+
+
+<PRE>
+    fastrm -e -u3 ~news/spool/articles &lt; expire.list
+
+
+</PRE>
+
+
+to strongly prefer relative paths but not to use <I><A HREF="../man2/readdir.2.php">readdir</A></I>(2) to order the
+calls to <I><A HREF="../man2/unlink.2.php">unlink</A></I>(2).
+<P>
+
+You may want to edit <I><A HREF="../man8/expirerm.8.php">expirerm</A></I>(8) to change the flags passed to <B>fastrm</B>.
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixAAM"></A>
+<B>fastrm</B> defers opening the storage subsystem or attempting to parse any
+<FONT SIZE="-1">INN</FONT> configuration files until it encounters a token in the list of files
+to remove.  It's therefore possible to use <B>fastrm</B> outside of <FONT SIZE="-1">INN</FONT> as a
+general fast file removal program.
+<A NAME="lbAI">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAAN"></A>
+<B>fastrm</B> was originally written by <A HREF="mailto:kre@munnari.oz.au">kre@munnari.oz.au</A>.  This manual page
+rewritten in <FONT SIZE="-1">POD</FONT> by Russ Allbery &lt;<A HREF="mailto:rra@stanford.edu">rra@stanford.edu</A>&gt; for
+InterNetNews.
+<P>
+
+$Id: fastrm.1,v 1.1.2.1 2001/02/03 07:38:44 rra Exp $
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAO"></A>
+<I><A HREF="../man8/expirerm.8.php">expirerm</A></I>(8)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXIT STATUS</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">HISTORY</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

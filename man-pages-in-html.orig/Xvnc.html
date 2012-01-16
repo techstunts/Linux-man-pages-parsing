@@ -1,0 +1,403 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Xvnc</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>Xvnc</H1>
+Section: Virtual Network Computing (1)<BR>Updated: 18 May 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+Xvnc - the X VNC server 
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>Xvnc</B>
+
+[<I>options</I>]
+
+:<I>display#</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Xvnc</B>
+
+is the X VNC (Virtual Network Computing) server.  It is based on a standard X
+server, but it has a &quot;virtual&quot; screen rather than a physical one.  X
+applications display themselves on it as if it were a normal X display, but
+they can only be accessed via a VNC viewer - see <B><A HREF="../man1/vncviewer.1.php">vncviewer</A></B>(1).
+<P>
+So Xvnc is really two servers in one. To the applications it is an X server,
+and to the remote VNC users it is a VNC server. By convention we have arranged
+that the VNC server display number will be the same as the X server display
+number, which means you can use eg. snoopy:2 to refer to display 2 on machine
+&quot;snoopy&quot; in both the X world and the VNC world.
+<P>
+The best way of starting <B>Xvnc</B> is via the <B>vncserver</B> script.  This
+sets up the environment appropriately and runs some X applications to get you
+going.  See the manual page for <B><A HREF="../man1/vncserver.1.php">vncserver</A></B>(1) for more information.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>Xvnc</B>
+
+takes lots of options - running <B>Xvnc -help</B> gives a list.  Many of these
+are standard X server options, which are described in the <B><A HREF="../man1/Xserver.1.php">Xserver</A></B>(1)
+manual page.  In addition to options which can only be set via the
+command-line, there are also &quot;parameters&quot; which can be set both via the
+command-line and through the <B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1) program.
+<P>
+<DL COMPACT>
+<DT><B>-geometry </B><I>width</I>x<I>height</I>
+
+<DD>
+Specify the size of the desktop to be created. Default is 1024x768.
+<P>
+<DT><B>-depth </B><I>depth</I>
+
+<DD>
+Specify the pixel depth in bits of the desktop to be created. Default is 16,
+other possible values are 8, 15, and 24 - anything else is likely to cause
+strange behaviour by applications.
+<P>
+<DT><B>-pixelformat </B><I>format</I>
+
+<DD>
+Specify pixel format for server to use (BGRnnn or RGBnnn).  The default for
+depth 8 is BGR233 (meaning the most significant two bits represent blue, the
+next three green, and the least significant three represent red), the default
+for depth 16 is RGB565 and for depth 24 is RGB888.
+<P>
+<DT><B>-cc 3</B>
+
+<DD>
+As an alternative to the default TrueColor visual, this allows you to run an
+Xvnc server with a PseudoColor visual (i.e. one which uses a colour map or
+palette), which can be useful for running some old X applications which only
+work on such a display.  Values other than 3 (PseudoColor) and 4 (TrueColor)
+for the -cc option may result in strange behaviour, and PseudoColor desktops
+must be 8 bits deep (i.e. <B>-depth 8</B>).
+<P>
+<DT><B>-inetd </B>
+
+<DD>
+This significantly changes Xvnc's behaviour so that it can be launched from
+inetd.  See the section below on usage with inetd.
+<P>
+<DT><B>-help</B>
+
+<DD>
+List all the options and parameters
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>PARAMETERS</H2>
+
+VNC parameters can be set both via the command-line and through the
+<B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1) program, and with a VNC-enabled XFree86 server via Options
+entries in the XF86Config file.
+<P>
+Parameters can be turned on with -<I>param</I> or off with
+-<I>param</I>=0.  Parameters which take a value can be specified as
+-<I>param</I> <I>value</I>.  Other valid forms are <I>param</I><B>=</B><I>value</I>
+-<I>param</I>=<I>value</I> --<I>param</I>=<I>value</I>.  Parameter names are
+case-insensitive.
+<P>
+<DL COMPACT>
+<DT><B>-desktop </B><I>desktop-name</I>
+
+<DD>
+Each desktop has a name which may be displayed by the viewer. It defaults to
+&quot;x11&quot;.
+<P>
+<DT><B>-rfbport </B><I>port</I>
+
+<DD>
+Specifies the TCP port on which Xvnc listens for connections from viewers (the
+protocol used in VNC is called RFB - &quot;remote framebuffer&quot;).  The default is
+5900 plus the display number.
+<P>
+<DT><B>-rfbwait </B><I>time</I>, -ClientWaitTimeMillis <I>time</I>
+
+<DD>
+<P>
+Time in milliseconds to wait for a viewer which is blocking Xvnc.  This is
+necessary because Xvnc is single-threaded and sometimes blocks until the viewer
+has finished sending or receiving a message - note that this does not mean an
+update will be aborted after this time.  Default is 20000 (20 seconds).
+<P>
+<DT><B>-httpd </B><I>directory</I>
+
+<DD>
+Run a mini-HTTP server which serves files from the given directory.  Normally
+the directory will contain the classes for the Java viewer.  In addition, files
+with a .vnc extension will have certain substitutions made so that a single
+installation of the Java VNC viewer can be served by separate instances of
+Xvnc.
+<P>
+<DT><B>-httpPort </B><I>port</I>
+
+<DD>
+Specifies the port on which the mini-HTTP server runs.  Default is 5800 plus
+the display number.
+<P>
+<DT><B>-rfbauth </B><I>passwd-file</I>, -PasswordFile <I>passwd-file</I>
+
+<DD>
+Specifies the file containing the password used to authenticate viewers.  The
+file is accessed each time a connection comes in, so it can be changed on the
+fly via <B><A HREF="../man1/vncpasswd.1.php">vncpasswd</A></B>(1).
+<P>
+<DT><B>-deferUpdate </B><I>time</I>
+
+<DD>
+Xvnc uses a &quot;deferred update&quot; mechanism which enhances performance in many
+cases. After any change to the framebuffer, Xvnc waits for this number of
+milliseconds (default 40) before sending an update to any waiting clients. This
+means that more changes tend to get coalesced together in a single
+update. Setting it to 0 results in the same behaviour as earlier versions of
+Xvnc, where the first change to the framebuffer causes an immediate update to
+any waiting clients.
+<P>
+<DT><B>-SendCutText</B>
+
+<DD>
+Send clipboard changes to clients (default is on).  Note that you must also run
+<B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1) to get the clipboard to work.
+<P>
+<DT><B>-AcceptCutText</B>
+
+<DD>
+Accept clipboard updates from clients (default is on).  Note that you must also
+run <B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1) to get the clipboard to work.
+<P>
+<DT><B>-AcceptPointerEvents</B>
+
+<DD>
+Accept pointer press and release events from clients (default is on).
+<P>
+<DT><B>-AcceptKeyEvents</B>
+
+<DD>
+Accept key press and release events from clients (default is on).
+<P>
+<DT><B>-DisconnectClients</B>
+
+<DD>
+Disconnect existing clients if an incoming connection is non-shared (default is
+on). If <B>DisconnectClients</B> is false, then a new non-shared connection will
+be refused while there is a client active.  When combined with
+<B>NeverShared</B> this means only one client is allowed at a time.
+<P>
+<DT><B>-NeverShared</B>
+
+<DD>
+Never treat incoming connections as shared, regardless of the client-specified
+setting (default is off).
+<P>
+<DT><B>-AlwaysShared</B>
+
+<DD>
+Always treat incoming connections as shared, regardless of the client-specified
+setting (default is off).
+<P>
+<DT><B>-Protocol3.3</B>
+
+<DD>
+Always use protocol version 3.3 for backwards compatibility with badly-behaved
+clients (default is off).
+<P>
+<DT><B>-CompareFB</B>
+
+<DD>
+Perform pixel comparison on framebuffer to reduce unnecessary updates (default
+is on).
+<P>
+<DT><B>-SecurityTypes </B><I>sec-types</I>
+
+<DD>
+Specify which security schemes to use separated by commas.  At present only
+&quot;None&quot; and &quot;VncAuth&quot; are supported.  The default is &quot;VncAuth&quot; - note that if
+you want a server which does not require a password, you must set this
+parameter to &quot;None&quot;.
+<P>
+<DT><B>-IdleTimeout </B><I>seconds</I>
+
+<DD>
+The number of seconds after which an idle VNC connection will be dropped
+(default is 3600 i.e. an hour).
+<P>
+<DT><B>-localhost</B>
+
+<DD>
+Only allow connections from the same machine. Useful if you use SSH and want to
+stop non-SSH connections from any other hosts. See the guide to using VNC with
+SSH on the web site.
+<P>
+<DT><B>-log </B><I>logname</I>:<I>dest</I>:<I>level</I>
+
+<DD>
+Configures the debug log settings.  <I>dest</I> can currently be <B>stderr</B> or
+<B>stdout</B>, and <I>level</I> is between 0 and 100, 100 meaning most verbose
+output.  <I>logname</I> is usually <B>*</B> meaning all, but you can target a
+specific source file if you know the name of its &quot;LogWriter&quot;.  Default is
+<B>*:stderr:30</B>.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>USAGE WITH INETD</H2>
+
+By configuring the <B><A HREF="../man1/inetd.1.php">inetd</A></B>(1) service appropriately, Xvnc can be launched
+on demand when a connection comes in, rather than having to be started
+manually.  When given the <B>-inetd</B> option, instead of listening for TCP
+connections on a given port it uses its standard input and standard output.
+There are two modes controlled by the wait/nowait entry in the inetd.conf file.
+<P>
+In the nowait mode, Xvnc uses its standard input and output directly as the
+connection to a viewer.  It never has a listening socket, so cannot accept
+further connections from viewers (it can however connect out to listening
+viewers by use of the vncconfig program).  Further viewer connections to the
+same TCP port result in inetd spawning off a new Xvnc to deal with each
+connection.  When the connection to the viewer dies, the Xvnc and any
+associated X clients die.  This behaviour is most useful when combined with the
+XDMCP options -query and -once.  An typical example in inetd.conf might be (all
+on one line):
+<P>
+5950   stream   tcp nowait nobody  /usr/local/bin/Xvnc Xvnc -inetd -query
+localhost -once securitytypes=none
+<P>
+In this example a viewer connection to :50 will result in a new Xvnc for that
+connection which should display the standard XDM login screen on that machine.
+Because the user needs to login via XDM, it is usually OK to accept connections
+without a VNC password in this case.
+<P>
+In the wait mode, when the first connection comes in, inetd gives the listening
+socket to Xvnc.  This means that for a given TCP port, there is only ever one
+Xvnc at a time.  Further viewer connections to the same port are accepted by
+the same Xvnc in the normal way.  Even when the original connection is broken,
+the Xvnc will continue to run.  If this is used with the XDMCP options -query
+and -once, the Xvnc and associated X clients will die when the user logs out of
+the X session in the normal way.  It is important to use a VNC password in this
+case.  A typical entry in inetd.conf might be:
+<P>
+5951   stream   tcp wait   james     /usr/local/bin/Xvnc Xvnc -inetd -query localhost -once passwordFile=/home/james/.vnc/passwd
+<P>
+In fact typically, you would have one entry for each user who uses VNC
+regularly, each of whom has their own dedicated TCP port which they use.  In
+this example, when user &quot;james&quot; connects to :51, he enters his VNC password,
+then gets the XDM login screen where he logs in in the normal way.  However,
+unlike the previous example, if he disconnects, the session remains persistent,
+and when he reconnects he will get the same session back again.  When he logs
+out of the X session, the Xvnc will die, but of course a new one will be
+created automatically the next time he connects.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1),
+
+<B><A HREF="../man1/vncpasswd.1.php">vncpasswd</A></B>(1),
+
+<B><A HREF="../man1/vncserver.1.php">vncserver</A></B>(1),
+
+<B><A HREF="../man1/vncviewer.1.php">vncviewer</A></B>(1),
+
+<B><A HREF="../man1/Xserver.1.php">Xserver</A></B>(1),
+
+<B><A HREF="../man1/inetd.1.php">inetd</A></B>(1)
+
+<BR>
+
+<A HREF="http://www.realvnc.com">http://www.realvnc.com</A>
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Tristan Richardson, RealVNC Ltd.
+<P>
+VNC was originally developed by the RealVNC team while at Olivetti Research Ltd
+/ AT&amp;T Laboratories Cambridge.  It is now being maintained by RealVNC Ltd.  See
+<A HREF="http://www.realvnc.com">http://www.realvnc.com</A> for details.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">PARAMETERS</A><DD>
+<DT><A HREF="#lbAG">USAGE WITH INETD</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

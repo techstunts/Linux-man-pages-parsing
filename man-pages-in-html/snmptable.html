@@ -1,0 +1,237 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SNMPTABLE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SNMPTABLE</H1>
+Section: Net-SNMP (1)<BR>Updated: 25 Jul 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+snmptable - obtain and print an SNMP table
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>snmptable</B>
+
+[COMMON OPTIONS] [-Cb] [-CB] [-Ch] [-CH] [-Ci] [-Cf STRING] [-Cw WIDTH]
+AGENT TABLE-OID
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>snmptable</B>
+
+is an SNMP application that repeatedly uses the SNMP GETNEXT or
+GETBULK requests to query for information on a network entity.  The
+parameter
+<I>TABLE-OID</I>
+
+must specify an SNMP table.
+<P>
+
+snmptable is an SNMP application that repeatedly uses the
+SNMP GETNEXT or GETBULK requests to query for  information
+on a network entity.  The parameter TABLE-OID must specify
+an SNMP table.
+<P>
+AGENT identifies a target SNMP agent, which is instrumented
+to monitor the gievn objects.  At its simplest, the AGENT
+specification will consist of a hostname or an IPv4
+address.  In this situation, the command will attempt
+communication with the agent, using UDP/IPv4 to port 161
+of the given target host. See
+<I><A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1)</I>
+
+for a full list of
+the possible formats for AGENT.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>COMMON OPTIONS</B>
+
+<DD>
+Please see
+<I><A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1)</I>
+
+for a list of possible values for COMMON OPTIONS
+as well as their descriptions.
+<DT><B>-Cb</B>
+
+<DD>
+Display only a brief heading. Any common prefix of the table field
+names will be deleted.
+<DT><B>-CB</B>
+
+<DD>
+Do not use GETBULK requests to retrieve data, only GETNEXT.
+<DT><B>-Cc</B><I> CHARS</I>
+
+<DD>
+Print table in columns of
+<I>CHARS</I>
+
+characters width.
+<DT><B>-Cf</B><I> STRING</I>
+
+<DD>
+The string
+<I>STRING</I>
+
+is used to separate table columns.  With this option, each table entry
+will be printed in compact form, just with the string given to
+separate the columns (useful if you want to import it into a
+database).  Otherwise it is printed in nicely aligned columns.
+<DT><B>-Ch</B>
+
+<DD>
+Display
+<I>only</I>
+
+the column headings.
+<DT><B>-CH</B>
+
+<DD>
+Do not display the column headings.
+<DT><B>-Ci</B>
+
+<DD>
+This option prepends the index of the entry to all printed lines.
+<DT><B>-Cl</B>
+
+<DD>
+Left justify the data in each column.
+<DT><B>-Cr</B><I> REPEATERS</I>
+
+<DD>
+For GETBULK requests, 
+<I>REPEATERS</I>
+
+specifies the max-repeaters value to use.  For GETNEXT requests,
+<I>REPEATERS</I>
+
+specifies the number of entries to retrieve at a time.
+<DT><B>-Cw</B><I> WIDTH</I>
+
+<DD>
+Specifies the width of the lines when the table is printed.
+If the lines will be longer, the table will be printed in sections of
+at most 
+<I>WIDTH </I>
+
+characters.  If
+<I>WIDTH</I>
+
+is less than the length of the contents of
+a single column, then that single column will still be printed.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+$ snmptable -v 2c -c public localhost at.atTable
+<P>
+SNMP table: at.atTable RFC1213-MIB::atTable
+<P>
+atIfIndex   atPhysAddress   atNetAddress
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;8:0:20:20:0:ab&nbsp;130.225.243.33
+<P>
+
+$ snmptable -v 2c -c public -Cf + localhost at.atTable
+<P>
+SNMP table: at.atTable
+<P>
+atIfIndex+atPhysAddress+atNetAddress
+1+8:0:20:20:0:ab+130.225.243.33
+<P>
+
+<PRE>
+$ snmptable localhost -Cl -CB -Ci -OX -Cb -Cc 16 -Cw 64 ifTable
+
+SNMP table: ifTable
+
+Index           Descr           Type            Mtu             
+Speed           PhysAddress     AdminStatus     OperStatus      
+LastChange      InOctets        InUcastPkts     InNUcastPkts    
+InDiscards      InErrors        InUnknownProtos OutOctets       
+OutUcastPkts    OutNUcastPkts   OutDiscards     OutErrors       
+OutQLen         Specific        
+
+index: [1]
+1               lo              softwareLoopbac 16436           
+10000000                        up              up              
+?               2837283786      3052466         ?               
+0               0               ?               2837283786      
+3052466         ?               0               0               
+0               zeroDotZero     
+
+index: [2]
+2               eth0            ethernetCsmacd  1500            
+10000000        0:5:5d:d1:f7:cf up              up              
+?               2052604234      44252973        ?               
+0               0               ?               149778187       
+65897282        ?               0               0               
+0               zeroDotZero     
+
+</PRE><A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+The test for
+<I>TABLE-OID</I>
+
+actually specifying a table is rather heuristic.  Note also that the
+test requires the defining MIB file to be loaded.
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1), <A HREF="../man5/variables.5.php">variables</A>(5).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

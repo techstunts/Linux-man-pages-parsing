@@ -1,0 +1,304 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>tclsh</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>tclsh</H1>
+Section: Tcl Applications (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<BR>
+
+
+
+<PRE>
+<BR>
+<HR></PRE>
+
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+tclsh - Simple shell containing Tcl interpreter
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>tclsh</B> ?<I>fileName arg arg ...</I>?
+
+<PRE>
+<BR>
+<HR>
+
+</PRE>
+
+<BR>
+
+
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>Tclsh</B> is a shell-like application that reads Tcl commands
+from its standard input or from a file and evaluates them.
+If invoked with no arguments then it runs interactively, reading
+Tcl commands from standard input and printing command results and
+error messages to standard output.
+It runs until the <B>exit</B> command is invoked or until it
+reaches end-of-file on its standard input.
+If there exists a file <B>.tclshrc</B> (or <B>tclshrc.tcl</B> on
+the Windows platforms) in the home directory of
+the user, <B>tclsh</B> evaluates the file as a Tcl script
+just before reading the first command from standard input.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SCRIPT FILES</H2>
+
+<P>
+
+If <B>tclsh</B> is invoked with arguments then the first argument
+is the name of a script file and any additional arguments
+are made available to the script as variables (see below).
+Instead of reading commands from standard input <B>tclsh</B> will
+read Tcl commands from the named file;  <B>tclsh</B> will exit
+when it reaches the end of the file.
+
+
+
+
+
+
+
+The end of the file may be marked either by the physical end of
+the medium, or by the character, '\032' ('\u001a', control-Z).
+If this character is present in the file, the <B>tclsh</B> application
+will read text up to but not including the character.  An application
+that requires this character in the file may safely encode it as
+``\032'', ``\x1a'', or ``\u001a''; or may generate it by use of commands 
+such as <B>format</B> or <B>binary</B>.
+
+
+
+
+
+
+There is no automatic evaluation of <B>.tclshrc</B> when the name
+of a script file is presented on the <B>tclsh</B> command
+line, but the script file can always <B>source</B> it if desired.
+<P>
+
+If you create a Tcl script in a file whose first line is
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<B>#!/usr/local/bin/tclsh</B>
+
+</PRE>
+
+</DL>
+
+
+then you can invoke the script file directly from your shell if
+you mark the file as executable.
+This assumes that <B>tclsh</B> has been installed in the default
+location in /usr/local/bin;  if it's installed somewhere else
+then you'll have to modify the above line to match.
+Many UNIX systems do not allow the <B>#!</B> line to exceed about
+30 characters in length, so be sure that the <B>tclsh</B>
+executable can be accessed with a short file name.
+<P>
+
+An even better approach is to start your script files with the
+following three lines:
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<B>#!/bin/sh
+# the next line restarts using tclsh \
+exec tclsh &quot;$0&quot; &quot;$@&quot;</B>
+
+</PRE>
+
+</DL>
+
+
+This approach has three advantages over the approach in the previous
+paragraph.  First, the location of the <B>tclsh</B> binary doesn't have
+to be hard-wired into the script:  it can be anywhere in your shell
+search path.  Second, it gets around the 30-character file name limit
+in the previous approach.
+Third, this approach will work even if <B>tclsh</B> is
+itself a shell script (this is done on some systems in order to
+handle multiple architectures or operating systems:  the <B>tclsh</B>
+script selects one of several binaries to run).  The three lines
+cause both <B>sh</B> and <B>tclsh</B> to process the script, but the
+<B>exec</B> is only executed by <B>sh</B>.
+<B>sh</B> processes the script first;  it treats the second
+line as a comment and executes the third line.
+The <B>exec</B> statement cause the shell to stop processing and
+instead to start up <B>tclsh</B> to reprocess the entire script.
+When <B>tclsh</B> starts up, it treats all three lines as comments,
+since the backslash at the end of the second line causes the third
+line to be treated as part of the comment on the second line.
+<P>
+
+
+
+
+
+
+
+
+You should note that it is also common practise to install tclsh with
+its version number as part of the name.  This has the advantage of
+allowing multiple versions of Tcl to exist on the same system at once,
+but also the disadvantage of making it harder to write scripts that
+start up uniformly across different versions of Tcl.
+
+
+
+
+
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>VARIABLES</H2>
+
+<P>
+
+<B>Tclsh</B> sets the following Tcl variables:
+<DL COMPACT>
+<DT><B>argc</B><DD>
+Contains a count of the number of <I>arg</I> arguments (0 if none),
+not including the name of the script file.
+<DT><B>argv</B><DD>
+Contains a Tcl list whose elements are the <I>arg</I> arguments,
+in order, or an empty string if there are no <I>arg</I> arguments.
+<DT><B>argv0</B><DD>
+Contains <I>fileName</I> if it was specified.
+Otherwise, contains the name by which <B>tclsh</B> was invoked.
+<DT><B>tcl_interactive</B><DD>
+Contains 1 if <B>tclsh</B> is running interactively (no
+<I>fileName</I> was specified and standard input is a terminal-like
+device), 0 otherwise.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>PROMPTS</H2>
+
+<P>
+
+When <B>tclsh</B> is invoked interactively it normally prompts for each
+command with ``<B>% </B>''.  You can change the prompt by setting the
+variables <B>tcl_prompt1</B> and <B>tcl_prompt2</B>.  If variable
+<B>tcl_prompt1</B> exists then it must consist of a Tcl script
+to output a prompt;  instead of outputting a prompt <B>tclsh</B>
+will evaluate the script in <B>tcl_prompt1</B>.
+The variable <B>tcl_prompt2</B> is used in a similar way when
+a newline is typed but the current command isn't yet complete;
+if <B>tcl_prompt2</B> isn't set then no prompt is output for
+incomplete commands.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>STANDARD CHANNELS</H2>
+
+<P>
+
+See <B>Tcl_StandardChannels</B> for more explanations.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../mann/fconfigure.n.php">fconfigure</A>(n), <A HREF="../mann/tclvars.n.php">tclvars</A>(n)
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>KEYWORDS</H2>
+
+argument, interpreter, prompt, script file, shell
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SCRIPT FILES</A><DD>
+<DT><A HREF="#lbAF">VARIABLES</A><DD>
+<DT><A HREF="#lbAG">PROMPTS</A><DD>
+<DT><A HREF="#lbAH">STANDARD CHANNELS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">KEYWORDS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

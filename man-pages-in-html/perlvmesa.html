@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLVMESA</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLVMESA</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.vmesa - building and installing Perl for VM/ESA.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+This document will help you Configure, build, test and install Perl
+on <FONT SIZE="-1">VM/ESA</FONT>.
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This is a fully ported perl for <FONT SIZE="-1">VM/ESA</FONT> 2.3.0.  It may work on
+other versions, but that's the one we've tested it on.
+<P>
+
+If you've downloaded the binary distribution, it needs to be
+installed below /usr/local.  Source code distributions have an
+automated `make install` step that means you do not need to extract
+the source code below /usr/local (though that is where it will be
+installed by default).  You may need to worry about the networking
+configuration files discussed in the last bullet below.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Unpacking Perl Distribution on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAE"></A>
+To extract an <FONT SIZE="-1">ASCII</FONT> tar archive on <FONT SIZE="-1">VM/ESA</FONT>, try this:
+<P>
+
+
+
+<PRE>
+   pax -o to=IBM-1047,from=ISO8859-1 -r &lt; latest.tar
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Setup Perl and utilities on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAF"></A>
+<FONT SIZE="-1">GNU</FONT> make for <FONT SIZE="-1">VM/ESA</FONT>, which may be required for the build of perl,
+is available from:
+<P>
+
+
+
+<PRE>
+  <A HREF="http://vm.marist.edu/~neale/vmoe.php">http://vm.marist.edu/~neale/vmoe.html</A>
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Configure Perl on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAG"></A>
+Once you've unpacked the distribution, run Configure (see <FONT SIZE="-1">INSTALL</FONT> for
+full discussion of the Configure options), and then run make, then
+``make test'' then ``make install'' (this last step may require UID=0
+privileges).
+<P>
+
+There is a ``hints'' file for vmesa that specifies the correct values
+for most things.  Some things to watch out for are:
+<DL COMPACT>
+<DT>*<DD>
+this port does support dynamic loading but it's not had much testing
+<DT>*<DD>
+Don't turn on the compiler optimization flag ``-O''.  There's
+a bug in the compiler (<FONT SIZE="-1">APAR</FONT> <FONT SIZE="-1">PQ18812</FONT>) that generates some bad code
+the optimizer is on.
+<DT>*<DD>
+As <FONT SIZE="-1">VM/ESA</FONT> doesn't fully support the <I>fork()</I> <FONT SIZE="-1">API</FONT> programs relying on
+this call will not work. I've replaced <I>fork()</I>/<I>exec()</I> with <I>spawn()</I>
+and the standalone <I>exec()</I> with <I>spawn()</I>. This has a side effect when
+opening unnamed pipes in a shell script: there is no child process
+generated under.
+<DT>*<DD>
+At the moment the hints file for <FONT SIZE="-1">VM/ESA</FONT> basically bypasses all of the
+automatic configuration process.  This is because Configure relies on:
+1. The header files living in the Byte File System (you could put the
+there if you want); 2. The C preprocessor including the #include 
+statements in the preprocessor output (.i) file.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>Testing Anomalies of Perl on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAH"></A>
+The `make test` step runs a Perl Verification Procedure, usually before
+installation.  As the 5.6.1 kit was being assembled
+the following ``failures'' were known to appear on some machines
+during `make test` (mostly due to <FONT SIZE="-1">ASCII</FONT> vs. <FONT SIZE="-1">EBCDIC</FONT> conflicts),
+your results may differ:
+<P>
+
+[the list of failures being compiled]
+<A NAME="lbAI">&nbsp;</A>
+<H2>Usage Hints for Perl on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAI"></A>
+When using perl on <FONT SIZE="-1">VM/ESA</FONT> please keep in mind that the <FONT SIZE="-1">EBCDIC</FONT> and <FONT SIZE="-1">ASCII</FONT>
+character sets are different.  Perl builtin functions that may behave
+differently under <FONT SIZE="-1">EBCDIC</FONT> are mentioned in the perlport.pod document.
+<P>
+
+OpenEdition (<FONT SIZE="-1">UNIX</FONT> System Services) does not (yet) support the #! means
+of script invocation.
+See:
+<P>
+
+
+
+<PRE>
+    head `whence perldoc`
+
+</PRE>
+
+
+<P>
+
+for an example of how to use the ``eval exec'' trick to ask the shell to
+have perl run your scripts for you.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixAAJ"></A>
+Neale Ferguson.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAK"></A>
+<FONT SIZE="-1">INSTALL</FONT>, perlport, perlebcdic.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Mailing list for Perl on <FONT SIZE="-1">VM/ESA</FONT></H2>
+
+<A NAME="ixAAL"></A>
+If you are interested in the <FONT SIZE="-1">VM/ESA</FONT>, z/OS (formerly known as <FONT SIZE="-1">OS/390</FONT>)
+and POSIX-BC (<FONT SIZE="-1">BS2000</FONT>) ports of Perl then see the perl-mvs mailing list.
+To subscribe, send an empty message to <A HREF="mailto:perl-mvs-subscribe@perl.org">perl-mvs-subscribe@perl.org</A>.
+<P>
+
+See also:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://lists.perl.org/showlist.cgi?name=perl-mvs">http://lists.perl.org/showlist.cgi?name=perl-mvs</A>
+
+</PRE>
+
+
+<P>
+
+There are web archives of the mailing list at:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/">http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/</A>
+    <A HREF="http://archive.develooper.com/perl-mvs@perl.org/">http://archive.develooper.com/perl-mvs@perl.org/</A>
+
+</PRE>
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Unpacking Perl Distribution on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+<DT><A HREF="#lbAF">Setup Perl and utilities on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+<DT><A HREF="#lbAG">Configure Perl on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+<DT><A HREF="#lbAH">Testing Anomalies of Perl on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+<DT><A HREF="#lbAI">Usage Hints for Perl on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">Mailing list for Perl on <FONT SIZE="-1">VM/ESA</FONT></A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

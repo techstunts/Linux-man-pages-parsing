@@ -1,0 +1,321 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ISDNCONF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ISDNCONF</H1>
+Section: Linux System Utilities (1)<BR>Updated: 1998/12/29<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+isdnconf - manipulate or read ISDN phone number config files.
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>isdnconf</B>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>isdnconf</I>
+
+can manipulate or read the file 
+<I>/etc/isdn/callerid.conf</I>
+
+as well as <I>~/.isdn</I>.
+Entries can be added or removed from these files. Additionally, entries
+can be searched for and displayed in a way similar to <B>grep</B>.
+An entry can be an own MSN (<B>[MSN]</B>) or a phone number
+(<B>[NUMBER]</B>).
+<P>
+You can use this program to build your own phonebook. These files are
+used by many of the other ISDN utilities that use phone numbers, to
+display a number symbolicly instead of as a plain number.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+Note: usage of the options -A and -D is dangerous! The
+complete structure of the file may be changed, and all comments are
+removed! Make backups of your data files before trying these.
+<P>
+<B>COMMAND OPTIONS:</B>
+
+<P>
+
+<DL COMPACT>
+<DT><B>-A</B>
+
+<DD>
+Add a new entry, which is read from standard input. The following
+values are asked for (here with examples):
+<DL COMPACT><DT><DD>
+<PRE>
+
+Alias:          Fred
+Number:         0815/441777
+SI:             0
+Zone:           4
+Interface:      -
+Flags:          I|O
+Program:        /usr/local/bin/ring
+User:           uucp
+Group:          user
+Interval:
+Time:           8-20
+Flags:          (control-D here indicates end of flags)
+
+Alias:          (control-D here indicated end of entries)
+
+</PRE>
+
+If you want another [Flags] entry, simply enter the data for another
+program for this number at the point where the control-D was given
+above.
+<P>
+If you want to add another number, simply enter the data for the next
+number at the Alias prompt.
+<P>
+You can also pipe the data into this program; the input data then must
+correspond to the prompts that the program gives! Note that you can
+only add one number at a time then (there's no way of telling
+<I>isdnconf</I>
+
+that you want to stop giving Flags info and start giving the next
+Alias info).
+<P>
+</DL>
+
+<P>
+<DT><B>-D</B>
+
+<DD>
+Delete one or more entries which match the data options given. How to
+supply the data to match is discussed below (see <B>DATA OPTIONS</B>).
+<P>
+<DT><B>-V</B>
+
+<DD>
+version: display the program's version and terminate.
+<P>
+</DL>
+<P>
+
+<P>
+If both -A and -D are given together,
+<I>isdnconf</I>
+
+will terminate, as this is not a valid combination.
+<P>
+If neither -A nor -D is given, then
+<I>isdnconf</I>
+
+will display entries which match the data given.
+<P>
+<B>DATA OPTIONS:</B>
+
+(none applicable for -A)
+<DL COMPACT>
+<DT><B>-n 'number'</B>
+
+<DD>
+number: match the given number. It can contain wildcards.
+<P>
+<DT><B>-a 'alias'</B>
+
+<DD>
+alias: match the given alias name. The name can contain wildcards.
+Note: due to a bug, use '?' instead of '-'.
+<P>
+<DT><B>-t 'SI'</B>
+
+<DD>
+SI: match the given service indicator.
+<P>
+<DT><B>-c 'code'</B>
+
+<DD>
+code: match the area code of the phone number. Only usable for displaying
+(not for -A nor -D).
+<P>
+<DT><B>-i</B>
+
+<DD>
+ignore case for the -n and -a options.
+<P>
+<DT><B>-w</B>
+
+<DD>
+word: the parameters for -n and -a must match the
+<B>whole</B>
+
+value, not just a substring.
+<DL COMPACT><DT><DD>
+Examples (here for -n):
+<PRE>
+
+&quot;*34*&quot; matches 123456, 345677, 1234
+&quot;34*&quot;  matches 34567, 34111 but not 1234
+&quot;34??&quot; matches 3411, 3456
+&quot;34&quot;   matches only 34
+
+</PRE>
+
+Without the -w option, these would match:
+<PRE>
+
+&quot;*34*&quot; matches 123456, 345677, 1234
+&quot;34*&quot;  matches 123456, 345677, 1234, 34567, 34111
+&quot;34??&quot; matches 123456, 345677, 1234, 3411, 3456
+&quot;34&quot;   matches 123456, 345677, 1234, 3411, 3456, 34567
+
+</PRE>
+
+</DL>
+
+<P>
+<DT><B>-d</B>
+
+<DD>
+and: by default the values given to options -n, -a and -t will be combined
+with a logical OR. If these should be combined with a logical AND
+(which is probably what most people expect!) you must use this -d option.
+In this case you can only supply each of the -n, -a and -t options
+exactly once.
+<P>
+<DT><B>OTHER OPTIONS:</B>
+
+<DD>
+<DT><B>-q</B>
+
+<DD>
+quiet: when using the -A or -D commands, the output is suppressed.
+When not using the -A or -D commands, only the alias of the matching
+number is shown, or just the number in case the alias is not found.
+<P>
+<DT><B>-m</B>
+
+<DD>
+MSN: when used in combination with the -A command, instructs
+<B>isdnconf</B>
+
+to create a new MSN entry; the default is to create a new NUMBER
+entry. Only the values alias, number, SI, zone and interface are
+applicable to an MSN entry.
+<P>
+</DL>
+<P>
+
+The following two options do not apply to the -A and -D commands. They
+only change the output format.
+<P>
+<DL COMPACT>
+<DT><B>-s</B>
+
+<DD>
+short: only display the alias and the number.
+<P>
+<DT><B>-l</B>
+
+<DD>
+long: also display the programs to run (<B>[START]</B>).
+<P>
+<DT><B>-f 'filename'</B>
+
+<DD>
+file: usually
+<B>isdnconf</B>
+
+uses the
+<I>/etc/isdn/callerid.conf</I>
+
+and the
+<I>~/.isdn</I>
+
+files. If
+<B>isdnconf</B>
+
+should be applied to another file, use this option.
+<P>
+<DT><B>-g</B>
+
+<DD>
+global: only applies to the -A and -D commands. Instead of editing
+<I>~/.isdn</I>,
+<I>/etc/isdn/callerid.conf</I>
+
+is edited.
+<P>
+<DT><B>-1</B>
+
+<DD>
+first: only delete or display the first entry.
+<P>
+<DT><B>-M</B>
+
+<DD>
+isdnmon: used internally by isdnmon to get alias info.
+<P>
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Andreas Kool &lt;<A HREF="mailto:akool@isdn4linux.de">akool@isdn4linux.de</A>&gt;
+<BR>
+
+manpage adapted from the README by Paul Slootman &lt;<A HREF="mailto:paul@isdn4linux.de">paul@isdn4linux.de</A>&gt;
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man5/callerid.conf.5.php">callerid.conf</A></I>(5),
+<I><A HREF="../man8/isdnlog.8.php">isdnlog</A></I>(8)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">AUTHOR</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

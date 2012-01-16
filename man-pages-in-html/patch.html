@@ -1,0 +1,1630 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PATCH</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PATCH</H1>
+Section: User Commands  (1)<BR>Updated: 1998/03/21<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+patch - apply a diff file to an original
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>patch</B>
+
+[<I>options</I>]
+
+[<I>originalfile</I>
+
+[<I>patchfile</I>]]
+
+
+
+<P>
+
+
+but usually just
+
+
+<P>
+
+
+<B>patch -p</B><I>num</I>
+
+<B>&lt;</B><I>patchfile</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>patch</B>
+
+takes a patch file
+<I>patchfile</I>
+
+containing a difference listing produced by the
+<B>diff</B>
+
+program and applies those differences to one or more original files,
+producing patched versions.
+Normally the patched versions are put in place of the originals.
+Backups can be made; see the
+<B>-b</B>
+
+or
+<B>--backup</B>
+
+option.
+The names of the files to be patched are usually taken from the patch file,
+but if there's just one file to be patched it can specified on the
+command line as
+<I>originalfile</I>.
+
+<P>
+
+Upon startup, patch attempts to determine the type of the diff listing,
+unless overruled by a
+<B>-c</B> (<B>--context</B>),
+<B>-e</B> (<B>--ed</B>),
+<B>-n</B> (<B>--normal</B>),
+or
+<B>-u</B> (<B>--unified</B>)
+option.
+Context diffs (old-style, new-style, and unified) and
+normal diffs are applied by the
+<B>patch</B>
+
+program itself, while
+<B>ed</B>
+
+diffs are simply fed to the
+<B><A HREF="../man1/ed.1.php">ed</A></B>(1)
+
+editor via a pipe.
+<P>
+
+<B>patch</B>
+
+tries to skip any leading garbage, apply the diff,
+and then skip any trailing garbage.
+Thus you could feed an article or message containing a
+diff listing to
+<B>patch</B>,
+
+and it should work.
+If the entire diff is indented by a consistent amount,
+or if a context diff contains lines ending in <FONT SIZE="-1">CRLF</FONT>
+or is encapsulated one or more times by prepending
+&quot;<B>- </B>&quot; to lines starting with &quot;<B>-</B>&quot; as specified by Internet RFC 934,
+this is taken into account.
+<P>
+
+With context diffs, and to a lesser extent with normal diffs,
+<B>patch</B>
+
+can detect when the line numbers mentioned in the patch are incorrect,
+and attempts to find the correct place to apply each hunk of the patch.
+As a first guess, it takes the line number mentioned for the hunk, plus or
+minus any offset used in applying the previous hunk.
+If that is not the correct place,
+<B>patch</B>
+
+scans both forwards and backwards for a set of lines matching the context
+given in the hunk.
+First
+<B>patch</B>
+
+looks for a place where all lines of the context match.
+If no such place is found, and it's a context diff, and the maximum fuzz factor
+is set to 1 or more, then another scan takes place ignoring the first and last
+line of context.
+If that fails, and the maximum fuzz factor is set to 2 or more,
+the first two and last two lines of context are ignored,
+and another scan is made.
+(The default maximum fuzz factor is 2.)
+If
+<B>patch</B>
+
+cannot find a place to install that hunk of the patch, it puts the
+hunk out to a reject file, which normally is the name of the output file
+plus a
+<B>.rej</B>
+
+suffix, or
+<B>#</B>
+
+if
+<B>.rej</B>
+
+would generate a file name that is too long
+(if even appending the single character
+<B>#</B>
+
+makes the file name too long, then
+<B>#</B>
+
+replaces the file name's last character).
+(The rejected hunk comes out in ordinary context diff form regardless of
+the input patch's form.
+If the input was a normal diff, many of the contexts are simply null.)
+The line numbers on the hunks in the reject file may be different than
+in the patch file: they reflect the approximate location patch thinks the
+failed hunks belong in the new file rather than the old one.
+<P>
+
+As each hunk is completed, you are told if the hunk
+failed, and if so which line (in the new file)
+<B>patch</B>
+
+thought the hunk should go on.
+If the hunk is installed at a different line
+from the line number specified in the diff you
+are told the offset.
+A single large offset
+<I>may</I>
+
+indicate that a hunk was installed in the
+wrong place.
+You are also told if a fuzz factor was used to make the match, in which
+case you should also be slightly suspicious.
+If the
+<B>--verbose</B>
+
+option is given, you are also told about hunks that match exactly.
+<P>
+
+If no original file
+<I>origfile</I>
+
+is specified on the command line,
+<B>patch</B>
+
+tries to figure out from the leading garbage what the name of the file
+to edit is, using the following rules.
+<P>
+
+First,
+<B>patch</B>
+
+takes an ordered list of candidate file names as follows:
+<DL COMPACT>
+<DT><B> *</B>
+
+<DD>
+If the header is that of a context diff,
+<B>patch</B>
+
+takes the old and new file names in the header.
+A name is ignored if it does not have enough slashes to satisfy the
+<B>-p</B><I>num</I>
+
+or
+<B>--strip=</B><I>num</I>
+
+option.
+The name
+<B>/dev/null</B>
+
+is also ignored.
+<DT><B> *</B>
+
+<DD>
+If there is an
+<B>Index:</B>
+
+line in the leading garbage
+and if either the old and new names are both absent or if
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT>,
+<B>patch</B>
+
+takes the name in the
+<B>Index:</B>
+
+line.
+<DT><B> *</B>
+
+<DD>
+For the purpose of the following rules,
+the candidate file names are considered to be in the order (old, new, index),
+regardless of the order that they appear in the header.
+</DL>
+<P>
+
+Then
+<B>patch</B>
+
+selects a file name from the candidate list as follows:
+<DL COMPACT>
+<DT><B> *</B>
+
+<DD>
+If some of the named files exist,
+<B>patch</B>
+
+selects the first name if conforming to <FONT SIZE="-1">POSIX</FONT>,
+and the best name otherwise.
+<DT><B> *</B>
+
+<DD>
+If
+<B>patch</B>
+
+is not ignoring <FONT SIZE="-1">RCS</FONT>, ClearCase, and <FONT SIZE="-1">SCCS</FONT> (see the
+<B>-g&nbsp;</B><I>num</I>
+
+or
+<B>--get=</B><I>num</I>
+
+option), and no named files exist
+but an <FONT SIZE="-1">RCS</FONT>, ClearCase, or <FONT SIZE="-1">SCCS</FONT> master is found,
+<B>patch</B>
+
+selects the first named file
+with an <FONT SIZE="-1">RCS</FONT>, ClearCase, or <FONT SIZE="-1">SCCS</FONT> master.
+<DT><B> *</B>
+
+<DD>
+If no named files exist,
+no <FONT SIZE="-1">RCS</FONT>, ClearCase, or <FONT SIZE="-1">SCCS</FONT> master was found,
+some names are given,
+<B>patch</B>
+
+is not conforming to <FONT SIZE="-1">POSIX</FONT>,
+and the patch appears to create a file,
+<B>patch</B>
+
+selects the best name requiring the creation of the fewest directories.
+<DT><B> *</B>
+
+<DD>
+If no file name results from the above heuristics, you are asked
+for the name of the file to patch, and
+<B>patch</B>
+
+selects that name.
+</DL>
+<P>
+
+To determine the
+<I>best</I>
+
+of a nonempty list of file names,
+<B>patch</B>
+
+first takes all the names with the fewest path name components;
+of those, it then takes all the names with the shortest basename;
+of those, it then takes all the shortest names;
+finally, it takes the first remaining name.
+<P>
+
+Additionally, if the leading garbage contains a
+<B>Prereq:</B>
+
+line,
+<B>patch</B>
+
+takes the first word from the prerequisites line (normally a version
+number) and checks the original file to see if that word can be found.
+If not,
+<B>patch</B>
+
+asks for confirmation before proceeding.
+<P>
+
+The upshot of all this is that you should be able to say, while in a news
+interface, something like the following:
+
+
+<P>
+
+
+<B>| patch -d /usr/src/local/blurfl</B><BR>
+
+
+<P>
+
+
+and patch a file in the
+<B>blurfl</B>
+
+directory directly from the article containing
+the patch.
+<P>
+
+If the patch file contains more than one patch,
+<B>patch</B>
+
+tries to apply each of them as if they came from separate patch files.
+This means, among other things, that it is assumed that the name of the file
+to patch must be determined for each diff listing,
+and that the garbage before each diff listing
+contains interesting things such as file names and revision level, as
+mentioned previously.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-b</B>  or  <B>--backup</B><DD>
+Make backup files.
+That is, when patching a file,
+rename or copy the original instead of removing it.
+When backing up a file that does not exist,
+an empty, unreadable backup file is created
+as a placeholder to represent the nonexistent file.
+See the
+<B>-V</B>
+
+or
+<B>--version-control</B>
+
+option for details about how backup file names are determined.
+<DT><B>--backup-if-mismatch</B>
+
+<DD>
+Back up a file if the patch does not match the file exactly
+and if backups are not otherwise requested.
+This is the default unless
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT>.
+<DT><B>--no-backup-if-mismatch</B>
+
+<DD>
+Do not back up a file if the patch does not match the file exactly
+and if backups are not otherwise requested.
+This is the default if
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT>.
+<DT><B>-B</B> <I>pref</I>  or  <B>--prefix=</B><I>pref</I><DD>
+Prefix
+<I>pref</I>
+
+to a file name when generating its simple backup file name.
+For example, with
+<B>-B&nbsp;/junk/</B>
+
+the simple backup file name for
+<B>src/patch/util.c</B>
+
+is
+<B>/junk/src/patch/util.c</B>.
+
+<DT><B>--binary</B><DD>
+Read and write all files in binary mode,
+except for standard output and
+<B>/dev/tty</B>.
+
+This option has no effect on <FONT SIZE="-1">POSIX</FONT>-conforming systems.
+On systems like <FONT SIZE="-1">DOS</FONT> where this option makes a difference,
+the patch should be generated by
+<B>diff&nbsp;-a&nbsp;--binary</B>.
+
+<DT><B>-c</B>  or  <B>--context</B><DD>
+Interpret the patch file as a ordinary context diff.
+<DT><B>-d</B> <I>dir</I>  or  <B>--directory=</B><I>dir</I><DD>
+Change to the directory
+<I>dir</I>
+
+immediately, before doing
+anything else.
+<DT><B>-D</B> <I>define</I>  or  <B>--ifdef=</B><I>define</I><DD>
+Use the
+<B>#ifdef</B> ... <B>#endif</B>
+
+construct to mark changes, with
+<I>define</I>
+
+as the differentiating symbol.
+<DT><B>--dry-run</B>
+
+<DD>
+Print the results of applying the patches without actually changing any files.
+<DT><B>-e</B>  or  <B>--ed</B><DD>
+Interpret the patch file as an
+<B>ed</B>
+
+script.
+<DT><B>-E</B>  or  <B>--remove-empty-files</B><DD>
+Remove output files that are empty after the patches have been applied.
+Normally this option is unnecessary, since
+<B>patch</B>
+
+can examine the time stamps on the header to determine whether a file
+should exist after patching.
+However, if the input is not a context diff or if
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT>,
+<B>patch</B>
+
+does not remove empty patched files unless this option is given.
+When
+<B>patch</B>
+
+removes a file, it also attempts to remove any empty ancestor directories.
+<DT><B>-f</B>  or  <B>--force</B><DD>
+Assume that the user knows exactly what he or she is doing, and do not
+ask any questions.  Skip patches whose headers
+do not say which file is to be patched; patch files even though they have the
+wrong version for the
+<B>Prereq:</B>
+
+line in the patch; and assume that
+patches are not reversed even if they look like they are.
+This option does not suppress commentary; use
+<B>-s</B>
+
+for that.
+<DT><B>-F</B> <I>num</I>  or  <B>--fuzz=</B><I>num</I><DD>
+Set the maximum fuzz factor.
+This option only applies to diffs that have context, and causes
+<B>patch</B>
+
+to ignore up to that many lines in looking for places to install a hunk.
+Note that a larger fuzz factor increases the odds of a faulty patch.
+The default fuzz factor is 2, and it may not be set to more than
+the number of lines of context in the context diff, ordinarily 3.
+<DT><B>-g</B> <I>num</I>  or  <B>--get=</B><I>num</I><DD>
+This option controls
+<B>patch</B>'s
+
+actions when a file is under <FONT SIZE="-1">RCS</FONT> or <FONT SIZE="-1">SCCS</FONT> control,
+and does not exist or is read-only and matches the default version,
+or when a file is under ClearCase control and does not exist.
+If
+<I>num</I>
+
+is positive,
+<B>patch</B>
+
+gets (or checks out) the file from the revision control system; if zero,
+<B>patch</B>
+
+ignores <FONT SIZE="-1">RCS</FONT>, ClearCase, and <FONT SIZE="-1">SCCS</FONT>
+and does not get the file; and if negative,
+<B>patch</B>
+
+asks the user whether to get the file.
+The default value of this option is given by the value of the
+<B>PATCH_GET</B>
+
+environment variable if it is set; if not, the default value is zero if
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT>, negative otherwise.
+<DT><B>--help</B>
+
+<DD>
+Print a summary of options and exit.
+<DT><B>-i</B> <I>patchfile</I>  or  <B>--input=</B><I>patchfile</I><DD>
+Read the patch from
+<I>patchfile</I>.
+
+If
+<I>patchfile</I>
+
+is
+<B>-</B>,
+
+read from standard input, the default.
+<DT><B>-l</B>  or  <B>--ignore-whitespace</B><DD>
+Match patterns loosely, in case tabs or spaces
+have been munged in your files.
+Any sequence of one or more blanks in the patch file matches any sequence
+in the original file, and sequences of blanks at the ends of lines are ignored.
+Normal characters must still match exactly.
+Each line of the context must still match a line in the original file.
+<DT><B>-n</B>  or  <B>--normal</B><DD>
+Interpret the patch file as a normal diff.
+<DT><B>-N</B>  or  <B>--forward</B><DD>
+Ignore patches that seem to be reversed or already applied.
+See also
+<B>-R</B>.
+
+<DT><B>-o</B> <I>outfile</I>  or  <B>--output=</B><I>outfile</I><DD>
+Send output to
+<I>outfile</I>
+
+instead of patching files in place.
+<DT><B>-p</B><I>num</I>  or  <B>--strip</B><B>=</B><I>num</I><DD>
+Strip the smallest prefix containing
+<I>num</I>
+
+leading slashes from each file name found in the patch file.
+A sequence of one or more adjacent slashes is counted as a single slash.
+This controls how file names found in the patch file are treated, in case
+you keep your files in a different directory than the person who sent
+out the patch.
+For example, supposing the file name in the patch file was
+
+
+<P>
+
+
+<B>/u/howard/src/blurfl/blurfl.c</B><BR>
+
+
+<P>
+
+
+setting
+<B>-p0</B>
+
+gives the entire file name unmodified,
+<B>-p1</B>
+
+gives
+
+
+<P>
+
+
+<B>u/howard/src/blurfl/blurfl.c</B><BR>
+
+
+<P>
+
+
+without the leading slash,
+<B>-p4</B>
+
+gives
+
+
+<P>
+
+
+<B>blurfl/blurfl.c</B><BR>
+
+
+<P>
+
+
+and not specifying
+<B>-p</B>
+
+at all just gives you <B>blurfl.c</B>.
+Whatever you end up with is looked for either in the current directory,
+or the directory specified by the
+<B>-d</B>
+
+option.
+<DT><B>--posix</B>
+
+<DD>
+Conform more strictly to the <FONT SIZE="-1">POSIX</FONT> standard, as follows.
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B> *</B>
+
+<DD>
+Take the first existing file from the list (old, new, index)
+when intuiting file names from diff headers.
+<DT><B> *</B>
+
+<DD>
+Do not remove files that are empty after patching.
+<DT><B> *</B>
+
+<DD>
+Do not ask whether to get files from <FONT SIZE="-1">RCS</FONT>, ClearCase, or <FONT SIZE="-1">SCCS</FONT>.
+<DT><B> *</B>
+
+<DD>
+Require that all options precede the files in the command line.
+<DT><B> *</B>
+
+<DD>
+Do not backup files when there is a mismatch.
+</DL>
+</DL>
+
+<DT><B>--quoting-style=</B><I>word</I>
+
+<DD>
+Use style
+<I>word</I>
+
+to quote output names.
+The
+<I>word</I>
+
+should be one of the following:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>literal</B>
+
+<DD>
+Output names as-is.
+<DT><B>shell</B>
+
+<DD>
+Quote names for the shell if they contain shell metacharacters or would
+cause ambiguous output.
+<DT><B>shell-always</B>
+
+<DD>
+Quote names for the shell, even if they would normally not require quoting.
+<DT><B>c</B>
+
+<DD>
+Quote names as for a C language string.
+<DT><B>escape</B>
+
+<DD>
+Quote as with
+<B>c</B>
+
+except omit the surrounding double-quote characters.
+</DL>
+<P>
+
+You can specify the default value of the
+<B>--quoting-style</B>
+
+option with the environment variable
+<B>QUOTING_STYLE</B>.
+
+If that environment variable is not set, the default value is
+<B>shell</B>.
+
+</DL>
+
+<DT><B>-r</B> <I>rejectfile</I>  or  <B>--reject-file=</B><I>rejectfile</I><DD>
+Put rejects into
+<I>rejectfile</I>
+
+instead of the default
+<B>.rej</B>
+
+file.
+<DT><B>-R</B>  or  <B>--reverse</B><DD>
+Assume that this patch was created with the old and new files swapped.
+(Yes, I'm afraid that does happen occasionally, human nature being what it
+is.)
+<B>patch</B>
+
+attempts to swap each hunk around before applying it.
+Rejects come out in the swapped format.
+The
+<B>-R</B>
+
+option does not work with
+<B>ed</B>
+
+diff scripts because there is too little
+information to reconstruct the reverse operation.
+
+
+<P>
+
+
+If the first hunk of a patch fails,
+<B>patch</B>
+
+reverses the hunk to see if it can be applied that way.
+If it can, you are asked if you want to have the
+<B>-R</B>
+
+option set.
+If it can't, the patch continues to be applied normally.
+(Note: this method cannot detect a reversed patch if it is a normal diff
+and if the first command is an append (i.e. it should have been a delete)
+since appends always succeed, due to the fact that a null context matches
+anywhere.
+Luckily, most patches add or change lines rather than delete them, so most
+reversed normal diffs begin with a delete, which fails, triggering
+the heuristic.)
+<DT><B>-s</B>  or  <B>--silent</B>  or  <B>--quiet</B><DD>
+Work silently, unless an error occurs.
+<DT><B>-t</B>  or  <B>--batch</B><DD>
+Suppress questions like
+<B>-f</B>,
+
+but make some different assumptions:
+skip patches whose headers do not contain file names (the same as <B>-f</B>);
+skip patches for which the file has the wrong version for the
+<B>Prereq:</B>
+
+line
+in the patch; and assume that patches are reversed if they look like
+they are.
+<DT><B>-T</B>  or  <B>--set-time</B><DD>
+Set the modification and access times of patched files from time stamps
+given in context diff headers, assuming that the context diff headers
+use local time.  This option is not recommended, because patches using
+local time cannot easily be used by people in other time zones, and
+because local time stamps are ambiguous when local clocks move backwards
+during daylight-saving time adjustments.  Instead of using this option,
+generate patches with <FONT SIZE="-1">UTC</FONT> and use the
+<B>-Z</B>
+
+or
+<B>--set-utc</B>
+
+option instead.
+<DT><B>-u</B>  or  <B>--unified</B><DD>
+Interpret the patch file as a unified context diff.
+<DT><B>-v</B>  or  <B>--version</B><DD>
+Print out
+<B>patch</B>'s
+
+revision header and patch level, and exit.
+<DT><B>-V</B> <I>method</I>  or  <B>--version-control=</B><I>method</I><DD>
+Use
+<I>method</I>
+
+to determine
+backup file names.  The method can also be given by the
+<B>PATCH_VERSION_CONTROL</B>
+
+(or, if that's not set, the
+<B>VERSION_CONTROL</B>)
+
+environment variable, which is overridden by this option.
+The method does not affect whether backup files are made;
+it affects only the names of any backup files that are made.
+
+
+<P>
+
+
+The value of
+<I>method</I>
+
+is like the <FONT SIZE="-1">GNU</FONT>
+Emacs `version-control' variable;
+<B>patch</B>
+
+also recognizes synonyms that
+are more descriptive.  The valid values for
+<I>method</I>
+
+are (unique abbreviations are
+accepted):
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>existing</B>  or  <B>nil</B><DD>
+Make numbered backups of files that already have them,
+otherwise simple backups.
+This is the default.
+<DT><B>numbered</B>  or  <B>t</B><DD>
+Make numbered backups.  The numbered backup file name for
+<I>F</I>
+
+is
+<I>F</I><B>.~</B><I>N</I><B>~</B>
+
+where
+<I>N</I>
+
+is the version number.
+<DT><B>simple</B>  or  <B>never</B><DD>
+Make simple backups.
+The
+<B>-B</B>
+
+or
+<B>--prefix</B>,
+
+<B>-Y</B>
+
+or
+<B>--basename-prefix</B>,
+
+and
+<B>-z</B>
+
+or
+<B>--suffix</B>
+
+options specify the simple backup file name.
+If none of these options are given, then a simple backup suffix is used;
+it is the value of the
+<B>SIMPLE_BACKUP_SUFFIX</B>
+
+environment variable if set, and is
+<B>.orig</B>
+
+otherwise.
+</DL>
+<P>
+
+With numbered or simple backups,
+if the backup file name is too long, the backup suffix
+<B>~</B>
+
+is used instead; if even appending
+<B>~</B>
+
+would make the name too long, then
+<B>~</B>
+
+replaces the last character of the file name.
+</DL>
+
+<DT><B>--verbose</B><DD>
+Output extra information about the work being done.
+<DT><B>-x</B> <I>num</I>  or  <B>--debug=</B><I>num</I><DD>
+Set internal debugging flags of interest only to
+<B>patch</B>
+
+patchers.
+<DT><B>-Y</B> <I>pref</I>  or  <B>--basename-prefix=</B><I>pref</I><DD>
+Prefix
+<I>pref</I>
+
+to the basename of a file name when generating its simple backup file name.
+For example, with
+<B>-Y&nbsp;.del/</B>
+
+the simple backup file name for
+<B>src/patch/util.c</B>
+
+is
+<B>src/patch/.del/util.c</B>.
+
+<DT><B>-z</B> <I>suffix</I>  or  <B>--suffix=</B><I>suffix</I><DD>
+Use
+<I>suffix</I>
+
+as the simple backup suffix.
+For example, with
+<B>-z&nbsp;-</B>
+
+the simple backup file name for
+<B>src/patch/util.c</B>
+
+is
+<B>src/patch/util.c-</B>.
+
+The backup suffix may also be specified by the
+<B>SIMPLE_BACKUP_SUFFIX</B>
+
+environment variable, which is overridden by this option.
+<DT><B>-Z</B>  or  <B>--set-utc</B><DD>
+Set the modification and access times of patched files from time stamps
+given in context diff headers, assuming that the context diff headers
+use Coordinated Universal Time (<FONT SIZE="-1">UTC</FONT>, often known as <FONT SIZE="-1">GMT</FONT>).
+Also see the
+<B>-T</B>
+
+or
+<B>--set-time</B>
+
+option.
+
+
+<P>
+
+
+The
+<B>-Z</B>
+
+or
+<B>--set-utc</B>
+
+and
+<B>-T</B>
+
+or
+<B>--set-time</B>
+
+options normally refrain from setting a file's time if the file's original time
+does not match the time given in the patch header, or if its
+contents do not match the patch exactly.  However, if the
+<B>-f</B>
+
+or
+<B>--force</B>
+
+option is given, the file time is set regardless.
+
+
+<P>
+
+
+Due to the limitations of
+<B>diff</B>
+
+output format, these options cannot update the times of files whose
+contents have not changed.  Also, if you use these options, you should remove
+(e.g. with
+<B>make&nbsp;clean</B>)
+
+all files that depend on the patched files, so that later invocations of
+<B>make</B>
+
+do not get confused by the patched files' times.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PATCH_GET</B>
+
+<DD>
+This specifies whether
+<B>patch</B>
+
+gets missing or read-only files from <FONT SIZE="-1">RCS</FONT>, ClearCase, or <FONT SIZE="-1">SCCS</FONT>
+by default; see the
+<B>-g</B>
+
+or
+<B>--get</B>
+
+option.
+<DT><B>POSIXLY_CORRECT</B>
+
+<DD>
+If set,
+<B>patch</B>
+
+conforms more strictly to the <FONT SIZE="-1">POSIX</FONT> standard by default:
+see the
+<B>--posix</B>
+
+option.
+<DT><B>QUOTING_STYLE</B>
+
+<DD>
+Default value of the
+<B>--quoting-style</B>
+
+option.
+<DT><B>SIMPLE_BACKUP_SUFFIX</B>
+
+<DD>
+Extension to use for simple backup file names instead of
+<B>.orig</B>.
+
+<DT><B>TMPDIR</B>, <B>TMP</B>, <B>TEMP</B><DD>
+Directory to put temporary files in;
+<B>patch</B>
+
+uses the first environment variable in this list that is set.
+If none are set, the default is system-dependent;
+it is normally
+<B>/tmp</B>
+
+on Unix hosts.
+<DT><B>VERSION_CONTROL</B> or <B>PATCH_VERSION_CONTROL</B><DD>
+Selects version control style; see the
+<B>-v</B>
+
+or
+<B>--version-control</B>
+
+option.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>$TMPDIR</I><B>/p*</B>
+
+<DD>
+temporary files
+<DT><B>/dev/tty</B>
+
+<DD>
+controlling terminal; used to get answers to questions asked of the user
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/diff.1.php">diff</A></B>(1),
+
+<B><A HREF="../man1/ed.1.php">ed</A></B>(1)
+
+
+
+<P>
+
+
+Marshall T. Rose and Einar A. Stefferud,
+Proposed Standard for Message Encapsulation,
+Internet RFC 934 &lt;URL:<A HREF="ftp://ftp.isi.edu/in-notes/rfc934.txt">ftp://ftp.isi.edu/in-notes/rfc934.txt</A>&gt; (1985-01).
+<A NAME="lbAI">&nbsp;</A>
+<H2>NOTES FOR PATCH SENDERS</H2>
+
+There are several things you should bear in mind if you are going to
+be sending out patches.
+<P>
+
+Create your patch systematically.
+A good method is the command
+<B>diff&nbsp;-Naur&nbsp;</B><I>old&nbsp;new</I>
+
+where
+<I>old</I>
+
+and
+<I>new</I>
+
+identify the old and new directories.
+The names
+<I>old</I>
+
+and
+<I>new</I>
+
+should not contain any slashes.
+The
+<B>diff</B>
+
+command's headers should have dates
+and times in Universal Time using traditional Unix format,
+so that patch recipients can use the
+<B>-Z</B>
+
+or
+<B>--set-utc</B>
+
+option.
+Here is an example command, using Bourne shell syntax:
+
+
+<P>
+
+
+<B>LC_ALL=C TZ=UTC0 diff -Naur gcc-2.7 gcc-2.8</B><BR>
+<P>
+
+Tell your recipients how to apply the patch
+by telling them which directory to
+<B>cd</B>
+
+to, and which
+<B>patch</B>
+
+options to use.  The option string
+<B>-Np1</B>
+
+is recommended.
+Test your procedure by pretending to be a recipient and applying
+your patch to a copy of the original files.
+<P>
+
+You can save people a lot of grief by keeping a
+<B>patchlevel.h</B>
+
+file which is patched to increment the patch level
+as the first diff in the patch file you send out.
+If you put a
+<B>Prereq:</B>
+
+line in with the patch, it won't let them apply
+patches out of order without some warning.
+<P>
+
+You can create a file by sending out a diff that compares
+<B>/dev/null</B>
+
+or an empty file dated the Epoch (1970-01-01 00:00:00 <FONT SIZE="-1">UTC</FONT>)
+to the file you want to create.
+This only works if the file you want to create doesn't exist already in
+the target directory.
+Conversely, you can remove a file by sending out a context diff that compares
+the file to be deleted with an empty file dated the Epoch.
+The file will be removed unless
+<B>patch</B>
+
+is conforming to <FONT SIZE="-1">POSIX</FONT> and the
+<B>-E</B>
+
+or
+<B>--remove-empty-files</B>
+
+option is not given.
+An easy way to generate patches that create and remove files
+is to use <FONT SIZE="-1">GNU</FONT>
+<B>diff</B>'s
+
+<B>-N</B>
+
+or
+<B>--new-file</B>
+
+option.
+<P>
+
+If the recipient is supposed to use the
+<B>-p</B><I>N</I>
+
+option, do not send output that looks like this:
+
+
+<P>
+
+
+<B>
+
+diff -Naur v2.0.29/prog/README prog/README<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;</TT>--- v2.0.29/prog/README   Mon Mar 10 15:13:12 1997<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;</TT>+++ prog/README   Mon Mar 17 14:58:22 1997<BR>
+</B>
+
+
+<P>
+
+
+because the two file names have different numbers of slashes,
+and different versions of
+<B>patch</B>
+
+interpret the file names differently.
+To avoid confusion, send output that looks like this instead:
+
+
+<P>
+
+
+<B>
+
+diff -Naur v2.0.29/prog/README v2.0.30/prog/README<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;</TT>--- v2.0.29/prog/README   Mon Mar 10 15:13:12 1997<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;</TT>+++ v2.0.30/prog/README   Mon Mar 17 14:58:22 1997<BR>
+</B>
+
+
+<P>
+
+
+<P>
+
+Avoid sending patches that compare backup file names like
+<B>README.orig</B>,
+
+since this might confuse
+<B>patch</B>
+
+into patching a backup file instead of the real file.
+Instead, send patches that compare the same base file names
+in different directories, e.g.
+<B>old/README</B>
+
+and
+<B>new/README</B>.
+
+<P>
+
+Take care not to send out reversed patches, since it makes people wonder
+whether they already applied the patch.
+<P>
+
+Try not to have your patch modify derived files
+(e.g. the file
+<B>configure</B>
+
+where there is a line
+<B>configure: configure.in</B>
+
+in your makefile), since the recipient should be
+able to regenerate the derived files anyway.
+If you must send diffs of derived files,
+generate the diffs using <FONT SIZE="-1">UTC</FONT>,
+have the recipients apply the patch with the
+<B>-Z</B>
+
+or
+<B>--set-utc</B>
+
+option, and have them remove any unpatched files that depend on patched files
+(e.g. with
+<B>make&nbsp;clean</B>).
+
+<P>
+
+While you may be able to get away with putting 582 diff listings into
+one file, it may be wiser to group related patches into separate files in
+case something goes haywire.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+Diagnostics generally indicate that
+<B>patch</B>
+
+couldn't parse your patch file.
+<P>
+
+If the
+<B>--verbose</B>
+
+option is given, the message
+<B>Hmm...</B>
+
+indicates that there is unprocessed text in
+the patch file and that
+<B>patch</B>
+
+is attempting to intuit whether there is a patch in that text and, if so,
+what kind of patch it is.
+<P>
+
+<B>patch</B>'s
+
+exit status is
+0 if all hunks are applied successfully,
+1 if some hunks cannot be applied,
+and 2 if there is more serious trouble.
+When applying a set of patches in a loop it behooves you to check this
+exit status so you don't apply a later patch to a partially patched file.
+<A NAME="lbAK">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+Context diffs cannot reliably represent the creation or deletion of
+empty files, empty directories, or special files such as symbolic links.
+Nor can they represent changes to file metadata like ownership, permissions,
+or whether one file is a hard link to another.
+If changes like these are also required, separate instructions
+(e.g. a shell script) to accomplish them should accompany the patch.
+<P>
+
+<B>patch</B>
+
+cannot tell if the line numbers are off in an
+<B>ed</B>
+
+script, and can detect
+bad line numbers in a normal diff only when it finds a change or deletion.
+A context diff using fuzz factor 3 may have the same problem.
+Until a suitable interactive interface is added, you should probably do
+a context diff in these cases to see if the changes made sense.
+Of course, compiling without errors is a pretty good indication that the patch
+worked, but not always.
+<P>
+
+<B>patch</B>
+
+usually produces the correct results, even when it has to do a lot of
+guessing.
+However, the results are guaranteed to be correct only when the patch is
+applied to exactly the same version of the file that the patch was
+generated from.
+<A NAME="lbAL">&nbsp;</A>
+<H2>COMPATIBILITY ISSUES</H2>
+
+The <FONT SIZE="-1">POSIX</FONT> standard specifies behavior that differs from
+<B>patch</B>'s
+
+traditional behavior.
+You should be aware of these differences if you must interoperate with
+<B>patch</B>
+
+versions 2.1 and earlier, which do not conform to <FONT SIZE="-1">POSIX</FONT>.
+<DL COMPACT>
+<DT><B> *</B>
+
+<DD>
+In traditional
+<B>patch</B>,
+
+the
+<B>-p</B>
+
+option's operand was optional, and a bare
+<B>-p</B>
+
+was equivalent to
+<B>-p0.</B>
+
+The
+<B>-p</B>
+
+option now requires an operand, and
+<B>-p&nbsp;0</B>
+
+is now equivalent to
+<B>-p0</B>.
+
+For maximum compatibility, use options like
+<B>-p0</B>
+
+and
+<B>-p1</B>.
+
+
+
+<P>
+
+
+Also,
+traditional
+<B>patch</B>
+
+simply counted slashes when stripping path prefixes;
+<B>patch</B>
+
+now counts pathname components.
+That is, a sequence of one or more adjacent slashes
+now counts as a single slash.
+For maximum portability, avoid sending patches containing
+<B>//</B>
+
+in file names.
+<DT><B> *</B>
+
+<DD>
+In traditional
+<B>patch</B>,
+
+backups were enabled by default.
+This behavior is now enabled with the
+<B>-b</B>
+
+or
+<B>--backup</B>
+
+option.
+
+
+<P>
+
+
+Conversely, in <FONT SIZE="-1">POSIX</FONT>
+<B>patch</B>,
+
+backups are never made, even when there is a mismatch.
+In <FONT SIZE="-1">GNU</FONT>
+<B>patch</B>,
+
+this behavior is enabled with the
+<B>--no-backup-if-mismatch</B>
+
+option, or by conforming to <FONT SIZE="-1">POSIX</FONT> with the
+<B>--posix</B>
+
+option or by setting the
+<B>POSIXLY_CORRECT</B>
+
+environment variable.
+
+
+<P>
+
+
+The
+<B>-b</B><I>&nbsp;suffix</I>
+
+option
+of traditional
+<B>patch</B>
+
+is equivalent to the
+<B>-b&nbsp;-z</B><I>&nbsp;suffix</I>
+
+options of <FONT SIZE="-1">GNU</FONT>
+<B>patch</B>.
+
+<DT><B> *</B>
+
+<DD>
+Traditional
+<B>patch</B>
+
+used a complicated (and incompletely documented) method
+to intuit the name of the file to be patched from the patch header.
+This method did not conform to <FONT SIZE="-1">POSIX</FONT>, and had a few gotchas.
+Now
+<B>patch</B>
+
+uses a different, equally complicated (but better documented) method
+that is optionally <FONT SIZE="-1">POSIX</FONT>-conforming; we hope it has
+fewer gotchas.  The two methods are compatible if the
+file names in the context diff header and the
+<B>Index:</B>
+
+line are all identical after prefix-stripping.
+Your patch is normally compatible if each header's file names
+all contain the same number of slashes.
+<DT><B> *</B>
+
+<DD>
+When traditional
+<B>patch</B>
+
+asked the user a question, it sent the question to standard error
+and looked for an answer from
+the first file in the following list that was a terminal:
+standard error, standard output,
+<B>/dev/tty</B>,
+
+and standard input.
+Now
+<B>patch</B>
+
+sends questions to standard output and gets answers from
+<B>/dev/tty</B>.
+
+Defaults for some answers have been changed so that
+<B>patch</B>
+
+never goes into an infinite loop when using default answers.
+<DT><B> *</B>
+
+<DD>
+Traditional
+<B>patch</B>
+
+exited with a status value that counted the number of bad hunks,
+or with status 1 if there was real trouble.
+Now
+<B>patch</B>
+
+exits with status 1 if some hunks failed,
+or with 2 if there was real trouble.
+<DT><B> *</B>
+
+<DD>
+Limit yourself to the following options when sending instructions
+meant to be executed by anyone running <FONT SIZE="-1">GNU</FONT>
+<B>patch</B>,
+
+traditional
+<B>patch</B>,
+
+or a
+<B>patch</B>
+
+that conforms to <FONT SIZE="-1">POSIX</FONT>.
+Spaces are significant in the following list, and operands are required.
+
+
+<P>
+
+
+<PRE>
+<B>-c</B>
+<B>-d</B><I> dir</I>
+<B>-D</B><I> define</I>
+<B>-e</B>
+<B>-l</B>
+<B>-n</B>
+<B>-N</B>
+<B>-o</B><I> outfile</I>
+<B>-p</B><I>num</I>
+<B>-R</B>
+<B>-r</B><I> rejectfile</I>
+</PRE>
+
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>BUGS</H2>
+
+Please report bugs via email to
+<B>&lt;<A HREF="mailto:bug-gnu-utils@gnu.org">bug-gnu-utils@gnu.org</A>&gt;</B>.
+
+<P>
+
+<B>patch</B>
+
+could be smarter about partial matches, excessively deviant offsets and
+swapped code, but that would take an extra pass.
+<P>
+
+If code has been duplicated (for instance with
+<B>#ifdef OLDCODE</B> ... <B>#else ... #endif</B>),
+<B>patch</B>
+
+is incapable of patching both versions, and, if it works at all, will likely
+patch the wrong one, and tell you that it succeeded to boot.
+<P>
+
+If you apply a patch you've already applied,
+<B>patch</B>
+
+thinks it is a reversed patch, and offers to un-apply the patch.
+This could be construed as a feature.
+<A NAME="lbAN">&nbsp;</A>
+<H2>COPYING</H2>
+
+Copyright
+
+1984, 1985, 1986, 1988 Larry Wall.
+<BR>
+
+Copyright
+
+1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998
+Free Software Foundation, Inc.
+<P>
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+<P>
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+<P>
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translations approved by the copyright holders instead of in
+the original English.
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Larry Wall wrote the original version of
+<B>patch</B>.
+
+Paul Eggert removed
+<B>patch</B>'s
+
+arbitrary limits; added support for binary files,
+setting file times, and deleting files;
+and made it conform better to <FONT SIZE="-1">POSIX</FONT>.
+Other contributors include Wayne Davison, who added unidiff support,
+and David MacKenzie, who added configuration and backup support.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">NOTES FOR PATCH SENDERS</A><DD>
+<DT><A HREF="#lbAJ">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAK">CAVEATS</A><DD>
+<DT><A HREF="#lbAL">COMPATIBILITY ISSUES</A><DD>
+<DT><A HREF="#lbAM">BUGS</A><DD>
+<DT><A HREF="#lbAN">COPYING</A><DD>
+<DT><A HREF="#lbAO">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

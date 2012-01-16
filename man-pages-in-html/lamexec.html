@@ -1,0 +1,486 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LAMEXEC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LAMEXEC</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lamexec - Run non-MPI programs on LAM nodes.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+
+<DD>lamexec 
+[-fhvD] 
+[-c &lt;#&gt; | -np &lt;#&gt;] 
+[-nw | -w] 
+[-pty]
+[-s &lt;node&gt;] 
+[-x VAR1[=VALUE1][,VAR2[=VALUE2],...]]
+[&lt;where&gt;] 
+&lt;program&gt; [-- &lt;args&gt;]
+<BR>
+
+
+
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-c &lt;#&gt;</B>
+
+<DD>
+Synonym for 
+<I>-np </I>
+
+(see below).
+<DT><B>-D</B>
+
+<DD>
+Use the executable program location as the current working directory
+for created processes.  The current working directory of the created
+processes will be set before the user's program is invoked.
+<DT><B>-f</B>
+
+<DD>
+Do not configure standard I/O file descriptors - use defaults.
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-np &lt;#&gt;</B>
+
+<DD>
+(see below).
+Run this many copies of the program on the given nodes.  This option
+indicates that the specified file is an executable program and not an
+application schema.  If no nodes are specified, all LAM nodes are
+considered for scheduling; LAM will schedule the programs in a
+round-robin fashion, &quot;wrapping around&quot; (and scheduling multiple copies
+on a single node) if necessary.
+<DT><B>-nw</B>
+
+<DD>
+Do not wait for all processes to complete before exiting
+<I>lamexec</I>.
+
+This option is mutually exclusive with 
+<I>-w</I>.
+
+<DT><B>-pty</B>
+
+<DD>
+Enable pseudo-tty support.  Among other things, this enabled
+line-buffered output (which is probably what you want).  The only
+reason that this feature is not enabled by default is because it is so
+new and has not been extensively tested yet.
+<DT><B>-s &lt;node&gt;</B>
+
+<DD>
+Load the program from this node.  This option is not valid on the
+command line if an application schema is specified.
+<DT><B>-v</B>
+
+<DD>
+Be verbose; report on important steps as they are done.
+<DT><B>-w</B>
+
+<DD>
+Wait for all applications to exit before 
+<I>lamexec</I>
+
+exits.
+<DT><B>-x</B>
+
+<DD>
+Export the specified environment variables to the remote nodes before
+executing the program.  Existing environment variables can be
+specified (see the Examples section, below), or new variable names
+specified with corresponding values.  The parser for the 
+<I>-x </I>
+
+option is not very sophisticated; it does not even understand quoted
+values.  Users are advised to set variables in the environment, and
+then use
+<I>-x </I>
+
+to export (not define) them.
+<DT><B>&lt;where&gt;</B>
+
+<DD>
+A set of node and/or CPU identifiers indicating where to start 
+<DT><B>-- &lt;args&gt;</B>
+
+<DD>
+Pass these runtime arguments to every new process.  This must always
+be the last argument to
+<I>lamexec</I>.
+
+This option is not valid on the command line if an application schema
+is specified.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>lamexec</I>
+
+is essentially a clone of the 
+<I><A HREF="../man1/mpirun.1.php">mpirun</A></I>(1),
+
+but is intended for non-MPI programs.
+<P>
+
+One invocation of
+<I>lamexec</I>
+
+starts a non-MPI application running under LAM.  To start the same
+program on all LAM nodes, the application can be specified on the
+<I>lamexec</I>
+
+command line.  To start multiple applications on the LAM nodes, an
+application schema is required in a separate file.  See <A HREF="../man5/appschema.5.php">appschema</A>(5)
+for a description of the application schema syntax, but it essentially
+contains multiple
+<I>lamexec</I>
+
+command lines, less the command name itself.  The ability to specify
+different options for different instantiations of a program is another
+reason to use an application schema.
+<A NAME="lbAF">&nbsp;</A>
+<H3>Location Nomenclature</H3>
+
+The location nomenclature that is used for the &lt;where&gt; clause mention
+in the SYNTAX section, above, is identical to <A HREF="../man1/mpirun.1.php">mpirun</A>(1)'s
+nomenclature.  See the <A HREF="../man1/mpirun.1.php">mpirun</A>(1) man page for a lengthy discussion of
+the location nomenclature.
+<P>
+
+Note that the by-CPU syntax, while valid for
+<I>lamexec</I>,
+
+is not quite as meaningful because process rank ordering in
+MPI_COMM_WORLD is irrelevant.  As such, the by-node nomenclature is
+typically the preferred syntax for 
+<I>lamexec</I>.
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Application Schema or Executable Program?</H3>
+
+To distinguish the two different forms,
+<I>lamexec</I>
+
+looks on the command line for &lt;nodes&gt; or the <I>-c</I> option.  If
+neither is specified, then the file named on the command line is
+assumed to be an application schema.  If either one or both are
+specified, then the file is assumed to be an executable program.  If
+&lt;nodes&gt; and <I>-c</I> both are specified, then copies of the program
+are started on the specified nodes according to an internal LAM
+scheduling policy.  Specifying just one node effectively forces LAM to
+run all copies of the program in one place.  If <I>-c</I> is given, but
+not &lt;nodes&gt;, then all LAM nodes are used.  If &lt;nodes&gt; is given, but
+not <I>-c</I>, then one copy of the program is run on each node.
+<A NAME="lbAH">&nbsp;</A>
+<H3>Program Transfer</H3>
+
+By default, LAM searches for executable programs on the target node
+where a particular instantiation will run.  If the file system is not
+shared, the target nodes are homogeneous, and the program is
+frequently recompiled, it can be convenient to have LAM transfer the
+program from a source node (usually the local node) to each target
+node.  The <I>-s</I> option specifies this behavior and identifies the
+single source node.
+<A NAME="lbAI">&nbsp;</A>
+<H3>Locating Files</H3>
+
+LAM looks for an executable program by searching the directories in
+the user's PATH environment variable as defined on the source node(s).
+This behavior is consistent with logging into the source node and
+executing the program from the shell.  On remote nodes, the &quot;.&quot; path
+is the home directory.
+<P>
+
+LAM looks for an application schema in three directories: the local
+directory, the value of the LAMAPPLDIR environment variable, and
+laminstalldir/boot, where &quot;laminstalldir&quot; is the directory where
+LAM/MPI was installed.
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Standard I/O</H3>
+
+LAM directs UNIX standard input to /dev/null on all remote nodes.  On
+the local node that invoked
+<I>lamexec</I>,
+
+standard input is inherited from
+<I>lamexec</I>.
+
+The default is what used to be the -w option to prevent conflicting
+access to the terminal.
+<P>
+
+LAM directs UNIX standard output and error to the LAM daemon on all
+remote nodes.  LAM ships all captured output/error to the node that
+invoked
+<I>lamexec</I>
+
+and prints it on the standard output/error of
+<I>lamexec</I>.
+
+Local processes inherit the standard output/error of
+<I>lamexec</I>
+
+and transfer to it directly.
+<P>
+
+Thus it is possible to redirect standard I/O for LAM applications by
+using the typical shell redirection procedure on
+<I>lamexec</I>.
+
+<P>
+<DL COMPACT><DT><DD>
+% lamexec N my_app &lt; my_input &gt; my_output
+</DL>
+
+<P>
+
+The
+<I>-f</I>
+
+option avoids all the setup required to support standard I/O described
+above.  Remote processes are completely directed to /dev/null and
+local processes inherit file descriptors from <A HREF="../man1/lamboot.1.php">lamboot</A>(1).
+<A NAME="lbAK">&nbsp;</A>
+<H3>Pseudo-tty support</H3>
+
+The 
+<I>-pty</I>
+
+option enabled pseudo-tty support for process output.  This allows,
+among other things, for line buffered output from remote nodes (which
+is probably what you want).  
+<P>
+
+This option is not currently the default for 
+<I>lamexec</I>
+
+because it has not been thoroughly tested on a variety of different
+Unixes. Users are encouraged to use
+<I>-pty </I>
+
+and report any problems back to the LAM Team.
+<A NAME="lbAL">&nbsp;</A>
+<H3>Current Working Directory</H3>
+
+The current working directory for new processes created on the local
+node is inherited from
+<I>lamexec</I>.
+
+The current working directory for new processes created on remote
+nodes is the remote user's home directory.  This default behavior is
+overridden by the
+<I>-D</I>
+
+option.  
+
+The
+<I>-D</I>
+
+option will change the current working directory of new processes to
+the directory where the executable resides before the new user's
+program is invoked.  
+<P>
+
+An alternative to the 
+<I>-D </I>
+
+option is the
+<I>-wd</I>
+
+option.  
+<I>-wd</I>
+
+allows the user to specify an arbitrary current working directory
+(vs. the location of the executable).  Note that the 
+<I>-wd</I>
+
+option can be used in application schema files (see <A HREF="../man5/appschema.5.php">appschema</A>(5)) as
+well.
+<A NAME="lbAM">&nbsp;</A>
+<H3>Process Environment</H3>
+
+Processes in the application inherit their environment from the LAM
+daemon upon the node on which they are running.  The environment of a
+LAM daemon is fixed upon booting of the LAM with <A HREF="../man1/lamboot.1.php">lamboot</A>(1) and is
+inherited from the user's shell.  On the origin node this will be the
+shell from which <A HREF="../man1/lamboot.1.php">lamboot</A>(1) was invoked and on remote nodes this will
+be the shell started by <A HREF="../man1/rsh.1.php">rsh</A>(1).  When running dynamically linked
+applications which require the LD_LIBRARY_PATH environment variable to
+be set, care must be taken to ensure that it is correctly set when
+booting the LAM.
+<A NAME="lbAN">&nbsp;</A>
+<H3>Exported Environment Variables</H3>
+
+The 
+<I>-x</I>
+
+option to 
+<I>lamexec</I>
+
+can be used to export specific environment variables to the new
+processes.  While the syntax of the 
+<I>-x </I>
+
+option allows the definition of new variables, note that the parser
+for this option is currently not very sophisticated - it does not even
+understand quoted values.  Users are advised to set variables in the
+environment and use 
+<I>-x </I>
+
+to export them; not to define them.
+<A NAME="lbAO">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>lamexec N prog1<DD>
+Load and execute prog1 on all nodes.
+Search for the executable file on each node.
+<DT>lamexec -c 8 prog1<DD>
+Run 8 copies of prog1 wherever LAM wants to run them.
+<DT>lamexec n8-10 -v -nw -s n3 prog1 -- -q<DD>
+Load and execute prog1 on nodes 8, 9, and 10.  Search for prog1 on
+node 3 and transfer it to the three target nodes.  Report as each
+process is created.  Give &quot;-q&quot; as a command line to each new process.
+Do not wait for the processes to complete before exiting
+<I>lamexec</I>.
+
+<DT>lamexec -v myapp<DD>
+Parse the application schema, myapp, and start all processes specified
+in it.  Report as each process is created.
+<DT>lamexec N N -pty -wd /workstuff/output -x DISPLAY run_app.csh<DD>
+Run the application &quot;run_app.csh&quot; (assumedly a C shell script) twice
+on each node in the system (ideal for 2-way SMPs).  Also enable
+pseudo-tty support, change directory to /workstuff/output, and export
+the DISPLAY variable to the new processes (perhaps the shell script
+will invoke an X application such as xv to display output).
+<DT>lamexec -np 5 -D `pwd`/my_application<DD>
+A common usage of 
+<I>lamexec</I>
+
+in environments where a filesystem is shared between all nodes in the
+multicomputer, using the shell-escaped &quot;pwd&quot; command specifies the
+full name of the executable to run.  This prevents the need for
+putting the directory in the path; the remote notes will have an
+absolute filename to execute (and change directory to it upon
+invocation).
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<DL COMPACT>
+<DT>lamexec: Exec format error<DD>
+A non-ASCII character was detected in the application schema.
+This is usually a command line usage error where
+<I>lamexec</I>
+
+is expecting an application schema and an executable file was given.
+<DT>lamexec: syntax error in application schema, line XXX<DD>
+The application schema cannot be parsed because of a usage or syntax error
+on the given line in the file.
+<DT>&lt;filename&gt;: No such file or directory<DD>
+This error can occur in two cases.  Either the named file cannot be
+located or it has been found but the user does not have sufficient
+permissions to execute the program or read the application schema.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<I>lamexec</I>
+
+returns 0 if all processes started by
+<I>lamexec</I>
+
+exit normally.  A non-zero value is returned if an internal error occurred 
+in lamexec, or one or more processes exited abnormally.  If an internal 
+error occurred in lamexec, the corresponding error code is returned.  In 
+the event that one or more processes exit with non-zero exit code, the 
+return value of the process that
+<I>lamexec</I>
+
+first notices died abnormally will be returned.  Note that, in general, 
+this will be the first process that died but is not guaranteed to be so.
+<P>
+
+However, note that if the
+<I>-nw</I>
+
+switch is used, the return value from lamexec does not indicate the exit 
+status of the processes started by it.
+<A NAME="lbAR">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/mpimsg.1.php">mpimsg</A>(1), <A HREF="../man1/mpirun.1.php">mpirun</A>(1), <A HREF="../man1/mpitask.1.php">mpitask</A>(1), <A HREF="../man1/loadgo.1.php">loadgo</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Location Nomenclature</A><DD>
+<DT><A HREF="#lbAG">Application Schema or Executable Program?</A><DD>
+<DT><A HREF="#lbAH">Program Transfer</A><DD>
+<DT><A HREF="#lbAI">Locating Files</A><DD>
+<DT><A HREF="#lbAJ">Standard I/O</A><DD>
+<DT><A HREF="#lbAK">Pseudo-tty support</A><DD>
+<DT><A HREF="#lbAL">Current Working Directory</A><DD>
+<DT><A HREF="#lbAM">Process Environment</A><DD>
+<DT><A HREF="#lbAN">Exported Environment Variables</A><DD>
+</DL>
+<DT><A HREF="#lbAO">EXAMPLES</A><DD>
+<DT><A HREF="#lbAP">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAQ">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAR">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

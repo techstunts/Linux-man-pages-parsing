@@ -1,0 +1,908 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERL570DELTA</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERL570DELTA</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perl570delta - what's new for perl v5.7.0
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes differences between the 5.6.0 release and
+the 5.7.0 release.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Security Vulnerability Closed</H2>
+
+<A NAME="ixAAD"></A>
+A potential security vulnerability in the optional suidperl component
+of Perl has been identified.  suidperl is neither built nor installed
+by default.  As of September the 2nd, 2000, the only known vulnerable
+platform is Linux, most likely all Linux distributions.  <FONT SIZE="-1">CERT</FONT> and
+various vendors have been alerted about the vulnerability.
+<P>
+
+The problem was caused by Perl trying to report a suspected security
+exploit attempt using an external program, /bin/mail.  On Linux
+platforms the /bin/mail program had an undocumented feature which
+when combined with suidperl gave access to a root shell, resulting in
+a serious compromise instead of reporting the exploit attempt.  If you
+don't have /bin/mail, or if you have 'safe setuid scripts', or if
+suidperl is not installed, you are safe.
+<P>
+
+The exploit attempt reporting feature has been completely removed from
+the Perl 5.7.0 release, so that particular vulnerability isn't there
+anymore.  However, further security vulnerabilities are,
+unfortunately, always possible.  The suidperl code is being reviewed
+and if deemed too risky to continue to be supported, it may be
+completely removed from future releases.  In any case, suidperl should
+only be used by security experts who know exactly what they are doing
+and why they are using suidperl instead of some other solution such as
+sudo ( see <A HREF="http://www.courtesan.com/sudo/">http://www.courtesan.com/sudo/</A> ).
+<A NAME="lbAE">&nbsp;</A>
+<H2>Incompatible Changes</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT>*<DD>
+Arrays now always interpolate into double-quoted strings:
+constructs like ``foo@bar'' now always assume <TT>@bar</TT> is an array,
+whether or not the compiler has seen use of <TT>@bar</TT>.
+<DT>*<DD>
+The semantics of bless(<FONT SIZE="-1">REF</FONT>, <FONT SIZE="-1">REF</FONT>) were unclear and until someone proves
+it to make some sense, it is forbidden.
+<DT>*<DD>
+A reference to a reference now stringify as ``<FONT SIZE="-1">REF</FONT>(0x81485ec)'' instead
+of ``<FONT SIZE="-1">SCALAR</FONT>(0x81485ec)'' in order to be more consistent with the return
+value of <I>ref()</I>.
+<DT>*<DD>
+The very dusty examples in the eg/ directory have been removed.
+Suggestions for new shiny examples welcome but the main issue is that
+the examples need to be documented, tested and (most importantly)
+maintained.
+<DT>*<DD>
+The obsolete chat2 library that should never have been allowed
+to escape the laboratory has been decommissioned.
+<DT>*<DD>
+The unimplemented <FONT SIZE="-1">POSIX</FONT> regex features [[.cc.]] and [[=c=]] are still
+recognised but now cause fatal errors.  The previous behaviour of
+ignoring them by default and warning if requested was unacceptable
+since it, in a way, falsely promised that the features could be used.
+<DT>*<DD>
+The (bogus) escape sequences \8 and \9 now give an optional warning
+(``Unrecognized escape passed through'').  There is no need to \-escape
+any <TT>&quot;\w&quot;</TT> character.
+<DT>*<DD>
+lstat(<FONT SIZE="-1">FILEHANDLE</FONT>) now gives a warning because the operation makes no sense.
+In future releases this may become a fatal error.
+<DT>*<DD>
+The long deprecated uppercase aliases for the string comparison
+operators (<FONT SIZE="-1">EQ</FONT>, <FONT SIZE="-1">NE</FONT>, <FONT SIZE="-1">LT</FONT>, <FONT SIZE="-1">LE</FONT>, <FONT SIZE="-1">GE</FONT>, <FONT SIZE="-1">GT</FONT>) have now been removed.
+<DT>*<DD>
+The regular expression captured submatches ($1, <TT>$2</TT>, ...) are now
+more consistently unset if the match fails, instead of leaving false
+data lying around in them.
+<DT>*<DD>
+The tr///C and tr///U features have been removed and will not return;
+the interface was a mistake.  Sorry about that.  For similar
+functionality, see pack('U0', ...) and pack('C0', ...).
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Core Enhancements</H2>
+
+<A NAME="ixAAF"></A>
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;perl -d:Module=arg,arg,arg&quot;</TT> now works (previously one couldn't pass
+in multiple arguments.)
+<DT>*<DD>
+my __PACKAGE__ <TT>$obj</TT> now works.
+<DT>*<DD>
+<TT>&quot;no Module;&quot;</TT> now works even if there is no ``sub unimport'' in the Module.
+<DT>*<DD>
+The numerical comparison operators return <TT>&quot;undef&quot;</TT> if either operand
+is a NaN.  Previously the behaviour was unspecified.
+<DT>*<DD>
+<TT>&quot;pack('U0a*', ...)&quot;</TT> can now be used to force a string to <FONT SIZE="-1">UTF-8</FONT>.
+<DT>*<DD>
+prototype(\&amp;) is now available.
+<DT>*<DD>
+There is now an <FONT SIZE="-1">UNTIE</FONT> method.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Modules and Pragmata</H2>
+
+<A NAME="ixAAG"></A>
+<A NAME="lbAH">&nbsp;</A>
+<H2>New Modules</H2>
+
+<A NAME="ixAAH"></A>
+<DL COMPACT>
+<DT>*<DD>
+File::Temp allows one to create temporary files and directories in an
+easy, portable, and secure way.
+<DT>*<DD>
+Storable gives persistence to Perl data structures by allowing the
+storage and retrieval of Perl data to and from files in a fast and
+compact binary format.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>Updated And Improved Modules and Pragmata</H2>
+
+<A NAME="ixAAI"></A>
+<DL COMPACT>
+<DT>*<DD>
+The following independently supported modules have been updated to
+newer versions from <FONT SIZE="-1">CPAN:</FONT> <FONT SIZE="-1">CGI</FONT>, <FONT SIZE="-1">CPAN</FONT>, DB_File, File::Spec, Getopt::Long,
+the podlators bundle, Pod::LaTeX, Pod::Parser, Term::ANSIColor, Test.
+<DT>*<DD>
+Bug fixes and minor enhancements have been applied to B::Deparse,
+Data::Dumper, IO::Poll, IO::Socket::INET, Math::BigFloat,
+Math::Complex, Math::Trig, Net::protoent, the re pragma, SelfLoader,
+Sys::SysLog, Test::Harness, Text::Wrap, <FONT SIZE="-1">UNIVERSAL</FONT>, and the warnings
+pragma.
+<DT>*<DD>
+The <I>attributes::reftype()</I> now works on tied arguments.
+<DT>*<DD>
+AutoLoader can now be disabled with <TT>&quot;no AutoLoader;&quot;</TT>,
+<DT>*<DD>
+The English module can now be used without the infamous performance
+hit by saying
+
+
+<P>
+
+
+
+
+<PRE>
+        use English '-no_performance_hit';
+
+</PRE>
+
+
+
+
+<P>
+
+
+(Assuming, of course, that one doesn't need the troublesome variables
+<TT>$`</TT>, <TT>$&amp;</TT>, or <TT>$'</TT>.)  Also, introduced <TT>@LAST_MATCH_START</TT> and
+<TT>@LAST_MATCH_END</TT> English aliases for <TT>&quot;@-&quot;</TT> and <TT>&quot;@+&quot;</TT>.
+<DT>*<DD>
+File::Find now has pre- and post-processing callbacks.  It also
+correctly changes directories when chasing symbolic links.  Callbacks
+(naughtily) exiting with ``next;'' instead of ``return;'' now work.
+<DT>*<DD>
+<I>File::Glob::glob()</I> renamed to <I>File::Glob::bsd_glob()</I> to avoid
+prototype mismatch with <I>CORE::glob()</I>.
+<DT>*<DD>
+IPC::Open3 now allows the use of numeric file descriptors.
+<DT>*<DD>
+use lib now works identically to <TT>@INC</TT>.  Removing directories
+with 'no lib' now works.
+<DT>*<DD>
+<TT>%INC</TT> now localised in a Safe compartment so that use/require work.
+<DT>*<DD>
+The Shell module now has an <FONT SIZE="-1">OO</FONT> interface.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Utility Changes</H2>
+
+<A NAME="ixAAJ"></A>
+<DL COMPACT>
+<DT>*<DD>
+The Emacs perl mode (emacs/cperl-mode.el) has been updated to version
+4.31.
+<DT>*<DD>
+Perlbug is now much more robust.  It also sends the bug report to
+perl.org, not perl.com.
+<DT>*<DD>
+The perlcc utility has been rewritten and its user interface (that is,
+command line) is much more like that of the <FONT SIZE="-1">UNIX</FONT> C compiler, cc.
+<DT>*<DD>
+The xsubpp utility for extension writers now understands <FONT SIZE="-1">POD</FONT>
+documentation embedded in the *.xs files.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>New Documentation</H2>
+
+<A NAME="ixAAK"></A>
+<DL COMPACT>
+<DT>*<DD>
+perl56delta details the changes between the 5.005 release and the
+5.6.0 release.
+<DT>*<DD>
+perldebtut is a Perl debugging tutorial.
+<DT>*<DD>
+perlebcdic contains considerations for running Perl on <FONT SIZE="-1">EBCDIC</FONT> platforms.
+Note that unfortunately <FONT SIZE="-1">EBCDIC</FONT> platforms that used to supported back in
+Perl 5.005 are still unsupported by Perl 5.7.0; the plan, however, is to
+bring them back to the fold.  
+<DT>*<DD>
+perlnewmod tells about writing and submitting a new module.
+<DT>*<DD>
+perlposix-bc explains using Perl on the POSIX-BC platform
+(an <FONT SIZE="-1">EBCDIC</FONT> mainframe platform).
+<DT>*<DD>
+perlretut is a regular expression tutorial.
+<DT>*<DD>
+perlrequick is a regular expressions quick-start guide.
+Yes, much quicker than perlretut.
+<DT>*<DD>
+perlutil explains the command line utilities packaged with the Perl
+distribution.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>Performance Enhancements</H2>
+
+<A NAME="ixAAL"></A>
+<DL COMPACT>
+<DT>*<DD>
+<I>map()</I> that changes the size of the list should now work faster.
+<DT>*<DD>
+<I>sort()</I> has been changed to use mergesort internally as opposed to the
+earlier quicksort.  For very small lists this may result in slightly
+slower sorting times, but in general the speedup should be at least
+20%.  Additional bonuses are that the worst case behaviour of <I>sort()</I>
+is now better (in computer science terms it now runs in time O(N log N),
+as opposed to quicksort's Theta(N**2) worst-case run time behaviour),
+and that <I>sort()</I> is now stable (meaning that elements with identical
+keys will stay ordered as they were before the sort).
+</DL>
+<A NAME="lbAM">&nbsp;</A>
+<H2>Installation and Configuration Improvements</H2>
+
+<A NAME="ixAAM"></A>
+<A NAME="lbAN">&nbsp;</A>
+<H2>Generic Improvements</H2>
+
+<A NAME="ixAAN"></A>
+<DL COMPACT>
+<DT>*<DD>
+<FONT SIZE="-1">INSTALL</FONT> now explains how you can configure Perl to use 64-bit
+integers even on non-64-bit platforms.
+<DT>*<DD>
+Policy.sh policy change: if you are reusing a Policy.sh file
+(see <FONT SIZE="-1">INSTALL</FONT>) and you use Configure -Dprefix=/foo/bar and in the old
+Policy <TT>$prefix</TT> eq <TT>$siteprefix</TT> and <TT>$prefix</TT> eq <TT>$vendorprefix</TT>, all of
+them will now be changed to the new prefix, /foo/bar.  (Previously
+only <TT>$prefix</TT> changed.)  If you do not like this new behaviour,
+specify prefix, siteprefix, and vendorprefix explicitly.
+<DT>*<DD>
+A new optional location for Perl libraries, otherlibdirs, is available.
+It can be used for example for vendor add-ons without disturbing Perl's
+own library directories.
+<DT>*<DD>
+In many platforms the vendor-supplied 'cc' is too stripped-down to
+build Perl (basically, 'cc' doesn't do <FONT SIZE="-1">ANSI</FONT> C).  If this seems
+to be the case and 'cc' does not seem to be the <FONT SIZE="-1">GNU</FONT> C compiler
+'gcc', an automatic attempt is made to find and use 'gcc' instead.
+<DT>*<DD>
+gcc needs to closely track the operating system release to avoid
+build problems. If Configure finds that gcc was built for a different
+operating system release than is running, it now gives a clearly visible
+warning that there may be trouble ahead.
+<DT>*<DD>
+If binary compatibility with the 5.005 release is not wanted, Configure
+no longer suggests including the 5.005 modules in <TT>@INC</TT>.
+<DT>*<DD>
+Configure <TT>&quot;-S&quot;</TT> can now run non-interactively.
+<DT>*<DD>
+configure.gnu now works with options with whitespace in them.
+<DT>*<DD>
+installperl now outputs everything to <FONT SIZE="-1">STDERR</FONT>.
+<DT>*<DD>
+$Config{byteorder} is now computed dynamically (this is more robust
+with ``fat binaries'' where an executable image contains binaries for
+more than one binary platform.)
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>Selected Bug Fixes</H2>
+
+<A NAME="ixAAO"></A>
+<DL COMPACT>
+<DT>*<DD>
+Several debugger fixes: exit code now reflects the script exit code,
+condition <TT>&quot;0&quot;</TT> now treated correctly, the <TT>&quot;d&quot;</TT> command now checks
+line number, the <TT>$.</TT> no longer gets corrupted, all debugger output now
+goes correctly to the socket if RemotePort is set.
+<DT>*<DD>
+<TT>*foo{FORMAT}</TT> now works.
+<DT>*<DD>
+Lexical warnings now propagating correctly between scopes.
+<DT>*<DD>
+Line renumbering with eval and <TT>&quot;#line&quot;</TT> now works.
+<DT>*<DD>
+Fixed numerous memory leaks, especially in eval &quot;&quot;.
+<DT>*<DD>
+Modulus of unsigned numbers now works (4063328477 % 65535 used to
+return 27406, instead of 27047).
+<DT>*<DD>
+Some ``not a number'' warnings introduced in 5.6.0 eliminated to be
+more compatible with 5.005.  Infinity is now recognised as a number.
+<DT>*<DD>
+<I>our()</I> variables will not cause ``will not stay shared'' warnings.
+<DT>*<DD>
+pack ``Z'' now correctly terminates the string with ``\0''.
+<DT>*<DD>
+Fix password routines which in some shadow password platforms
+(e.g. <FONT SIZE="-1">HP-UX</FONT>) caused <I>getpwent()</I> to return every other entry.
+<DT>*<DD>
+<I>printf()</I> no longer resets the numeric locale to ``C''.
+<DT>*<DD>
+<TT>&quot;q(a\\b)&quot;</TT> now parses correctly as <TT>'a\\b'</TT>.
+<DT>*<DD>
+Printing quads (64-bit integers) with printf/sprintf now works
+without the q L ll prefixes (assuming you are on a quad-capable platform).
+<DT>*<DD>
+Regular expressions on references and overloaded scalars now work.
+<DT>*<DD>
+<I>scalar()</I> now forces scalar context even when used in void context.
+<DT>*<DD>
+<I>sort()</I> arguments are now compiled in the right wantarray context
+(they were accidentally using the context of the <I>sort()</I> itself).
+<DT>*<DD>
+Changed the <FONT SIZE="-1">POSIX</FONT> character class <TT>&quot;[[:space:]]&quot;</TT> to include the (very
+rare) vertical tab character.  Added a new POSIX-ish character class
+<TT>&quot;[[:blank:]]&quot;</TT> which stands for horizontal whitespace (currently,
+the space and the tab).
+<DT>*<DD>
+$AUTOLOAD, <I>sort()</I>, <I>lock()</I>, and spawning subprocesses
+in multiple threads simultaneously are now thread-safe.
+<DT>*<DD>
+Allow read-only string on left hand side of non-modifying tr///.
+<DT>*<DD>
+Several Unicode fixes (but still not perfect).
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+BOMs (byte order marks) in the beginning of Perl files
+(scripts, modules) should now be transparently skipped.
+<FONT SIZE="-1">UTF-16</FONT> (<FONT SIZE="-1">UCS-2</FONT>) encoded Perl files should now be read correctly.
+<DT>*<DD>
+The character tables have been updated to Unicode 3.0.1.
+<DT>*<DD>
+<I>chr()</I> for values greater than 127 now create utf8 when under use
+utf8.
+<DT>*<DD>
+Comparing with utf8 data does not magically upgrade non-utf8 data into
+utf8.
+<DT>*<DD>
+<TT>&quot;IsAlnum&quot;</TT>, <TT>&quot;IsAlpha&quot;</TT>, and <TT>&quot;IsWord&quot;</TT> now match titlecase.
+<DT>*<DD>
+Concatenation with the <TT>&quot;.&quot;</TT> operator or via variable interpolation,
+<TT>&quot;eq&quot;</TT>, <TT>&quot;substr&quot;</TT>, <TT>&quot;reverse&quot;</TT>, <TT>&quot;quotemeta&quot;</TT>, the <TT>&quot;x&quot;</TT> operator,
+substitution with <TT>&quot;s///&quot;</TT>, single-quoted <FONT SIZE="-1">UTF-8</FONT>, should now work---in
+theory.
+<DT>*<DD>
+The <TT>&quot;tr///&quot;</TT> operator now works <I>slightly</I> better but is still rather
+broken.  Note that the <TT>&quot;tr///CU&quot;</TT> functionality has been removed (but
+see pack('U0', ...)).
+<DT>*<DD>
+<I>vec()</I> now refuses to deal with characters &gt;255.
+<DT>*<DD>
+Zero entries were missing from the Unicode classes like <TT>&quot;IsDigit&quot;</TT>.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>*<DD>
+UNIVERSAL::isa no longer caches methods incorrectly.  (This broke
+the Tk extension with 5.6.0.)
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>Platform Specific Changes and Fixes</H2>
+
+<A NAME="ixAAP"></A>
+<DL COMPACT>
+<DT>*<DD>
+<FONT SIZE="-1">BSDI</FONT> 4.*
+
+
+<P>
+
+
+Perl now works on post-4.0 BSD/OSes.
+<DT>*<DD>
+All BSDs
+
+
+<P>
+
+
+Setting <TT>$0</TT> now works (as much as possible; see perlvar for details).
+<DT>*<DD>
+Cygwin
+
+
+<P>
+
+
+Numerous updates; currently synchronised with Cygwin 1.1.4.
+<DT>*<DD>
+<FONT SIZE="-1">EPOC</FONT>
+
+
+<P>
+
+
+<FONT SIZE="-1">EPOC</FONT> update after Perl 5.6.0.  See <FONT SIZE="-1">README</FONT>.epoc.
+<DT>*<DD>
+FreeBSD 3.*
+
+
+<P>
+
+
+Perl now works on post-3.0 FreeBSDs.
+<DT>*<DD>
+HP-UX
+
+
+<P>
+
+
+<FONT SIZE="-1">README</FONT>.hpux updated; <TT>&quot;Configure -Duse64bitall&quot;</TT> now almost works.
+<DT>*<DD>
+<FONT SIZE="-1">IRIX</FONT>
+
+
+<P>
+
+
+Numerous compilation flag and hint enhancements; accidental mixing
+of 32-bit and 64-bit libraries (a doomed attempt) made much harder.
+<DT>*<DD>
+Linux
+
+
+<P>
+
+
+Long doubles should now work (see <FONT SIZE="-1">INSTALL</FONT>).
+<DT>*<DD>
+Mac <FONT SIZE="-1">OS</FONT> Classic
+
+
+<P>
+
+
+Compilation of the standard Perl distribution in Mac <FONT SIZE="-1">OS</FONT> Classic should
+now work if you have the Metrowerks development environment and the
+missing Mac-specific toolkit bits.  Contact the macperl mailing list
+for details.
+<DT>*<DD>
+MPE/iX
+
+
+<P>
+
+
+MPE/iX update after Perl 5.6.0.  See <FONT SIZE="-1">README</FONT>.mpeix.
+<DT>*<DD>
+NetBSD/sparc
+
+
+<P>
+
+
+Perl now works on NetBSD/sparc.
+<DT>*<DD>
+<FONT SIZE="-1">OS/2</FONT>
+
+
+<P>
+
+
+Now works with usethreads (see <FONT SIZE="-1">INSTALL</FONT>).
+<DT>*<DD>
+Solaris
+
+
+<P>
+
+
+64-bitness using the Sun Workshop compiler now works.
+<DT>*<DD>
+Tru64 (aka Digital <FONT SIZE="-1">UNIX</FONT>, aka <FONT SIZE="-1">DEC</FONT> <FONT SIZE="-1">OSF/1</FONT>)
+
+
+<P>
+
+
+The operating system version letter now recorded in <TT>$Config</TT>{osvers}.
+Allow compiling with gcc (previously explicitly forbidden).  Compiling
+with gcc still not recommended because buggy code results, even with
+gcc 2.95.2.
+<DT>*<DD>
+Unicos
+
+
+<P>
+
+
+Fixed various alignment problems that lead into core dumps either
+during build or later; no longer dies on math errors at runtime;
+now using full quad integers (64 bits), previously was using 
+only 46 bit integers for speed.
+<DT>*<DD>
+<FONT SIZE="-1">VMS</FONT>
+
+
+<P>
+
+
+<I>chdir()</I> now works better despite a <FONT SIZE="-1">CRT</FONT> bug; now works with <FONT SIZE="-1">MULTIPLICITY</FONT>
+(see <FONT SIZE="-1">INSTALL</FONT>); now works with Perl's malloc.
+<DT>*<DD>
+Windows
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+<I>accept()</I> no longer leaks memory.
+<DT>*<DD>
+Better <I>chdir()</I> return value for a non-existent directory.
+<DT>*<DD>
+New <TT>%ENV</TT> entries now propagate to subprocesses.
+<DT>*<DD>
+$ENV{<FONT SIZE="-1">LIB</FONT>} now used to search for libs under Visual C.
+<DT>*<DD>
+A failed (pseudo)fork now returns undef and sets errno to <FONT SIZE="-1">EAGAIN</FONT>.
+<DT>*<DD>
+Allow <FONT SIZE="-1">REG_EXPAND_SZ</FONT> keys in the registry.
+<DT>*<DD>
+Can now <I>send()</I> from all threads, not just the first one.
+<DT>*<DD>
+Fake signal handling reenabled, bugs and all.
+<DT>*<DD>
+Less stack reserved per thread so that more threads can run
+concurrently. (Still 16M per thread.)
+<DT>*<DD>
+<TT>&quot;File::Spec-&gt;tmpdir()&quot;</TT> now prefers C:/temp over /tmp
+(works better when perl is running as service).
+<DT>*<DD>
+Better <FONT SIZE="-1">UNC</FONT> path handling under ithreads.
+<DT>*<DD>
+<I>wait()</I> and <I>waitpid()</I> now work much better.
+<DT>*<DD>
+winsock handle leak fixed.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>New or Changed Diagnostics</H2>
+
+<A NAME="ixAAQ"></A>
+All regular expression compilation error messages are now hopefully
+easier to understand both because the error message now comes before
+the failed regex and because the point of failure is now clearly
+marked.
+<P>
+
+The various ``opened only for'', ``on closed'', ``never opened'' warnings
+drop the <TT>&quot;main::&quot;</TT> prefix for filehandles in the <TT>&quot;main&quot;</TT> package,
+for example <TT>&quot;STDIN&quot;</TT> instead of &lt;main::STDIN&gt;. 
+<P>
+
+The ``Unrecognized escape'' warning has been extended to include <TT>&quot;\8&quot;</TT>,
+<TT>&quot;\9&quot;</TT>, and <TT>&quot;\_&quot;</TT>.  There is no need to escape any of the <TT>&quot;\w&quot;</TT> characters.
+<A NAME="lbAR">&nbsp;</A>
+<H2>Changed Internals</H2>
+
+<A NAME="ixAAR"></A>
+<DL COMPACT>
+<DT>*<DD>
+perlapi.pod (a companion to perlguts) now attempts to document the
+internal <FONT SIZE="-1">API</FONT>.
+<DT>*<DD>
+You can now build a really minimal perl called microperl.
+Building microperl does not require even running Configure;
+<TT>&quot;make -f Makefile.micro&quot;</TT> should be enough.  Beware: microperl makes
+many assumptions, some of which may be too bold; the resulting
+executable may crash or otherwise misbehave in wondrous ways.
+For careful hackers only.
+<DT>*<DD>
+Added <I>rsignal()</I>, <I>whichsig()</I>, <I>do_join()</I> to the publicised <FONT SIZE="-1">API</FONT>.
+<DT>*<DD>
+Made possible to propagate customised exceptions via <I>croak()</I>ing.
+<DT>*<DD>
+Added <I>is_utf8_char()</I>, <I>is_utf8_string()</I>, <I>bytes_to_utf8()</I>, and <I>utf8_to_bytes()</I>.
+<DT>*<DD>
+Now xsubs can have attributes just like subs.
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H2>Known Problems</H2>
+
+<A NAME="ixAAS"></A>
+<A NAME="lbAT">&nbsp;</A>
+<H2>Unicode Support Still Far From Perfect</H2>
+
+<A NAME="ixAAT"></A>
+We're working on it.  Stay tuned.
+<A NAME="lbAU">&nbsp;</A>
+<H2><FONT SIZE="-1">EBCDIC</FONT> Still A Lost Platform</H2>
+
+<A NAME="ixAAU"></A>
+The plan is to bring them back.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Building Extensions Can Fail Because Of Largefiles
+
+</H2>
+
+<A NAME="ixAAV"></A>
+Certain extensions like mod_perl and BSD::Resource are known to have
+issues with `largefiles', a change brought by Perl 5.6.0 in which file
+offsets default to 64 bits wide, where supported.  Modules may fail to
+compile at all or compile and work incorrectly.  Currently there is no
+good solution for the problem, but Configure now provides appropriate
+non-largefile ccflags, ldflags, libswanted, and libs in the <TT>%Config</TT>
+hash (e.g., <TT>$Config</TT>{ccflags_nolargefiles}) so the extensions that are
+having problems can try configuring themselves without the
+largefileness.  This is admittedly not a clean solution, and the
+solution may not even work at all.  One potential failure is whether
+one can (or, if one can, whether it's a good idea) link together at
+all binaries with different ideas about file offsets, all this is
+platform-dependent.
+<A NAME="lbAW">&nbsp;</A>
+<H2>ftmp-security tests warn 'system possibly insecure'</H2>
+
+<A NAME="ixAAW"></A>
+Don't panic.  Read <FONT SIZE="-1">INSTALL</FONT> 'make test' section instead. 
+<A NAME="lbAX">&nbsp;</A>
+<H2>Test lib/posix Subtest 9 Fails In LP64-Configured HP-UX
+
+</H2>
+
+<A NAME="ixAAX"></A>
+If perl is configured with -Duse64bitall, the successful result of the
+subtest 10 of lib/posix may arrive before the successful result of the
+subtest 9, which confuses the test harness so much that it thinks the
+subtest 9 failed.
+<A NAME="lbAY">&nbsp;</A>
+<H2>Long Doubles Still Don't Work In Solaris
+
+</H2>
+
+<A NAME="ixAAY"></A>
+The experimental long double support is still very much so in Solaris.
+(Other platforms like Linux and Tru64 are beginning to solidify in
+this area.)
+<A NAME="lbAZ">&nbsp;</A>
+<H2>Linux With Sfio Fails op/misc Test 48</H2>
+
+<A NAME="ixAAZ"></A>
+No known fix.
+<A NAME="lbBA">&nbsp;</A>
+<H2>Storable tests fail in some platforms</H2>
+
+<A NAME="ixABA"></A>
+If any Storable tests fail the use of Storable is not advisable.
+<DL COMPACT>
+<DT>*<DD>
+Many Storable tests fail on <FONT SIZE="-1">AIX</FONT> configured with 64 bit integers.
+
+
+<P>
+
+
+So far unidentified problems break Storable in <FONT SIZE="-1">AIX</FONT> if Perl is
+configured to use 64 bit integers.  <FONT SIZE="-1">AIX</FONT> in 32-bit mode works and
+other 64-bit platforms work with Storable.
+<DT>*<DD>
+<FONT SIZE="-1">DOS</FONT> <FONT SIZE="-1">DJGPP</FONT> may hang when testing Storable.
+<DT>*<DD>
+st-06compat fails in <FONT SIZE="-1">UNICOS</FONT> and UNICOS/mk.
+
+
+<P>
+
+
+This means that you cannot read old (pre-Storable-0.7) Storable images
+made in other platforms.
+<DT>*<DD>
+st-store.t and st-retrieve may fail with Compaq C 6.2 on OpenVMS Alpha 7.2.
+</DL>
+<A NAME="lbBB">&nbsp;</A>
+<H2>Threads Are Still Experimental</H2>
+
+<A NAME="ixABB"></A>
+Multithreading is still an experimental feature.  Some platforms
+emit the following message for lib/thr5005
+<P>
+
+
+
+<PRE>
+    #
+    # This is a KNOWN FAILURE, and one of the reasons why threading
+    # is still an experimental feature.  It is here to stop people
+    # from deploying threads in production. ;-)
+    #
+
+</PRE>
+
+
+<P>
+
+and another known thread-related warning is
+<P>
+
+
+
+<PRE>
+   pragma/overload......Unbalanced saves: 3 more saves than restores
+   panic: magic_mutexfree during global destruction.
+   ok
+   lib/selfloader.......Unbalanced saves: 3 more saves than restores
+   panic: magic_mutexfree during global destruction.
+   ok
+   lib/st-dclone........Unbalanced saves: 3 more saves than restores
+   panic: magic_mutexfree during global destruction.
+   ok
+
+</PRE>
+
+
+<A NAME="lbBC">&nbsp;</A>
+<H2>The Compiler Suite Is Still Experimental
+
+</H2>
+
+<A NAME="ixABC"></A>
+The compiler suite is slowly getting better but is nowhere near
+working order yet.  The backend part that has seen perhaps the most
+progress is the bytecode compiler.
+<A NAME="lbBD">&nbsp;</A>
+<H2>Reporting Bugs</H2>
+
+<A NAME="ixABD"></A>
+If you find what you think is a bug, you might check the articles
+recently posted to the comp.lang.perl.misc newsgroup and the perl
+bug database at <A HREF="http://bugs.perl.org/">http://bugs.perl.org/</A>  There may also be
+information at <A HREF="http://www.perl.com/perl/">http://www.perl.com/perl/</A> , the Perl Home Page.
+<P>
+
+If you believe you have an unreported bug, please run the <B>perlbug</B>
+program included with your release.  Be sure to trim your bug down
+to a tiny but sufficient test case.  Your bug report, along with the
+output of <TT>&quot;perl -V&quot;</TT>, will be sent off to <A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A> to be
+analysed by the Perl porting team.
+<A NAME="lbBE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABE"></A>
+The <I>Changes</I> file for exhaustive details on what changed.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I> file for how to build Perl.
+<P>
+
+The <I></I><FONT SIZE="-1"><I>README</I></FONT><I></I> file for general stuff.
+<P>
+
+The <I>Artistic</I> and <I>Copying</I> files for copyright information.
+<A NAME="lbBF">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixABF"></A>
+Written by Jarkko Hietaniemi &lt;<I><A HREF="mailto:jhi@iki.fi">jhi@iki.fi</A></I>&gt;, with many contributions
+from The Perl Porters and Perl Users submitting feedback and patches.
+<P>
+
+Send omissions or corrections to &lt;<I><A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A></I>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Security Vulnerability Closed</A><DD>
+<DT><A HREF="#lbAE">Incompatible Changes</A><DD>
+<DT><A HREF="#lbAF">Core Enhancements</A><DD>
+<DT><A HREF="#lbAG">Modules and Pragmata</A><DD>
+<DT><A HREF="#lbAH">New Modules</A><DD>
+<DT><A HREF="#lbAI">Updated And Improved Modules and Pragmata</A><DD>
+<DT><A HREF="#lbAJ">Utility Changes</A><DD>
+<DT><A HREF="#lbAK">New Documentation</A><DD>
+<DT><A HREF="#lbAL">Performance Enhancements</A><DD>
+<DT><A HREF="#lbAM">Installation and Configuration Improvements</A><DD>
+<DT><A HREF="#lbAN">Generic Improvements</A><DD>
+<DT><A HREF="#lbAO">Selected Bug Fixes</A><DD>
+<DT><A HREF="#lbAP">Platform Specific Changes and Fixes</A><DD>
+<DT><A HREF="#lbAQ">New or Changed Diagnostics</A><DD>
+<DT><A HREF="#lbAR">Changed Internals</A><DD>
+<DT><A HREF="#lbAS">Known Problems</A><DD>
+<DT><A HREF="#lbAT">Unicode Support Still Far From Perfect</A><DD>
+<DT><A HREF="#lbAU"><FONT SIZE="-1">EBCDIC</FONT> Still A Lost Platform</A><DD>
+<DT><A HREF="#lbAV">Building Extensions Can Fail Because Of Largefiles</A><DD>
+<DT><A HREF="#lbAW">ftmp-security tests warn 'system possibly insecure'</A><DD>
+<DT><A HREF="#lbAX">Test lib/posix Subtest 9 Fails In LP64-Configured HP-UX</A><DD>
+<DT><A HREF="#lbAY">Long Doubles Still Don't Work In Solaris</A><DD>
+<DT><A HREF="#lbAZ">Linux With Sfio Fails op/misc Test 48</A><DD>
+<DT><A HREF="#lbBA">Storable tests fail in some platforms</A><DD>
+<DT><A HREF="#lbBB">Threads Are Still Experimental</A><DD>
+<DT><A HREF="#lbBC">The Compiler Suite Is Still Experimental</A><DD>
+<DT><A HREF="#lbBD">Reporting Bugs</A><DD>
+<DT><A HREF="#lbBE">SEE ALSO</A><DD>
+<DT><A HREF="#lbBF">HISTORY</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

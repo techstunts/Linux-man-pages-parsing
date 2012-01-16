@@ -1,0 +1,538 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SPAMD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SPAMD</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-10-18<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+spamd - daemonized version of spamassassin
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+spamd [options]
+<P>
+
+Options:
+<P>
+
+
+
+<PRE>
+ -c, --create-prefs                 Create user preferences files
+ -C path, --configpath=path         Path for default config files
+ --siteconfigpath=path              Path for site configs
+ -d, --daemonize                    Daemonize
+ -h, --help                         Print usage message.
+ -i [ipaddr], --listen-ip=ipaddr    Listen on the IP ipaddr
+ -p port, --port                    Listen on specified port
+ -m num, --max-children=num         Allow maximum num children
+ --max-conn-per-child=num           Maximum connections accepted by child 
+                                    before it is respawned
+ -q, --sql-config                   Enable SQL config (only useful with -x)
+ -Q, --setuid-with-sql              Enable SQL config (only useful with -x,
+                                    enables use of -H)
+ --ldap-config                      Enable LDAP config (only useful with -x)
+ --setuid-with-ldap                 Enable LDAP config (only useful with -x,
+                                    enables use of -a and -H)
+ --virtual-config-dir=dir           Enable pattern based Virtual configs
+                                    (needs -x)
+ -r pidfile, --pidfile              Write the process id to pidfile
+ -s facility, --syslog=facility     Specify the syslog facility
+ --syslog-socket=type               How to connect to syslogd
+ -u username, --username=username   Run as username
+ -v, --vpopmail                     Enable vpopmail config
+ -x, --nouser-config                Disable user config files
+ --auth-ident                       Use ident to authenticate spamc user
+ --ident-timeout=timeout            Timeout for ident connections
+ -A host,..., --allowed-ips=..,..   Limit ip addresses which can connect
+ -D, --debug                        Print debugging messages
+ -L, --local                        Use local tests only (no DNS)
+ -P, --paranoid                     Die upon user errors
+ -H [dir], --helper-home-dir[=dir]  Specify a different HOME directory
+ --ssl                              Run an SSL server
+ --server-key keyfile               Specify an SSL keyfile
+ --server-cert certfile             Specify an SSL certificate
+ --socketpath=path                  Listen on given UNIX domain socket
+ --socketowner=name                 Set UNIX domain socket file's owner
+ --socketgroup=name                 Set UNIX domain socket file's group
+ --socketmode=mode                  Set UNIX domain socket file's mode
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The purpose of this program is to provide a daemonized version of the
+spamassassin executable.  The goal is improving throughput performance for
+automated mail checking.
+<P>
+
+This is intended to be used alongside <TT>&quot;spamc&quot;</TT>, a fast, low-overhead C client
+program.
+<P>
+
+See the <FONT SIZE="-1">README</FONT> file in the <TT>&quot;spamd&quot;</TT> directory of the SpamAssassin distribution
+for more details.
+<P>
+
+Note: Although <TT>&quot;spamd&quot;</TT> will check per-user config files for every message, any
+changes to the system-wide config files will require either restarting spamd
+or forcing it to reload itself via <B></B><FONT SIZE="-1"><B>SIGHUP</B></FONT><B></B> for the changes to take effect.
+<P>
+
+Note: If <TT>&quot;spamd&quot;</TT> receives a <B></B><FONT SIZE="-1"><B>SIGHUP</B></FONT><B></B>, it internally reloads itself, which means
+that it will change its pid and might not restart at all if its environment
+changed  (ie. if it can't change back into its own directory).  If you plan
+to use <B></B><FONT SIZE="-1"><B>SIGHUP</B></FONT><B></B>, you should always start <TT>&quot;spamd&quot;</TT> with the <B>-r</B> switch to know its
+current pid.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+Options of the long form can be shortened as long as they remain
+unambiguous.  (i.e. <B>--dae</B> can be used instead of <B>--daemonize</B>)
+Also, boolean options (like <B>--user-config</B>) can be negated by
+adding <I>no</I> (<B>--nouser-config</B>), however, this is usually unnecessary.
+<DL COMPACT>
+<DT><B>-c</B>, <B>--create-prefs</B><DD>
+<A NAME="ixAAF"></A>
+Create user preferences files if they don't exist (default: don't).
+<DT><B>-C</B> <I>path</I>, <B>--configpath</B>=<I>path</I><DD>
+<A NAME="ixAAG"></A>
+Use the specified path for locating the distributed configuration files.
+Ignore the default directories (usually <TT>&quot;/usr/share/spamassassin&quot;</TT> or similar).
+<DT><B>--siteconfigpath</B>=<I>path</I><DD>
+<A NAME="ixAAH"></A>
+Use the specified path for locating site-specific configuration files.  Ignore
+the default directories (usually <TT>&quot;/etc/mail/spamassassin&quot;</TT> or similar).
+<DT><B>-d</B>, <B>--daemonize</B><DD>
+<A NAME="ixAAI"></A>
+Detach from starting process and run in background (daemonize).
+<DT><B>-h</B>, <B>--help</B><DD>
+<A NAME="ixAAJ"></A>
+Print a brief help message, then exit without further action.
+<DT><B>-i</B> [<I>ipaddress</I>], <B>--listen-ip</B>[=<I>ipaddress</I>], <B>--ip-address</B>[=<I>ipaddress</I>]<DD>
+<A NAME="ixAAK"></A>
+Tells spamd to listen on the specified <FONT SIZE="-1">IP</FONT> address (defaults to 127.0.0.1).  If
+you specify no <FONT SIZE="-1">IP</FONT> address after the switch, spamd will listen on all interfaces.
+(This is equal to the address 0.0.0.0).  You can also use a valid hostname which
+will make spamd listen on the first address that name resolves to.
+<DT><B>-p</B> <I>port</I>, <B>--port</B>=<I>port</I><DD>
+<A NAME="ixAAL"></A>
+Optionally specifies the port number for the server to listen on (default: 783).
+
+
+<P>
+
+
+Note: If spamd is set to run as a non-root user (-u), and is to run on
+a privileged port (any &lt; 1024), the parent will not be able to be sent
+a <FONT SIZE="-1">SIGHUP</FONT> to reload the configuration.
+<DT><B>-q</B>, <B>--sql-config</B><DD>
+<A NAME="ixAAM"></A>
+Turn on <FONT SIZE="-1">SQL</FONT> lookups even when per-user config files have been disabled
+with <B>-x</B>. this is useful for spamd hosts which don't have user's
+home directories but do want to load user preferences from an <FONT SIZE="-1">SQL</FONT>
+database.
+
+
+<P>
+
+
+If your spamc client does not support sending the <TT>&quot;User:&quot;</TT> header,
+like <TT>&quot;exiscan&quot;</TT>, then the <FONT SIZE="-1">SQL</FONT> username used will always be <B>nobody</B>.
+<DT><B>--ldap-config</B><DD>
+<A NAME="ixAAN"></A>
+Turn on <FONT SIZE="-1">LDAP</FONT> lookups. This is completely analog to <TT>&quot;--sql-config&quot;</TT>,
+only it is using an <FONT SIZE="-1">LDAP</FONT> server.
+<DT><B>-Q</B>, <B>--setuid-with-sql</B><DD>
+<A NAME="ixAAO"></A>
+Turn on <FONT SIZE="-1">SQL</FONT> lookups even when per-user config files have been disabled
+with <B>-x</B> and also setuid to the user.  This is useful for spamd hosts
+which want to load user preferences from an <FONT SIZE="-1">SQL</FONT> database but also wish to
+support the use of <B>-a</B> (<FONT SIZE="-1">AWL</FONT>) and <B>-H</B> (Helper home directories.)
+<DT><B>--setuid-with-ldap</B><DD>
+<A NAME="ixAAP"></A>
+Turn on <FONT SIZE="-1">LDAP</FONT> lookups even when per-user config files have been disabled
+with <B>-x</B> and also setuid to the user.  This is again completely analog
+to <TT>&quot;--setuid-with-sql&quot;</TT>, only it is using an <FONT SIZE="-1">LDAP</FONT> server.
+<DT><B>--virtual-config-dir</B>=<I>pattern</I><DD>
+<A NAME="ixAAQ"></A>
+This option specifies where per-user preferences can be found for virtual
+users, for the <B>-x</B> switch. The <I>pattern</I> is used as a base pattern for the
+directory name.  Any of the following escapes can be used:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>%u --- replaced with the full name of the current user, as sent by spamc.<DD>
+<A NAME="ixAAR"></A>
+
+<DT>%l --- replaced with the 'local part' of the current username.  In other words, if the username is an email address, this is the part before the @ sign.<DD>
+
+
+<A NAME="ixAAS"></A>
+<DT>%d --- replaced with the 'domain' of the current username.  In other words, if the username is an email address, this is the part after the @ sign.<DD>
+
+
+<A NAME="ixAAT"></A>
+<DT>%% --- replaced with a single percent sign (%).<DD>
+<A NAME="ixAAU"></A>
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+
+<P>
+
+
+So for example, if <TT>&quot;/vhome/users/%u/spamassassin&quot;</TT> is specified, and spamc
+sends a virtual username of <TT>&quot;<A HREF="mailto:jm@example.com">jm@example.com</A>&quot;</TT>, the directory
+<TT>&quot;/vhome/users/<A HREF="mailto:jm@example.com">jm@example.com</A>/spamassassin&quot;</TT> will be used.
+
+
+<P>
+
+
+The set of characters allowed in the virtual username for this path are
+restricted to:
+
+
+<P>
+
+
+
+
+<PRE>
+        A-Z a-z 0-9 - + _ . , @ =
+
+</PRE>
+
+
+
+
+<P>
+
+
+All others will be replaced by underscores (<TT>&quot;_&quot;</TT>).
+
+
+<P>
+
+
+This path must be a writable directory.  It will be created if it does not
+already exist.  If a file called <B>user_prefs</B> exists in this directory (note:
+<B>not</B> in a <TT>&quot;.spamassassin&quot;</TT> subdirectory!), it will be loaded as the user's
+preferences.  The auto-whitelist and/or Bayes databases for that user will be
+stored in this directory.
+
+
+<P>
+
+
+Note that this <B>requires</B> that <B>-x</B> is used, and cannot be combined with
+<FONT SIZE="-1">SQL-</FONT> or LDAP-based configuration.
+
+
+<P>
+
+
+The pattern <B>must</B> expand to an absolute directory when spamd is running
+daemonized (<B>-d</B>).
+</DL>
+
+<DT><B>-r</B> <I>pidfile</I>, <B>--pidfile</B>=<I>pidfile</I><DD>
+<A NAME="ixAAV"></A>
+Write the process <FONT SIZE="-1">ID</FONT> of the spamd parent to the file specified by <I>pidfile</I>.
+The file will be unlinked when the parent exits.  Note that when running
+with the <B>-u</B> option, the file must be writable by that user.
+<DT><B>-v</B>, <B>--vpopmail</B><DD>
+<A NAME="ixAAW"></A>
+Enable vpopmail config.  If specified with with <B>-u</B> set to the vpopmail user,
+this allows spamd to lookup/create user_prefs in the vpopmail user's own
+maildir.  This option is useful for vpopmail virtual users who do not have an
+entry in the system /etc/passwd file.
+
+
+<P>
+
+
+Currently, use of this without <B>-u</B> is not supported.
+<DT><B>-s</B> <I>facility</I>, <B>--syslog</B>=<I>facility</I><DD>
+<A NAME="ixAAX"></A>
+Specify the syslog facility to use (default: mail).  If <TT>&quot;stderr&quot;</TT> is specified,
+output will be written to stderr. (This is useful if you're running <TT>&quot;spamd&quot;</TT>
+under the <TT>&quot;daemontools&quot;</TT> package.) With a <I>facility</I> of <TT>&quot;file&quot;</TT>, all output
+goes to spamd.log. <I>facility</I> is interpreted as a file name to log to if it
+contains any characters except a-z and 0-9. <TT>&quot;null&quot;</TT> disables logging completely
+(used internally).
+
+
+<P>
+
+
+Examples:
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s mail                 # use syslog, facility mail (default)<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s ./mail               # log to file ./mail<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s stderr 2&gt;/dev/null   # log to stderr, throw messages away<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s null                 # the same as above<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s file                 # log to file ./spamd.log<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>spamd -s /var/log/spamd.log   # log to file /var/log/spamd.log<BR>
+
+
+<P>
+
+
+If logging to a file is enabled and that log file is rotated, the spamd server
+must be restarted with a <FONT SIZE="-1">SIGHUP</FONT>. (If the log file is just truncated, this is
+not needed but still recommended.)
+<DT><B>--syslog-socket</B>=<I>type</I><DD>
+<A NAME="ixAAY"></A>
+Specify how spamd should send messages to syslogd.  The options are <TT>&quot;unix&quot;</TT>,
+<TT>&quot;inet&quot;</TT> or <TT>&quot;none&quot;</TT>.   The default is to try <TT>&quot;unix&quot;</TT> first, falling back to
+<TT>&quot;inet&quot;</TT> if perl detects errors in its <TT>&quot;unix&quot;</TT> support.
+
+
+<P>
+
+
+Some platforms, or versions of perl, are shipped with dysfunctional versions of
+the <B>Sys::Syslog</B> package which do not support some socket types, so you may
+need to set this.  If you get error messages regarding <B>__PATH_LOG</B> or similar
+from spamd, try changing this setting.
+
+
+<P>
+
+
+The socket type <TT>&quot;file&quot;</TT> is used internally and should not be specified.
+<DT><B>-u</B> <I>username</I>, <B>--username</B>=<I>username</I><DD>
+<A NAME="ixAAZ"></A>
+Run as the named user.  If this option is not set, the default behaviour
+is to <I>setuid()</I> to the user running <TT>&quot;spamc&quot;</TT>, if <TT>&quot;spamd&quot;</TT> is running
+as root.
+
+
+<P>
+
+
+Note: ``--username=root'' disables the <I>setuid()</I> functionality and leaves
+spamd running as root.
+
+
+<P>
+
+
+Note: If this option is set to a non-root user, and spamd is to run on
+a privileged port (any &lt; 1024, default 783 or via -p), the parent will
+not be able to be sent a <FONT SIZE="-1">SIGHUP</FONT> to reload the configuration.
+<DT><B>-x</B>, <B>--nouser-config</B>, <B>--user-config</B><DD>
+<A NAME="ixABA"></A>
+Turn off(on) per-user config files.  All users will just get the default
+configuration.   The default behaviour is for per-user configuration
+to be on.
+<DT><B>--auth-ident</B><DD>
+<A NAME="ixABB"></A>
+Verify the username provided by spamc using ident.  This is only
+useful if connections are only allowed from trusted hosts (because an
+identd that lies is trivial to create) and if spamc <FONT SIZE="-1">REALLY</FONT> <FONT SIZE="-1">SHOULD</FONT> be
+running as the user it represents.  Connections are terminated
+immediately if authentication fails.  In this case, spamc will pass
+the mail through unchecked.  Failure to connect to an ident server,
+and response timeouts are considered authentication failures.  This
+requires that Net::Ident be installed.
+<DT><B>--ident-timeout</B>=<I>timeout</I><DD>
+<A NAME="ixABC"></A>
+Wait at most <I>timeout</I> seconds for a response to ident queries.
+Authentication that takes long that <I>timeout</I> seconds will fail, and
+mail will not be processed.  Setting this to 0.0 or less results in no
+timeout, which is <FONT SIZE="-1">STRONGLY</FONT> discouraged.  The default is 5 seconds.
+<DT><B>-A</B> <I>host,...</I>, <B>--allowed-ips</B>=<I>host,...</I><DD>
+<A NAME="ixABD"></A>
+Specify a list of authorized hosts or networks which can connect to this spamd
+instance. Single <FONT SIZE="-1">IP</FONT> addresses can be given, ranges of <FONT SIZE="-1">IP</FONT> addresses in
+address/masklength <FONT SIZE="-1">CIDR</FONT> format, or ranges of <FONT SIZE="-1">IP</FONT> addresses by listing 3 or less
+octets with a trailing dot.  Hostnames are not supported, only <FONT SIZE="-1">IP</FONT> addresses.
+This option can be specified multiple times, or can take a list of addresses
+separated by commas.  Examples:
+
+
+<P>
+
+
+<B>-A 10.11.12.13</B> --- only allow connections from <TT>10.11.12.13</TT>.
+
+
+<P>
+
+
+<B>-A 10.11.12.13,10.11.12.14</B> --- only allow connections from <TT>10.11.12.13</TT> and
+<TT>10.11.12.14</TT>.
+
+
+<P>
+
+
+<B>-A 10.200.300.0/24</B> --- allow connections from any machine in the range
+<TT>&quot;10.200.300.*&quot;</TT>.
+
+
+<P>
+
+
+<B>-A 10.</B> --- allow connections from any machine in the range <TT>&quot;10.*.*.*&quot;</TT>.
+
+
+<P>
+
+
+By default, connections are only accepted from localhost [127.0.0.1].
+<DT><B>-D</B>, <B>--debug</B><DD>
+<A NAME="ixABE"></A>
+Print debugging messages
+<DT><B>-L</B>, <B>--local</B><DD>
+<A NAME="ixABF"></A>
+Perform only local tests on all mail.  In other words, skip <FONT SIZE="-1">DNS</FONT> and other
+network tests.  Works the same as the <TT>&quot;-L&quot;</TT> flag to <TT><A HREF="../man1/spamassassin.1.php">spamassassin</A>(1)</TT>.
+<DT><B>-P</B>, <B>--paranoid</B><DD>
+<A NAME="ixABG"></A>
+Die on user errors (for the user passed from spamc) instead of falling back to
+user <I>nobody</I> and using the default configuration.
+<DT><B>-m</B> <I>number</I> , <B>--max-children</B>=<I>number</I><DD>
+<A NAME="ixABH"></A>
+This option specifies the maximum number of children to spawn.
+Spamd will spawn that number of children, then sleep in the background
+until a child dies, wherein it will go and spawn a new child.
+
+
+<P>
+
+
+Incoming connections can still occur if all of the children are busy,
+however those connections will be queued waiting for a free child.
+The minimum value is <TT>1</TT>, the default value is <TT>5</TT>.
+
+
+<P>
+
+
+Please note that there is a <FONT SIZE="-1">OS</FONT> specific maximum of connections that can be
+queued (Try <TT>&quot;perl -MSocket -e'print SOMAXCONN'&quot;</TT> to find this maximum).
+<DT><B>--max-conn-per-child</B>=<I>number</I><DD>
+<A NAME="ixABI"></A>
+This option specifies the maximum number of connections each child
+should process before dying and letting the master spamd process spawn
+a new child.  The minimum value is <TT>1</TT>, the default value is <TT>200</TT>.
+<DT><B>-H</B> <I>directory</I>, <B>--helper-home-dir</B>=<I>directory</I><DD>
+<A NAME="ixABJ"></A>
+Specify that external programs such as Razor, <FONT SIZE="-1">DCC</FONT>, and Pyzor should have
+a <FONT SIZE="-1">HOME</FONT> environment variable set to a specific directory.  The default
+is to use the <FONT SIZE="-1">HOME</FONT> environment variable setting from the shell running
+spamd.  By specifying no argument, spamd will use the spamc caller's
+home directory instead.
+<DT><B>--ssl</B><DD>
+<A NAME="ixABK"></A>
+Accept only <FONT SIZE="-1">SSL</FONT> connections.  The <B>IO::Socket::SSL</B> perl module must be
+installed.
+<DT><B>--server-key</B> <I>keyfile</I><DD>
+<A NAME="ixABL"></A>
+Specify the <FONT SIZE="-1">SSL</FONT> key file to use for <FONT SIZE="-1">SSL</FONT> connections.
+<DT><B>--server-cert</B> <I>certfile</I><DD>
+<A NAME="ixABM"></A>
+Specify the <FONT SIZE="-1">SSL</FONT> certificate file to use for <FONT SIZE="-1">SSL</FONT> connections.
+<DT><B>--socketpath</B> <I>pathname</I><DD>
+<A NAME="ixABN"></A>
+Listen on <FONT SIZE="-1">UNIX</FONT> domain path <I>pathname</I> instead of a <FONT SIZE="-1">TCP</FONT> socket.
+<DT><B>--socketowner</B> <I>name</I><DD>
+<A NAME="ixABO"></A>
+Set <FONT SIZE="-1">UNIX</FONT> domain socket to be owned by the user named <I>name</I>.  Note
+that this requires that spamd be started as <TT>&quot;root&quot;</TT>, and if <TT>&quot;-u&quot;</TT>
+is used, that user should have write permissions to unlink the file
+later, for when the <TT>&quot;spamd&quot;</TT> server is killed.
+<DT><B>--socketgroup</B> <I>name</I><DD>
+<A NAME="ixABP"></A>
+Set <FONT SIZE="-1">UNIX</FONT> domain socket to be owned by the group named <I>name</I>.  See
+<TT>&quot;--socketowner&quot;</TT> for notes on ownership and permissions.
+<DT><B>--socketmode</B> <I>mode</I><DD>
+<A NAME="ixABQ"></A>
+Set <FONT SIZE="-1">UNIX</FONT> domain socket to use the octal mode <I>mode</I>.  Note that if <TT>&quot;-u&quot;</TT> is
+used, that user should have write permissions to unlink the file later, for
+when the <TT>&quot;spamd&quot;</TT> server is killed.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABR"></A>
+<I><A HREF="../man1/spamc.1.php">spamc</A></I>(1)
+<I><A HREF="../man1/spamassassin.1.php">spamassassin</A></I>(1)
+<I>Mail::SpamAssassin::<A HREF="../man3/Conf.3.php">Conf</A></I>(3)
+<I>Mail::<A HREF="../man3/SpamAssassin.3.php">SpamAssassin</A></I>(3)
+<A NAME="lbAG">&nbsp;</A>
+<H2>PREREQUISITES</H2>
+
+<A NAME="ixABS"></A>
+<TT>&quot;Mail::SpamAssassin&quot;</TT>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixABT"></A>
+The SpamAssassin(tm) Project (<A HREF="http://spamassassin.apache.org/)">http://spamassassin.apache.org/)</A>
+<A NAME="lbAI">&nbsp;</A>
+<H2>LICENSE</H2>
+
+<A NAME="ixABU"></A>
+SpamAssassin is distributed under the Apache License, Version 2.0, as
+described in the file <TT>&quot;LICENSE&quot;</TT> included with the distribution.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">PREREQUISITES</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+<DT><A HREF="#lbAI">LICENSE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

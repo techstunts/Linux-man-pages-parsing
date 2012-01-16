@@ -1,0 +1,1015 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>webalizer</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>webalizer</H1>
+Section: The Webalizer (1)<BR>Updated: 22-Oct-2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+webalizer - A web server log file analysis tool.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>webalizer</B>
+
+[<I> option ... </I>] [<I> log-file </I>]
+<P>
+
+<B>webazolver</B>
+
+[<I> option ... </I>] [<I> log-file </I>]
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <I>Webalizer</I> is a web server log file analysis program which produces
+usage statistics in HTML format for viewing with a browser.  The results
+are presented in both columnar and graphical format, which facilitates
+interpretation.  Yearly, monthly, daily and hourly usage statistics are
+presented, along with the ability to display usage by site, URL, referrer,
+user agent (browser), username, search strings, entry/exit pages,  and
+country (some information may not be available if not present in the log
+file being processed).
+<P>
+
+The <I>Webalizer</I> supports <B>CLF</B> (common log format) log files,
+as well as <B>Combined</B> log formats as defined by NCSA and others,
+and variations of these which it attempts to handle intelligently.  In
+addition, the <I>Webalizer</I> also supports <I>wu-ftpd</I> <B>xferlog</B>
+formatted log files, allowing analysis of ftp servers, and
+<B>squid</B> proxy logs.  Logs may also be compressed, via <B>gzip</B>.
+If a compressed log file is detected, it will be automatically uncompressed
+while it is read.  Compressed logs must have the standard <I>gzip</I>
+extension of <B>.gz</B>.
+<P>
+
+<I>webazolver</I> is normally just a symbolic link to the <I>webalizer</I>.
+When run as <I>webazolver</I>, only DNS file creation/updates are performed,
+and the program will exit once complete.  All normal options and
+configuration directives are available, however many will not be used.
+In addition, a DNS cache file must be specified.  If the number of DNS
+children processes to use are not specified, the <I>webazolver</I> will
+default to <B>5</B>.
+<P>
+
+This documentation applies to The Webalizer Version 2.01
+<A NAME="lbAE">&nbsp;</A>
+<H2>RUNNING THE WEBALIZER</H2>
+
+The <I>Webalizer</I> was designed to be run from a Unix command line prompt or
+as a <B><A HREF="../man8/crond.8.php">crond</A>(8)</B> job. Once executed, the general flow of the program is:
+<DL COMPACT>
+<DT><B>o</B>
+
+<DD>
+A default configuration file is scanned for.  A file named
+<I>webalizer.conf</I> is searched for in the current directory, and if
+found, it's configuration data is parsed.  If the file is not
+present in the current directory,  the file <I>/etc/webalizer.conf</I>
+is searched for and, if found, is used instead.
+<DT><B>o</B>
+
+<DD>
+Any command line arguments given to the program are parsed.  This
+may include the specification of a configuration file, which is
+processed at the time it is encountered.
+<DT><B>o</B>
+
+<DD>
+If a log file was specified, it is opened and made ready for
+processing.  If no log file was given, <I>STDIN</I> is used for input.
+If the log filename '<B>-</B>' is specified, <I>STDIN</I> will be forced.
+<DT><B>o</B>
+
+<DD>
+If an output directory was specified, the program does a <B><A HREF="../man2/chdir.2.php">chdir</A>(2)</B> to
+that directory in prepration for generating output.  If no output
+directory was given, the current directory is used.
+<DT><B>o</B>
+
+<DD>
+If a non-zero number of DNS Children processes were specified, they will
+be started, and the specified log file will be processed, creating or
+updating the specified DNS cache file.
+<DT><B>o</B>
+
+<DD>
+If no hostname was given, the program attempts to get the hostname
+using a <B><A HREF="../man2/uname.2.php">uname</A>(2)</B> system call.  If that fails, <I>localhost</I>
+is used.
+<DT><B>o</B>
+
+<DD>
+A history file is searched for in the current directory (output
+directory) and read if found.  This file keeps totals for previous
+months, which is used in the main <I>index.html</I> HTML document.
+<B>Note:</B>
+
+The file location can now be specified with the <I>HistoryName</I>
+configuration option.
+<DT><B>o</B>
+
+<DD>
+If incremental processing was specified, a data file is searched for
+and loaded if found, containing the 'internal state' data of the
+program at the end of a previous run.
+<B>Note:</B>
+
+The file location can now be specified with the <I>IncrementalName</I>
+configuration option.
+<DT><B>o</B>
+
+<DD>
+Main processing begins on the log file.  If the log spans multiple
+months, a seperate HTML document is created for each month.
+<DT><B>o</B>
+
+<DD>
+After main processing, the main <I>index.html</I> page is created, which
+has totals by month and links to each months HTML document.
+<DT><B>o</B>
+
+<DD>
+A new history file is saved to disk, which includes totals generated
+by The Webalizer during the current run.
+<DT><B>o</B>
+
+<DD>
+If incremental processing was specified, a data file is written that
+contains the 'internal state' data at the end of this run.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>INCREMENTAL PROCESSING</H2>
+
+Version 1.2x of The <I>Webalizer</I> adds incremental run capability.  Simply
+put, this allows processing large log files by breaking them up into
+smaller pieces, and processing these pieces instead.  What this means
+in real terms is that you can now rotate your log files as often as you
+want, and still be able to produce monthly usage statistics without the
+loss of any detail.  Basically, The <I>Webalizer</I> saves and restores all
+internal data in a file named <I>webalizer.current</I>.  This allows the
+program to 'start where it left off' so to speak, and allows the
+preservation of detail from one run to the next.  The data file is
+placed in the current output directory, and is a plain ascii text
+file that can be viewed with any standard text editor.  It's location
+and name may be changed using the <I>IncrementalName</I> configuration
+keyword.
+<P>
+
+Some special precautions need to be taken when using the incremental
+run capability of The <I>Webalizer</I>.  Configuration options should not be
+changed between runs, as that could cause corruption of the internal
+data stored.  For example, changing the <I>MangleAgents</I> level will cause
+different representations of user agents to be stored, producing invalid
+results in the user agents section of the report.  If you need to change
+configuration options, do it at the end of the month after normal
+processing of the previous month and before processing the current month.
+You may also want to delete the <I>webalizer.current</I> file as well.
+<P>
+
+The <I>Webalizer</I> also attempts to prevent data duplication by keeping
+track of the timestamp of the last record processed.  This timestamp
+is then compared to current records being processed, and any records
+that were logged previous to that timestamp are ignored.  This, in
+theory, should allow you to re-process logs that have already been
+processed, or process logs that contain a mix of processed/not yet
+processed records, and not produce duplication of statistics.  The
+only time this may break is if you have duplicate timestamps in two
+seperate log files... any records in the second log file that do have
+the same timestamp as the last record in the previous log file processed,
+will be discarded as if they had already been processed.  There are
+lots of ways to prevent this however, for example, stopping the web
+server before rotating logs will prevent this situation.  This setup
+also necessitates that you always process logs in chronological order,
+otherwise data loss will occur as a result of the timestamp compare.
+<A NAME="lbAG">&nbsp;</A>
+<H2>REVERSE DNS LOOKUPS</H2>
+
+The Webalizer supports reverse DNS lookups through a <I>DNS cache file</I>
+that is either created/updated at run-time, or has been previously
+created, either by a previous run of the <I>webalizer</I>, or by running
+the stand-alone version, <I>webazolver</I>.  In order to perform reverse
+DNS lookups, a <B>DNSCache</B> filename must be specified.  In order to
+create/update the cache file at run-time, the <B>DNSChildren</B> number
+must be non-zero.  The <B>DNSChildren</B> value specifies the number of
+children processes to fork, each of which will perform reverse DNS
+lookups in order to create/update the DNS cache file.  See the file
+<I>DNS.README</I> for additional information.
+<A NAME="lbAH">&nbsp;</A>
+<H2>COMMAND LINE OPTIONS</H2>
+
+The Webalizer supports many different configuration options that will
+alter the way the program behaves and generates output.  Most of these
+can be specified on the command line, while some can only be specified
+in a configuration file. The command line options are listed below,
+with references to the corresponding configuration file keywords.
+<P>
+
+<I>General Options</I>
+
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+Display all available command line options and exit program.
+<DT><B>-v -V</B>
+
+<DD>
+Display program version and exit program.
+<DT><B>-d</B>
+
+<DD>
+<B>Debug</B>.  Display debugging information for errors and warnings.
+<DT><B>-i</B>
+
+<DD>
+<B>IgnoreHist</B>.  Ignore history.  <B>USE WITH CAUTION</B>. This
+will cause The <I>Webalizer</I> to ignore any previous monthly history
+file only.  Incremental data (if present) is still processed.
+<DT><B>-p</B>
+
+<DD>
+<B>Incremental</B>.  Preserve internal data between runs.
+<DT><B>-q</B>
+
+<DD>
+<B>Quiet</B>.  Supress informational messages.  Does not supress
+warnings or errors.
+<DT><B>-Q</B>
+
+<DD>
+<B>ReallyQuiet</B>.  Supress all messages including warnings and errors.
+<DT><B>-T</B>
+
+<DD>
+<B>TimeMe</B>.  Force display of timing information at end of processing.
+<DT><B>-c </B><I>file</I>
+
+<DD>
+Use configuration file <I>file</I>.
+<DT><B>-n </B><I>name</I>
+
+<DD>
+<B>HostName</B>.  Use the hostname <I>name</I>.
+<DT><B>-o </B><I>dir</I>
+
+<DD>
+<B>OutputDir</B>.  Use output directory <I>dir</I>.
+<DT><B>-t </B><I>name</I>
+
+<DD>
+<B>ReportTitle</B>.  Use <I>name</I> for report title.
+<DT><B>-F </B>( <B>c</B>lf | <B>f</B>tp | <B>s</B>quid )
+
+<DD>
+<B>LogType</B>.  Specify log type to be processed.  Value can be either
+<I>c</I>lf, <I>f</I>tp or <I>s</I>quid format.  If not specified, will
+default to <B>CLF</B> format.  <I>FTP</I> logs must be in standard
+wu-ftpd <I>xferlog</I> format.
+<DT><B>-f</B>
+
+<DD>
+<B>FoldSeqErr</B>.  Fold out of sequence log records back into analysis,
+by treating as if they were the same date/time as the last good record.
+Normally, out of sequence log records are simply ignored.
+<DT><B>-Y</B>
+
+<DD>
+<B>CountryGraph</B>. Supress country graph.
+<DT><B>-G</B>
+
+<DD>
+<B>HourlyGraph</B>.  Supress hourly graph.
+<DT><B>-x </B><I>name</I>
+
+<DD>
+<B>HTMLExtension</B>.  Defines HTML file extension to use.  If not
+specified, defaults to <I>html</I>.  Do not include the leading
+period.
+<DT><B>-H</B>
+
+<DD>
+<B>HourlyStats</B>.  Supress hourly statistics.
+<DT><B>-L</B>
+
+<DD>
+<B>GraphLegend</B>.  Supress color coded graph legends.
+<DT><B>-l </B><I>num</I>
+
+<DD>
+<B>GraphLines</B>.  Specify number of background lines. Default
+is 2.  Use zero ('0') to disable the lines.
+<DT><B>-P </B><I>name</I>
+
+<DD>
+<B>PageType</B>.  Specify file extensions that are considered <I>pages</I>.
+Sometimes referred to as <I>pageviews</I>.
+<DT><B>-m </B><I>num</I>
+
+<DD>
+<B>VisitTimeout</B>.  Specify the Visit timeout period.  Specified in
+number of seconds.  Default is 1800 seconds (30 minutes).
+<DT><B>-I </B><I>name</I>
+
+<DD>
+<B>IndexAlias</B>.  Use the filename <I>name</I> as an additional alias
+for <I>index.</I>.
+<DT><B>-M </B><I>num</I>
+
+<DD>
+<B>MangleAgents</B>.  Mangle user agent names according to the mangle
+level specified by <I>num</I>.  Mangle levels are:
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>5</B>
+
+Browser name and major version.
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>4</B>
+
+Browser name, major and minor version.
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>3</B>
+
+Browser name, major version, minor version to two decimal places.
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>2</B>
+
+Browser name, major and minor versions and sub-version.
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>1</B>
+
+Browser name, version and machine type if possible.
+<DT><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<DD>
+<B>0</B>
+
+All informaiton (left unchanged).
+<DT><B>-g </B><I>num</I>
+
+<DD>
+<B>GroupDomains</B>. Automatically group sites by domain.  The
+grouping level specified by <I>num</I> can be thought of as 'the
+number of dots' to display in the grouping.  The default value
+of <B>0</B> disables any domain grouping.
+<DT><B>-D </B><I>name</I>
+
+<DD>
+<B>DNSCache</B>.  Use the DNS cache file <I>name</I>.
+<DT><B>-N </B><I>num</I>
+
+<DD>
+<B>DNSChildren</B>.  Use <I>num</I> DNS children processes to perform DNS
+lookups, either creating or updateing the DNS cache file.  Specify zero
+(<B>0</B>) to disable cache file creation/updates.  If given, a DNS cache
+filename must be specified.
+</DL>
+<P>
+
+<I>Hide Options</I>
+
+<DL COMPACT>
+<DT><B>-a </B><I>name</I>
+
+<DD>
+<B>HideAgent</B>.  Hide user agents matching <I>name</I>.
+<DT><B>-r </B><I>name</I>
+
+<DD>
+<B>HideReferrer</B>.  Hide referrer matching <I>name</I>.
+<DT><B>-s </B><I>name</I>
+
+<DD>
+<B>HideSite</B>.  Hide site matching <I>name</I>.
+<DT><B>-X </B><I>name</I>
+
+<DD>
+<B>HideAllSites</B>.  Hide all individual sites (only display groups).
+<DT><B>-u </B><I>name</I>
+
+<DD>
+<B>HideURL</B>.  Hide URL matching <I>name</I>.
+</DL>
+<P>
+
+<I>Table size options</I>
+
+<DL COMPACT>
+<DT><B>-A </B><I>num</I>
+
+<DD>
+<B>TopAgents</B>.  Display the top <I>num</I> user agents table.
+<DT><B>-R </B><I>num</I>
+
+<DD>
+<B>TopReferrers</B>.  Display the top <I>num</I> referrers table.
+<DT><B>-S </B><I>num</I>
+
+<DD>
+<B>TopSites</B>.  Display the top <I>num</I> sites table.
+<DT><B>-U </B><I>num</I>
+
+<DD>
+<B>TopURLs</B>.  Display the top <I>num</I> URL's table.
+<DT><B>-C </B><I>num</I>
+
+<DD>
+<B>TopCountries</B>.  Display the top <I>num</I> countries table.
+<DT><B>-e </B><I>num</I>
+
+<DD>
+<B>TopEntry</B>.  Display the top <I>num</I> entry pages table.
+<DT><B>-E </B><I>num</I>
+
+<DD>
+<B>TopExit</B>.  Display the top <I>num</I> exit pages table.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>CONFIGURATION FILES</H2>
+
+Configuration files are standard <B><A HREF="../man7/ascii.7.php">ascii</A>(7)</B> text files that may be created
+or edited using any standard editor.  Blank lines and lines that begin
+with a pound sign ('#') are ignored.  Any other lines are considered to
+be configurgation lines, and have the form &quot;Keyword Value&quot;, where the
+'Keyword' is one of the currently available configuration keywords defined
+below, and 'Value' is the value to assign to that particular option.  Any
+text found after the keyword up to the end of the line is considered the
+keyword's value, so you should not include anything after the actual value
+on the line that is not actually part of the value being assigned.  The
+file <I>sample.conf</I> provided with the distribution contains lots of useful
+documentation and examples as well.
+<P>
+<I>General Configuration Keywords</I>
+
+<DL COMPACT>
+<DT><B>LogFile </B><I>name</I>
+
+<DD>
+Use log file named <I>name</I>.  If none specified, <I>STDIN</I> will be used.
+<DT><B>LogType </B><I>name</I>
+
+<DD>
+Specify log file type as <I>name</I>. Values can be either <I>web</I>,
+<I>s</I>quid or <I>ftp</I>, with the default being <B>web</B>.
+<DT><B>OutputDir </B><I>dir</I>
+
+<DD>
+Create output in the directory <I>dir</I>.  If none specified, the current
+directory will be used.
+<DT><B>HistoryName </B><I>name</I>
+
+<DD>
+Filename to use for history file.  Relative to output directory unless
+absolute name is given (ie: starts with '/'). Defaults to
+'<B>webalizer.hist</B>' in the standard output directory.
+<DT><B>ReportTitle </B><I>name</I>
+
+<DD>
+Use the title string <I>name</I> for the report title.  If none
+specified, use the default of (in english) &quot;<I>Usage Statistics for </I>&quot;.
+<DT><B>Hostname </B><I>name</I>
+
+<DD>
+Set the hostname for the report as <I>name</I>.  If none specified, an
+attempt will be made to gather the hostname via a <B><A HREF="../man2/uname.2.php">uname</A>(2)</B> system
+call.  If that fails, <I>localhost</I> will be used.
+<DT><B>UseHTTPS </B>( yes | <B>no</B> )
+
+<DD>
+Use <I>https://</I> on links to URLS, instead of the default <I>http://</I>,
+in the '<B>Top URL's</B>' table.
+<DT><B>Quiet </B>( yes | <B>no</B> )
+
+<DD>
+Supress informational messages.  Warning and Error messages will not be
+supressed.
+<DT><B>ReallyQuiet </B>( yes | <B>no</B> )
+
+<DD>
+Supress all messages, including Warning and Error messages.
+<DT><B>Debug </B>( yes | <B>no</B> )
+
+<DD>
+Print extra debugging information on Warnings and Errors.
+<DT><B>TimeMe </B>( yes | <B>no</B> )
+
+<DD>
+Force timing information at end of processing.
+<DT><B>GMTTime </B>( yes | <B>no</B> )
+
+<DD>
+Use <I>GMT </I>(<I>UTC</I>) time instead of local timezone for reports.
+<DT><B>IgnoreHist </B>( yes | <B>no</B> )
+
+<DD>
+Ignore previous monthly history file.  <B>USE WITH CAUTION</B>.  Does
+not prevent <I>Incremental</I> file processing.
+<DT><B>FoldSeqErr </B>( yes | <B>no</B> )
+
+<DD>
+Fold out of sequence log records back into analysis by treating them
+as if they had the same date/time as the last good record.  Normally,
+out of sequence log records are ignored.
+<DT><B>CountryGraph </B>( <B>yes</B> | no )
+
+<DD>
+Display Country Usage Graph in output report.
+<DT><B>DailyGraph </B>( <B>yes</B> | no )
+
+<DD>
+Display Daily Graph in output report.
+<DT><B>DailyStats </B>( <B>yes</B> | no )
+
+<DD>
+Display Daily Statistics in output report.
+<DT><B>HourlyGraph </B>( <B>yes</B> | no )
+
+<DD>
+Display Hourly Graph in output report.
+<DT><B>HourlyStats </B>( <B>yes</B> | no )
+
+<DD>
+Display Hourly Statistics in output report.
+<DT><B>PageType </B><I>name</I>
+
+<DD>
+Define the file extensions to consider as a <I>page</I>.  If a file
+is found to have the same extension as <I>name</I>, it will be counted
+as a <I>page</I> (sometimes called a <I>pageview</I>).
+<DT><B>GraphLegend </B>( <B>yes</B> | no )
+
+<DD>
+Allows the color coded graph legends to be enabled/disabled.
+<DT><B>GraphLines </B><I>num</I>
+
+<DD>
+Specify the number of background reference lines displayed on the
+graphs produced.  Disable by using zero ('<B>0</B>'), default is <B>2</B>.
+<DT><B>VisitTimeout </B><I>num</I>
+
+<DD>
+Specifies the visit timeout value.  Default is <I>1800 seconds</I> (30
+minutes).  A visit is determined by looking at the difference in time
+between the current and last request from a specific site.  If the
+difference is greater or equal to the timeout value, the request is
+counted as a new visit.  Specified in seconds.
+<DT><B>IndexAlias </B><I>name</I>
+
+<DD>
+Use <I>name</I> as an additional alias for <I>index.*</I>.
+<DT><B>MangleAgents </B><I>num</I>
+
+<DD>
+Mangle user agent names based on mangle level <I>num</I>.  See the
+<I>-M</I> command line switch for mangle levels and their meaning.
+The default is <B>0</B>, which doesn't mangle user agents at all.
+<DT><B>SearchEngine</B> <I>name</I> <I>variable</I>
+
+<DD>
+Allows the specification of search engines and their query strings.
+The <I>name</I> is the name to match against the referrer string for
+a given search engine.  The <I>variable</I> is the cgi variable that
+the search engine uses for queries.  See the <B>sample.conf</B> file
+for example usage with common search engines.
+<DT><B>Incremental </B>( yes | <B>no</B> )
+
+<DD>
+Enable Incremental mode processing.
+<DT><B>IncrementalName </B><I>name</I>
+
+<DD>
+Filename to use for incremental data.  Relative to output directory unless
+an absolute name is given (ie: starts with '/').  Defaults to 
+'<B>webalizer.current</B>' in the standard output directory.
+<DT><B>DNSCache </B><I>name</I>
+
+<DD>
+Filename to use for the DNS cache.  Relative to output directory unless
+an absolute name is given (ie: starts with '/').
+<DT><B>DNSChildren </B><I>num</I>
+
+<DD>
+Number of children DNS processes to run in order to create/update the
+DNS cache file.  Specify zero (<B>0</B>) to disable.
+</DL>
+<P>
+
+<I>Top Table Keywords</I>
+
+<DL COMPACT>
+<DT><B>TopAgents </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> User Agents table. Use zero to disable.
+<DT><B>AllAgents </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> User Agents.
+<DT><B>TopReferrers </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Referrers table. Use zero to disable.
+<DT><B>AllReferrers </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> Referrers.
+<DT><B>TopSites </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Sites table. Use zero to disable.
+<DT><B>TopKSites </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Sites (by KByte) table.  Use zero to disable.
+<DT><B>AllSites </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> Sites.
+<DT><B>TopURLs </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> URLs table. Use zero to disable.
+<DT><B>TopKURLs </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> URLs (by KByte) table.  Use zero to disable.
+<DT><B>AllURLs </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> URLs.
+<DT><B>TopCountries </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Countries in the table. Use zero to disable.
+<DT><B>TopEntry </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Entry Pages in the table.  Use zero to disable.
+<DT><B>TopExit </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Exit Pages in the table.  Use zero to disable.
+<DT><B>TopSearch </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Search Strings in the table.  Use zero to disable.
+<DT><B>AllSearchStr </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> Search Strings.
+<DT><B>TopUsers </B><I>num</I>
+
+<DD>
+Display the top <I>num</I> Usernames in the table.  Use zero to disable.
+Usernames are only available if using http based authentication.
+<DT><B>AllUsers </B>( yes | <B>no</B> )
+
+<DD>
+Create seperate HTML page with <B>All</B> Usernames.
+</DL>
+<P>
+
+<I>Hide/Ignore/Group/Include Keywords</I>
+
+<DL COMPACT>
+<DT><B>HideAgent </B><I>name</I>
+
+<DD>
+Hide User Agents that match <I>name</I>.
+<DT><B>HideReferrer </B><I>name</I>
+
+<DD>
+Hide Referrers that match <I>name</I>.
+<DT><B>HideSite </B><I>name</I>
+
+<DD>
+Hide Sites that match <I>name</I>.
+<DT><B>HideAllSites </B>( yes | <B>no</B> )
+
+<DD>
+Hide all individual sites.  This causes only grouped sites to be displayed.
+<DT><B>HideURL </B><I>name</I>
+
+<DD>
+Hide URL's that match <I>name</I>.
+<DT><B>HideUser </B><I>name</I>
+
+<DD>
+Hide Usernames that match <I>name</I>.
+<DT><B>IgnoreAgent </B><I>name</I>
+
+<DD>
+Ignore User Agents that match <I>name</I>.
+<DT><B>IgnoreReferrer </B><I>name</I>
+
+<DD>
+Ignore Referrers that match <I>name</I>.
+<DT><B>IgnoreSite </B><I>name</I>
+
+<DD>
+Ignore Sites that match <I>name</I>.
+<DT><B>IgnoreURL </B><I>name</I>
+
+<DD>
+Ignore URL's that match <I>name</I>.
+<DT><B>IgnoreUser </B><I>name</I>
+
+<DD>
+Ignore Usernames that match <I>name</I>.
+<DT><B>GroupAgent</B> <I>name</I> [<I>Label</I>]
+
+<DD>
+Group User Agents that match <I>name</I>.  Display <I>Label</I> in 'Top Agent'
+table if given (instead of <I>name</I>).
+<DT><B>GroupReferrer</B> <I>name</I> [<I>Label</I>]
+
+<DD>
+Group Referrers that match <I>name</I>.  Display <I>Label</I> in 'Top Referrer'
+table if given (instead of <I>name</I>).
+<DT><B>GroupSite</B> <I>name</I> [<I>Label</I>]
+
+<DD>
+Group Sites that match <I>name</I>.  Display <I>Label</I> in 'Top Site'
+table if given (instead of <I>name</I>).
+<DT><B>GroupDomains</B> <I>num</I>
+
+<DD>
+Automatically group sites by domain.  The value <I>num</I> specifies the
+level of grouping, and can be thought of as the 'number of dots' to
+be displayed.  The default value of <B>0</B> disables domain grouping.
+<DT><B>GroupURL</B> <I>name</I> [<I>Label</I>]
+
+<DD>
+Group URL's that match <I>name</I>.  Display <I>Label</I> in 'Top URL'
+table if given (instead of <I>name</I>).
+<DT><B>GroupUser</B> <I>name</I> [<I>Label</I>]
+
+<DD>
+Group Usernames that match <I>name</I>.  Display <I>Label</I> in 'Top
+Usernames' table if given (instead of <I>name</I>).
+<DT><B>IncludeSite </B><I>name</I>
+
+<DD>
+Force inclusion of sites that match <I>name</I>.  Takes precedence
+over <B>Ignore#</B> keywords.
+<DT><B>IncludeURL </B><I>name</I>
+
+<DD>
+Force inclusion of URL's that match <I>name</I>.  Takes precedence
+over <B>Ignore#</B> keywords.
+<DT><B>IncludeReferrer </B><I>name</I>
+
+<DD>
+Force inclusion of Referrers that match <I>name</I>.  Takes precedence
+over <B>Ignore#</B> keywords.
+<DT><B>IncludeAgent </B><I>name</I>
+
+<DD>
+Force inclusion of User Agents that match <I>name</I>.  Takes precedence
+over <B>Ignore*</B> keywords.
+<DT><B>IncludeUser </B><I>name</I>
+
+<DD>
+Force inclusion of Usernames that match <I>name</I>.  Takes precedence
+over <B>Ignore*</B> keywords.
+</DL>
+<P>
+
+<I>HTML Generation Keywords</I>
+
+<DL COMPACT>
+<DT><B>HTMLExtension </B><I>text</I>
+
+<DD>
+Defines the HTML file extension to use.  Default is <I>html</I>.  Do not
+include the leading period!
+<DT><B>HTMLPre </B><I>text</I>
+
+<DD>
+Insert <I>text</I> at the very beginning of the generated HTML file.
+Defaults to a standard html 3.2 <I>DOCTYPE</I> record.
+<DT><B>HTMLHead </B><I>text</I>
+
+<DD>
+Insert <I>text</I> within the &lt;HEAD&gt;&lt;/HEAD&gt; block of the HTML file.
+<DT><B>HTMLBody </B><I>text</I>
+
+<DD>
+Insert <I>text</I> in HTML page, starting with the &lt;BODY&gt; tag.  If used, the
+first line must be a <I>&lt;BODY ...&gt;</I> tag.  Multiple lines may be specified.
+<DT><B>HTMLPost </B><I>text</I>
+
+<DD>
+Insert <I>text</I> at top (before horiz. rule) of HTML pages.  Multiple lines
+may be specified.
+<DT><B>HTMLTail </B><I>text</I>
+
+<DD>
+Insert <I>text</I> at bottom of the HTML page.  The <I>text</I> is top and
+right aligned within a table column at the end of the report.
+<DT><B>HTMLEnd </B><I>text</I>
+
+<DD>
+Insert <I>text</I> at the very end of the HTML page.  If not specified,
+the default is to insert the ending &lt;/BODY&gt; and &lt;/HTML&gt; tags.  If used,
+you <I>must</I> supply these tags yourself.
+</DL>
+<P>
+
+<I>Dump Object Keywords</I>
+
+<P>
+
+The Webalizer allows you to export processed data to other programs by
+using <I>tab delimited</I> text files.  The <I>Dump*</I> commands specify
+which files are to be written, and where.
+<DL COMPACT>
+<DT><B>DumpPath </B><I>name</I>
+
+<DD>
+Save dump files in directory <I>name</I>.  If not specified, the default
+output directory will be used.  Do not specify a trailing slash (<I>/fP).
+<DT></I><B>DumpExtension </B><I>name</I>
+
+<DD>
+Use <I>name</I> as the filename extension for dump files.  If not given,
+the default of <B>tab</B> will be used.
+<DT><B>DumpHeader </B>( yes | <B>no</B> )
+
+<DD>
+Print a column header as the first record of the file.
+<DT><B>DumpSites </B>( yes | <B>no</B> )
+
+<DD>
+Dump the sites data to a tab delimited file.
+<DT><B>DumpURLs </B>( yes | <B>no</B> )
+
+<DD>
+Dump the url data to a tab delimited file.
+<DT><B>DumpReferrers </B>( yes | <B>no</B> )
+
+<DD>
+Dump the referrer data to a tab delimitd file.  This data is only
+available if using a log that contains referrer information
+(ie: a combined format web log).
+<DT><B>DumpAgents </B>( yes | <B>no</B> )
+
+<DD>
+Dump the user agent data to a tab delimited file.  This data is only
+available if using a log that contains user agent information
+(ie: a combined format web log).
+<DT><B>DumpUsers </B>( yes | <B>no</B> )
+
+<DD>
+Dump the username data to a tab delimited file.  This data is only available
+if processing a wu-ftpd xferlog or a web log that contains http authentication
+information.
+<DT><B>DumpSearchStr </B>( yes | <B>no</B> )
+
+<DD>
+Dump the search string data to a tab delimited file.  This data is only
+available if processing a web log that contains referrer information and
+had search string information present.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>webalizer.conf</I>
+
+<DD>
+Default configuration file.  Is searched for in the current directory
+and if not found, in the <I>/etc/</I> directory.
+<DT><I>webalizer.hist</I>
+
+<DD>
+Monthly history file for previous 12 months.  (can be changed)
+<DT><I>webalizer.current</I>
+
+<DD>
+Current state data file (Incremental processing).  (can be changed)
+<DT><I>xxxxx_YYYYMM.html</I>
+
+<DD>
+Various monthly <I>HTML</I> output files produced. (extension can be changed)
+<DT><I>xxxxx_YYYYMM.png</I>
+
+<DD>
+Various monthly image files used in the reports.
+<DT><I>xxxxx_YYYYMM.tab</I>
+
+<DD>
+Monthly tab delimited text files.  (extension can be changed)
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+Report bugs to <I><A HREF="mailto:brad@mrunix.net">brad@mrunix.net</A></I>.
+<A NAME="lbAL">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Copyright (C) 1997-2000 by Bradford L. Barrett.  Distributed under
+the GNU GPL.  See the files &quot;<I>COPYING</I>&quot; and &quot;<I>Copyright</I>&quot;,
+supplied with all distributions for additional information.
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Bradford L. Barrett &lt;<I><A HREF="mailto:brad@mrunix.net">brad@mrunix.net</A></I>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RUNNING THE WEBALIZER</A><DD>
+<DT><A HREF="#lbAF">INCREMENTAL PROCESSING</A><DD>
+<DT><A HREF="#lbAG">REVERSE DNS LOOKUPS</A><DD>
+<DT><A HREF="#lbAH">COMMAND LINE OPTIONS</A><DD>
+<DT><A HREF="#lbAI">CONFIGURATION FILES</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+<DT><A HREF="#lbAL">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAM">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

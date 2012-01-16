@@ -1,0 +1,714 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>POD2MAN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>POD2MAN</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-10-12<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pod2man - Convert POD data to formatted *roff input
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+pod2man [<B>--section</B>=<I>manext</I>] [<B>--release</B>=<I>version</I>]
+[<B>--center</B>=<I>string</I>] [<B>--date</B>=<I>string</I>] [<B>--fixed</B>=<I>font</I>]
+[<B>--fixedbold</B>=<I>font</I>] [<B>--fixeditalic</B>=<I>font</I>]
+[<B>--fixedbolditalic</B>=<I>font</I>] [<B>--name</B>=<I>name</I>] [<B>--official</B>]
+[<B>--lax</B>] [<B>--quotes</B>=<I>quotes</I>] [<B>--verbose</B>]
+[<I>input</I> [<I>output</I>] ...]
+<P>
+
+pod2man <B>--help</B>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>pod2man</B> is a front-end for Pod::Man, using it to generate *roff input
+from <FONT SIZE="-1">POD</FONT> source.  The resulting *roff code is suitable for display on a
+terminal using <I><A HREF="../man1/nroff.1.php">nroff</A></I>(1), normally via <I><A HREF="../man1/man.1.php">man</A></I>(1), or printing using <I><A HREF="../man1/troff.1.php">troff</A></I>(1).
+<P>
+
+<I>input</I> is the file to read for <FONT SIZE="-1">POD</FONT> source (the <FONT SIZE="-1">POD</FONT> can be embedded in
+code).  If <I>input</I> isn't given, it defaults to <FONT SIZE="-1">STDIN</FONT>.  <I>output</I>, if given,
+is the file to which to write the formatted output.  If <I>output</I> isn't
+given, the formatted output is written to <FONT SIZE="-1">STDOUT</FONT>.  Several <FONT SIZE="-1">POD</FONT> files can be
+processed in the same <B>pod2man</B> invocation (saving module load and compile
+times) by providing multiple pairs of <I>input</I> and <I>output</I> files on the
+command line.
+<P>
+
+<B>--section</B>, <B>--release</B>, <B>--center</B>, <B>--date</B>, and <B>--official</B> can be
+used to set the headers and footers to use; if not given, Pod::Man will
+assume various defaults.  See below or Pod::Man for details.
+<P>
+
+<B>pod2man</B> assumes that your *roff formatters have a fixed-width font named
+<FONT SIZE="-1">CW</FONT>.  If yours is called something else (like <FONT SIZE="-1">CR</FONT>), use <B>--fixed</B> to specify
+it.  This generally only matters for troff output for printing.  Similarly,
+you can set the fonts used for bold, italic, and bold italic fixed-width
+output.
+<P>
+
+Besides the obvious pod conversions, Pod::Man, and therefore pod2man also
+takes care of formatting <I>func()</I>, <A HREF="../mann/func.n.php">func</A>(n), and simple variable references
+like <TT>$foo</TT> or <TT>@bar</TT> so you don't have to use code escapes for them; complex
+expressions like <TT>$fred{'stuff'}</TT> will still need to be escaped, though.
+It also translates dashes that aren't used as hyphens into en dashes, makes
+long dashes---like this---into proper em dashes, fixes ``paired quotes,'' and
+takes care of several other troff-specific tweaks.  See Pod::Man for
+complete information.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-c</B> <I>string</I>, <B>--center</B>=<I>string</I><DD>
+<A NAME="ixAAF"></A>
+Sets the centered page header to <I>string</I>.  The default is ``User
+Contributed Perl Documentation'', but also see <B>--official</B> below.
+<DT><B>-d</B> <I>string</I>, <B>--date</B>=<I>string</I><DD>
+<A NAME="ixAAG"></A>
+Set the left-hand footer string to this value.  By default, the modification
+date of the input file will be used, or the current date if input comes from
+<FONT SIZE="-1">STDIN</FONT>.
+<DT><B>--fixed</B>=<I>font</I><DD>
+<A NAME="ixAAH"></A>
+The fixed-width font to use for vertabim text and code.  Defaults to <FONT SIZE="-1">CW</FONT>.
+Some systems may want <FONT SIZE="-1">CR</FONT> instead.  Only matters for <I><A HREF="../man1/troff.1.php">troff</A></I>(1) output.
+<DT><B>--fixedbold</B>=<I>font</I><DD>
+<A NAME="ixAAI"></A>
+Bold version of the fixed-width font.  Defaults to <FONT SIZE="-1">CB</FONT>.  Only matters for
+<I><A HREF="../man1/troff.1.php">troff</A></I>(1) output.
+<DT><B>--fixeditalic</B>=<I>font</I><DD>
+<A NAME="ixAAJ"></A>
+Italic version of the fixed-width font (actually, something of a misnomer,
+since most fixed-width fonts only have an oblique version, not an italic
+version).  Defaults to <FONT SIZE="-1">CI</FONT>.  Only matters for <I><A HREF="../man1/troff.1.php">troff</A></I>(1) output.
+<DT><B>--fixedbolditalic</B>=<I>font</I><DD>
+<A NAME="ixAAK"></A>
+Bold italic (probably actually oblique) version of the fixed-width font.
+Pod::Man doesn't assume you have this, and defaults to <FONT SIZE="-1">CB</FONT>.  Some systems
+(such as Solaris) have this font available as <FONT SIZE="-1">CX</FONT>.  Only matters for <I><A HREF="../man1/troff.1.php">troff</A></I>(1)
+output.
+<DT><B>-h</B>, <B>--help</B><DD>
+<A NAME="ixAAL"></A>
+Print out usage information.
+<DT><B>-l</B>, <B>--lax</B><DD>
+<A NAME="ixAAM"></A>
+No longer used.  <B>pod2man</B> used to check its input for validity as a manual
+page, but this should now be done by <I><A HREF="../man1/podchecker.1.php">podchecker</A></I>(1) instead.  Accepted for
+backwards compatibility; this option no longer does anything.
+<DT><B>-n</B> <I>name</I>, <B>--name</B>=<I>name</I><DD>
+<A NAME="ixAAN"></A>
+Set the name of the manual page to <I>name</I>.  Without this option, the manual
+name is set to the uppercased base name of the file being converted unless
+the manual section is 3, in which case the path is parsed to see if it is a
+Perl module path.  If it is, a path like <TT>&quot;.../lib/Pod/Man.pm&quot;</TT> is converted
+into a name like <TT>&quot;Pod::Man&quot;</TT>.  This option, if given, overrides any
+automatic determination of the name.
+
+
+<P>
+
+
+Note that this option is probably not useful when converting multiple <FONT SIZE="-1">POD</FONT>
+files at once.  The convention for Unix man pages for commands is for the
+man page title to be in all-uppercase even if the command isn't.
+<DT><B>-o</B>, <B>--official</B><DD>
+<A NAME="ixAAO"></A>
+Set the default header to indicate that this page is part of the standard
+Perl release, if <B>--center</B> is not also given.
+<DT><B>-q</B> <I>quotes</I>, <B>--quotes</B>=<I>quotes</I><DD>
+<A NAME="ixAAP"></A>
+Sets the quote marks used to surround C&lt;&gt; text to <I>quotes</I>.  If
+<I>quotes</I> is a single character, it is used as both the left and right
+quote; if <I>quotes</I> is two characters, the first character is used as the
+left quote and the second as the right quoted; and if <I>quotes</I> is four
+characters, the first two are used as the left quote and the second two as
+the right quote.
+
+
+<P>
+
+
+<I>quotes</I> may also be set to the special value <TT>&quot;none&quot;</TT>, in which case no
+quote marks are added around C&lt;&gt; text (but the font is still changed for
+troff output).
+<DT><B>-r</B>, <B>--release</B><DD>
+<A NAME="ixAAQ"></A>
+Set the centered footer.  By default, this is the version of Perl you run
+<B>pod2man</B> under.  Note that some system an macro sets assume that the
+centered footer will be a modification date and will prepend something like
+``Last modified: ''; if this is the case, you may want to set <B>--release</B> to
+the last modified date and <B>--date</B> to the version number.
+<DT><B>-s</B>, <B>--section</B><DD>
+<A NAME="ixAAR"></A>
+Set the section for the <TT>&quot;.TH&quot;</TT> macro.  The standard section numbering
+convention is to use 1 for user commands, 2 for system calls, 3 for
+functions, 4 for devices, 5 for file formats, 6 for games, 7 for
+miscellaneous information, and 8 for administrator commands.  There is a lot
+of variation here, however; some systems (like Solaris) use 4 for file
+formats, 5 for miscellaneous information, and 7 for devices.  Still others
+use 1m instead of 8, or some mix of both.  About the only section numbers
+that are reliably consistent are 1, 2, and 3.
+
+
+<P>
+
+
+By default, section 1 will be used unless the file ends in .pm in which case
+section 3 will be selected.
+<DT><B>-v</B>, <B>--verbose</B><DD>
+<A NAME="ixAAS"></A>
+Print out the name of each output file as it is being generated.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<A NAME="ixAAT"></A>
+If <B>pod2man</B> fails with errors, see Pod::Man and Pod::Parser for
+information about what those errors might mean.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAU"></A>
+
+
+<PRE>
+    pod2man program &gt; program.1
+    pod2man SomeModule.pm /usr/perl/man/man3/SomeModule.3
+    pod2man --section=7 note.pod &gt; note.7
+
+</PRE>
+
+
+<P>
+
+If you would like to print out a lot of man page continuously, you probably
+want to set the C and D registers to set contiguous page numbering and
+even/odd paging, at least on some versions of <I><A HREF="../man7/man.7.php">man</A></I>(7).
+<P>
+
+
+
+<PRE>
+    troff -man -rC1 -rD1 perl.1 perldata.1 perlsyn.1 ...
+
+</PRE>
+
+
+<P>
+
+To get index entries on stderr, turn on the F register, as in:
+<P>
+
+
+
+<PRE>
+    troff -man -rF1 perl.1
+
+</PRE>
+
+
+<P>
+
+The indexing merely outputs messages via <TT>&quot;.tm&quot;</TT> for each major page,
+section, subsection, item, and any <TT>&quot;X&lt;&gt;&quot;</TT> directives.  See
+Pod::Man for more details.
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAV"></A>
+Lots of this documentation is duplicated from Pod::Man.
+<A NAME="lbAI">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixAAW"></A>
+For those not sure of the proper layout of a man page, here are some notes
+on writing a proper man page.
+<P>
+
+The name of the program being documented is conventionally written in bold
+(using B&lt;&gt;) wherever it occurs, as are all program options.
+Arguments should be written in italics (I&lt;&gt;).  Functions are
+traditionally written in italics; if you write a function as <I>function()</I>,
+Pod::Man will take care of this for you.  Literal code or commands should
+be in C&lt;&gt;.  References to other man pages should be in the form
+<TT>&quot;manpage(section)&quot;</TT>, and Pod::Man will automatically format those
+appropriately.  As an exception, it's traditional not to use this form when
+referring to module documentation; use <TT>&quot;L&lt;Module::Name&gt;&quot;</TT> instead.
+<P>
+
+References to other programs or functions are normally in the form of man
+page references so that cross-referencing tools can provide the user with
+links and the like.  It's possible to overdo this, though, so be careful not
+to clutter your documentation with too much markup.
+<P>
+
+The major headers should be set out using a <TT>&quot;=head1&quot;</TT> directive, and are
+historically written in the rather startling <FONT SIZE="-1">ALL</FONT> <FONT SIZE="-1">UPPER</FONT> <FONT SIZE="-1">CASE</FONT> format, although
+this is not mandatory.  Minor headers may be included using <TT>&quot;=head2&quot;</TT>, and
+are typically in mixed case.
+<P>
+
+The standard sections of a manual page are:
+<DL COMPACT>
+<DT><FONT SIZE="-1">NAME</FONT><DD>
+<A NAME="ixAAX"></A>
+Mandatory section; should be a comma-separated list of programs or functions
+documented by this podpage, such as:
+
+
+<P>
+
+
+
+
+<PRE>
+    foo, bar - programs to do something
+
+</PRE>
+
+
+
+
+<P>
+
+
+Manual page indexers are often extremely picky about the format of this
+section, so don't put anything in it except this line.  A single dash, and
+only a single dash, should separate the list of programs or functions from
+the description.  Functions should not be qualified with <TT>&quot;()&quot;</TT> or the like.
+The description should ideally fit on a single line, even if a man program
+replaces the dash with a few tabs.
+<DT><FONT SIZE="-1">SYNOPSIS</FONT><DD>
+<A NAME="ixAAY"></A>
+A short usage summary for programs and functions.  This section is mandatory
+for section 3 pages.
+<DT><FONT SIZE="-1">DESCRIPTION</FONT><DD>
+<A NAME="ixAAZ"></A>
+Extended description and discussion of the program or functions, or the body
+of the documentation for man pages that document something else.  If
+particularly long, it's a good idea to break this up into subsections
+<TT>&quot;=head2&quot;</TT> directives like:
+
+
+<P>
+
+
+
+
+<PRE>
+    =head2 Normal Usage
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head2 Advanced Features
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =head2 Writing Configuration Files
+
+</PRE>
+
+
+
+
+<P>
+
+
+or whatever is appropriate for your documentation.
+<DT><FONT SIZE="-1">OPTIONS</FONT><DD>
+<A NAME="ixABA"></A>
+Detailed description of each of the command-line options taken by the
+program.  This should be separate from the description for the use of things
+like Pod::Usage.  This is normally presented as a list, with
+each option as a separate <TT>&quot;=item&quot;</TT>.  The specific option string should be
+enclosed in B&lt;&gt;.  Any values that the option takes should be
+enclosed in I&lt;&gt;.  For example, the section for the option
+<B>--section</B>=<I>manext</I> would be introduced with:
+
+
+<P>
+
+
+
+
+<PRE>
+    =item B&lt;--section&gt;=I&lt;manext&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Synonymous options (like both the short and long forms) are separated by a
+comma and a space on the same <TT>&quot;=item&quot;</TT> line, or optionally listed as their
+own item with a reference to the canonical name.  For example, since
+<B>--section</B> can also be written as <B>-s</B>, the above would be:
+
+
+<P>
+
+
+
+
+<PRE>
+    =item B&lt;-s&gt; I&lt;manext&gt;, B&lt;--section&gt;=I&lt;manext&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+(Writing the short option first is arguably easier to read, since the long
+option is long enough to draw the eye to it anyway and the short option can
+otherwise get lost in visual noise.)
+<DT><FONT SIZE="-1">RETURN</FONT> <FONT SIZE="-1">VALUE</FONT><DD>
+<A NAME="ixABB"></A>
+What the program or function returns, if successful.  This section can be
+omitted for programs whose precise exit codes aren't important, provided
+they return 0 on success as is standard.  It should always be present for
+functions.
+<DT><FONT SIZE="-1">ERRORS</FONT><DD>
+<A NAME="ixABC"></A>
+Exceptions, error return codes, exit statuses, and errno settings.
+Typically used for function documentation; program documentation uses
+<FONT SIZE="-1">DIAGNOSTICS</FONT> instead.  The general rule of thumb is that errors printed to
+<FONT SIZE="-1">STDOUT</FONT> or <FONT SIZE="-1">STDERR</FONT> and intended for the end user are documented in <FONT SIZE="-1">DIAGNOSTICS</FONT>
+while errors passed internal to the calling program and intended for other
+programmers are documented in <FONT SIZE="-1">ERRORS</FONT>.  When documenting a function that sets
+errno, a full list of the possible errno values should be given here.
+<DT><FONT SIZE="-1">DIAGNOSTICS</FONT><DD>
+<A NAME="ixABD"></A>
+All possible messages the program can print out---and what they mean.  You
+may wish to follow the same documentation style as the Perl documentation;
+see <I><A HREF="../man1/perldiag.1.php">perldiag</A></I>(1) for more details (and look at the <FONT SIZE="-1">POD</FONT> source as well).
+
+
+<P>
+
+
+If applicable, please include details on what the user should do to correct
+the error; documenting an error as indicating ``the input buffer is too
+small'' without telling the user how to increase the size of the input buffer
+(or at least telling them that it isn't possible) aren't very useful.
+<DT><FONT SIZE="-1">EXAMPLES</FONT><DD>
+<A NAME="ixABE"></A>
+Give some example uses of the program or function.  Don't skimp; users often
+find this the most useful part of the documentation.  The examples are
+generally given as verbatim paragraphs.
+
+
+<P>
+
+
+Don't just present an example without explaining what it does.  Adding a
+short paragraph saying what the example will do can increase the value of
+the example immensely.
+<DT><FONT SIZE="-1">ENVIRONMENT</FONT><DD>
+<A NAME="ixABF"></A>
+Environment variables that the program cares about, normally presented as a
+list using <TT>&quot;=over&quot;</TT>, <TT>&quot;=item&quot;</TT>, and <TT>&quot;=back&quot;</TT>.  For example:
+
+
+<P>
+
+
+
+
+<PRE>
+    =over 6
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =item HOME
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    Used to determine the user's home directory.  F&lt;.foorc&gt; in this
+    directory is read for configuration details, if it exists.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    =back
+
+</PRE>
+
+
+
+
+<P>
+
+
+Since environment variables are normally in all uppercase, no additional
+special formatting is generally needed; they're glaring enough as it is.
+<DT><FONT SIZE="-1">FILES</FONT><DD>
+<A NAME="ixABG"></A>
+All files used by the program or function, normally presented as a list, and
+what it uses them for.  File names should be enclosed in F&lt;&gt;.  It's
+particularly important to document files that will be potentially modified.
+<DT><FONT SIZE="-1">CAVEATS</FONT><DD>
+<A NAME="ixABH"></A>
+Things to take special care with, sometimes called <FONT SIZE="-1">WARNINGS</FONT>.
+<DT><FONT SIZE="-1">BUGS</FONT><DD>
+<A NAME="ixABI"></A>
+Things that are broken or just don't work quite right.
+<DT><FONT SIZE="-1">RESTRICTIONS</FONT><DD>
+<A NAME="ixABJ"></A>
+Bugs you don't plan to fix.  :-)
+<DT><FONT SIZE="-1">NOTES</FONT><DD>
+<A NAME="ixABK"></A>
+Miscellaneous commentary.
+<DT><FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT><DD>
+<A NAME="ixABL"></A>
+Other man pages to check out, like <I><A HREF="../man1/man.1.php">man</A></I>(1), <I><A HREF="../man7/man.7.php">man</A></I>(7), <I><A HREF="../man8/makewhatis.8.php">makewhatis</A></I>(8), or
+<I><A HREF="../man8/catman.8.php">catman</A></I>(8).  Normally a simple list of man pages separated by commas, or a
+paragraph giving the name of a reference work.  Man page references, if they
+use the standard <TT>&quot;name(section)&quot;</TT> form, don't have to be enclosed in
+L&lt;&gt; (although it's recommended), but other things in this section
+probably should be when appropriate.
+
+
+<P>
+
+
+If the package has a mailing list, include a <FONT SIZE="-1">URL</FONT> or subscription
+instructions here.
+
+
+<P>
+
+
+If the package has a web site, include a <FONT SIZE="-1">URL</FONT> here.
+<DT><FONT SIZE="-1">AUTHOR</FONT><DD>
+<A NAME="ixABM"></A>
+Who wrote it (use <FONT SIZE="-1">AUTHORS</FONT> for multiple people).  Including your current
+e-mail address (or some e-mail address to which bug reports should be sent)
+so that users have a way of contacting you is a good idea.  Remember that
+program documentation tends to roam the wild for far longer than you expect
+and pick an e-mail address that's likely to last if possible.
+<DT><FONT SIZE="-1">COPYRIGHT</FONT> <FONT SIZE="-1">AND</FONT> <FONT SIZE="-1">LICENSE</FONT><DD>
+<A NAME="ixABN"></A>
+For copyright
+
+
+<P>
+
+
+
+
+<PRE>
+    Copyright YEAR(s) by YOUR NAME(s)
+
+</PRE>
+
+
+
+
+<P>
+
+
+(No, (C) is not needed.  No, ``all rights reserved'' is not needed.)
+
+
+<P>
+
+
+For licensing the easiest way is to use the same licensing as Perl itself:
+
+
+<P>
+
+
+
+
+<PRE>
+    This library is free software; you may redistribute it and/or modify
+    it under the same terms as Perl itself.
+
+</PRE>
+
+
+
+
+<P>
+
+
+This makes it easy for people to use your module with Perl.  Note that
+this licensing is neither an endorsement or a requirement, you are of
+course free to choose any licensing.
+<DT><FONT SIZE="-1">HISTORY</FONT><DD>
+<A NAME="ixABO"></A>
+Programs derived from other sources sometimes have this, or you might keep
+a modification log here.  If the log gets overly long or detailed,
+consider maintaining it in a separate file, though.
+</DL>
+<P>
+
+In addition, some systems use <FONT SIZE="-1">CONFORMING</FONT> <FONT SIZE="-1">TO</FONT> to note conformance to relevant
+standards and MT-LEVEL to note safeness for use in threaded programs or
+signal handlers.  These headings are primarily useful when documenting parts
+of a C library.  Documentation of object-oriented libraries or modules may
+use <FONT SIZE="-1">CONSTRUCTORS</FONT> and <FONT SIZE="-1">METHODS</FONT> sections for detailed documentation of the
+parts of the library and save the <FONT SIZE="-1">DESCRIPTION</FONT> section for an overview; other
+large modules may use <FONT SIZE="-1">FUNCTIONS</FONT> for similar reasons.  Some people use
+<FONT SIZE="-1">OVERVIEW</FONT> to summarize the description if it's quite long.
+<P>
+
+Section ordering varies, although <FONT SIZE="-1">NAME</FONT> should <I>always</I> be the first section
+(you'll break some man page systems otherwise), and <FONT SIZE="-1">NAME</FONT>, <FONT SIZE="-1">SYNOPSIS</FONT>,
+<FONT SIZE="-1">DESCRIPTION</FONT>, and <FONT SIZE="-1">OPTIONS</FONT> generally always occur first and in that order if
+present.  In general, <FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT>, <FONT SIZE="-1">AUTHOR</FONT>, and similar material should be left
+for last.  Some systems also move <FONT SIZE="-1">WARNINGS</FONT> and <FONT SIZE="-1">NOTES</FONT> to last.  The order
+given above should be reasonable for most purposes.
+<P>
+
+Finally, as a general note, try not to use an excessive amount of markup.
+As documented here and in Pod::Man, you can safely leave Perl variables,
+function names, man page references, and the like unadorned by markup and
+the <FONT SIZE="-1">POD</FONT> translators will figure it out for you.  This makes it much easier
+to later edit the documentation.  Note that many existing translators
+(including this one currently) will do the wrong thing with e-mail addresses
+or URLs when wrapped in L&lt;&gt;, so don't do that.
+<P>
+
+For additional information that may be more accurate for your specific
+system, see either <I><A HREF="../man5/man.5.php">man</A></I>(5) or <I><A HREF="../man7/man.7.php">man</A></I>(7) depending on your system manual
+section numbering conventions.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABP"></A>
+Pod::Man, Pod::Parser, <I><A HREF="../man1/man.1.php">man</A></I>(1), <I><A HREF="../man1/nroff.1.php">nroff</A></I>(1), <I><A HREF="../man1/podchecker.1.php">podchecker</A></I>(1),
+<I><A HREF="../man1/troff.1.php">troff</A></I>(1), <I><A HREF="../man7/man.7.php">man</A></I>(7)
+<P>
+
+The man page documenting the an macro set may be <I><A HREF="../man5/man.5.php">man</A></I>(5) instead of
+<I><A HREF="../man7/man.7.php">man</A></I>(7) on your system.
+<P>
+
+The current version of this script is always available from its web site at
+&lt;<A HREF="http://www.eyrie.org/~eagle/software/podlators/">http://www.eyrie.org/~eagle/software/podlators/</A>&gt;.  It is also part of the
+Perl core distribution as of 5.6.0.
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABQ"></A>
+Russ Allbery &lt;<A HREF="mailto:rra@stanford.edu">rra@stanford.edu</A>&gt;, based <I>very</I> heavily on the original
+<B>pod2man</B> by Larry Wall and Tom Christiansen.  Large portions of this
+documentation, particularly the sections on the anatomy of a proper man
+page, are taken from the <B>pod2man</B> documentation by Tom.
+<A NAME="lbAL">&nbsp;</A>
+<H2>COPYRIGHT AND LICENSE</H2>
+
+<A NAME="ixABR"></A>
+Copyright 1999, 2000, 2001 by Russ Allbery &lt;<A HREF="mailto:rra@stanford.edu">rra@stanford.edu</A>&gt;.
+<P>
+
+This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">NOTES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+<DT><A HREF="#lbAL">COPYRIGHT AND LICENSE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,428 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DJPEG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DJPEG</H1>
+Section: User Commands  (1)<BR>Updated: 22 August 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+djpeg - decompress a JPEG file to an image file
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>djpeg</B>
+
+[
+<I>options</I>
+
+]
+[
+<I>filename</I>
+
+]
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>djpeg</B>
+
+decompresses the named JPEG file, or the standard input if no file is named,
+and produces an image file on the standard output.  PBMPLUS (PPM/PGM), BMP,
+GIF, Targa, or RLE (Utah Raster Toolkit) output format can be selected.
+(RLE is supported only if the URT library is available.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+All switch names may be abbreviated; for example,
+<B>-grayscale</B>
+
+may be written
+<B>-gray</B>
+
+or
+<B>-gr</B>.
+
+Most of the &quot;basic&quot; switches can be abbreviated to as little as one letter.
+Upper and lower case are equivalent (thus
+<B>-BMP</B>
+
+is the same as
+<B>-bmp</B>).
+
+British spellings are also accepted (e.g.,
+<B>-greyscale</B>),
+
+though for brevity these are not mentioned below.
+<P>
+
+The basic switches are:
+<DL COMPACT>
+<DT><B>-colors</B><I> N</I>
+
+<DD>
+Reduce image to at most N colors.  This reduces the number of colors used in
+the output image, so that it can be displayed on a colormapped display or
+stored in a colormapped file format.  For example, if you have an 8-bit
+display, you'd need to reduce to 256 or fewer colors.
+<DT><B>-quantize</B><I> N</I>
+
+<DD>
+Same as
+<B>-colors</B>.
+
+<B>-colors</B>
+
+is the recommended name,
+<B>-quantize</B>
+
+is provided only for backwards compatibility.
+<DT><B>-fast</B>
+
+<DD>
+Select recommended processing options for fast, low quality output.  (The
+default options are chosen for highest quality output.)  Currently, this is
+equivalent to <B>-dct fast -nosmooth -onepass -dither ordered</B>.
+<DT><B>-grayscale</B>
+
+<DD>
+Force gray-scale output even if JPEG file is color.  Useful for viewing on
+monochrome displays; also,
+<B>djpeg</B>
+
+runs noticeably faster in this mode.
+<DT><B>-scale</B><I> M/N</I>
+
+<DD>
+Scale the output image by a factor M/N.  Currently the scale factor must be
+1/1, 1/2, 1/4, or 1/8.  Scaling is handy if the image is larger than your
+screen; also,
+<B>djpeg</B>
+
+runs much faster when scaling down the output.
+<DT><B>-bmp</B>
+
+<DD>
+Select BMP output format (Windows flavor).  8-bit colormapped format is
+emitted if
+<B>-colors</B>
+
+or
+<B>-grayscale</B>
+
+is specified, or if the JPEG file is gray-scale; otherwise, 24-bit full-color
+format is emitted.
+<DT><B>-gif</B>
+
+<DD>
+Select GIF output format.  Since GIF does not support more than 256 colors,
+<B>-colors 256</B>
+
+is assumed (unless you specify a smaller number of colors).
+<DT><B>-os2</B>
+
+<DD>
+Select BMP output format (OS/2 1.x flavor).  8-bit colormapped format is
+emitted if
+<B>-colors</B>
+
+or
+<B>-grayscale</B>
+
+is specified, or if the JPEG file is gray-scale; otherwise, 24-bit full-color
+format is emitted.
+<DT><B>-pnm</B>
+
+<DD>
+Select PBMPLUS (PPM/PGM) output format (this is the default format).
+PGM is emitted if the JPEG file is gray-scale or if
+<B>-grayscale</B>
+
+is specified; otherwise PPM is emitted.
+<DT><B>-rle</B>
+
+<DD>
+Select RLE output format.  (Requires URT library.)
+<DT><B>-targa</B>
+
+<DD>
+Select Targa output format.  Gray-scale format is emitted if the JPEG file is
+gray-scale or if
+<B>-grayscale</B>
+
+is specified; otherwise, colormapped format is emitted if
+<B>-colors</B>
+
+is specified; otherwise, 24-bit full-color format is emitted.
+</DL>
+<P>
+
+Switches for advanced users:
+<DL COMPACT>
+<DT><B>-dct int</B>
+
+<DD>
+Use integer DCT method (default).
+<DT><B>-dct fast</B>
+
+<DD>
+Use fast integer DCT (less accurate).
+<DT><B>-dct float</B>
+
+<DD>
+Use floating-point DCT method.
+The float method is very slightly more accurate than the int method, but is
+much slower unless your machine has very fast floating-point hardware.  Also
+note that results of the floating-point method may vary slightly across
+machines, while the integer methods should give the same results everywhere.
+The fast integer method is much less accurate than the other two.
+<DT><B>-dither fs</B>
+
+<DD>
+Use Floyd-Steinberg dithering in color quantization.
+<DT><B>-dither ordered</B>
+
+<DD>
+Use ordered dithering in color quantization.
+<DT><B>-dither none</B>
+
+<DD>
+Do not use dithering in color quantization.
+By default, Floyd-Steinberg dithering is applied when quantizing colors; this
+is slow but usually produces the best results.  Ordered dither is a compromise
+between speed and quality; no dithering is fast but usually looks awful.  Note
+that these switches have no effect unless color quantization is being done.
+Ordered dither is only available in
+<B>-onepass</B>
+
+mode.
+<DT><B>-map</B><I> file</I>
+
+<DD>
+Quantize to the colors used in the specified image file.  This is useful for
+producing multiple files with identical color maps, or for forcing a
+predefined set of colors to be used.  The
+<I>file</I>
+
+must be a GIF or PPM file. This option overrides
+<B>-colors</B>
+
+and
+<B>-onepass</B>.
+
+<DT><B>-nosmooth</B>
+
+<DD>
+Use a faster, lower-quality upsampling routine.
+<DT><B>-onepass</B>
+
+<DD>
+Use one-pass instead of two-pass color quantization.  The one-pass method is
+faster and needs less memory, but it produces a lower-quality image.
+<B>-onepass</B>
+
+is ignored unless you also say
+<B>-colors</B>
+
+<I>N</I>.
+
+Also, the one-pass method is always used for gray-scale output (the two-pass
+method is no improvement then).
+<DT><B>-maxmemory</B><I> N</I>
+
+<DD>
+Set limit for amount of memory to use in processing large images.  Value is
+in thousands of bytes, or millions of bytes if &quot;M&quot; is attached to the
+number.  For example,
+<B>-max 4m</B>
+
+selects 4000000 bytes.  If more space is needed, temporary files will be used.
+<DT><B>-outfile</B><I> name</I>
+
+<DD>
+Send output image to the named file, not to standard output.
+<DT><B>-verbose</B>
+
+<DD>
+Enable debug printout.  More
+<B>-v</B>'s
+
+give more output.  Also, version information is printed at startup.
+<DT><B>-debug</B>
+
+<DD>
+Same as
+<B>-verbose</B>.
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+This example decompresses the JPEG file foo.jpg, quantizes it to
+256 colors, and saves the output in 8-bit BMP format in foo.bmp:
+<DL COMPACT>
+<DT><DD>
+<B>djpeg -colors 256 -bmp</B>
+
+<I>foo.jpg</I>
+
+<B>&gt;</B>
+
+<I>foo.bmp</I>
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>HINTS</H2>
+
+To get a quick preview of an image, use the
+<B>-grayscale</B>
+
+and/or
+<B>-scale</B>
+
+switches.
+<B>-grayscale -scale 1/8</B>
+
+is the fastest case.
+<P>
+
+Several options are available that trade off image quality to gain speed.
+<B>-fast</B>
+
+turns on the recommended settings.
+<P>
+
+<B>-dct fast</B>
+
+and/or
+<B>-nosmooth</B>
+
+gain speed at a small sacrifice in quality.
+When producing a color-quantized image,
+<B>-onepass -dither ordered</B>
+
+is fast but much lower quality than the default behavior.
+<B>-dither none</B>
+
+may give acceptable results in two-pass mode, but is seldom tolerable in
+one-pass mode.
+<P>
+
+If you are fortunate enough to have very fast floating point hardware,
+<B>-dct float</B> may be even faster than <B>-dct fast</B>.  But on most
+machines <B>-dct float</B> is slower than <B>-dct int</B>; in this case it is
+not worth using, because its theoretical accuracy advantage is too small to be
+significant in practice.
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>JPEGMEM</B>
+
+<DD>
+If this environment variable is set, its value is the default memory limit.
+The value is specified as described for the
+<B>-maxmemory</B>
+
+switch.
+<B>JPEGMEM</B>
+
+overrides the default value specified when the program was compiled, and
+itself is overridden by an explicit
+<B>-maxmemory</B>.
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cjpeg.1.php">cjpeg</A></B>(1),
+
+<B><A HREF="../man1/jpegtran.1.php">jpegtran</A></B>(1),
+
+<B><A HREF="../man1/rdjpgcom.1.php">rdjpgcom</A></B>(1),
+
+<B><A HREF="../man1/wrjpgcom.1.php">wrjpgcom</A></B>(1)
+
+<BR>
+
+<B><A HREF="../man5/ppm.5.php">ppm</A></B>(5),
+
+<B><A HREF="../man5/pgm.5.php">pgm</A></B>(5)
+
+<BR>
+
+Wallace, Gregory K.  &quot;The JPEG Still Picture Compression Standard&quot;,
+Communications of the ACM, April 1991 (vol. 34, no. 4), pp. 30-44.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Independent JPEG Group
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+Arithmetic coding is not supported for legal reasons.
+<P>
+
+To avoid the Unisys LZW patent,
+<B>djpeg</B>
+
+produces uncompressed GIF files.  These are larger than they should be, but
+are readable by standard GIF decoders.
+<P>
+
+Still not as fast as we'd like.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">HINTS</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1153 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLMOD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLMOD</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlmod - Perl modules (packages and symbol tables)
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+<A NAME="lbAD">&nbsp;</A>
+<H2>Packages</H2>
+
+<A NAME="ixAAD"></A>
+Perl provides a mechanism for alternative namespaces to protect
+packages from stomping on each other's variables.  In fact, there's
+really no such thing as a global variable in Perl.  The package
+statement declares the compilation unit as being in the given
+namespace.  The scope of the package declaration is from the
+declaration itself through the end of the enclosing block, <TT>&quot;eval&quot;</TT>,
+or file, whichever comes first (the same scope as the <I>my()</I> and
+<I>local()</I> operators).  Unqualified dynamic identifiers will be in
+this namespace, except for those few identifiers that if unqualified,
+default to the main package instead of the current one as described
+below.  A package statement affects only dynamic variables---including
+those you've used <I>local()</I> on---but <I>not</I> lexical variables created
+with <I>my()</I>.  Typically it would be the first declaration in a file
+included by the <TT>&quot;do&quot;</TT>, <TT>&quot;require&quot;</TT>, or <TT>&quot;use&quot;</TT> operators.  You can
+switch into a package in more than one place; it merely influences
+which symbol table is used by the compiler for the rest of that
+block.  You can refer to variables and filehandles in other packages
+by prefixing the identifier with the package name and a double
+colon: <TT>$Package::Variable</TT>.  If the package name is null, the
+<TT>&quot;main&quot;</TT> package is assumed.  That is, <TT>$::sail</TT> is equivalent to
+<TT>$main::sail</TT>.
+<P>
+
+The old package delimiter was a single quote, but double colon is now the
+preferred delimiter, in part because it's more readable to humans, and
+in part because it's more readable to <B>emacs</B> macros.  It also makes C<FONT SIZE="-2">++</FONT>
+programmers feel like they know what's going on---as opposed to using the
+single quote as separator, which was there to make Ada programmers feel
+like they knew what was going on.  Because the old-fashioned syntax is still
+supported for backwards compatibility, if you try to use a string like
+<TT>&quot;This is $owner's house&quot;</TT>, you'll be accessing <TT>$owner::s</TT>; that is,
+the <TT>$s</TT> variable in package <TT>&quot;owner&quot;</TT>, which is probably not what you meant.
+Use braces to disambiguate, as in <TT>&quot;This is ${owner}'s house&quot;</TT>.
+<P>
+
+Packages may themselves contain package separators, as in
+<TT>$OUTER::INNER::var</TT>.  This implies nothing about the order of
+name lookups, however.  There are no relative packages: all symbols
+are either local to the current package, or must be fully qualified
+from the outer package name down.  For instance, there is nowhere
+within package <TT>&quot;OUTER&quot;</TT> that <TT>$INNER::var</TT> refers to
+<TT>$OUTER::INNER::var</TT>.  <TT>&quot;INNER&quot;</TT> refers to a totally
+separate global package.
+<P>
+
+Only identifiers starting with letters (or underscore) are stored
+in a package's symbol table.  All other symbols are kept in package
+<TT>&quot;main&quot;</TT>, including all punctuation variables, like <TT>$_</TT>.  In addition,
+when unqualified, the identifiers <FONT SIZE="-1">STDIN</FONT>, <FONT SIZE="-1">STDOUT</FONT>, <FONT SIZE="-1">STDERR</FONT>, <FONT SIZE="-1">ARGV</FONT>,
+<FONT SIZE="-1">ARGVOUT</FONT>, <FONT SIZE="-1">ENV</FONT>, <FONT SIZE="-1">INC</FONT>, and <FONT SIZE="-1">SIG</FONT> are forced to be in package <TT>&quot;main&quot;</TT>,
+even when used for other purposes than their built-in ones.  If you
+have a package called <TT>&quot;m&quot;</TT>, <TT>&quot;s&quot;</TT>, or <TT>&quot;y&quot;</TT>, then you can't use the
+qualified form of an identifier because it would be instead interpreted
+as a pattern match, a substitution, or a transliteration.
+<P>
+
+Variables beginning with underscore used to be forced into package
+main, but we decided it was more useful for package writers to be able
+to use leading underscore to indicate private variables and method names.
+However, variables and functions named with a single <TT>&quot;_&quot;</TT>, such as
+<TT>$_</TT> and <TT>&quot;sub _&quot;</TT>, are still forced into the package <TT>&quot;main&quot;</TT>.  See also
+``Technical Note on the Syntax of Variable Names'' in perlvar.
+<P>
+
+<TT>&quot;eval&quot;</TT>ed strings are compiled in the package in which the <I>eval()</I> was
+compiled.  (Assignments to <TT>$SIG{}</TT>, however, assume the signal
+handler specified is in the <TT>&quot;main&quot;</TT> package.  Qualify the signal handler
+name if you wish to have a signal handler in a package.)  For an
+example, examine <I>perldb.pl</I> in the Perl library.  It initially switches
+to the <TT>&quot;DB&quot;</TT> package so that the debugger doesn't interfere with variables
+in the program you are trying to debug.  At various points, however, it
+temporarily switches back to the <TT>&quot;main&quot;</TT> package to evaluate various
+expressions in the context of the <TT>&quot;main&quot;</TT> package (or wherever you came
+from).  See perldebug.
+<P>
+
+The special symbol <TT>&quot;__PACKAGE__&quot;</TT> contains the current package, but cannot
+(easily) be used to construct variable names.
+<P>
+
+See perlsub for other scoping issues related to <I>my()</I> and <I>local()</I>,
+and perlref regarding closures.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Symbol Tables</H2>
+
+<A NAME="ixAAE"></A>
+The symbol table for a package happens to be stored in the hash of that
+name with two colons appended.  The main symbol table's name is thus
+<TT>%main::</TT>, or <TT>%::</TT> for short.  Likewise the symbol table for the nested
+package mentioned earlier is named <TT>%OUTER::INNER::</TT>.
+<P>
+
+The value in each entry of the hash is what you are referring to when you
+use the <TT>*name</TT> typeglob notation.  In fact, the following have the same
+effect, though the first is more efficient because it does the symbol
+table lookups at compile time:
+<P>
+
+
+
+<PRE>
+    local *main::foo    = *main::bar;
+    local $main::{foo}  = $main::{bar};
+
+</PRE>
+
+
+<P>
+
+(Be sure to note the <B>vast</B> difference between the second line above
+and <TT>&quot;local $main::foo = $main::bar&quot;</TT>. The former is accessing the hash
+<TT>%main::</TT>, which is the symbol table of package <TT>&quot;main&quot;</TT>. The latter is
+simply assigning scalar <TT>$bar</TT> in package <TT>&quot;main&quot;</TT> to scalar <TT>$foo</TT> of
+the same package.)
+<P>
+
+You can use this to print out all the variables in a package, for
+instance.  The standard but antiquated <I>dumpvar.pl</I> library and
+the <FONT SIZE="-1">CPAN</FONT> module Devel::Symdump make use of this.
+<P>
+
+Assignment to a typeglob performs an aliasing operation, i.e.,
+<P>
+
+
+
+<PRE>
+    *dick = *richard;
+
+</PRE>
+
+
+<P>
+
+causes variables, subroutines, formats, and file and directory handles
+accessible via the identifier <TT>&quot;richard&quot;</TT> also to be accessible via the
+identifier <TT>&quot;dick&quot;</TT>.  If you want to alias only a particular variable or
+subroutine, assign a reference instead:
+<P>
+
+
+
+<PRE>
+    *dick = \$richard;
+
+</PRE>
+
+
+<P>
+
+Which makes <TT>$richard</TT> and <TT>$dick</TT> the same variable, but leaves
+<TT>@richard</TT> and <TT>@dick</TT> as separate arrays.  Tricky, eh?
+<P>
+
+There is one subtle difference between the following statements:
+<P>
+
+
+
+<PRE>
+    *foo = *bar;
+    *foo = \$bar;
+
+</PRE>
+
+
+<P>
+
+<TT>&quot;*foo = *bar&quot;</TT> makes the typeglobs themselves synonymous while
+<TT>&quot;*foo = \$bar&quot;</TT> makes the <FONT SIZE="-1">SCALAR</FONT> portions of two distinct typeglobs
+refer to the same scalar value. This means that the following code:
+<P>
+
+
+
+<PRE>
+    $bar = 1;
+    *foo = \$bar;       # Make $foo an alias for $bar
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    {
+        local $bar = 2; # Restrict changes to block
+        print $foo;     # Prints '1'!
+    }
+
+</PRE>
+
+
+<P>
+
+Would print '1', because <TT>$foo</TT> holds a reference to the <I>original</I>
+<TT>$bar</TT> --- the one that was stuffed away by <TT>&quot;local()&quot;</TT> and which will be
+restored when the block ends. Because variables are accessed through the
+typeglob, you can use <TT>&quot;*foo = *bar&quot;</TT> to create an alias which can be
+localized. (But be aware that this means you can't have a separate
+<TT>@foo</TT> and <TT>@bar</TT>, etc.)
+<P>
+
+What makes all of this important is that the Exporter module uses glob
+aliasing as the import/export mechanism. Whether or not you can properly
+localize a variable that has been exported from a module depends on how
+it was exported:
+<P>
+
+
+
+<PRE>
+    @EXPORT = qw($FOO); # Usual form, can't be localized
+    @EXPORT = qw(*FOO); # Can be localized
+
+</PRE>
+
+
+<P>
+
+You can work around the first case by using the fully qualified name
+(<TT>$Package::FOO</TT>) where you need a local value, or by overriding it
+by saying <TT>&quot;*FOO = *Package::FOO&quot;</TT> in your script.
+<P>
+
+The <TT>&quot;*x = \$y&quot;</TT> mechanism may be used to pass and return cheap references
+into or from subroutines if you don't want to copy the whole
+thing.  It only works when assigning to dynamic variables, not
+lexicals.
+<P>
+
+
+
+<PRE>
+    %some_hash = ();                    # can't be my()
+    *some_hash = fn( \%another_hash );
+    sub fn {
+        local *hashsym = shift;
+        # now use %hashsym normally, and you
+        # will affect the caller's %another_hash
+        my %nhash = (); # do what you want
+        return \%nhash;
+    }
+
+</PRE>
+
+
+<P>
+
+On return, the reference will overwrite the hash slot in the
+symbol table specified by the *some_hash typeglob.  This
+is a somewhat tricky way of passing around references cheaply
+when you don't want to have to remember to dereference variables
+explicitly.
+<P>
+
+Another use of symbol tables is for making ``constant'' scalars.
+<P>
+
+
+
+<PRE>
+    *PI = \3.14159265358979;
+
+</PRE>
+
+
+<P>
+
+Now you cannot alter <TT>$PI</TT>, which is probably a good thing all in all.
+This isn't the same as a constant subroutine, which is subject to
+optimization at compile-time.  A constant subroutine is one prototyped
+to take no arguments and to return a constant expression.  See
+perlsub for details on these.  The <TT>&quot;use constant&quot;</TT> pragma is a
+convenient shorthand for these.
+<P>
+
+You can say <TT>*foo{PACKAGE}</TT> and <TT>*foo{NAME}</TT> to find out what name and
+package the *foo symbol table entry comes from.  This may be useful
+in a subroutine that gets passed typeglobs as arguments:
+<P>
+
+
+
+<PRE>
+    sub identify_typeglob {
+        my $glob = shift;
+        print 'You gave me ', *{$glob}{PACKAGE}, '::', *{$glob}{NAME}, &quot;\n&quot;;
+    }
+    identify_typeglob *foo;
+    identify_typeglob *bar::baz;
+
+</PRE>
+
+
+<P>
+
+This prints
+<P>
+
+
+
+<PRE>
+    You gave me main::foo
+    You gave me bar::baz
+
+</PRE>
+
+
+<P>
+
+The <TT>*foo{THING}</TT> notation can also be used to obtain references to the
+individual elements of *foo.  See perlref.
+<P>
+
+Subroutine definitions (and declarations, for that matter) need
+not necessarily be situated in the package whose symbol table they
+occupy.  You can define a subroutine outside its package by
+explicitly qualifying the name of the subroutine:
+<P>
+
+
+
+<PRE>
+    package main;
+    sub Some_package::foo { ... }   # &amp;foo defined in Some_package
+
+</PRE>
+
+
+<P>
+
+This is just a shorthand for a typeglob assignment at compile time:
+<P>
+
+
+
+<PRE>
+    BEGIN { *Some_package::foo = sub { ... } }
+
+</PRE>
+
+
+<P>
+
+and is <I>not</I> the same as writing:
+<P>
+
+
+
+<PRE>
+    {
+        package Some_package;
+        sub foo { ... }
+    }
+
+</PRE>
+
+
+<P>
+
+In the first two versions, the body of the subroutine is
+lexically in the main package, <I>not</I> in Some_package. So
+something like this:
+<P>
+
+
+
+<PRE>
+    package main;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $Some_package::name = &quot;fred&quot;;
+    $main::name = &quot;barney&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub Some_package::foo {
+        print &quot;in &quot;, __PACKAGE__, &quot;: \$name is '$name'\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    Some_package::foo();
+
+</PRE>
+
+
+<P>
+
+prints:
+<P>
+
+
+
+<PRE>
+    in main: $name is 'barney'
+
+</PRE>
+
+
+<P>
+
+rather than:
+<P>
+
+
+
+<PRE>
+    in Some_package: $name is 'fred'
+
+</PRE>
+
+
+<P>
+
+This also has implications for the use of the <FONT SIZE="-1">SUPER::</FONT> qualifier
+(see perlobj).
+<A NAME="lbAF">&nbsp;</A>
+<H2><FONT SIZE="-1">BEGIN</FONT>, <FONT SIZE="-1">CHECK</FONT>, <FONT SIZE="-1">INIT</FONT> and <FONT SIZE="-1">END</FONT></H2>
+
+<A NAME="ixAAF"></A>
+Four specially named code blocks are executed at the beginning and at the end
+of a running Perl program.  These are the <TT>&quot;BEGIN&quot;</TT>, <TT>&quot;CHECK&quot;</TT>, <TT>&quot;INIT&quot;</TT>, and
+<TT>&quot;END&quot;</TT> blocks.
+<P>
+
+These code blocks can be prefixed with <TT>&quot;sub&quot;</TT> to give the appearance of a
+subroutine (although this is not considered good style).  One should note
+that these code blocks don't really exist as named subroutines (despite
+their appearance). The thing that gives this away is the fact that you can
+have <B>more than one</B> of these code blocks in a program, and they will get
+<B>all</B> executed at the appropriate moment.  So you can't execute any of
+these code blocks by name.
+<P>
+
+A <TT>&quot;BEGIN&quot;</TT> code block is executed as soon as possible, that is, the moment
+it is completely defined, even before the rest of the containing file (or
+string) is parsed.  You may have multiple <TT>&quot;BEGIN&quot;</TT> blocks within a file (or
+eval'ed string) --- they will execute in order of definition.  Because a <TT>&quot;BEGIN&quot;</TT>
+code block executes immediately, it can pull in definitions of subroutines
+and such from other files in time to be visible to the rest of the compile
+and run time.  Once a <TT>&quot;BEGIN&quot;</TT> has run, it is immediately undefined and any
+code it used is returned to Perl's memory pool.
+<P>
+
+It should be noted that <TT>&quot;BEGIN&quot;</TT> code blocks <B>are</B> executed inside string
+<TT>&quot;eval()&quot;</TT>'s.  The <TT>&quot;CHECK&quot;</TT> and <TT>&quot;INIT&quot;</TT> code blocks are <B>not</B> executed inside
+a string eval, which e.g. can be a problem in a mod_perl environment.
+<P>
+
+An <TT>&quot;END&quot;</TT> code block is executed as late as possible, that is, after
+perl has finished running the program and just before the interpreter
+is being exited, even if it is exiting as a result of a <I>die()</I> function.
+(But not if it's polymorphing into another program via <TT>&quot;exec&quot;</TT>, or
+being blown out of the water by a signal---you have to trap that yourself
+(if you can).)  You may have multiple <TT>&quot;END&quot;</TT> blocks within a file---they
+will execute in reverse order of definition; that is: last in, first
+out (<FONT SIZE="-1">LIFO</FONT>).  <TT>&quot;END&quot;</TT> blocks are not executed when you run perl with the
+<TT>&quot;-c&quot;</TT> switch, or if compilation fails.
+<P>
+
+Note that <TT>&quot;END&quot;</TT> code blocks are <B>not</B> executed at the end of a string
+<TT>&quot;eval()&quot;</TT>: if any <TT>&quot;END&quot;</TT> code blocks are created in a string <TT>&quot;eval()&quot;</TT>,
+they will be executed just as any other <TT>&quot;END&quot;</TT> code block of that package
+in <FONT SIZE="-1">LIFO</FONT> order just before the interpreter is being exited.
+<P>
+
+Inside an <TT>&quot;END&quot;</TT> code block, <TT>$?</TT> contains the value that the program is
+going to pass to <TT>&quot;exit()&quot;</TT>.  You can modify <TT>$?</TT> to change the exit
+value of the program.  Beware of changing <TT>$?</TT> by accident (e.g. by
+running something via <TT>&quot;system&quot;</TT>).
+<P>
+
+<TT>&quot;CHECK&quot;</TT> and <TT>&quot;INIT&quot;</TT> code blocks are useful to catch the transition between
+the compilation phase and the execution phase of the main program.
+<P>
+
+<TT>&quot;CHECK&quot;</TT> code blocks are run just after the <B>initial</B> Perl compile phase ends
+and before the run time begins, in <FONT SIZE="-1">LIFO</FONT> order.  <TT>&quot;CHECK&quot;</TT> code blocks are used
+in the Perl compiler suite to save the compiled state of the program.
+<P>
+
+<TT>&quot;INIT&quot;</TT> blocks are run just before the Perl runtime begins execution, in
+``first in, first out'' (<FONT SIZE="-1">FIFO</FONT>) order. For example, the code generators
+documented in perlcc make use of <TT>&quot;INIT&quot;</TT> blocks to initialize and
+resolve pointers to XSUBs.
+<P>
+
+When you use the <B>-n</B> and <B>-p</B> switches to Perl, <TT>&quot;BEGIN&quot;</TT> and
+<TT>&quot;END&quot;</TT> work just as they do in <B>awk</B>, as a degenerate case.
+Both <TT>&quot;BEGIN&quot;</TT> and <TT>&quot;CHECK&quot;</TT> blocks are run when you use the <B>-c</B>
+switch for a compile-only syntax check, although your main code
+is not.
+<P>
+
+The <B>begincheck</B> program makes it all clear, eventually:
+<P>
+
+
+
+<PRE>
+  #!/usr/bin/perl
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  # begincheck
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  print         &quot; 8. Ordinary code runs at runtime.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  END { print   &quot;14.   So this is the end of the tale.\n&quot; }
+  INIT { print  &quot; 5. INIT blocks run FIFO just before runtime.\n&quot; }
+  CHECK { print &quot; 4.   So this is the fourth line.\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  print         &quot; 9.   It runs in order, of course.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  BEGIN { print &quot; 1. BEGIN blocks run FIFO during compilation.\n&quot; }
+  END { print   &quot;13.   Read perlmod for the rest of the story.\n&quot; }
+  CHECK { print &quot; 3. CHECK blocks run LIFO at compilation's end.\n&quot; }
+  INIT { print  &quot; 6.   Run this again, using Perl's -c switch.\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  print         &quot;10.   This is anti-obfuscated code.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  END { print   &quot;12. END blocks run LIFO at quitting time.\n&quot; }
+  BEGIN { print &quot; 2.   So this line comes out second.\n&quot; }
+  INIT { print  &quot; 7.   You'll see the difference right away.\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  print         &quot;11.   It merely _looks_ like it should be confusing.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  __END__
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Perl Classes</H2>
+
+<A NAME="ixAAG"></A>
+There is no special class syntax in Perl, but a package may act
+as a class if it provides subroutines to act as methods.  Such a
+package may also derive some of its methods from another class (package)
+by listing the other package name(s) in its global <TT>@ISA</TT> array (which
+must be a package global, not a lexical).
+<P>
+
+For more on this, see perltoot and perlobj.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Perl Modules</H2>
+
+<A NAME="ixAAH"></A>
+A module is just a set of related functions in a library file, i.e.,
+a Perl package with the same name as the file.  It is specifically
+designed to be reusable by other modules or programs.  It may do this
+by providing a mechanism for exporting some of its symbols into the
+symbol table of any package using it, or it may function as a class
+definition and make its semantics available implicitly through
+method calls on the class and its objects, without explicitly
+exporting anything.  Or it can do a little of both.
+<P>
+
+For example, to start a traditional, non-OO module called Some::Module,
+create a file called <I>Some/Module.pm</I> and start with this template:
+<P>
+
+
+
+<PRE>
+    package Some::Module;  # assumes Some/Module.pm
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use strict;
+    use warnings;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    BEGIN {
+        use Exporter   ();
+        our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        # set the version for version checking
+        $VERSION     = 1.00;
+        # if using RCS/CVS, this may be preferred
+        $VERSION = sprintf &quot;%d.%03d&quot;, q$Revision: 1.1 $ =~ /(\d+)/g;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        @ISA         = qw(Exporter);
+        @EXPORT      = qw(&amp;func1 &amp;func2 &amp;func4);
+        %EXPORT_TAGS = ( );     # eg: TAG =&gt; [ qw!name1 name2! ],
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        # your exported package globals go here,
+        # as well as any optionally exported functions
+        @EXPORT_OK   = qw($Var1 %Hashit &amp;func3);
+    }
+    our @EXPORT_OK;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # exported package globals go here
+    our $Var1;
+    our %Hashit;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # non-exported package globals go here
+    our @more;
+    our $stuff;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # initialize package globals, first exported ones
+    $Var1   = '';
+    %Hashit = ();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # then the others (which are still accessible as $Some::Module::stuff)
+    $stuff  = '';
+    @more   = ();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # all file-scoped lexicals must be created before
+    # the functions below that use them.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # file-private lexicals go here
+    my $priv_var    = '';
+    my %secret_hash = ();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # here's a file-private function as a closure,
+    # callable as &amp;$priv_func;  it cannot be prototyped.
+    my $priv_func = sub {
+        # stuff goes here.
+    };
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # make all your functions, whether exported or not;
+    # remember to put something interesting in the {} stubs
+    sub func1      {}    # no prototype
+    sub func2()    {}    # proto'd void
+    sub func3($$)  {}    # proto'd to 2 scalars
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # this one isn't exported, but could be called!
+    sub func4(\%)  {}    # proto'd to 1 hash ref
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    END { }       # module clean-up code here (global destructor)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ## YOUR CODE GOES HERE
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    1;  # don't forget to return a true value from the file
+
+</PRE>
+
+
+<P>
+
+Then go on to declare and use your variables in functions without
+any qualifications.  See Exporter and the perlmodlib for
+details on mechanics and style issues in module creation.
+<P>
+
+Perl modules are included into your program by saying
+<P>
+
+
+
+<PRE>
+    use Module;
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+    use Module LIST;
+
+</PRE>
+
+
+<P>
+
+This is exactly equivalent to
+<P>
+
+
+
+<PRE>
+    BEGIN { require Module; import Module; }
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+    BEGIN { require Module; import Module LIST; }
+
+</PRE>
+
+
+<P>
+
+As a special case
+<P>
+
+
+
+<PRE>
+    use Module ();
+
+</PRE>
+
+
+<P>
+
+is exactly equivalent to
+<P>
+
+
+
+<PRE>
+    BEGIN { require Module; }
+
+</PRE>
+
+
+<P>
+
+All Perl module files have the extension <I>.pm</I>.  The <TT>&quot;use&quot;</TT> operator
+assumes this so you don't have to spell out &quot;<I>Module.pm</I>&quot; in quotes.
+This also helps to differentiate new modules from old <I>.pl</I> and
+<I>.ph</I> files.  Module names are also capitalized unless they're
+functioning as pragmas; pragmas are in effect compiler directives,
+and are sometimes called ``pragmatic modules'' (or even ``pragmata''
+if you're a classicist).
+<P>
+
+The two statements:
+<P>
+
+
+
+<PRE>
+    require SomeModule;
+    require &quot;SomeModule.pm&quot;;
+
+</PRE>
+
+
+<P>
+
+differ from each other in two ways.  In the first case, any double
+colons in the module name, such as <TT>&quot;Some::Module&quot;</TT>, are translated
+into your system's directory separator, usually ``/''.   The second
+case does not, and would have to be specified literally.  The other
+difference is that seeing the first <TT>&quot;require&quot;</TT> clues in the compiler
+that uses of indirect object notation involving ``SomeModule'', as
+in <TT>&quot;$ob = purge SomeModule&quot;</TT>, are method calls, not function calls.
+(Yes, this really can make a difference.)
+<P>
+
+Because the <TT>&quot;use&quot;</TT> statement implies a <TT>&quot;BEGIN&quot;</TT> block, the importing
+of semantics happens as soon as the <TT>&quot;use&quot;</TT> statement is compiled,
+before the rest of the file is compiled.  This is how it is able
+to function as a pragma mechanism, and also how modules are able to
+declare subroutines that are then visible as list or unary operators for
+the rest of the current file.  This will not work if you use <TT>&quot;require&quot;</TT>
+instead of <TT>&quot;use&quot;</TT>.  With <TT>&quot;require&quot;</TT> you can get into this problem:
+<P>
+
+
+
+<PRE>
+    require Cwd;                # make Cwd:: accessible
+    $here = Cwd::getcwd();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use Cwd;                    # import names from Cwd::
+    $here = getcwd();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    require Cwd;                # make Cwd:: accessible
+    $here = getcwd();           # oops! no main::getcwd()
+
+</PRE>
+
+
+<P>
+
+In general, <TT>&quot;use Module ()&quot;</TT> is recommended over <TT>&quot;require Module&quot;</TT>,
+because it determines module availability at compile time, not in the
+middle of your program's execution.  An exception would be if two modules
+each tried to <TT>&quot;use&quot;</TT> each other, and each also called a function from
+that other module.  In that case, it's easy to use <TT>&quot;require&quot;</TT> instead.
+<P>
+
+Perl packages may be nested inside other package names, so we can have
+package names containing <TT>&quot;::&quot;</TT>.  But if we used that package name
+directly as a filename it would make for unwieldy or impossible
+filenames on some systems.  Therefore, if a module's name is, say,
+<TT>&quot;Text::Soundex&quot;</TT>, then its definition is actually found in the library
+file <I>Text/Soundex.pm</I>.
+<P>
+
+Perl modules always have a <I>.pm</I> file, but there may also be
+dynamically linked executables (often ending in <I>.so</I>) or autoloaded
+subroutine definitions (often ending in <I>.al</I>) associated with the
+module.  If so, these will be entirely transparent to the user of
+the module.  It is the responsibility of the <I>.pm</I> file to load
+(or arrange to autoload) any additional functionality.  For example,
+although the <FONT SIZE="-1">POSIX</FONT> module happens to do both dynamic loading and
+autoloading, the user can say just <TT>&quot;use POSIX&quot;</TT> to get it all.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Making your module threadsafe</H2>
+
+<A NAME="ixAAI"></A>
+Since 5.6.0, Perl has had support for a new type of threads called
+interpreter threads (ithreads). These threads can be used explicitly
+and implicitly.
+<P>
+
+Ithreads work by cloning the data tree so that no data is shared
+between different threads. These threads can be used by using the <TT>&quot;threads&quot;</TT>
+module or by doing <I>fork()</I> on win32 (fake <I>fork()</I> support). When a
+thread is cloned all Perl data is cloned, however non-Perl data cannot
+be cloned automatically.  Perl after 5.7.2 has support for the <TT>&quot;CLONE&quot;</TT>
+special subroutine.  In <TT>&quot;CLONE&quot;</TT> you can do whatever you need to do,
+like for example handle the cloning of non-Perl data, if necessary.
+<TT>&quot;CLONE&quot;</TT> will be called once as a class method for every package that has it
+defined (or inherits it).  It will be called in the context of the new thread,
+so all modifications are made in the new area.  Currently <FONT SIZE="-1">CLONE</FONT> is called with
+no parameters other than the invocant package name, but code should not assume
+that this will remain unchanged, as it is likely that in future extra parameters
+will be passed in to give more information about the state of cloning.
+<P>
+
+If you want to <FONT SIZE="-1">CLONE</FONT> all objects you will need to keep track of them per
+package. This is simply done using a hash and <I>Scalar::Util::weaken()</I>.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAJ"></A>
+See perlmodlib for general style issues related to building Perl
+modules and classes, as well as descriptions of the standard library
+and <FONT SIZE="-1">CPAN</FONT>, Exporter for how Perl's standard import/export mechanism
+works, perltoot and perltooc for an in-depth tutorial on
+creating classes, perlobj for a hard-core reference document on
+objects, perlsub for an explanation of functions and scoping,
+and perlxstut and perlguts for more information on writing
+extension modules.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Packages</A><DD>
+<DT><A HREF="#lbAE">Symbol Tables</A><DD>
+<DT><A HREF="#lbAF"><FONT SIZE="-1">BEGIN</FONT>, <FONT SIZE="-1">CHECK</FONT>, <FONT SIZE="-1">INIT</FONT> and <FONT SIZE="-1">END</FONT></A><DD>
+<DT><A HREF="#lbAG">Perl Classes</A><DD>
+<DT><A HREF="#lbAH">Perl Modules</A><DD>
+<DT><A HREF="#lbAI">Making your module threadsafe</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

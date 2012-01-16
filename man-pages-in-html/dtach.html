@@ -1,0 +1,282 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>dtach</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>dtach</H1>
+Section: User Commands  (1)<BR>Updated: November 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dtach - simple program that emulates the detach feature of screen.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>dtach -a</B>
+
+<I>&lt;socket&gt; &lt;options&gt;</I>
+
+<BR>
+
+<B>dtach -A</B>
+
+<I>&lt;socket&gt; &lt;options&gt; &lt;command...&gt;</I>
+
+<BR>
+
+<B>dtach -c</B>
+
+<I>&lt;socket&gt; &lt;options&gt; &lt;command...&gt;</I>
+
+<BR>
+
+<B>dtach -n</B>
+
+<I>&lt;socket&gt; &lt;options&gt; &lt;command...&gt;</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>dtach</B>
+
+is a program that emulates the detach feature of screen. It is designed
+to be transparent and un-intrusive; it avoids interpreting the input and output
+between attached terminals and the program under its control. Consequently, it
+works best with full-screen applications such as emacs.
+<P>
+<B>dtach</B>
+
+is intended for users who want the detach feature of screen without the other
+overhead of screen. It is tiny, does not use many libraries, and stays
+out of the way as much as possible.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H3>SESSIONS</H3>
+
+A session in
+<B>dtach</B>
+
+is a single instance in which a program is running under the control of
+<B>dtach</B>.
+
+The program is disassociated from the original terminal, and is thus protected
+from your original terminal being disconnected for some reason.
+<P>
+
+<P>
+Other instances of 
+<B>dtach</B>
+
+can attach themselves to a particular session. Input and output is copied
+between the program running in the
+<B>dtach</B>
+
+session, and the attached terminals.
+<P>
+
+<P>
+<B>dtach</B>
+
+avoids interpreting the communication stream between the program and the
+attached terminals; it instead relies on the ability of the attached terminals
+to manage the screen.
+<P>
+
+<P>
+Sessions are represented by Unix-domain sockets in the filesystem. No other
+permission checking other than the filesystem access checks is performed.
+<B>dtach</B>
+
+creates a master process that monitors the session socket, the program, and any
+attached terminals.
+<P>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>MODES</H3>
+
+<B>dtach</B>
+
+has several modes of operation. It can create a new session in which a
+program is executed, or it can attach to an existing session. The first
+argument specifies which mode
+<B>dtach</B>
+
+should operate in.
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+Attach to an existing session.
+<B>dtach</B>
+
+attaches itself to the session specified by
+<I>&lt;socket&gt;</I>.
+
+After the attach is completed, the window size of the current terminal is sent
+to the master process, and a redraw is also requested. 
+<DT><B>-A</B>
+
+<DD>
+Attach to an existing session, or create a new one.
+<B>dtach</B>
+
+first tries to attach to the session specified by
+<I>&lt;socket&gt;</I>
+
+if possible. If the attempt to open the socket fails,
+<B>dtach</B>
+
+tries to create a new session before attaching to it.
+<DT><B>-c</B>
+
+<DD>
+Creates a new session. A new session is created in which the specified program
+is executed.
+<B>dtach</B>
+
+then tries to attach itself to the newly created session.
+<DT><B>-n</B>
+
+<DD>
+Creates a new session, without attaching to it. A new session is created in
+which the specified program is executed.
+<B>dtach</B>
+
+does not try to attach to the newly created session, however, and exits
+instead.
+<P>
+</DL>
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>OPTIONS</H3>
+
+<B>dtach</B>
+
+has a few options that allow you to modify its behavior. Each attaching
+process can have separate settings for these options, which allows for
+some flexibility.
+<P>
+<DL COMPACT>
+<DT><B>-e </B><I>&lt;char&gt;</I>
+
+<DD>
+Sets the detach character to
+<I>&lt;char&gt;</I>.
+
+When the detach character is pressed,
+<B>dtach</B>
+
+detaches itself from the current session and exits. The process running in
+the session is unaffected by the detach. By default, the detach character is
+set to ^\ (Ctrl-\).
+<DT><B>-E</B>
+
+<DD>
+Disables the detach character.
+<B>dtach</B>
+
+does not try to scan input from the terminal for a detach character. The only
+way to detach from the session is then by sending the attaching process an
+appropriate signal.
+<DT><B>-z</B>
+
+<DD>
+Inhibits processing of the suspend key.
+Normally,
+<B>dtach</B>
+
+will suspend itself when the suspend key is pressed. With this option, the
+suspend character is sent to the session instead of being handled by
+<B>dtach</B>.
+
+<P>
+</DL>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+The following example creates a new session that has the detach character
+and suspend processing disabled. A socket is created in the /tmp directory
+for the session.
+<P>
+<PRE>
+   $ dtach -c /tmp/foozle -Ez bash
+</PRE>
+
+<P>
+The following example attaches to the /tmp/foozle session if it exists, and if
+not, creates a new session using /tmp/foozle as the socket for the session.
+Processing of the suspend character is also disabled for the attach instance.
+<P>
+<PRE>
+   $ dtach -A /tmp/foozle -z bash
+</PRE>
+
+<P>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Ned T. Crigler &lt;<A HREF="mailto:crigler@hell-city.org">crigler@hell-city.org</A>&gt;.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/screen.1.php">screen</A></B>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">SESSIONS</A><DD>
+<DT><A HREF="#lbAF">MODES</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+</DL>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">AUTHORS</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

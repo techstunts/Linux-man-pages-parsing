@@ -1,0 +1,210 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>NCOPY</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>NCOPY</H1>
+Section: ncopy (1)<BR>Updated: 17/03/1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ncopy - NetWare file copy
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ncopy -V</B>
+<P>
+<B>ncopy</B> [ <B>-vmMnpptu</B> ] [ <B>-s</B> <I>amount</I> ] <B>file</B>
+<B>destinationfile</B>|<B>directory</B>
+
+<P>
+<B>ncopy</B> [ <B>-vmMnpptu</B> ] [ <B>-s</B> <I>amount</I> ] <B>file1</B>
+[ <B>file2 ...</B> ] <B>directory</B>
+
+<P>
+<B>ncopy</B> <B>-r</B> [ <B>-vmMnpptu</B> ] [ <B>-s</B> <I>amount</I> ] <B>srcdir</B>
+<B>dstdir</B>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+With <B>ncopy</B> you can copy files to different locations on a single 
+NetWare file server without generating excess network traffic.  The 
+program uses a NetWare function to do the copy rather than transferring 
+the file across the network for both the read and write.
+<P>
+If the last argument is a directory, <B>ncopy</B> will copy the source 
+file(s) into the directory.  If only two files are given and the last 
+argument is not a directory, it will copy the source file to the destination 
+file.
+<P>
+If the source and destination files are not on the same NetWare server 
+(or are not on NetWare servers at all), <B>ncopy</B> will do a normal file 
+copy.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>-V</B>
+
+<DL COMPACT><DT><DD>
+Show version number and exit
+</DL>
+
+<P>
+<B>-v</B>
+
+<DL COMPACT><DT><DD>
+Verbose copy.  Will show current file and percentage completion.
+</DL>
+
+<P>
+<B>-m</B>
+
+<DL COMPACT><DT><DD>
+Copy MAC resource fork. Copies MAC resource fork together with
+data fork.
+</DL>
+
+<P>
+<B>-M</B>
+
+<DL COMPACT><DT><DD>
+Copy MAC resource fork to/from non-MAC filesystem. It expects/creates 
+resource forks in subdirectory <I>.rsrc</I> of each directory copied.
+<P>
+If you want to copy files from MAC volume to <I>.rsrc</I> scheme, you
+must specify both options, <B>-mM</B>. It is not possible to 
+create <I>.rsrc</I> directory on MAC-aware volume in one step, you must 
+first copy data to non-MAC media using <B>ncopy -mM</B> and then copy them
+back using <B>ncopy -M</B>.
+<P>
+If you want to copy files from <I>.rsrc</I> scheme on MAC volume to
+real MAC multiple-forks file, you must first copy data to non-MAC
+filesystem using <B>ncopy -M</B> and then copy them back using 
+<B>ncopy -mM</B>.
+</DL>
+
+<P>
+<B>-n</B>
+
+<DL COMPACT><DT><DD>
+Nice NetWare copy.  Will sleep for a second between copying blocks on
+the NetWare server.  Gives other people a chance to do some work on 
+the NetWare server when you are copying large files.  This has no
+effect if you are not copying on a NetWare server.
+</DL>
+
+<P>
+<B>-s</B> <I>amount</I>
+<DL COMPACT><DT><DD>
+Nice time slice factor.  Used in conjunction with the 
+<B>-n</B>
+
+option, this specifies the number of 100K blocks to copy before sleeping.
+Default is 10. (1 Megabyte)
+</DL>
+
+<P>
+<B>-p</B>
+
+<DL COMPACT><DT><DD>
+Preserve file attributes and date/time during copy.
+</DL>
+
+<P>
+<B>-pp</B>
+
+<DL COMPACT><DT><DD>
+Preserve file attributes, date/time and owner during copy. Name of owner
+is preserved, not owner ID.
+</DL>
+
+<P>
+<B>-t</B>
+
+<DL COMPACT><DT><DD>
+Preserve trustees during copy. Trustee name is preserved, not ID.
+</DL>
+
+<P>
+<B>-r</B>
+
+<DL COMPACT><DT><DD>
+Perform recursive copy.
+</DL>
+
+<P>
+<B>-u</B>
+
+<DL COMPACT><DT><DD>
+Perform copy only if mtime or size differs.
+</DL>
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+<B>ncopy</B> does not preserve long (MAC, NFS, FTAM, OS2) names during copy.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man8/ncpmount.8.php">ncpmount</A>(8), <A HREF="../man8/ncpumount.8.php">ncpumount</A>(8)</B>
+
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CREDITS</H2>
+
+ncopy was written by Brian G. Reid (<A HREF="mailto:breid@tim.com">breid@tim.com</A>) and Tom
+C. Henderson (<A HREF="mailto:thenderson@tim.com">thenderson@tim.com</A>).  Many thanks to Volker Lendecke
+(<A HREF="mailto:lendecke@math.uni-goettingen.de">lendecke@math.uni-goettingen.de</A>) for the ncpfs and ncplib which made
+ncopy possible. Some further work was done by Petr Vandrovec
+(<A HREF="mailto:vandrove@vc.cvut.cz">vandrove@vc.cvut.cz</A>).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">CREDITS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

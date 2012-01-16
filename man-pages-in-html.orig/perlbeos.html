@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLBEOS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLBEOS</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.beos - Perl version 5 on BeOS
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+Notes for building Perl under BeOS.
+<A NAME="lbAD">&nbsp;</A>
+<H2>General Issues with Perl on BeOS</H2>
+
+<A NAME="ixAAD"></A>
+To compile perl under BeOS R4 x86:
+<P>
+
+
+
+<PRE>
+        ./Configure -d
+
+</PRE>
+
+
+<P>
+
+and hit ^C when it asks you if you want to make changes to config.sh;
+edit config.sh and do the following:
+change d_socket='define' to ='undef';
+remove <FONT SIZE="-1">SDBM</FONT>, Errno, and Socket from dynamic_ext= and nonxs_ext=;
+add '#define bool short' to x2p/a2p.h;
+<P>
+
+
+
+<PRE>
+        ../Configure -S; make; make install
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        cd ~/config/lib; ln -s 5.00502/BeOS-BePC/CORE/libperl.so .
+
+</PRE>
+
+
+<P>
+
+(substitute 5.00502 with the appropriate filename)
+<A NAME="lbAE">&nbsp;</A>
+<H2>BeOS Release-specific Notes</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT>R4 x86<DD>
+<A NAME="ixAAF"></A>
+Dynamic loading finally works! Yay! This means you can compile your
+own modules into perl. However, Sockets and Errno still don't work.
+(Hopefully, sockets will at least work by R5, if not sooner.)
+<DT>R4 <FONT SIZE="-1">PPC</FONT><DD>
+<A NAME="ixAAG"></A>
+I have not tested this. I rather severely doubt that dynamic loading
+will work. (My BeBox is in pieces right now, following a nasty disk
+crash.) You may have to disable dynamic loading to get the thing to
+compile at all. (use `./Configure` without -d, and say 'no' to 'Build
+a shared libperl.so'.)
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Contact Information</H2>
+
+<A NAME="ixAAH"></A>
+If you have comments, problem reports, or even patches or bugfixes (gasp!)
+please email me.
+<P>
+
+28 Jan 1999
+Tom Spindler
+<A HREF="mailto:dogcow@isi.net">dogcow@isi.net</A>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Update 2002-05-30</H2>
+
+<A NAME="ixAAI"></A>
+The following tests fail on 5.8.0 Perl in BeOS Personal 5.03:
+<P>
+
+
+
+<PRE>
+ t/op/lfs............................FAILED at test 17
+ t/op/magic..........................FAILED at test 24
+ ext/Fcntl/t/syslfs..................FAILED at test 17
+ ext/File/Glob/t/basic...............FAILED at test 3
+ ext/POSIX/t/sigaction...............FAILED at test 13
+ ext/POSIX/t/waitpid.................FAILED at test 1
+
+</PRE>
+
+
+<P>
+
+The reasons for the failures are as follows: 
+<DL COMPACT>
+<DT>*<DD>
+The t/op/lfs and ext/Fcntl/t/syslfs failures indicate that the
+<FONT SIZE="-1">LFS</FONT> (large file support, files larger than 2 gigabytes) doesn't
+work from Perl (BeFS itself is well capable of supporting large
+files).  What fails is that trying to position the file pointer
+past 2 gigabytes doesn't work right, the position gets truncated
+to its lower 32 bits.
+<DT>*<DD>
+The op/magic failures look like something funny going on with <TT>$0</TT> and
+$^X that I can't now figure out: none of the generated pathnames are
+wrong as such, they just seem to accumulate ``./'' prefixes and infixes
+in ways that define logic.
+<DT>*<DD>
+The Glob/t/basic indicates a bug in the getpw*() functions:
+they do not always return the correct user db entries.
+<DT>*<DD>
+The sigaction #13 means that signal mask doesn't get properly restored
+if sigaction returns early.
+<DT>*<DD>
+The waitpid failure means that after there are no more child
+processes, waitpid is supposed to start returning -1 (and set
+errno to <FONT SIZE="-1">ECHILD</FONT>).  In BeOS, it doesn't seem to.
+</DL>
+<P>
+
+Disclaimer: I just installed BeOS Personal Edition 5.0 and the
+Developer Tools, that is the whole extent of my BeOS expertise,
+so please don't ask me for further help in BeOS Perl problems.
+<P>
+
+<A HREF="mailto:jhi@iki.fi">jhi@iki.fi</A>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">General Issues with Perl on BeOS</A><DD>
+<DT><A HREF="#lbAE">BeOS Release-specific Notes</A><DD>
+<DT><A HREF="#lbAF">Contact Information</A><DD>
+<DT><A HREF="#lbAG">Update 2002-05-30</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

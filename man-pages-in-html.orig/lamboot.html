@@ -1,0 +1,554 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LAMBOOT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LAMBOOT</H1>
+Section: LAM TOOLS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lamboot - Start a LAM multicomputer.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+lamboot [-bdhlvxH] [-ssi &lt;key&gt; &lt;value&gt;] [&lt;bhost&gt;]
+<BR>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-b</B>
+
+<DD>
+Assume local and remote shell are the same.  This means that only one
+remote shell invocation is used to each node.  If
+<B>-b</B>
+
+is not used, two remote shell invocations are used to each node.
+<DT><B>-d</B>
+
+<DD>
+Turn on debugging output.  This implies -v.
+<DT><B>-h</B>
+
+<DD>
+Print the command help menu.
+<DT><B>-l</B>
+
+<DD>
+Delay hostname-to-IP-address resolution.
+<DT><B>-s</B>
+
+<DD>
+Close stdio on the local node.
+<DT><B>-ssi &lt;key&gt; &lt;value&gt;</B>
+
+<DD>
+Send arguments to various SSI modules.  See the &quot;SSI&quot; section, below.
+<DT><B>-v</B>
+
+<DD>
+Be verbose.
+<DT><B>-x</B>
+
+<DD>
+Run in fault tolerant mode.
+<DT><B>-H</B>
+
+<DD>
+Do not display the command header.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<DL COMPACT>
+<DT><B>LAM_MPI_SESSION_PREFIX</B>
+
+<DD>
+<DT><B>LAM_MPI_SESSION_SUFFIX</B>
+
+<DD>
+It is possible to change the session directory used by LAM/MPI,
+normally of the form:
+<DT>&lt;tmpdir&gt;/lam-&lt;username&gt;@&lt;hostname&gt;[-&lt;suffix&gt;]<DD>
+<DT>&lt;tmpdir&gt; <DD>
+will be set to
+<I>LAM_MPI_SESSION_PREFIX</I>
+
+if set.  Otherwise, it will fall back to the value of 
+<I>TMPDIR</I>.
+
+If neither of these are set, the default is /tmp.
+<DT>&lt;suffix&gt; <DD>
+can be overridden by the 
+<I>LAM_MPI_SESSION_SUFFIX </I>
+
+environment variable.  If
+<I>LAM_MPI_SESSION_SUFFIX</I>
+
+is not set and LAM is running under a supported batch scheduling
+system, &lt;suffix&gt; will be a value unique to the currently running job.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>lamboot</I>
+
+tool starts the LAM software on each of the machines specified in the
+boot schema,
+<I>&lt;bhost&gt;</I>.
+
+The boot schema specifies the hostnames of nodes to be used in the
+run-time MPI environment, and optionally lists how may CPUs LAM may
+used on each node.
+The user may wish to first run the <A HREF="../man1/recon.1.php">recon</A>(1) tool to verify that LAM can
+be started.
+<P>
+
+Starting LAM is a three step procedure.  In the first step, <A HREF="../man1/hboot.1.php">hboot</A>(1)
+is invoked on each of the specified machines.  Then each machine
+allocates a dynamic port and communicates it back to
+<I>lamboot</I>
+
+which collects them.  In the third step,
+<I>lamboot</I>
+
+gives each machine the list of machines/ports in order to form a fully
+connected topology.  If any machine was not able to start, or if a
+timeout period expires before the first step completes,
+<I>lamboot</I>
+
+invokes <A HREF="../man1/wipe.1.php">wipe</A>(1) to terminate LAM and reports the error.
+<P>
+
+The
+<I>&lt;bhost&gt; </I>
+
+file is a LAM boot schema written in the host file syntax.  See
+<A HREF="../man5/bhost.5.php">bhost</A>(5).  Instead of the command line, a boot schema can be specified
+in the LAMBHOST environment variable.  Otherwise a default file,
+lam-bhost.def, is used.  LAM searches for
+<I>&lt;bhost&gt;</I>
+
+first in the local directory and then in the installation directory
+under etc/.
+<P>
+
+In addition,
+<I>lamboot</I>
+
+uses a process schema for the individual LAM nodes.  A process schema
+(see <A HREF="../man5/conf.5.php">conf</A>(5)) is a description of the processes which constitute the
+operating system on a node.  In general, the system administrator
+maintains this file -- LAM/MPI users will generally not need to change
+this file.  It is also possible for the user to customize the LAM
+software with a private process schema.
+<A NAME="lbAG">&nbsp;</A>
+<H3>The bhost file</H3>
+
+The format of the
+<I>&lt;bhost&gt;</I>
+
+file is documented in the <A HREF="../man5/bhost.5.php">bhost</A>(5) man page.
+<P>
+
+<I>lamboot</I>
+
+will resolve all names in
+<I>&lt;bhost&gt;</I>
+
+on the node in which 
+<I>lamboot</I>
+
+was invoked (the origin node).  After that, LAM will only use IP
+addresses, not names.  Specifically, the name resolution configuration
+on all other nodes is not used.  Hence, the the origin node must be
+able to resolve all the names in
+<I>&lt;bhost&gt;</I>
+
+to addresses that are reachable by all other nodes.  
+<P>
+
+A common mistake is to list
+<I>localhost</I>
+
+(or any name that resolves to the special address 127.0.0.1 -- the
+loopback TCP/IP device) in a
+<I>&lt;bhost&gt;</I>
+
+file that contains other nodes.  In this case, the address 127.0.0.1
+would be sent to each of the other nodes as the address of the origin
+node.  If the other nodes try to use 127.0.0.1 to contact the origin
+node, they will actually be contacting themselves, and would
+eventually timeout and fail.
+<P>
+
+The IP addresses obtained from
+<I>&lt;bhost&gt;</I>
+
+are used for LAM's meta messages: startup and shutdown of jobs,
+out-of-band messages used for coordination, etc.  The amount of
+traffic is fairly low (unless using the &quot;lamd&quot; mode of MPI message
+passing, in which case all MPI traffic will also utilize LAM's meta
+messages for transport -- see <A HREF="../man1/mpirun.1.php">mpirun</A>(1)).  When using the TCP RPI,
+these IP addresses are also used for MPI message passing via direct
+sockets between each pair of nodes.
+<P>
+
+A common case is where a &quot;master&quot; node has multiple network interface
+cards (NICs) -- one that is connected to a public network, and one
+that is connected to a private network where parallel jobs are to be
+run.  To include the master node in a
+<I>&lt;bhost&gt;</I>
+
+file, the IP name (or address) of the NIC on the private network
+should be listed in
+<I>&lt;bhost&gt;</I>.
+
+This ensures that all the other nodes can reach the master node on the
+private network.
+<P>
+
+As another example, some configurations have multiple TCP/IP NICs in
+each node of a parallel job.  One NIC is considered &quot;slow&quot; (e.g.,
+10Mbps), while the other is considered &quot;fast&quot; (e.g., 100Mbps).  It is
+desirable to allow LAM to take advantage of the higher bandwidth on
+the &quot;fast&quot; network for MPI messages.  As such,
+<I>&lt;bhost&gt;</I>
+
+should list the IP names (or addresses) of all the &quot;fast&quot; NICs.
+However, if the LAM RPI does not use TCP/IP (e.g., the Myrinet/GM
+RPI), the
+<I>&lt;bhost&gt;</I>
+
+file should probably list the &quot;slow&quot; NICs so that LAM's meta message
+traffic does not cause overhead and potentially detract from
+performance on the &quot;fast&quot; network from other high-performance
+applications.
+<A NAME="lbAH">&nbsp;</A>
+<H3>Delaying hostname lookups</H3>
+
+<P>
+
+Normally, name resolution of hostnames is done on the machines where
+<I>lamboot</I>
+
+is invoked.  This is done for optimization reasons, so that the list
+of hostnames only needs to be resolved once (potentially minimizing
+the amount of DNS or other hostname-lookup network traffic).
+<P>
+
+However, in some non-uniform networking environments, this is not
+sufficient because each host may have a different IP address on each
+of its peers.  For example, host A may have address Z on host B, but
+have address Y on host C.
+<P>
+
+The 
+<I>-l</I>
+
+option to 
+<I>lamboot</I>
+
+will cause LAM to distribute hostnames to each node rather than a
+fully resolved set of IP addresses.  Hence, each node where LAM is
+booted will do its own name resolution on the list of hostnames.
+<A NAME="lbAI">&nbsp;</A>
+<H3>SSI (System Services Interface)</H3>
+
+The
+<I>-ssi</I>
+
+switch allows the passing of parameters to various SSI modules.  LAM's
+SSI modules are described in detail in <A HREF="../man7/lamssi.7.php">lamssi</A>(7).  SSI modules have
+direct impact on MPI programs because they allow tunable parameters to
+be set at run time (such as which boot device driver to use, what
+parameters to pass to that driver, etc.).
+<P>
+
+The 
+<I>-ssi</I>
+
+switch takes two arguments:
+<I>&lt;key&gt;</I>
+
+and 
+<I>&lt;value&gt;</I>.
+
+The
+<I>&lt;key&gt;</I>
+
+argument generally specifies which SSI module will receive the value.
+For example, the
+<I>&lt;key&gt;</I>
+
+&quot;boot&quot; is used to select which RPI to be used for starting processes
+on remote nodes.  The
+<I>&lt;value&gt; </I>
+
+argument is the value that is passed.  For example:
+<DL COMPACT>
+<DT>lamboot -ssi boot tm<DD>
+Tells LAM to use the &quot;tm&quot; boot module for native launching in PBSPro /
+OpenPBS environments (the tm boot module does not require a boot
+schema).
+<DT>lamboot -ssi boot rsh -ssi rsh_agent &quot;ssh -x&quot; boot_schema<DD>
+Tells LAM to use the &quot;rsh&quot; boot module, and tells the rsh module to
+use &quot;ssh -x&quot; as the specific agent to launch executables on remote
+nodes.
+</DL>
+<P>
+
+And so on.  LAM's boot SSI modules are described in <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7).
+This page should be consulted for specific actions that are taken by,
+and how to tweak the run-time behavior of each boot module.
+<P>
+
+The 
+<I>-ssi</I>
+
+switch can be used multiple times to specify different
+<I>&lt;key&gt;</I>
+
+and/or
+<I>&lt;value&gt;</I>
+
+arguments.  If the same
+<I>&lt;key&gt;</I>
+
+is specified more than once, the
+<I>&lt;value&gt;</I>s
+
+are concatenated with a comma (&quot;,&quot;) separating them.
+<P>
+
+Note that the 
+<I>-ssi</I>
+
+switch is simply a shortcut for setting environment variables.  The
+same effect may be accomplished by setting corresponding environment
+variables before running
+<I>lamboot</I>.
+
+The form of the environment variables that LAM sets are:
+<I>LAM_MPI_SSI_&lt;key&gt;=&lt;value&gt;</I>.
+
+<P>
+
+Note that the
+<I>-ssi</I>
+
+switch overrides any previously set environment variables.  Also note
+that unknown
+<I>&lt;key&gt;</I>
+
+arguments are still set as environment variable -- they are not
+checked (by
+<I>wipe</I>)
+
+for correctness.  Illegal or incorrect 
+<I>&lt;value&gt;</I>
+
+arguments may or may not be reported -- it depends on the specific SSI
+module.
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Remote Executable Invocation</H3>
+
+<P>
+
+All tweakable aspects of launching executables on remote nodes during 
+<I>lamboot</I>
+
+are discussed in <A HREF="../man7/lamssi.7.php">lamssi</A>(7) and <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7).  Topics include (but
+are not limited to): discovery of remote shell, run-time overrides of
+the agent use to launch remote executables (e.g., rsh and ssh), etc.
+<A NAME="lbAK">&nbsp;</A>
+<H3>Closing stdio</H3>
+
+The stdio of each LAM daemon on a remote host that is launched by 
+<I>lamboot</I>
+
+is closed by default.  Normally, the stdio of the LAM daemon launched
+on the local host is left open so that the internal LAM <A HREF="../man3/tstdio.3.php">tstdio</A>(3)
+package works properly.  However, it is sometimes desirable to close
+the stdio of the local LAM daemon as well.  For example:
+<P>
+
+
+<BR>&nbsp;&nbsp;&nbsp;rsh&nbsp;somenode&nbsp;lamboot&nbsp;-s&nbsp;hostfile
+
+<P>
+
+This is because
+<I>rsh</I>
+
+waits for two conditions before exiting: 
+<I>lamboot</I>
+
+to exit, and stdout / stderr to be closed.  Without
+<I>-s</I>,
+
+stdout / stderr would not be closed, and 
+<I>rsh</I>
+
+(and
+<I>ssh</I>)
+
+will hang even though 
+<I>lamboot</I>
+
+had completed.
+<I>-s</I>
+
+causes the stdout / stderr of the local LAM daemon to be closed upon
+invocation, which will allow 
+<I>rsh</I>
+
+to complete.  Using
+<I>-s</I>
+
+will not affect
+<I>lamboot</I>
+
+in any other way, but it will prevent the <A HREF="../man3/tstdio.3.php">tstdio</A>(3) package from
+working properly.
+<A NAME="lbAL">&nbsp;</A>
+<H3>Fault Tolerance</H3>
+
+If the
+<I>-x</I>
+
+option is given, LAM runs in fault tolerant mode.  In this mode, nodes
+exchange ``heart beat'' messages periodically to make sure all nodes
+are running and the links connecting them are operational.  When a
+node's heart beats stop, it is declared ``dead'' and all LAM nodes
+(and processes) are notified.  This allows users to write fault
+tolerant applications that can degrade gracefully, or fully recover by
+replacing the defunct node with another (see <A HREF="../man1/lamgrow.1.php">lamgrow</A>(1)).  Since this
+mode introduces a performance penalty, it is not activated by default.
+<A NAME="lbAM">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>lamboot -v<DD>
+Start LAM on the machines described in the default boot schema.
+Report about important steps as they are done.
+<DT>lamboot -d hostfile<DD>
+Start LAM on the machines described in file
+<I>hostfile</I>.
+
+Provide incredibly detailed reports on what is happening at each stage
+in the boot process.
+<DT>lamboot mynodes<DD>
+Start LAM on the machines described in the boot schema
+<I>mynodes</I>.
+
+Operate silently.
+</DL>
+<A NAME="lbAN">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>laminstalldir/etc/lam-bhost.def <DD>
+default boot schema file, where &quot;laminstalldir&quot; is the directory where
+LAM/MPI was installed
+<DT>laminstalldir/etc/lam-conf.lamd<DD>
+default process schema file for LAM nodes
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/recon.1.php">recon</A>(1), <A HREF="../man1/wipe.1.php">wipe</A>(1), <A HREF="../man1/hboot.1.php">hboot</A>(1), <A HREF="../man3/tstdio.3.php">tstdio</A>(3), <A HREF="../man5/bhost.5.php">bhost</A>(5), <A HREF="../man5/conf.5.php">conf</A>(5),
+<A HREF="../man5/lam-helpfile.5.php">lam-helpfile</A>(5), <A HREF="../man7/lamssi.7.php">lamssi</A>(7), <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAF">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAG">The bhost file</A><DD>
+<DT><A HREF="#lbAH">Delaying hostname lookups</A><DD>
+<DT><A HREF="#lbAI">SSI (System Services Interface)</A><DD>
+<DT><A HREF="#lbAJ">Remote Executable Invocation</A><DD>
+<DT><A HREF="#lbAK">Closing stdio</A><DD>
+<DT><A HREF="#lbAL">Fault Tolerance</A><DD>
+</DL>
+<DT><A HREF="#lbAM">EXAMPLES</A><DD>
+<DT><A HREF="#lbAN">FILES</A><DD>
+<DT><A HREF="#lbAO">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

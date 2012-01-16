@@ -1,0 +1,989 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Xorg</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>Xorg</H1>
+Section: Misc. Reference Manual Pages (1x)<BR>Updated: Version&nbsp;6.8.1<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+Xorg - X11R6 X server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>Xorg</B>
+
+[<B>:</B><I>display</I>]
+
+[<I>option</I>
+
+<I>...</I>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Xorg</B>
+
+is a full featured X server that was originally designed for UNIX and
+UNIX-like operating systems running on Intel x86 hardware.  It now runs
+on a wider range of hardware and OS platforms.
+<P>
+
+This work was derived from
+<I>XFree86&nbsp;4.4rc2</I>
+
+by the X.Org Foundation.
+The XFree86 4.4rc2 release was originally derived from
+<I>X386&nbsp;1.2</I>
+
+by Thomas Roell which was contributed to X11R5 by Snitily Graphics
+Consulting Service.  The
+<B>Xorg</B>
+
+server architecture includes
+among many other things a loadable module system derived from code
+donated by Metro Link, Inc.  The current Xorg release is compatible
+with X11R6.6.
+<A NAME="lbAE">&nbsp;</A>
+<H2>PLATFORMS</H2>
+
+<P>
+
+<B>Xorg</B>
+
+operates under a wide range of operating systems and hardware platforms.
+The Intel x86 (IA32) architecture is the most widely supported hardware
+platform.  Other hardware platforms include Compaq Alpha, Intel IA64,
+SPARC and PowerPC.  The most widely supported operating systems are the
+free/OpenSource UNIX-like systems such as Linux, FreeBSD, NetBSD and
+OpenBSD.  Commercial UNIX operating systems such as Solaris (x86) and
+UnixWare are also supported.  Other supported operating systems include
+LynxOS, and GNU Hurd.  Darwin and Mac OS X are supported with the
+<A HREF="../man1/XDarwin.1.php">XDarwin</A>(1) X server.  Win32/Cygwin is supported with the XWin X server.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>NETWORK CONNECTIONS</H2>
+
+<B>Xorg</B>
+
+supports connections made using the following reliable
+byte-streams:
+<DL COMPACT>
+<DT><I>Local</I>
+
+<DD>
+On most platforms, the &quot;Local&quot; connection type is a UNIX-domain socket.
+On some System V platforms, the &quot;local&quot; connection types also include
+STREAMS pipes, named pipes, and some other mechanisms.
+<DT><I>TCP/IP</I>
+
+<DD>
+<B>Xorg</B>
+
+listens on port
+6000+<I>n</I>,
+
+where
+<I>n</I>
+
+is the display number.  This connection type can be disabled with the
+<B>-nolisten</B>
+
+option (see the <A HREF="../man1/Xserver.1.php">Xserver</A>(1) man page for details).
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+For operating systems that support local connections other than Unix
+Domain sockets (SVR3 and SVR4), there is a compiled-in list specifying
+the order in which local connections should be attempted.  This list
+can be overridden by the
+<I>XLOCAL</I>
+
+environment variable described below.  If the display name indicates a
+best-choice connection should be made (e.g.
+<B>:0.0</B>),
+
+each connection mechanism is tried until a connection succeeds or no
+more mechanisms are available.  Note: for these OSs, the Unix Domain
+socket connection is treated differently from the other local connection
+types.  To use it the connection must be made to
+<B>unix:0.0</B>.
+
+<P>
+
+The
+<I>XLOCAL</I>
+
+environment variable should contain a list of one more
+more of the following:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+NAMED
+PTS
+SCO
+ISC
+</PRE>
+
+</DL>
+
+<P>
+
+which represent SVR4 Named Streams pipe, Old-style USL Streams pipe,
+SCO XSight Streams pipe, and ISC Streams pipe, respectively.  You can
+select a single mechanism (e.g.
+<I>XLOCAL=NAMED</I>),
+
+or an ordered list (e.g. <I>XLOCAL=&quot;NAMED:PTS:SCO&quot;</I>).
+his variable overrides the compiled-in defaults.  For SVR4 it is
+recommended that
+<I>NAMED</I>
+
+be the first preference connection.  The default setting is
+<I>PTS:NAMED:ISC:SCO</I>.
+
+<P>
+
+To globally override the compiled-in defaults, you should define (and
+export if using
+<B>sh</B>
+
+or
+<B>ksh</B>)
+
+<I>XLOCAL</I>
+
+globally.  If you use <A HREF="../man1/startx.1.php">startx</A>(1) or <A HREF="../man1/xinit.1.php">xinit</A>(1), the definition should be
+at the top of your
+<I>.xinitrc</I>
+
+file.  If you use <A HREF="../man1/xdm.1.php">xdm</A>(1), the definitions should be early on in the
+<I>/usr/X11R6/lib/X11/xdm/Xsession</I>
+
+script.
+<A NAME="lbAH">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>Xorg</B>
+
+supports several mechanisms for supplying/obtaining configuration and
+run-time parameters: command line options, environment variables, the
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) configuration file, auto-detection, and
+fallback defaults.  When the same information is supplied in more than
+one way, the highest precedence mechanism is used.  The list of mechanisms
+is ordered from highest precedence to lowest.  Note that not all parameters
+can be supplied via all methods.  The available command line options
+and environment variables (and some defaults) are described here and in
+the <A HREF="../man1/Xserver.1.php">Xserver</A>(1) manual page.  Most configuration file parameters, with
+their defaults, are described in the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) manual
+page.  Driver and module specific configuration parameters are described
+in the relevant driver or module manual page.
+<P>
+
+In addition to the normal server options described in the <A HREF="../man1/Xserver.1.php">Xserver</A>(1)
+manual page,
+<B>Xorg</B>
+
+accepts the following command line switches:
+<DL COMPACT>
+<DT><B>vt</B><I>XX</I>
+
+<DD>
+<I>XX</I>
+
+specifies the Virtual Terminal device number which
+<B>Xorg</B>
+
+will use.  Without this option,
+<B>Xorg</B>
+
+will pick the first available Virtual Terminal that it can locate.  This
+option applies only to platforms such as Linux, BSD, SVR3 and SVR4, that
+have virtual terminal support.
+<DT><B>-allowMouseOpenFail</B>
+
+<DD>
+Allow the server to start up even if the mouse device can't be opened
+or initialised.  This is equivalent to the
+<B>AllowMouseOpenFail</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-allowNonLocalModInDev</B>
+
+<DD>
+Allow changes to keyboard and mouse settings from non-local clients.
+By default, connections from non-local clients are not allowed to do
+this.  This is equivalent to the
+<B>AllowNonLocalModInDev</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-allowNonLocalXvidtune</B>
+
+<DD>
+Make the VidMode extension available to remote clients.  This allows
+the xvidtune client to connect from another host.  This is equivalent
+to the
+<B>AllowNonLocalXvidtune</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.  By default non-local
+connections are not allowed.
+<DT><B>-bgamma</B><I> value</I>
+
+<DD>
+Set the blue gamma correction.
+<I>value</I>
+
+must be between 0.1 and 10.
+The default is 1.0.  Not all drivers support this.  See also the
+<B>-gamma</B>,
+
+<B>-rgamma</B>,
+
+and
+<B>-ggamma</B>
+
+options.
+<DT><B>-bpp</B><I> n</I>
+
+<DD>
+No longer supported.  Use
+<B>-depth</B>
+
+to set the color depth, and use
+<B>-fbbpp</B>
+
+if you really need to force a non-default framebuffer (hardware) pixel
+format.
+<DT><B>-configure</B>
+
+<DD>
+When this option is specified, the
+<B>Xorg</B>
+
+server loads all video driver modules, probes for available hardware,
+and writes out an initial <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file based on
+what was detected.  This option currently has some problems on some
+platforms, but in most cases it is a good way to bootstrap the
+configuration process.  This option is only available when the server
+is run as root (i.e, with real-uid 0).
+<DT><B>-crt /dev/tty</B><I>XX</I>
+
+<DD>
+SCO only.  This is the same as the
+<B>vt</B>
+
+option, and is provided for compatibility with the native SCO X server.
+<DT><B>-depth</B><I> n</I>
+
+<DD>
+Sets the default color depth.  Legal values are 1, 4, 8, 15, 16, and
+24.  Not all drivers support all values.
+<DT><B>-disableModInDev</B>
+
+<DD>
+Disable dynamic modification of input device settings.  This is equivalent
+to the
+<B>DisableModInDev</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-disableVidMode</B>
+
+<DD>
+Disable the the parts of the VidMode extension (used by the xvidtune
+client) that can be used to change the video modes.  This is equivalent
+to the
+<B>DisableVidModeExtension</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-fbbpp </B><I>n</I>
+
+<DD>
+Sets the number of framebuffer bits per pixel.  You should only set this
+if you're sure it's necessary; normally the server can deduce the correct
+value from
+<B>-depth</B>
+
+above.  Useful if you want to run a depth 24 configuration with a 24
+bpp framebuffer rather than the (possibly default) 32 bpp framebuffer
+(or vice versa).  Legal values are 1, 8, 16, 24, 32.  Not all drivers
+support all values.
+<DT><B>-flipPixels</B>
+
+<DD>
+Swap the default values for the black and white pixels.
+<DT><B>-gamma</B><I> value</I>
+
+<DD>
+Set the gamma correction.
+<I>value</I>
+
+must be between 0.1 and 10.  The default is 1.0.  This value is applied
+equally to the R, G and B values.  Those values can be set independently
+with the
+<B>-rgamma</B>,
+
+<B>-bgamma</B>,
+
+and
+<B>-ggamma</B>
+
+options.  Not all drivers support this.
+<DT><B>-ggamma</B><I> value</I>
+
+<DD>
+Set the green gamma correction.
+<I>value</I>
+
+must be between 0.1 and 10.  The default is 1.0.  Not all drivers support
+this.  See also the
+<B>-gamma</B>,
+
+<B>-rgamma</B>,
+
+and
+<B>-bgamma</B>
+
+options.
+<DT><B>-ignoreABI</B>
+
+<DD>
+The
+<B>Xorg</B>
+
+server checks the ABI revision levels of each module that it loads.  It
+will normally refuse to load modules with ABI revisions that are newer
+than the server's.  This is because such modules might use interfaces
+that the server does not have.  When this option is specified, mismatches
+like this are downgraded from fatal errors to warnings.  This option
+should be used with care.
+<DT><B>-keeptty</B>
+
+<DD>
+Prevent the server from detaching its initial controlling terminal.
+This option is only useful when debugging the server.  Not all platforms
+support (or can use) this option.
+<DT><B>-keyboard</B><I> keyboard-name</I>
+
+<DD>
+Use the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file
+<B>InputDevice</B>
+
+section called
+<I>keyboard-name</I>
+
+as the core keyboard.  This option is ignored when the
+<B>Layout</B>
+
+section specifies a core keyboard.  In the absence of both a Layout
+section and this option, the first relevant
+<B>InputDevice</B>
+
+section is used for the core keyboard.
+<DT><B>-layout</B><I> layout-name</I>
+
+<DD>
+Use the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file
+<B>Layout</B>
+
+section called
+<I>layout-name</I>.
+
+By default the first
+<B>Layout</B>
+
+section is used.
+<DT><B>-logfile</B><I> filename</I>
+
+<DD>
+Use the file called
+<I>filename</I>
+
+as the
+<B>Xorg</B>
+
+server log file.  The default log file is
+<B>/var/log/Xorg.</B><I>n</I><B>.log</B>
+
+on most platforms, where
+<I>n</I>
+
+is the display number of the
+<B>Xorg</B>
+
+server.  The default may be in a different directory on some platforms.
+This option is only available when the server is run as root (i.e, with
+real-uid 0).
+<DT><B>-logverbose</B> [<I>n</I>]
+
+<DD>
+Sets the verbosity level for information printed to the
+<B>Xorg</B>
+
+server log file.  If the
+<I>n</I>
+
+value isn't supplied, each occurrence of this option increments the log
+file verbosity level.  When the
+<I>n</I>
+
+value is supplied, the log file verbosity level is set to that value.
+The default log file verbosity level is 3.
+<DT><B>-modulepath</B><I> searchpath</I>
+
+<DD>
+Set the module search path to
+<I>searchpath</I>.
+
+<I>searchpath</I>
+
+is a comma separated list of directories to search for
+<B>Xorg</B>
+
+server modules.  This option is only available when the server is run
+as root (i.e, with real-uid 0).
+<DT><B>-nosilk</B>
+
+<DD>
+Disable Silken Mouse support.
+<DT><B>-pixmap24</B>
+
+<DD>
+Set the internal pixmap format for depth 24 pixmaps to 24 bits per pixel.
+The default is usually 32 bits per pixel.  There is normally little
+reason to use this option.  Some client applications don't like this
+pixmap format, even though it is a perfectly legal format.  This is
+equivalent to the
+<B>Pixmap</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-pixmap32</B>
+
+<DD>
+Set the internal pixmap format for depth 24 pixmaps to 32 bits per pixel.
+This is usually the default.  This is equivalent to the
+<B>Pixmap</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>-pointer</B><I> pointer-name</I>
+
+<DD>
+Use the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file
+<B>InputDevice</B>
+
+section called
+<I>pointer-name</I>
+
+as the core pointer.  This option is ignored when the
+<B>Layout</B>
+
+section specifies a core pointer.  In the absence of both a Layout
+section and this option, the first relevant
+<B>InputDevice</B>
+
+section is used for the core pointer.
+<DT><B>-probeonly</B>
+
+<DD>
+Causes the server to exit after the device probing stage.  The
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file is still used when this option is
+given, so information that can be auto-detected should be commented out.
+<DT><B>-quiet</B>
+
+<DD>
+Suppress most informational messages at startup.  The verbosity level
+is set to zero.
+<DT><B>-rgamma</B><I> value</I>
+
+<DD>
+Set the red gamma correction.
+<I>value</I>
+
+must be between 0.1 and 10.  The default is 1.0.  Not all drivers support
+this.  See also the
+<B>-gamma</B>,
+
+<B>-bgamma</B>,
+
+and
+<B>-ggamma</B>
+
+options.
+<DT><B>-scanpci</B>
+
+<DD>
+When this option is specified, the
+<B>Xorg</B>
+
+server scans the PCI bus, and prints out some information about each
+device that was detected.  See also <A HREF="../man1/scanpci.1.php">scanpci</A>(1) and <A HREF="../man1/pcitweak.1.php">pcitweak</A>(1).
+<DT><B>-screen</B><I> screen-name</I>
+
+<DD>
+Use the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file
+<B>Screen</B>
+
+section called
+<I>screen-name</I>.
+
+By default the screens referenced by the default
+<B>Layout</B>
+
+section are used, or the first
+<B>Screen</B>
+
+section when there are no
+<B>Layout</B>
+
+sections.
+<DT><B>-showconfig</B>
+
+<DD>
+This is the same as the
+<B>-version</B>
+
+option, and is included for compatibility reasons.  It may be removed
+in a future release, so the
+<B>-version</B>
+
+option should be used instead.
+<DT><B>-weight</B><I> nnn</I>
+
+<DD>
+Set RGB weighting at 16 bpp.  The default is 565.  This applies only to
+those drivers which support 16 bpp.
+<DT><B>-verbose</B> [<I>n</I>]
+
+<DD>
+Sets the verbosity level for information printed on stderr.  If the
+<I>n</I>
+
+value isn't supplied, each occurrence of this option increments the
+verbosity level.  When the
+<I>n</I>
+
+value is supplied, the verbosity level is set to that value.  The default
+verbosity level is 0.
+<DT><B>-version</B>
+
+<DD>
+Print out the server version, patchlevel, release date, the operating
+system/platform it was built on, and whether it includes module loader
+support.
+<DT><B>-config</B><I> file</I>
+
+<DD>
+Read the server configuration from
+<I>file</I>.
+
+This option will work for any file when the server is run as root (i.e,
+with real-uid 0), or for files relative to a directory in the config
+search path for all other users.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>KEYBOARD</H2>
+
+<P>
+
+The
+<B>Xorg</B>
+
+server is normally configured to recognize various special combinations
+of key presses that instruct the server to perform some action, rather
+than just sending the key press event to a client application.  The
+default XKEYBOARD keymap defines the key combinations listed below.
+The server also has these key combinations builtin to its event handler
+for cases where the XKEYBOARD extension is not being used.  When using
+the XKEYBOARD extension, which key combinations perform which actions
+is completely configurable.
+<P>
+
+For more information about when the builtin event handler
+is used to recognize the special key combinations, see
+the documentation on the
+<B>HandleSpecialKeys</B>
+
+option in the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) man page.
+<P>
+
+The special combinations of key presses recognized directly
+by
+<B>Xorg</B>
+
+are:
+<DL COMPACT>
+<DT><B>Ctrl+Alt+Backspace</B>
+
+<DD>
+Immediately kills the server -- no questions asked.  This can be disabled
+with the
+<B>DontZap</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>Ctrl+Alt+Keypad-Plus</B>
+
+<DD>
+Change video mode to next one specified in the configuration file.
+This can be disabled with the
+<B>DontZoom</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>Ctrl+Alt+Keypad-Minus</B>
+
+<DD>
+Change video mode to previous one specified in the configuration file.
+This can be disabled with the
+<B>DontZoom</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+<DT><B>Ctrl+Alt+Keypad-Multiply</B>
+
+<DD>
+Not treated specially by default.  If the
+<B>AllowClosedownGrabs</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option is specified, this key sequence
+kills clients with an active keyboard or mouse grab as well as killing any
+application that may have locked the server, normally using the
+<A HREF="../man3/XGrabServer.3x.php">XGrabServer</A>(3x) Xlib function.
+<DT><B>Ctrl+Alt+Keypad-Divide</B>
+
+<DD>
+Not treated specially by default.  If the
+<B>AllowDeactivateGrabs</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option is specified, this key sequence
+deactivates any active keyboard and mouse grabs.
+<DT><B>Ctrl+Alt+F1...F12</B>
+
+<DD>
+For BSD and Linux systems with virtual terminal support, these keystroke
+combinations are used to switch to virtual terminals 1 through 12,
+respectively.  This can be disabled with the
+<B>DontVTSwitch</B>
+
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) file option.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+<B>Xorg</B>
+
+typically uses a configuration file called
+<B>xorg.conf</B>
+
+for its initial setup.
+Refer to the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) manual page for information
+about the format of this file.
+<P>
+
+Starting with version 4.4,
+<B>Xorg</B>
+
+has a mechanism for automatically generating a built-in configuration
+at run-time when no
+<B>xorg.conf</B>
+
+file is present.  The current version of this automatic configuration
+mechanism works in three ways.
+<P>
+
+The first is via enhancements that have made many components of the
+<B>xorg.conf</B>
+
+file optional.  This means that information that can be probed or
+reasonably deduced doesn't need to be specified explicitly, greatly
+reducing the amount of built-in configuration information that needs to
+be generated at run-time.
+<P>
+
+The second is to use an external utility called <A HREF="../man1/getconfig.1.php">getconfig</A>(1), when
+available, to use meta-configuration information to generate a suitable
+configuration for the primary video device.  The meta-configuration
+information can be updated to allow an existing installation to get the
+best out of new hardware or to work around bugs that are found
+post-release.
+<P>
+
+The third is to have &quot;safe&quot; fallbacks for most configuration information.
+This maximises the likelihood that the
+<B>Xorg</B>
+
+server will start up in some usable configuration even when information
+about the specific hardware is not available.
+<P>
+
+The automatic configuration support for Xorg is work in progress.
+It is currently aimed at the most popular hardware and software platforms
+supported by Xorg.  Enhancements are planned for future releases.
+<A NAME="lbAK">&nbsp;</A>
+<H2>FILES</H2>
+
+The
+<B>Xorg</B>
+
+server config file can be found in a range of locations.  These are
+documented fully in the <A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x) manual page.  The
+most commonly used locations are shown here.
+<DL COMPACT>
+<DT><B>/etc/X11/xorg.conf</B>
+
+<DD>
+Server configuration file.
+<DT><B>/etc/X11/xorg.conf-4</B>
+
+<DD>
+Server configuration file.
+<DT><B>/etc/xorg.conf</B>
+
+<DD>
+Server configuration file.
+<DT><B>/usr/X11R6/etc/xorg.conf</B>
+
+<DD>
+Server configuration file.
+<DT><B>/usr/X11R6/lib/X11/xorg.conf</B>
+
+<DD>
+Server configuration file.
+<DT><B>/var/log/Xorg.</B><I>n</I><B>.log</B>
+
+<DD>
+Server log file for display
+<I>n</I>.
+
+<DT><B>/usr/X11R6/bin/*</B>
+
+<DD>
+Client binaries.
+<DT><B>/usr/X11R6/include/*</B>
+
+<DD>
+Header files.
+<DT><B>/usr/X11R6/lib/*</B>
+
+<DD>
+Libraries.
+<DT><B>/usr/X11R6/lib/X11/fonts/*</B>
+
+<DD>
+Fonts.
+<DT><B>/usr/X11R6/lib/X11/rgb.txt</B>
+
+<DD>
+Color names to RGB mapping.
+<DT><B>/usr/X11R6/lib/X11/XErrorDB</B>
+
+<DD>
+Client error message database.
+<DT><B>/usr/X11R6/lib/X11/app-defaults/*</B>
+
+<DD>
+Client resource specifications.
+<DT><B>/usr/X11R6/man/man?/*</B>
+
+<DD>
+Manual pages.
+<DT><B>/etc/X</B><I>n</I><B>.hosts</B>
+
+<DD>
+Initial access control list for display
+<I>n</I>.
+
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <A HREF="../man1/Xserver.1x.php">Xserver</A>(1x), <A HREF="../man1/xdm.1x.php">xdm</A>(1x), <A HREF="../man1/xinit.1x.php">xinit</A>(1x),
+<A HREF="../man5/xorg.conf.5x.php">xorg.conf</A>(5x), <A HREF="../man1/xorgconfig.1x.php">xorgconfig</A>(1x), <A HREF="../man1/xorgcfg.1x.php">xorgcfg</A>(1x), <A HREF="../man1/xvidtune.1x.php">xvidtune</A>(1x),
+<A HREF="../man4/apm.4x.php">apm</A>(4x),
+<A HREF="../man4/ati.4x.php">ati</A>(4x),
+<A HREF="../man4/chips.4x.php">chips</A>(4x),
+<A HREF="../man4/cirrus.4x.php">cirrus</A>(4x),
+<A HREF="../man4/cyrix.4x.php">cyrix</A>(4x),
+<A HREF="../man4/fbdev.4x.php">fbdev</A>(4x),
+<A HREF="../man4/glide.4x.php">glide</A>(4x),
+<A HREF="../man4/glint.4x.php">glint</A>(4x),
+<A HREF="../man4/i128.4x.php">i128</A>(4x),
+<A HREF="../man4/i740.4x.php">i740</A>(4x),
+<A HREF="../man4/i810.4x.php">i810</A>(4x),
+<A HREF="../man4/imstt.4x.php">imstt</A>(4x),
+<A HREF="../man4/mga.4x.php">mga</A>(4x),
+<A HREF="../man4/neomagic.4x.php">neomagic</A>(4x),
+<A HREF="../man4/nsc.4x.php">nsc</A>(4x),
+<A HREF="../man4/nv.4x.php">nv</A>(4x),
+<A HREF="../man4/r128.4x.php">r128</A>(4x),
+<A HREF="../man4/rendition.4x.php">rendition</A>(4x),
+<A HREF="../man4/s3virge.4x.php">s3virge</A>(4x),
+<A HREF="../man4/siliconmotion.4x.php">siliconmotion</A>(4x),
+<A HREF="../man4/sis.4x.php">sis</A>(4x),
+<A HREF="../man4/sunbw2.4x.php">sunbw2</A>(4x),
+<A HREF="../man4/suncg14.4x.php">suncg14</A>(4x),
+<A HREF="../man4/suncg3.4x.php">suncg3</A>(4x),
+<A HREF="../man4/suncg6.4x.php">suncg6</A>(4x),
+<A HREF="../man4/sunffb.4x.php">sunffb</A>(4x),
+<A HREF="../man4/sunleo.4x.php">sunleo</A>(4x),
+<A HREF="../man4/suntcx.4x.php">suntcx</A>(4x),
+<A HREF="../man4/tdfx.4x.php">tdfx</A>(4x),
+<A HREF="../man4/tga.4x.php">tga</A>(4x),
+<A HREF="../man4/trident.4x.php">trident</A>(4x),
+<A HREF="../man4/tseng.4x.php">tseng</A>(4x),
+<A HREF="../man4/v4l.4x.php">v4l</A>(4x),
+<A HREF="../man4/vesa.4x.php">vesa</A>(4x),
+<A HREF="../man4/vga.4x.php">vga</A>(4x),
+<A HREF="../man4/vmware.4x.php">vmware</A>(4x),
+<BR>
+
+Web site
+<I>&lt;<A HREF="http://www.x.org">http://www.x.org</A>&gt;</I>.
+
+<P>
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Xorg has many contributors world wide.  The names of most of them
+can be found in the documentation, CHANGELOG files in the source tree,
+and in the actual source code.
+<P>
+
+Xorg was originally based on XFree86 4.4rc2.
+That was originally based on <I>X386 1.2</I> by Thomas Roell, which
+was contributed to the then X Consortium's X11R5 distribution by SGCS.
+<P>
+
+Xorg is released by the X.org Foundation.
+<P>
+
+The project that became XFree86 was originally founded in 1992 by
+David Dawes, Glenn Lai, Jim Tsillas and David Wexelblat.
+<P>
+
+XFree86 was later integrated in the then X Consortium's X11R6 release
+by a group of dedicated XFree86 developers, including the following:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+Stuart Anderson    <I><A HREF="mailto:anderson@metrolink.com">anderson@metrolink.com</A></I>
+Doug Anson         <I><A HREF="mailto:danson@lgc.com">danson@lgc.com</A></I>
+Gertjan Akkerman   <I><A HREF="mailto:akkerman@dutiba.twi.tudelft.nl">akkerman@dutiba.twi.tudelft.nl</A></I>
+Mike Bernson       <I><A HREF="mailto:mike@mbsun.mlb.org">mike@mbsun.mlb.org</A></I>
+Robin Cutshaw      <I><A HREF="mailto:robin@XFree86.org">robin@XFree86.org</A></I>
+David Dawes        <I><A HREF="mailto:dawes@XFree86.org">dawes@XFree86.org</A></I>
+Marc Evans         <I><A HREF="mailto:marc@XFree86.org">marc@XFree86.org</A></I>
+Pascal Haible      <I><A HREF="mailto:haible@izfm.uni-stuttgart.de">haible@izfm.uni-stuttgart.de</A></I>
+Matthieu Herrb     <I><A HREF="mailto:Matthieu.Herrb@laas.fr">Matthieu.Herrb@laas.fr</A></I>
+Dirk Hohndel       <I><A HREF="mailto:hohndel@XFree86.org">hohndel@XFree86.org</A></I>
+David Holland      <I><A HREF="mailto:davidh@use.com">davidh@use.com</A></I>
+Alan Hourihane     <I><A HREF="mailto:alanh@fairlite.demon.co.uk">alanh@fairlite.demon.co.uk</A></I>
+Jeffrey Hsu        <I><A HREF="mailto:hsu@soda.berkeley.edu">hsu@soda.berkeley.edu</A></I>
+Glenn Lai          <I><A HREF="mailto:glenn@cs.utexas.edu">glenn@cs.utexas.edu</A></I>
+Ted Lemon          <I><A HREF="mailto:mellon@ncd.com">mellon@ncd.com</A></I>
+Rich Murphey       <I><A HREF="mailto:rich@XFree86.org">rich@XFree86.org</A></I>
+Hans Nasten        <I><A HREF="mailto:nasten@everyware.se">nasten@everyware.se</A></I>
+Mark Snitily       <I><A HREF="mailto:mark@sgcs.com">mark@sgcs.com</A></I>
+Randy Terbush      <I><A HREF="mailto:randyt@cse.unl.edu">randyt@cse.unl.edu</A></I>
+Jon Tombs          <I><A HREF="mailto:tombs@XFree86.org">tombs@XFree86.org</A></I>
+Kees Verstoep      <I><A HREF="mailto:versto@cs.vu.nl">versto@cs.vu.nl</A></I>
+Paul Vixie         <I><A HREF="mailto:paul@vix.com">paul@vix.com</A></I>
+Mark Weaver        <I><A HREF="mailto:Mark_Weaver@brown.edu">Mark_Weaver@brown.edu</A></I>
+David Wexelblat    <I><A HREF="mailto:dwex@XFree86.org">dwex@XFree86.org</A></I>
+Philip Wheatley    <I><A HREF="mailto:Philip.Wheatley@ColumbiaSC.NCR.COM">Philip.Wheatley@ColumbiaSC.NCR.COM</A></I>
+Thomas Wolfram     <I><A HREF="mailto:wolf@prz.tu-berlin.de">wolf@prz.tu-berlin.de</A></I>
+Orest Zborowski    <I><A HREF="mailto:orestz@eskimo.com">orestz@eskimo.com</A></I>
+</PRE>
+
+</DL>
+
+<P>
+
+Xorg source is available from the FTP server
+<I>&lt;<A HREF="ftp://ftp.x.org/">ftp://ftp.x.org/</A>&gt;</I>, and from the X.org
+server <I>&lt;<A HREF="http://www.freedesktop.org/cvs/">http://www.freedesktop.org/cvs/</A>&gt;</I>.  Documentation and other
+information can be found from the X.org web site
+<I>&lt;<A HREF="http://www.x.org/">http://www.x.org/</A>&gt;</I>.
+<P>
+<A NAME="lbAN">&nbsp;</A>
+<H2>LEGAL</H2>
+
+<P>
+
+<B>Xorg</B>
+
+is copyright software, provided under licenses that permit modification
+and redistribution in source and binary form without fee.  
+<B>Xorg is copyright by numerous authors and</B>
+
+contributors from around the world.  Licensing information can be found
+at
+<I>&lt;<A HREF="http://www.x.org">http://www.x.org</A>&gt;</I>.
+
+Refer to the source code for specific copyright notices.
+<P>
+
+<B>XFree86(TM)</B>
+
+is a trademark of The XFree86 Project, Inc.
+<P>
+
+<B>X11(TM)</B>
+
+and 
+<B>X Window System(TM)</B>
+
+are trademarks of The Open Group.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">PLATFORMS</A><DD>
+<DT><A HREF="#lbAF">NETWORK CONNECTIONS</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAH">OPTIONS</A><DD>
+<DT><A HREF="#lbAI">KEYBOARD</A><DD>
+<DT><A HREF="#lbAJ">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAK">FILES</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+<DT><A HREF="#lbAM">AUTHORS</A><DD>
+<DT><A HREF="#lbAN">LEGAL</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

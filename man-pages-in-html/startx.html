@@ -1,0 +1,284 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>STARTX</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>STARTX</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+startx - initialize an X session
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>startx</B>
+
+[ [
+<I>client</I>
+
+]
+<I>options</I>
+
+... ] [
+<B>--</B>
+
+[
+<I>server</I>
+
+]
+<I>options</I>
+
+... ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <I>startx</I> script is a front end to <I>xinit</I> that provides a
+somewhat nicer user interface for running a single session of the X
+Window System.  It is often run with no arguments.
+<P>
+
+Arguments immediately following the
+<I>startx</I>
+
+command are used to start a client in the same manner as
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1).
+
+The special argument
+'--'
+
+marks the end of client arguments and the beginning of server options.
+It may be convenient to specify server options with startx to change on a
+per-session basis the
+default color depth, the server's notion of the number of dots-per-inch the
+display device presents, or take advantage of a different server layout, as
+permitted by the
+<I><A HREF="../man1/Xorg.1.php">Xorg</A></I>(1)
+
+server and specified in the
+<I><A HREF="../man5/xorg.conf.5x.php">xorg.conf</A></I>(5x)
+
+file.  Some examples of specifying server arguments follow; consult the
+manual page for your X server to determine which arguments are legal.
+<DL COMPACT><DT><DD>
+<P>
+
+startx -- -depth 16
+<P>
+
+startx -- -dpi 100
+<P>
+
+startx -- -layout Multihead
+</DL>
+
+<P>
+
+To determine the client to run,
+<I>startx</I>
+
+first looks for a file called
+<I>.xinitrc</I>
+
+in the user's home directory.  If that is not found, it uses
+the file
+<I>xinitrc</I>
+
+in the
+<I>xinit</I>
+
+library directory.
+If command line client options are given, they override this
+behavior and revert to the
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1)
+
+behavior.
+To determine the server to run,
+<I>startx</I>
+
+first looks for a file called
+<I>.xserverrc</I>
+
+in the user's home directory.  If that is not found, it uses
+the file
+<I>xserverrc</I>
+
+in the
+<I>xinit</I>
+
+library directory.
+If command line server options are given, they override this
+behavior and revert to the
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1)
+
+behavior.  Users rarely need to provide a
+<I>.xserverrc</I>
+
+file.
+See the
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1)
+
+manual page for more details on the arguments.
+<P>
+
+The system-wide
+<I>xinitrc</I>
+
+and
+<I>xserverrc</I>
+
+files are found in the
+<I>/etc/X11/xinit</I>
+
+directory.
+<P>
+
+The
+<I>.xinitrc</I>
+
+is typically a shell script which starts many clients according to the
+user's preference.  When this shell script exits,
+<I>startx</I>
+
+kills the server and performs any other session shutdown needed.
+Most of the clients started by
+<I>.xinitrc</I>
+
+should be run in the background.  The last client should run in the
+foreground; when it exits, the session will exit.  People often choose
+a session manager, window manager, or <I>xterm</I> as the ''magic'' client.
+<A NAME="lbAE">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<P>
+
+Below is a sample <I>.xinitrc</I> that starts several applications and
+leaves the window manager running as the ''last'' application.  Assuming that
+the window manager has been configured properly, the user
+then chooses the ''Exit'' menu item to shut down X.
+<P>
+
+<PRE>
+xrdb -load $HOME/.Xresources
+xsetroot -solid gray &amp;
+xbiff -geometry -430+5 &amp;
+oclock -geometry 75x75-0-0 &amp;
+xload -geometry -80-0 &amp;
+xterm -geometry +0+60 -ls &amp;
+xterm -geometry +0-100 &amp;
+xconsole -geometry -0+0 -fn 5x7 &amp;
+exec twm
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<DL COMPACT>
+<DT>DISPLAY<DD>
+This variable gets set to the name of the display to which clients should
+connect.  Note that this gets
+<I>set</I>,
+
+not read.
+<DT>XAUTHORITY<DD>
+This variable, if not already defined, gets set to
+<I>$(HOME)/.Xauthority</I>.
+
+This is to prevent the X server, if not given the
+<I>-auth</I>
+
+argument, from automatically setting up insecure host-based authentication
+for the local host.  See the
+<I><A HREF="../man1/Xserver.1.php">Xserver</A></I>(1)
+
+and
+<I><A HREF="../man7/Xsecurity.7x.php">Xsecurity</A></I>(7x)
+
+manual pages for more information on X client/server authentication.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>$(HOME)/.xinitrc</I>
+
+<DD>
+Client to run.  Typically a shell script which runs many programs in
+the background.
+<DT><I>$(HOME)/.xserverrc</I>
+
+<DD>
+Server to run.  The default is
+<I>X</I>.
+
+<DT><I>/etc/X11/xinit/xinitrc</I>
+
+<DD>
+Client to run if the user has no
+<I>.xinitrc</I>
+
+file.
+<DT><I>/etc/X11/xinit/xserverrc</I>
+
+<DD>
+Server to run if the user has no
+<I>.xserverrc</I>
+
+file.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man1/xinit.1.php">xinit</A></I>(1),
+
+<I><A HREF="../man1/Xserver.1.php">Xserver</A></I>(1),
+
+<I><A HREF="../man1/Xorg.1.php">Xorg</A></I>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EXAMPLE</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

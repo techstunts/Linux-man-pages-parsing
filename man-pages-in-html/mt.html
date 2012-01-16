@@ -1,0 +1,390 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MT</H1>
+Section: User Commands  (1)<BR>Updated: April 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mt - control magnetic tape drive operation
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>mt</B>
+
+[-h] [-f device] operation [count] [arguments...]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This manual page documents the tape control program
+<B>mt</B>.
+
+<B>mt</B>
+
+performs the given
+<I>operation</I>,
+
+which must be one of the tape operations listed below, on a tape
+drive. The commands can also be listed by running the program with the
+<I>-h</I>
+
+option. The version of mt is printed with the
+<I>-v</I>
+
+or
+<I>--version</I>
+
+option. The path of the tape device on which to operate can be given with
+the
+<I>-f</I>
+
+or
+<I>-t</I>
+
+option.  If neither of those options is given, and the environment
+variable
+<B>TAPE</B>
+
+is set, it is used.  Otherwise, a default device defined in the file
+<I>/usr/include/sys/mtio.h</I>
+
+is used.
+<P>
+
+Some operations optionally take an argument or repeat count, which can be given
+after the operation name and defaults to 1. The postfix
+<I>k</I>
+
+,
+<I>M</I>
+
+, or
+<I>G</I>
+
+can be used to give counts in units of 1024, 1024 * 1024, or 1024 *
+1024 * 1024, respectively.
+<P>
+
+The available operations are listed below.  Unique abbreviations are
+accepted.  Not all operations are available on all systems, or work on
+all types of tape drives.
+<DL COMPACT>
+<DT>fsf<DD>
+Forward space
+<I>count</I>
+
+files.
+The tape is positioned on the first block of the next file.
+<DT>fsfm<DD>
+Forward space
+<I>count</I>
+
+files.
+The tape is positioned on the last block of the previous file.
+<DT>bsf<DD>
+Backward space
+<I>count</I>
+
+files.
+The tape is positioned on the last block of the previous file.
+<DT>bsfm<DD>
+Backward space
+<I>count</I>
+
+files.
+The tape is positioned on the first block of the next file.
+<DT>asf<DD>
+The tape is positioned at the beginning of the
+<I>count</I>
+
+file. Positioning is done by first rewinding the tape and then spacing
+forward over
+<I>count</I>
+
+filemarks.
+<DT>fsr<DD>
+Forward space
+<I>count</I>
+
+records.
+<DT>bsr<DD>
+Backward space
+<I>count</I>
+
+records.
+<DT>fss<DD>
+(SCSI tapes) Forward space
+<I>count</I>
+
+setmarks.
+<DT>bss<DD>
+(SCSI tapes) Backward space
+<I>count</I>
+
+setmarks.
+<DT>eod, seod<DD>
+Space to end of valid data.  Used on streamer tape
+drives to append data to the logical end of tape.
+<DT>rewind<DD>
+Rewind the tape.
+<DT>offline, rewoffl, eject<DD>
+Rewind the tape and, if applicable, unload the tape.
+<DT>retension<DD>
+Rewind the tape, then wind it to the end of the reel,
+then rewind it again.
+<DT>weof, eof<DD>
+Write
+<I>count</I>
+
+EOF marks at current position.
+<DT>wset<DD>
+(SCSI tapes) Write
+<I>count</I>
+
+setmarks at current position (only SCSI tape).
+<DT>erase<DD>
+Erase the tape.
+<DT>status<DD>
+Print status information about the tape unit. (If the density code is
+&quot;no translation&quot; in the status output, this does not affect working of the
+tape drive.)
+<DT>seek<DD>
+(SCSI tapes) Seek to the
+<I>count</I>
+
+block on the tape.  This operation is available on some
+Tandberg and Wangtek streamers and some SCSI-2 tape drives. The block
+address should be obtained from a
+<I>tell</I>
+
+call earlier.
+<DT>tell<DD>
+(SCSI tapes) Tell the current block on tape.  This operation is available on some
+Tandberg and Wangtek streamers and some SCSI-2 tape drives.
+<DT>setpartition<DD>
+(SCSI tapes) Switch to the partition determined by
+<I>count.</I>
+
+The default data partition of the tape is numbered zero. Switching
+partition is available only if enabled for the device, the device
+supports multiple partitions, and the tape is formatted with multiple
+partitions.
+<DT>partseek<DD>
+(SCSI tapes) The tape position is set to block
+<I>count</I>
+
+in the partition given by the argument after count. The default
+partition is zero.
+<DT>mkpartition<DD>
+(SCSI tapes) Format the tape with one (count is zero) or two partitions
+(count gives the size of the second partition in megabytes). The tape
+drive must be able to format partitioned tapes with
+initiator-specified partition size and partition support
+must be enabled for the drive.
+<DT>load<DD>
+(SCSI tapes) Send the load command to the tape drive. The drives usually load the
+tape when a new cartridge is inserted. The argument
+<I>count</I>
+
+can usually be omitted. Some HP changers load tape n if the
+<I>count</I>
+
+10000 + n is given (a special funtion in the Linux st driver).
+<DT>lock<DD>
+(SCSI tapes) Lock the tape drive door.
+<DT>unlock<DD>
+(SCSI tapes) Unlock the tape drive door.
+<DT>setblk<DD>
+(SCSI tapes) Set the block size of the drive to
+<I>count</I>
+
+bytes per record.
+<DT>setdensity<DD>
+(SCSI tapes) Set the tape density code to
+<I>count.</I>
+
+The proper codes to use with each drive should be looked up from the
+drive documentation.
+<DT>densities<DD>
+(SCSI tapes) Write explanation of some common density codes to
+standard output.
+<DT>drvbuffer<DD>
+(SCSI tapes) Set the tape drive buffer code to
+<I>number.</I>
+
+The proper value for unbuffered operation is zero and &quot;normal&quot; buffered
+operation one. The meanings of other values can be found in the drive
+documentation or, in the case of a SCSI-2 drive, from the SCSI-2 standard.
+<DT>compression<DD>
+(SCSI tapes) The compression within the drive can be switched on or
+off using the MTCOMPRESSION ioctl. Note that this method is not
+supported by all drives implementing compression. For instance, the
+Exabyte 8 mm drives use density codes to select compression.
+<DT>stoptions<DD>
+(SCSI tapes) Set the driver options bits for the device to the defined
+values. Allowed only for the superuser. The bits can be set
+either by ORing the option bits from the file /usr/include/linux/mtio.h to
+<I>count,</I>
+
+or by using the following keywords (as many keywords can be used on
+the same line as necessary, unambiguous abbreviations allowed):
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>buffer-writes<DD>
+buffered writes enabled
+<DT>async-writes<DD>
+asynchronous writes enabled
+<DT>read-ahead<DD>
+read-ahead for fixed block size
+<DT>debug<DD>
+debugging (if compiled into driver)
+<DT>two-fms<DD>
+write two filemarks when file closed
+<DT>fast-eod<DD>
+space directly to eod (and lose file number)
+<DT>no-wait<DD>
+don't wait until rewind, etc. complete
+<DT>auto-lock<DD>
+automatically lock/unlock drive door
+<DT>def-writes<DD>
+the block size and density are for writes
+<DT>can-bsr<DD>
+drive can space backwards as well
+<DT>no-blklimits<DD>
+drive doesn't support read block limits
+<DT>can-partitions<DD>
+drive can handle partitioned tapes
+<DT>scsi2logical<DD>
+seek and tell use SCSI-2 logical block addresses instead of device
+dependent addresses
+<DT>sysv<DD>
+enable the System V semantics
+</DL>
+</DL>
+
+<DT>stsetoptions<DD>
+(SCSI tapes) Set selected driver options bits.
+The methods to specify the bits to set are given above in the
+description of
+<B>stoptions.</B>
+
+Allowed only for the superuser.
+<DT>stclearoptions<DD>
+(SCSI tapes) Clear selected driver option bits.
+The methods to specify the bits to clear are given above in description of
+<B>stoptions.</B>
+
+Allowed only for the superuser.
+<DT>stwrthreshold<DD>
+(SCSI tapes) The write threshold for the tape device is set to
+<I>count</I>
+
+kilobytes. The value must be smaller than or equal to the driver
+buffer size. Allowed only for the superuser.
+<DT>defblksize<DD>
+(SCSI tapes) Set the default block size of the device to
+<I>count</I>
+
+bytes. The value -1 disables the default block size.
+The block size set by
+<I>setblk</I>
+
+overrides the default until a new tape is inserted.
+Allowed only for the superuser.
+<DT>defdensity<DD>
+(SCSI tapes) Set the default density code. The value -1 disables the
+default density. The density set by
+<I>setdensity</I>
+
+overrides the default until a new tape is inserted. Allowed only for the
+superuser.
+<DT>defdrvbuffer<DD>
+(SCSI tapes) Set the default drive buffer code. The value -1 disables the
+default drive buffer code. The drive buffer code set by
+<I>drvbuffer</I>
+
+overrides the default until a new tape is inserted. Allowed only for the
+superuser.
+<DT>defcompression<DD>
+(SCSI tapes) Set the default compression state. The value -1 disables the
+default compression. The compression state set by
+<I>compression</I>
+
+overrides the default until a new tape is inserted. Allowed only for the
+superuser.
+<DT>sttimeout<DD>
+sets the normal timeout for the device. The value is given in
+seconds. Allowed only for the superuser.
+<DT>stlongtimeout<DD>
+sets the long timeout for the device. The value is given in
+seconds. Allowed only for the superuser.
+<DT>stsetcln<DD>
+set the cleaning request interpretation parameters.
+</DL>
+<P>
+
+<B>mt</B>
+
+exits with a status of 0 if the operation succeeded, 1 if the
+operation or device name given was invalid, or 2 if the operation
+failed.
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+The program is written by Kai Makisara &lt;<A HREF="mailto:Kai.Makisara@kolumbus.fi">Kai.Makisara@kolumbus.fi</A>&gt;.
+<A NAME="lbAF">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+The program and the manual page are copyrighted by Kai Makisara, 1998-2004.
+They can be distributed according to the GNU Copyleft.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man4/st.4.php">st</A>(4)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">AUTHOR</A><DD>
+<DT><A HREF="#lbAF">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

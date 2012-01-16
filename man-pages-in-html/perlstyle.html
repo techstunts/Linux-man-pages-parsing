@@ -1,0 +1,424 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLSTYLE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLSTYLE</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlstyle - Perl style guide
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+Each programmer will, of course, have his or her own preferences in
+regards to formatting, but there are some general guidelines that will
+make your programs easier to read, understand, and maintain.
+<P>
+
+The most important thing is to run your programs under the <B>-w</B>
+flag at all times.  You may turn it off explicitly for particular
+portions of code via the <TT>&quot;no warnings&quot;</TT> pragma or the <TT>$^W</TT> variable 
+if you must.  You should also always run under <TT>&quot;use strict&quot;</TT> or know the
+reason why not.  The <TT>&quot;use sigtrap&quot;</TT> and even <TT>&quot;use diagnostics&quot;</TT> pragmas
+may also prove useful.
+<P>
+
+Regarding aesthetics of code lay out, about the only thing Larry
+cares strongly about is that the closing curly bracket of
+a multi-line <FONT SIZE="-1">BLOCK</FONT> should line up with the keyword that started the construct.
+Beyond that, he has other preferences that aren't so strong:
+<DL COMPACT>
+<DT>*<DD>
+4-column indent.
+<DT>*<DD>
+Opening curly on same line as keyword, if possible, otherwise line up.
+<DT>*<DD>
+Space before the opening curly of a multi-line <FONT SIZE="-1">BLOCK</FONT>.
+<DT>*<DD>
+One-line <FONT SIZE="-1">BLOCK</FONT> may be put on one line, including curlies.
+<DT>*<DD>
+No space before the semicolon.
+<DT>*<DD>
+Semicolon omitted in ``short'' one-line <FONT SIZE="-1">BLOCK</FONT>.
+<DT>*<DD>
+Space around most operators.
+<DT>*<DD>
+Space around a ``complex'' subscript (inside brackets).
+<DT>*<DD>
+Blank lines between chunks that do different things.
+<DT>*<DD>
+Uncuddled elses.
+<DT>*<DD>
+No space between function name and its opening parenthesis.
+<DT>*<DD>
+Space after each comma.
+<DT>*<DD>
+Long lines broken after an operator (except ``and'' and ``or'').
+<DT>*<DD>
+Space after last parenthesis matching on current line.
+<DT>*<DD>
+Line up corresponding items vertically.
+<DT>*<DD>
+Omit redundant punctuation as long as clarity doesn't suffer.
+</DL>
+<P>
+
+Larry has his reasons for each of these things, but he doesn't claim that
+everyone else's mind works the same as his does.
+<P>
+
+Here are some other more substantive style issues to think about:
+<DL COMPACT>
+<DT>*<DD>
+Just because you <I></I><FONT SIZE="-1"><I>CAN</I></FONT><I></I> do something a particular way doesn't mean that
+you <I></I><FONT SIZE="-1"><I>SHOULD</I></FONT><I></I> do it that way.  Perl is designed to give you several
+ways to do anything, so consider picking the most readable one.  For
+instance
+
+
+<P>
+
+
+
+
+<PRE>
+    open(FOO,$foo) || die &quot;Can't open $foo: $!&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+is better than
+
+
+<P>
+
+
+
+
+<PRE>
+    die &quot;Can't open $foo: $!&quot; unless open(FOO,$foo);
+
+</PRE>
+
+
+
+
+<P>
+
+
+because the second way hides the main point of the statement in a
+modifier.  On the other hand
+
+
+<P>
+
+
+
+
+<PRE>
+    print &quot;Starting analysis\n&quot; if $verbose;
+
+</PRE>
+
+
+
+
+<P>
+
+
+is better than
+
+
+<P>
+
+
+
+
+<PRE>
+    $verbose &amp;&amp; print &quot;Starting analysis\n&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+because the main point isn't whether the user typed <B>-v</B> or not.
+
+
+<P>
+
+
+Similarly, just because an operator lets you assume default arguments
+doesn't mean that you have to make use of the defaults.  The defaults
+are there for lazy systems programmers writing one-shot programs.  If
+you want your program to be readable, consider supplying the argument.
+
+
+<P>
+
+
+Along the same lines, just because you <I></I><FONT SIZE="-1"><I>CAN</I></FONT><I></I> omit parentheses in many
+places doesn't mean that you ought to:
+
+
+<P>
+
+
+
+
+<PRE>
+    return print reverse sort num values %array;
+    return print(reverse(sort num (values(%array))));
+
+</PRE>
+
+
+
+
+<P>
+
+
+When in doubt, parenthesize.  At the very least it will let some poor
+schmuck bounce on the % key in <B>vi</B>.
+
+
+<P>
+
+
+Even if you aren't in doubt, consider the mental welfare of the person
+who has to maintain the code after you, and who will probably put
+parentheses in the wrong place.
+<DT>*<DD>
+Don't go through silly contortions to exit a loop at the top or the
+bottom, when Perl provides the <TT>&quot;last&quot;</TT> operator so you can exit in
+the middle.  Just ``outdent'' it a little to make it more visible:
+
+
+<P>
+
+
+
+
+<PRE>
+    LINE:
+        for (;;) {
+            statements;
+          last LINE if $foo;
+            next LINE if /^#/;
+            statements;
+        }
+
+</PRE>
+
+
+<DT>*<DD>
+Don't be afraid to use loop labels---they're there to enhance
+readability as well as to allow multilevel loop breaks.  See the
+previous example.
+<DT>*<DD>
+Avoid using <I>grep()</I> (or <I>map()</I>) or `backticks` in a void context, that is,
+when you just throw away their return values.  Those functions all
+have return values, so use them.  Otherwise use a <I>foreach()</I> loop or
+the <I>system()</I> function instead.
+<DT>*<DD>
+For portability, when using features that may not be implemented on
+every machine, test the construct in an eval to see if it fails.  If
+you know what version or patchlevel a particular feature was
+implemented, you can test <TT>$]</TT> (<TT>$PERL_VERSION</TT> in <TT>&quot;English&quot;</TT>) to see if it
+will be there.  The <TT>&quot;Config&quot;</TT> module will also let you interrogate values
+determined by the <B>Configure</B> program when Perl was installed.
+<DT>*<DD>
+Choose mnemonic identifiers.  If you can't remember what mnemonic means,
+you've got a problem.
+<DT>*<DD>
+While short identifiers like <TT>$gotit</TT> are probably ok, use underscores to
+separate words.  It is generally easier to read <TT>$var_names_like_this</TT> than
+<TT>$VarNamesLikeThis</TT>, especially for non-native speakers of English. It's
+also a simple rule that works consistently with <FONT SIZE="-1">VAR_NAMES_LIKE_THIS</FONT>.
+
+
+<P>
+
+
+Package names are sometimes an exception to this rule.  Perl informally
+reserves lowercase module names for ``pragma'' modules like <TT>&quot;integer&quot;</TT> and
+<TT>&quot;strict&quot;</TT>.  Other modules should begin with a capital letter and use mixed
+case, but probably without underscores due to limitations in primitive
+file systems' representations of module names as files that must fit into a
+few sparse bytes.
+<DT>*<DD>
+You may find it helpful to use letter case to indicate the scope
+or nature of a variable. For example:
+
+
+<P>
+
+
+
+
+<PRE>
+    $ALL_CAPS_HERE   constants only (beware clashes with perl vars!)
+    $Some_Caps_Here  package-wide global/static
+    $no_caps_here    function scope my() or local() variables
+
+</PRE>
+
+
+
+
+<P>
+
+
+Function and method names seem to work best as all lowercase.
+E.g., <TT>$obj</TT>-&gt;<I>as_string()</I>.
+
+
+<P>
+
+
+You can use a leading underscore to indicate that a variable or
+function should not be used outside the package that defined it.
+<DT>*<DD>
+If you have a really hairy regular expression, use the <TT>&quot;/x&quot;</TT> modifier and
+put in some whitespace to make it look a little less like line noise.
+Don't use slash as a delimiter when your regexp has slashes or backslashes.
+<DT>*<DD>
+Use the new ``and'' and ``or'' operators to avoid having to parenthesize
+list operators so much, and to reduce the incidence of punctuation
+operators like <TT>&quot;&amp;&amp;&quot;</TT> and <TT>&quot;||&quot;</TT>.  Call your subroutines as if they were
+functions or list operators to avoid excessive ampersands and parentheses.
+<DT>*<DD>
+Use here documents instead of repeated <I>print()</I> statements.
+<DT>*<DD>
+Line up corresponding things vertically, especially if it'd be too long
+to fit on one line anyway.
+
+
+<P>
+
+
+
+
+<PRE>
+    $IDX = $ST_MTIME;
+    $IDX = $ST_ATIME       if $opt_u;
+    $IDX = $ST_CTIME       if $opt_c;
+    $IDX = $ST_SIZE        if $opt_s;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    mkdir $tmpdir, 0700 or die &quot;can't mkdir $tmpdir: $!&quot;;
+    chdir($tmpdir)      or die &quot;can't chdir $tmpdir: $!&quot;;
+    mkdir 'tmp',   0777 or die &quot;can't mkdir $tmpdir/tmp: $!&quot;;
+
+</PRE>
+
+
+<DT>*<DD>
+Always check the return codes of system calls.  Good error messages should
+go to <FONT SIZE="-1">STDERR</FONT>, include which program caused the problem, what the failed
+system call and arguments were, and (<FONT SIZE="-1">VERY</FONT> <FONT SIZE="-1">IMPORTANT</FONT>) should contain the
+standard system error message for what went wrong.  Here's a simple but
+sufficient example:
+
+
+<P>
+
+
+
+
+<PRE>
+    opendir(D, $dir)     or die &quot;can't opendir $dir: $!&quot;;
+
+</PRE>
+
+
+<DT>*<DD>
+Line up your transliterations when it makes sense:
+
+
+<P>
+
+
+
+
+<PRE>
+    tr [abc]
+       [xyz];
+
+</PRE>
+
+
+<DT>*<DD>
+Think about reusability.  Why waste brainpower on a one-shot when you
+might want to do something like it again?  Consider generalizing your
+code.  Consider writing a module or object class.  Consider making your
+code run cleanly with <TT>&quot;use strict&quot;</TT> and <TT>&quot;use warnings&quot;</TT> (or <B>-w</B>) in
+effect.  Consider giving away your code.  Consider changing your whole
+world view.  Consider... oh, never mind.
+<DT>*<DD>
+Be consistent.
+<DT>*<DD>
+Be nice.
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

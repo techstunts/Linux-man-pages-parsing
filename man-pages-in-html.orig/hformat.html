@@ -1,0 +1,216 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>HFORMAT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>HFORMAT</H1>
+Section: User Commands  (1)<BR>Updated: 08-Nov-1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+hformat - create a new HFS filesystem and make it current
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+hformat
+[-f] [-l
+<I>label</I>]
+
+<I>destination-path</I>
+
+[<I>partition-no</I>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>hformat</B>
+
+is used to write a new HFS filesystem to a volume. A UNIX pathname to the
+volume's destination must be specified. The destination may be either a block
+device or a regular file, but it must already exist and be writable.
+<P>
+
+An optional label can be specified to name the volume. The name must be
+between 1-27 characters and cannot contain a colon (:). By default, the volume
+will be named
+<B>Untitled</B>.
+
+<P>
+
+If the destination medium is partitioned, one partition must be selected to
+receive the filesystem. If there is only one HFS partition on the medium, it
+will be selected by default. Otherwise, the desired partition number must be
+specified (as the ordinal
+<I>n</I>th
+
+HFS partition) on the command-line. The size of the partition determines the
+size of the resulting volume.
+<P>
+
+Partition number
+<B>0</B>
+
+can be specified to format the entire medium as a single filesystem without a
+partition map, erasing any existing partition information. Since this will
+destroy all the partitions, the
+<B>-f</B>
+
+option must be specified to force this operation if the medium currently
+contains a partition map.
+<P>
+
+If the medium is not partitioned (or if partition 0 is specified), the size or
+capacity of the medium determines the size of the resulting volume.
+<P>
+
+The new volume will be empty and will become &quot;current&quot; so subsequent commands
+will refer to it. The current working directory for the volume is set to the
+root of the volume.
+<A NAME="lbAE">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+
+<DL COMPACT>
+<DT>% hformat /dev/fd0<DD>
+If a floppy disk is available as
+<B>/dev/fd0</B>,
+
+this formats the disk as an HFS volume named
+<B>Untitled</B>.
+
+(N.B. The floppy must already have received a low-level format by other
+means.)
+<DT>% dd if=/dev/zero of=disk.hfs bs=1k count=800<DD>
+
+<DT>% hformat -l &quot;Test Disk&quot; disk.hfs<DD>
+
+This sequence creates an 800K HFS volume image in the file
+<B>disk.hfs</B>
+
+in the current directory, and names it
+<B>Test Disk</B>.
+
+<DT>% hformat -l &quot;Loma Prieta&quot; /dev/sd2 1<DD>
+If a SCSI disk is available as
+<B>/dev/sd2</B>,
+
+this initializes the first HFS partition on the disk (which must already
+exist) with a new filesystem, naming the resulting volume
+<B>Loma Prieta</B>.
+
+<DT>% hformat -f /dev/sd2 0<DD>
+This causes the medium accessible as
+<B>/dev/sd2</B>
+
+to be reformatted as a single HFS volume, ignoring and erasing any existing
+partition information on the medium. The
+<B>-f</B>
+
+option must be specified if the medium is currently partitioned; otherwise the
+command will fail.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+This command does not create or alter partition maps, although it can erase
+them (as described above). Any partition number specified on the command line
+must already exist.
+<P>
+
+The smallest volume size which can be formatted with
+<B>hformat</B>
+
+is 800K.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/hfsutils.1.php">hfsutils</A>(1), <A HREF="../man1/hmount.1.php">hmount</A>(1)
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+$HOME/.hcwd
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Robert Leslie &lt;<A HREF="mailto:rob@mars.org">rob@mars.org</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EXAMPLES</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

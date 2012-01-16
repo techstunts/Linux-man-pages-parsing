@@ -1,0 +1,300 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CA.PL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CA.PL</H1>
+Section: OpenSSL (1)<BR>Updated: 2001-01-11<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+CA.pl - friendlier interface for OpenSSL certificate programs
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B></B><FONT SIZE="-1"><B>CA</B></FONT><B>.pl</B>
+[<B>-?</B>]
+[<B>-h</B>]
+[<B>-help</B>]
+[<B>-newcert</B>]
+[<B>-newreq</B>]
+[<B>-newreq-nodes</B>]
+[<B>-newca</B>]
+[<B>-xsign</B>]
+[<B>-sign</B>]
+[<B>-signreq</B>]
+[<B>-signcert</B>]
+[<B>-verify</B>]
+[<B>files</B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The <B></B><FONT SIZE="-1"><B>CA</B></FONT><B>.pl</B> script is a perl script that supplies the relevant command line
+arguments to the <B>openssl</B> command for some common certificate operations.
+It is intended to simplify the process of certificate creation and management
+by the use of some simple options.
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMAND OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>?</B>, <B>-h</B>, <B>-help</B><DD>
+<A NAME="ixAAF"></A>
+prints a usage message.
+<DT><B>-newcert</B><DD>
+<A NAME="ixAAG"></A>
+creates a new self signed certificate. The private key and certificate are
+written to the file ``newreq.pem''.
+<DT><B>-newreq</B><DD>
+<A NAME="ixAAH"></A>
+creates a new certificate request. The private key and request are
+written to the file ``newreq.pem''.
+<DT><B>-newreq-nowdes</B><DD>
+<A NAME="ixAAI"></A>
+is like <B>-newreq</B> except that the private key will not be encrypted.
+<DT><B>-newca</B><DD>
+<A NAME="ixAAJ"></A>
+creates a new <FONT SIZE="-1">CA</FONT> hierarchy for use with the <B>ca</B> program (or the <B>-signcert</B>
+and <B>-xsign</B> options). The user is prompted to enter the filename of the <FONT SIZE="-1">CA</FONT>
+certificates (which should also contain the private key) or by hitting <FONT SIZE="-1">ENTER</FONT>
+details of the <FONT SIZE="-1">CA</FONT> will be prompted for. The relevant files and directories
+are created in a directory called ``demoCA'' in the current directory.
+<DT><B>-pkcs12</B><DD>
+<A NAME="ixAAK"></A>
+create a PKCS#12 file containing the user certificate, private key and <FONT SIZE="-1">CA</FONT>
+certificate. It expects the user certificate and private key to be in the
+file ``newcert.pem'' and the <FONT SIZE="-1">CA</FONT> certificate to be in the file demoCA/cacert.pem,
+it creates a file ``newcert.p12''. This command can thus be called after the
+<B>-sign</B> option. The PKCS#12 file can be imported directly into a browser.
+If there is an additional argument on the command line it will be used as the
+``friendly name'' for the certificate (which is typically displayed in the browser
+list box), otherwise the name ``My Certificate'' is used.
+<DT><B>-sign</B>, <B>-signreq</B>, <B>-xsign</B><DD>
+<A NAME="ixAAL"></A>
+calls the <B>ca</B> program to sign a certificate request. It expects the request
+to be in the file ``newreq.pem''. The new certificate is written to the file
+``newcert.pem'' except in the case of the <B>-xsign</B> option when it is written
+to standard output.
+<DT><B>-signCA</B><DD>
+<A NAME="ixAAM"></A>
+this option is the same as the <B>-signreq</B> option except it uses the configuration
+file section <B>v3_ca</B> and so makes the signed request a valid <FONT SIZE="-1">CA</FONT> certificate. This
+is useful when creating intermediate <FONT SIZE="-1">CA</FONT> from a root <FONT SIZE="-1">CA</FONT>.
+<DT><B>-signcert</B><DD>
+<A NAME="ixAAN"></A>
+this option is the same as <B>-sign</B> except it expects a self signed certificate
+to be present in the file ``newreq.pem''.
+<DT><B>-verify</B><DD>
+<A NAME="ixAAO"></A>
+verifies certificates against the <FONT SIZE="-1">CA</FONT> certificate for ``demoCA''. If no certificates
+are specified on the command line it tries to verify the file ``newcert.pem''. 
+<DT><B>files</B><DD>
+<A NAME="ixAAP"></A>
+one or more optional certificate file names for use with the <B>-verify</B> command.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAQ"></A>
+Create a <FONT SIZE="-1">CA</FONT> hierarchy:
+<P>
+
+
+
+<PRE>
+ CA.pl -newca
+
+</PRE>
+
+
+<P>
+
+Complete certificate creation example: create a <FONT SIZE="-1">CA</FONT>, create a request, sign
+the request and finally create a PKCS#12 file containing it.
+<P>
+
+
+
+<PRE>
+ CA.pl -newca
+ CA.pl -newreq
+ CA.pl -signreq
+ CA.pl -pkcs12 &quot;My Test Certificate&quot;
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>DSA CERTIFICATES</H2>
+
+<A NAME="ixAAR"></A>
+Although the <B></B><FONT SIZE="-1"><B>CA</B></FONT><B>.pl</B> creates <FONT SIZE="-1">RSA</FONT> CAs and requests it is still possible to
+use it with <FONT SIZE="-1">DSA</FONT> certificates and requests using the <I><A HREF="../man1/req.1.php">req</A></I>(1) command
+directly. The following example shows the steps that would typically be taken.
+<P>
+
+Create some <FONT SIZE="-1">DSA</FONT> parameters:
+<P>
+
+
+
+<PRE>
+ openssl dsaparam -out dsap.pem 1024
+
+</PRE>
+
+
+<P>
+
+Create a <FONT SIZE="-1">DSA</FONT> <FONT SIZE="-1">CA</FONT> certificate and private key:
+<P>
+
+
+
+<PRE>
+ openssl req -x509 -newkey dsa:dsap.pem -keyout cacert.pem -out cacert.pem
+
+</PRE>
+
+
+<P>
+
+Create the <FONT SIZE="-1">CA</FONT> directories and files:
+<P>
+
+
+
+<PRE>
+ CA.pl -newca
+
+</PRE>
+
+
+<P>
+
+enter cacert.pem when prompted for the <FONT SIZE="-1">CA</FONT> file name.
+<P>
+
+Create a <FONT SIZE="-1">DSA</FONT> certificate request and private key (a different set of parameters
+can optionally be created first):
+<P>
+
+
+
+<PRE>
+ openssl req -out newreq.pem -newkey dsa:dsap.pem
+
+</PRE>
+
+
+<P>
+
+Sign the request:
+<P>
+
+
+
+<PRE>
+ CA.pl -signreq
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixAAS"></A>
+Most of the filenames mentioned can be modified by editing the <B></B><FONT SIZE="-1"><B>CA</B></FONT><B>.pl</B> script.
+<P>
+
+If the demoCA directory already exists then the <B>-newca</B> command will not
+overwrite it and will do nothing. This can happen if a previous call using
+the <B>-newca</B> option terminated abnormally. To get the correct behaviour
+delete the demoCA directory if it already exists.
+<P>
+
+Under some environments it may not be possible to run the <B></B><FONT SIZE="-1"><B>CA</B></FONT><B>.pl</B> script
+directly (for example Win32) and the default configuration file location may
+be wrong. In this case the command:
+<P>
+
+
+
+<PRE>
+ perl -S CA.pl
+
+</PRE>
+
+
+<P>
+
+can be used and the <B></B><FONT SIZE="-1"><B>OPENSSL_CONF</B></FONT><B></B> environment variable changed to point to 
+the correct path of the configuration file ``openssl.cnf''.
+<P>
+
+The script is intended as a simple front end for the <B>openssl</B> program for use
+by a beginner. Its behaviour isn't always what is wanted. For more control over the
+behaviour of the certificate commands call the <B>openssl</B> command directly.
+<A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<A NAME="ixAAT"></A>
+The variable <B></B><FONT SIZE="-1"><B>OPENSSL_CONF</B></FONT><B></B> if defined allows an alternative configuration
+file location to be specified, it should contain the full path to the
+configuration file, not just its directory.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAU"></A>
+<I><A HREF="../man1/x509.1.php">x509</A></I>(1), <I><A HREF="../man1/ca.1.php">ca</A></I>(1), <I><A HREF="../man1/req.1.php">req</A></I>(1), <I><A HREF="../man1/pkcs12.1.php">pkcs12</A></I>(1),
+<I><A HREF="../man5/config.5.php">config</A></I>(5)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMAND OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">DSA CERTIFICATES</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

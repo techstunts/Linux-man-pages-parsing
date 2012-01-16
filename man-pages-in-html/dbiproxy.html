@@ -1,0 +1,262 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DBIPROXY</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DBIPROXY</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-06-15<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dbiproxy - A proxy server for the DBD::Proxy driver
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+    dbiproxy &lt;options&gt; --port &lt;port&gt;
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This tool is just a front end for the DBI::ProxyServer package. All it
+does is picking options from the command line and calling
+<I>DBI::ProxyServer::main()</I>. See <I>DBI::<A HREF="../man3/ProxyServer.3.php">ProxyServer</A></I>(3) for details.
+<P>
+
+Available options include:
+<DL COMPACT>
+<DT><B>--chroot=dir</B><DD>
+<A NAME="ixAAE"></A>
+(<FONT SIZE="-1">UNIX</FONT> only)  After doing a <I>bind()</I>, change root directory to the given
+directory by doing a <I>chroot()</I>. This is usefull for security, but it
+restricts the environment a lot. For example, you need to load <FONT SIZE="-1">DBI</FONT>
+drivers in the config file or you have to create hard links to Unix
+sockets, if your drivers are using them. For example, with MySQL, a
+config file might contain the following lines:
+
+
+<P>
+
+
+
+
+<PRE>
+    my $rootdir = '/var/dbiproxy';
+    my $unixsockdir = '/tmp';
+    my $unixsockfile = 'mysql.sock';
+    foreach $dir ($rootdir, &quot;$rootdir$unixsockdir&quot;) {
+        mkdir 0755, $dir;
+    }
+    link(&quot;$unixsockdir/$unixsockfile&quot;,
+         &quot;$rootdir$unixsockdir/$unixsockfile&quot;);
+    require DBD::mysql;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    {
+        'chroot' =&gt; $rootdir,
+        ...
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+If you don't know <I>chroot()</I>, think of an <FONT SIZE="-1">FTP</FONT> server where you can see a
+certain directory tree only after logging in. See also the --group and
+--user options.
+<DT><B>--configfile=file</B><DD>
+<A NAME="ixAAF"></A>
+Config files are assumed to return a single hash ref that overrides the
+arguments of the new method. However, command line arguments in turn take
+precedence over the config file. See the ``<FONT SIZE="-1">CONFIGURATION</FONT> <FONT SIZE="-1">FILE</FONT>'' section
+below for details on the config file.
+<DT><B>--debug</B><DD>
+<A NAME="ixAAG"></A>
+Turn debugging mode on. Mainly this asserts that logging messages of
+level ``debug'' are created.
+<DT><B>--facility=mode</B><DD>
+<A NAME="ixAAH"></A>
+(<FONT SIZE="-1">UNIX</FONT> only) Facility to use for ``Sys::Syslog (3)''. The default is
+<B>daemon</B>.
+<DT><B>--group=gid</B><DD>
+<A NAME="ixAAI"></A>
+After doing a <I>bind()</I>, change the real and effective <FONT SIZE="-1">GID</FONT> to the given.
+This is usefull, if you want your server to bind to a privileged port
+(&lt;1024), but don't want the server to execute as root. See also
+the --user option.
+
+
+<P>
+
+
+<FONT SIZE="-1">GID</FONT>'s can be passed as group names or numeric values.
+<DT><B>--localaddr=ip</B><DD>
+<A NAME="ixAAJ"></A>
+By default a daemon is listening to any <FONT SIZE="-1">IP</FONT> number that a machine
+has. This attribute allows to restrict the server to the given
+<FONT SIZE="-1">IP</FONT> number.
+<DT><B>--localport=port</B><DD>
+<A NAME="ixAAK"></A>
+This attribute sets the port on which the daemon is listening. It
+must be given somehow, as there's no default.
+<DT><B>--logfile=file</B><DD>
+<A NAME="ixAAL"></A>
+Be default logging messages will be written to the syslog (Unix) or
+to the event log (Windows <FONT SIZE="-1">NT</FONT>). On other operating systems you need to
+specify a log file. The special value ``<FONT SIZE="-1">STDERR</FONT>'' forces logging to
+stderr. See <I>Net::Daemon::<A HREF="../man3/Log.3.php">Log</A></I>(3) for details.
+<DT><B>--mode=modename</B><DD>
+<A NAME="ixAAM"></A>
+The server can run in three different modes, depending on the environment.
+
+
+<P>
+
+
+If you are running Perl 5.005 and did compile it for threads, then the
+server will create a new thread for each connection. The thread will
+execute the server's <I>Run()</I> method and then terminate. This mode is the
+default, you can force it with ``--mode=threads''.
+
+
+<P>
+
+
+If threads are not available, but you have a working <I>fork()</I>, then the
+server will behave similar by creating a new process for each connection.
+This mode will be used automatically in the absence of threads or if
+you use the ``--mode=fork'' option.
+
+
+<P>
+
+
+Finally there's a single-connection mode: If the server has accepted a
+connection, he will enter the <I>Run()</I> method. No other connections are
+accepted until the <I>Run()</I> method returns (if the client disconnects).
+This operation mode is usefull if you have neither threads nor <I>fork()</I>,
+for example on the Macintosh. For debugging purposes you can force this
+mode with ``--mode=single''.
+<DT><B>--pidfile=file</B><DD>
+<A NAME="ixAAN"></A>
+(<FONT SIZE="-1">UNIX</FONT> only) If this option is present, a <FONT SIZE="-1">PID</FONT> file will be created at the
+given location.
+<DT><B>--user=uid</B><DD>
+<A NAME="ixAAO"></A>
+After doing a <I>bind()</I>, change the real and effective <FONT SIZE="-1">UID</FONT> to the given.
+This is usefull, if you want your server to bind to a privileged port
+(&lt;1024), but don't want the server to execute as root. See also
+the --group and the --chroot options.
+
+
+<P>
+
+
+<FONT SIZE="-1">UID</FONT>'s can be passed as group names or numeric values.
+<DT><B>--version</B><DD>
+<A NAME="ixAAP"></A>
+Supresses startup of the server; instead the version string will
+be printed and the program exits immediately.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAQ"></A>
+
+
+<PRE>
+    Copyright (c) 1997    Jochen Wiedmann
+                          Am Eisteich 9
+                          72555 Metzingen
+                          Germany
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+                          Email: <A HREF="mailto:joe@ispsoft.de">joe@ispsoft.de</A>
+                          Phone: +49 7123 14881
+
+</PRE>
+
+
+<P>
+
+The DBI::ProxyServer module is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself. In particular
+permission is granted to Tim Bunce for distributing this as a part of
+the <FONT SIZE="-1">DBI</FONT>.
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAR"></A>
+<I>DBI::<A HREF="../man3/ProxyServer.3.php">ProxyServer</A></I>(3), <I>DBD::<A HREF="../man3/Proxy.3.php">Proxy</A></I>(3), <FONT SIZE="-1"><I><A HREF="../man3/DBI.3.php">DBI</A></I></FONT><I></I>(3)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">AUTHOR</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1333 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLSYN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLSYN</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlsyn - Perl syntax
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+A Perl program consists of a sequence of declarations and statements
+which run from the top to the bottom.  Loops, subroutines and other
+control structures allow you to jump around within the code.
+<P>
+
+Perl is a <B>free-form</B> language, you can format and indent it however
+you like.  Whitespace mostly serves to separate tokens, unlike
+languages like Python where it is an important part of the syntax.
+<P>
+
+Many of Perl's syntactic elements are <B>optional</B>.  Rather than
+requiring you to put parentheses around every function call and
+declare every variable, you can often leave such explicit elements off
+and Perl will figure out what you meant.  This is known as <B>Do What I
+Mean</B>, abbreviated <B></B><FONT SIZE="-1"><B>DWIM</B></FONT><B></B>.  It allows programmers to be <B>lazy</B> and to
+code in a style with which they are comfortable.
+<P>
+
+Perl <B>borrows syntax</B> and concepts from many languages: awk, sed, C,
+Bourne Shell, Smalltalk, Lisp and even English.  Other
+languages have borrowed syntax from Perl, particularly its regular
+expression extensions.  So if you have programmed in another language
+you will see familiar pieces in Perl.  They often work the same, but
+see perltrap for information about how they differ.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Declarations</H2>
+
+<A NAME="ixAAD"></A>
+The only things you need to declare in Perl are report formats and
+subroutines (and sometimes not even subroutines).  A variable holds
+the undefined value (<TT>&quot;undef&quot;</TT>) until it has been assigned a defined
+value, which is anything other than <TT>&quot;undef&quot;</TT>.  When used as a number,
+<TT>&quot;undef&quot;</TT> is treated as <TT>0</TT>; when used as a string, it is treated as
+the empty string, <TT>&quot;&quot;</TT>; and when used as a reference that isn't being
+assigned to, it is treated as an error.  If you enable warnings,
+you'll be notified of an uninitialized value whenever you treat
+<TT>&quot;undef&quot;</TT> as a string or a number.  Well, usually.  Boolean contexts,
+such as:
+<P>
+
+
+
+<PRE>
+    my $a;
+    if ($a) {}
+
+</PRE>
+
+
+<P>
+
+are exempt from warnings (because they care about truth rather than
+definedness).  Operators such as <TT>&quot;++&quot;</TT>, <TT>&quot;--&quot;</TT>, <TT>&quot;+=&quot;</TT>,
+<TT>&quot;-=&quot;</TT>, and <TT>&quot;.=&quot;</TT>, that operate on undefined left values such as:
+<P>
+
+
+
+<PRE>
+    my $a;
+    $a++;
+
+</PRE>
+
+
+<P>
+
+are also always exempt from such warnings.
+<P>
+
+A declaration can be put anywhere a statement can, but has no effect on
+the execution of the primary sequence of statements---declarations all
+take effect at compile time.  Typically all the declarations are put at
+the beginning or the end of the script.  However, if you're using
+lexically-scoped private variables created with <TT>&quot;my()&quot;</TT>, you'll
+have to make sure
+your format or subroutine definition is within the same block scope
+as the my if you expect to be able to access those private variables.
+<P>
+
+Declaring a subroutine allows a subroutine name to be used as if it were a
+list operator from that point forward in the program.  You can declare a
+subroutine without defining it by saying <TT>&quot;sub name&quot;</TT>, thus:
+<P>
+
+
+
+<PRE>
+    sub myname;
+    $me = myname $0             or die &quot;can't get myname&quot;;
+
+</PRE>
+
+
+<P>
+
+Note that <I>myname()</I> functions as a list operator, not as a unary operator;
+so be careful to use <TT>&quot;or&quot;</TT> instead of <TT>&quot;||&quot;</TT> in this case.  However, if
+you were to declare the subroutine as <TT>&quot;sub myname ($)&quot;</TT>, then
+<TT>&quot;myname&quot;</TT> would function as a unary operator, so either <TT>&quot;or&quot;</TT> or
+<TT>&quot;||&quot;</TT> would work.
+<P>
+
+Subroutines declarations can also be loaded up with the <TT>&quot;require&quot;</TT> statement
+or both loaded and imported into your namespace with a <TT>&quot;use&quot;</TT> statement.
+See perlmod for details on this.
+<P>
+
+A statement sequence may contain declarations of lexically-scoped
+variables, but apart from declaring a variable name, the declaration acts
+like an ordinary statement, and is elaborated within the sequence of
+statements as if it were an ordinary statement.  That means it actually
+has both compile-time and run-time effects.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Comments</H2>
+
+<A NAME="ixAAE"></A>
+Text from a <TT>&quot;#&quot;</TT> character until the end of the line is a comment,
+and is ignored.  Exceptions include <TT>&quot;#&quot;</TT> inside a string or regular
+expression.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Simple Statements</H2>
+
+<A NAME="ixAAF"></A>
+The only kind of simple statement is an expression evaluated for its
+side effects.  Every simple statement must be terminated with a
+semicolon, unless it is the final statement in a block, in which case
+the semicolon is optional.  (A semicolon is still encouraged if the
+block takes up more than one line, because you may eventually add
+another line.)  Note that there are some operators like <TT>&quot;eval {}&quot;</TT> and
+<TT>&quot;do {}&quot;</TT> that look like compound statements, but aren't (they're just
+TERMs in an expression), and thus need an explicit termination if used
+as the last item in a statement.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Truth and Falsehood</H2>
+
+<A NAME="ixAAG"></A>
+The number 0, the strings <TT>'0'</TT> and <TT>''</TT>, the empty list <TT>&quot;()&quot;</TT>, and
+<TT>&quot;undef&quot;</TT> are all false in a boolean context. All other values are true.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Statement Modifiers</H2>
+
+<A NAME="ixAAH"></A>
+Any simple statement may optionally be followed by a <I></I><FONT SIZE="-1"><I>SINGLE</I></FONT><I></I> modifier,
+just before the terminating semicolon (or block ending).  The possible
+modifiers are:
+<P>
+
+
+
+<PRE>
+    if EXPR
+    unless EXPR
+    while EXPR
+    until EXPR
+    foreach LIST
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;EXPR&quot;</TT> following the modifier is referred to as the ``condition''.
+Its truth or falsehood determines how the modifier will behave.
+<P>
+
+<TT>&quot;if&quot;</TT> executes the statement once <I>if</I> and only if the condition is
+true.  <TT>&quot;unless&quot;</TT> is the opposite, it executes the statement <I>unless</I>
+the condition is true (i.e., if the condition is false).
+<P>
+
+
+
+<PRE>
+    print &quot;Basset hounds got long ears&quot; if length $ear &gt;= 10;
+    go_outside() and play() unless $is_raining;
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;foreach&quot;</TT> modifier is an iterator: it executes the statement once
+for each item in the <FONT SIZE="-1">LIST</FONT> (with <TT>$_</TT> aliased to each item in turn).
+<P>
+
+
+
+<PRE>
+    print &quot;Hello $_!\n&quot; foreach qw(world Dolly nurse);
+
+</PRE>
+
+
+<P>
+
+<TT>&quot;while&quot;</TT> repeats the statement <I>while</I> the condition is true.
+<TT>&quot;until&quot;</TT> does the opposite, it repeats the statement <I>until</I> the
+condition is true (or while the condition is false):
+<P>
+
+
+
+<PRE>
+    # Both of these count from 0 to 10.
+    print $i++ while $i &lt;= 10;
+    print $j++ until $j &gt;  10;
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;while&quot;</TT> and <TT>&quot;until&quot;</TT> modifiers have the usual &quot;<TT>&quot;while&quot;</TT> loop&quot;
+semantics (conditional evaluated first), except when applied to a
+<TT>&quot;do&quot;</TT>-BLOCK (or to the deprecated <TT>&quot;do&quot;</TT>-SUBROUTINE statement), in
+which case the block executes once before the conditional is
+evaluated.  This is so that you can write loops like:
+<P>
+
+
+
+<PRE>
+    do {
+        $line = &lt;STDIN&gt;;
+        ...
+    } until $line  eq &quot;.\n&quot;;
+
+</PRE>
+
+
+<P>
+
+See ``do'' in perlfunc.  Note also that the loop control statements described
+later will <I></I><FONT SIZE="-1"><I>NOT</I></FONT><I></I> work in this construct, because modifiers don't take
+loop labels.  Sorry.  You can always put another block inside of it
+(for <TT>&quot;next&quot;</TT>) or around it (for <TT>&quot;last&quot;</TT>) to do that sort of thing.
+For <TT>&quot;next&quot;</TT>, just double the braces:
+<P>
+
+
+
+<PRE>
+    do {{
+        next if $x == $y;
+        # do something here
+    }} until $x++ &gt; $z;
+
+</PRE>
+
+
+<P>
+
+For <TT>&quot;last&quot;</TT>, you have to be more elaborate:
+<P>
+
+
+
+<PRE>
+    LOOP: { 
+            do {
+                last if $x = $y**2;
+                # do something here
+            } while $x++ &lt;= $z;
+    }
+
+</PRE>
+
+
+<P>
+
+<B></B><FONT SIZE="-1"><B>NOTE:</B></FONT><B></B> The behaviour of a <TT>&quot;my&quot;</TT> statement modified with a statement
+modifier conditional or loop construct (e.g. <TT>&quot;my $x if ...&quot;</TT>) is
+<B>undefined</B>.  The value of the <TT>&quot;my&quot;</TT> variable may be <TT>&quot;undef&quot;</TT>, any
+previously assigned value, or possibly anything else.  Don't rely on
+it.  Future versions of perl might do something different from the
+version of perl you try it out on.  Here be dragons.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Compound Statements</H2>
+
+<A NAME="ixAAI"></A>
+In Perl, a sequence of statements that defines a scope is called a block.
+Sometimes a block is delimited by the file containing it (in the case
+of a required file, or the program as a whole), and sometimes a block
+is delimited by the extent of a string (in the case of an eval).
+<P>
+
+But generally, a block is delimited by curly brackets, also known as braces.
+We will call this syntactic construct a <FONT SIZE="-1">BLOCK</FONT>.
+<P>
+
+The following compound statements may be used to control flow:
+<P>
+
+
+
+<PRE>
+    if (EXPR) BLOCK
+    if (EXPR) BLOCK else BLOCK
+    if (EXPR) BLOCK elsif (EXPR) BLOCK ... else BLOCK
+    LABEL while (EXPR) BLOCK
+    LABEL while (EXPR) BLOCK continue BLOCK
+    LABEL for (EXPR; EXPR; EXPR) BLOCK
+    LABEL foreach VAR (LIST) BLOCK
+    LABEL foreach VAR (LIST) BLOCK continue BLOCK
+    LABEL BLOCK continue BLOCK
+
+</PRE>
+
+
+<P>
+
+Note that, unlike C and Pascal, these are defined in terms of BLOCKs,
+not statements.  This means that the curly brackets are <I>required</I>--no
+dangling statements allowed.  If you want to write conditionals without
+curly brackets there are several other ways to do it.  The following
+all do the same thing:
+<P>
+
+
+
+<PRE>
+    if (!open(FOO)) { die &quot;Can't open $FOO: $!&quot;; }
+    die &quot;Can't open $FOO: $!&quot; unless open(FOO);
+    open(FOO) or die &quot;Can't open $FOO: $!&quot;;     # FOO or bust!
+    open(FOO) ? 'hi mom' : die &quot;Can't open $FOO: $!&quot;;
+                        # a bit exotic, that last one
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;if&quot;</TT> statement is straightforward.  Because BLOCKs are always
+bounded by curly brackets, there is never any ambiguity about which
+<TT>&quot;if&quot;</TT> an <TT>&quot;else&quot;</TT> goes with.  If you use <TT>&quot;unless&quot;</TT> in place of <TT>&quot;if&quot;</TT>,
+the sense of the test is reversed.
+<P>
+
+The <TT>&quot;while&quot;</TT> statement executes the block as long as the expression is
+true (does not evaluate to the null string <TT>&quot;&quot;</TT> or <TT>0</TT> or <TT>&quot;0&quot;</TT>).
+The <FONT SIZE="-1">LABEL</FONT> is optional, and if present, consists of an identifier followed
+by a colon.  The <FONT SIZE="-1">LABEL</FONT> identifies the loop for the loop control
+statements <TT>&quot;next&quot;</TT>, <TT>&quot;last&quot;</TT>, and <TT>&quot;redo&quot;</TT>.
+If the <FONT SIZE="-1">LABEL</FONT> is omitted, the loop control statement
+refers to the innermost enclosing loop.  This may include dynamically
+looking back your call-stack at run time to find the <FONT SIZE="-1">LABEL</FONT>.  Such
+desperate behavior triggers a warning if you use the <TT>&quot;use warnings&quot;</TT>
+pragma or the <B>-w</B> flag.
+<P>
+
+If there is a <TT>&quot;continue&quot;</TT> <FONT SIZE="-1">BLOCK</FONT>, it is always executed just before the
+conditional is about to be evaluated again.  Thus it can be used to
+increment a loop variable, even when the loop has been continued via
+the <TT>&quot;next&quot;</TT> statement.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Loop Control</H2>
+
+<A NAME="ixAAJ"></A>
+The <TT>&quot;next&quot;</TT> command starts the next iteration of the loop:
+<P>
+
+
+
+<PRE>
+    LINE: while (&lt;STDIN&gt;) {
+        next LINE if /^#/;      # discard comments
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;last&quot;</TT> command immediately exits the loop in question.  The
+<TT>&quot;continue&quot;</TT> block, if any, is not executed:
+<P>
+
+
+
+<PRE>
+    LINE: while (&lt;STDIN&gt;) {
+        last LINE if /^$/;      # exit when done with header
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;redo&quot;</TT> command restarts the loop block without evaluating the
+conditional again.  The <TT>&quot;continue&quot;</TT> block, if any, is <I>not</I> executed.
+This command is normally used by programs that want to lie to themselves
+about what was just input.
+<P>
+
+For example, when processing a file like <I>/etc/termcap</I>.
+If your input lines might end in backslashes to indicate continuation, you
+want to skip ahead and get the next record.
+<P>
+
+
+
+<PRE>
+    while (&lt;&gt;) {
+        chomp;
+        if (s/\\$//) {
+            $_ .= &lt;&gt;;
+            redo unless eof();
+        }
+        # now process $_
+    }
+
+</PRE>
+
+
+<P>
+
+which is Perl short-hand for the more explicitly written version:
+<P>
+
+
+
+<PRE>
+    LINE: while (defined($line = &lt;ARGV&gt;)) {
+        chomp($line);
+        if ($line =~ s/\\$//) {
+            $line .= &lt;ARGV&gt;;
+            redo LINE unless eof(); # not eof(ARGV)!
+        }
+        # now process $line
+    }
+
+</PRE>
+
+
+<P>
+
+Note that if there were a <TT>&quot;continue&quot;</TT> block on the above code, it would
+get executed only on lines discarded by the regex (since redo skips the
+continue block). A continue block is often used to reset line counters
+or <TT>&quot;?pat?&quot;</TT> one-time matches:
+<P>
+
+
+
+<PRE>
+    # inspired by :1,$g/fred/s//WILMA/
+    while (&lt;&gt;) {
+        ?(fred)?    &amp;&amp; s//WILMA $1 WILMA/;
+        ?(barney)?  &amp;&amp; s//BETTY $1 BETTY/;
+        ?(homer)?   &amp;&amp; s//MARGE $1 MARGE/;
+    } continue {
+        print &quot;$ARGV $.: $_&quot;;
+        close ARGV  if eof();           # reset $.
+        reset       if eof();           # reset ?pat?
+    }
+
+</PRE>
+
+
+<P>
+
+If the word <TT>&quot;while&quot;</TT> is replaced by the word <TT>&quot;until&quot;</TT>, the sense of the
+test is reversed, but the conditional is still tested before the first
+iteration.
+<P>
+
+The loop control statements don't work in an <TT>&quot;if&quot;</TT> or <TT>&quot;unless&quot;</TT>, since
+they aren't loops.  You can double the braces to make them such, though.
+<P>
+
+
+
+<PRE>
+    if (/pattern/) {{
+        last if /fred/;
+        next if /barney/; # same effect as &quot;last&quot;, but doesn't document as well
+        # do something here
+    }}
+
+</PRE>
+
+
+<P>
+
+This is caused by the fact that a block by itself acts as a loop that
+executes once, see ``Basic BLOCKs and Switch Statements''.
+<P>
+
+The form <TT>&quot;while/if BLOCK BLOCK&quot;</TT>, available in Perl 4, is no longer
+available.   Replace any occurrence of <TT>&quot;if BLOCK&quot;</TT> by <TT>&quot;if (do BLOCK)&quot;</TT>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>For Loops</H2>
+
+<A NAME="ixAAK"></A>
+Perl's C-style <TT>&quot;for&quot;</TT> loop works like the corresponding <TT>&quot;while&quot;</TT> loop;
+that means that this:
+<P>
+
+
+
+<PRE>
+    for ($i = 1; $i &lt; 10; $i++) {
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+is the same as this:
+<P>
+
+
+
+<PRE>
+    $i = 1;
+    while ($i &lt; 10) {
+        ...
+    } continue {
+        $i++;
+    }
+
+</PRE>
+
+
+<P>
+
+There is one minor difference: if variables are declared with <TT>&quot;my&quot;</TT>
+in the initialization section of the <TT>&quot;for&quot;</TT>, the lexical scope of
+those variables is exactly the <TT>&quot;for&quot;</TT> loop (the body of the loop
+and the control sections).
+<P>
+
+Besides the normal array index looping, <TT>&quot;for&quot;</TT> can lend itself
+to many other interesting applications.  Here's one that avoids the
+problem you get into if you explicitly test for end-of-file on
+an interactive file descriptor causing your program to appear to
+hang.
+<P>
+
+
+
+<PRE>
+    $on_a_tty = -t STDIN &amp;&amp; -t STDOUT;
+    sub prompt { print &quot;yes? &quot; if $on_a_tty }
+    for ( prompt(); &lt;STDIN&gt;; prompt() ) {
+        # do something
+    }
+
+</PRE>
+
+
+<P>
+
+Using <TT>&quot;readline&quot;</TT> (or the operator form, <TT>&quot;&lt;EXPR&gt;&quot;</TT>) as the
+conditional of a <TT>&quot;for&quot;</TT> loop is shorthand for the following.  This
+behaviour is the same as a <TT>&quot;while&quot;</TT> loop conditional.
+<P>
+
+
+
+<PRE>
+    for ( prompt(); defined( $_ = &lt;STDIN&gt; ); prompt() ) {
+        # do something
+    }
+
+</PRE>
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>Foreach Loops</H2>
+
+<A NAME="ixAAL"></A>
+The <TT>&quot;foreach&quot;</TT> loop iterates over a normal list value and sets the
+variable <FONT SIZE="-1">VAR</FONT> to be each element of the list in turn.  If the variable
+is preceded with the keyword <TT>&quot;my&quot;</TT>, then it is lexically scoped, and
+is therefore visible only within the loop.  Otherwise, the variable is
+implicitly local to the loop and regains its former value upon exiting
+the loop.  If the variable was previously declared with <TT>&quot;my&quot;</TT>, it uses
+that variable instead of the global one, but it's still localized to
+the loop.  This implicit localisation occurs <I>only</I> in a <TT>&quot;foreach&quot;</TT>
+loop.
+<P>
+
+The <TT>&quot;foreach&quot;</TT> keyword is actually a synonym for the <TT>&quot;for&quot;</TT> keyword, so
+you can use <TT>&quot;foreach&quot;</TT> for readability or <TT>&quot;for&quot;</TT> for brevity.  (Or because
+the Bourne shell is more familiar to you than <I>csh</I>, so writing <TT>&quot;for&quot;</TT>
+comes more naturally.)  If <FONT SIZE="-1">VAR</FONT> is omitted, <TT>$_</TT> is set to each value.
+<P>
+
+If any element of <FONT SIZE="-1">LIST</FONT> is an lvalue, you can modify it by modifying
+<FONT SIZE="-1">VAR</FONT> inside the loop.  Conversely, if any element of <FONT SIZE="-1">LIST</FONT> is <FONT SIZE="-1">NOT</FONT> an
+lvalue, any attempt to modify that element will fail.  In other words,
+the <TT>&quot;foreach&quot;</TT> loop index variable is an implicit alias for each item
+in the list that you're looping over.
+<P>
+
+If any part of <FONT SIZE="-1">LIST</FONT> is an array, <TT>&quot;foreach&quot;</TT> will get very confused if
+you add or remove elements within the loop body, for example with
+<TT>&quot;splice&quot;</TT>.   So don't do that.
+<P>
+
+<TT>&quot;foreach&quot;</TT> probably won't do what you expect if <FONT SIZE="-1">VAR</FONT> is a tied or other
+special variable.   Don't do that either.
+<P>
+
+Examples:
+<P>
+
+
+
+<PRE>
+    for (@ary) { s/foo/bar/ }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for my $elem (@elements) {
+        $elem *= 2;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for $count (10,9,8,7,6,5,4,3,2,1,'BOOM') {
+        print $count, &quot;\n&quot;; <A HREF="../man1/sleep.1.php">sleep</A>(1);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for (1..15) { print &quot;Merry Christmas\n&quot;; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    foreach $item (split(/:[\\\n:]*/, $ENV{TERMCAP})) {
+        print &quot;Item: $item\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+Here's how a C programmer might code up a particular algorithm in Perl:
+<P>
+
+
+
+<PRE>
+    for (my $i = 0; $i &lt; @ary1; $i++) {
+        for (my $j = 0; $j &lt; @ary2; $j++) {
+            if ($ary1[$i] &gt; $ary2[$j]) {
+                last; # can't go to outer :-(
+            }
+            $ary1[$i] += $ary2[$j];
+        }
+        # this is where that last takes me
+    }
+
+</PRE>
+
+
+<P>
+
+Whereas here's how a Perl programmer more comfortable with the idiom might
+do it:
+<P>
+
+
+
+<PRE>
+    OUTER: for my $wid (@ary1) {
+    INNER:   for my $jet (@ary2) {
+                next OUTER if $wid &gt; $jet;
+                $wid += $jet;
+             }
+          }
+
+</PRE>
+
+
+<P>
+
+See how much easier this is?  It's cleaner, safer, and faster.  It's
+cleaner because it's less noisy.  It's safer because if code gets added
+between the inner and outer loops later on, the new code won't be
+accidentally executed.  The <TT>&quot;next&quot;</TT> explicitly iterates the other loop
+rather than merely terminating the inner one.  And it's faster because
+Perl executes a <TT>&quot;foreach&quot;</TT> statement more rapidly than it would the
+equivalent <TT>&quot;for&quot;</TT> loop.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Basic BLOCKs and Switch Statements
+
+</H2>
+
+<A NAME="ixAAM"></A>
+A <FONT SIZE="-1">BLOCK</FONT> by itself (labeled or not) is semantically equivalent to a
+loop that executes once.  Thus you can use any of the loop control
+statements in it to leave or restart the block.  (Note that this is
+<I></I><FONT SIZE="-1"><I>NOT</I></FONT><I></I> true in <TT>&quot;eval{}&quot;</TT>, <TT>&quot;sub{}&quot;</TT>, or contrary to popular belief
+<TT>&quot;do{}&quot;</TT> blocks, which do <I></I><FONT SIZE="-1"><I>NOT</I></FONT><I></I> count as loops.)  The <TT>&quot;continue&quot;</TT>
+block is optional.
+<P>
+
+The <FONT SIZE="-1">BLOCK</FONT> construct is particularly nice for doing case
+structures.
+<P>
+
+
+
+<PRE>
+    SWITCH: {
+        if (/^abc/) { $abc = 1; last SWITCH; }
+        if (/^def/) { $def = 1; last SWITCH; }
+        if (/^xyz/) { $xyz = 1; last SWITCH; }
+        $nothing = 1;
+    }
+
+</PRE>
+
+
+<P>
+
+There is no official <TT>&quot;switch&quot;</TT> statement in Perl, because there are
+already several ways to write the equivalent.
+<P>
+
+However, starting from Perl 5.8 to get switch and case one can use
+the Switch extension and say:
+<P>
+
+
+
+<PRE>
+        use Switch;
+
+</PRE>
+
+
+<P>
+
+after which one has switch and case.  It is not as fast as it could be
+because it's not really part of the language (it's done using source
+filters) but it is available, and it's very flexible.
+<P>
+
+In addition to the above <FONT SIZE="-1">BLOCK</FONT> construct, you could write
+<P>
+
+
+
+<PRE>
+    SWITCH: {
+        $abc = 1, last SWITCH  if /^abc/;
+        $def = 1, last SWITCH  if /^def/;
+        $xyz = 1, last SWITCH  if /^xyz/;
+        $nothing = 1;
+    }
+
+</PRE>
+
+
+<P>
+
+(That's actually not as strange as it looks once you realize that you can
+use loop control ``operators'' within an expression.  That's just the binary
+comma operator in scalar context.  See ``Comma Operator'' in perlop.)
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+    SWITCH: {
+        /^abc/ &amp;&amp; do { $abc = 1; last SWITCH; };
+        /^def/ &amp;&amp; do { $def = 1; last SWITCH; };
+        /^xyz/ &amp;&amp; do { $xyz = 1; last SWITCH; };
+        $nothing = 1;
+    }
+
+</PRE>
+
+
+<P>
+
+or formatted so it stands out more as a ``proper'' <TT>&quot;switch&quot;</TT> statement:
+<P>
+
+
+
+<PRE>
+    SWITCH: {
+        /^abc/      &amp;&amp; do {
+                            $abc = 1;
+                            last SWITCH;
+                       };
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /^def/      &amp;&amp; do {
+                            $def = 1;
+                            last SWITCH;
+                       };
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /^xyz/      &amp;&amp; do {
+                            $xyz = 1;
+                            last SWITCH;
+                        };
+        $nothing = 1;
+    }
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+    SWITCH: {
+        /^abc/ and $abc = 1, last SWITCH;
+        /^def/ and $def = 1, last SWITCH;
+        /^xyz/ and $xyz = 1, last SWITCH;
+        $nothing = 1;
+    }
+
+</PRE>
+
+
+<P>
+
+or even, horrors,
+<P>
+
+
+
+<PRE>
+    if (/^abc/)
+        { $abc = 1 }
+    elsif (/^def/)
+        { $def = 1 }
+    elsif (/^xyz/)
+        { $xyz = 1 }
+    else
+        { $nothing = 1 }
+
+</PRE>
+
+
+<P>
+
+A common idiom for a <TT>&quot;switch&quot;</TT> statement is to use <TT>&quot;foreach&quot;</TT>'s aliasing to make
+a temporary assignment to <TT>$_</TT> for convenient matching:
+<P>
+
+
+
+<PRE>
+    SWITCH: for ($where) {
+                /In Card Names/     &amp;&amp; do { push @flags, '-e'; last; };
+                /Anywhere/          &amp;&amp; do { push @flags, '-h'; last; };
+                /In Rulings/        &amp;&amp; do {                    last; };
+                die &quot;unknown value for form variable where: `$where'&quot;;
+            }
+
+</PRE>
+
+
+<P>
+
+Another interesting approach to a switch statement is arrange
+for a <TT>&quot;do&quot;</TT> block to return the proper value:
+<P>
+
+
+
+<PRE>
+    $amode = do {
+        if     ($flag &amp; O_RDONLY) { &quot;r&quot; }       # XXX: isn't this 0?
+        elsif  ($flag &amp; O_WRONLY) { ($flag &amp; O_APPEND) ? &quot;a&quot; : &quot;w&quot; }
+        elsif  ($flag &amp; O_RDWR)   {
+            if ($flag &amp; O_CREAT)  { &quot;w+&quot; }
+            else                  { ($flag &amp; O_APPEND) ? &quot;a+&quot; : &quot;r+&quot; }
+        }
+    };
+
+</PRE>
+
+
+<P>
+
+Or 
+<P>
+
+
+
+<PRE>
+        print do {
+            ($flags &amp; O_WRONLY) ? &quot;write-only&quot;          :
+            ($flags &amp; O_RDWR)   ? &quot;read-write&quot;          :
+                                  &quot;read-only&quot;;
+        };
+
+</PRE>
+
+
+<P>
+
+Or if you are certain that all the <TT>&quot;&amp;&amp;&quot;</TT> clauses are true, you can use
+something like this, which ``switches'' on the value of the
+<TT>&quot;HTTP_USER_AGENT&quot;</TT> environment variable.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl 
+    # pick out jargon file page based on browser
+    $dir = '<A HREF="http://www.wins.uva.nl/~mes/jargon';">http://www.wins.uva.nl/~mes/jargon';</A>
+    for ($ENV{HTTP_USER_AGENT}) { 
+        $page  =    /Mac/            &amp;&amp; 'm/Macintrash.html'
+                 || /Win(dows )?NT/  &amp;&amp; 'e/evilandrude.html'
+                 || /Win|MSIE|WebTV/ &amp;&amp; 'm/MicroslothWindows.html'
+                 || /Linux/          &amp;&amp; 'l/Linux.html'
+                 || /HP-UX/          &amp;&amp; 'h/HP-SUX.html'
+                 || /SunOS/          &amp;&amp; 's/ScumOS.html'
+                 ||                     'a/AppendixB.html';
+    }
+    print &quot;Location: $dir/$page\015\012\015\012&quot;;
+
+</PRE>
+
+
+<P>
+
+That kind of switch statement only works when you know the <TT>&quot;&amp;&amp;&quot;</TT> clauses
+will be true.  If you don't, the previous <TT>&quot;?:&quot;</TT> example should be used.
+<P>
+
+You might also consider writing a hash of subroutine references
+instead of synthesizing a <TT>&quot;switch&quot;</TT> statement.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Goto</H2>
+
+<A NAME="ixAAN"></A>
+Although not for the faint of heart, Perl does support a <TT>&quot;goto&quot;</TT>
+statement.  There are three forms: <TT>&quot;goto&quot;</TT>-LABEL, <TT>&quot;goto&quot;</TT>-EXPR, and
+<TT>&quot;goto&quot;</TT>-&amp;NAME.  A loop's <FONT SIZE="-1">LABEL</FONT> is not actually a valid target for
+a <TT>&quot;goto&quot;</TT>; it's just the name of the loop.
+<P>
+
+The <TT>&quot;goto&quot;</TT>-LABEL form finds the statement labeled with <FONT SIZE="-1">LABEL</FONT> and resumes
+execution there.  It may not be used to go into any construct that
+requires initialization, such as a subroutine or a <TT>&quot;foreach&quot;</TT> loop.  It
+also can't be used to go into a construct that is optimized away.  It
+can be used to go almost anywhere else within the dynamic scope,
+including out of subroutines, but it's usually better to use some other
+construct such as <TT>&quot;last&quot;</TT> or <TT>&quot;die&quot;</TT>.  The author of Perl has never felt the
+need to use this form of <TT>&quot;goto&quot;</TT> (in Perl, that is---C is another matter).
+<P>
+
+The <TT>&quot;goto&quot;</TT>-EXPR form expects a label name, whose scope will be resolved
+dynamically.  This allows for computed <TT>&quot;goto&quot;</TT>s per <FONT SIZE="-1">FORTRAN</FONT>, but isn't
+necessarily recommended if you're optimizing for maintainability:
+<P>
+
+
+
+<PRE>
+    goto((&quot;FOO&quot;, &quot;BAR&quot;, &quot;GLARCH&quot;)[$i]);
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;goto&quot;</TT>-&amp;NAME form is highly magical, and substitutes a call to the
+named subroutine for the currently running subroutine.  This is used by
+<TT>&quot;AUTOLOAD()&quot;</TT> subroutines that wish to load another subroutine and then
+pretend that the other subroutine had been called in the first place
+(except that any modifications to <TT>@_</TT> in the current subroutine are
+propagated to the other subroutine.)  After the <TT>&quot;goto&quot;</TT>, not even <TT>&quot;caller()&quot;</TT>
+will be able to tell that this routine was called first.
+<P>
+
+In almost all cases like this, it's usually a far, far better idea to use the
+structured control flow mechanisms of <TT>&quot;next&quot;</TT>, <TT>&quot;last&quot;</TT>, or <TT>&quot;redo&quot;</TT> instead of
+resorting to a <TT>&quot;goto&quot;</TT>.  For certain applications, the catch and throw pair of
+<TT>&quot;eval{}&quot;</TT> and <I>die()</I> for exception processing can also be a prudent approach.
+<A NAME="lbAO">&nbsp;</A>
+<H2>PODs: Embedded Documentation</H2>
+
+<A NAME="ixAAO"></A>
+Perl has a mechanism for intermixing documentation with source code.
+While it's expecting the beginning of a new statement, if the compiler
+encounters a line that begins with an equal sign and a word, like this
+<P>
+
+
+
+<PRE>
+    =head1 Here There Be Pods!
+
+</PRE>
+
+
+<P>
+
+Then that text and all remaining text up through and including a line
+beginning with <TT>&quot;=cut&quot;</TT> will be ignored.  The format of the intervening
+text is described in perlpod.
+<P>
+
+This allows you to intermix your source code
+and your documentation text freely, as in
+<P>
+
+
+
+<PRE>
+    =item snazzle($)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    The snazzle() function will behave in the most spectacular
+    form that you can possibly imagine, not even excepting
+    cybernetic pyrotechnics.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    =cut back to the compiler, nuff of this pod stuff!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub snazzle($) {
+        my $thingie = shift;
+        .........
+    }
+
+</PRE>
+
+
+<P>
+
+Note that pod translators should look at only paragraphs beginning
+with a pod directive (it makes parsing easier), whereas the compiler
+actually knows to look for pod escapes even in the middle of a
+paragraph.  This means that the following secret stuff will be
+ignored by both the compiler and the translators.
+<P>
+
+
+
+<PRE>
+    $a=3;
+    =secret stuff
+     warn &quot;Neither POD nor CODE!?&quot;
+    =cut back
+    print &quot;got $a\n&quot;;
+
+</PRE>
+
+
+<P>
+
+You probably shouldn't rely upon the <TT>&quot;warn()&quot;</TT> being podded out forever.
+Not all pod translators are well-behaved in this regard, and perhaps
+the compiler will become pickier.
+<P>
+
+One may also use pod directives to quickly comment out a section
+of code.
+<A NAME="lbAP">&nbsp;</A>
+<H2>Plain Old Comments (Not!)</H2>
+
+<A NAME="ixAAP"></A>
+Perl can process line directives, much like the C preprocessor.  Using
+this, one can control Perl's idea of filenames and line numbers in
+error or warning messages (especially for strings that are processed
+with <TT>&quot;eval()&quot;</TT>).  The syntax for this mechanism is the same as for most
+C preprocessors: it matches the regular expression
+<P>
+
+
+
+<PRE>
+    # example: '# line 42 &quot;new_filename.plx&quot;'
+    /^\#   \s*
+      line \s+ (\d+)   \s*
+      (?:\s(&quot;?)([^&quot;]+)\2)? \s*
+     $/x
+
+</PRE>
+
+
+<P>
+
+with <TT>$1</TT> being the line number for the next line, and <TT>$3</TT> being
+the optional filename (specified with or without quotes).
+<P>
+
+There is a fairly obvious gotcha included with the line directive:
+Debuggers and profilers will only show the last source line to appear
+at a particular line number in a given file.  Care should be taken not
+to cause line number collisions in code you'd like to debug later.
+<P>
+
+Here are some examples that you should be able to type into your command
+shell:
+<P>
+
+
+
+<PRE>
+    % perl
+    # line 200 &quot;bzzzt&quot;
+    # the `#' on the previous line must be the first char on line
+    die 'foo';
+    __END__
+    foo at bzzzt line 201.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    % perl
+    # line 200 &quot;bzzzt&quot;
+    eval qq[\n#line 2001 &quot;&quot;\ndie 'foo']; print $@;
+    __END__
+    foo at - line 2001.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    % perl
+    eval qq[\n#line 200 &quot;foo bar&quot;\ndie 'foo']; print $@;
+    __END__
+    foo at foo bar line 200.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    % perl
+    # line 345 &quot;goop&quot;
+    eval &quot;\n#line &quot; . __LINE__ . ' &quot;' . __FILE__ .&quot;\&quot;\ndie 'foo'&quot;;
+    print $@;
+    __END__
+    foo at goop line 345.
+
+</PRE>
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Declarations</A><DD>
+<DT><A HREF="#lbAE">Comments</A><DD>
+<DT><A HREF="#lbAF">Simple Statements</A><DD>
+<DT><A HREF="#lbAG">Truth and Falsehood</A><DD>
+<DT><A HREF="#lbAH">Statement Modifiers</A><DD>
+<DT><A HREF="#lbAI">Compound Statements</A><DD>
+<DT><A HREF="#lbAJ">Loop Control</A><DD>
+<DT><A HREF="#lbAK">For Loops</A><DD>
+<DT><A HREF="#lbAL">Foreach Loops</A><DD>
+<DT><A HREF="#lbAM">Basic BLOCKs and Switch Statements</A><DD>
+<DT><A HREF="#lbAN">Goto</A><DD>
+<DT><A HREF="#lbAO">PODs: Embedded Documentation</A><DD>
+<DT><A HREF="#lbAP">Plain Old Comments (Not!)</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

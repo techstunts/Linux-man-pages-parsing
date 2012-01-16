@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>aconnect</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>aconnect</H1>
+Section: User Commands  (1)<BR>Updated: August 31, 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+aconnect - ALSA sequencer connection manager
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>aconnect</B>
+
+[-d] [-options] sender receiver
+<BR>
+
+<B>aconnect</B>
+
+-i|-o [-options]
+<BR>
+
+<B>aconnect</B>
+
+-x
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>aconnect</B>
+
+is a utility to connect and disconnect two existing ports on ALSA sequencer
+system.
+The ports with the arbitrary subscription permission, such as created
+by
+<B><A HREF="../man1/aseqview.1.php">aseqview</A>(1),</B>
+
+can be connected to any (MIDI) device ports using
+<B>aconnect.</B>
+
+For example, to connect from port 64:0 to 65:0, run as follows:
+<DL COMPACT>
+<DT><DD>
+% aconnect 64:0 65:0
+</DL>
+<P>
+
+The connection is one-way, and the whole data to the sender port (64:0)
+is redirected to the receiver port (65:0).  When another port (e.g. 65:1)
+is attached to the same sender port, the data is sent to both receiver
+ports.
+For disconnection, use
+<B>-d</B>
+
+option.
+<DL COMPACT>
+<DT><DD>
+% aconnect -d 64:0 65:0
+</DL>
+<P>
+
+The address can be given using the client's name.
+<DL COMPACT>
+<DT><DD>
+% aconnect External:0 Emu8000:1
+</DL>
+<P>
+
+Then the port 0 of the client matching with the string &quot;External&quot; is
+connected to the port 1 of the client matching with the &quot;Emu8000&quot;.
+<P>
+
+Another function of
+<B>aconnect</B>
+
+is to list the present ports
+on the given condition.
+The input ports, which may become
+<I>sender</I>
+
+ports, can be listed with
+<B>-i</B>
+
+option.
+<DL COMPACT>
+<DT><DD>
+% aconnect -i
+<BR>
+
+client 0: 'System' [type=kernel]
+
+0 'Timer           '
+<BR>
+
+1 'Announce        '
+
+client 64: 'External MIDI-0' [type=kernel]
+
+0 'MIDI 0-0        '
+
+</DL>
+<P>
+
+Similary, to see the output ports, use
+<B>-o</B>
+
+flag.
+<P>
+
+You can remove all existing exported connections using
+<B>-x</B>
+
+option.  This function is useful for terminating the ALSA drivers,
+because the modules with sequencer connections cannot be unloaded
+unless their connections are removed.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>CONNNECTION MANAGEMENT</H3>
+
+<DL COMPACT>
+<DT><B>-d, --disconnect</B>
+
+<DD>
+Disconnect the given subscription.
+<DT><B>-e, --exclusive</B>
+
+<DD>
+Connect ports with exclusive mode.
+Both sender and receiver ports can be no longer connected by any other ports.
+<DT><B>-r, --real queue</B>
+
+<DD>
+Convert time-stamps of event packets to the current value of the given
+<I>real-time</I>
+
+queue.
+This is option is, however, not so useful, since
+the receiver port must use (not necessarily own) the specified queue.
+<DT><B>-t, --tick queue</B>
+
+<DD>
+Like
+<B>-r</B>
+
+option, but 
+time-stamps are converted to the current value of the given
+<I>tick</I>
+
+queue.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>LIST PORTS</H3>
+
+<DL COMPACT>
+<DT><B>-i, --input</B>
+
+<DD>
+List existing input (readable) ports.
+This option is exclusive to
+<B>-o.</B>
+
+<DT><B>-o, --output</B>
+
+<DD>
+List existing output (writable) ports.
+This option is exclusive to
+<B>-i.</B>
+
+<DT><B>-l, --list</B>
+
+<DD>
+List the current connection status.  The connected and connecting ports
+from/to each port are listed together.
+The suffix flag
+<B>[ex]</B>
+
+means the connection is exclusive.
+The suffix flag
+<B>[real:#]</B>
+
+and
+<B>[tick:#]</B>
+
+mean the connection includes real-time and tick conversion on the listed
+queue, respectively.
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H3>REMOVE ALL CONNECTIONS</H3>
+
+<DL COMPACT>
+<DT><B>-x, --removeall</B>
+
+<DD>
+Remove all exported connections.
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/aseqnet.1.php">aseqnet</A>(1), <A HREF="../man1/aseqview.1.php">aseqview</A>(1)
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Takashi Iwai &lt;<A HREF="mailto:tiwai@suse.de">tiwai@suse.de</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAF">CONNNECTION MANAGEMENT</A><DD>
+<DT><A HREF="#lbAG">LIST PORTS</A><DD>
+<DT><A HREF="#lbAH">REMOVE ALL CONNECTIONS</A><DD>
+</DL>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

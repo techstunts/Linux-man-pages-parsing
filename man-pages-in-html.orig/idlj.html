@@ -1,0 +1,1218 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>idlj</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>idlj</H1>
+Section: User Commands  (1)<BR>Updated: 10 March 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+idlj - The IDL-to-Java Compiler (RMI-IIOP version)
+<P>
+
+<B>idlj</B>
+
+generates Java bindings from a given IDL file.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>idlj</B>
+
+[
+<I>options</I>
+
+]
+<B>idl-file</B>
+
+<P>
+
+where
+<B>idl-file</B>
+
+is the name of a file containing Interface Definition Language (IDL)
+definitions.
+<B>Options</B>
+
+may appear in any order, but must precede the
+<B>idl-file</B>.
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The IDL-to-Java Compiler generates the Java bindings for a
+given IDL file.  For binding details, see the OMG IDL to Java
+Language Mapping Specification. Some previous releases of the
+IDL-to-Java compiler were named 
+<B>idltojava</B>.
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>Emitting Client and Server Bindings</H2>
+
+To generate Java bindings for an IDL file named 
+<B>My.idl</B>:
+
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+This generates the client-side bindings and is equivalent to:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -fclient My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+The client-side bindings do not include the server-side
+skeleton. If you want to generate the server-side bindings for
+the interfaces: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -fserver My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+Server-side bindings include the client-side bindings plus the
+skeleton, all of which are POA (that is, Inheritance Model) classes.
+If you want to generate both client and server-side bindings,
+use one of the following (equivalent) commands:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -fclient -fserver My.idl
+<BR>
+idlj -fall My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+There are two possible server-side models: the Inneritance Model and
+the Tie Model.
+<P>
+
+NEW in 1.4! The default server-side model is the 
+<B>Portable</B>
+
+<B>Servant</B>
+
+<B>Inheritance</B>
+
+<B>Model</B><I>.</I>
+
+Given an interface My defined in
+<B>My.idl</B>,
+
+the file 
+<B>MyPOA.java</B>
+
+is generated. You must provide the
+implementation for 
+<B>My</B>
+
+and it must inherit from 
+<B>MyPOA</B>.
+
+<P>
+
+<B>MyPOA.java</B>
+
+is a stream-based skeleton that extends
+<B>org.omg.PortableServer.Servant</B>
+
+and implements the
+<B>InvokeHandler</B>
+
+interface and the operations interface associated
+with the IDL interface the skeleton implements. 
+<P>
+
+The 
+<B>PortableServer</B>
+
+module for the 
+<B>Portable</B>Object<B>Adapter</B>
+
+<B>(POA)</B>
+
+defines the native Servant type. In the Java programming
+language, the 
+<B>Servant</B>
+
+type is mapped to the Java
+<B>org.omg.PortableServer.Servant</B>
+
+class. It serves as the base
+class for all POA servant implementations and provides a
+number of methods that may be invoked by the application
+programmer, as well as methods which are invoked by the POA
+itself and may be overridden by the user to control aspects of
+servant behavior. 
+<P>
+
+Another option for the Inheritance Model is to use the
+<B>-oldImplBase</B>
+
+flag in order to generate server-side bindings that
+are compatible with older version of the Java programming
+language (prior to J2SE 1.4). To generate server-side bindings
+that are backwards compatible: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -fclient -fserver -oldImplBase My.idl
+<BR>
+idlj -fall -oldImplBase My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+Given an interface
+<B>My</B>
+
+defined in
+<B>My.idl</B>,
+
+the file
+<B>_MyImpleBase.java</B>
+
+is generated. You must provide the implementation for
+<B>My</B>
+
+and it must inherit from
+<B>_MyImplBase</B>.
+
+<P>
+
+The other server-side model is called the Tie Model. This is a
+delegation model. Because it is not possible to generate ties and
+skeletons at the same time, they must be generated separately.
+The following commands generate the bindings for the Tie
+Model: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -fall My.idl
+<BR>
+idlj -fallTIE My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+For the interface 
+<B>My</B>,
+
+the second command generates
+<B>MyPOATie.java</B>.
+
+The constructor to 
+<B>MyPOATie</B>
+
+takes a delegate.
+You must provide the implementation for delegate, but it does
+not have to inherit from any other class, only the interface
+<B>MyOperations</B>.
+
+But to use it with the ORB, you must wrap your
+implementation within
+<B>MyPOATie</B>.
+
+For instance: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+MyImpl myImpl = new MyImpl ();
+<BR>
+My POATie tie = new MyPOATie (myImpl);
+<BR>
+orb.connect (tie);
+</PRE>
+
+
+</DL>
+
+<P>
+
+You might want to use the Tie model instead of the typical
+Inheritance model if your implementation must inherit from
+some other implementation. Java allows any number of interface
+inheritance, but there is only one slot for class inheritance. If you
+the inheritance model, that slot is used up . By using the Tie
+Model, that slot is freed up for your own use. The drawback is
+that it introduces a level of indirection: one extra method call
+occurs when invoking a method. 
+<P>
+
+To generate server-side, Tie model bindings that are compatible
+with older version of the IDL to Java language mapping in
+versions of J2SE before 1.4.
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -oldImplBase -fall My.idl
+<BR>
+idlj -oldImplBase -fallTIE My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+For the interface 
+<B>My</B>,
+
+this will generate 
+<B>My_Tie.java</B>.
+
+The constructor to 
+<B>My_Tie</B>
+
+takes a 
+<B>impl</B>.
+
+You must provide the
+implementation for 
+<B>impl</B>,
+
+but it does not have to inherit from
+any other class, only the interface 
+<B>HelloOperations</B>.
+
+But to use it
+with the ORB, you must wrap your implementation within
+<B>My_Tie</B>.
+
+For instance: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+MyImpl myImpl = new MyImpl ();
+<BR>
+My_Tie tie = new My_Tie (myImpl);
+<BR>
+orb.connect (tie);
+</PRE>
+
+
+</DL>
+
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Specifying Alternate Locations for Emitted Files</H2>
+
+<BR>
+
+If you want to direct the emitted files to a directory other than
+the current directory, invoke the compiler as: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -td /altdir My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+For the interface 
+<B>My</B>,
+
+the bindings will be emitted to
+<B>/altdir/My.java</B>,
+
+etc., instead of 
+<B>./My.java.</B>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Specifying Alternate Locations for Include Files</H2>
+
+If 
+<B>My.idl</B>
+
+included another idl file, 
+<B>MyOther.idl</B>,
+
+the compiler
+assumes that 
+<B>MyOther.idl</B>
+
+resides in the local directory. If it
+resides in 
+<B>/includes</B>,
+
+for example, then you would invoke the
+compiler with the following command: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -i /includes My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+If 
+<B>My.idl</B>
+
+also included 
+<B>Another.idl</B>
+
+that resided in
+<B>/moreIncludes</B>,
+
+for example, then you would invoke the
+compiler with the following command: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -i /includes -i /moreIncludes My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+Since this form of include can become irritatingly long, another
+means of indicating to the compiler where to search for included
+files is provided. This technique is similar to the idea of an
+environment variable. Create a file named 
+<B>idl.config</B>
+
+in a
+directory that is listed in your CLASSPATH. Inside of 
+<B>idl.config</B>,
+
+provide a line with the following form: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+includes=/includes;/moreIncludes
+</PRE>
+
+
+</DL>
+
+<P>
+
+The compiler will find this file and read in the includes list. Note
+that in this example the separator character between the two
+directories is a semicolon (;). This separator character is platform
+dependent. On NT it is a semicolon, on Solaris it is a colon, etc.
+For more information on includes, read the CLASSPATH 
+documentation. 
+<A NAME="lbAH">&nbsp;</A>
+<H2>Emitting Bindings for Include Files</H2>
+
+By default, only those interfaces, structs, etc, that are defined in
+the idl file on the command line have Java bindings generated
+for them. The types defined in included files are not generated.
+For example, assume the following two idl files: 
+<DL COMPACT>
+<DT><B>My.idl</B>
+
+<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+#include &lt;MyOther.idl&gt; 
+<BR>
+
+interface My 
+<BR>
+
+{ 
+<BR>
+
+}; 
+</DL>
+
+<DL COMPACT>
+<DT><B>MyOther.idl</B>
+
+<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+interface MyOther 
+<BR>
+
+{ 
+<BR>
+
+};
+</DL>
+
+<P>
+
+The following command will only generate the java bindings for
+<B>My</B>:
+
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+To generate all of the types in 
+<B>My.idl</B>
+
+and all of the types in the
+files that 
+<B>My.idl</B>
+
+includes (in this example, 
+<B>MyOther.idl</B>),
+
+use
+the following command: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -emitAll My.idl 
+</PRE>
+
+
+</DL>
+
+<P>
+
+There is a caveat to the default rule. 
+<B>#include</B>
+
+statements which
+appear at global scope are treated as described. These 
+<B>#include</B>
+
+statements can be thought of as import statements. 
+<B>#include</B>
+
+statements which appear within some enclosing scope are
+treated as true 
+<B>#include</B>
+
+statements, meaning that the code
+within the included file is treated as if it appeared in the
+original file and, therefore, Java bindings are emitted for it. Here
+is an example: 
+<DL COMPACT>
+<DT><B>My.idl</B>
+
+<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+#include &lt;MyOther.idl&gt; 
+<BR>
+
+interface My 
+<BR>
+
+{ 
+<BR>
+
+<BR>&nbsp;&nbsp;#include&nbsp;&lt;Embedded.idl&gt;&nbsp;
+<BR>
+
+}; 
+</DL>
+
+<DL COMPACT>
+<DT><B>MyOther.idl</B>
+
+<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+interface MyOther 
+<BR>
+
+{ 
+<BR>
+
+}; 
+</DL>
+
+<DL COMPACT>
+<DT><B>Embedded.idl</B>
+
+<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+enum E {one, two, three};
+</DL>
+
+<P>
+
+Running the following command:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+will generate the following list of Java files:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+</PRE>
+
+
+</DL>
+
+<P>
+
+Notice that 
+<B>MyOther.java</B>
+
+was not generated because it is
+defined in an import-like 
+<B>#include</B>.
+
+But 
+<B>E.java</B>
+
+was generated
+because it was defined in a true 
+<B>#include</B>.
+
+Also notice that since
+<B>Embedded.idl</B>
+
+was included within the scope of the interface 
+<B>My</B>,
+
+it appears within the scope of 
+<B>My</B>
+
+(that is,in 
+<B>MyPackage</B>).
+
+<P>
+
+If the 
+<B>-emitAll</B>
+
+flag had been used in the previous example, then
+all types in all included files would be emitted. 
+<A NAME="lbAI">&nbsp;</A>
+<H2>Inserting Package Prefixes</H2>
+
+Suppose that you work for a company named ABC that has
+constructed the following IDL file: 
+<DL COMPACT>
+<DT><B>Widgets. idl</B>
+
+<DD>
+module Widgets 
+<BR>
+
+{ 
+<BR>
+
+<BR>&nbsp;&nbsp;interface&nbsp;W1&nbsp;{...};&nbsp;
+<BR>
+
+<BR>&nbsp;&nbsp;interface&nbsp;W2&nbsp;{...};&nbsp;
+<BR>
+
+}; 
+</DL>
+<P>
+
+Running this file through the IDL-to-Java compiler will place the
+Java bindings for W1 and W2 within the package Widgets. But
+there is an industry convention that states that a company's
+packages should reside within a package named 
+<B>com.&lt;company</B>name&gt;<B>.</B>
+
+The 
+<B>Widgets</B>
+
+package is not good enough. To follow
+convention, it should be 
+<B>com.abc.Widgets</B>.
+
+To place this package
+prefix onto the 
+<B>Widgets</B>
+
+module, execute the following: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -pkgPrefix Widgets com.abc Widgets.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+If you have an IDL file which includes 
+<B>Widgets.idl</B>,
+
+the
+<B>-pkgPrefix</B>
+
+flag must appear in that command also. If it does
+not, then your IDL file will be looking for a 
+<B>Widgets</B>
+
+package
+rather than a 
+<B>com.abc.Widgets</B>
+
+package. 
+<P>
+
+If you have a number of these packages that require prefixes, it
+might be easier to place them into the 
+<B>idl.config</B>
+
+file described
+above. Each package prefix line should be of the form: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+PkgPrefix.&lt;type&gt;=&lt;prefix&gt;
+</PRE>
+
+
+</DL>
+
+<P>
+
+So the line for the above example would be:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+PkgPrefix.Widgets=com.abc
+</PRE>
+
+
+</DL>
+
+<P>
+
+The use of this options does not affect the Repository ID.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Defining Symbols Before Compilation</H2>
+
+You may need to define a symbol for compilation that is not
+defined within the IDL file, perhaps to include debugging code
+in the bindings. The command 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -d MYDEF My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+is the equivalent of putting the line 
+<B>#define</B>
+
+<B>MYDEF</B>
+
+inside
+<B>My.idl</B>.
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>Preserving Pre-Existing Bindings</H2>
+
+If the Java binding files already exist, the 
+<B>-keep</B>
+
+flag will keep
+the compiler from overwriting them. The default is to generate
+all files without considering if they already exist. If you've
+customized those files (which you should not do unless you are
+very comfortable with their contents), then the 
+<B>-keep</B>
+
+option is
+very useful. The command 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -keep My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+emit all client-side bindings that do not already exist.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Viewing Progress of Compilation</H2>
+
+The IDL-to-Java compiler will generate status messages as it
+progresses through its phases of execution. Use the 
+<B>-v</B>
+
+option to
+activate this &quot;verbose&quot; mode: 
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -v My.idl
+</PRE>
+
+
+</DL>
+
+<P>
+
+By default the compiler does not operate in verbose mode.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Displaying Version Information</H2>
+
+To display the build version of the IDL-to-Java compiler, specify
+the 
+<B>-version</B>
+
+option on the command-line:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+idlj -version 
+</PRE>
+
+
+</DL>
+
+<P>
+
+Version information also appears within the bindings generated
+by the compiler. Any additional options appearing on the
+command-line are ignored. 
+<A NAME="lbAN">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-d</B><I> symbol</I>
+
+<DD>
+This is equivalent to the following line in an IDL file:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+#define symbol
+</PRE>
+
+
+</DL>
+
+<DL COMPACT>
+<DT><B>-emitAll</B>
+
+<DD>
+Emit all types, including those found in
+<B>#include</B>
+
+files.
+<DT><B>-fside</B>
+
+<DD>
+Defines what bindings to emit. 
+<B>side</B>
+
+is one of 
+<B>client,</B>
+
+<B>server,</B>
+
+<B>serverTIE,</B>
+
+<B>all,</B>
+
+or 
+<B>allTIE.</B>The
+
+<B>-fserverTIE</B>and
+
+<B>-fallTIE</B>
+
+options cause delegate model skeletons to be
+emitted. Assumes 
+<B>-fclient</B>
+
+if the flag is not specified. 
+<DT><B>-i</B><I> include-path</I>
+
+<DD>
+By default, the current directory is scanned for included
+files. This option adds another directory. 
+<DT><B>-keep</B>
+
+<DD>
+If a file to be generated already exists, do not overwrite it.
+By default it is overwritten. 
+<DT><B>-noWarn</B>
+
+<DD>
+Supresses warning messages.
+<DT><B>-oldImplBase</B>
+
+<DD>
+Generates skeletons compatible with old (pre-1.4) JDK
+ORBs. By default, the POA Inheritance Model server-side
+bindings are generated. This option provides
+backward-compatibility with older versions of the Java
+programming language by generating server-side
+bindings that are 
+<B>ImplBase</B>
+
+Inheritance Model classes. 
+<DT><B>-pkgPrefix</B><I> type prefix</I>
+
+<DD>
+Wherever 
+<B>type</B>
+
+is encountered at file scope, prefix the
+generated Java package name with 
+<B>prefix</B>
+
+for all files
+generated for that type. The 
+<B>type</B>
+
+is the simple name of
+either a top-level module, or an IDL type defined outside
+of any module. 
+<DT><B>-pkgTranslate</B><I> type package</I>
+
+<DD>
+Wherever the type or module name 
+<B>type</B>
+
+is encountered,
+replace it in the with 
+<B>package</B>
+
+for all files in the
+generated Java package. Note that 
+<B>pkgPrefix</B>
+
+changes are
+made first. 
+<B>type</B>
+
+is the simple name of either a top-level
+module, or an IDL type defined outside of any module,
+and must match the full package name exactly. Also note
+that the following package names cannot be translated: 
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>* org<DD>
+<DT>* org.omg or any subpackages of org.omg<DD>
+</DL>
+<P>
+
+Any attempt to translate these packages will result in
+uncompilable code, and the use of these packages as the
+first argument after 
+<B>-pkgTranslate</B>
+
+will be treated as an error. 
+</DL>
+
+<DL COMPACT>
+<DT><B>-skeletonName</B><I> xxx%yyy</I>
+
+<DD>
+Use
+<B>xxx%yyy</B>
+
+as the pattern for naming the skeleton. The defaults are
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>* %POA for the POA base class (<DD>
+<B>-fserver</B>
+
+or
+<B>-fall</B>)
+
+<DT>* %ImplBase for the oldImplBase class (<DD>
+<B>-oldImplBase</B>
+
+and (
+<B>-fserver</B>
+
+or
+<B>-fall</B>))
+
+</DL>
+</DL>
+
+<DL COMPACT>
+<DT><B>-td</B><I> dir</I>
+
+<DD>
+Use
+<B>dir</B>
+
+for the output directory instead of the current directory.
+<DT><B>-tieName</B><I> xxx%yyy</I>
+
+<DD>
+Name the tie according to the pattern. The defaults are:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>* %POATie for the POA tie base class (<DD>
+<B>-fserverTie</B>
+
+or
+<B>-fallTie</B>)
+
+<DT>* %_Tie for the <DD>
+<B>oldImplBase</B>
+
+tie class (
+<B>-oldImplBase</B>
+
+and (
+<B>-fserverTie</B>
+
+or
+<B>-fallTie</B>))
+
+</DL>
+</DL>
+
+<DL COMPACT>
+<DT><B>-nowarn,</B><I>-verbose</I>
+
+<DD>
+Verbose mode.
+<DT><B>-version</B>
+
+<DD>
+Display version information and terminate.
+</DL>
+<P>
+
+See the Description section for more option information.
+<A NAME="lbAO">&nbsp;</A>
+<H2>Restrictions</H2>
+
+<P>
+
+<DL COMPACT>
+<DT>* Escaped identifiers in the global scope may not have the<DD>
+same spelling as IDL primitive types, 
+<B>Object</B>,
+
+or
+<B>ValueBase</B>.
+
+This is because the symbol table is pre-loaded
+with these identifiers; allowing them to be redefined
+would overwrite their original definitions. (Possible
+permanent restriction). 
+<DT>* The fixed IDL type is not supported.<DD>
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>Known Problems</H2>
+
+None at this time.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Emitting Client and Server Bindings</A><DD>
+<DT><A HREF="#lbAF">Specifying Alternate Locations for Emitted Files</A><DD>
+<DT><A HREF="#lbAG">Specifying Alternate Locations for Include Files</A><DD>
+<DT><A HREF="#lbAH">Emitting Bindings for Include Files</A><DD>
+<DT><A HREF="#lbAI">Inserting Package Prefixes</A><DD>
+<DT><A HREF="#lbAJ">Defining Symbols Before Compilation</A><DD>
+<DT><A HREF="#lbAK">Preserving Pre-Existing Bindings</A><DD>
+<DT><A HREF="#lbAL">Viewing Progress of Compilation</A><DD>
+<DT><A HREF="#lbAM">Displaying Version Information</A><DD>
+<DT><A HREF="#lbAN">OPTIONS</A><DD>
+<DT><A HREF="#lbAO">Restrictions</A><DD>
+<DT><A HREF="#lbAP">Known Problems</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

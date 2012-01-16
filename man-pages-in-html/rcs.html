@@ -1,0 +1,672 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RCS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RCS</H1>
+Section: User Commands  (1)<BR>Updated: 1995/06/05<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+rcs - change RCS file attributes
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>rcs</B>
+
+<I>options file </I>...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>rcs</B>
+
+creates new <FONT SIZE="-1">RCS</FONT> files or changes attributes of existing ones.
+An <FONT SIZE="-1">RCS</FONT> file contains multiple revisions of text,
+an access list, a change log,
+descriptive text,
+and some control attributes.
+For
+<B>rcs</B>
+
+to work, the caller's login name must be on the access list,
+except if the access list is empty, the caller is the owner of the file
+or the superuser, or
+the
+<B>-i</B>
+
+option is present.
+<P>
+
+Pathnames matching an <FONT SIZE="-1">RCS</FONT> suffix denote <FONT SIZE="-1">RCS</FONT> files;
+all others denote working files.
+Names are paired as explained in
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1).
+
+Revision numbers use the syntax described in
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1).
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-i</B>
+
+<DD>
+Create and initialize a new <FONT SIZE="-1">RCS</FONT> file, but do not deposit any revision.
+If the <FONT SIZE="-1">RCS</FONT> file has no path prefix, try to place it
+first into the subdirectory
+<B>./RCS</B>,
+
+and then into the current directory.
+If the <FONT SIZE="-1">RCS</FONT> file
+already exists, print an error message.
+<DT><B>-a</B><I>logins</I>
+
+<DD>
+Append the login names appearing in the comma-separated list
+<I>logins</I>
+
+to the access list of the <FONT SIZE="-1">RCS</FONT> file.
+<DT><B>-A</B><I>oldfile</I>
+
+<DD>
+Append the access list of
+<I>oldfile</I>
+
+to the access list of the <FONT SIZE="-1">RCS</FONT> file.
+<DT><B>-e</B>[<I>logins</I>]
+
+<DD>
+Erase the login names appearing in the comma-separated list
+<I>logins</I>
+
+from the access list of the <FONT SIZE="-1">RCS</FONT> file.
+If
+<I>logins</I>
+
+is omitted, erase the entire access list.
+<DT><B>-b</B>[<I>rev</I>]
+
+<DD>
+Set the default branch to
+<I>rev</I>.
+
+If
+<I>rev</I>
+
+is omitted, the default
+branch is reset to the (dynamically) highest branch on the trunk.
+<DT><B>-c</B><I>string</I>
+
+<DD>
+Set the comment leader to
+<I>string</I>.
+
+An initial
+<B>ci</B>,
+
+or an
+<B>rcs&nbsp;-i</B>
+
+without
+<B>-c</B>,
+
+guesses the comment leader from the suffix of the working filename.
+<DL COMPACT><DT><DD>
+<P>
+
+This option is obsolescent, since <FONT SIZE="-1">RCS</FONT> normally uses the preceding
+<B>$Log$</B>
+
+line's prefix when inserting log lines during checkout (see
+<B><A HREF="../man1/co.1.php">co</A></B>(1)).
+
+However, older versions of <FONT SIZE="-1">RCS</FONT> use the comment leader instead of the
+<B>$Log$</B>
+
+line's prefix, so
+if you plan to access a file with both old and new versions of <FONT SIZE="-1">RCS</FONT>,
+make sure its comment leader matches its
+<B>$Log$</B>
+
+line prefix.
+</DL>
+
+<DT><B>-k</B><I>subst</I>
+
+<DD>
+Set the default keyword substitution to
+<I>subst</I>.
+
+The effect of keyword substitution is described in
+<B><A HREF="../man1/co.1.php">co</A></B>(1).
+
+Giving an explicit
+<B>-k</B>
+
+option to
+<B>co</B>,
+
+<B>rcsdiff</B>,
+
+and
+<B>rcsmerge</B>
+
+overrides this default.
+Beware
+<B>rcs&nbsp;-kv,</B>
+
+because
+<B>-kv</B>
+
+is incompatible with
+<B>co&nbsp;-l.</B>
+
+Use
+<B>rcs&nbsp;-kkv</B>
+
+to restore the normal default keyword substitution.
+<DT><B>-l</B>[<I>rev</I>]
+
+<DD>
+Lock the revision with number
+<I>rev</I>.
+
+If a branch is given, lock the latest revision on that branch.
+If
+<I>rev</I>
+
+is omitted, lock the latest revision on the default branch.
+Locking prevents overlapping changes.
+If someone else already holds the lock, the lock is broken as with
+<B>rcs&nbsp;-u</B>
+
+(see below).
+<DT><B>-u</B>[<I>rev</I>]
+
+<DD>
+Unlock the revision with number
+<I>rev</I>.
+
+If a branch is given, unlock the latest revision on that branch.
+If
+<I>rev</I>
+
+is omitted, remove the latest lock held by the caller.
+Normally, only the locker of a revision can unlock it.
+Somebody else unlocking a revision breaks the lock.
+This causes a mail message to be sent to the original locker.
+The message contains a commentary solicited from the breaker.
+The commentary is terminated by end-of-file or by a line containing
+<B>.</B>&nbsp;by
+
+itself.
+<DT><B>-L</B>
+
+<DD>
+Set locking to
+<I>strict</I>.
+
+Strict locking means that the owner
+of an <FONT SIZE="-1">RCS</FONT> file is not exempt from locking for checkin.
+This option should be used for files that are shared.
+<DT><B>-U</B>
+
+<DD>
+Set locking to non-strict.  Non-strict locking means that the owner of
+a file need not lock a revision for checkin.
+This option should
+<I>not</I>
+
+be used for files that are shared.
+Whether default locking is strict is determined by your system administrator,
+but it is normally strict.
+<DT><B>-m</B><I>rev</I><B>:</B><I>msg</I><DD>
+Replace revision
+<I>rev</I>'s
+
+log message with
+<I>msg</I>.
+
+<DT><B>-M</B>
+
+<DD>
+Do not send mail when breaking somebody else's lock.
+This option is not meant for casual use;
+it is meant for programs that warn users by other means, and invoke
+<B>rcs&nbsp;-u</B>
+
+only as a low-level lock-breaking operation.
+<DT><B>-n</B><I>name</I>[<B>:</B>[<I>rev</I>]]<DD>
+Associate the symbolic name
+<I>name</I>
+
+with the branch or
+revision
+<I>rev</I>.
+
+Delete the symbolic name if both
+<B>:</B>
+
+and
+<I>rev</I>
+
+are omitted; otherwise, print an error message if
+<I>name</I>
+
+is already associated with
+another number.
+If
+<I>rev</I>
+
+is symbolic, it is expanded before association.
+A
+<I>rev</I>
+
+consisting of a branch number followed by a
+<B>.</B>
+
+stands for the current latest revision in the branch.
+A
+<B>:</B>
+
+with an empty
+<I>rev</I>
+
+stands for the current latest revision on the default branch,
+normally the trunk.
+For example,
+<B>rcs&nbsp;-n</B><I>name</I><B>:&nbsp;RCS/*</B>
+
+associates
+<I>name</I>
+
+with the current latest revision of all the named <FONT SIZE="-1">RCS</FONT> files;
+this contrasts with
+<B>rcs&nbsp;-n</B><I>name</I><B>:$&nbsp;RCS/*</B>
+
+which associates
+<I>name</I>
+
+with the revision numbers extracted from keyword strings
+in the corresponding working files.
+<DT><B>-N</B><I>name</I>[<B>:</B>[<I>rev</I>]]<DD>
+Act like
+<B>-n</B>,
+
+except override any previous assignment of
+<I>name</I>.
+
+<DT><B>-o</B><I>range</I>
+
+<DD>
+deletes (``outdates'') the revisions given by
+<I>range</I>.
+
+A range consisting of a single revision number means that revision.
+A range consisting of a branch number means the latest revision on that
+branch.
+A range of the form
+<I>rev1</I><B>:</B><I>rev2</I>
+
+means
+revisions
+<I>rev1</I>
+
+to
+<I>rev2</I>
+
+on the same branch,
+<B>:</B><I>rev</I>
+
+means from the beginning of the branch containing
+<I>rev</I>
+
+up to and including
+<I>rev</I>,
+
+and
+<I>rev</I><B>:</B>
+
+means
+from revision
+<I>rev</I>
+
+to the end of the branch containing
+<I>rev</I>.
+
+None of the outdated revisions can have branches or locks.
+<DT><B>-q</B>
+
+<DD>
+Run quietly; do not print diagnostics.
+<DT><B>-I</B>
+
+<DD>
+Run interactively, even if the standard input is not a terminal.
+<DT><B>-s</B><I>state</I>[:<I>rev</I>]
+
+<DD>
+Set the state attribute of the revision
+<I>rev</I>
+
+to
+<I>state</I>.
+
+If
+<I>rev</I>
+
+is a branch number, assume the latest revision on that branch.
+If
+<I>rev</I>
+
+is omitted, assume the latest revision on the default branch.
+Any identifier is acceptable for
+<I>state</I>.
+
+A useful set of states
+is
+<B>Exp</B>
+
+(for experimental),
+<B>Stab</B>
+
+(for stable), and
+<B>Rel</B>
+
+(for
+released).
+By default,
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+sets the state of a revision to
+<B>Exp</B>.
+
+<DT><B>-t</B>[<I>file</I>]
+
+<DD>
+Write descriptive text from the contents of the named
+<I>file</I>
+
+into the <FONT SIZE="-1">RCS</FONT> file, deleting the existing text.
+The
+<I>file</I>
+
+pathname cannot begin with
+<B>-</B>.
+
+If
+<I>file</I>
+
+is omitted, obtain the text from standard input,
+terminated by end-of-file or by a line containing
+<B>.</B>&nbsp;by
+
+itself.
+Prompt for the text if interaction is possible; see
+<B>-I</B>.
+
+With
+<B>-i</B>,
+
+descriptive text is obtained
+even if
+<B>-t</B>
+
+is not given.
+<DT><B>-t-</B><I>string</I>
+
+<DD>
+Write descriptive text from the
+<I>string</I>
+
+into the <FONT SIZE="-1">RCS</FONT> file, deleting the existing text.
+<DT><B>-T</B>
+
+<DD>
+Preserve the modification time on the <FONT SIZE="-1">RCS</FONT> file
+unless a revision is removed.
+This option can suppress extensive recompilation caused by a
+<B><A HREF="../man1/make.1.php">make</A></B>(1)
+
+dependency of some copy of the working file on the <FONT SIZE="-1">RCS</FONT> file.
+Use this option with care; it can suppress recompilation even when it is needed,
+i.e. when a change to the <FONT SIZE="-1">RCS</FONT> file
+would mean a change to keyword strings in the working file.
+<DT><B>-V</B>
+
+<DD>
+Print <FONT SIZE="-1">RCS</FONT>'s version number.
+<DT><B>-V</B><I>n</I>
+
+<DD>
+Emulate <FONT SIZE="-1">RCS</FONT> version
+<I>n</I>.
+
+See
+<B><A HREF="../man1/co.1.php">co</A></B>(1)
+
+for details.
+<DT><B>-x</B><I>suffixes</I>
+
+<DD>
+Use
+<I>suffixes</I>
+
+to characterize <FONT SIZE="-1">RCS</FONT> files.
+See
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+for details.
+<DT><B>-z</B><I>zone</I>
+
+<DD>
+Use
+<I>zone</I>
+
+as the default time zone.
+This option has no effect;
+it is present for compatibility with other <FONT SIZE="-1">RCS</FONT> commands.
+</DL>
+<P>
+
+At least one explicit option must be given,
+to ensure compatibility with future planned extensions
+to the
+<B>rcs</B>
+
+command.
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMPATIBILITY</H2>
+
+The
+<B>-b</B><I>rev</I>
+
+option generates an <FONT SIZE="-1">RCS</FONT> file that cannot be parsed by <FONT SIZE="-1">RCS</FONT> version 3 or earlier.
+<P>
+
+The
+<B>-k</B><I>subst</I>
+
+options (except
+<B>-kkv</B>)
+
+generate an <FONT SIZE="-1">RCS</FONT> file that cannot be parsed by <FONT SIZE="-1">RCS</FONT> version 4 or earlier.
+<P>
+
+Use
+<B>rcs -V</B><I>n</I>
+
+to make an <FONT SIZE="-1">RCS</FONT> file acceptable to <FONT SIZE="-1">RCS</FONT> version
+<I>n</I>
+
+by discarding information that would confuse version
+<I>n</I>.
+
+<P>
+
+<FONT SIZE="-1">RCS</FONT> version 5.5 and earlier does not support the
+<B>-x</B>
+
+option, and requires a
+<B>,v</B>
+
+suffix on an <FONT SIZE="-1">RCS</FONT> pathname.
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<B>rcs</B>
+
+accesses files much as
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+does,
+except that it uses the effective user for all accesses,
+it does not write the working file or its directory,
+and it does not even read the working file unless a revision number of
+<B>$</B>
+
+is specified.
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B></B><FONT SIZE="-1"><B>RCSINIT</B></FONT><B></B>
+
+<DD>
+options prepended to the argument list, separated by spaces.
+See
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+for details.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+The <FONT SIZE="-1">RCS</FONT> pathname and the revisions outdated are written to
+the diagnostic output.
+The exit status is zero if and only if all operations were successful.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>IDENTIFICATION</H2>
+
+Author: Walter F. Tichy.
+<BR>
+
+Manual Page Revision: 5.13; Release Date: 1995/06/05.
+<BR>
+
+Copyright &#169; 1982, 1988, 1989 Walter F. Tichy.
+<BR>
+
+Copyright &#169; 1990, 1991, 1992, 1993, 1994, 1995 Paul Eggert.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/rcsintro.1.php">rcsintro</A>(1), <A HREF="../man1/co.1.php">co</A>(1), <A HREF="../man1/ci.1.php">ci</A>(1), <A HREF="../man1/ident.1.php">ident</A>(1), <A HREF="../man1/rcsclean.1.php">rcsclean</A>(1), <A HREF="../man1/rcsdiff.1.php">rcsdiff</A>(1),
+<A HREF="../man1/rcsmerge.1.php">rcsmerge</A>(1), <A HREF="../man1/rlog.1.php">rlog</A>(1), <A HREF="../man5/rcsfile.5.php">rcsfile</A>(5)
+<BR>
+
+Walter F. Tichy,
+<FONT SIZE="-1">RCS</FONT>--A System for Version Control,
+<I>Software--Practice &amp; Experience</I>
+
+<B>15</B>,
+
+7 (July 1985), 637-654.
+<A NAME="lbAL">&nbsp;</A>
+<H2>BUGS</H2>
+
+A catastrophe (e.g. a system crash) can cause <FONT SIZE="-1">RCS</FONT> to leave behind
+a semaphore file that causes later invocations of <FONT SIZE="-1">RCS</FONT> to claim
+that the <FONT SIZE="-1">RCS</FONT> file is in use.
+To fix this, remove the semaphore file.
+A semaphore file's name typically begins with
+<B>,</B>
+
+or ends with
+<B>_</B>.
+
+<P>
+
+The separator for revision ranges in the
+<B>-o</B>
+
+option used to be
+<B>-</B>
+
+instead of
+<B>:</B>,
+
+but this leads to confusion when symbolic names contain
+<B>-</B>.
+
+For backwards compatibility
+<B>rcs -o</B>
+
+still supports the old
+<B>-</B>
+
+separator, but it warns about this obsolete use.
+<P>
+
+Symbolic names need not refer to existing revisions or branches.
+For example, the
+<B>-o</B>
+
+option does not remove symbolic names for the outdated revisions; you must use
+<B>-n</B>
+
+to remove the names.
+<BR>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">COMPATIBILITY</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAI">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAJ">IDENTIFICATION</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

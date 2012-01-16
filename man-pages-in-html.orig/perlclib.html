@@ -1,0 +1,535 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLCLIB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLCLIB</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlclib - Internal replacements for standard C library functions
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+One thing Perl porters should note is that <I>perl</I> doesn't tend to use that
+much of the C standard library internally; you'll see very little use of, 
+for example, the <I>ctype.h</I> functions in there. This is because Perl
+tends to reimplement or abstract standard library functions, so that we
+know exactly how they're going to operate.
+<P>
+
+This is a reference card for people who are familiar with the C library
+and who want to do things the Perl way; to tell them which functions
+they ought to use instead of the more normal C functions. 
+<A NAME="lbAD">&nbsp;</A>
+<H2>Conventions</H2>
+
+<A NAME="ixAAD"></A>
+In the following tables:
+<DL COMPACT>
+<DT>t<DD>
+
+
+<A NAME="ixAAE"></A>
+is a type.
+<DT>p<DD>
+
+
+<A NAME="ixAAF"></A>
+is a pointer.
+<DT>n<DD>
+
+
+<A NAME="ixAAG"></A>
+is a number.
+<DT>s<DD>
+
+
+<A NAME="ixAAH"></A>
+is a string.
+</DL>
+<P>
+
+<TT>&quot;sv&quot;</TT>, <TT>&quot;av&quot;</TT>, <TT>&quot;hv&quot;</TT>, etc. represent variables of their respective types.
+<A NAME="lbAE">&nbsp;</A>
+<H2>File Operations</H2>
+
+<A NAME="ixAAI"></A>
+Instead of the <I>stdio.h</I> functions, you should use the Perl abstraction
+layer. Instead of <TT>&quot;FILE*&quot;</TT> types, you need to be handling <TT>&quot;PerlIO*&quot;</TT>
+types.  Don't forget that with the new PerlIO layered I/O abstraction 
+<TT>&quot;FILE*&quot;</TT> types may not even be available. See also the <TT>&quot;perlapio&quot;</TT>
+documentation for more information about the following functions:
+<P>
+
+
+
+<PRE>
+    Instead Of:                 Use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    stdin                       PerlIO_stdin()
+    stdout                      PerlIO_stdout()
+    stderr                      PerlIO_stderr()
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    fopen(fn, mode)             PerlIO_open(fn, mode)
+    freopen(fn, mode, stream)   PerlIO_reopen(fn, mode, perlio) (Deprecated)
+    fflush(stream)              PerlIO_flush(perlio)
+    fclose(stream)              PerlIO_close(perlio)
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>File Input and Output</H2>
+
+<A NAME="ixAAJ"></A>
+
+
+<PRE>
+    Instead Of:                 Use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    fprintf(stream, fmt, ...)   PerlIO_printf(perlio, fmt, ...)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    [f]getc(stream)             PerlIO_getc(perlio)
+    [f]putc(stream, n)          PerlIO_putc(perlio, n)
+    ungetc(n, stream)           PerlIO_ungetc(perlio, n)
+
+</PRE>
+
+
+<P>
+
+Note that the PerlIO equivalents of <TT>&quot;fread&quot;</TT> and <TT>&quot;fwrite&quot;</TT> are slightly
+different from their C library counterparts:
+<P>
+
+
+
+<PRE>
+    fread(p, size, n, stream)   PerlIO_read(perlio, buf, numbytes)
+    fwrite(p, size, n, stream)  PerlIO_write(perlio, buf, numbytes)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    fputs(s, stream)            PerlIO_puts(perlio, s)
+
+</PRE>
+
+
+<P>
+
+There is no equivalent to <TT>&quot;fgets&quot;</TT>; one should use <TT>&quot;sv_gets&quot;</TT> instead:
+<P>
+
+
+
+<PRE>
+    fgets(s, n, stream)         sv_gets(sv, perlio, append)
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>File Positioning</H2>
+
+<A NAME="ixAAK"></A>
+
+
+<PRE>
+    Instead Of:                 Use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    feof(stream)                PerlIO_eof(perlio)
+    fseek(stream, n, whence)    PerlIO_seek(perlio, n, whence)
+    rewind(stream)              PerlIO_rewind(perlio)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    fgetpos(stream, p)          PerlIO_getpos(perlio, sv)
+    fsetpos(stream, p)          PerlIO_setpos(perlio, sv)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ferror(stream)              PerlIO_error(perlio)
+    clearerr(stream)            PerlIO_clearerr(perlio)
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>Memory Management and String Handling</H2>
+
+<A NAME="ixAAL"></A>
+
+
+<PRE>
+    Instead Of:                         Use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    t* p = <A HREF="../mann/malloc.n.php">malloc</A>(n)                    New(id, p, n, t)
+    t* p = calloc(n, s)                 Newz(id, p, n, t)
+    p = realloc(p, n)                   Renew(p, n, t)
+    memcpy(dst, src, n)                 Copy(src, dst, n, t)
+    memmove(dst, src, n)                Move(src, dst, n, t)
+    memcpy/*(struct foo *)              StructCopy(src, dst, t)
+    memset(dst, 0, n * sizeof(t))       Zero(dst, n, t)
+    memzero(dst, 0)                     Zero(dst, n, char)
+    free(p)                             Safefree(p)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    strdup(p)                   savepv(p)
+    strndup(p, n)               savepvn(p, n) (Hey, strndup doesn't exist!)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    strstr(big, little)         instr(big, little)
+    strcmp(s1, s2)              strLE(s1, s2) / strEQ(s1, s2) / strGT(s1,s2)
+    strncmp(s1, s2, n)          strnNE(s1, s2, n) / strnEQ(s1, s2, n)
+
+</PRE>
+
+
+<P>
+
+Notice the different order of arguments to <TT>&quot;Copy&quot;</TT> and <TT>&quot;Move&quot;</TT> than used
+in <TT>&quot;memcpy&quot;</TT> and <TT>&quot;memmove&quot;</TT>.
+<P>
+
+Most of the time, though, you'll want to be dealing with SVs internally
+instead of raw <TT>&quot;char *&quot;</TT> strings:
+<P>
+
+
+
+<PRE>
+    strlen(s)                   sv_len(sv)
+    strcpy(dt, src)             sv_setpv(sv, s)
+    strncpy(dt, src, n)         sv_setpvn(sv, s, n)
+    strcat(dt, src)             sv_catpv(sv, s)
+    strncat(dt, src)            sv_catpvn(sv, s)
+    sprintf(s, fmt, ...)        sv_setpvf(sv, fmt, ...)
+
+</PRE>
+
+
+<P>
+
+Note also the existence of <TT>&quot;sv_catpvf&quot;</TT> and <TT>&quot;sv_vcatpvfn&quot;</TT>, combining
+concatenation with formatting.
+<P>
+
+Sometimes instead of zeroing the allocated heap by using <I>Newz()</I> you
+should consider ``poisoning'' the data.  This means writing a bit
+pattern into it that should be illegal as pointers (and floating point
+numbers), and also hopefully surprising enough as integers, so that
+any code attempting to use the data without forethought will break
+sooner rather than later.  Poisoning can be done using the <I>Poison()</I>
+macro, which has similar arguments as <I>Zero()</I>:
+<P>
+
+
+
+<PRE>
+    Poison(dst, n, t)
+
+</PRE>
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>Character Class Tests</H2>
+
+<A NAME="ixAAM"></A>
+There are two types of character class tests that Perl implements: one
+type deals in <TT>&quot;char&quot;</TT>s and are thus <B>not</B> Unicode aware (and hence
+deprecated unless you <B>know</B> you should use them) and the other type
+deal in <TT>&quot;UV&quot;</TT>s and know about Unicode properties. In the following
+table, <TT>&quot;c&quot;</TT> is a <TT>&quot;char&quot;</TT>, and <TT>&quot;u&quot;</TT> is a Unicode codepoint.
+<P>
+
+
+
+<PRE>
+    Instead Of:                 Use:            But better use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    isalnum(c)                  isALNUM(c)      isALNUM_uni(u)
+    isalpha(c)                  isALPHA(c)      isALPHA_uni(u)
+    iscntrl(c)                  isCNTRL(c)      isCNTRL_uni(u)
+    isdigit(c)                  isDIGIT(c)      isDIGIT_uni(u)
+    isgraph(c)                  isGRAPH(c)      isGRAPH_uni(u)
+    islower(c)                  isLOWER(c)      isLOWER_uni(u)
+    isprint(c)                  isPRINT(c)      isPRINT_uni(u)
+    ispunct(c)                  isPUNCT(c)      isPUNCT_uni(u)
+    isspace(c)                  isSPACE(c)      isSPACE_uni(u)
+    isupper(c)                  isUPPER(c)      isUPPER_uni(u)
+    isxdigit(c)                 isXDIGIT(c)     isXDIGIT_uni(u)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    tolower(c)                  toLOWER(c)      toLOWER_uni(u)
+    toupper(c)                  toUPPER(c)      toUPPER_uni(u)
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2><I>stdlib.h</I> functions</H2>
+
+<A NAME="ixAAN"></A>
+
+
+<PRE>
+    Instead Of:                 Use:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    atof(s)                     Atof(s)
+    atol(s)                     Atol(s)
+    strtod(s, *p)               Nothing.  Just don't use it.
+    strtol(s, *p, n)            Strtol(s, *p, n)
+    strtoul(s, *p, n)           Strtoul(s, *p, n)
+
+</PRE>
+
+
+<P>
+
+Notice also the <TT>&quot;grok_bin&quot;</TT>, <TT>&quot;grok_hex&quot;</TT>, and <TT>&quot;grok_oct&quot;</TT> functions in
+<I>numeric.c</I> for converting strings representing numbers in the respective
+bases into <TT>&quot;NV&quot;</TT>s.
+<P>
+
+In theory <TT>&quot;Strtol&quot;</TT> and <TT>&quot;Strtoul&quot;</TT> may not be defined if the machine perl is
+built on doesn't actually have strtol and strtoul. But as those 2
+functions are part of the 1989 <FONT SIZE="-1">ANSI</FONT> C spec we suspect you'll find them
+everywhere by now.
+<P>
+
+
+
+<PRE>
+    int rand()                  double Drand01()
+    <A HREF="../mann/srand.n.php">srand</A>(n)                    { seedDrand01((Rand_seed_t)n); 
+                                  PL_srand_called = TRUE; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="../mann/exit.n.php">exit</A>(n)                     <A HREF="../mann/my_exit.n.php">my_exit</A>(n)
+    system(s)                   Don't. Look at pp_system or use my_popen
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    getenv(s)                   PerlEnv_getenv(s)
+    setenv(s, val)              my_putenv(s, val)
+
+</PRE>
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>Miscellaneous functions</H2>
+
+<A NAME="ixAAO"></A>
+You should not even <B>want</B> to use <I>setjmp.h</I> functions, but if you
+think you do, use the <TT>&quot;JMPENV&quot;</TT> stack in <I>scope.h</I> instead.
+<P>
+
+For <TT>&quot;signal&quot;</TT>/<TT>&quot;sigaction&quot;</TT>, use <TT>&quot;rsignal(signo, handler)&quot;</TT>.
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAP"></A>
+<TT>&quot;perlapi&quot;</TT>, <TT>&quot;perlapio&quot;</TT>, <TT>&quot;perlguts&quot;</TT>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Conventions</A><DD>
+<DT><A HREF="#lbAE">File Operations</A><DD>
+<DT><A HREF="#lbAF">File Input and Output</A><DD>
+<DT><A HREF="#lbAG">File Positioning</A><DD>
+<DT><A HREF="#lbAH">Memory Management and String Handling</A><DD>
+<DT><A HREF="#lbAI">Character Class Tests</A><DD>
+<DT><A HREF="#lbAJ"><I>stdlib.h</I> functions</A><DD>
+<DT><A HREF="#lbAK">Miscellaneous functions</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

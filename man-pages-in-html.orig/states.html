@@ -1,0 +1,508 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>STATES</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>STATES</H1>
+Section: STATES (1)<BR>Updated: Jun 6, 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+states - awk alike text processing tool
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>states</B>
+
+[<B>-hV</B>]
+[<B>-D </B><I>var</I><B>=</B><I>val</I>]
+[<B>-f </B><I>file</I>]
+[<B>-o </B><I>outputfile</I>]
+[<B>-s </B><I>startstate</I>]
+[<B>-W </B><I>level</I>]
+[<I>filename</I> ...]
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<B>States</B> is an awk-alike text processing tool with some state
+machine extensions.  It is designed for program source code
+highlighting and to similar tasks where state information helps input
+processing.
+<P>
+At a single point of time, <B>States</B> is in one state, each quite
+similar to awk's work environment, they have regular expressions which
+are matched from the input and actions which are executed when a match
+is found.  From the action blocks, <B>states</B> can perform state
+transitions; it can move to another state from which the processing is
+continued.  State transitions are recorded so <B>states</B> can return
+to the calling state once the current state has finished.
+<P>
+The biggest difference between <B>states</B> and awk, besides state
+machine extensions, is that <B>states</B> is not line-oriented.  It
+matches regular expression tokens from the input and once a match is
+processed, it continues processing from the current position, not from
+the beginning of the next input line.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-D </B><I>var</I><B>=</B><I>val</I><B>, --define=</B><I>var</I><B>=</B><I>val</I><B></B>
+
+<DD>
+Define variable <I>var</I> to have string value <I>val</I>.  Command
+line definitions overwrite variable definitions found from the config
+file.
+<DT><B>-f </B><I>file</I><B>, --file=</B><I>file</I><B></B>
+
+<DD>
+Read state definitions from file <I>file</I>.  As a default,
+<B>states</B> tries to read state definitions from file <B>states.st</B>
+in the current working directory.
+<DT><B>-h, --help</B>
+
+<DD>
+Print short help message and exit.
+<DT><B>-o </B><I>file</I><B>, --output=</B><I>file</I><B></B>
+
+<DD>
+Save output to file <I>file</I> instead of printing it to
+<B>stdout</B>.
+<DT><B>-s </B><I>state</I><B>, --state=</B><I>state</I><B></B>
+
+<DD>
+Start execution from state <B>state</B>.  This definition overwrites
+start state resolved from the <B>start</B> block.
+<DT><B>-V, --version</B>
+
+<DD>
+Print <B>states</B> version and exit.
+<DT><B>-W </B><I>level</I><B>, --warning=</B><I>level</I><B></B>
+
+<DD>
+Set the warning level to <I>level</I>.  Possible values for <I>level</I>
+are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>light</B>
+
+<DD>
+light warnings (default)
+<DT><B>all</B>
+
+<DD>
+all warnings
+</DL>
+</DL>
+
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>STATES PROGRAM FILES</H2>
+
+<P>
+<B>States</B> program files can contain on <I>start</I> block,
+<I>startrules</I> and <I>namerules</I> blocks to specify the initial
+state, <I>state</I> definitions and <I>expressions</I>.
+<P>
+The <I>start</I> block is the main() of the <B>states</B> program, it is
+executed on script startup for each input file and it can perform any
+initialization the script needs.  It normally also calls the
+<B>check_startrules()</B> and <B>check_namerules()</B> primitives which
+resolve the initial state from the input file name or the data found
+from the begining of the input file.  Here is a sample start block
+which initializes two variables and does the standard start state
+resolving:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+start
+{
+  a = 1;
+  msg = &quot;Hello, world!&quot;;
+  check_startrules ();
+  check_namerules ();
+}
+</PRE>
+
+</DL>
+
+<P>
+
+Once the start block is processed, the input processing is continued
+from the initial state.
+<P>
+The initial state is resolved by the information found from the
+<I>startrules</I> and <I>namerules</I> blocks.  Both blocks contain
+regular expression - symbol pairs, when the regular expression is
+matched from the name of from the beginning of the input file, the
+initial state is named by the corresponding symbol.  For example, the
+following start and name rules can distinguish C and Fortran files:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+namerules
+{
+  /.(c|h)$/    c;
+  /.[fF]$/     fortran;
+}
+
+startrules
+{
+  /- [cC] -/      c;
+  /- fortran -/   fortran;
+}
+</PRE>
+
+</DL>
+
+<P>
+
+If these rules are used with the previously shown start block,
+<B>states</B> first check the beginning of input file.  If it has
+string <B>-*- c -*-</B>, the file is assumed to contain C code and the
+processing is started from state called <B>c</B>.  If the beginning of
+the input file has string <B>-*- fortran -*-</B>, the initial state is
+<B>fortran</B>.  If none of the start rules matched, the name of the
+input file is matched with the namerules.  If the name ends to suffix
+<B>c</B> or <B>C</B>, we go to state <B>c</B>.  If the suffix is
+<B>f</B> or <B>F</B>, the initial state is fortran.
+<P>
+If both start and name rules failed to resolve the start state,
+<B>states</B> just copies its input to output unmodified.
+<P>
+The start state can also be specified from the command line with
+option <B>-s</B>, <B>--state</B>.
+<P>
+State definitions have the following syntax:
+<P>
+<B>state { </B><I>expr</I> {<I>statements</I>} ... }
+
+<P>
+where <I>expr</I> is: a regular expression, special expression or
+symbol and <I>statements</I> is a list of statements.  When the
+expression <I>expr</I> is matched from the input, the statement block
+is executed.  The statement block can call <B>states</B>' primitives,
+user-defined subroutines, call other states, etc.  Once the block is
+executed, the input processing is continued from the current intput
+position (which might have been changed if the statement block called
+other states).
+<P>
+Special expressions <B>BEGIN</B> and <B>END</B> can be used in the place
+of <I>expr</I>.  Expression <B>BEGIN</B> matches the beginning of the
+state, its block is called when the state is entered.  Expression
+<B>END</B> matches the end of the state, its block is executed when
+<B>states</B> leaves the state.
+<P>
+If <I>expr</I> is a symbol, its value is looked up from the global
+environment and if it is a regular expression, it is matched to the
+input, otherwise that rule is ignored.
+<P>
+The <B>states</B> program file can also have top-level expressions,
+they are evaluated after the program file is parsed but before any
+input files are processed or the <I>start</I> block is evaluated.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>PRIMITIVE FUNCTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>call (</B><I>symbol</I><B>)</B>
+
+<DD>
+Move to state <I>symbol</I> and continue input file processing from
+that state.  Function returns whatever the <B>symbol</B> state's
+terminating <B>return</B> statement returned.
+<DT><B>check_namerules ()</B>
+
+<DD>
+Try to resolve start state from <B>namerules</B> rules.  Function
+returns <B>1</B> if start state was resolved or <B>0</B> otherwise.
+<DT><B>check_startrules ()</B>
+
+<DD>
+Try to resolve start state from <B>startrules</B> rules.  Function
+returns <B>1</B> if start state was resolved or <B>0</B> otherwise.
+<DT><B>concat (</B><I>str</I><B>, ...)</B>
+
+<DD>
+Concanate argument strings and return result as a new string.
+<DT><B>float (</B><I>any</I><B>)</B>
+
+<DD>
+Convert argument to a floating point number.
+<DT><B>getenv (</B><I>str</I><B>)</B>
+
+<DD>
+Get value of environment variable <I>str</I>.  Returns an empty string
+if variable <I>var</I> is undefined.
+<DT><B>int (</B><I>any</I><B>)</B>
+
+<DD>
+Convert argument to an integer number.
+<DT><B>length (</B><I>item</I><B>, ...)</B>
+
+<DD>
+Count the length of argument strings or lists.
+<DT><B>list (</B><I>any</I><B>, ...)</B>
+
+<DD>
+Create a new list which contains items <I>any</I>, ...
+<DT><B>panic (</B><I>any</I><B>, ...)</B>
+
+<DD>
+Report a non-recoverable error and exit with status <B>1</B>.  Function
+never returns.
+<DT><B>print (</B><I>any</I><B>, ...)</B>
+
+<DD>
+Convert arguments to strings and print them to the output.
+<DT><B>range (</B><I>source</I><B>, </B><I>start</I><B>, </B><I>end</I><B>)</B>
+
+<DD>
+Return a sub-range of <I>source</I> starting from position <I>start</I>
+(inclusively) to <I>end</I> (exclusively).  Argument <I>source</I> can
+be string or list.
+<DT><B>regexp (</B><I>string</I><B>)</B>
+
+<DD>
+Convert string <I>string</I> to a new regular expression.
+<DT><B>regexp_syntax (</B><I>char</I><B>, </B><I>syntax</I><B>)</B>
+
+<DD>
+Modify regular expression character syntaxes by assigning new
+syntax <I>syntax</I> for character <I>char</I>.  Possible values for
+<I>syntax</I> are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>'w'</B>
+
+<DD>
+character is a word constituent
+<DT><B>' '</B>
+
+<DD>
+character isn't a word constituent
+</DL>
+</DL>
+
+<DT><B>regmatch (</B><I>string</I><B>, </B><I>regexp</I><B>)</B>
+
+<DD>
+Check if string <I>string</I> matches regular expression <I>regexp</I>.
+Functions returns a boolean success status and sets sub-expression
+registers <B>$</B><I>n</I>.
+<DT><B>regsub (</B><I>string</I>, <I>regexp</I><B>, </B><I>subst</I><B>)</B>
+
+<DD>
+Search regular expression <I>regexp</I> from string <I>string</I> and
+replace the matching substring with string <I>subst</I>.  Returns the
+resulting string.  The substitution string <I>subst</I> can contain
+<B>$</B><I>n</I> references to the <I>n</I>:th parenthesized
+sup-expression.
+<DT><B>regsuball (</B><I>string</I>, <I>regexp</I><B>, </B><I>subst</I><B>)</B>
+
+<DD>
+Like <B>regsub</B> but replace all matches of regular expression
+<I>regexp</I> from string <I>string</I> with string <I>subst</I>.
+<DT><B>split (</B><I>regexp</I><B>, </B><I>string</I><B>)</B>
+
+<DD>
+Split string <I>string</I> to list considering matches of regular
+rexpression <I>regexp</I> as item separator.
+<DT><B>sprintf (</B><I>fmt</I>, ...)
+
+<DD>
+Format arguments according to <I>fmt</I> and return result as a
+string.
+<DT><B>strcmp (</B><I>str1</I><B>, </B><I>str2</I><B>)</B>
+
+<DD>
+Perform a case-sensitive comparision for strings <I>str1</I> and
+<I>str2</I>.  Function returns a value that is:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>-1</B>
+
+<DD>
+string <I>str1</I> is less than <I>str2</I>
+<DT><B>0</B>
+
+<DD>
+strings are equal
+<DT><B>1</B>
+
+<DD>
+string <I>str1</I> is greater than <I>str2</I>
+</DL>
+</DL>
+
+<DT><B>string (</B><I>any</I><B>)</B>
+
+<DD>
+Convert argument to string.
+<DT><B>strncmp (</B><I>str1</I><B>, </B><I>str2</I><B>, </B><I>num</I><B>)</B>
+
+<DD>
+Perform a case-sensitive comparision for strings <I>str1</I> and
+<I>str2</I> comparing at maximum <I>num</I><B> characters.
+<DT>substring (</B><I>str</I><B>, </B><I>start</I><B>, </B><I>end</I><B>)</B>
+
+<DD>
+Return a substring of string <I>str</I> starting from position
+<I>start</I> (inclusively) to <I>end</I> (exclusively).
+
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUILTIN VARIABLES</H2>
+
+<DL COMPACT>
+<DT><B>$.</B>
+
+<DD>
+current input line number
+<DT><B>$</B><I>n</I><B></B>
+
+<DD>
+the <I>n</I>th parenthesized regular expression sub-expression from the
+latest state regular expression or from the <B>regmatch</B> primitive
+<DT><B>$`</B>
+
+<DD>
+everything before the matched regular rexpression.  This is usable
+when used with the <B>regmatch</B> primitive; the contents of this
+variable is undefined when used in action blocks to refer the data
+before the block's regular expression.
+<DT><B>$B</B>
+
+<DD>
+an alias for <B>$`</B>
+<DT><B>argv</B>
+
+<DD>
+list of input file names
+<DT><B>filename</B>
+
+<DD>
+name of the current input file
+<DT><B>program</B>
+
+<DD>
+name of the program (usually <B>states</B>)
+<DT><B>version</B>
+
+<DD>
+program version string
+
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+
+/usr/share/enscript/enscript.st         enscript's states definitions
+</PRE>
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/awk.1.php">awk</A>(1), <A HREF="../man1/enscript.1.php">enscript</A>(1)
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Markku Rossi &lt;<A HREF="mailto:mtr@iki.fi">mtr@iki.fi</A>&gt; &lt;<A HREF="http://www.iki.fi/~mtr/">http://www.iki.fi/~mtr/</A>&gt;
+<P>
+GNU Enscript WWW home page: &lt;<A HREF="http://www.iki.fi/~mtr/genscript/">http://www.iki.fi/~mtr/genscript/</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">STATES PROGRAM FILES</A><DD>
+<DT><A HREF="#lbAG">PRIMITIVE FUNCTIONS</A><DD>
+<DT><A HREF="#lbAH">BUILTIN VARIABLES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

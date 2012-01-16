@@ -1,0 +1,961 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>X509</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>X509</H1>
+Section: OpenSSL (1)<BR>Updated: 2003-01-30<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+x509 - Certificate display and signing utility
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>openssl</B> <B>x509</B>
+[<B>-inform DER|PEM|NET</B>]
+[<B>-outform DER|PEM|NET</B>]
+[<B>-keyform DER|PEM</B>]
+[<B>-CAform DER|PEM</B>]
+[<B>-CAkeyform DER|PEM</B>]
+[<B>-in filename</B>]
+[<B>-out filename</B>]
+[<B>-serial</B>]
+[<B>-hash</B>]
+[<B>-subject</B>]
+[<B>-issuer</B>]
+[<B>-nameopt option</B>]
+[<B>-email</B>]
+[<B>-startdate</B>]
+[<B>-enddate</B>]
+[<B>-purpose</B>]
+[<B>-dates</B>]
+[<B>-modulus</B>]
+[<B>-fingerprint</B>]
+[<B>-alias</B>]
+[<B>-noout</B>]
+[<B>-trustout</B>]
+[<B>-clrtrust</B>]
+[<B>-clrreject</B>]
+[<B>-addtrust arg</B>]
+[<B>-addreject arg</B>]
+[<B>-setalias arg</B>]
+[<B>-days arg</B>]
+[<B>-set_serial n</B>]
+[<B>-signkey filename</B>]
+[<B>-x509toreq</B>]
+[<B>-req</B>]
+[<B>-CA filename</B>]
+[<B>-CAkey filename</B>]
+[<B>-CAcreateserial</B>]
+[<B>-CAserial filename</B>]
+[<B>-text</B>]
+[<B>-C</B>]
+[<B>-md2|-md5|-sha1|-mdc2</B>]
+[<B>-clrext</B>]
+[<B>-extfile filename</B>]
+[<B>-extensions section</B>]
+[<B>-engine id</B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The <B>x509</B> command is a multi purpose certificate utility. It can be
+used to display certificate information, convert certificates to
+various forms, sign certificate requests like a ``mini <FONT SIZE="-1">CA</FONT>'' or edit
+certificate trust settings.
+<P>
+
+Since there are a large number of options they will split up into
+various sections.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<A NAME="lbAF">&nbsp;</A>
+<H2><FONT SIZE="-1">INPUT</FONT>, <FONT SIZE="-1">OUTPUT</FONT> <FONT SIZE="-1">AND</FONT> <FONT SIZE="-1">GENERAL</FONT> <FONT SIZE="-1">PURPOSE</FONT> <FONT SIZE="-1">OPTIONS</FONT></H2>
+
+<A NAME="ixAAF"></A>
+<DL COMPACT>
+<DT><B>-inform DER|PEM|NET</B><DD>
+<A NAME="ixAAG"></A>
+This specifies the input format normally the command will expect an X509
+certificate but this can change if other options such as <B>-req</B> are
+present. The <FONT SIZE="-1">DER</FONT> format is the <FONT SIZE="-1">DER</FONT> encoding of the certificate and <FONT SIZE="-1">PEM</FONT>
+is the base64 encoding of the <FONT SIZE="-1">DER</FONT> encoding with header and footer lines
+added. The <FONT SIZE="-1">NET</FONT> option is an obscure Netscape server format that is now
+obsolete.
+<DT><B>-outform DER|PEM|NET</B><DD>
+<A NAME="ixAAH"></A>
+This specifies the output format, the options have the same meaning as the 
+<B>-inform</B> option.
+<DT><B>-in filename</B><DD>
+<A NAME="ixAAI"></A>
+This specifies the input filename to read a certificate from or standard input
+if this option is not specified.
+<DT><B>-out filename</B><DD>
+<A NAME="ixAAJ"></A>
+This specifies the output filename to write to or standard output by
+default.
+<DT><B>-md2|-md5|-sha1|-mdc2</B><DD>
+<A NAME="ixAAK"></A>
+the digest to use. This affects any signing or display option that uses a message
+digest, such as the <B>-fingerprint</B>, <B>-signkey</B> and <B>-CA</B> options. If not
+specified then <FONT SIZE="-1">MD5</FONT> is used. If the key being used to sign with is a <FONT SIZE="-1">DSA</FONT> key then
+this option has no effect: <FONT SIZE="-1">SHA1</FONT> is always used with <FONT SIZE="-1">DSA</FONT> keys.
+<DT><B>-engine id</B><DD>
+<A NAME="ixAAL"></A>
+specifying an engine (by it's unique <B>id</B> string) will cause <B>req</B>
+to attempt to obtain a functional reference to the specified engine,
+thus initialising it if needed. The engine will then be set as the default
+for all available algorithms.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2><FONT SIZE="-1">DISPLAY</FONT> <FONT SIZE="-1">OPTIONS</FONT></H2>
+
+<A NAME="ixAAM"></A>
+Note: the <B>-alias</B> and <B>-purpose</B> options are also display options
+but are described in the <B></B><FONT SIZE="-1"><B>TRUST</B></FONT><B> </B><FONT SIZE="-1"><B>SETTINGS</B></FONT><B></B> section.
+<DL COMPACT>
+<DT><B>-text</B><DD>
+<A NAME="ixAAN"></A>
+prints out the certificate in text form. Full details are output including the
+public key, signature algorithms, issuer and subject names, serial number
+any extensions present and any trust settings.
+<DT><B>-certopt option</B><DD>
+<A NAME="ixAAO"></A>
+customise the output format used with <B>-text</B>. The <B>option</B> argument can be
+a single option or multiple options separated by commas. The <B>-certopt</B> switch
+may be also be used more than once to set multiple options. See the <B></B><FONT SIZE="-1"><B>TEXT</B></FONT><B> </B><FONT SIZE="-1"><B>OPTIONS</B></FONT><B></B>
+section for more information.
+<DT><B>-noout</B><DD>
+<A NAME="ixAAP"></A>
+this option prevents output of the encoded version of the request.
+<DT><B>-modulus</B><DD>
+<A NAME="ixAAQ"></A>
+this option prints out the value of the modulus of the public key
+contained in the certificate.
+<DT><B>-serial</B><DD>
+<A NAME="ixAAR"></A>
+outputs the certificate serial number.
+<DT><B>-hash</B><DD>
+<A NAME="ixAAS"></A>
+outputs the ``hash'' of the certificate subject name. This is used in OpenSSL to
+form an index to allow certificates in a directory to be looked up by subject
+name.
+<DT><B>-subject</B><DD>
+<A NAME="ixAAT"></A>
+outputs the subject name.
+<DT><B>-issuer</B><DD>
+<A NAME="ixAAU"></A>
+outputs the issuer name.
+<DT><B>-nameopt option</B><DD>
+<A NAME="ixAAV"></A>
+option which determines how the subject or issuer names are displayed. The
+<B>option</B> argument can be a single option or multiple options separated by
+commas.  Alternatively the <B>-nameopt</B> switch may be used more than once to
+set multiple options. See the <B></B><FONT SIZE="-1"><B>NAME</B></FONT><B> </B><FONT SIZE="-1"><B>OPTIONS</B></FONT><B></B> section for more information.
+<DT><B>-email</B><DD>
+<A NAME="ixAAW"></A>
+outputs the email address(es) if any.
+<DT><B>-startdate</B><DD>
+<A NAME="ixAAX"></A>
+prints out the start date of the certificate, that is the notBefore date.
+<DT><B>-enddate</B><DD>
+<A NAME="ixAAY"></A>
+prints out the expiry date of the certificate, that is the notAfter date.
+<DT><B>-dates</B><DD>
+<A NAME="ixAAZ"></A>
+prints out the start and expiry dates of a certificate.
+<DT><B>-fingerprint</B><DD>
+<A NAME="ixABA"></A>
+prints out the digest of the <FONT SIZE="-1">DER</FONT> encoded version of the whole certificate
+(see digest options).
+<DT><B>-C</B><DD>
+<A NAME="ixABB"></A>
+this outputs the certificate in the form of a C source file.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2><FONT SIZE="-1">TRUST</FONT> <FONT SIZE="-1">SETTINGS</FONT></H2>
+
+<A NAME="ixABC"></A>
+Please note these options are currently experimental and may well change.
+<P>
+
+A <B>trusted certificate</B> is an ordinary certificate which has several
+additional pieces of information attached to it such as the permitted
+and prohibited uses of the certificate and an ``alias''.
+<P>
+
+Normally when a certificate is being verified at least one certificate
+must be ``trusted''. By default a trusted certificate must be stored
+locally and must be a root <FONT SIZE="-1">CA:</FONT> any certificate chain ending in this <FONT SIZE="-1">CA</FONT>
+is then usable for any purpose.
+<P>
+
+Trust settings currently are only used with a root <FONT SIZE="-1">CA</FONT>. They allow a finer
+control over the purposes the root <FONT SIZE="-1">CA</FONT> can be used for. For example a <FONT SIZE="-1">CA</FONT>
+may be trusted for <FONT SIZE="-1">SSL</FONT> client but not <FONT SIZE="-1">SSL</FONT> server use.
+<P>
+
+See the description of the <B>verify</B> utility for more information on the
+meaning of trust settings.
+<P>
+
+Future versions of OpenSSL will recognize trust settings on any
+certificate: not just root CAs.
+<DL COMPACT>
+<DT><B>-trustout</B><DD>
+<A NAME="ixABD"></A>
+this causes <B>x509</B> to output a <B>trusted</B> certificate. An ordinary
+or trusted certificate can be input but by default an ordinary
+certificate is output and any trust settings are discarded. With the
+<B>-trustout</B> option a trusted certificate is output. A trusted
+certificate is automatically output if any trust settings are modified.
+<DT><B>-setalias arg</B><DD>
+<A NAME="ixABE"></A>
+sets the alias of the certificate. This will allow the certificate
+to be referred to using a nickname for example ``Steve's Certificate''.
+<DT><B>-alias</B><DD>
+<A NAME="ixABF"></A>
+outputs the certificate alias, if any.
+<DT><B>-clrtrust</B><DD>
+<A NAME="ixABG"></A>
+clears all the permitted or trusted uses of the certificate.
+<DT><B>-clrreject</B><DD>
+<A NAME="ixABH"></A>
+clears all the prohibited or rejected uses of the certificate.
+<DT><B>-addtrust arg</B><DD>
+<A NAME="ixABI"></A>
+adds a trusted certificate use. Any object name can be used here
+but currently only <B>clientAuth</B> (<FONT SIZE="-1">SSL</FONT> client use), <B>serverAuth</B>
+(<FONT SIZE="-1">SSL</FONT> server use) and <B>emailProtection</B> (S/MIME email) are used.
+Other OpenSSL applications may define additional uses.
+<DT><B>-addreject arg</B><DD>
+<A NAME="ixABJ"></A>
+adds a prohibited use. It accepts the same values as the <B>-addtrust</B>
+option.
+<DT><B>-purpose</B><DD>
+<A NAME="ixABK"></A>
+this option performs tests on the certificate extensions and outputs
+the results. For a more complete description see the <B></B><FONT SIZE="-1"><B>CERTIFICATE</B></FONT><B>
+</B><FONT SIZE="-1"><B>EXTENSIONS</B></FONT><B></B> section.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2><FONT SIZE="-1">SIGNING</FONT> <FONT SIZE="-1">OPTIONS</FONT></H2>
+
+<A NAME="ixABL"></A>
+The <B>x509</B> utility can be used to sign certificates and requests: it
+can thus behave like a ``mini <FONT SIZE="-1">CA</FONT>''.
+<DL COMPACT>
+<DT><B>-signkey filename</B><DD>
+<A NAME="ixABM"></A>
+this option causes the input file to be self signed using the supplied
+private key. 
+
+
+<P>
+
+
+If the input file is a certificate it sets the issuer name to the
+subject name (i.e.  makes it self signed) changes the public key to the
+supplied value and changes the start and end dates. The start date is
+set to the current time and the end date is set to a value determined
+by the <B>-days</B> option. Any certificate extensions are retained unless
+the <B>-clrext</B> option is supplied.
+
+
+<P>
+
+
+If the input is a certificate request then a self signed certificate
+is created using the supplied private key using the subject name in
+the request.
+<DT><B>-clrext</B><DD>
+<A NAME="ixABN"></A>
+delete any extensions from a certificate. This option is used when a
+certificate is being created from another certificate (for example with
+the <B>-signkey</B> or the <B>-CA</B> options). Normally all extensions are
+retained.
+<DT><B>-keyform PEM|DER</B><DD>
+<A NAME="ixABO"></A>
+specifies the format (<FONT SIZE="-1">DER</FONT> or <FONT SIZE="-1">PEM</FONT>) of the private key file used in the
+<B>-signkey</B> option.
+<DT><B>-days arg</B><DD>
+<A NAME="ixABP"></A>
+specifies the number of days to make a certificate valid for. The default
+is 30 days.
+<DT><B>-x509toreq</B><DD>
+<A NAME="ixABQ"></A>
+converts a certificate into a certificate request. The <B>-signkey</B> option
+is used to pass the required private key.
+<DT><B>-req</B><DD>
+<A NAME="ixABR"></A>
+by default a certificate is expected on input. With this option a
+certificate request is expected instead.
+<DT><B>-set_serial n</B><DD>
+<A NAME="ixABS"></A>
+specifies the serial number to use. This option can be used with either
+the <B>-signkey</B> or <B>-CA</B> options. If used in conjunction with the <B>-CA</B>
+option the serial number file (as specified by the <B>-CAserial</B> or
+<B>-CAcreateserial</B> options) is not used.
+
+
+<P>
+
+
+The serial number can be decimal or hex (if preceded by <B>0x</B>). Negative
+serial numbers can also be specified but their use is not recommended.
+<DT><B>-CA filename</B><DD>
+<A NAME="ixABT"></A>
+specifies the <FONT SIZE="-1">CA</FONT> certificate to be used for signing. When this option is
+present <B>x509</B> behaves like a ``mini <FONT SIZE="-1">CA</FONT>''. The input file is signed by this
+<FONT SIZE="-1">CA</FONT> using this option: that is its issuer name is set to the subject name
+of the <FONT SIZE="-1">CA</FONT> and it is digitally signed using the CAs private key.
+
+
+<P>
+
+
+This option is normally combined with the <B>-req</B> option. Without the
+<B>-req</B> option the input is a certificate which must be self signed.
+<DT><B>-CAkey filename</B><DD>
+<A NAME="ixABU"></A>
+sets the <FONT SIZE="-1">CA</FONT> private key to sign a certificate with. If this option is
+not specified then it is assumed that the <FONT SIZE="-1">CA</FONT> private key is present in
+the <FONT SIZE="-1">CA</FONT> certificate file.
+<DT><B>-CAserial filename</B><DD>
+<A NAME="ixABV"></A>
+sets the <FONT SIZE="-1">CA</FONT> serial number file to use.
+
+
+<P>
+
+
+When the <B>-CA</B> option is used to sign a certificate it uses a serial
+number specified in a file. This file consist of one line containing
+an even number of hex digits with the serial number to use. After each
+use the serial number is incremented and written out to the file again.
+
+
+<P>
+
+
+The default filename consists of the <FONT SIZE="-1">CA</FONT> certificate file base name with
+``.srl'' appended. For example if the <FONT SIZE="-1">CA</FONT> certificate file is called 
+``mycacert.pem'' it expects to find a serial number file called ``mycacert.srl''.
+<DT><B>-CAcreateserial</B><DD>
+<A NAME="ixABW"></A>
+with this option the <FONT SIZE="-1">CA</FONT> serial number file is created if it does not exist:
+it will contain the serial number ``02'' and the certificate being signed will
+have the 1 as its serial number. Normally if the <B>-CA</B> option is specified
+and the serial number file does not exist it is an error.
+<DT><B>-extfile filename</B><DD>
+<A NAME="ixABX"></A>
+file containing certificate extensions to use. If not specified then
+no extensions are added to the certificate.
+<DT><B>-extensions section</B><DD>
+<A NAME="ixABY"></A>
+the section to add certificate extensions from. If this option is not
+specified then the extensions should either be contained in the unnamed
+(default) section or the default section should contain a variable called
+``extensions'' which contains the section to use.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2><FONT SIZE="-1">NAME</FONT> <FONT SIZE="-1">OPTIONS</FONT></H2>
+
+<A NAME="ixABZ"></A>
+The <B>nameopt</B> command line switch determines how the subject and issuer
+names are displayed. If no <B>nameopt</B> switch is present the default ``oneline''
+format is used which is compatible with previous versions of OpenSSL.
+Each option is described in detail below, all options can be preceded by
+a <B>-</B> to turn the option off. Only the first four will normally be used.
+<DL COMPACT>
+<DT><B>compat</B><DD>
+<A NAME="ixACA"></A>
+use the old format. This is equivalent to specifying no name options at all.
+<DT><B></B><FONT SIZE="-1"><B>RFC2253</B></FONT><B></B><DD>
+<A NAME="ixACB"></A>
+displays names compatible with <FONT SIZE="-1">RFC2253</FONT> equivalent to <B>esc_2253</B>, <B>esc_ctrl</B>,
+<B>esc_msb</B>, <B>utf8</B>, <B>dump_nostr</B>, <B>dump_unknown</B>, <B>dump_der</B>,
+<B>sep_comma_plus</B>, <B>dn_rev</B> and <B>sname</B>.
+<DT><B>oneline</B><DD>
+<A NAME="ixACC"></A>
+a oneline format which is more readable than <FONT SIZE="-1">RFC2253</FONT>. It is equivalent to
+specifying the  <B>esc_2253</B>, <B>esc_ctrl</B>, <B>esc_msb</B>, <B>utf8</B>, <B>dump_nostr</B>,
+<B>dump_der</B>, <B>use_quote</B>, <B>sep_comma_plus_spc</B>, <B>spc_eq</B> and <B>sname</B>
+options.
+<DT><B>multiline</B><DD>
+<A NAME="ixACD"></A>
+a multiline format. It is equivalent <B>esc_ctrl</B>, <B>esc_msb</B>, <B>sep_multiline</B>,
+<B>spc_eq</B>, <B>lname</B> and <B>align</B>.
+<DT><B>esc_2253</B><DD>
+<A NAME="ixACE"></A>
+escape the ``special'' characters required by <FONT SIZE="-1">RFC2253</FONT> in a field That is
+<B>,+&quot;&lt;&gt;;</B>. Additionally <B>#</B> is escaped at the beginning of a string
+and a space character at the beginning or end of a string.
+<DT><B>esc_ctrl</B><DD>
+<A NAME="ixACF"></A>
+escape control characters. That is those with <FONT SIZE="-1">ASCII</FONT> values less than
+0x20 (space) and the delete (0x7f) character. They are escaped using the
+<FONT SIZE="-1">RFC2253</FONT> \XX notation (where <FONT SIZE="-1">XX</FONT> are two hex digits representing the
+character value).
+<DT><B>esc_msb</B><DD>
+<A NAME="ixACG"></A>
+escape characters with the <FONT SIZE="-1">MSB</FONT> set, that is with <FONT SIZE="-1">ASCII</FONT> values larger than
+127.
+<DT><B>use_quote</B><DD>
+<A NAME="ixACH"></A>
+escapes some characters by surrounding the whole string with <B>&quot;</B> characters,
+without the option all escaping is done with the <B>\</B> character.
+<DT><B>utf8</B><DD>
+<A NAME="ixACI"></A>
+convert all strings to <FONT SIZE="-1">UTF8</FONT> format first. This is required by <FONT SIZE="-1">RFC2253</FONT>. If
+you are lucky enough to have a <FONT SIZE="-1">UTF8</FONT> compatible terminal then the use
+of this option (and <B>not</B> setting <B>esc_msb</B>) may result in the correct
+display of multibyte (international) characters. Is this option is not
+present then multibyte characters larger than 0xff will be represented
+using the format \UXXXX for 16 bits and \WXXXXXXXX for 32 bits.
+Also if this option is off any UTF8Strings will be converted to their
+character form first.
+<DT><B>no_type</B><DD>
+<A NAME="ixACJ"></A>
+this option does not attempt to interpret multibyte characters in any
+way. That is their content octets are merely dumped as though one octet
+represents each character. This is useful for diagnostic purposes but
+will result in rather odd looking output.
+<DT><B>show_type</B><DD>
+<A NAME="ixACK"></A>
+show the type of the <FONT SIZE="-1">ASN1</FONT> character string. The type precedes the
+field contents. For example ``<FONT SIZE="-1">BMPSTRING:</FONT> Hello World''.
+<DT><B>dump_der</B><DD>
+<A NAME="ixACL"></A>
+when this option is set any fields that need to be hexdumped will
+be dumped using the <FONT SIZE="-1">DER</FONT> encoding of the field. Otherwise just the
+content octets will be displayed. Both options use the <FONT SIZE="-1">RFC2253</FONT>
+<B>#XXXX...</B> format.
+<DT><B>dump_nostr</B><DD>
+<A NAME="ixACM"></A>
+dump non character string types (for example <FONT SIZE="-1">OCTET</FONT> <FONT SIZE="-1">STRING</FONT>) if this
+option is not set then non character string types will be displayed
+as though each content octet represents a single character.
+<DT><B>dump_all</B><DD>
+<A NAME="ixACN"></A>
+dump all fields. This option when used with <B>dump_der</B> allows the
+<FONT SIZE="-1">DER</FONT> encoding of the structure to be unambiguously determined.
+<DT><B>dump_unknown</B><DD>
+<A NAME="ixACO"></A>
+dump any field whose <FONT SIZE="-1">OID</FONT> is not recognised by OpenSSL.
+<DT><B>sep_comma_plus</B>, <B>sep_comma_plus_space</B>, <B>sep_semi_plus_space</B>, <B>sep_multiline</B><DD>
+<A NAME="ixACP"></A>
+these options determine the field separators. The first character is
+between RDNs and the second between multiple AVAs (multiple AVAs are
+very rare and their use is discouraged). The options ending in
+``space'' additionally place a space after the separator to make it
+more readable. The <B>sep_multiline</B> uses a linefeed character for
+the <FONT SIZE="-1">RDN</FONT> separator and a spaced <B>+</B> for the <FONT SIZE="-1">AVA</FONT> separator. It also
+indents the fields by four characters.
+<DT><B>dn_rev</B><DD>
+<A NAME="ixACQ"></A>
+reverse the fields of the <FONT SIZE="-1">DN</FONT>. This is required by <FONT SIZE="-1">RFC2253</FONT>. As a side
+effect this also reverses the order of multiple AVAs but this is
+permissible.
+<DT><B>nofname</B>, <B>sname</B>, <B>lname</B>, <B>oid</B><DD>
+<A NAME="ixACR"></A>
+these options alter how the field name is displayed. <B>nofname</B> does
+not display the field at all. <B>sname</B> uses the ``short name'' form
+(<FONT SIZE="-1">CN</FONT> for commonName for example). <B>lname</B> uses the long form.
+<B>oid</B> represents the <FONT SIZE="-1">OID</FONT> in numerical form and is useful for
+diagnostic purpose.
+<DT><B>align</B><DD>
+<A NAME="ixACS"></A>
+align field values for a more readable output. Only usable with
+<B>sep_multiline</B>.
+<DT><B>spc_eq</B><DD>
+<A NAME="ixACT"></A>
+places spaces round the <B>=</B> character which follows the field
+name.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2><FONT SIZE="-1">TEXT</FONT> <FONT SIZE="-1">OPTIONS</FONT></H2>
+
+<A NAME="ixACU"></A>
+As well as customising the name output format, it is also possible to
+customise the actual fields printed using the <B>certopt</B> options when
+the <B>text</B> option is present. The default behaviour is to print all fields.
+<DL COMPACT>
+<DT><B>compatible</B><DD>
+<A NAME="ixACV"></A>
+use the old format. This is equivalent to specifying no output options at all.
+<DT><B>no_header</B><DD>
+<A NAME="ixACW"></A>
+don't print header information: that is the lines saying ``Certificate'' and ``Data''.
+<DT><B>no_version</B><DD>
+<A NAME="ixACX"></A>
+don't print out the version number.
+<DT><B>no_serial</B><DD>
+<A NAME="ixACY"></A>
+don't print out the serial number.
+<DT><B>no_signame</B><DD>
+<A NAME="ixACZ"></A>
+don't print out the signature algorithm used.
+<DT><B>no_validity</B><DD>
+<A NAME="ixADA"></A>
+don't print the validity, that is the <B>notBefore</B> and <B>notAfter</B> fields.
+<DT><B>no_subject</B><DD>
+<A NAME="ixADB"></A>
+don't print out the subject name.
+<DT><B>no_issuer</B><DD>
+<A NAME="ixADC"></A>
+don't print out the issuer name.
+<DT><B>no_pubkey</B><DD>
+<A NAME="ixADD"></A>
+don't print out the public key.
+<DT><B>no_sigdump</B><DD>
+<A NAME="ixADE"></A>
+don't give a hexadecimal dump of the certificate signature.
+<DT><B>no_aux</B><DD>
+<A NAME="ixADF"></A>
+don't print out certificate trust information.
+<DT><B>no_extensions</B><DD>
+<A NAME="ixADG"></A>
+don't print out any X509V3 extensions.
+<DT><B>ext_default</B><DD>
+<A NAME="ixADH"></A>
+retain default extension behaviour: attempt to print out unsupported certificate extensions.
+<DT><B>ext_error</B><DD>
+<A NAME="ixADI"></A>
+print an error message for unsupported certificate extensions.
+<DT><B>ext_parse</B><DD>
+<A NAME="ixADJ"></A>
+<FONT SIZE="-1">ASN1</FONT> parse unsupported extensions.
+<DT><B>ext_dump</B><DD>
+<A NAME="ixADK"></A>
+hex dump unsupported extensions.
+<DT><B>ca_default</B><DD>
+<A NAME="ixADL"></A>
+the value used by the <B>ca</B> utility, equivalent to <B>no_issuer</B>, <B>no_pubkey</B>, <B>no_header</B>,
+<B>no_version</B>, <B>no_sigdump</B> and <B>no_signame</B>.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixADM"></A>
+Note: in these examples the '\' means the example should be all on one
+line.
+<P>
+
+Display the contents of a certificate:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -text
+
+</PRE>
+
+
+<P>
+
+Display the certificate serial number:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -serial
+
+</PRE>
+
+
+<P>
+
+Display the certificate subject name:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -subject
+
+</PRE>
+
+
+<P>
+
+Display the certificate subject name in <FONT SIZE="-1">RFC2253</FONT> form:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -subject -nameopt RFC2253
+
+</PRE>
+
+
+<P>
+
+Display the certificate subject name in oneline form on a terminal
+supporting <FONT SIZE="-1">UTF8:</FONT>
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -subject -nameopt oneline,-escmsb
+
+</PRE>
+
+
+<P>
+
+Display the certificate <FONT SIZE="-1">MD5</FONT> fingerprint:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -noout -fingerprint
+
+</PRE>
+
+
+<P>
+
+Display the certificate <FONT SIZE="-1">SHA1</FONT> fingerprint:
+<P>
+
+
+
+<PRE>
+ openssl x509 -sha1 -in cert.pem -noout -fingerprint
+
+</PRE>
+
+
+<P>
+
+Convert a certificate from <FONT SIZE="-1">PEM</FONT> to <FONT SIZE="-1">DER</FONT> format:
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -inform PEM -out cert.der -outform DER
+
+</PRE>
+
+
+<P>
+
+Convert a certificate to a certificate request:
+<P>
+
+
+
+<PRE>
+ openssl x509 -x509toreq -in cert.pem -out req.pem -signkey key.pem
+
+</PRE>
+
+
+<P>
+
+Convert a certificate request into a self signed certificate using
+extensions for a <FONT SIZE="-1">CA:</FONT>
+<P>
+
+
+
+<PRE>
+ openssl x509 -req -in careq.pem -extfile openssl.cnf -extensions v3_ca \
+        -signkey key.pem -out cacert.pem
+
+</PRE>
+
+
+<P>
+
+Sign a certificate request using the <FONT SIZE="-1">CA</FONT> certificate above and add user
+certificate extensions:
+<P>
+
+
+
+<PRE>
+ openssl x509 -req -in req.pem -extfile openssl.cnf -extensions v3_usr \
+        -CA cacert.pem -CAkey key.pem -CAcreateserial
+
+</PRE>
+
+
+<P>
+
+Set a certificate to be trusted for <FONT SIZE="-1">SSL</FONT> client use and change set its alias to
+``Steve's Class 1 <FONT SIZE="-1">CA</FONT>''
+<P>
+
+
+
+<PRE>
+ openssl x509 -in cert.pem -addtrust clientAuth \
+        -setalias &quot;Steve's Class 1 CA&quot; -out trust.pem
+
+</PRE>
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixADN"></A>
+The <FONT SIZE="-1">PEM</FONT> format uses the header and footer lines:
+<P>
+
+
+
+<PRE>
+ -----BEGIN CERTIFICATE-----
+ -----END CERTIFICATE-----
+
+</PRE>
+
+
+<P>
+
+it will also handle files containing:
+<P>
+
+
+
+<PRE>
+ -----BEGIN X509 CERTIFICATE-----
+ -----END X509 CERTIFICATE-----
+
+</PRE>
+
+
+<P>
+
+Trusted certificates have the lines
+<P>
+
+
+
+<PRE>
+ -----BEGIN TRUSTED CERTIFICATE-----
+ -----END TRUSTED CERTIFICATE-----
+
+</PRE>
+
+
+<P>
+
+The conversion to <FONT SIZE="-1">UTF8</FONT> format used with the name options assumes that
+T61Strings use the <FONT SIZE="-1">ISO8859-1</FONT> character set. This is wrong but Netscape
+and <FONT SIZE="-1">MSIE</FONT> do this as do many certificates. So although this is incorrect
+it is more likely to display the majority of certificates correctly.
+<P>
+
+The <B>-fingerprint</B> option takes the digest of the <FONT SIZE="-1">DER</FONT> encoded certificate.
+This is commonly called a ``fingerprint''. Because of the nature of message
+digests the fingerprint of a certificate is unique to that certificate and
+two certificates with the same fingerprint can be considered to be the same.
+<P>
+
+The Netscape fingerprint uses <FONT SIZE="-1">MD5</FONT> whereas <FONT SIZE="-1">MSIE</FONT> uses <FONT SIZE="-1">SHA1</FONT>.
+<P>
+
+The <B>-email</B> option searches the subject name and the subject alternative
+name extension. Only unique email addresses will be printed out: it will
+not print the same address more than once.
+<A NAME="lbAN">&nbsp;</A>
+<H2>CERTIFICATE EXTENSIONS</H2>
+
+<A NAME="ixADO"></A>
+The <B>-purpose</B> option checks the certificate extensions and determines
+what the certificate can be used for. The actual checks done are rather
+complex and include various hacks and workarounds to handle broken
+certificates and software.
+<P>
+
+The same code is used when verifying untrusted certificates in chains
+so this section is useful if a chain is rejected by the verify code.
+<P>
+
+The basicConstraints extension <FONT SIZE="-1">CA</FONT> flag is used to determine whether the
+certificate can be used as a <FONT SIZE="-1">CA</FONT>. If the <FONT SIZE="-1">CA</FONT> flag is true then it is a <FONT SIZE="-1">CA</FONT>,
+if the <FONT SIZE="-1">CA</FONT> flag is false then it is not a <FONT SIZE="-1">CA</FONT>. <B>All</B> CAs should have the
+<FONT SIZE="-1">CA</FONT> flag set to true.
+<P>
+
+If the basicConstraints extension is absent then the certificate is
+considered to be a ``possible <FONT SIZE="-1">CA</FONT>'' other extensions are checked according
+to the intended use of the certificate. A warning is given in this case
+because the certificate should really not be regarded as a <FONT SIZE="-1">CA:</FONT> however
+it is allowed to be a <FONT SIZE="-1">CA</FONT> to work around some broken software.
+<P>
+
+If the certificate is a V1 certificate (and thus has no extensions) and
+it is self signed it is also assumed to be a <FONT SIZE="-1">CA</FONT> but a warning is again
+given: this is to work around the problem of Verisign roots which are V1
+self signed certificates.
+<P>
+
+If the keyUsage extension is present then additional restraints are
+made on the uses of the certificate. A <FONT SIZE="-1">CA</FONT> certificate <B>must</B> have the
+keyCertSign bit set if the keyUsage extension is present.
+<P>
+
+The extended key usage extension places additional restrictions on the
+certificate uses. If this extension is present (whether critical or not)
+the key can only be used for the purposes specified.
+<P>
+
+A complete description of each test is given below. The comments about
+basicConstraints and keyUsage and V1 certificates above apply to <B>all</B>
+<FONT SIZE="-1">CA</FONT> certificates.
+<DL COMPACT>
+<DT><B></B><FONT SIZE="-1"><B>SSL</B></FONT><B> Client</B><DD>
+<A NAME="ixADP"></A>
+The extended key usage extension must be absent or include the ``web client
+authentication'' <FONT SIZE="-1">OID</FONT>.  keyUsage must be absent or it must have the
+digitalSignature bit set. Netscape certificate type must be absent or it must
+have the <FONT SIZE="-1">SSL</FONT> client bit set.
+<DT><B></B><FONT SIZE="-1"><B>SSL</B></FONT><B> Client </B><FONT SIZE="-1"><B>CA</B></FONT><B></B><DD>
+<A NAME="ixADQ"></A>
+The extended key usage extension must be absent or include the ``web client
+authentication'' <FONT SIZE="-1">OID</FONT>. Netscape certificate type must be absent or it must have
+the <FONT SIZE="-1">SSL</FONT> <FONT SIZE="-1">CA</FONT> bit set: this is used as a work around if the basicConstraints
+extension is absent.
+<DT><B></B><FONT SIZE="-1"><B>SSL</B></FONT><B> Server</B><DD>
+<A NAME="ixADR"></A>
+The extended key usage extension must be absent or include the ``web server
+authentication'' and/or one of the <FONT SIZE="-1">SGC</FONT> OIDs.  keyUsage must be absent or it
+must have the digitalSignature, the keyEncipherment set or both bits set.
+Netscape certificate type must be absent or have the <FONT SIZE="-1">SSL</FONT> server bit set.
+<DT><B></B><FONT SIZE="-1"><B>SSL</B></FONT><B> Server </B><FONT SIZE="-1"><B>CA</B></FONT><B></B><DD>
+<A NAME="ixADS"></A>
+The extended key usage extension must be absent or include the ``web server
+authentication'' and/or one of the <FONT SIZE="-1">SGC</FONT> OIDs.  Netscape certificate type must
+be absent or the <FONT SIZE="-1">SSL</FONT> <FONT SIZE="-1">CA</FONT> bit must be set: this is used as a work around if the
+basicConstraints extension is absent.
+<DT><B>Netscape </B><FONT SIZE="-1"><B>SSL</B></FONT><B> Server</B><DD>
+<A NAME="ixADT"></A>
+For Netscape <FONT SIZE="-1">SSL</FONT> clients to connect to an <FONT SIZE="-1">SSL</FONT> server it must have the
+keyEncipherment bit set if the keyUsage extension is present. This isn't
+always valid because some cipher suites use the key for digital signing.
+Otherwise it is the same as a normal <FONT SIZE="-1">SSL</FONT> server.
+<DT><B>Common S/MIME Client Tests</B><DD>
+<A NAME="ixADU"></A>
+The extended key usage extension must be absent or include the ``email
+protection'' <FONT SIZE="-1">OID</FONT>. Netscape certificate type must be absent or should have the
+S/MIME bit set. If the S/MIME bit is not set in netscape certificate type
+then the <FONT SIZE="-1">SSL</FONT> client bit is tolerated as an alternative but a warning is shown:
+this is because some Verisign certificates don't set the S/MIME bit.
+<DT><B>S/MIME Signing</B><DD>
+<A NAME="ixADV"></A>
+In addition to the common S/MIME client tests the digitalSignature bit must
+be set if the keyUsage extension is present.
+<DT><B>S/MIME Encryption</B><DD>
+<A NAME="ixADW"></A>
+In addition to the common S/MIME tests the keyEncipherment bit must be set
+if the keyUsage extension is present.
+<DT><B>S/MIME </B><FONT SIZE="-1"><B>CA</B></FONT><B></B><DD>
+<A NAME="ixADX"></A>
+The extended key usage extension must be absent or include the ``email
+protection'' <FONT SIZE="-1">OID</FONT>. Netscape certificate type must be absent or must have the
+S/MIME <FONT SIZE="-1">CA</FONT> bit set: this is used as a work around if the basicConstraints
+extension is absent. 
+<DT><B></B><FONT SIZE="-1"><B>CRL</B></FONT><B> Signing</B><DD>
+<A NAME="ixADY"></A>
+The keyUsage extension must be absent or it must have the <FONT SIZE="-1">CRL</FONT> signing bit
+set.
+<DT><B></B><FONT SIZE="-1"><B>CRL</B></FONT><B> Signing </B><FONT SIZE="-1"><B>CA</B></FONT><B></B><DD>
+<A NAME="ixADZ"></A>
+The normal <FONT SIZE="-1">CA</FONT> tests apply. Except in this case the basicConstraints extension
+must be present.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAEA"></A>
+Extensions in certificates are not transferred to certificate requests and
+vice versa.
+<P>
+
+It is possible to produce invalid certificates or requests by specifying the
+wrong private key or using inconsistent options in some cases: these should
+be checked.
+<P>
+
+There should be options to explicitly set such things as start and end
+dates rather than an offset from the current time.
+<P>
+
+The code to implement the verify behaviour described in the <B></B><FONT SIZE="-1"><B>TRUST</B></FONT><B> </B><FONT SIZE="-1"><B>SETTINGS</B></FONT><B></B>
+is currently being developed. It thus describes the intended behaviour rather
+than the current behaviour. It is hoped that it will represent reality in
+OpenSSL 0.9.5 and later.
+<A NAME="lbAP">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAEB"></A>
+<I><A HREF="../man1/req.1.php">req</A></I>(1), <I><A HREF="../man1/ca.1.php">ca</A></I>(1), <I><A HREF="../man1/genrsa.1.php">genrsa</A></I>(1),
+<I><A HREF="../man1/gendsa.1.php">gendsa</A></I>(1), <I><A HREF="../man1/verify.1.php">verify</A></I>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF"><FONT SIZE="-1">INPUT</FONT>, <FONT SIZE="-1">OUTPUT</FONT> <FONT SIZE="-1">AND</FONT> <FONT SIZE="-1">GENERAL</FONT> <FONT SIZE="-1">PURPOSE</FONT> <FONT SIZE="-1">OPTIONS</FONT></A><DD>
+<DT><A HREF="#lbAG"><FONT SIZE="-1">DISPLAY</FONT> <FONT SIZE="-1">OPTIONS</FONT></A><DD>
+<DT><A HREF="#lbAH"><FONT SIZE="-1">TRUST</FONT> <FONT SIZE="-1">SETTINGS</FONT></A><DD>
+<DT><A HREF="#lbAI"><FONT SIZE="-1">SIGNING</FONT> <FONT SIZE="-1">OPTIONS</FONT></A><DD>
+<DT><A HREF="#lbAJ"><FONT SIZE="-1">NAME</FONT> <FONT SIZE="-1">OPTIONS</FONT></A><DD>
+<DT><A HREF="#lbAK"><FONT SIZE="-1">TEXT</FONT> <FONT SIZE="-1">OPTIONS</FONT></A><DD>
+<DT><A HREF="#lbAL">EXAMPLES</A><DD>
+<DT><A HREF="#lbAM">NOTES</A><DD>
+<DT><A HREF="#lbAN">CERTIFICATE EXTENSIONS</A><DD>
+<DT><A HREF="#lbAO">BUGS</A><DD>
+<DT><A HREF="#lbAP">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

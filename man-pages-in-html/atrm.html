@@ -1,0 +1,606 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>AT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>AT</H1>
+Section: Linux Programmer's Manual (1)<BR>Updated: Nov 1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+at, batch, atq, atrm - queue, examine or delete jobs for later execution
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>at</B>
+
+[<B>-V</B>]
+
+[<B>-q</B>
+
+<I>queue</I>]
+
+[<B>-f</B>
+
+<I>file</I>]
+
+[<B>-mldbv</B>]
+
+<B>TIME</B>
+
+<BR>
+
+<B>at</B>
+
+[<B>-V</B>]
+
+[<B>-q</B>
+
+<I>queue</I>]
+
+[<B>-f</B>
+
+<I>file</I>]
+
+[<B>-mldbv</B>]
+
+-t
+
+<I>time_arg</I>
+
+<BR>
+
+<B>at -c</B>
+
+<I>job</I>
+
+[<I>job...</I>]
+
+<BR>
+
+<B>atq</B>
+
+[<B>-V</B>]
+
+[<B>-q</B>
+
+<I>queue</I>]
+
+<BR>
+
+<B>atrm</B>
+
+[<B>-V</B>]
+
+<I>job</I>
+
+[<I>job...</I>]
+
+<BR>
+
+<B>batch</B>
+
+[<B>-V</B>]
+
+[<B>-q</B>
+
+<I>queue</I>]
+
+[<B>-f</B>
+
+<I>file</I>]
+
+[<B>-mv</B>]
+
+[<B>TIME</B>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>at</B>
+
+and
+<B>batch</B>
+
+read commands from standard input or a specified file which are to
+be executed at a later time .
+<DL COMPACT>
+<DT><B>at</B>
+
+<DD>
+executes commands at a specified time.
+<DT><B>atq</B>
+
+<DD>
+lists the user's pending jobs, unless the user is the superuser; in that
+case, everybody's jobs are listed.  The format of the output lines (one
+for each job) is: Job number, date, hour, job class.
+<DT><B>atrm</B>
+
+<DD>
+deletes jobs, identified by their job number.
+<DT><B>batch</B>
+
+<DD>
+executes commands when system load levels permit; in other words, when the load average
+drops below 0.8, or the value specified in the invocation of
+<B>atrun</B>.
+
+</DL>
+<P>
+
+<B>At</B>
+
+allows fairly complex time
+specifications, extending the POSIX.2 standard.  It accepts times
+of the form 
+<B>HH:MM</B>
+
+to run a job at a specific time of day.
+(If that time is already past, the next day is assumed.)
+You may also specify
+<B>midnight,</B>
+
+<B>noon,</B>
+
+or
+<B>teatime</B>
+
+(4pm)
+and you can have a time-of-day suffixed with
+<B>AM</B>
+
+or
+<B>PM</B>
+
+for running in the morning or the evening.
+You can also say what day the job will be run,
+by giving a date in the form
+<B>month-name</B>
+
+<B>day</B>
+
+with an optional
+<B>year,</B>
+
+or giving a date of the form
+<B>MMDDYY</B>
+
+or
+<B>MM/DD/YY</B>
+
+or
+<B>DD.MM.YY.</B>
+
+The specification of a date
+<I>must</I>
+
+follow the specification of the time of day.
+You can also give times like
+<B>now</B>
+
+<B>+</B>
+
+<I>count</I>
+
+<I>time-units,</I>
+
+where the time-units can be
+<B>minutes,</B>
+
+<B>hours,</B>
+
+<B>days,</B>
+
+or
+<B>weeks</B>
+
+and you can tell
+<B>at</B>
+
+to run the job today by suffixing the time with
+<B>today</B>
+
+and to run the job tomorrow by suffixing the time with
+<B>tomorrow.</B>
+
+<P>
+
+For example, to run a job at 4pm three days from now, you would do
+<B>at 4pm + 3 days,</B>
+
+to run a job at 10:00am on July 31, you would do
+<B>at 10am Jul 31</B>
+
+and to run a job at 1am tomorrow, you would do
+<B>at 1am tomorrow.</B>
+
+<P>
+
+The exact definition of the time specification can be found in
+<I>/usr/share/doc/at-3.1.8/timespec</I>.
+
+<P>
+
+For both
+<B>at</B> and <B>batch</B>,
+
+commands are read from standard input or the file specified
+with the
+<B>-f</B>
+
+option and executed.
+The working directory, the environment (except for the variables
+<B>TERM</B>,
+
+<B>DISPLAY</B>
+
+and
+<B>_</B>)
+
+and the umask are retained from the time of invocation.
+An
+<B>at </B>-
+
+or
+<B>batch -</B>
+
+command invoked from a 
+<B><A HREF="../man1/su.1.php">su</A>(1)</B>
+
+shell will retain the current userid.
+The user will be mailed standard error and standard output from his
+commands, if any.
+Mail will be sent using the command
+<B>/usr/sbin/sendmail</B>.
+
+If
+<B>at</B>
+
+is executed from a 
+<B><A HREF="../man1/su.1.php">su</A>(1)</B>
+
+shell, the owner of the login shell will receive the mail.
+<P>
+
+The superuser may use these commands in any case.
+For other users, permission to use at is determined by the files
+<I>/etc/at.allow</I>
+
+and
+<I>/etc/at.deny</I>.
+
+<P>
+
+If the file
+<I>/etc/at.allow</I>
+
+exists, only usernames mentioned in it are allowed to use
+<B>at</B>.
+
+<P>
+
+If
+<I>/etc/at.allow</I>
+
+does not exist,
+<I>/etc/at.deny</I>
+
+is checked, every username not mentioned in it is then allowed
+to use
+<B>at</B>.
+
+<P>
+
+If neither exists, only the superuser is allowed use of at.
+<P>
+
+An empty 
+<I>/etc/at.deny</I>
+
+means that every user is allowed use these commands, this is the
+default configuration.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-V</B>
+
+<DD>
+prints the version number to standard error.
+<DT><B>-q</B><I> queue</I>
+
+<DD>
+uses the specified queue.
+A queue designation consists of a single letter; valid queue designations
+range from
+<B>a</B>
+
+to 
+<B>z</B>.
+
+and
+<B>A</B>
+
+to
+<B>Z</B>.
+
+The
+<B>a</B>
+
+queue is the default for
+<B>at</B>
+
+and the
+<B>b</B>
+
+queue for
+<B>batch</B>.
+
+Queues with higher letters run with increased niceness.  The special
+queue &quot;=&quot; is reserved for jobs which are currently running.
+
+If a job is submitted to a queue designated with an uppercase letter, it
+is treated as if it had been submitted to batch at that time.
+If
+<B>atq</B>
+
+is given a specific queue, it will only show jobs pending in that queue.
+<DT><B>-m</B>
+
+<DD>
+Send mail to the user when the job has completed even if there was no
+output.
+<DT><B>-f</B><I> file</I>
+
+<DD>
+Reads the job from
+<B>file</B>
+
+rather than standard input.
+<DT><B>-l</B>
+
+<DD>
+Is an alias for
+<B>atq.</B>
+
+<DT><B>-d</B>
+
+<DD>
+Is an alias for
+<B>atrm.</B>
+
+<DT><DT><B>-v</B>
+
+<DD>
+<DD>
+Shows the time the job will be executed.
+
+Times displayed will be in the format &quot;1997-02-20 14:50&quot; unless the
+environment variable
+<B>POSIXLY_CORRECT </B>
+
+is set; then, it will be &quot;Thu Feb 20 14:50:00 1997&quot;.
+<DT><B>-c</B>
+
+<DD>
+cats the jobs listed on the command line to standard output.
+<DT><B>-t</B><I> time_arg</I>
+
+<DD>
+Submit the job to be run at the time specified by the 
+<B>time_arg</B>
+
+option argument, which must have the same format as specified for the 
+<B><A HREF="../man1/touch.1.php">touch</A>(1)</B>
+
+utility's 
+<B>-t</B>
+
+time option argument ([[CC]YY]MMDDhhmm).
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+
+<DL COMPACT>
+<DT><B>SHELL</B>
+
+<DD>
+The value of the SHELL environment variable at the time of 
+<B>at</B>
+
+invocation will determine which shell is used to execute the 
+<B>at </B>
+
+job commands. If SHELL is unset when 
+<B>at</B>
+
+is invoked, the user's login shell will be used; otherwise, 
+if SHELL is set when 
+<B>at </B>
+
+is invoked, it must contain the path of a shell interpreter
+executable that will be used to run the commands at the specified time.
+
+<B>at </B>
+
+will record the values of 
+environment variables present at time of 
+<B>at</B>
+
+invocation. When the commands are run at the  specified time, 
+<B>at</B>
+
+will restore these variables to their recorded values .
+These variables are excluded from this processing and are never
+set by
+<B>at</B>
+
+when the commands are run :
+<BR>
+
+<B>TERM,</B>
+
+<B>DISPLAY,</B>
+
+<B>SHELLOPTS,</B>
+
+<B>_,</B>
+
+<B>PPID,</B>
+
+<B>BASH_VERSINFO,</B>
+
+<B>EUID,</B>
+
+<B>UID,</B>
+
+<B>GROUPS.</B>
+
+<BR>
+
+If the user submitting the 
+<B>at </B>
+
+job is not the super-user, variables that alter the behaviour of the
+loader
+<B><A HREF="../man8/ld.so.8.php">ld.so</A>(8),</B>
+
+such as 
+<B>LD_LIBRARY_PATH</B>
+
+, cannot be recorded and restored by 
+<B>at . </B>
+
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<I>/var/spool/at</I>
+
+<BR>
+
+<I>/var/spool/at/spool</I>
+
+<BR>
+
+<I>/proc/loadavg</I>
+
+<BR>
+
+<I>/var/run/utmp</I>
+
+<BR>
+
+<I>/etc/at.allow</I>
+
+<BR>
+
+<I>/etc/at.deny</I>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cron.1.php">cron</A></B>(1),
+
+<B><A HREF="../man1/nice.1.php">nice</A></B>(1),
+
+<B><A HREF="../man1/sh.1.php">sh</A></B>(1),
+
+<B><A HREF="../man2/umask.2.php">umask</A></B>(2),
+
+<B><A HREF="../man8/atd.8.php">atd</A></B>(8).
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+The correct operation of
+<B>batch</B>
+
+for Linux depends on the presence of a
+<I>proc</I>-
+
+type directory mounted on
+<I>/proc</I>.
+
+<P>
+
+If the file
+<I>/var/run/utmp</I>
+
+is not available or corrupted, or if the user is not logged on at the
+time 
+<B>at</B>
+
+is invoked, the mail is sent to the userid found
+in the environment variable
+<B>LOGNAME</B>.
+
+If that is undefined or empty, the current userid is assumed.
+<P>
+
+<B>At</B>
+
+and
+<B>batch</B>
+
+as presently implemented are not suitable when users are competing for
+resources.
+If this is the case for your site, you might want to consider another
+batch system, such as
+<B>nqs</B>.
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+At was mostly written by Thomas Koenig, <A HREF="mailto:ig25@rz.uni-karlsruhe.de">ig25@rz.uni-karlsruhe.de</A>.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

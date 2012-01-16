@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>mpartition</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>mpartition</H1>
+Section: User Commands  (1)<BR>Updated: 03Mar03<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>Name</H2>
+
+mpartition - partition an MSDOS hard disk
+
+
+<P>
+
+
+
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>Note&nbsp;of&nbsp;warning</H2>
+
+This manpage has been automatically generated from mtools's texinfo
+documentation, and may not be entirely accurate or complete.  See the
+end of this man page for details.
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>Description</H2>
+
+
+
+
+
+<P>
+
+The <TT>mpartition</TT> command is used to create MS-DOS filesystems as
+partitions.  This is intended to be used on non-Linux systems,
+i.e. systems where fdisk and easy access to Scsi devices are not
+available.  This command only works on drives whose partition variable
+is set.
+<P>
+
+<I>
+</I><PRE>
+<TT>mpartition</TT> <TT>-p</TT> <I>drive</I>
+<TT>mpartition</TT> <TT>-r</TT> <I>drive</I>
+<TT>mpartition</TT> <TT>-I</TT> [<TT>-B</TT> <I>bootSector</I>] <I>drive</I> 
+<TT>mpartition</TT> <TT>-a</TT> <I>drive</I>
+<TT>mpartition</TT> <TT>-d</TT> <I>drive</I>
+<TT>mpartition</TT> <TT>-c</TT> [<TT>-s</TT> <I>sectors</I>] [<TT>-h</TT> <I>heads</I>]
+[<TT>-t</TT> <I>cylinders</I>] [<TT>-v</TT> [<TT>-T</TT> <I>type</I>] [<TT>-b</TT>
+<I>begin</I>] [<TT>-l</TT> length] [<TT>-f</TT>]
+
+</PRE>
+
+
+<BR>&nbsp;
+<P>
+
+Mpartition supports the following operations:
+<DL COMPACT>
+<DT><TT>p</TT>&nbsp;<DD>
+Prints a command line to recreate the partition for the drive.  Nothing
+is printed if the partition for the drive is not defined, or an
+inconsistency has been detected.  If verbose (<TT>-v</TT>) is also set,
+prints the current partition table.
+<DT><TT>r</TT>&nbsp;<DD>
+Removes the partition described by <I>drive</I>.
+<DT><TT>I</TT>&nbsp;<DD>
+Initializes the partition table, and removes all partitions.
+<DT><TT>c</TT>&nbsp;<DD>
+Creates the partition described by <I>drive</I>.
+<DT><TT>a</TT>&nbsp;<DD>
+&quot;Activates&quot; the partition, i.e. makes it bootable.  Only one partition
+can be bootable at a time.
+<DT><TT>d</TT>&nbsp;<DD>
+&quot;Desactivates&quot; the partition, i.e. makes it unbootable.
+</DL>
+<P>
+
+If no operation is given, the current settings are printed.
+<P>
+
+For partition creations, the following options are available:
+<DL COMPACT>
+<DT><TT>s&nbsp;</TT><I>sectors</I><TT></TT>&nbsp;<DD>
+The number of sectors per track of the partition (which is also the
+number of sectors per track for the whole drive).
+<DT><TT>h&nbsp;</TT><I>heads</I><TT></TT>&nbsp;<DD>
+The number of heads of the partition (which is also the number of heads
+for the whole drive).  By default, the geometry information (number of
+sectors and heads) is figured out from neighbouring partition table
+entries, or guessed from the size.
+<DT><TT>t&nbsp;</TT><I>cylinders</I><TT></TT>&nbsp;<DD>
+The number of cylinders of the partition (not the number of cylinders of
+the whole drive.
+<DT><TT>b&nbsp;</TT><I>begin</I><TT></TT>&nbsp;<DD>
+The starting offset of the partition, expressed in sectors. If begin is
+not given, mpartition lets the partition begin at the start of the disk
+(partition number 1), or immediately after the end of the previous
+partition.
+<DT><TT>l&nbsp;</TT><I>length</I><TT></TT>&nbsp;<DD>
+The size (length) of the partition, expressed in sectors.  If end is not
+given, mpartition figures out the size from the number of sectors, heads
+and cylinders.  If these are not given either, it gives the partition
+the biggest possible size, considering disk size and start of the next
+partition.
+</DL>
+<P>
+
+The following option is available for all operation which modify the
+partition table:
+<DL COMPACT>
+<DT><TT>f</TT>&nbsp;<DD>
+Usually, before writing back any changes to the partition, mpartition
+performs certain consistenct checks, such as checking for overlaps and
+proper alignment of the partitions.  If any of these checks fails, the
+partition table is not changes.  The <TT>-f</TT> allows you to override
+these safeguards.
+</DL>
+<P>
+
+The following options are available for all operations:
+<DL COMPACT>
+<DT><TT>v</TT>&nbsp;<DD>
+Together with <TT>-p</TT> prints the partition table as it is now (no
+change operation), or as it is after it is modified.
+<DT><TT>vv</TT>&nbsp;<DD>
+If the verbosity flag is given twice, mpartition will print out a
+hexdump of the partition table when reading it from and writing it to
+the device.
+</DL>
+<P>
+
+The following option is available for partition table initialization:
+<DL COMPACT>
+<DT><TT>B&nbsp;</TT><I>bootSector</I><TT></TT>&nbsp;<DD>
+Reads the template master boot record from file <I>bootSector</I>.
+</DL>
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>See&nbsp;Also</H2>
+
+Mtools' texinfo doc
+<A NAME="lbAF">&nbsp;</A>
+<H2>Viewing&nbsp;the&nbsp;texi&nbsp;doc</H2>
+
+This manpage has been automatically generated from mtools's texinfo
+documentation. However, this process is only approximative, and some
+items, such as crossreferences, footnotes and indices are lost in this
+translation process.  Indeed, these items have no appropriate
+representation in the manpage format.  Moreover, not all information has
+been translated into the manpage version.  Thus I strongly advise you to
+use the original texinfo doc.  See the end of this manpage for
+instructions how to view the texinfo doc.
+<DL COMPACT>
+<DT>* &nbsp;&nbsp;<DD>
+To generate a printable copy from the texinfo doc, run the following
+commands:
+<BR>&nbsp;
+<PRE>
+<B>    ./configure; make dvi; dvips mtools.dvi
+</B></PRE>
+
+
+
+
+<BR>&nbsp;
+
+<DT>* &nbsp;&nbsp;<DD>
+To generate a html copy,  run:
+<BR>&nbsp;
+<PRE>
+<B>    ./configure; make html
+</B></PRE>
+
+
+
+
+<BR>&nbsp;
+A premade html can be found at:
+<TT>Infinityhttp://mtools.linux.luIntegral</TT>
+and also at:
+<TT>Infinityhttp://<A HREF="http://www.tux.org">www.tux.org</A>/pub/knaff/mtoolsIntegral</TT>
+<DT>* &nbsp;&nbsp;<DD>
+To generate an info copy (browsable using emacs' info mode), run:
+<BR>&nbsp;
+<PRE>
+<B>    ./configure; make info
+</B></PRE>
+
+
+
+
+<BR>&nbsp;
+
+</DL>
+<P>
+
+The texinfo doc looks most pretty when printed or as html.  Indeed, in
+the info version certain examples are difficult to read due to the
+quoting conventions used in info.
+<P>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">Name</A><DD>
+<DT><A HREF="#lbAC">Note&nbsp;of&nbsp;warning</A><DD>
+<DT><A HREF="#lbAD">Description</A><DD>
+<DT><A HREF="#lbAE">See&nbsp;Also</A><DD>
+<DT><A HREF="#lbAF">Viewing&nbsp;the&nbsp;texi&nbsp;doc</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

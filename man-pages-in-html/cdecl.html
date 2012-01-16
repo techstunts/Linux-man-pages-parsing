@@ -1,0 +1,920 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CDECL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CDECL</H1>
+Section: Linux Programmer's Manual (1)<BR>Updated: 15 January 1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cdecl, c++decl - Compose C and C++ type declarations
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cdecl</B>
+
+[-a | -+ | -p | -r]
+[-ciqdDV]
+<BR>
+
+<DL COMPACT><DT><DD>
+[[ <I>files</I> ...] |
+
+<B>explain</B> ... | <B>declare</B> ... | <B>cast</B> ... | <B>set</B> ... | 
+
+<B>help</B> | <B>?</B> ]
+
+</DL>
+
+<BR>
+
+<B>c++decl</B>
+
+[-a | -+ | -p | -r]
+[-ciqdDV]
+<BR>
+
+<DL COMPACT><DT><DD>
+[[ <I>files</I> ...] |
+
+<B>explain</B> ... | <B>declare</B> ... | <B>cast</B> ... | <B>set</B> ... | 
+
+<B>help</B> | <B>?</B> ]
+
+</DL>
+
+<BR>
+
+<B>explain</B> ...
+
+<BR>
+
+<B>declare</B> ...
+
+<BR>
+
+<B>cast</B> ...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Cdecl</I>
+
+(and
+<I>c++decl</I>)
+
+is a program for encoding and decoding C (or C++) type declarations.
+The C language is based on the (draft proposed) X3J11 ANSI Standard;
+optionally, the C language may be based on the pre-ANSI definition
+defined by Kernighan &amp; Ritchie's 
+<I>The C Programming Language</I>
+
+book, or the C language defined by the Ritchie PDP-11 C compiler.
+The C++ language is based on Bjarne Stroustrup's
+<I>The C++ Programming Language</I>,
+
+plus the version 2.0 additions to the language.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT>-a<DD>
+Use the ANSI C dialect of the C language.
+<DT>-p<DD>
+Use the pre-ANSI dialect defined by Kernighan &amp; Ritchie's book.
+<DT>-r<DD>
+Use the dialect defined by the Ritchie PDP-11 C compiler.
+<DT>-+<DD>
+Use the C++ language, rather than C.
+<DT>-i<DD>
+Run in interactive mode (the default when reading from a terminal).
+This also turns on prompting, line editing, and line history.
+<DT>-q<DD>
+Quiet the prompt.
+Turns off the prompt in interactive mode.
+<DT>-c<DD>
+Create compilable C or C++ code as output.
+<I>Cdecl</I>
+
+will add a semicolon to the end of a declaration and a pair of curly
+braces to the end of a function definition.
+<DT>-d<DD>
+Turn on debugging information (if compiled in).
+<DT>-D<DD>
+Turn on YACC debugging information (if compiled in).
+<DT>-V<DD>
+Display version information and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>INVOKING</H2>
+
+<I>Cdecl</I>
+
+may be invoked under a number of different names (by either
+renaming the executable, or creating a symlink or hard link to it).
+If it is invoked as
+<I>cdecl</I>
+
+then ANSI C is the default language.
+If it is invoked as
+<I>c++decl</I>
+
+then C++ is the default.
+If it is invoked as either
+<I>explain</I>, <I>cast</I>, or <I>declare</I>
+
+then it will interpret the rest of the command line options as
+parameters to that command, execute the command, and exit.
+It will also do this if the first non-switch argument on the
+command line is one of those three commands.
+Input may also come from a file.
+<P>
+
+<I>Cdecl</I>
+
+reads the named files for statements in the language described below.
+A transformation is made from that language to C (C++) or pseudo-English.
+The results of this transformation are written on standard output.
+If no files are named, or a filename of ``-'' is encountered, standard input
+will be read.
+If standard input is coming from a terminal, (or the
+<B>-i</B>
+
+option is used), a prompt will be written to the terminal before each line.
+The prompt can be turned off by the
+<B>-q</B>
+
+option (or the
+<I>set noprompt</I>
+
+command).
+If
+<I>cdecl</I>
+
+is invoked as 
+<I>explain</I>,
+
+<I>declare</I>
+
+or
+<I>cast</I>,
+
+or the first argument is one of the commands discussed below, the argument
+list will be interpreted according to the grammar shown below instead of as
+file names.
+<P>
+
+When it is run interactively,
+<I>cdecl</I>
+
+uses the GNU readline library to provide keyword completion and command
+line history, very much like
+<I><A HREF="../man1/bash.1.php">bash</A></I>(1)
+
+(q.v.).
+Pressing TAB will complete the partial keyword before the cursor, unless
+there is more than one possible completion, in which case a second TAB will
+show the list of possible completions and redisplay the command line.
+The left and right arrow keys and backspace can be used for editing in a
+natural way, and the up and down arrow keys retrieve previous command
+lines from the history.
+Most other familiar keys, such as Ctrl-U to delete all text from the cursor
+back to the beginning of the line, work as expected.
+There is an ambiguity between the
+<I>int</I> and <I>into</I>
+
+keywords, but
+<I>cdecl</I>
+
+will guess which one you meant, and it always guesses correctly.
+<P>
+
+You can use
+<I>cdecl</I>
+
+as you create a C program with an editor like
+<I><A HREF="../man1/vi.1.php">vi</A></I>(1) or <I><A HREF="../man1/emacs.1.php">emacs</A></I>(1).
+
+You simply type in the pseudo-English version of the declaration and apply
+<I>cdecl</I>
+
+as a filter to the line.
+(In
+<I><A HREF="../man1/vi.1.php">vi</A></I>(1),
+
+type ``<B>!!cdecl</B>&lt;cr&gt;''.)
+
+<P>
+
+If the 
+<I>create program</I>
+
+option
+<B>-c</B>
+
+is used, the output will include semi-colons after variable declarations and
+curly brace pairs after function declarations.
+<P>
+
+The
+<B>-V</B>
+
+option will print out the version numbers of the files used to create the
+process.
+If the source is compiled with debugging information turned on, the
+<B>-d</B>
+
+option will enable it to be output.
+If the source is compiled with YACC debugging information turned on, the
+<B>-D</B>
+
+option will enable it to be output.
+<A NAME="lbAG">&nbsp;</A>
+<H2>COMMAND LANGUAGE</H2>
+
+There are six statements in the language.
+The
+<I>declare</I>
+
+statement composes a C type declaration from a verbose description.
+The
+<I>cast</I>
+
+statement composes a C type cast as might appear in an expression.
+The
+<I>explain</I>
+
+statement decodes a C type declaration or cast, producing a verbose
+description.
+The
+<I>help</I>
+
+(or
+<I>?</I>)
+
+statement provides a help message.
+The
+<I>quit</I>
+
+(or
+<I>exit</I>)
+
+statement (or the end of file) exits the program.
+The
+<I>set</I>
+
+statement allows the command line options to be set interactively.
+Each statement is separated by a semi-colon or a newline.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SYNONYMS</H2>
+
+Some synonyms are permitted during a declaration:
+<P>
+<PRE>
+          character   is a synonym for   char
+           constant   is a synonym for   const
+        enumeration   is a synonym for   enum
+               func   is a synonym for   function
+            integer   is a synonym for   int
+                ptr   is a synonym for   pointer
+                ref   is a synonym for   reference
+                ret   is a synonym for   returning
+          structure   is a synonym for   struct
+             vector   is a synonym for   array
+</PRE>
+
+<P>
+
+The TAB completion feature only knows about the keywords in the right
+column of the structure, not the ones in the left column.
+TAB completion is a lot less useful when the leading characters of
+different keywords are the same (the keywords confict with one another),
+and putting both columns in would cause quite a few conflicts.
+<A NAME="lbAI">&nbsp;</A>
+<H2>GRAMMAR</H2>
+
+The following grammar describes the language.
+In the grammar, words in &quot;&lt;&gt;&quot; are non-terminals,
+bare lower-case words are terminals that stand for themselves.
+Bare upper-case words are other lexical tokens:
+NOTHING means the empty string;
+NAME means a C identifier;
+NUMBER means a string of decimal digits; and
+NL means the new-line or semi-colon characters.
+<P>
+
+<PRE>
+        &lt;program&gt;       ::= NOTHING
+                | &lt;program&gt; &lt;stmt&gt; NL
+        &lt;stmt&gt;  ::= NOTHING
+                | declare NAME as &lt;adecl&gt;
+                | declare &lt;adecl&gt;
+                | cast NAME into &lt;adecl&gt;
+                | cast &lt;adecl&gt;
+                | explain &lt;optstorage&gt; &lt;ptrmodlist&gt; &lt;type&gt; &lt;cdecl&gt;
+                | explain &lt;storage&gt; &lt;ptrmodlist&gt; &lt;cdecl&gt;
+                | explain ( &lt;ptrmodlist&gt; &lt;type&gt; &lt;cast&gt; ) optional-NAME
+                | set &lt;options&gt;
+                | help | ?
+                | quit
+                | exit
+        &lt;adecl&gt; ::= array of &lt;adecl&gt;
+                | array NUMBER of &lt;adecl&gt;
+                | function returning &lt;adecl&gt;
+                | function ( &lt;adecl-list&gt; ) returning &lt;adecl&gt;
+                | &lt;ptrmodlist&gt; pointer to &lt;adecl&gt;
+                | &lt;ptrmodlist&gt; pointer to member of class NAME &lt;adecl&gt;
+                | &lt;ptrmodlist&gt; reference to &lt;adecl&gt;
+                | &lt;ptrmodlist&gt; &lt;type&gt;
+        &lt;cdecl&gt; ::= &lt;cdecl1&gt;
+                | * &lt;ptrmodlist&gt; &lt;cdecl&gt;
+                | NAME :: * &lt;cdecl&gt;
+                | &amp; &lt;ptrmodlist&gt; &lt;cdecl&gt;
+        &lt;cdecl1&gt;        ::= &lt;cdecl1&gt; ( )
+                | &lt;cdecl1&gt; ( &lt;castlist&gt; )
+                | &lt;cdecl1&gt; [ ]
+                | &lt;cdecl1&gt; [ NUMBER ]
+                | ( &lt;cdecl&gt; )
+                | NAME
+        &lt;cast&gt;  ::= NOTHING
+                | ( )
+                | ( &lt;cast&gt; ) ( )
+                | ( &lt;cast&gt; ) ( &lt;castlist&gt; )
+                | ( &lt;cast&gt; )
+                | NAME :: * &lt;cast&gt;
+                | * &lt;cast&gt;
+                | &amp; &lt;cast&gt;
+                | &lt;cast&gt; [ ]
+                | &lt;cast&gt; [ NUMBER ]
+        &lt;type&gt;  ::= &lt;typename&gt; | &lt;modlist&gt;
+                | &lt;modlist&gt; &lt;typename&gt;
+                | struct NAME | union NAME | enum NAME | class NAME
+        &lt;castlist&gt;      ::= &lt;castlist&gt; , &lt;castlist&gt;
+                | &lt;ptrmodlist&gt; &lt;type&gt; &lt;cast&gt;
+                | &lt;name&gt;
+        &lt;adecllist&gt;     ::= &lt;adecllist&gt; , &lt;adecllist&gt;
+                | NOTHING
+                | &lt;name&gt;
+                | &lt;adecl&gt;
+                | &lt;name&gt; as &lt;adecl&gt;
+        &lt;typename&gt;      ::= int | char | double | float | void
+        &lt;modlist&gt;       ::= &lt;modifier&gt; | &lt;modlist&gt; &lt;modifier&gt;
+        &lt;modifier&gt;      ::= short | long | unsigned | signed | &lt;ptrmod&gt;
+        &lt;ptrmodlist&gt;    ::= &lt;ptrmod&gt; &lt;ptrmodlist&gt; | NOTHING
+        &lt;ptrmod&gt;        ::= const | volatile | noalias
+        &lt;storage&gt;       ::= auto | extern | register | auto
+        &lt;optstorage&gt;    ::= NOTHING | &lt;storage&gt;
+        &lt;options&gt;       ::= NOTHING | &lt;options&gt;
+                | create | nocreate
+                | prompt | noprompt
+                | ritchie | preansi | ansi | cplusplus
+                | debug | nodebug | yydebug | noyydebug
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SET OPTIONS</H2>
+
+The
+<I>set</I>
+
+command takes several options.
+You can type
+<I>set</I> or <I>set options</I>
+
+to see the currently selected options and a summary of the options which
+are available.
+The first four correspond to the
+<I>-a</I>, <I>-p</I>, <I>-r</I>, and <I>-+</I>
+
+command line options, respectively.
+<DL COMPACT>
+<DT>ansi<DD>
+Use the ANSI C dialect of the C language.
+<DT>preansi<DD>
+Use the pre-ANSI dialect defined by Kernighan &amp; Ritchie's book.
+<DT>ritchie<DD>
+Use the dialect defined by the Ritchie PDP-11 C compiler.
+<DT>cplusplus<DD>
+Use the C++ language, rather than C.
+<DT>[no]prompt<DD>
+Turn on or off the prompt in interactive mode.
+<DT>[no]create<DD>
+Turn on or off the appending of semicolon or curly braces to the
+declarations output by
+<I>cdecl</I>.
+
+This corresponds to the
+<I>-c</I>
+
+command line option.
+<DT>[no]debug<DD>
+Turn on or off debugging information.
+<DT>[no]yydebug<DD>
+Turn on or off YACC debugging information.
+</DL>
+<P>
+
+Note: debugging information and YACC debugging information are only
+available if they have been compiled into
+<I>cdecl</I>.
+
+The last two options correspond to the
+<I>-d</I> and <I>-D</I>
+
+command line options, respectively.
+Debugging information is normally used in program development, and
+is not generally compiled into distributed executables.
+<A NAME="lbAK">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+
+
+To declare an array of pointers to functions that are like
+<I><A HREF="../man3/malloc.3.php">malloc</A></I>(3),
+
+do
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare fptab as array of pointer to function returning pointer to char
+
+</DL>
+
+<P>
+
+
+The result of this command is
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+char *(*fptab[])()
+
+</DL>
+
+<P>
+
+
+When you see this declaration in someone else's code, you
+can make sense out of it by doing
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+explain char *(*fptab[])()
+
+</DL>
+
+<P>
+
+
+The proper declaration for <A HREF="../man2/signal.2.php">signal</A>(2), ignoring function prototypes, is easily
+described in
+<I>cdecl</I>'s
+
+language:
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare signal as function returning pointer to function returning void
+
+</DL>
+
+<P>
+
+
+which produces
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+void (*signal())()
+
+</DL>
+
+<P>
+
+
+The function declaration that results has two sets of empty parentheses.
+The author of such a function might wonder where to put the parameters:
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare signal as function (arg1,arg2) returning pointer to function returning
+void
+
+</DL>
+
+<P>
+
+
+provides the following solution (when run with the
+<I>-c</I>
+
+option):
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+void (*signal(arg1,arg2))()
+{
+}
+
+</DL>
+
+<P>
+
+
+If we want to add in the function prototypes, the function prototype for a
+function such as <A HREF="../man2/_exit.2.php">_exit</A>(2) would be declared with:
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare _exit as function (retvalue as int) returning void
+
+</DL>
+
+<P>
+
+
+giving
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+void _exit(int retvalue)
+{
+}
+
+</DL>
+
+<P>
+
+
+As a more complex example using function prototypes, <A HREF="../man2/signal.2.php">signal</A>(2) could be fully
+defined as:
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare signal as function(x as int, y as pointer to function(int)
+returning void) returning pointer to function(int) returning void
+
+</DL>
+
+<P>
+
+
+giving (with -c)
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+void (*signal(int x, void (*y)(int )))(int )
+{
+}
+
+</DL>
+
+<P>
+
+
+<I>Cdecl</I>
+
+can help figure out the where to put the &quot;const&quot; and &quot;volatile&quot; modifiers
+in declarations, thus
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare foo as pointer to const int
+
+</DL>
+
+<P>
+
+
+gives
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+const int *foo
+
+</DL>
+
+<P>
+
+
+while
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare foo as const pointer to int
+
+</DL>
+
+<P>
+
+
+gives
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+int * const foo
+
+</DL>
+
+<P>
+
+
+<I>C++decl</I>
+
+can help with declaring references, thus
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare x as reference to pointer to character
+
+</DL>
+
+<P>
+
+
+gives
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+char *&amp;x
+
+</DL>
+
+<P>
+
+
+<I>C++decl</I>
+
+can help with pointers to member of classes, thus
+declaring a pointer to an integer member of a class X with
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare foo as pointer to member of class X int
+
+</DL>
+
+<P>
+
+
+gives
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+int X::*foo
+
+</DL>
+
+<P>
+
+
+and
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare foo as pointer to member of class X function (arg1, arg2) returning
+pointer to class Y
+
+</DL>
+
+<P>
+
+
+gives
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+class Y *(X::*foo)(arg1, arg2)
+
+</DL>
+
+<P>
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+The declare, cast and explain statements try to point out constructions that
+are not supported in C.
+In some cases, a guess is made as to what was really intended.
+In these cases, the C result is a toy declaration whose semantics will work
+only in Algol-68.
+The list of unsupported C constructs is dependent on which version of the C
+language is being used (see the ANSI, pre-ANSI, and Ritchie options).
+The set of supported C++ constructs is a superset of the ANSI set, with the
+exception of the
+<B>noalias</B>
+
+keyword.
+<A NAME="lbAM">&nbsp;</A>
+<H2>REFERENCES</H2>
+
+ANSI Standard X3.159-1989 (ANSI C)
+<P>
+ISO/IEC 9899:1990 (the ISO standard)
+<P>
+The comp.lang.c FAQ
+<BR>
+
+<I><A HREF="http://www.eskimo.com/~scs/C-faq.top.php">http://www.eskimo.com/~scs/C-faq.top.html</A></I>
+
+<P>
+Section 8.4 of the C Reference Manual within
+<I>The C Programming Language</I>
+
+by B. Kernighan &amp; D. Ritchie.
+<P>
+Section 8 of the C++ Reference Manual within
+<I>The C++ Programming Language</I>
+
+by B. Stroustrup.
+<A NAME="lbAN">&nbsp;</A>
+<H2>CAVEATS</H2>
+
+The pseudo-English syntax is excessively verbose.
+<P>
+
+There is a wealth of semantic checking that isn't being done.
+<P>
+
+<I>Cdecl</I>
+
+was written before the ANSI C standard was completed, and no attempt has
+been made to bring it up-to-date.
+Nevertheless, it is very close to the standard, with the obvious exception
+of
+<I>noalias</I>.
+
+<P>
+
+<I>Cdecl</I>'s
+
+scope is intentionally small.
+It doesn't help you figure out initializations.
+It expects storage classes to be at the beginning of a declaration,
+followed by the the const, volatile and noalias modifiers, followed by the
+type of the variable.
+<I>Cdecl</I>
+
+doesn't know anything about variable length argument lists.
+(This includes the
+``<I>,...</I>''
+
+syntax.)
+<P>
+
+<I>Cdecl</I>
+
+thinks all the declarations you utter are going to be used as external
+definitions.
+Some declaration contexts in C allow more flexibility than this.
+An example of this is:
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+declare argv as array of array of char
+
+</DL>
+
+<P>
+
+
+where
+<I>cdecl</I>
+
+responds with
+
+<P>
+
+<DL COMPACT><DT><DD>
+
+<PRE>
+Warning: Unsupported in C -- 'Inner array of unspecified size'
+        (maybe you mean &quot;array of pointer&quot;)
+char argv[][]
+</PRE>
+
+
+</DL>
+
+<P>
+
+
+<P>
+
+Tentative support for the
+<I>noalias</I>
+
+keyword was put in because it was in the draft ANSI specifications.
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Originally written by Graham Ross, improved and expanded by David
+Wolverton, Tony Hansen, and Merlyn LeRoy.
+<P>
+GNU readline support and Linux port by David R. Conrad,
+&lt;<A HREF="mailto:conrad@detroit.freenet.org">conrad@detroit.freenet.org</A>&gt;
+<A NAME="lbAP">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man1/bash.1.php">bash</A></I>(1), <I><A HREF="../man1/emacs.1.php">emacs</A></I>(1), <I><A HREF="../man3/malloc.3.php">malloc</A></I>(3), <I><A HREF="../man1/vi.1.php">vi</A></I>(1).
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">INVOKING</A><DD>
+<DT><A HREF="#lbAG">COMMAND LANGUAGE</A><DD>
+<DT><A HREF="#lbAH">SYNONYMS</A><DD>
+<DT><A HREF="#lbAI">GRAMMAR</A><DD>
+<DT><A HREF="#lbAJ">SET OPTIONS</A><DD>
+<DT><A HREF="#lbAK">EXAMPLES</A><DD>
+<DT><A HREF="#lbAL">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAM">REFERENCES</A><DD>
+<DT><A HREF="#lbAN">CAVEATS</A><DD>
+<DT><A HREF="#lbAO">AUTHORS</A><DD>
+<DT><A HREF="#lbAP">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

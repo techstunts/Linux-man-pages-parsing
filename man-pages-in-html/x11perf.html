@@ -1,0 +1,1368 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>X11PERF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>X11PERF</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+x11perf - X11 server performance test program
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+<B>x11perf</B>
+
+[ -option ... ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>x11perf</I>
+
+program runs one or more performance tests and reports how fast an X server can
+execute the tests.
+<P>
+
+Many graphics benchmarks assume that the graphics device is used to display the
+output of a single fancy graphics application, and that the user gets his work
+done on some other device, like a terminal.  Such benchmarks usually measure
+drawing speed for lines, polygons, text, etc.
+<P>
+
+Since workstations are not used as standalone graphics engines, but as
+super-terminals, 
+<I>x11perf </I>
+
+measures window management performance as well as
+traditional graphics performance.  
+<I>x11perf </I>
+
+includes benchmarks for the time it
+takes to create and map windows (as when you start up an application); to map a
+pre-existing set of windows onto the screen (as when you deiconify an
+application or pop up a menu); and to rearrange windows (as when you slosh
+windows to and fro trying to find the one you want).
+<P>
+
+<I>x11perf </I>
+
+also measures graphics performance for operations not normally used in
+standalone graphics displays, but are nonetheless used frequently by X
+applications.  Such operations include CopyPlane (used to map bitmaps into
+pixels), scrolling (used in text windows), and various stipples and tiles
+(used for CAD and color half-toning, respectively).
+<P>
+
+<I>x11perf </I>
+
+should be used to analyze particular strengths and weaknesses
+of servers, and is most useful to a server writer who wants to
+analyze and improve a server.
+<I>x11perf</I>
+
+is meant to comprehensively exercise just about every X11 operation you can
+perform; it does not purport to be a representative sample of the
+operations that X11 applications actually use.
+While it can be used as a benchmark, it was written and is intended as
+a performance testing tool.
+<P>
+
+As such,
+<I>x11perf </I>
+
+DOES NOT whittle down measurements to a single ``HeXStones''
+or ``MeXops'' number.  We consider such numbers to be uninformative 
+at best and misleading at worst.  
+Some servers which are very fast for certain applications can be
+very slow for others.
+No single number or small set of numbers are sufficient to
+characterize how an X implementation will perform on all applications.
+However, by knowledge of your favorite application, you
+may be able to use the numbers
+<I>x11perf</I>
+
+reports to predict its performance on a given X implementation.
+<P>
+
+That said, you might also want to look at
+<I><A HREF="../man1/x11perfcomp.1.php">x11perfcomp</A>(1),</I>
+
+a program to compare the outputs of different 
+<I>x11perf</I>
+
+runs.  You provide a list of files containing results from
+<I>x11perf,</I>
+
+and it lays them out in a nice tabular format.
+<P>
+
+For repeatable results, 
+<I>x11perf </I>
+
+should be run using a local connection on a
+freshly-started server.  The default configuration runs each test 5 times, in
+order to see if each trial takes approximately the same amount of time.
+Strange glitches should be examined; if non-repeatable one might
+chalk them up to
+daemons and network traffic.  Each trial is run for 5 seconds, in order to
+reduce random time differences.  The number of objects processed per second is
+displayed to 3 significant digits, but you'll be lucky on most UNIX system if
+the numbers are actually consistent to 2 digits.
+<I>x11perf</I>
+
+moves the cursor out of the test window; you should be careful not
+to bump the mouse and move it back into the window.
+(A prize to people who correctly explain why!!).
+<P>
+
+Before running a test,
+<I>x11perf</I>
+
+determines what the round trip time to the server is, and factors this out of
+the final timing reported.  It ensures that the server has actually performed
+the work requested by fetching a pixel back from the test window, which means
+that servers talking to graphics accelerators can't claim that they are done,
+while in the meantime the accelerator is painting madly.
+<P>
+
+By default 
+<I>x11perf</I>
+
+automatically calibrates the number of repetitions of each test,
+so that each should take approximately the same length of time to run across
+servers of widely differing speeds.  However, since each test must be run to
+completion at least once, some slow servers may take a very long time,
+particularly on the window moving and resizing tests, and on the arc drawing
+tests.
+<P>
+
+All timing reports are for the smallest object involved.  For example, the line
+tests use a PolyLine request to paint several lines at once, but report how
+many lines per second the server can paint, not how many PolyLine requests per
+second.  Text tests paint a line of characters, but report on the number of
+characters per second.  Some window tests map, unmap, or move a single parent
+window, but report on how many children windows per second the server can map,
+unmap, or move.
+<P>
+
+The current program is mostly the responsibility of Joel McCormack.  It is
+based upon the x11perf developed by Phil Karlton, Susan Angebranndt, Chris
+Kent, Mary Walker, and Todd Newman, who wanted to assess performance differences between various servers.
+Several tests were added  in order to write and tune
+the PMAX (DECStation 3100) servers.  
+For a general release to the world, 
+<I>x11perf </I>
+
+was rewritten to ease making comparisons between widely varying
+machines, to cover most important (and unimportant) X functionality,
+and to exercise graphics operations in as many different
+orientations and alignments as possible.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<I>x11perf </I>
+
+is solely Xlib based, and
+accepts the options listed below:
+<DL COMPACT>
+<DT><B>-display host:dpy</B>
+
+<DD>
+Specifies which display to use.
+<DT><B>-sync</B>
+
+<DD>
+Runs the tests in synchronous mode.
+Normally only useful for debugging 
+<I>x11perf .</I>
+
+<DT><B>-pack</B>
+
+<DD>
+Runs rectangle tests so that they pack rectangles right next to each other.
+This makes it easy to debug server code for stipples and tiles...if the
+pattern looks ugly, you've got alignment problems.
+<DT><B>-repeat </B><I>&lt;n&gt;</I>
+
+<DD>
+Repeats each test 
+<I>n</I>
+
+times (by default each test is run 5 times).
+<DT><B>-time </B><I>&lt;s&gt;</I>
+
+<DD>
+Specifies how long in seconds each test should be run (default 5 seconds).
+<DT><B>-all</B>
+
+<DD>
+Runs all tests.  This may take a while.
+<DT><B>-range </B><I>&lt;test1&gt;</I>[,<I>&lt;test2&gt;</I>]
+
+<DD>
+Runs all the tests starting from the specified name <I>test1</I> until
+the name <I>test2</I>, including both the specified tests. The testnames
+should be one of the options starting from -dot. (eg) -range line100
+will peform the tests from the 100 pixel line test, and go on till the
+last test, -range line100,dline10 will do the tests from line100 to
+dline10.
+<DT><B>-labels</B>
+
+<DD>
+Generates just the descriptive labels for each test specified.  See
+<I>x11perfcomp</I>
+
+for more details.
+<DT><B>-fg </B><I>color-or-pixel</I>
+
+<DD>
+Specifies the foreground color or pixel value to use.
+<DT><B>-bg </B><I>color-or-pixel</I>
+
+<DD>
+Specifies the background color or pixel value to use.
+<DT><B>-clips </B><I>default</I>
+
+<DD>
+Default number of clip windows.
+<DT><B>-ddbg </B><I>color-or-pixel</I>
+
+<DD>
+Specifies the color or pixel value to use for drawing
+the odd segments of a DoubleDashed line or arc.
+This will default to the bg color.
+<DT><B>-rop &lt;rop0 rop1 ...&gt;</B>
+
+<DD>
+Use specified raster ops (default is GXcopy).
+This option only affects graphics
+benchmarks in which the graphics function is actually used.
+<DT><B>-pm &lt;pm0 pm1 ...&gt;</B>
+
+<DD>
+Use specified planemasks (default is ~0).
+This option only affects graphics
+benchmarks in which the planemask is actually used.
+<DT><B>-depth &lt;depth&gt;</B>
+
+<DD>
+Use a visual with &lt;depth&gt; planes per pixel (default is the default
+visual).
+<DT><B>-vclass &lt;vclass&gt;</B>
+
+<DD>
+Use a visual with of class &lt;vclass&gt;.  &lt;vclass&gt; can be StaticGray, GrayScale,
+StaticColor, PseudoColor, TrueColor, or DirectColor.  (default is the default
+visual).
+<DT><B>-reps &lt;n&gt;</B>
+
+<DD>
+Specify the repetition count (Default is number that takes aprox. 5 seconds)
+<DT><B>-subs &lt;s0 s1 ...&gt;</B>
+
+<DD>
+Specify the number of sub windows to use in the Window tests.
+Default is  4, 16, 25, 50, 75, 100 and 200.
+<DT><B>-v1.2</B>
+
+<DD>
+Perform only x11perf Version 1.2 tests using Version 1.2 semantics.
+<DT><B>-v1.3</B>
+
+<DD>
+Perform only x11perf Version 1.3 tests using Version 1.3 semantics.
+<DT><B>-su</B>
+
+<DD>
+Set the save_under window attribute to True on all windows created by x11perf.
+Default is False.
+<DT><B>-bs &lt;backing_store_hint&gt;</B>
+
+<DD>
+Set the backing_store window attribute to the given value on all windows 
+created by x11perf. &lt;backing_store_hint&gt; can be WhenMapped or 
+Always.  Default is NotUseful.
+<DT><B>-dot</B>
+
+<DD>
+Dot.
+<DT><B>-rect1</B>
+
+<DD>
+1x1 solid-filled rectangle.
+<DT><B>-rect10</B>
+
+<DD>
+10x10 solid-filled rectangle.
+<DT><B>-rect100</B>
+
+<DD>
+100x100 solid-filled rectangle.
+<DT><B>-rect500</B>
+
+<DD>
+500x500 solid-filled rectangle.
+<DT><B>-srect1</B>
+
+<DD>
+1x1 transparent stippled rectangle, 8x8 stipple pattern.
+<DT><B>-srect10</B>
+
+<DD>
+10x10 transparent stippled rectangle, 8x8 stipple pattern.
+<DT><B>-srect100</B>
+
+<DD>
+100x100 transparent stippled rectangle, 8x8 stipple pattern.
+<DT><B>-srect500</B>
+
+<DD>
+500x500 transparent stippled rectangle, 8x8 stipple pattern.
+<DT><B>-osrect1</B>
+
+<DD>
+1x1 opaque stippled rectangle, 8x8 stipple pattern.
+<DT><B>-osrect10</B>
+
+<DD>
+10x10 opaque stippled rectangle, 8x8 stipple pattern.
+<DT><B>-osrect100</B>
+
+<DD>
+100x100 opaque stippled rectangle, 8x8 stipple pattern.
+<DT><B>-osrect500</B>
+
+<DD>
+500x500 opaque stippled rectangle, 8x8 stipple pattern.
+<DT><B>-tilerect1</B>
+
+<DD>
+1x1 tiled rectangle, 4x4 tile pattern.
+<DT><B>-tilerect10</B>
+
+<DD>
+10x10 tiled rectangle, 4x4 tile pattern.
+<DT><B>-tilerect100</B>
+
+<DD>
+100x100 tiled rectangle, 4x4 tile pattern.
+<DT><B>-tilerect500</B>
+
+<DD>
+500x500 tiled rectangle, 4x4 tile pattern.
+<DT><B>-oddsrect1</B>
+
+<DD>
+1x1 transparent stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddsrect10</B>
+
+<DD>
+10x10 transparent stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddsrect100</B>
+
+<DD>
+100x100 transparent stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddsrect500</B>
+
+<DD>
+500x500 transparent stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddosrect1</B>
+
+<DD>
+1x1 opaque stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddosrect10</B>
+
+<DD>
+10x10 opaque stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddosrect100</B>
+
+<DD>
+100x100 opaque stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddosrect500</B>
+
+<DD>
+500x500 opaque stippled rectangle, 17x15 stipple pattern.
+<DT><B>-oddtilerect1</B>
+
+<DD>
+1x1 tiled rectangle, 17x15 tile pattern.
+<DT><B>-oddtilerect10</B>
+
+<DD>
+10x10 tiled rectangle, 17x15 tile pattern.
+<DT><B>-oddtilerect100</B>
+
+<DD>
+100x100 tiled rectangle, 17x15 tile pattern.
+<DT><B>-oddtilerect500</B>
+
+<DD>
+500x500 tiled rectangle, 17x15 tile pattern.
+<DT><B>-bigsrect1</B>
+
+<DD>
+1x1 stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigsrect10</B>
+
+<DD>
+10x10 stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigsrect100</B>
+
+<DD>
+100x100 stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigsrect500</B>
+
+<DD>
+500x500 stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigosrect1</B>
+
+<DD>
+1x1 opaque stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigosrect10</B>
+
+<DD>
+10x10 opaque stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigosrect100</B>
+
+<DD>
+100x100 opaque stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigosrect500</B>
+
+<DD>
+500x500 opaque stippled rectangle, 161x145 stipple pattern.
+<DT><B>-bigtilerect1</B>
+
+<DD>
+1x1 tiled rectangle, 161x145 tile pattern.
+<DT><B>-bigtilerect10</B>
+
+<DD>
+10x10 tiled rectangle, 161x145 tile pattern.
+<DT><B>-bigtilerect100</B>
+
+<DD>
+100x100 tiled rectangle, 161x145 tile pattern.
+<DT><B>-bigtilerect500</B>
+
+<DD>
+500x500 tiled rectangle, 161x145 tile pattern.
+<DT><B>-eschertilerect1</B>
+
+<DD>
+1x1 tiled rectangle, 215x208 tile pattern.
+<DT><B>-eschertilerect10</B>
+
+<DD>
+10x10 tiled rectangle, 215x208 tile pattern.
+<DT><B>-eschertilerect100</B>
+
+<DD>
+100x100 tiled rectangle, 215x208 tile pattern.
+<DT><B>-eschertilerect500</B>
+
+<DD>
+500x500 tiled rectangle, 215x208 tile pattern.
+<DT><B>-seg1</B>
+
+<DD>
+1-pixel thin line segment.
+<DT><B>-seg10</B>
+
+<DD>
+10-pixel thin line segment.
+<DT><B>-seg100</B>
+
+<DD>
+100-pixel thin line segment.
+<DT><B>-seg500</B>
+
+<DD>
+500-pixel thin line segment.
+<DT><B>-seg100c1</B>
+
+<DD>
+100-pixel thin line segment (1 obscuring rectangle).
+<DT><B>-seg100c2</B>
+
+<DD>
+100-pixel thin line segment (2 obscuring rectangles).
+<DT><B>-seg100c3</B>
+
+<DD>
+100-pixel thin line segment (3 obscuring rectangles).
+<DT><B>-dseg10</B>
+
+<DD>
+10-pixel thin dashed segment (3 on, 2 off).
+<DT><B>-dseg100</B>
+
+<DD>
+100-pixel thin dashed segment (3 on, 2 off).
+<DT><B>-ddseg100</B>
+
+<DD>
+100-pixel thin double-dashed segment (3 fg, 2 bg).
+<DT><B>-hseg10</B>
+
+<DD>
+10-pixel thin horizontal line segment.
+<DT><B>-hseg100</B>
+
+<DD>
+100-pixel thin horizontal line segment.
+<DT><B>-hseg500</B>
+
+<DD>
+500-pixel thin horizontal line segment.
+<DT><B>-vseg10</B>
+
+<DD>
+10-pixel thin vertical line segment.
+<DT><B>-vseg100</B>
+
+<DD>
+100-pixel thin vertical line segment.
+<DT><B>-vseg500</B>
+
+<DD>
+500-pixel thin vertical line segment.
+<DT><B>-whseg10</B>
+
+<DD>
+10-pixel wide horizontal line segment.
+<DT><B>-whseg100</B>
+
+<DD>
+100-pixel wide horizontal line segment.
+<DT><B>-whseg500</B>
+
+<DD>
+500-pixel wide horizontal line segment.
+<DT><B>-wvseg10</B>
+
+<DD>
+10-pixel wide vertical line segment.
+<DT><B>-wvseg100</B>
+
+<DD>
+100-pixel wide vertical line segment.
+<DT><B>-wvseg500</B>
+
+<DD>
+500-pixel wide vertical line segment.
+<DT><B>-line1</B>
+
+<DD>
+1-pixel thin (width 0) line.
+<DT><B>-line10</B>
+
+<DD>
+10-pixel thin line.
+<DT><B>-line100</B>
+
+<DD>
+100-pixel thin line.
+<DT><B>-line500</B>
+
+<DD>
+500-pixel thin line.
+<DT><B>-dline10</B>
+
+<DD>
+10-pixel thin dashed line (3 on, 2 off).
+<DT><B>-dline100</B>
+
+<DD>
+100-pixel thin dashed line (3 on, 2 off).
+<DT><B>-ddline100</B>
+
+<DD>
+100-pixel thin double-dashed line (3 fg, 2 bg).
+<DT><B>-wline10</B>
+
+<DD>
+10-pixel line, line width 1.
+<DT><B>-wline100</B>
+
+<DD>
+100-pixel line, line width 10.
+<DT><B>-wline500</B>
+
+<DD>
+500-pixel line, line width 50.
+<DT><B>-wdline100</B>
+
+<DD>
+100-pixel dashed line, line width 10 (30 on, 20 off).
+<DT><B>-wddline100</B>
+
+<DD>
+100-pixel double-dashed line, line width 10 (30 fg, 20 bg).
+<DT><B>-orect10</B>
+
+<DD>
+10x10 thin rectangle outline.
+<DT><B>-orect100</B>
+
+<DD>
+100-pixel thin vertical line segment.
+<DT><B>-orect500</B>
+
+<DD>
+500-pixel thin vertical line segment.
+<DT><B>-worect10</B>
+
+<DD>
+10x10 wide rectangle outline.
+<DT><B>-worect100</B>
+
+<DD>
+100-pixel wide vertical line segment.
+<DT><B>-worect500</B>
+
+<DD>
+500-pixel wide vertical line segment.
+<DT><B>-circle1</B>
+
+<DD>
+1-pixel diameter thin (line width 0) circle.
+<DT><B>-circle10</B>
+
+<DD>
+10-pixel diameter thin circle.
+<DT><B>-circle100</B>
+
+<DD>
+100-pixel diameter thin circle.
+<DT><B>-circle500</B>
+
+<DD>
+500-pixel diameter thin circle.
+<DT><B>-dcircle100</B>
+
+<DD>
+100-pixel diameter thin dashed circle (3 on, 2 off).
+<DT><B>-ddcircle100</B>
+
+<DD>
+100-pixel diameter thin double-dashed circle (3 fg, 2 bg).
+<DT><B>-wcircle10</B>
+
+<DD>
+10-pixel diameter circle, line width 1.
+<DT><B>-wcircle100</B>
+
+<DD>
+100-pixel diameter circle, line width 10.
+<DT><B>-wcircle500</B>
+
+<DD>
+500-pixel diameter circle, line width 50.
+<DT><B>-wdcircle100</B>
+
+<DD>
+100-pixel diameter dashed circle, line width 10 (30 on, 20 off).
+<DT><B>-wddcircle100</B>
+
+<DD>
+100-pixel diameter double-dashed circle, line width 10 (30 fg, 20 bg).
+<DT><B>-pcircle10</B>
+
+<DD>
+10-pixel diameter thin partial circle,
+orientation and arc angle evenly distributed.
+<DT><B>-pcircle100</B>
+
+<DD>
+100-pixel diameter thin partial circle.
+<DT><B>-wpcircle10</B>
+
+<DD>
+10-pixel diameter wide partial circle.
+<DT><B>-wpcircle100</B>
+
+<DD>
+100-pixel diameter wide partial circle.
+<DT><B>-fcircle1</B>
+
+<DD>
+1-pixel diameter filled circle.
+<DT><B>-fcircle10</B>
+
+<DD>
+10-pixel diameter filled circle.
+<DT><B>-fcircle100</B>
+
+<DD>
+100-pixel diameter filled circle.
+<DT><B>-fcircle500</B>
+
+<DD>
+500-pixel diameter filled circle.
+<DT><B>-fcpcircle10</B>
+
+<DD>
+10-pixel diameter partial filled circle, chord fill,
+orientation and arc angle evenly distributed.
+<DT><B>-fcpcircle100</B>
+
+<DD>
+100-pixel diameter partial filled circle, chord fill.
+<DT><B>-fspcircle10</B>
+
+<DD>
+10-pixel diameter partial filled circle, pie slice fill,
+orientation and arc angle evenly distributed.
+<DT><B>-fspcircle100</B>
+
+<DD>
+100-pixel diameter partial filled circle, pie slice fill.
+<DT><B>-ellipse10</B>
+
+<DD>
+10-pixel diameter thin (line width 0) ellipse, major and
+minor axis sizes evenly distributed.
+<DT><B>-ellipse100</B>
+
+<DD>
+100-pixel diameter thin ellipse.
+<DT><B>-ellipse500</B>
+
+<DD>
+500-pixel diameter thin ellipse.
+<DT><B>-dellipse100</B>
+
+<DD>
+100-pixel diameter thin dashed ellipse (3 on, 2 off).
+<DT><B>-ddellipse100</B>
+
+<DD>
+100-pixel diameter thin double-dashed ellipse (3 fg, 2 bg).
+<DT><B>-wellipse10</B>
+
+<DD>
+10-pixel diameter ellipse, line width 1.
+<DT><B>-wellipse100</B>
+
+<DD>
+100-pixel diameter ellipse, line width 10.
+<DT><B>-wellipse500</B>
+
+<DD>
+500-pixel diameter ellipse, line width 50.
+<DT><B>-wdellipse100</B>
+
+<DD>
+100-pixel diameter dashed ellipse, line width 10 (30 on, 20 off).
+<DT><B>-wddellipse100</B>
+
+<DD>
+100-pixel diameter double-dashed ellipse, line width 10 (30 fg, 20 bg).
+<DT><B>-pellipse10</B>
+
+<DD>
+10-pixel diameter thin partial ellipse.
+<DT><B>-pellipse100</B>
+
+<DD>
+100-pixel diameter thin partial ellipse.
+<DT><B>-wpellipse10</B>
+
+<DD>
+10-pixel diameter wide partial ellipse.
+<DT><B>-wpellipse100</B>
+
+<DD>
+100-pixel diameter wide partial ellipse.
+<DT><B>-fellipse10</B>
+
+<DD>
+10-pixel diameter filled ellipse.
+<DT><B>-fellipse100</B>
+
+<DD>
+100-pixel diameter filled ellipse.
+<DT><B>-fellipse500</B>
+
+<DD>
+500-pixel diameter filled ellipse.
+<DT><B>-fcpellipse10</B>
+
+<DD>
+10-pixel diameter partial filled ellipse, chord fill.
+<DT><B>-fcpellipse100</B>
+
+<DD>
+100-pixel diameter partial filled ellipse, chord fill.
+<DT><B>-fspellipse10</B>
+
+<DD>
+10-pixel diameter partial filled ellipse, pie slice fill.
+<DT><B>-fspellipse100</B>
+
+<DD>
+100-pixel diameter partial filled ellipse, pie slice fill.
+<DT><B>-triangle1</B>
+
+<DD>
+Fill 1-pixel/side triangle.
+<DT><B>-triangle10</B>
+
+<DD>
+Fill 10-pixel/side triangle.
+<DT><B>-triangle100</B>
+
+<DD>
+Fill 100-pixel/side triangle.
+<DT><B>-trap1</B>
+
+<DD>
+Fill 1x1 trapezoid.
+<DT><B>-trap10</B>
+
+<DD>
+Fill 10x10 trapezoid.
+<DT><B>-trap100</B>
+
+<DD>
+Fill 100x100 trapezoid.
+<DT><B>-trap300</B>
+
+<DD>
+Fill 300x300 trapezoid.
+<DT><B>-strap1</B>
+
+<DD>
+Fill 1x1 transparent stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-strap10</B>
+
+<DD>
+Fill 10x10 transparent stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-strap100</B>
+
+<DD>
+Fill 100x100 transparent stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-strap300</B>
+
+<DD>
+Fill 300x300 transparent stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-ostrap1</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-ostrap10</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-ostrap100</B>
+
+<DD>
+Fill 100x100 opaque stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-ostrap300</B>
+
+<DD>
+Fill 300x300 opaque stippled trapezoid, 8x8 stipple pattern.
+<DT><B>-tiletrap1</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 4x4 tile pattern.
+<DT><B>-tiletrap10</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 4x4 tile pattern.
+<DT><B>-tiletrap100</B>
+
+<DD>
+Fill 100x100 tiled trapezoid, 4x4 tile pattern.
+<DT><B>-tiletrap300</B>
+
+<DD>
+Fill 300x300 tiled trapezoid, 4x4 tile pattern.
+<DT><B>-oddstrap1</B>
+
+<DD>
+Fill 1x1 transparent stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddstrap10</B>
+
+<DD>
+Fill 10x10 transparent stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddstrap100</B>
+
+<DD>
+Fill 100x100 transparent stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddstrap300</B>
+
+<DD>
+Fill 300x300 transparent stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddostrap1</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddostrap10</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddostrap100</B>
+
+<DD>
+Fill 100x100 opaque stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddostrap300</B>
+
+<DD>
+Fill 300x300 opaque stippled trapezoid, 17x15 stipple pattern.
+<DT><B>-oddtiletrap1</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 17x15 tile pattern.
+<DT><B>-oddtiletrap10</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 17x15 tile pattern.
+<DT><B>-oddtiletrap100</B>
+
+<DD>
+Fill 100x100 tiled trapezoid, 17x15 tile pattern.
+<DT><B>-oddtiletrap300</B>
+
+<DD>
+Fill 300x300 tiled trapezoid, 17x15 tile pattern.
+<DT><B>-bigstrap1</B>
+
+<DD>
+Fill 1x1 transparent stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigstrap10</B>
+
+<DD>
+Fill 10x10 transparent stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigstrap100</B>
+
+<DD>
+Fill 100x100 transparent stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigstrap300</B>
+
+<DD>
+Fill 300x300 transparent stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigostrap1</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigostrap10</B>
+
+<DD>
+Fill 10x10 opaque stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigostrap100</B>
+
+<DD>
+Fill 100x100 opaque stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigostrap300</B>
+
+<DD>
+Fill 300x300 opaque stippled trapezoid, 161x145 stipple pattern.
+<DT><B>-bigtiletrap1</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 161x145 tile pattern.
+<DT><B>-bigtiletrap10</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 161x145 tile pattern.
+<DT><B>-bigtiletrap100</B>
+
+<DD>
+Fill 100x100 tiled trapezoid, 161x145 tile pattern.
+<DT><B>-bigtiletrap300</B>
+
+<DD>
+Fill 300x300 tiled trapezoid, 161x145 tile pattern.
+<DT><B>-eschertiletrap1</B>
+
+<DD>
+Fill 1x1 tiled trapezoid, 216x208 tile pattern.
+<DT><B>-eschertiletrap10</B>
+
+<DD>
+Fill 10x10 tiled trapezoid, 216x208 tile pattern.
+<DT><B>-eschertiletrap100</B>
+
+<DD>
+Fill 100x100 tiled trapezoid, 216x208 tile pattern.
+<DT><B>-eschertiletrap300</B>
+
+<DD>
+Fill 300x300 tiled trapezoid, 216x208 tile pattern.
+<DT><B>-complex10</B>
+
+<DD>
+Fill 10-pixel/side complex polygon.
+<DT><B>-complex100</B>
+
+<DD>
+Fill 100-pixel/side complex polygon.
+<DT><B>-64poly10convex</B>
+
+<DD>
+Fill 10x10 convex 64-gon.
+<DT><B>-64poly100convex</B>
+
+<DD>
+Fill 100x100 convex 64-gon.
+<DT><B>-64poly10complex</B>
+
+<DD>
+Fill 10x10 complex 64-gon.
+<DT><B>-64poly100complex</B>
+
+<DD>
+Fill 100x100 complex 64-gon.
+<DT><B>-ftext</B>
+
+<DD>
+Character in 80-char line (6x13).
+<DT><B>-f8text</B>
+
+<DD>
+Character in 70-char line (8x13).
+<DT><B>-f9text</B>
+
+<DD>
+Character in 60-char line (9x15).
+<DT><B>-f14text16</B>
+
+<DD>
+2-byte character in 40-char line (k14).
+<DT><B>-tr10text</B>
+
+<DD>
+Character in 80-char line (Times-Roman 10).
+<DT><B>-tr24text</B>
+
+<DD>
+Character in 30-char line (Times-Roman 24).
+<DT><B>-polytext</B>
+
+<DD>
+Character in 20/40/20 line (6x13, Times-Roman 10, 6x13).
+<DT><B>-polytext16</B>
+
+<DD>
+2-byte character in 7/14/7 line (k14, k24).
+<DT><B>-fitext</B>
+
+<DD>
+Character in 80-char image line (6x13).
+<DT><B>-f8itext</B>
+
+<DD>
+Character in 70-char image line (8x13).
+<DT><B>-f9itext</B>
+
+<DD>
+Character in 60-char image line (9x15).
+<DT><B>-f14itext16</B>
+
+<DD>
+2-byte character in 40-char image line (k14).
+<DT><B>-f24itext16</B>
+
+<DD>
+2-byte character in 23-char image line (k24).
+<DT><B>-tr10itext</B>
+
+<DD>
+Character in 80-char image line (Times-Roman 10).
+<DT><B>-tr24itext</B>
+
+<DD>
+Character in 30-char image line (Times-Roman 24).
+<DT><B>-scroll10</B>
+
+<DD>
+Scroll 10x10 pixels vertically.
+<DT><B>-scroll100</B>
+
+<DD>
+Scroll 100x100 pixels vertically.
+<DT><B>-scroll500</B>
+
+<DD>
+Scroll 500x500 pixels vertically.
+<DT><B>-copywinwin10</B>
+
+<DD>
+Copy 10x10 square from window to window.
+<DT><B>-copywinwin100</B>
+
+<DD>
+Copy 100x100 square from window to window.
+<DT><B>-copywinwin500</B>
+
+<DD>
+Copy 500x500 square from window to window.
+<DT><B>-copypixwin10</B>
+
+<DD>
+Copy 10x10 square from pixmap to window.
+<DT><B>-copypixwin100</B>
+
+<DD>
+Copy 100x100 square from pixmap to window.
+<DT><B>-copypixwin500</B>
+
+<DD>
+Copy 500x500 square from pixmap to window.
+<DT><B>-copywinpix10</B>
+
+<DD>
+Copy 10x10 square from window to pixmap.
+<DT><B>-copywinpix100</B>
+
+<DD>
+Copy 100x100 square from window to pixmap.
+<DT><B>-copywinpix500</B>
+
+<DD>
+Copy 500x500 square from window to pixmap.
+<DT><B>-copypixpix10</B>
+
+<DD>
+Copy 10x10 square from pixmap to pixmap.
+<DT><B>-copypixpix100</B>
+
+<DD>
+Copy 100x100 square from pixmap to pixmap.
+<DT><B>-copypixpix500</B>
+
+<DD>
+Copy 500x500 square from pixmap to pixmap.
+<DT><B>-copyplane10</B>
+
+<DD>
+Copy 10x10 1-bit deep plane.
+<DT><B>-copyplane100</B>
+
+<DD>
+Copy 100x100 1-bit deep plane.
+<DT><B>-copyplane500</B>
+
+<DD>
+Copy 500x500 1-bit deep plane.
+<DT><B>-putimage10</B>
+
+<DD>
+PutImage 10x10 square.
+<DT><B>-putimage100</B>
+
+<DD>
+PutImage 100x100 square.
+<DT><B>-putimage500</B>
+
+<DD>
+PutImage 500x500 square.
+<DT><B>-putimagexy10</B>
+
+<DD>
+PutImage XY format 10x10 square.
+<DT><B>-putimagexy100</B>
+
+<DD>
+PutImage XY format 100x100 square.
+<DT><B>-putimagexy500</B>
+
+<DD>
+PutImage XY format 500x500 square.
+<DT><B>-shmput10</B>
+
+<DD>
+PutImage 10x10 square, MIT shared memory extension.
+<DT><B>-shmput100</B>
+
+<DD>
+PutImage 100x100 square, MIT shared memory extension.
+<DT><B>-shmput500</B>
+
+<DD>
+PutImage 500x500 square, MIT shared memory extension.
+<DT><B>-shmputxy10</B>
+
+<DD>
+PutImage XY format 10x10 square, MIT shared memory extension.
+<DT><B>-shmputxy100</B>
+
+<DD>
+PutImage XY format 100x100 square, MIT shared memory extension.
+<DT><B>-shmputxy500</B>
+
+<DD>
+PutImage XY format 500x500 square, MIT shared memory extension.
+<DT><B>-getimage10</B>
+
+<DD>
+GetImage 10x10 square.
+<DT><B>-getimage100</B>
+
+<DD>
+GetImage 100x100 square.
+<DT><B>-getimage500</B>
+
+<DD>
+GetImage 500x500 square.
+<DT><B>-getimagexy10</B>
+
+<DD>
+GetImage XY format 10x10 square.
+<DT><B>-getimagexy100</B>
+
+<DD>
+GetImage XY format 100x100 square.
+<DT><B>-getimagexy500</B>
+
+<DD>
+GetImage XY format 500x500 square.
+<DT><B>-noop</B>
+
+<DD>
+X protocol NoOperation.
+<DT><B>-atom</B>
+
+<DD>
+GetAtomName.
+<DT><B>-pointer</B>
+
+<DD>
+QueryPointer.
+<DT><B>-prop</B>
+
+<DD>
+GetProperty.
+<DT><B>-gc</B>
+
+<DD>
+Change graphics context.
+<DT><B>-create</B>
+
+<DD>
+Create child window and map using MapSubwindows.
+<DT><B>-ucreate</B>
+
+<DD>
+Create unmapped window.
+<DT><B>-map</B>
+
+<DD>
+Map child window via MapWindow on parent.
+<DT><B>-unmap</B>
+
+<DD>
+Unmap child window via UnmapWindow on parent.
+<DT><B>-destroy</B>
+
+<DD>
+Destroy child window via DestroyWindow parent.
+<DT><B>-popup</B>
+
+<DD>
+Hide/expose window via Map/Unmap popup window.
+<DT><B>-move</B>
+
+<DD>
+Move window.
+<DT><B>-umove</B>
+
+<DD>
+Moved unmapped window.
+<DT><B>-movetree</B>
+
+<DD>
+Move window via MoveWindow on parent.
+<DT><B>-resize</B>
+
+<DD>
+Resize window.
+<DT><B>-uresize</B>
+
+<DD>
+Resize unmapped window.
+<DT><B>-circulate</B>
+
+<DD>
+Circulate lowest window to top.
+<DT><B>-ucirculate</B>
+
+<DD>
+Circulate unmapped window to top.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>X DEFAULTS</H2>
+
+There are no X defaults used by this program.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <A HREF="../man1/xbench.1.php">xbench</A>(1), <A HREF="../man1/x11perfcomp.1.php">x11perfcomp</A>(1)
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Joel McCormack
+<BR>
+
+Phil Karlton
+<BR>
+
+Susan Angebranndt
+<BR>
+
+Chris Kent
+<BR>
+
+Keith Packard
+<BR>
+
+Graeme Gill
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">X DEFAULTS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

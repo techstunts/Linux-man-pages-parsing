@@ -1,0 +1,317 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XFS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XFS</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xfs - X font server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xfs</B>
+
+[-config <I>configuration_file</I>]
+[-daemon]
+[-droppriv]
+[-ls <I>listen_socket</I>]
+[-nodaemon]
+[-port <I>tcp_port</I>]
+[-user <I>username</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<I>Xfs</I>
+
+is the X Window System font server.  It supplies fonts to X Window
+System display servers.
+<A NAME="lbAE">&nbsp;</A>
+<H2>STARTING THE SERVER</H2>
+
+The server is usually run by a system administrator, and started via 
+boot files like <I>/etc/rc.local</I>.  Users may also wish to start
+private font servers for specific sets of fonts.
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-config configuration_file</B>
+
+<DD>
+Specifies the configuration file the font server will use.  If this
+parameter is not specified, the default file, <I>/usr/X11R6/lib/X11/fs/config</I>
+will be used.
+<DT><B>-ls listen_socket</B>
+
+<DD>
+Specifies a file descriptor which is already set up to be used as the
+listen socket.  This option is only intended to be used by the font server
+itself when automatically spawning another copy of itself to handle
+additional connections.
+<DT><B>-port tcp_port</B>
+
+<DD>
+Specifies the TCP port number on which the server will listen for connections.
+The default port number is 7100.
+<DT><B>-daemon</B>
+
+<DD>
+Instructs xfs to fork and go into the background automatically at
+startup  If this option is not specified, xfs will run as a regular
+process (unless xfs was built to daemonize by default).
+<DT><B>-droppriv</B>
+
+<DD>
+If specified, xfs will attempt to run as user and group <I>xfs</I> (unless
+the
+<B>-user</B>
+
+option is used). This
+has been implemented for security reasons, as xfs may have undiscovered
+buffer overflows or other paths for possible exploit, both local and
+remote.  With this option, you may also wish to specify
+&quot;no-listen = tcp&quot;
+in the config file, which ensures that xfs will not to use a TCP port at all.
+<DT><B>-nodaemon</B>
+
+<DD>
+When xfs is built to daemonize (run in the background) by default,
+this prevents that and starts xfs up as a regular process.
+<DT><B>-user username</B>
+
+<DD>
+This is equivalent to
+<B>-droppriv</B>
+
+except that xfs will run as user <I>username</I>.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SIGNALS</H2>
+
+<DL COMPACT>
+<DT><I>SIGTERM</I>
+
+<DD>
+This causes the font server to exit cleanly.
+<DT><I>SIGUSR1</I>
+
+<DD>
+This signal is used to cause the server to re-read its configuration file.
+<DT><I>SIGUSR2</I>
+
+<DD>
+This signal is used to cause the server to flush any cached data it
+may have.
+<DT><I>SIGHUP</I>
+
+<DD>
+This signal is used to cause the server to reset, closing all active
+connections and re-reading the configuration file.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+The configuration language is a list of keyword and value pairs.
+Each keyword is followed by an '=' and then the desired value.
+<P>
+
+Recognized keywords include:
+<P>
+
+
+<DL COMPACT>
+<DT>catalogue (list of string)<DD>
+Ordered list of font path element names.
+Use of the keyword &quot;catalogue&quot; is very misleading at present,
+the current implementation only supports a single catalogue (&quot;all&quot;),
+containing all of the specified fonts.
+<DT>alternate-servers (list of string)<DD>
+List of alternate servers for this font server.
+<DT>client-limit (cardinal)<DD>
+Number of clients this font server will support 
+before refusing service.  This is useful for tuning 
+the load on each individual font server.
+<DT>clone-self (boolean)<DD>
+Whether this font server should attempt to clone itself
+when it reachs the client-limit.
+<DT>default-point-size (cardinal)<DD>
+The default pointsize (in decipoints) for fonts that 
+don't specify.  The default is 120.
+<DT>default-resolutions (list of resolutions)<DD>
+Resolutions the server supports by default.
+This information may be used as a hint for 
+pre-rendering, and substituted for scaled fonts 
+which do not specify a resolution.
+A resolution is a comma-separated pair of x and y resolutions in
+pixels per inch.
+Multiple resolutions are separated by commas.
+<DT>error-file (string)<DD>
+Filename of the error file.  All warnings and errors
+will be logged here.
+<DT>no-listen (trans-type)<DD>
+Disable a transport  type. For example, TCP/IP connections can
+be disabled with no-listen tcp
+<DT>port (cardinal)<DD>
+TCP port on which the server will listen for connections.
+<DT>use-syslog (boolean)<DD>
+Whether <A HREF="../man3/syslog.3.php">syslog</A>(3) (on supported systems) is to be used 
+for errors.
+<DT>deferglyphs (string)<DD>
+Set the mode for delayed fetching and caching of glyphs.  Value is
+&quot;none&quot;, meaning deferred glyphs is disabled, &quot;all&quot;, meaning it is
+enabled for all fonts, and &quot;16&quot;, meaning it is enabled only for
+16-bits fonts.
+
+
+
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<PRE>
+#
+# sample font server configuration file
+#
+
+# allow a max of 10 clients to connect to this font server
+client-limit = 10
+
+# when a font server reaches its limit, start up a new one
+clone-self = on
+
+# alternate font servers for clients to use
+alternate-servers = hansen:7101,hansen:7102
+
+# where to look for fonts
+# the first is a set of Speedo outlines, the second is a set of 
+# misc bitmaps and the last is a set of 100dpi bitmaps
+#
+catalogue = /usr/X11R6/lib/X11/fonts/speedo,
+        /usr/X11R6/lib/X11/fonts/misc,
+        /usr/X11R6/lib/X11/fonts/100dpi/
+
+# in 12 points, decipoints
+default-point-size = 120
+
+# 100 x 100 and 75 x 75
+default-resolutions = 100,100,75,75
+use-syslog = off
+</PRE>
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FONT SERVER NAMES</H2>
+
+One of the following forms can be used to name a font server that
+accepts TCP connections:
+<P>
+<PRE>
+    tcp/<I>hostname</I>:<I>port</I>
+    tcp/<I>hostname</I>:<I>port</I>/<I>cataloguelist</I>
+</PRE>
+
+<P>
+
+The <I>hostname</I> specifies the name (or decimal numeric address)
+of the machine on which the font server is running.  The <I>port</I>
+is the decimal TCP port on which the font server is listening for connections.
+The <I>cataloguelist</I> specifies a list of catalogue names,
+with '+' as a separator.
+<P>
+
+Examples: <I>tcp/fs.x.org:7100</I>, <I>tcp/18.30.0.212:7101/all</I>.
+<P>
+
+One of the following forms can be used to name a font server that
+accepts DECnet connections:
+<P>
+<PRE>
+    decnet/<I>nodename</I>::font$<I>objname</I>
+    decnet/<I>nodename</I>::font$<I>objname</I>/<I>cataloguelist</I>
+</PRE>
+
+<P>
+
+The <I>nodename</I> specifies the name (or decimal numeric address)
+of the machine on which the font server is running.
+The <I>objname</I> is a normal, case-insensitive DECnet object name.
+The <I>cataloguelist</I> specifies a list of catalogue names,
+with '+' as a separator.
+<P>
+
+Examples: <I>DECnet/SRVNOD::FONT$DEFAULT</I>, <I>decnet/44.70::font$special/symbols</I>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <I>The X Font Service Protocol</I>,
+<BR>
+
+<I>Font server implementation overview</I>
+<A NAME="lbAL">&nbsp;</A>
+<H2>BUGS</H2>
+
+Multiple catalogues should be supported.
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Dave Lemke, Network Computing Devices, Inc
+<BR>
+
+Keith Packard, Massachusetts Institute of Technology
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">STARTING THE SERVER</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">SIGNALS</A><DD>
+<DT><A HREF="#lbAH">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAI">EXAMPLE</A><DD>
+<DT><A HREF="#lbAJ">FONT SERVER NAMES</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">BUGS</A><DD>
+<DT><A HREF="#lbAM">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

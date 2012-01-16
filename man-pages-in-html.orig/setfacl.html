@@ -1,0 +1,460 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SETFACL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SETFACL</H1>
+Section: Access Control Lists (1)<BR>Updated: ACL File Utilities<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+setfacl - set file access control lists
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>setfacl</B>
+
+[-bkndRLPvh] [{-m|-x} acl_spec] [{-M|-X} acl_file] file ...
+<P>
+<B>setfacl</B>
+
+--restore=file
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This utility sets Access Control Lists (ACLs) of files and directories.
+On the command line, a sequence of commands is followed by a sequence of
+files (which in turn can be followed by another sequence of commands, ...).
+<P>
+The options
+<I>-m,</I>
+
+and
+<I>-x</I>
+
+expect an ACL on the command line. Multiple ACL entries are separated
+by comma characters (`,'). The options
+<I>-M,</I>
+
+and
+<I>-X</I>
+
+read an ACL from a file or from standard input. The ACL entry format is described in Section
+ACL ENTRIES.
+<P>
+The
+<I>--set</I> and <I>--set-file</I>
+
+options set the ACL of a file or a directory. The previous ACL is
+replaced.
+ACL entries for this operation must include permissions.
+<P>
+The
+<I>-m (--modify)</I> and <I>-M (--modify-file)</I>
+
+options modify the ACL of a file or directory.
+ACL entries for this operation must include permissions.
+<P>
+The
+<I>-x (--remove)</I> and <I>-X (--remove-file)</I>
+
+options remove ACL enries. Only
+ACL entries without the
+<I>perms</I>
+
+field are accepted as parameters, unless POSIXLY_CORRECT is defined.
+<P>
+When reading from files using the 
+<I>-M,</I>
+
+and
+<I>-X</I>
+
+options, setfacl accepts the output getfacl produces.
+There is at most one ACL entry per line. After a Pound sign (`#'),
+everything up to the end of the line is treated as a comment.
+<P>
+If setfacl is used on a file system which does not support ACLs, setfacl
+operates on the file mode permission bits. If the ACL does not fit completely
+in the permission bits, setfacl modifies the file mode permission bits to reflect the ACL as closely as possible, writes an error message to standard error, and returns with an exit status greater than 0.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H3>PERMISSIONS</H3>
+
+The file owner and processes capable of CAP_FOWNER are granted the right
+to modify ACLs of a file. This is analogous to the permissions required
+for accessing the file mode. (On current Linux systems, root is the only
+user with the CAP_FOWNER capability.)
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H3>OPTIONS</H3>
+
+<DL COMPACT>
+<DT><I>-b, --remove-all</I>
+
+<DD>
+Remove all extended ACL entries. The base ACL entries of the owner, group and others are retained.
+<DT><I>-k, --remove-default</I>
+
+<DD>
+Remove the Default ACL. If no Default ACL exists, no warnings are issued.
+<DT><I>-n, --no-mask</I>
+
+<DD>
+Do not recalculate the effective rights mask. The default behavior of
+setfacl is to recalculate the ACL mask entry, unless a mask entry was explicitly given.
+The mask entry is set to the union of all permissions of the owning group, and all named user and group entries. (These are exactly the entries affected by the mask entry).
+<DT><I>--mask</I>
+
+<DD>
+Do recalculate the effective rights mask, even if an ACL mask entry was explicitly given. (See the
+<I>-n </I>option.)
+
+<DT><I>-d, --default</I>
+
+<DD>
+All operations apply to the Default ACL. Regular ACL entries in the
+input set are promoted to Default ACL entries. Default ACL entries in
+the input set are discarded. (A warning is issued if that happens).
+<DT><I>--restore=file</I>
+
+<DD>
+Restore a permission backup created by `getfacl -R' or similar. All permissions
+of a complete directory subtree are restored using this mechanism. If the input
+contains owner comments or group comments, and setfacl is run by root, the
+owner and owning group of all files are restored as well. This option cannot be mixed with other options except `--test'.
+<DT><I>--test</I>
+
+<DD>
+Test mode. Instead of changing the ACLs of any files, the resulting ACLs are listed.
+<DT><I>-R, --recursive</I>
+
+<DD>
+Apply operations to all files and directories recursively. This option cannot be mixed with `--restore'.
+<DT><I>-L, --logical</I>
+
+<DD>
+Logical walk, follow symbolic links. The default behavior is to follow symbolic link arguments, and to skip symbolic links encountered
+in subdirectories. This option cannot be mixed with `--restore'.
+<DT><I>-P, --physical</I>
+
+<DD>
+Physical walk, skip all symbolic links. This also skips symbolic link arguments.
+This option cannot be mixed with `--restore'.
+<DT><I>--version</I>
+
+<DD>
+Print the version of setfacl and exit.
+<DT><I>--help</I>
+
+<DD>
+Print help explaining the command line options.
+<DT><I>--</I>
+
+<DD>
+End of command line options. All remaining parameters are interpreted as file names, even if they start with a dash.
+<DT><I>-</I>
+
+<DD>
+If the file name parameter is a single dash, setfacl reads a list of files from standard input.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>ACL ENTRIES</H3>
+
+The setfacl utility recognizes the following ACL entry formats (blanks
+inserted for clarity):
+<P>
+
+<DL COMPACT>
+<DT>[d[efault]:] [u[ser]:]<I>uid </I>[:<I>perms</I>]
+
+<DD>
+
+Permissions of a named user. Permissions of the file owner if
+<I>uid</I>
+
+is empty.
+
+<DT>[d[efault]:] g[roup]:<I>gid </I>[:<I>perms</I>]
+
+<DD>
+
+Permissions of a named group. Permissions of the owning group if
+<I>gid</I>
+
+is empty.
+
+<DT>[d[efault]:] m[ask][:] [:<I>perms</I>]
+
+<DD>
+
+Effective rights mask
+
+<DT>[d[efault]:] o[ther][:] [:<I>perms</I>]
+
+<DD>
+
+Permissions of others.
+</DL>
+<P>
+
+Whitespace between delimiter characters and non-delimiter characters is ignored.
+<P>
+
+<P>
+
+Proper ACL entries including permissions are used in modify and set operations. (options
+<I>-m</I>, <I>-M</I>, <I>--set</I> and <I>--set-file</I>).
+
+Entries without the
+<I>perms</I>
+
+field are used for
+<I>deletion</I>
+
+of entries (options
+<I>-x</I> and <I>-X</I>).
+
+<P>
+
+For
+<I>uid</I>
+
+and
+<I>gid</I>
+
+you can specify either a name or a number.
+<P>
+
+The
+<I>perms</I>
+
+field is a combination of characters that indicate the permissions: read
+<I>(r)</I>,
+
+write
+<I>(w)</I>,
+
+execute
+<I>(x)</I>,
+
+execute only if the file is a directory or already has execute permission
+for some user
+<I>(X)</I>.
+
+Alternatively, the
+<I>perms</I>
+
+field can be an octal digit (0-7).
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>AUTOMATICALLY CREATED ENTRIES</H3>
+
+Initially, files and directories contain only the three base ACL entries
+for the owner, the group, and others. There are some rules that
+need to be satisfied in order for an ACL to be valid:
+<DL COMPACT>
+<DT>*<DD>
+The three base entries cannot be removed. There must be exactly one
+entry of each of these base entry types.
+<DT>*<DD>
+Whenever an ACL contains named user entries or named group objects,
+it must also contain an effective rights mask.
+<DT>*<DD>
+Whenever an ACL contains any Default ACL entries, the three Default ACL
+base entries (default owner, default group, and default others) must also exist.
+<DT>*<DD>
+Whenever a Default ACL contains named user entries or named group objects,
+it must also contain a default effective rights mask.
+</DL>
+<P>
+
+To help the user ensure these rules, setfacl creates entries from existing
+entries under the following conditions:
+<DL COMPACT>
+<DT>*<DD>
+If an ACL contains named user or named group entries, and
+no mask entry exists, a mask entry containing the same permissions as
+the group entry is created. Unless the
+<I>-n</I>
+
+option is given, the permissions of the mask entry are further adjusted to include the union of all permissions affected by the mask entry. (See the
+<I>-n</I>
+
+option description).
+<DT>*<DD>
+If a Default ACL entry is created, and the Default ACL contains no
+owner, owning group, or others entry, a copy of the ACL owner, owning group, or others entry is added to the Default ACL.
+<DT>*<DD>
+If a Default ACL contains named user entries or named group entries, and no mask entry exists, a mask entry containing the same permissions as the default Default ACL's group entry is added. Unless the
+<I>-n</I>
+
+option is given, the permissions of the mask entry are further adjusted to inclu
+de the union of all permissions affected by the mask entry. (See the
+<I>-n</I>
+
+option description).
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+Granting an additional user read access
+<DL COMPACT><DT><DD>
+
+setfacl -m u:lisa:r file
+
+</DL>
+
+<P>
+
+Revoking write access from all groups and all named users (using the effective rights mask)
+<DL COMPACT><DT><DD>
+
+setfacl -m m::rx file
+
+</DL>
+
+<P>
+
+Removing a named group entry from a file's ACL
+<DL COMPACT><DT><DD>
+
+setfacl -x g:staff file
+
+</DL>
+
+<P>
+
+Copying the ACL of one file to another
+<DL COMPACT><DT><DD>
+
+getfacl file1 | setfacl --set-file=- file2
+
+</DL>
+
+<P>
+
+Copying the access ACL into the Default ACL
+<DL COMPACT><DT><DD>
+
+getfacl --access dir | setfacl -d -M- dir
+
+</DL>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>CONFORMANCE TO POSIX 1003.1e DRAFT STANDARD 17</H2>
+
+If the environment variable POSIXLY_CORRECT is defined, the default behavior of setfacl changes as follows: All non-standard options are disabled.
+The ``default:'' prefix is disabled.
+The
+<I>-x</I> and <I>-X</I>
+
+options also accept permission fields (and ignore them). 
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Andreas Gruenbacher,
+&lt;<I><A HREF="mailto:a.gruenbacher@computer.org">a.gruenbacher@computer.org</A></I>&gt;.
+
+<P>
+Please send your bug reports, suggested features and comments to the
+above address.
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/getfacl.1.php">getfacl</A></B>(1), <B><A HREF="../man1/chmod.1.php">chmod</A></B>(1), <B><A HREF="../man1/umask.1.php">umask</A></B>(1), <B><A HREF="../man5/acl.5.php">acl</A></B>(5)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">PERMISSIONS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">ACL ENTRIES</A><DD>
+<DT><A HREF="#lbAH">AUTOMATICALLY CREATED ENTRIES</A><DD>
+</DL>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">CONFORMANCE TO POSIX 1003.1e DRAFT STANDARD 17</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

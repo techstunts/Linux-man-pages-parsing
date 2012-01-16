@@ -1,0 +1,375 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DPROFPP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DPROFPP</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-10-12<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dprofpp - display perl profile data
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+dprofpp [<B>-a</B>|<B>-z</B>|<B>-l</B>|<B>-v</B>|<B>-U</B>] [<B>-d</B>] [<B>-s</B>|<B>-r</B>|<B>-u</B>] [<B>-q</B>] [<B>-F</B>] [<B>-I|-E</B>] [<B>-O cnt</B>] [<B>-A</B>] [<B>-R</B>] [<B>-S</B>] [<B>-g subroutine</B>] [<B>-G</B> &lt;regexp&gt; [<B>-P</B>]] [<B>-f</B> &lt;regexp&gt;] [profile]
+<P>
+
+dprofpp <B>-T</B> [<B>-F</B>] [<B>-g subroutine</B>] [profile]
+<P>
+
+dprofpp <B>-t</B> [<B>-F</B>] [<B>-g subroutine</B>] [profile]
+<P>
+
+dprofpp <B>-G</B> &lt;regexp&gt; [<B>-P</B>] [profile]
+<P>
+
+dprofpp <B>-p script</B> [<B>-Q</B>] [other opts]
+<P>
+
+dprofpp <B>-V</B> [profile]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The <I>dprofpp</I> command interprets profile data produced by a profiler, such
+as the Devel::DProf profiler.  Dprofpp will read the file <I>tmon.out</I> and
+will display the 15 subroutines which are using the most time.  By default
+the times for each subroutine are given exclusive of the times of their
+child subroutines.
+<P>
+
+To profile a Perl script run the perl interpreter with the <B>-d</B> switch.  So
+to profile script <I>test.pl</I> with Devel::DProf the following command should
+be used.
+<P>
+
+
+
+<PRE>
+        $ perl5 -d:DProf test.pl
+
+</PRE>
+
+
+<P>
+
+Then run dprofpp to analyze the profile.  The output of dprofpp depends
+on the flags to the program and the version of Perl you're using.
+<P>
+
+
+
+<PRE>
+        $ dprofpp -u
+        Total Elapsed Time =    1.67 Seconds
+                 User Time =    0.61 Seconds
+        Exclusive Times
+        %Time Seconds     #Calls sec/call Name
+         52.4   0.320          2   0.1600 main::foo
+         45.9   0.280        200   0.0014 main::bar
+         0.00   0.000          1   0.0000 DynaLoader::import
+         0.00   0.000          1   0.0000 main::baz
+
+</PRE>
+
+
+<P>
+
+The dprofpp tool can also run the profiler before analyzing the profile
+data.  The above two commands can be executed with one dprofpp command.
+<P>
+
+
+
+<PRE>
+        $ dprofpp -u -p test.pl
+
+</PRE>
+
+
+<P>
+
+Consult ``<FONT SIZE="-1">PROFILE</FONT> <FONT SIZE="-1">FORMAT</FONT>'' in Devel::DProf for a description of the raw profile.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OUTPUT</H2>
+
+<A NAME="ixAAE"></A>
+Columns are:
+<DL COMPACT>
+<DT>%Time<DD>
+<A NAME="ixAAF"></A>
+Percentage of time spent in this routine.
+<DT>#Calls<DD>
+<A NAME="ixAAG"></A>
+Number of calls to this routine.
+<DT>sec/call<DD>
+<A NAME="ixAAH"></A>
+Average number of seconds per call to this routine.
+<DT>Name<DD>
+<A NAME="ixAAI"></A>
+Name of routine.
+<DT>CumulS<DD>
+<A NAME="ixAAJ"></A>
+Time (in seconds) spent in this routine and routines called from it.
+<DT>ExclSec<DD>
+<A NAME="ixAAK"></A>
+Time (in seconds) spent in this routine (not including those called
+from it).
+<DT>Csec/c<DD>
+<A NAME="ixAAL"></A>
+Average time (in seconds) spent in each call of this routine
+(including those called from it).
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAM"></A>
+<DL COMPACT>
+<DT><B>-a</B><DD>
+<A NAME="ixAAN"></A>
+Sort alphabetically by subroutine names.
+<DT><B>-d</B><DD>
+<A NAME="ixAAO"></A>
+Reverse whatever sort is used
+<DT><B>-A</B><DD>
+<A NAME="ixAAP"></A>
+Count timing for autoloaded subroutine as timing for <TT>*::AUTOLOAD</TT>.
+Otherwise the time to autoload it is counted as time of the subroutine
+itself (there is no way to separate autoload time from run time).
+
+
+<P>
+
+
+This is going to be irrelevant with newer Perls.  They will inform
+<TT>&quot;Devel::DProf&quot;</TT> <I>when</I> the <TT>&quot;AUTOLOAD&quot;</TT> switches to actual subroutine,
+so a separate statistics for <TT>&quot;AUTOLOAD&quot;</TT> will be collected no matter
+whether this option is set.
+<DT><B>-R</B><DD>
+<A NAME="ixAAQ"></A>
+Count anonymous subroutines defined in the same package separately.
+<DT><B>-E</B><DD>
+<A NAME="ixAAR"></A>
+(default)  Display all subroutine times exclusive of child subroutine times.
+<DT><B>-F</B><DD>
+<A NAME="ixAAS"></A>
+Force the generation of fake exit timestamps if dprofpp reports that the
+profile is garbled.  This is only useful if dprofpp determines that the
+profile is garbled due to missing exit timestamps.  You're on your own if
+you do this.  Consult the <FONT SIZE="-1">BUGS</FONT> section.
+<DT><B>-I</B><DD>
+<A NAME="ixAAT"></A>
+Display all subroutine times inclusive of child subroutine times.
+<DT><B>-l</B><DD>
+<A NAME="ixAAU"></A>
+Sort by number of calls to the subroutines.  This may help identify
+candidates for inlining.
+<DT><B>-O cnt</B><DD>
+<A NAME="ixAAV"></A>
+Show only <I>cnt</I> subroutines.  The default is 15.
+<DT><B>-p script</B><DD>
+<A NAME="ixAAW"></A>
+Tells dprofpp that it should profile the given script and then interpret its
+profile data.  See <B>-Q</B>.
+<DT><B>-Q</B><DD>
+<A NAME="ixAAX"></A>
+Used with <B>-p</B> to tell dprofpp to quit after profiling the script, without
+interpreting the data.
+<DT><B>-q</B><DD>
+<A NAME="ixAAY"></A>
+Do not display column headers.
+<DT><B>-r</B><DD>
+<A NAME="ixAAZ"></A>
+Display elapsed real times rather than user+system times.
+<DT><B>-s</B><DD>
+<A NAME="ixABA"></A>
+Display system times rather than user+system times.
+<DT><B>-T</B><DD>
+<A NAME="ixABB"></A>
+Display subroutine call tree to stdout.  Subroutine statistics are
+not displayed.
+<DT><B>-t</B><DD>
+<A NAME="ixABC"></A>
+Display subroutine call tree to stdout.  Subroutine statistics are not
+displayed.  When a function is called multiple consecutive times at the same
+calling level then it is displayed once with a repeat count.
+<DT><B>-S</B><DD>
+<A NAME="ixABD"></A>
+Display <I>merged</I> subroutine call tree to stdout.  Statistics are
+displayed for each branch of the tree.  
+
+
+<P>
+
+
+When a function is called multiple (<I>not necessarily consecutive</I>)
+times in the same branch then all these calls go into one branch of
+the next level.  A repeat count is output together with combined
+inclusive, exclusive and kids time.
+
+
+<P>
+
+
+Branches are sorted w.r.t. inclusive time.
+<DT><B>-U</B><DD>
+<A NAME="ixABE"></A>
+Do not sort.  Display in the order found in the raw profile.
+<DT><B>-u</B><DD>
+<A NAME="ixABF"></A>
+Display user times rather than user+system times.
+<DT><B>-V</B><DD>
+<A NAME="ixABG"></A>
+Print dprofpp's version number and exit.  If a raw profile is found then its
+<FONT SIZE="-1">XS_VERSION</FONT> variable will be displayed, too.
+<DT><B>-v</B><DD>
+<A NAME="ixABH"></A>
+Sort by average time spent in subroutines during each call.  This may help
+identify candidates for inlining. 
+<DT><B>-z</B><DD>
+<A NAME="ixABI"></A>
+(default) Sort by amount of user+system time used.  The first few lines
+should show you which subroutines are using the most time.
+<DT><B>-g</B> subroutine<DD>
+
+
+<A NAME="ixABJ"></A>
+Ignore subroutines except <TT>&quot;subroutine&quot;</TT> and whatever is called from it.
+<DT><B>-G</B> &lt;regexp&gt;<DD>
+<A NAME="ixABK"></A>
+Aggregate ``Group'' all calls matching the pattern together.
+For example this can be used to group all calls of a set of packages
+
+
+<P>
+
+
+
+
+<PRE>
+  -G &quot;(package1::)|(package2::)|(package3::)&quot;
+
+</PRE>
+
+
+
+
+<P>
+
+
+or to group subroutines by name:
+
+
+<P>
+
+
+
+
+<PRE>
+  -G &quot;getNum&quot;
+
+</PRE>
+
+
+<DT><B>-P</B><DD>
+<A NAME="ixABL"></A>
+Used with -G to aggregate ``Pull''  together all calls that did not match -G.
+<DT><B>-f</B> &lt;regexp&gt;<DD>
+<A NAME="ixABM"></A>
+Filter all calls matching the pattern.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<A NAME="ixABN"></A>
+The environment variable <B></B><FONT SIZE="-1"><B>DPROFPP_OPTS</B></FONT><B></B> can be set to a string containing
+options for dprofpp.  You might use this if you prefer <B>-I</B> over <B>-E</B> or
+if you want <B>-F</B> on all the time.
+<P>
+
+This was added fairly lazily, so there are some undesirable side effects.
+Options on the commandline should override options in DPROFPP_OPTS--but
+don't count on that in this version.
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixABO"></A>
+Applications which call <I>_exit()</I> or <I>exec()</I> from within a subroutine
+will leave an incomplete profile.  See the <B>-F</B> option.
+<P>
+
+Any bugs in Devel::DProf, or any profiler generating the profile data, could
+be visible here.  See ``<FONT SIZE="-1">BUGS</FONT>'' in Devel::DProf.
+<P>
+
+Mail bug reports and feature requests to the perl5-porters mailing list at
+<I>&lt;<A HREF="mailto:perl5-porters@perl.org">perl5-porters@perl.org</A>&gt;</I>.  Bug reports should include the
+output of the <B>-V</B> option.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<A NAME="ixABP"></A>
+
+
+<PRE>
+        dprofpp         - profile processor
+        tmon.out        - raw profile
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABQ"></A>
+perl, Devel::DProf, <I><A HREF="../man2/times.2.php">times</A></I>(2)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OUTPUT</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

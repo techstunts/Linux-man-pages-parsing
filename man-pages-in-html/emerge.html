@@ -1,0 +1,768 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>EMERGE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>EMERGE</H1>
+Section: Portage (1)<BR>Updated: Jun 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+emerge - Command-line interface to the Portage system
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<DL COMPACT>
+<DT><B>emerge</B>
+
+<DD>
+[<I>options</I>] [<I>action</I>] [<I>ebuild</I> | <I>tbz2file</I> | <I>class</I> | <I>dependency</I>] ...
+<DT><B>emerge</B>
+
+<DD>
+<B>--sync</B> | <B>--info</B> | <B>--search</B>
+<DT><B>emerge</B>
+
+<DD>
+<I>--help</I> [<B>system</B> | <B>config</B> | <B>sync</B>]
+<DT><B>emerge</B>
+
+<DD>
+<I>--version</I> | <I>-V</I>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>emerge</B> is the definitive command-line interface to the Portage
+system.  It is primarily used for installing packages, and <B>emerge</B>
+can automatically handle any dependencies that the desired package has.
+<B>emerge</B> can also update the <B>portage tree</B>, making new and
+updated packages available.  <B>emerge</B> gracefully handles updating
+installed packages to newer releases as well.  It handles both source
+and binary packages, and it can be used to create binary packages for
+distribution.
+<A NAME="lbAE">&nbsp;</A>
+<H2>EBUILDS, TBZ2S, CLASSES AND DEPENDENCIES</H2>
+
+<B>emerge</B> primarily installs packages.  You can specify
+packages to install in one of four main ways: an <I>ebuild</I>,
+a <I>tbz2file</I>, a <I>class</I>, or a <I>dependency</I>.
+<P>
+
+<DL COMPACT>
+<DT><B>ebuild</B>
+
+<DD>
+An <I>ebuild</I> must be, at a minimum, a valid Portage
+package directory name without a version or category, such as
+<B>portage</B> or <B>python</B>.
+Both categories and version numbers may be used in addition, such
+as <B>sys-apps/portage</B> or <B>=python-2.2.1-r2</B>.
+<B>emerge</B>
+ignores a trailing slash so that filename completion can be used.
+The <I>ebuild</I> may also be an actual filename, such as
+<B>/usr/portage/app-admin/python/python-2.2.1-r2.ebuild</B>.
+WARNING: The implementation of <B>emerge /path/to/ebuild</B> is broken and so this syntax shouldn't be used.
+<DT><B>tbz2file</B>
+
+<DD>
+A <I>tbz2file</I> must be a valid .tbz2 created with <B>ebuild
+&lt;package&gt;-&lt;version&gt;.ebuild package</B> or <B>emerge --buildpkg 
+[category/]&lt;package&gt;</B> or <B>quickpkg /var/db/pkg/&lt;category&gt;/&lt;package&gt;</B>.
+<DT><B>class</B>
+
+<DD>
+Package classes are a convenient shorthand for large groups of
+packages.  Two classes are currently supported: <B>system</B>
+and <B>world</B>.  <B>system</B> refers to a set of packages
+deemed necessary for your system to run properly.  <B>world</B>
+contains all of the packages in <B>system</B>, along with any
+other packages listed in <B>/var/cache/edb/world</B>.  [See
+<B>FILES</B> below for more information.]  Note that these
+commands are generally used in conjunction with <B>--update</B>.
+<DT><B>dependency</B>
+
+<DD>
+A <I>dependency</I> describes bounds on a package that you wish
+to install. <I>See <A HREF="../man5/portage.5.php">portage</A>(5) for the details on these 'atoms'.</I> For
+example, <B>&gt;=dev-lang/python-2.2.1-r2</B> matches the latest
+available version of Python greater than or equal
+to 2.2.1-r2.  Similarly, <B>&lt;dev-lang/python-2.0</B> matches
+the latest available version of Python before 2.0.  Note that in many
+shells you will need to escape characters such as '&lt;' and '=';
+use single- or double-quotes around the <I>dependency</I>
+to get around escaping problems.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ACTIONS</H2>
+
+<DL COMPACT>
+<DT><B>No action</B>
+
+<DD>
+If no action is specified, the action is to merge in the specified
+packages, satisfying any dependencies that they may have.  The
+arguments can be <I>ebuilds</I>, <I>tbz2s</I>, <I>classes</I>, or
+<I>dependencies</I>.  <B>Note that you need to use the --usepkg 
+option if you want to install a tbz2</B>.  The packages are added
+to the <B>world</B> file at the end, so that they are considered for
+later updating.  
+<DT><B>--clean </B>(<B>-c</B>)
+
+<DD>
+Cleans the system by removing packages that will not affect the
+functionality of the system.  The arguments can be <I>ebuilds</I>,
+<I>classes</I>, or <I>dependencies</I>.  For example, <B>emerge
+clean binutils</B> cleans out old versions of binutils;
+<B>emerge --clean net-www/mozilla-0.9.9-r2</B> cleans out that
+specific version of Mozilla.  This is generally safe to use.
+<B>Note that</B> --clean <B>does not remove unslotted packages.</B>
+<DT><B>--depclean</B>
+
+<DD>
+Determines all packages installed on the system that have no 
+explicit reason for being there.  <B>emerge</B> generates a list 
+of packages which it expects to be installed by checking the 
+<B>system</B> package list and the <B>world</B> file.  It then 
+compares that list to the list of packages which are actually 
+installed; the differences are listed as unnecessary packages 
+and then unmerged after a short timeout.  <B>WARNING: Removing some 
+packages may cause packages which link to the removed package 
+to stop working and complain about missing libraries.</B> 
+Re-emerge the complaining package to fix this issue.
+<B>Note that changes in USE flags can drastically affect the 
+output of --depclean.</B>
+<DT><B>--info</B>
+
+<DD>
+This is a list of information to include in bug reports which aids
+the developers with fixing any problems you may report.  <B>Please
+include this information when submitting a bug report.</B> Expanded
+output can be obtained with the <I>--verbose</I> option.
+<DT><B>--inject </B>(<B>-i</B>)
+
+<DD>
+Injecting a package inserts a 'stub' for that package so that Portage
+thinks that it is installed.  It is handy if you need, say, a binary
+version of XFree86 for esoteric hardware, or you just like to roll
+your own packages.  You <B>must</B> specify a category and particular
+version of a package for injecting.  For example,
+<B>emerge --inject sys-kernel/gentoo-sources-2.4.19</B>.
+<DT><B>--metadata</B>
+
+<DD>
+Causes portage to process all the metacache files as is normally done
+on the tail end of an rsync update using <B>emerge --sync</B>. The processing
+creates the cache database that portage uses for pre-parsed lookups of
+package data.
+<DT><B>--prune </B>(<B>-P</B>)
+
+<DD>
+<B>WARNING: This action can remove important packages!</B>  Tries 
+to remove all but the last version installed.  Since the command 
+currently doesn't handle multiple versions of the same package 
+properly, beware !  This does not check dependencies, so it may also 
+remove packages necessary for the proper operation of your system.  
+<B>Use</B> --clean <B>instead unless you really know what you're 
+doing</B>.  Its arguments can be <I>ebuilds</I>, <I>classes</I>, or 
+<I>dependencies</I> -- see <B>--clean</B> above for examples.  You 
+have been warned !
+<DT><B>--regen</B>
+
+<DD>
+Causes portage to check and update the dependency cache of all 
+ebuilds in the portage tree.  The cache is used to speed up searches
+and the building of dependency trees.  This command is not recommended 
+for rsync users as rsync updates the cache using server-side caches.  If
+you do not know the differences between a 'rsync user' and some other
+user, then you are a 'rsync user' :).  Rsync users should simply run 
+<B>emerge --sync</B> to regenerate the cache. After a portage update, rsync
+users may find it convenient to run <B>emerge --metadata</B> to rebuild the
+cache as portage does at the end of a sync operation.
+<DT><B>--search </B>(<B>-s</B>)
+
+<DD>
+Searches for matches of the supplied string in the portage tree.
+The --search string is a regular expression.  For example, <B>emerge
+--search &quot;^kde&quot;</B> searches for any package that starts with &quot;kde&quot;;
+<B>emerge --search &quot;gcc$&quot;</B> searches for any package that ends with
+&quot;gcc&quot;; <B>emerge --search &quot;office&quot;</B> searches for any package that
+contains the word &quot;office&quot;.  If you want to search the package
+descriptions as well, use the <B>--searchdesc</B> option.
+<DT><B>--sync</B>
+
+<DD>
+Initiates a portage tree update with one of the rsync.gentoo.org
+mirrors.  <B>Note that any changes you have made to the portage
+tree will be erased</B>.  Except for special circumstances, 
+this uses <B>rsync</B> to do the update.  See <B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5)'s 
+description of PORTDIR_OVERLAY for a method to avoid deletions.
+<DT><B>--unmerge </B>(<B>-C</B>)
+
+<DD>
+<B>WARNING: This action can remove important packages!</B> Removes
+all matching packages.  This does no checking of dependencies, so
+it may remove packages necessary for the proper operation of your
+system.  Its arguments can be <I>ebuilds</I>, <I>classes</I>, or
+<I>dependencies</I> -- see <B>--clean</B> above for examples.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>--ask </B>(<B>-a</B>)
+
+<DD>
+Before performing the merge, display what ebuilds and tbz2s will
+be installed, in the same format as when using <B>--pretend</B>; then
+ask whether to continue with the merge or abort. Using <B>--ask</B> is
+more efficient than using <B>--pretend</B> and then executing the same
+command without <B>--pretend</B>, as dependencies will only need to be
+calculated once.
+<DT><B>--buildpkg </B>(<B>-b</B>)
+
+<DD>
+Tells emerge to build binary packages for all ebuilds processed in
+addition to actually merging the packages.  Useful for maintainers
+or if you administrate multiple Gentoo Linux systems (build once,
+emerge tbz2s everywhere).  The package will be created in the
+<I>${PKGDIR}/All</I> directory.  An alternative for already-merged
+packages is to use <B>quickpkg</B> which creates a tbz2 from the
+live filesystem.
+<DT><B>--buildpkgonly </B>(<B>-B</B>)
+
+<DD>
+Creates binary packages for all ebuilds processed without actually
+merging the packages.  This comes with the caveat that all build-time 
+dependencies must already be emerged on the system.
+<DT><B>--changelog </B>(<B>-l</B>)
+
+<DD>
+Use this in conjunction with the <B>--pretend</B> action.  This will
+show the ChangeLog entries for all the packages that will be upgraded.
+<DT><B>--columns</B>
+
+<DD>
+Used alongside <B>--pretend</B> to cause the package name, new version, 
+and old version to be displayed in an aligned format for easy cut-n-paste.
+<DT><B>--debug </B>(<B>-d</B>)
+
+<DD>
+Tells emerge to run the emerge command in <B>--debug</B> mode.  In this
+mode the bash build environment will run with the -x option,
+causing it to output verbose debugging information to stdout.
+<B>--debug</B> is great for finding bash syntax errors.
+<DT><B>--deep </B>(<B>-D</B>)
+
+<DD>
+When used in conjunction with <B>--update</B>, this flag forces
+<B>emerge</B> to consider the entire dependency tree of packages,
+instead of checking only the immediate dependencies of the packages.
+As an example, this catches updates in libraries that are not directly
+listed in the dependencies of a package.
+<DT><B>--emptytree </B>(<B>-e</B>)
+
+<DD>
+Virtually tweaks the tree of installed packages to only contain libc;
+this is great to use together with <B>--pretend</B>.  This allows developers
+to get a complete overview of the complete dependency tree of a package,
+and it enables complete trees to be rebuilt using the latest libraries.
+<DT><B>--fetchonly </B>(<B>-f</B>)
+
+<DD>
+Instead of doing any package building, just perform fetches for all
+packages (the main package as well as all dependencies).
+<DT><B>--fetch-all-uri </B>(<B>-f</B>)
+
+<DD>
+Instead of doing any package building, just perform fetches for all
+packages (the main package as well as all dependencies), grabbing all potential
+files.
+<DT><B>--getbinpkg </B>(<B>-g</B>)
+
+<DD>
+Using the server and location defined in <I>PORTAGE_BINHOST</I> (see 
+<B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5)), portage will download the information from each binary 
+package found and it will use that information to help build the dependency 
+list.  This option implies <B>-k</B>.  (Use <B>-gK</B> for binary-only merging.)
+<DT><B>--getbinpkgonly </B>(<B>-G</B>)
+
+<DD>
+This option is identical to <B>-g</B>, as above, except it will not use ANY 
+information from the local machine.  All binaries will be downloaded from the 
+remote server without consulting packages existing in the local packages 
+directory.
+<DT><B>--help </B>(<B>-h</B>)
+
+<DD>
+Displays help information for emerge.  Adding one of the additional
+arguments listed above will give you more specific help information
+on that subject.  The internal <B>emerge</B> help documentation is
+updated more frequently than this man page; check it out if you
+are having problems that this man page does not help resolve.
+<DT><B>--newuse</B>
+
+<DD>
+Tells emerge to include installed packages where USE flags have changed
+since compilation. An asterisk marks when a USE flag has changed since
+the package was compiled.
+<DT><B>--noconfmem</B>
+
+<DD>
+Causes portage to disregard merge records indicating that a config file
+inside of a <B>CONFIG_PROTECT</B> directory has been merged already.  Portage
+will normally merge those files only once to prevent the user from
+dealing with the same config multiple times.  This flag will cause the
+file to always be merged.
+<DT><B>--nodeps </B>(<B>-O</B>)
+
+<DD>
+Merges specified packages without merging any dependencies.  Note that
+the build may fail if the dependencies aren't satisfied.
+<DT><B>--noreplace </B>(<B>-n</B>)
+
+<DD>
+Skips the packages specified on the command-line that have already
+been installed.  Without this option, any packages, ebuilds, or deps
+you specify on the command-line *will* cause Portage to remerge
+the package, even if it is already installed.  Note that Portage will
+not remerge dependencies by default.
+<DT><B>--nospinner</B>
+
+<DD>
+Disables the spinner for the session.  The spinner is active when the
+terminal device is determined to be a TTY.  This flag disables it regardless.
+<DT><B>--oneshot</B>
+
+<DD>
+Emerge as normal, but do not add the packages to the world profile
+for later updating.
+<DT><B>--onlydeps </B>(<B>-o</B>)
+
+<DD>
+Only merge (or pretend to merge) the dependencies of the packages
+specified, not the packages themselves.
+<DT><B>--pretend </B>(<B>-p</B>)
+
+<DD>
+Instead of actually performing the merge, simply display what *would*
+have been installed if <B>--pretend</B> weren't used.  Using <B>--pretend</B>
+is strongly recommended before installing an unfamiliar package.  In
+the printout, 
+<BR>
+
+<BR>&nbsp;
+<BR>
+
+<I>N</I> = new, (not yet installed)
+<BR>
+
+<I>S</I> = new, Slot installation (side-by-side versions) 
+<BR>
+
+<I>U</I> = updating, (changing versions)
+<BR>
+
+<I>D</I> = downgrade, (Best version seems lower) 
+<BR>
+
+<I>R</I> = replacing, (Remerging same version))
+<BR>
+
+<I>F</I> = fetch restricted, (Manual download)
+<BR>
+
+<I>f</I> = fetch restricted, (Already downloaded)
+<BR>
+
+<I>B</I> = blocked by an already installed package
+<DT><B>--quiet </B>(<B>-q</B>)
+
+<DD>
+Results may vary, but the general outcome is a reduced or condensed
+output from portage's displays.
+<DT><B>--resume</B>
+
+<DD>
+Resumes the last merge operation.  Please note that this operation
+will only return an error on failure.  If there is nothing for portage
+to do, then portage will exit with a message and a success condition.
+<DT><B>--searchdesc </B>(<B>-S</B>)
+
+<DD>
+Matches the search string against the description field as well as
+the package name.  <B>Take caution</B> as the descriptions are also
+matched as regular expressions.
+<DT><B>--skipfirst</B>
+
+<DD>
+This action is only valid when used with <B>--resume</B>.  It removes the 
+first package in the resume list so that a merge may continue in the presence 
+of an uncorrectable or inconsequential error.  This should only be used in 
+cases where skipping the package will not result in failed dependencies.
+<DT><B>--tree </B>(<B>-t</B>)
+
+<DD>
+Shows the dependency tree for the given target by indenting dependencies.
+This is only really useful in combination with <B>--emptytree</B> or 
+<B>--update</B> and <B>--deep</B>.
+<DT><B>--update </B>(<B>-u</B>)
+
+<DD>
+Updates packages to the best version available, which may not
+always be the highest version number due to masking for testing
+and development.  This will also update direct dependencies which
+may not be what you want.  In general, use this option only in 
+combination with the world or system target.
+<DT><B>--upgradeonly </B>(<B>-U</B>)
+
+<DD>
+Updates packages, but excludes updates that would result in a
+lower version of the package being installed.  <B>SLOT</B>s are
+considered at a basic level.
+<BR>
+
+This option is deprecated and shouldn't be used anymore. Please use the
+/etc/portage/package.* files from now on.
+<DT><B>--usepkg </B>(<B>-k</B>)
+
+<DD>
+Tells emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some 
+time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages 
+and then use this option to have emerge &quot;pull&quot; binary packages from the CD in order to satisfy dependencies.
+<DT><B>--usepkgonly </B>(<B>-K</B>)
+
+<DD>
+Behaves just as <B>--usepkg</B> except that this will only emerge
+binary packages.  All the binary packages must be available at the
+time of dependency calculation or emerge will simply abort.
+<DT><B>--verbose </B>(<B>-v</B>)
+
+<DD>
+Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending.
+<DT><B>--version </B>(<B>-V</B>)
+
+<DD>
+Displays the version number of <B>emerge</B>.  It cannot be used in
+conjunction with other options.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>ENVIRONMENT OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>ROOT</B> = <I>[path]</I><DD>
+Use <B>ROOT</B> to specify the target root filesystem to be used for
+merging packages or ebuilds.
+Defaults to /.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>OUTPUT</H2>
+
+When utilizing <B>emerge</B> with the <B>--pretend</B> and <B>--verbose</B> 
+flags, the output may be a little hard to understand at first.  This section
+explains the abbreviations.
+<DL COMPACT>
+<DT><B>[blocks B     ] app-text/dos2unix (from pkg app-text/hd2u-0.8.0)</B>
+
+<DD>
+Dos2unix is Blocking hd2u from being emerged.  Blockers are defined when
+two packages will clobber each others files, or otherwise cause some form
+of breakage in your system.  However, blockers usually do not need to be
+simultaneously emerged because they usually provide the same functionality.
+<DT><B>[ebuild  N    ] app-games/qstat-25c</B>
+
+<DD>
+Qstat is New to your system, and will be emerged for the first time.
+<DT><B>[ebuild  NS   ] dev-libs/glib-2.4.7</B>
+
+<DD>
+You already have a version of glib installed, but a 'new' version in 
+a different SLOT is available.
+<DT><B>[ebuild   R   ] sys-apps/sed-4.0.5</B>
+
+<DD>
+Sed 4.0.5 has already been emerged, but if you run the command, then 
+portage will Re-emerge the specified package (sed in this case).
+<DT><B>[ebuild    F  ] media-video/realplayer-8-r6</B>
+
+<DD>
+The realplayer package requires that you Fetch the sources manually.  
+When you attempt to emerge the package, if the sources are not found, 
+then portage will halt and you will be provided with instructions on how 
+to download the required files.
+<DT><B>[ebuild    f  ] media-video/realplayer-8-r6</B>
+
+<DD>
+The realplayer package's files are already downloaded.
+<DT><B>[ebuild     U ] net-fs/samba-2.2.8_pre1 [2.2.7a]</B>
+
+<DD>
+Samba 2.2.7a has already been emerged and can be Updated to version 
+2.2.8_pre1.
+<DT><B>[ebuild     UD] media-libs/libgd-1.8.4 [2.0.11]</B>
+
+<DD>
+Libgd 2.0.11 is already emerged, but if you run the command, then 
+portage will Downgrade to version 1.8.4 for you.
+<BR>
+
+This may occur if a newer version of a package has been masked because it is
+broken or it creates a security risk on your system and a fix has not been
+released yet.
+<BR>
+
+Another reason this may occur is if a package you are trying to emerge requires
+an older version of a package in order to emerge successfully.  In this case,
+libgd 2.x is incompatible with libgd 1.x.  This means that packages that were
+created with libgd 1.x will not compile with 2.x and must downgrade libgd first
+before they can emerge.
+<DT><B>[ebuild     U-] x11-base/xfree-4.3.0 [4.2.99.902]</B>
+
+<DD>
+The - represents lack of <B>SLOT</B> information about Xfree.  This will occur
+when the previous version emerged was injected (see <B>inject</B> for more info)
+or very outdated (so old that <B>SLOT</B> did not exist).  Either way, a newer version
+of Xfree is availabe for your updating delight.
+<DT><B>[ebuild     U ] sys-devel/distcc-2.16 [2.13-r1] -gnome -gtk +ipv6* (-selinux)</B>
+
+<DD>
+The -gtk and -gnome reflect the status of <B>USE</B> variables when emerging distcc.  Here
+we see that distcc can use the <B>USE</B> variables gtk and gnome, but that your current
+settings have gtk and gnome disabled.  This means optional support for gtk and gnome will
+not be enabled in distcc when you emerge it.
+An asterisk shows that the <B>USE</B> flags have changed since the package was last installed.  
+In this case, ipv6 is enabled but was previously disabled.  A <B>USE</B> flag in brackets, like 
+(-selinux), is always disabled and shows that the flag is not available for the current system 
+profile.
+<BR>
+
+<B>*Note:</B> The <B>USE</B> status is only displayed when you use the <B>--pretend</B>
+and <B>--verbose</B> options.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>NOTES</H2>
+
+You should almost always precede any package install or update
+attempt with a <B>--pretend</B> install or update.  This lets
+you see how much will be done, and shows you any blocking
+packages that you will have to rectify.  This goes doubly so
+for the <B>system</B> and <B>world</B> classes, which can
+update a large number of packages if the portage tree has
+been particularly active.
+<P>
+
+You also want to typically use <B>--update</B>, which ignores
+packages that are already fully updated but upgrades those that
+are not.
+<P>
+
+When you install a package with uninstalled dependencies and do
+not explicitly state those dependencies in the list of parameters,
+they will not be added to the world file.  If you want them to be
+detected for world updates, make sure to explicitly list them as
+parameters to <B>emerge</B>.
+<P>
+
+<B>USE variables</B> may be specified on the command line to
+override those specified in the default locations, letting you
+avoid using some dependencies you may not want to have.  <B>USE
+flags specified on the command line are NOT remembered</B>.  For
+example, <B>USE=&quot;-X -gnome&quot; emerge mc</B> will emerge mc with
+those USE settings.  If you want those USE settings to be more 
+permanent, you can put them in /etc/portage/package.use instead.
+<P>
+
+If <B>emerge --update system</B> or <B>emerge --update world</B>
+fails with an error message, it may be that an ebuild uses some
+newer feature not present in this version of <B>emerge</B>.  You
+can use <B>emerge --update portage</B> to upgrade to the lastest
+version, which should support any necessary new features.
+<A NAME="lbAK">&nbsp;</A>
+<H2>MASKED PACKAGES</H2>
+
+<I>NOTE: Please use caution when using development packages.  Problems
+and bugs resulting from misusing masked packages drains Gentoo
+developer time.  Please be sure you are capable of handling any problems
+that may ensue.</I>
+<P>
+
+Masks in <B>portage</B> provide three primary functions: they allow a
+testing period where the packages can be used in live machines; they
+prevent the use of a package when it will fail; and they mask existing
+packages that are broken or could pose a security risk.  Masking can be
+done by two methods: <B>package.mask</B> and <B>KEYWORDS</B>.  Read below
+to find out how to unmask in either case.  Also note that if you give 
+<B>emerge</B> an ebuild, then all forms of masking will be ignored and
+<B>emerge</B> will attempt to emerge the package.
+<DL COMPACT>
+<DT><B>package.mask</B>
+
+<DD>
+The <B>package.mask</B> file primarily blocks the use of packages that cause
+problems or are known to have issues on different systems.  It resides in
+<I>/usr/portage/profiles</I>.
+<DT><B>KEYWORDS</B>
+
+<DD>
+The <B>KEYWORDS</B> variable in an <B>ebuild</B> file is also used for masking 
+a package still in testing.  There are architecture-specific keywords for 
+each package that let <B>portage</B> know which systems are compatible with 
+the package.  Packages which compile on an architecture, but have not been 
+proven to be &quot;stable&quot;, are masked with a tilde (<B>~</B>) in front of the 
+architecture name.  <B>emerge</B> examines the <B>ACCEPT_KEYWORDS</B> environment 
+variable to allow or disallow the emerging of a package masked by <B>KEYWORDS</B>.  
+To inform <B>emerge</B> that it should build these 'testing' versions 
+of packages, you may set <B>ACCEPT_KEYWORDS</B> to &quot;<B>~arch</B>&quot;, where 
+<B>arch</B> is one of: <I>x86 ppc sparc mips alpha arm hppa</I>.  For example, 
+<B>ACCEPT_KEYWORDS=&quot;~x86&quot; emerge xfree</B> will cause <B>emerge</B> to consider 
+<B>KEYWORDS</B>-masked versions of XFree as potentional upgrade 
+candidates.  <B>WARNING:</B> Do <I>not</I> set this variable to anything 
+other than the value corresponding to your architecture.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>REPORTING BUGS</H2>
+
+Please report any bugs you encounter through our website:
+<P>
+
+<B><A HREF="http://bugs.gentoo.org/">http://bugs.gentoo.org/</A></B>
+<P>
+
+Please include the output of <B>emerge --info</B> when you submit your
+bug report.
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>emerge --help,</B>
+
+<B><A HREF="../man1/ebuild.1.php">ebuild</A></B>(1),
+
+<B><A HREF="../man5/ebuild.5.php">ebuild</A></B>(5),
+
+<B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5)
+
+<P>
+
+A number of helper applications reside in <I>/usr/lib/portage/bin</I>.
+<P>
+
+The <B>app-admin/gentoolkit</B> package contains useful scripts such as <B>qpkg</B>
+(a package query tool).
+<A NAME="lbAN">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>/var/cache/edb/world</B> <DD>
+Contains a list of all user-specified packages.  You can safely edit
+this file, adding packages that you want to be considered in <B>world</B>
+class updates and removing those that you do not want to be considered.
+<DT><B>/etc/make.conf</B> <DD>
+Contains variables for the build process, overriding those in
+<B>make.globals</B>.  <B>You should edit this file instead of the ones
+listed below</B>.
+<DT><B>/etc/dispatch-conf.conf</B>
+
+<DD>
+Contains settings to handle automatic updates/backups of configuration 
+files.
+<DT><B>/etc/make.profile/make.defaults</B><DD>
+Contains profile-specific variables for the build process.  <B>Do not
+edit this file</B>.
+<DT><B>/etc/make.profile/use.defaults</B><DD>
+Contains a list of packages which, if installed, cause the respective USE 
+flag to be enabled by default.  <B>Do not edit this file</B>.
+<DT><B>/usr/portage/profiles/use.desc</B> <DD>
+Contains the master list of USE flags with descriptions of their
+functions.  <B>Do not edit this file</B>.
+<DT><B>/etc/make.profile/virtuals</B> <DD>
+Contains a list of default packages used to resolve virtual dependencies.
+<B>Do not edit this file</B>.
+<DT><B>/etc/make.profile/packages</B><DD>
+Contains a list of packages used for the base system.  The <B>system</B>
+and <B>world</B> classes consult this file.  <B>Do not edit this file</B>.
+<DT><B>/etc/make.globals</B> <DD>
+Contains the default variables for the build process.  <B>Do not edit
+this file</B>.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Daniel Robbins &lt;<A HREF="mailto:drobbins@gentoo.org">drobbins@gentoo.org</A>&gt;
+<BR>
+
+Geert Bevin &lt;<A HREF="mailto:gbevin@gentoo.org">gbevin@gentoo.org</A>&gt;
+<BR>
+
+Achim Gottinger &lt;<A HREF="mailto:achim@gentoo.org">achim@gentoo.org</A>&gt;
+<BR>
+
+Nicholas Jones &lt;<A HREF="mailto:carpaski@gentoo.org">carpaski@gentoo.org</A>&gt;
+<BR>
+
+Phil Bordelon &lt;<A HREF="mailto:phil@thenexusproject.org">phil@thenexusproject.org</A>&gt;
+<BR>
+
+Mike Frysinger &lt;<A HREF="mailto:vapier@gentoo.org">vapier@gentoo.org</A>&gt;
+<BR>
+
+Marius Mauch &lt;<A HREF="mailto:genone@gentoo.org">genone@gentoo.org</A>&gt;
+<BR>
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>CVS HEADER</H2>
+
+$Id: emerge.1,v 1.70 2004/10/20 01:24:49 carpaski Exp $
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EBUILDS, TBZ2S, CLASSES AND DEPENDENCIES</A><DD>
+<DT><A HREF="#lbAF">ACTIONS</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DT><A HREF="#lbAH">ENVIRONMENT OPTIONS</A><DD>
+<DT><A HREF="#lbAI">OUTPUT</A><DD>
+<DT><A HREF="#lbAJ">NOTES</A><DD>
+<DT><A HREF="#lbAK">MASKED PACKAGES</A><DD>
+<DT><A HREF="#lbAL">REPORTING BUGS</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+<DT><A HREF="#lbAN">FILES</A><DD>
+<DT><A HREF="#lbAO">AUTHORS</A><DD>
+<DT><A HREF="#lbAP">CVS HEADER</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

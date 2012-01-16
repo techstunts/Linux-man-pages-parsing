@@ -1,0 +1,704 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XCSCOPE.EL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XCSCOPE.EL</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: April 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xcscope.el - xemacs cscope lisp support package
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+xcscope is a lisp package for use in integrating cscope 
+functionality into xemacs
+<A NAME="lbAD">&nbsp;</A>
+<H2>INSTALLATION</H2>
+
+
+<BR>&nbsp;Installation&nbsp;steps:
+<P>
+
+<BR>&nbsp;0.&nbsp;(It&nbsp;is,&nbsp;of&nbsp;course,&nbsp;assumed&nbsp;that&nbsp;cscope&nbsp;is&nbsp;already&nbsp;properly
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;installed&nbsp;on&nbsp;the&nbsp;current&nbsp;system.)
+
+<BR>&nbsp;1.&nbsp;Ensure&nbsp;that&nbsp;the&nbsp;location&nbsp;of&nbsp;cscope-indexer&nbsp;is&nbsp;located&nbsp;in&nbsp;your&nbsp;path
+<P>
+
+<BR>&nbsp;2.&nbsp;Ensure&nbsp;that&nbsp;the&nbsp;location&nbsp;of&nbsp;xcscope.el&nbsp;is&nbsp;in&nbsp;the&nbsp;xemacs&nbsp;module&nbsp;load&nbsp;path
+<P>
+
+<BR>&nbsp;3.&nbsp;Edit&nbsp;your&nbsp;~/.emacs&nbsp;file&nbsp;to&nbsp;add&nbsp;the&nbsp;line:
+
+<B>(require</B><I>'xcscope)</I>
+
+<P>
+
+5. If you intend to use xcscope.el often you can optionally edit your
+~/.emacs file to add keybindings that reduce the number of keystrokes
+required.  For example, the following will add &quot;C-f#&quot; keybindings,
+which are easier to type than the usual &quot;C-c s&quot; prefixed keybindings.
+Note that specifying &quot;global-map&quot; instead of &quot;cscope:map&quot; makes the
+keybindings available in all buffers:
+<PRE>
+        (define-key global-map [(ctrl f3)]  'cscope-set-initial-directory)
+        (define-key global-map [(ctrl f4)]  'cscope-unset-initial-directory)
+        (define-key global-map [(ctrl f5)]  'cscope-find-this-symbol)
+        (define-key global-map [(ctrl f6)]  'cscope-find-global-definition)
+        (define-key global-map [(ctrl f7)]
+                cscope-find-global-definition-no-prompting)
+        (define-key global-map [(ctrl f8)]  'cscope-pop-mark)
+        (define-key global-map [(ctrl f9)]  'cscope-next-symbol)
+        (define-key global-map [(ctrl f10)] 'cscope-next-file)
+        (define-key global-map [(ctrl f11)] 'cscope-prev-symbol)
+        (define-key global-map [(ctrl f12)] 'cscope-prev-file)
+        (define-key global-map [(meta f9)]  'cscope-display-buffer)
+        (define-key global-map [(meta f10)] 'cscope-display-buffer-toggle)
+</PRE>
+
+<P>
+
+<BR>&nbsp;6.&nbsp;Restart&nbsp;(X)Emacs.&nbsp;&nbsp;That's&nbsp;it.
+<P>
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>USING THIS MODULE</H2>
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H3>* Basic usage:</H3>
+
+<P>
+
+<BR>&nbsp;If&nbsp;all&nbsp;of&nbsp;your&nbsp;C/C++/lex/yacc&nbsp;source&nbsp;files&nbsp;are&nbsp;in&nbsp;the&nbsp;same
+<BR>&nbsp;directory,&nbsp;you&nbsp;can&nbsp;just&nbsp;start&nbsp;using&nbsp;this&nbsp;module.&nbsp;&nbsp;If&nbsp;your&nbsp;files&nbsp;are
+<BR>&nbsp;spread&nbsp;out&nbsp;over&nbsp;multiple&nbsp;directories,&nbsp;see&nbsp;&quot;Advanced&nbsp;usage&quot;,&nbsp;below.
+<P>
+
+<BR>&nbsp;Just&nbsp;edit&nbsp;a&nbsp;source&nbsp;file,&nbsp;and&nbsp;use&nbsp;the&nbsp;pull-down&nbsp;or&nbsp;pop-up&nbsp;(button&nbsp;3)
+<BR>&nbsp;menus&nbsp;to&nbsp;select&nbsp;one&nbsp;of:
+<P>
+<PRE>
+        Find symbol
+        Find global definition
+        Find called functions
+        Find functions calling a function
+        Find text string
+        Find egrep pattern
+        Find a file
+        Find files #including a file
+</PRE>
+
+<P>
+
+The cscope database will be automatically created in the same directory 
+as the source files (assuming that you've never used cscope before), and
+a buffer will pop-up displaying the results.  You can then use button 2
+(the middle button) on the mouse to edit the selected file, or you can
+move the text cursor over a selection and press [Enter].
+<P>
+
+Hopefully, the interface should be fairly intuitive.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H3>* Locating the cscope databases:</H3>
+
+<P>
+
+This module will first use the variable, `cscope-database-regexps',
+to search for a suitable database directory.  If a database location
+cannot be found using this variable then a search is begun at the
+variable, `cscope-initial-directory', if set, or the current
+directory otherwise.  If the directory is not a cscope database
+directory then the directory's parent, parent's parent, etc. is
+searched until a cscope database directory is found, or the root
+directory is reached.  If the root directory is reached, the current
+directory will be used.
+<P>
+
+A cscope database directory is one in which EITHER a cscope database
+file (e.g., &quot;cscope.out&quot;) OR a cscope file list (e.g.,
+&quot;cscope.files&quot;) exists.  If only &quot;cscope.files&quot; exists, the
+corresponding &quot;cscope.out&quot; will be automatically created by cscope
+when a search is done.  By default, the cscope database file is called
+&quot;cscope.out&quot;, but this can be changed (on a global basis) via the
+variable, `cscope-database-file'.  There is limited support for cscope
+databases that are named differently than that given by
+`cscope-database-file', using the variable, `cscope-database-regexps'.
+<P>
+
+Note that the variable, `cscope-database-regexps', is generally not
+needed, as the normal hierarchical database search is sufficient
+for placing and/or locating the cscope databases.  However, there
+may be cases where it makes sense to place the cscope databases
+away from where the source files are kept; in this case, this
+variable is used to determine the mapping.  One use for this
+variable is when you want to share the database file with other
+users; in this case, the database may be located in a directory
+separate from the source files.  
+<P>
+
+Setting the variable, `cscope-initial-directory', is useful when a
+search is to be expanded by specifying a cscope database directory
+that is a parent of the directory that this module would otherwise
+use.  For example, consider a project that contains the following
+cscope database directories:
+<P>
+<PRE>
+        /users/jdoe/sources
+        /users/jdoe/sources/proj1
+        /users/jdoe/sources/proj2
+</PRE>
+
+<P>
+
+If a search is initiated from a .c file in /users/jdoe/sources/proj1
+then (assuming the variable, `cscope-database-regexps', is not set)
+/users/jdoe/sources/proj1 will be used as the cscope data base directory.
+Only matches in files in /users/jdoe/sources/proj1 will be found.  This
+can be remedied by typing &quot;C-c s a&quot; and then &quot;M-del&quot; to remove single
+path element in order to use a cscope database directory of
+/users/jdoe/sources.  Normal searching can be restored by typing &quot;C-c s A&quot;.
+<P>
+<P>
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>* Keybindings:</H3>
+
+<P>
+
+All keybindings use the &quot;C-c s&quot; prefix, but are usable only while
+editing a source file, or in the cscope results buffer:
+<P>
+<B>C-c s s         Find symbol.</B>
+
+<DL COMPACT>
+<DT><B>C-c s d         Find global definition.</B>
+
+<DD>
+<DT><B>C-c s g         Find global definition (alternate binding).</B>
+
+<DD>
+<DT><B>C-c s G         Find global definition without prompting.</B>
+
+<DD>
+<DT><B>C-c s c         Find functions calling a function.</B>
+
+<DD>
+<DT><B>C-c s C         Find called functions (list functions called</B>
+
+<DD>
+<B>                from a function).</B>
+
+<DT><B>C-c s t         Find text string.</B>
+
+<DD>
+<DT><B>C-c s e         Find egrep pattern.</B>
+
+<DD>
+<DT><B>C-c s f         Find a file.</B>
+
+<DD>
+<DT><B>C-c s i         Find files #including a file.</B>
+
+<DD>
+<P>
+
+These pertain to navigation through the search results:
+<P>
+
+<B>C-c s b         Display *cscope* buffer.</B>
+
+<DT><B>C-c s B         Auto display *cscope* buffer toggle.</B>
+
+<DD>
+<DT><B>C-c s n         Next symbol.</B>
+
+<DD>
+<DT><B>C-c s N         Next file.</B>
+
+<DD>
+<DT><B>C-c s p         Previous symbol.</B>
+
+<DD>
+<DT><B>C-c s P         Previous file.</B>
+
+<DD>
+<DT><B>C-c s u         Pop mark.</B>
+
+<DD>
+<P>
+
+These pertain to setting and unsetting the variable,
+`cscope-initial-directory', (location searched for the cscope database
+directory):
+<P>
+
+<B>C-c s a         Set initial directory.</B>
+
+<DT><B>C-c s A         Unset initial directory.</B>
+
+<DD>
+<P>
+
+These pertain to cscope database maintenance:
+
+<B>C-c s L         Create list of files to index.</B>
+
+<DT><B>C-c s I         Create list and index.</B>
+
+<DD>
+<DT><B>C-c s E         Edit list of files to index.</B>
+
+<DD>
+<DT><B>C-c s W          Locate this buffer's cscope directory</B>
+
+<DD>
+<B>                 (</B>
+
+&quot;W&quot; --&gt; &quot;where&quot;
+<B>).</B>
+
+<DT><B>C-c s S         Locate this buffer's cscope directory.</B>
+
+<DD>
+<B>                 (alternate binding: </B>
+
+&quot;S&quot; --&gt; &quot;show&quot;
+<B>).</B>
+
+<DT><B>C-c s T         Locate this buffer's cscope directory.</B>
+
+<DD>
+<B>                 (alternate binding: </B>
+
+&quot;T&quot; --&gt; &quot;tell&quot;
+<B>).</B>
+
+<DT><B>C-c s D         Dired this buffer's directory.</B>
+
+<DD>
+<P>
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H3>* Advanced usage:</H3>
+
+<P>
+
+If the source files are spread out over multiple directories,
+you've got a few choices:
+<P>
+
+[ NOTE: you will need to have the script, &quot;cscope-indexer&quot;,
+properly installed in order for the following to work.  ]
+<P>
+
+1. If all of the directories exist below a common directory
+(without any extraneous, unrelated subdirectories), you can tell
+this module to place the cscope database into the top-level,
+common directory.  This assumes that you do not have any cscope
+databases in any of the subdirectories.  If you do, you should
+delete them; otherwise, they will take precedence over the
+top-level database.
+<P>
+
+If you do have cscope databases in any subdirectory, the
+following instructions may not work right.
+<P>
+
+It's pretty easy to tell this module to use a top-level, common
+directory:
+<P>
+<DL COMPACT>
+<DT>
+<DD>a. Make sure that the menu pick, &quot;Cscope/Index recursively&quot;, is
+checked (the default value).
+<P>
+<DT>
+<DD>b. Select the menu pick, &quot;Cscope/Create list and index&quot;, and
+specify the top-level directory.  This will run the script,
+&quot;cscope-indexer&quot;, in the background, so you can do other
+things if indexing takes a long time.  A list of files to
+index will be created in &quot;cscope.files&quot;, and the cscope
+database will be created in &quot;cscope.out&quot;.
+<P>
+<DT>
+<DD>Once this has been done, you can then use the menu picks
+(described in &quot;Basic usage&quot;, above) to search for symbols.
+<P>
+<DT>
+<DD>Note, however, that, if you add or delete source files, you'll
+have to either rebuild the database using the above procedure,
+or edit the file, &quot;cscope.files&quot; to add/delete the names of the
+source files.  To edit this file, you can use the menu pick,
+&quot;Cscope/Edit list of files to index&quot;.
+<P>
+
+2. If most of the files exist below a common directory, but a few
+are outside, you can use the menu pick, &quot;Cscope/Create list of
+files to index&quot;, and specify the top-level directory.  Make sure
+that &quot;Cscope/Index recursively&quot;, is checked before you do so,
+though.  You can then edit the list of files to index using the
+menu pick, &quot;Cscope/Edit list of files to index&quot;.  Just edit the
+list to include any additional source files not already listed.
+<P>
+
+Once you've created, edited, and saved the list, you can then
+use the menu picks described under &quot;Basic usage&quot;, above, to
+search for symbols.  The first time you search, you will have to
+wait a while for cscope to fully index the source files, though.
+If you have a lot of source files, you may want to manually run
+cscope to build the database:
+<P>
+<PRE>
+        cd top-level-directory    # or wherever
+        rm -f cscope.out          # not always necessary
+        cscope -b
+</PRE>
+
+<P>
+
+<BR>&nbsp;3.&nbsp;If&nbsp;the&nbsp;source&nbsp;files&nbsp;are&nbsp;scattered&nbsp;in&nbsp;many&nbsp;different,&nbsp;unrelated
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;places,&nbsp;you'll&nbsp;have&nbsp;to&nbsp;manually&nbsp;create&nbsp;cscope.files&nbsp;and&nbsp;put&nbsp;a
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;list&nbsp;of&nbsp;all&nbsp;pathnames&nbsp;into&nbsp;it.&nbsp;&nbsp;Then&nbsp;build&nbsp;the&nbsp;database&nbsp;using:
+<P>
+<PRE>
+        cd some-directory         # wherever cscope.files exists
+        rm -f cscope.out          # not always necessary
+        cscope -b
+</PRE>
+
+<P>
+
+Next, read the documentation for the variable,
+&quot;cscope-database-regexps&quot;, and set it appropriately, such that
+the above-created cscope database will be referenced when you
+edit a related source file.
+<P>
+
+Once this has been done, you can then use the menu picks
+described under &quot;Basic usage&quot;, above, to search for symbols.
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>* Interesting configuration variables:</H3>
+
+<P>
+
+<B>cscope-truncate-lines</B>
+
+
+This is the value of `truncate-lines' to use in cscope
+buffers; the default is the current setting of
+`truncate-lines'.  This variable exists because it can be
+easier to read cscope buffers with truncated lines, while
+other buffers do not have truncated lines.
+<P>
+
+<B>cscope-use-relative-paths</B>
+
+
+If non-nil, use relative paths when creating the list of files
+to index.  The path is relative to the directory in which the
+cscope database will be created.  If nil, absolute paths will
+be used.  Absolute paths are good if you plan on moving the
+database to some other directory (if you do so, you'll
+probably also have to modify `cscope-database-regexps').
+Absolute paths may also be good if you share the database file
+with other users (you'll probably want to specify some
+automounted network path for this).
+<P>
+
+<B>cscope-index-recursively</B>
+
+
+If non-nil, index files in the current directory and all
+subdirectories.  If nil, only files in the current directory
+are indexed.  This variable is only used when creating the
+list of files to index, or when creating the list of files and
+the corresponding cscope database.
+<P>
+
+<B>cscope-name-line-width</B>
+
+
+The width of the combined &quot;function name:line number&quot; field in
+the cscope results buffer.  If negative, the field is
+left-justified.
+<P>
+
+<B>cscope-do-not-update-database</B>
+
+
+If non-nil, never check and/or update the cscope database when
+searching.  Beware of setting this to non-nil, as this will
+disable automatic database creation, updating, and
+maintenance.
+<P>
+
+<B>cscope-display-cscope-buffer </B>
+
+
+If non-nil, display the *cscope* buffer after each search
+(default).  This variable can be set in order to reduce the
+number of keystrokes required to navigate through the matches.
+<P>
+
+<B>cscope-database-regexps</B>
+
+
+List to force directory-to-cscope-database mappings.
+This is a list of `(REGEXP DBLIST [ DBLIST ... ])', where:
+<P>
+
+<B>REGEXP </B>
+
+is a regular expression matched against the current buffer's
+current directory.  The current buffer is typically some source file,
+and you're probably searching for some symbol in or related to this
+file.  Basically, this regexp is used to relate the current directory
+to a cscope database.  You need to start REGEXP with &quot;^&quot; if you want
+to match from the beginning of the current directory.
+<P>
+
+<B>DBLIST </B>
+
+is a list that contains one or more of:
+<P>
+<PRE>
+        ( DBDIR )
+        ( DBDIR ( OPTIONS ) )
+        ( t )
+        t
+</PRE>
+
+<P>
+
+Here, 
+<B>DBDIR </B>
+
+is a directory (or a file) that contains a cscope
+database.  If DBDIR is a directory, then it is expected that the
+cscope database, if present, has the filename given by the variable,
+`cscope-database-file'; if DBDIR is a file, then DBDIR is the path
+name to a cscope database file (which does not have to be the same as
+that given by `cscope-database-file').  If only DBDIR is specified,
+then that cscope database will be searched without any additional
+cscope command-line options.  If OPTIONS is given, then OPTIONS is a
+list of strings, where each string is a separate cscope command-line
+option.
+<P>
+
+<BR>&nbsp;In&nbsp;the&nbsp;case&nbsp;of&nbsp;&quot;(&nbsp;t&nbsp;)&quot;,&nbsp;this&nbsp;specifies&nbsp;that&nbsp;the&nbsp;search&nbsp;is&nbsp;to&nbsp;use&nbsp;the
+<BR>&nbsp;normal&nbsp;hierarchical&nbsp;database&nbsp;search.&nbsp;&nbsp;This&nbsp;option&nbsp;is&nbsp;used&nbsp;to
+<BR>&nbsp;explicitly&nbsp;search&nbsp;using&nbsp;the&nbsp;hierarchical&nbsp;database&nbsp;search&nbsp;either&nbsp;before
+<BR>&nbsp;or&nbsp;after&nbsp;other&nbsp;cscope&nbsp;database&nbsp;directories.
+<P>
+
+<BR>&nbsp;If&nbsp;&quot;t&quot;&nbsp;is&nbsp;specified&nbsp;(not&nbsp;inside&nbsp;a&nbsp;list),&nbsp;this&nbsp;tells&nbsp;the&nbsp;searching
+<BR>&nbsp;mechanism&nbsp;to&nbsp;stop&nbsp;searching&nbsp;if&nbsp;a&nbsp;match&nbsp;has&nbsp;been&nbsp;found&nbsp;(at&nbsp;the&nbsp;point
+<BR>&nbsp;where&nbsp;&quot;t&quot;&nbsp;is&nbsp;encountered).&nbsp;&nbsp;This&nbsp;is&nbsp;useful&nbsp;for&nbsp;those&nbsp;projects&nbsp;that
+<BR>&nbsp;consist&nbsp;of&nbsp;many&nbsp;subprojects.&nbsp;&nbsp;You&nbsp;can&nbsp;specify&nbsp;the&nbsp;most-used
+<BR>&nbsp;subprojects&nbsp;first,&nbsp;followed&nbsp;by&nbsp;a&nbsp;&quot;t&quot;,&nbsp;and&nbsp;then&nbsp;followed&nbsp;by&nbsp;a&nbsp;master
+<BR>&nbsp;cscope&nbsp;database&nbsp;directory&nbsp;that&nbsp;covers&nbsp;all&nbsp;subprojects.&nbsp;&nbsp;This&nbsp;will
+<BR>&nbsp;cause&nbsp;the&nbsp;most-used&nbsp;subprojects&nbsp;to&nbsp;be&nbsp;searched&nbsp;first&nbsp;(hopefully
+<BR>&nbsp;quickly),&nbsp;and&nbsp;the&nbsp;search&nbsp;will&nbsp;then&nbsp;stop&nbsp;if&nbsp;a&nbsp;match&nbsp;was&nbsp;found.&nbsp;&nbsp;If&nbsp;not,
+<BR>&nbsp;the&nbsp;search&nbsp;will&nbsp;continue&nbsp;using&nbsp;the&nbsp;master&nbsp;cscope&nbsp;database&nbsp;directory.
+<P>
+
+<BR>&nbsp;Here,&nbsp;`cscope-database-regexps'&nbsp;is&nbsp;generally&nbsp;not&nbsp;used,&nbsp;as&nbsp;the&nbsp;normal
+<BR>&nbsp;hierarchical&nbsp;database&nbsp;search&nbsp;is&nbsp;sufficient&nbsp;for&nbsp;placing&nbsp;and/or&nbsp;locating
+<BR>&nbsp;the&nbsp;cscope&nbsp;databases.&nbsp;&nbsp;However,&nbsp;there&nbsp;may&nbsp;be&nbsp;cases&nbsp;where&nbsp;it&nbsp;makes
+<BR>&nbsp;sense&nbsp;to&nbsp;place&nbsp;the&nbsp;cscope&nbsp;databases&nbsp;away&nbsp;from&nbsp;where&nbsp;the&nbsp;source&nbsp;files
+<BR>&nbsp;are&nbsp;kept;&nbsp;in&nbsp;this&nbsp;case,&nbsp;this&nbsp;variable&nbsp;is&nbsp;used&nbsp;to&nbsp;determine&nbsp;the
+<BR>&nbsp;mapping.
+<P>
+
+<BR>&nbsp;This&nbsp;module&nbsp;searches&nbsp;for&nbsp;the&nbsp;cscope&nbsp;databases&nbsp;by&nbsp;first&nbsp;using&nbsp;this
+<BR>&nbsp;variable;&nbsp;if&nbsp;a&nbsp;database&nbsp;location&nbsp;cannot&nbsp;be&nbsp;found&nbsp;using&nbsp;this&nbsp;variable,
+<BR>&nbsp;then&nbsp;the&nbsp;current&nbsp;directory&nbsp;is&nbsp;searched,&nbsp;then&nbsp;the&nbsp;parent,&nbsp;then&nbsp;the
+<BR>&nbsp;parent's&nbsp;parent,&nbsp;until&nbsp;a&nbsp;cscope&nbsp;database&nbsp;directory&nbsp;is&nbsp;found,&nbsp;or&nbsp;the
+<BR>&nbsp;root&nbsp;directory&nbsp;is&nbsp;reached.&nbsp;&nbsp;If&nbsp;the&nbsp;root&nbsp;directory&nbsp;is&nbsp;reached,&nbsp;the
+<BR>&nbsp;current&nbsp;directory&nbsp;will&nbsp;be&nbsp;used.
+<P>
+
+A cscope database directory is one in which EITHER a cscope database
+file (e.g., &quot;cscope.out&quot;) OR a cscope file list (e.g.,
+&quot;cscope.files&quot;) exists.  If only &quot;cscope.files&quot; exists, the
+corresponding &quot;cscope.out&quot; will be automatically created by cscope
+when a search is done.  By default, the cscope database file is called
+&quot;cscope.out&quot;, but this can be changed (on a global basis) via the
+variable, `cscope-database-file'.  There is limited support for cscope
+databases that are named differently than that given by
+`cscope-database-file', using the variable, `cscope-database-regexps'.
+<P>
+
+Here is an example of `cscope-database-regexps':
+<P>
+<PRE>
+        (setq cscope-database-regexps
+              '(
+                ( &quot;^/users/jdoe/sources/proj1&quot;
+                  ( t )
+                  ( &quot;/users/jdoe/sources/proj2&quot;)
+                  ( &quot;/users/jdoe/sources/proj3/mycscope.out&quot;)
+                  ( &quot;/users/jdoe/sources/proj4&quot;)
+                  t
+                  ( &quot;/some/master/directory&quot; (&quot;-d&quot; &quot;-I/usr/local/include&quot;) )
+                  )
+                ( &quot;^/users/jdoe/sources/gnome/&quot;
+                  ( &quot;/master/gnome/database&quot; (&quot;-d&quot;) )
+                  )
+                ))
+</PRE>
+
+<P>
+
+If the current buffer's directory matches the regexp,
+&quot;^/users/jdoe/sources/proj1&quot;, then the following search will be
+done:
+<P>
+<DL COMPACT>
+<DT>1. First, the normal hierarchical database search will be used to<DD>
+locate a cscope database.
+<P>
+<DT>2. Next, searches will be done using the cscope database<DD>
+directories, &quot;/users/jdoe/sources/proj2&quot;,
+&quot;/users/jdoe/sources/proj3/mycscope.out&quot;, and
+&quot;/users/jdoe/sources/proj4&quot;.  Note that, instead of the file,
+&quot;cscope.out&quot;, the file, &quot;mycscope.out&quot;, will be used in the
+directory &quot;/users/jdoe/sources/proj3&quot;.
+<P>
+<DT>3. If a match was found, searching will stop.<DD>
+<P>
+<DT>4. If a match was not found, searching will be done using<DD>
+&quot;/some/master/directory&quot;, and the command-line options &quot;-d&quot;
+and &quot;-I/usr/local/include&quot; will be passed to cscope.
+<P>
+<DT>If the current buffer's directory matches the regexp,<DD>
+&quot;^/users/jdoe/sources/gnome&quot;, then the following search will be
+done:
+<P>
+<DT>The search will be done only using the directory,<DD>
+&quot;/master/gnome/database&quot;.  The &quot;-d&quot; option will be passed to
+cscope.
+<P>
+<DT>If the current buffer's directory does not match any of the above<DD>
+regexps, then only the normal hierarchical database search will be
+done.
+<P>
+
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>* Other notes:</H3>
+
+<P>
+
+1. The script, &quot;cscope-indexer&quot;, uses a sed command to determine
+what is and is not a C/C++/lex/yacc source file.  It's idea of a
+source file may not correspond to yours.
+<P>
+
+2. This module is called, &quot;xcscope&quot;, because someone else has
+already written a &quot;cscope.el&quot; (although it's quite old).
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>KNOWN BUGS:</H2>
+
+<P>
+
+1. Cannot handle whitespace in directory or file names.
+<P>
+
+2. By default, colored faces are used to display results.  If you happen
+to use a black background, part of the results may be invisible
+(because the foreground color may be black, too).  There are at least
+two solutions for this:
+<P>
+<DL COMPACT>
+<DT><B>2a. Turn off colored faces, by setting `cscope-use-face' to `nil', eg:</B>
+
+<DD>
+<DT><B>(setq cscope-use-face nil)</B>
+
+<DD>
+<P>
+<DT><B> 2b. Explicitly set colors for the faces used by cscope.  The faces are</B>
+
+<DD>
+<P>
+<PRE>
+        cscope-file-face
+        cscope-function-face
+        cscope-line-number-face
+        cscope-line-face
+        cscope-mouse-face
+</PRE>
+
+<P>
+<DT>The face most likely to cause problems (e.g., black-on-black<DD>
+color) is `cscope-line-face'.
+<P>
+
+3. The support for cscope databases different from that specified by
+`cscope-database-file' is quirky.  If the file does not exist, it
+will not be auto-created (unlike files names by
+`cscope-database-file').  You can manually force the file to be
+created by using <A HREF="../man1/touch.1.php">touch</A>(1) to create a zero-length file; the
+database will be created the next time a search is done.
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">INSTALLATION</A><DD>
+<DT><A HREF="#lbAE">USING THIS MODULE</A><DD>
+<DL>
+<DT><A HREF="#lbAF">* Basic usage:</A><DD>
+<DT><A HREF="#lbAG">* Locating the cscope databases:</A><DD>
+<DT><A HREF="#lbAH">* Keybindings:</A><DD>
+<DT><A HREF="#lbAI">* Advanced usage:</A><DD>
+<DT><A HREF="#lbAJ">* Interesting configuration variables:</A><DD>
+<DT><A HREF="#lbAK">* Other notes:</A><DD>
+</DL>
+<DT><A HREF="#lbAL">KNOWN BUGS:</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

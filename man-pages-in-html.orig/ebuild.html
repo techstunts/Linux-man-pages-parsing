@@ -1,0 +1,323 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>EBUILD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>EBUILD</H1>
+Section: Portage (1)<BR>Updated: Nov 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ebuild - manual page for the ebuild program, a low level interface to
+the Portage system. 
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>ebuild</B>
+
+<I>file command [command]</I>...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The ebuild program is a direct interface to the Portage system. It
+allows for direct action upon an ebuild with specific subcommands or
+groups of commands to perform in a specific ebuild's context and
+functions. Accepting an ebuild script and one or more commands
+as arguments, the ebuild program parses the ebuild script and
+execute the specified commands.  Commands exist to fetch sources,
+unpack sources, compile sources, install object files into a temporary
+directory &quot;image&quot;, merge the image to the local filesystem, create a
+bzipped tarball package out of the image, and more.
+<A NAME="lbAE">&nbsp;</A>
+<H2>FILE</H2>
+
+This must be a valid ebuild script.  For further information read
+<B><A HREF="../man5/ebuild.5.php">ebuild</A></B>(5).
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+<DL COMPACT>
+<DT><B>help</B>
+
+<DD>
+Show a condensed form of the man page along with a lot of package
+specific information.
+<DT><B>setup</B>
+
+<DD>
+Run all package specific setup actions and exotic system checks.
+<DT><B>clean</B>
+
+<DD>
+Cleans the temporary build directory that Portage has created for
+this particular ebuild file.  The temporary build directory normally
+contains the extracted source files as well as a possible
+&quot;install image&quot; (all the files that will be merged to the local
+filesystem or stored in a package).  The location of the build
+directory is set by the BUILD_PREFIX variable.  For information
+on what this variable is, run <I>emerge [-v] info</I>, or to override
+this variable, see <B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5).
+<P>
+Note: Portage cleans up almost everything after a package has been
+successfully merged unless FEATURES contains 'noclean'. Adding noclean
+to FEATURES will cause a lot of files to remain and will consume large
+amounts of space, very quickly. It is not recommended to leave this on
+unless you have use for the sources post-merge. Optionally one may,
+manual clean <I>rm -rf /var/tmp/portage</I> will take care of all
+of these files.
+<DT><B>fetch</B>
+
+<DD>
+Checks to see if all the sources specified in SRC_URI are available in
+DISTDIR (see <B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5) for more information) and have a valid
+md5 checksum.  If the sources aren't available, an attempt is made to
+download them from the locations specified in SRC_URI.  If multiple
+download locations are listed for a particular file, Portage pings
+each location to see which location is closer. (May not be true
+presently.)  The Gentoo Linux mirrors defined by GENTOO_MIRRORS is
+always considered first. If for some reason the current or
+just-downloaded sources' md5 digests don't match those recorded
+in files/digest-[package]-[version-rev], a warning is printed
+and ebuild exits with an error code of 1.
+<DT><B>digest</B>
+
+<DD>
+Creates a digest file for the package in
+/usr/portage/[category]/[package]/files/. This digest file lists the
+md5sum's of all the files found in the SRC_URI.  If the fetched source
+of the package is corrupt/bogus in some way, the md5sum will catch this.
+<DT><B>unpack</B>
+
+<DD>
+Extracts the sources to a subdirectory in the <I>build directory</I>
+(BUILD_PREFIX) by running the <I>src_unpack()</I> function in the ebuild
+file.  If no src_unpack() function has been specified, a default
+src_unpack() function is used that extracts all the files specified in
+SRC_URI.  The sources are normally extracted to
+${BUILD_PREFIX}/[package]-[version-rev]/work. This particular directory
+can be referenced by using the ${WORKDIR} variable.
+<P>
+If you're creating an ebuild, you'll want to make sure that the S
+(source directory) variable defined at at the top of your ebuild script
+points to the directory that contains your extracted sources. This
+directory is defined by default to be ${WORKDIR}/${P}, so it is not
+often required.  The src_unpack() function is also responsible for
+making the appropriate patches to the sources so that they're ready
+for compilation.
+<DT><B>compile</B>
+
+<DD>
+Compiles the extracted sources by running the the <I>src_compile()</I>
+function specified in the ebuild file.  When src_compile() starts, the
+current working directory will be set to ${S}.  When src_compile()
+completes, the sources should be fully compiled.
+<DT><B>test</B>
+
+<DD>
+Run package specific test cases to verify that everything was built 
+properly.
+<DT><B>preinst</B>
+
+<DD>
+Run package specific actions that need to be done before the package
+is installed into the live filesystem.
+<DT><B>install</B>
+
+<DD>
+Installs the package to the temporary <I>install directory</I> by running
+the <I>src_install()</I> function.  When completed, the
+<I>install directory</I> (${BUILD_PREFIX}/[package]-[version-rev]/image)
+will contain all the files that should either be merged to the local
+file system or included in a binary package.
+<DT><B>postinst</B>
+
+<DD>
+Run package specific actions that need to be done after the package
+is installed into the live filesystem.  Usually helpful messages are
+shown here.
+<DT><B>qmerge</B>
+
+<DD>
+This function installs all the files in the <I>install directory</I>
+to the live filesystem. The process works as follows: first, the
+<I>pkg_preinst()</I> function (if specified) is run.  Then, the files
+are merged into the live filesystem, and the installed files' md5
+digests are recorded in
+<I>/var/db/pkg/${CATEOGRY}/${PN}-[version-rev]/CONTENTS</I>.  After
+all the files have been merged, the <I>pkg_postinst()</I> function
+(if specified) is executed.
+<DT><B>merge</B>
+
+<DD>
+Normally, to merge an ebuild, you need to <I>fetch</I>, <I>unpack</I>,
+<I>compile</I>, <I>install</I> and <I>qmerge</I>.  If you're simply
+interested in merging the ebuild, you can use this command, which
+will perform all these steps for you, stopping along the way if a
+particular step doesn't complete successfully.
+<DT><B>unmerge</B>
+
+<DD>
+This function first executes the <I>pkg_prerm</I> function (if specified).
+Then it removes all files from the live filesystem that have a valid md5
+checksum and mtime in the package contents file.  Any empty directories
+are recursively removed.  Finally, it runs <I>pkg_postrm</I> function (if
+specified).  It is safe to merge a new version of a package first and
+then unmerge the old one.  In fact, this is the recommended package
+upgrade method.
+<DT><B>prerm</B>
+
+<DD>
+Run package specific actions that need to be executed before the package is
+removed from the filesystem.  See also <I>unmerge</I>.
+<DT><B>postrm</B>
+
+<DD>
+Run package specific actions that need to be executed after the package is
+removed from the filesystem.  See also <I>unmerge</I>.
+<DT><B>config</B>
+
+<DD>
+Run package specific actions needed to be executed after the emerge
+process has completed.  This usually entails configuration file
+setup or other similar setups that the user may wish to run.
+<DT><B>package</B>
+
+<DD>
+This command is a lot like the <I>merge</I> command, except that after
+fetching, unpacking, compiling and installing, a .tbz2 binary package
+tarball is created and stored in  ${PKGDIR}/All (${PKGDIR} defaults to
+/usr/portage/packages).  A symbolic link is created in
+${PKGDIR}/${CATEGORY} that points to the package in ${PKGDIR}/All.
+<DT><B>rpm</B>
+
+<DD>
+Builds a RedHat RPM package from the files in the temporary
+<I>install directory</I>. At the moment, the ebuild's dependency
+information is not incorporated into the RPM.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>REPORTING BUGS</H2>
+
+Please report bugs via <A HREF="http://bugs.gentoo.org/">http://bugs.gentoo.org/</A>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/emerge.1.php">emerge</A></B>(1),
+
+<B><A HREF="../man5/ebuild.5.php">ebuild</A></B>(5),
+
+<B><A HREF="../man5/make.conf.5.php">make.conf</A></B>(5)
+
+<DL COMPACT>
+<DT>The <I>/usr/sbin/ebuild.sh</I> script. <DD>
+<DT>The helper apps in <I>/usr/lib/portage/bin</I>.<DD>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>/etc/make.conf</B> <DD>
+Contains variables for the build-process and overwrites those
+in make.globals.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Achim Gottinger &lt;<A HREF="mailto:achim@gentoo.org">achim@gentoo.org</A>&gt;
+<BR>
+
+Daniel Robbins &lt;<A HREF="mailto:drobbins@gentoo.org">drobbins@gentoo.org</A>&gt;
+<BR>
+
+Nicholas Jones &lt;<A HREF="mailto:carpaski@gentoo.org">carpaski@gentoo.org</A>&gt;
+<BR>
+
+Mike Frysinger &lt;<A HREF="mailto:vapier@gentoo.org">vapier@gentoo.org</A>&gt;
+<A NAME="lbAK">&nbsp;</A>
+<H2>CVS HEADER</H2>
+
+$Header: /var/cvsroot/gentoo-src/portage/man/ebuild.1,v 1.16 2004/09/17 00:17:10 vapier Exp $&quot;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">FILE</A><DD>
+<DT><A HREF="#lbAF">COMMANDS</A><DD>
+<DT><A HREF="#lbAG">REPORTING BUGS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+<DT><A HREF="#lbAK">CVS HEADER</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XKBCOMP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XKBCOMP</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xkbevd - XKB event daemon
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xkbevd</B>
+
+[ options ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+This command is very raw and is therefore only partially implemented;  we 
+present it here as a rough prototype for developers, not as a general purpose 
+tool for end users.  Something like this might make a suitable replacement
+for xev;  I'm not signing up, mind you, but it's an interesting idea.
+<P>
+
+The
+<I>xkbevd</I>
+
+event daemon listens for specified XKB events and executes requested commands
+if they occur.   The configuration file consists of a list of event 
+specification/action pairs and/or variable definitions.   
+<P>
+
+An event specification consists of a short XKB event name followed by a 
+string or identifier which serves as a qualifier in parentheses;  empty 
+parenthesis indicate no qualification and serve to specify the default 
+command which is applied to events which do not match any of the other 
+specifications.  The interpretation of the qualifier depends on the type 
+of the event:  Bell events match using the name of the bell, message events 
+match on the contents of the message string and slow key events accept 
+any of <I>press</I>, <I>release</I>, <I>accept</I>, or <I>reject</I>.   No 
+other events are currently recognized.
+<P>
+
+An action consists of an optional keyword followed by an optional string 
+argument.  Currently, <I>xkbev</I> recognizes the actions: <I>none</I>, 
+<I>ignore</I>, <I>echo</I>, <I>printEvent</I>, <I>sound</I>, and <I>shell</I>.
+If the action is not specified, the string is taken as the name of a sound
+file to be played unless it begins with an exclamation point, in which case
+it is taken as a shell command.
+<P>
+
+Variable definitions in the argument string are expanded with fields from
+the event in question before the argument string is passed to the action
+processor.   The general syntax for a variable is 
+either $<I>cP or $(str</I>), where <I>c</I> is a single character and
+<I>str</I> is a string of arbitrary length.  All parameters have both 
+single-character and long names.    
+<P>
+
+The list of recognized parameters varies from event to event and is too long 
+to list here right now.   This is a developer release anyway, so you can
+be expected to look at the source code (evargs.c is of particular interest).
+<P>
+
+The <I>ignore</I>, <I>echo</I>, <I>printEvent</I>, <I>sound</I>,and <I>shell</I>
+actions do what you would expect commands named <I>ignore</I>, <I>echo</I>,
+<I>printEvent</I>, <I>sound</I>, and <I>shell</I> to do, except that the sound
+command has only been implemented and tested for SGI machines.   It launches
+an external program right now, so it should be pretty easy to adapt, 
+especially if you like audio cues that arrive about a half-second after you
+expect them.
+<P>
+
+The only currently recognized variables are <I>soundDirectory</I> and
+<I>soundCmd</I>.  I'm sure you can figure out what they do.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-help</B>
+
+<DD>
+Prints a usage message that is far more up-to-date than anything in this
+man page.
+<DT><B>-cfg </B><I>file</I>
+
+<DD>
+Specifies the configuration file to read.   If no configuration file is
+specified, <I>xkbevd</I> looks for ~/.xkb/xkbevd.cf and $(LIBDIR)/xkb/xkbevd.cf
+in that order.
+<DT><B>-sc&nbsp;</B><I>cmd</I>
+
+<DD>
+Specifies the command used to play sounds.
+<DT><B>-sd&nbsp;</B><I>directory</I>
+
+<DD>
+Specifies a top-level directory for sound files.
+<DT><B>-display&nbsp;</B><I>display</I>
+
+<DD>
+Specifies the display to use.  If not present, <I>xkbevd</I> uses $DISPLAY.
+<DT><B>-bg</B>
+
+<DD>
+Tells <I>xkbevd</I> to fork itself (and run in the background).
+<DT><B>-synch</B>
+
+<DD>
+Forces synchronization of all X requests.  Slow.
+<DT><B>-v</B>
+
+<DD>
+Print more information, including debugging messages.   Multiple 
+specifications of <I>-v</I> cause more output, to a point.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x)
+<A NAME="lbAG">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Copyright 1995, Silicon Graphics Computer Systems
+Copyright 1995, 1998  The Open Group
+<BR>
+
+See <I><A HREF="../man7/X.7x.php">X</A>(7x)</I> for a full statement of rights and permissions.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Erik Fortune, Silicon Graphics
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+<DT><A HREF="#lbAG">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

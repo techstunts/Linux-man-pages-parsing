@@ -1,0 +1,259 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XCLIPBOARD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XCLIPBOARD</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xclipboard - X clipboard client
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xclipboard</B> [ <I>-toolkitoption</I> ... ] [ <B>-w</B> ]
+[ <B>-nw</B> ]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <I>xclipboard</I> program is used to collect and display text selections 
+that are sent to the CLIPBOARD by other clients.  It is typically used to
+save CLIPBOARD selections for later use.  It stores each CLIPBOARD selection
+as a separate string, each of which can be selected.  Each time CLIPBOARD
+is asserted by another application, <I>xclipboard</I> transfers the contents
+of that selection to a new buffer and displays it in the text window.
+Buffers are never automatically deleted, so you'll want to use the delete
+button to get rid of useless items.
+<P>
+
+Since <I>xclipboard</I> uses a Text Widget to display the contents of the
+clipboard, text sent to the CLIPBOARD may be re-selected for use in other
+applications.  <I>xclipboard</I> also responds to requests for the CLIPBOARD
+selection from other clients by sending the entire contents of the currently
+displayed buffer.
+<P>
+
+An <I>xclipboard</I> window has the following buttons across the top:
+<DL COMPACT>
+<DT><I>quit</I>
+
+<DD>
+When this button is pressed, <I>xclipboard</I> exits.
+<DT><I>delete</I>
+
+<DD>
+When this button is pressed, the current buffer is deleted and the
+next one displayed.
+<DT><I>new</I>
+
+<DD>
+Creates a new buffer with no contents.  Useful in constructing a new
+CLIPBOARD selection by hand.
+<DT><I>save</I>
+
+<DD>
+Displays a File Save dialog box.
+Pressing the Accept button saves the currently
+displayed buffer to the file specified in the text field.
+<DT><I>next</I>
+
+<DD>
+Displays the next buffer in the list.
+<DT><I>previous</I>
+
+<DD>
+Displays the previous buffer.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The <I>xclipboard</I> program accepts all of the standard X Toolkit command 
+line options as well as the following:
+<DL COMPACT>
+<DT><B>-w</B>
+
+<DD>
+This option indicates that lines of text that are too long to be displayed on
+one line in the clipboard should wrap around to the following lines.
+<DT><B>-nw</B>
+
+<DD>
+This option indicates that long lines of text should not wrap around.  This
+is the default behavior.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>WIDGETS</H2>
+
+In order to specify resources, it is useful to know the hierarchy of
+the widgets which compose <I>xclipboard</I>.  In the notation below,
+indentation indicates hierarchical structure.  The widget class name
+is given first, followed by the widget instance name.
+<P>
+<PRE>
+
+XClipboard  xclipboard
+     Form  form
+          Command  Quit
+          Command  delete
+          Command  new
+          Command  Save
+          Command  next
+          Command  prev
+          Label  index
+          Text  text
+     TransientShell  fileDialogShell
+          Dialog  fileDialog
+               Label  label
+               Command  accept
+               Command  cancel
+               Text value
+     TransientShell  failDialogShell
+          Dialog  failDialog
+               Label  label
+               Command  continue
+</PRE>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SENDING/RETRIEVING CLIPBOARD CONTENTS</H2>
+
+Text is copied to the clipboard whenever a client asserts ownership of the
+<B>CLIPBOARD</B> selection.  Text is copied from the clipboard whenever a
+client requests the contents of the <B>CLIPBOARD</B> selection.  Examples of
+event bindings that a user may wish to include in a resource configuration
+file to use the clipboard are:
+<P>
+<PRE>
+
+*VT100.Translations: #override 	&lt;Btn3Up&gt;:select-end(CLIPBOARD) \n	&lt;Btn2Up&gt;:insert-selection(PRIMARY,CLIPBOARD) \n	&lt;Btn2Down&gt;:ignore ()
+
+
+
+
+</PRE>
+
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <A HREF="../man1/xcutsel.1.php">xcutsel</A>(1), <A HREF="../man1/xterm.1.php">xterm</A>(1), individual client documentation for how to make a 
+selection and send it to the CLIPBOARD.
+<A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<P>
+
+<DL COMPACT>
+<DT><B>DISPLAY</B>
+
+<DD>
+to get the default host and display number.
+<DT><B>XENVIRONMENT</B>
+
+<DD>
+to get the name of a resource file that overrides the global resources
+stored in the RESOURCE_MANAGER property.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/usr/X11R6/lib/X11/app-defaults/XClipboard</I>
+
+<DD>
+specifies required resources
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Ralph R. Swick, DEC/MIT Project Athena
+<BR>
+
+Chris D. Peterson, MIT X Consortium
+<BR>
+
+Keith Packard, MIT X Consortium
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">WIDGETS</A><DD>
+<DT><A HREF="#lbAG">SENDING/RETRIEVING CLIPBOARD CONTENTS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,713 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CUE2TOC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CUE2TOC</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+cue2toc - convert CUE to TOC format
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>cue2toc</B> [<B>-hnqv</B>] [<B>-o</B>
+
+<I>tocfile</I>]
+
+[<B>-w</B>
+
+<I>wavefile</I>] [<I>cuefile</I>]
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Cue2toc</B>
+
+converts
+<I>cuefile</I>
+
+from CUE to TOC format and writes the result to
+<I>tocfile</I>.
+
+If either
+<I>cuefile</I> or <I>tocfile</I>
+
+is omitted or a single dash &quot;-&quot;
+<B>cue2toc</B>
+
+reads from standard input and writes to standard ouput
+respectively.
+<P>
+CUE files are text files describing the layout of a CD-Rom and
+typically carry the extension &quot;.cue&quot;.
+<P>
+Cdrdao is a CD-burning application which has its own native TOC
+format to describe the disc layout. Although cdrdao has direct
+support for reading CUE files, it is currently limited to data
+tracks only. So
+<B>cue2toc</B>'s
+
+main usefulness lies in converting
+CUE files containing audio tracks.
+<P>
+Output of CD-Text data can be disabled with the
+<B>-n</B>
+
+option.
+<P>
+CUE files often come with MP3 files but since cdrdao doesnt
+support decoding them on the fly they probably must be decoded by
+other means prior to writing the CD (e.g. using
+<B>lame</B>).
+
+For this reason you can specify a filename with the
+<B>-w</B>
+
+option to be used for all audio tracks instead of the one
+in the CUE file. Of course this is only really useful if all
+the tracks are based on the same file. This seems to be the case
+quite often however.
+<P>
+<B>Cue2toc</B>
+
+normally displays warning messages for unsupported commands and
+constructs. The
+<B>-q</B>
+
+option disables these warnings.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+print a short help message
+<P>
+<DT><B>-n</B>
+
+<DD>
+no CD-Text; disable output of CD-Text information
+<P>
+<DT><B>-o </B><I>tocfile</I>
+
+<DD>
+write result to
+<I>tocfile</I>
+
+instead of standard ouput
+<P>
+<DT><B>-q</B>
+
+<DD>
+quiet mode; do not print warnings
+<P>
+<DT><B>-v</B>
+
+<DD>
+print version number
+<P>
+<DT><B>-w </B><I>wavefile</I>
+
+<DD>
+use
+<I>wavefile</I>
+
+for all audio tracks
+<P>
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>CUE FORMAT</H2>
+
+What follows is a description of the CUE format expected by
+<B>cue2toc</B>.
+
+For information about the TOC format please consult the
+<B><A HREF="../man1/cdrdao.1.php">cdrdao</A></B>(1)
+
+manual page.
+<P>
+CUE files consist of commands and their arguments which must be
+separated from each other by any number of whitespace characters.
+Space, horizontal tabulator, newline and carriage return are
+recognized as whitespace characters except inside strings surrounded
+by double quotes, where they are part of the string. Commands are
+not case sensitive. CD-Text data can be at most 80 characters per
+item.
+<P>
+Timecode values are accepted in the forms &quot;X:X:X&quot;, &quot;X:X&quot; and
+&quot;X&quot; where each &quot;X&quot; must consist of at most two digits and may be
+zero padded to the left. They are interpreted as &quot;M:S:F&quot;, &quot;S:F&quot; and
+&quot;F&quot; respectively where &quot;M&quot; means &quot;minutes&quot; and must be in the range
+0 &lt;= M &lt;= 99, &quot;S&quot; means &quot;seconds&quot; and must be in the range
+0 &lt;= S &lt;= 59, and &quot;F&quot; means &quot;frames&quot; and must be in the range
+0 &lt;= F &lt;= 74.
+<P>
+CUE files are logically divided into a global section and
+one to 99 track sections. Inside these sections the following
+commands are allowed:
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Global Section</H3>
+
+<P>
+<B>REM</B>
+
+<I>anything_to_newline</I>
+
+<BR>
+
+<B>CATALOG</B>
+
+<I>string</I>
+
+<BR>
+
+<B>CDTEXTFILE</B>
+
+<I>string</I>
+
+<BR>
+
+<B>TITLE</B>
+
+<I>string</I>
+
+<BR>
+
+<B>PERFORMER</B>
+
+<I>string</I>
+
+<BR>
+
+<B>SONGWRITER</B>
+
+<I>string</I>
+
+<BR>
+
+<B>FILE</B>
+
+<I>string</I>
+
+<B>BINARY</B>|<B>MOTOROLA</B>|<B>AIFF</B>|<B>WAVE</B>|<B>MP3</B>
+
+<P>
+<P>
+<DL COMPACT>
+<DT><B>REM</B>
+
+<DD>
+Optional.
+Introduces a comment. Anything from there on up to and including the
+next newline character is ignored. Comments can appear anywhere in
+the file but not between a command and its arguments.
+<P>
+<DT><B>CATALOG</B>
+
+<DD>
+Optional.
+The Media Catalog Number of the disc. Must be exactly 13 characters.
+<P>
+<DT><B>CDTEXTFILE</B>
+
+<DD>
+Optional.
+Specifies an external file containing CD-Text data. Ignored.
+<P>
+<DT><B>TITLE</B>
+
+<DD>
+Optional.
+The CD-Text title of the disc.
+<P>
+<DT><B>PERFORMER</B>
+
+<DD>
+Optional.
+The CD-Text performer of the disc.
+<P>
+<DT><B>SONGWRITER</B>
+
+<DD>
+Optional.
+The CD-Text songwriter of the disc.
+<P>
+<DT><B>FILE</B>
+
+<DD>
+Required.
+The name and type of the file to be used for all following tracks.
+The
+<I>string</I>
+
+contains the name of the file followed by one of
+<B>BINARY</B>, <B>MOTOROLA</B>, <B>AIFF</B>, <B>WAVE</B> or <B>MP3</B>.
+
+As far as
+<B>cue2toc</B>
+
+is concerned the type of the file is effectively ignored.
+Nonetheless
+<B>MOTOROLA</B>, <B>AIFF</B> and <B>MP3</B>
+
+cause printing of a warning message since these file types can
+not be used directly with cdrdao.
+<P>
+</DL>
+<P>
+
+The first appearance of a
+<B>TRACK</B>
+
+command causes leaving of the global section and entering the
+track section.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Track Section</H3>
+
+<P>
+<B>TRACK</B>
+
+<I>number</I>
+
+<I>mode</I>
+
+<BR>
+
+<B>REM</B>
+
+<I>anything_to_newline</I>
+
+<BR>
+
+<B>FLAGS</B>
+
+[<B>DCP</B>]
+
+[<B>4CH</B>]
+
+[<B>PRE</B>]
+
+[<B>SCMS</B>]
+
+<BR>
+
+<B>ISRC</B>
+
+<I>string</I>
+
+<BR>
+
+<B>TITLE</B>
+
+<I>string</I>
+
+<BR>
+
+<B>PERFORMER</B>
+
+<I>string</I>
+
+<BR>
+
+<B>SONGWRITER</B>
+
+<I>string</I>
+
+<BR>
+
+<B>PREGAP</B>
+
+<I>timecode</I>
+
+<BR>
+
+<B>INDEX</B>
+
+<I>number</I>
+
+<I>timecode</I>
+
+<BR>
+
+<B>POSTGAP</B>
+
+<I>timecode</I>
+
+<BR>
+
+<B>FILE</B>
+
+<I>string</I>
+
+<B>BINARY</B>|<B>MOTOROLA</B>|<B>AIFF</B>|<B>WAVE</B>|<B>MP3</B>
+
+<P>
+<P>
+<DL COMPACT>
+<DT><B>TRACK</B>
+
+<DD>
+Required.
+Starts a new track definition. The
+<I>number</I>
+
+is ignored. The
+<I>mode</I>
+
+must be one of
+<B>AUDIO</B>, <B>MODE1/2048</B>, <B>MODE1/2352</B>,
+
+<B>MODE2/2336</B> or <B>MODE2/2352</B>.
+
+<P>
+<DT><B>FLAGS</B>
+
+<DD>
+Optional.
+Defines the flags for this track. Must be followed by one
+or more of the following commands:
+<B>DCP</B>
+
+(digital copy permitted),
+<B>4CH</B>
+
+(four channel audio),
+<B>PRE</B>
+
+(pre-emphasis enabled) and
+<B>SCMS</B>
+
+(serial copy management system).
+<B>SCMS</B>
+
+is ignored because there is no corresponding option in
+the TOC format.
+<P>
+<DT><B>ISRC</B>
+
+<DD>
+Optional.
+The International Standard Recording Code for this track. Must
+be exactly 12 characters long.
+<P>
+<DT><B>TITLE</B>
+
+<DD>
+Optional.
+The CD-Text title of this track.
+<P>
+<DT><B>PERFORMER</B>
+
+<DD>
+Optional.
+The CD-Text performer of this track.
+<P>
+<DT><B>SONWRITER</B>
+
+<DD>
+Optional.
+The CD-Text songwriter of this track.
+<P>
+<DT><B>PREGAP</B>
+
+<DD>
+Optional.
+The length of the track pregap to be filled with zero data.
+Mutually exclusive with
+<B>INDEX 0</B>.
+
+<P>
+<DT><B>POSTGAP</B>
+
+<DD>
+Optional.
+The length of the track postgap to be filled with zero data.
+<P>
+<DT><B>INDEX</B>
+
+<DD>
+Optional.
+The
+<I>number</I>
+
+must be in the range 0 &lt;=
+<I>number</I>
+
+&lt;= 99. Index number 1 specifies the start of the track. Index
+number 0 is the start of the track pregap filled with data
+from the file, i.e. the difference between index 0 and index 1
+is the length of the pregap. Index 0 is mutually exclusive with
+<B>PREGAP</B>.
+
+Index numbers greater than 1 specify subindexes for this track
+and must be sequential.
+<P>
+<DT><B>FILE</B>
+
+<DD>
+Optional in track section. The syntax is the same as described
+above and if it appears inside a track specification it takes
+effect on the next
+<B>TRACK</B>
+
+command.
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>LIMITATIONS</H2>
+
+<P>
+The command
+<B>CDTEXTFILE</B>
+
+and the flag
+<B>SCMS</B>
+
+have no equivalent in the TOC format and are ignored.
+<P>
+CUE files containing data tracks which specify a starting time
+greater than zero cannot be converted by
+<B>cue2toc</B>
+
+because the TOC format does not provide a way to specify a
+starting time at all for data tracks. However if the CUE file
+does not contain any audio tracks you can try to use the CUE file
+directly with cdrdao.
+<P>
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<P>
+Suppose we have the following CUE file &quot;uwe.froehn.cue&quot; describing
+an audio CD with CD-Text data:
+<P>
+<PRE>
+REM Example CUE file with audio tracks
+CATALOG 1234567890123
+TITLE &quot;Der Berg ruft&quot;
+PERFORMER &quot;Uwe Froehn&quot;
+FILE &quot;uwe.froehn.mp3&quot; MP3
+
+TRACK 01 AUDIO
+  TITLE &quot;Meine Mama ist die Beste&quot;
+  PERFORMER &quot;Uwe Froehn&quot;
+  SONGWRITER &quot;Hansi Klabuster&quot;
+  REM two seconds pregap filled with audio data
+  INDEX 00 00:00:00
+  INDEX 01 00:02:00
+  REM subindexes
+  INDEX 02 00:35:17
+  INDEX 03 01:12:44
+
+TRACK 02 AUDIO
+  TITLE &quot;Hoch oben im Tal&quot;
+  SONGWRITER &quot;Gabi Geil&quot;
+  REM no pregap
+  INDEX 01 02:45:38
+
+TRACK 03 AUDIO
+  REM pregap with zero data
+  PREGAP 00:4:47
+  INDEX 01 07:58:74
+  REM postgap with zero data
+  POSTGAP 00:35:00
+</PRE>
+
+<P>
+Since cdrdao cannot decode the MP3 file on the fly this step must
+be carried out by hand, e.g. using lame:
+<P>
+<PRE>
+lame --decode uwe.froehn.mp3 uwe.froehn.wav
+</PRE>
+
+<P>
+Although the filename appears only once in the example CUE
+file it gets written for every track in the TOC file so you
+would need to edit lots of occurences of the filename in the
+TOC file by hand. For this reason you can specify a string
+with the
+<B>-w</B>
+
+option to be used by
+<B>cue2toc</B>
+
+as the filename for all audio tracks. The command
+<P>
+<PRE>
+cue2toc -w uwe.froehn.wav -o uwe.froehn.toc uwe.froehn.cue
+</PRE>
+
+<P>
+should produce the file uwe.froehn.toc with the following content:
+<P>
+<PRE>
+CATALOG &quot;1234567890123&quot;
+CD_DA
+CD_TEXT {
+    LANGUAGE_MAP {
+        0 : EN
+    }
+    LANGUAGE 0 {
+        TITLE &quot;Der Berg ruft&quot;
+        PERFORMER &quot;Uwe Froehn&quot;
+    }
+}
+
+TRACK AUDIO
+    CD_TEXT {
+        LANGUAGE 0 {
+            TITLE &quot;Meine Mama ist die Beste&quot;
+            PERFORMER &quot;Uwe Froehn&quot;
+            SONGWRITER &quot;Hansi Klabuster&quot;
+        }
+    }
+    AUDIOFILE &quot;uwe.froehn.wav&quot; 00:00:00 02:45:38
+    START 00:02:00
+    INDEX 00:35:17
+    INDEX 01:12:44
+
+TRACK AUDIO
+    CD_TEXT {
+        LANGUAGE 0 {
+            TITLE &quot;Hoch oben im Tal&quot;
+            SONGWRITER &quot;Gabi Geil&quot;
+        }
+    }
+    AUDIOFILE &quot;uwe.froehn.wav&quot; 02:45:38 05:13:36
+
+TRACK AUDIO
+    PREGAP 00:04:47
+    AUDIOFILE &quot;uwe.froehn.wav&quot; 07:58:74
+    SILENCE 00:35:00
+</PRE>
+
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/cdrdao.1.php">cdrdao</A></B>(1),
+
+<B><A HREF="../man1/lame.1.php">lame</A></B>(1)
+
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+Since
+<B>cue2toc</B>'s
+
+definition of the CUE format is entirely based on a number
+of different CUE files the author came across there is a very
+high probability that it will not work correctly with all the
+other CUE files you might encounter. If this is the case for
+you please send the problematic CUE file along with the version
+number of
+<B>cue2toc</B>
+
+to &lt;<A HREF="mailto:dermatsch@gmx.de">dermatsch@gmx.de</A>&gt;.
+<P>
+<P>
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Matthias Czapla &lt;<A HREF="mailto:dermatsch@gmx.de">dermatsch@gmx.de</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">CUE FORMAT</A><DD>
+<DL>
+<DT><A HREF="#lbAG">Global Section</A><DD>
+<DT><A HREF="#lbAH">Track Section</A><DD>
+</DL>
+<DT><A HREF="#lbAI">LIMITATIONS</A><DD>
+<DT><A HREF="#lbAJ">EXAMPLE</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">BUGS</A><DD>
+<DT><A HREF="#lbAM">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

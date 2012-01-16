@@ -1,0 +1,462 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLNEWMOD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLNEWMOD</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlnewmod - preparing a new module for distribution
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document gives you some suggestions about how to go about writing
+Perl modules, preparing them for distribution, and making them available
+via <FONT SIZE="-1">CPAN</FONT>.
+<P>
+
+One of the things that makes Perl really powerful is the fact that Perl
+hackers tend to want to share the solutions to problems they've faced,
+so you and I don't have to battle with the same problem again.
+<P>
+
+The main way they do this is by abstracting the solution into a Perl
+module. If you don't know what one of these is, the rest of this
+document isn't going to be much use to you. You're also missing out on
+an awful lot of useful code; consider having a look at perlmod,
+perlmodlib and perlmodinstall before coming back here.
+<P>
+
+When you've found that there isn't a module available for what you're
+trying to do, and you've had to write the code yourself, consider
+packaging up the solution into a module and uploading it to <FONT SIZE="-1">CPAN</FONT> so that
+others can benefit.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Warning</H2>
+
+<A NAME="ixAAD"></A>
+We're going to primarily concentrate on Perl-only modules here, rather
+than <FONT SIZE="-1">XS</FONT> modules. <FONT SIZE="-1">XS</FONT> modules serve a rather different purpose, and
+you should consider different things before distributing them - the
+popularity of the library you are gluing, the portability to other
+operating systems, and so on. However, the notes on preparing the Perl
+side of the module and packaging and distributing it will apply equally
+well to an <FONT SIZE="-1">XS</FONT> module as a pure-Perl one.
+<A NAME="lbAE">&nbsp;</A>
+<H2>What should I make into a module?</H2>
+
+<A NAME="ixAAE"></A>
+You should make a module out of any code that you think is going to be
+useful to others. Anything that's likely to fill a hole in the communal
+library and which someone else can slot directly into their program. Any
+part of your code which you can isolate and extract and plug into
+something else is a likely candidate.
+<P>
+
+Let's take an example. Suppose you're reading in data from a local
+format into a hash-of-hashes in Perl, turning that into a tree, walking
+the tree and then piping each node to an Acme Transmogrifier Server.
+<P>
+
+Now, quite a few people have the Acme Transmogrifier, and you've had to
+write something to talk the protocol from scratch - you'd almost
+certainly want to make that into a module. The level at which you pitch
+it is up to you: you might want protocol-level modules analogous to
+Net::SMTP which then talk to higher level modules analogous
+to Mail::Send. The choice is yours, but you do want to get
+a module out for that server protocol.
+<P>
+
+Nobody else on the planet is going to talk your local data format, so we
+can ignore that. But what about the thing in the middle? Building tree
+structures from Perl variables and then traversing them is a nice,
+general problem, and if nobody's already written a module that does
+that, you might want to modularise that code too.
+<P>
+
+So hopefully you've now got a few ideas about what's good to modularise.
+Let's now see how it's done.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Step-by-step: Preparing the ground</H2>
+
+<A NAME="ixAAF"></A>
+Before we even start scraping out the code, there are a few things we'll
+want to do in advance.
+<DL COMPACT>
+<DT>Look around<DD>
+<A NAME="ixAAG"></A>
+Dig into a bunch of modules to see how they're written. I'd suggest
+starting with Text::Tabs, since it's in the standard
+library and is nice and simple, and then looking at something like
+Time::Zone, File::Copy and then some of the
+<TT>&quot;Mail::*&quot;</TT> modules if you're planning on writing object oriented code.
+
+
+<P>
+
+
+These should give you an overall feel for how modules are laid out and
+written.
+<DT>Check it's new<DD>
+<A NAME="ixAAH"></A>
+There are a lot of modules on <FONT SIZE="-1">CPAN</FONT>, and it's easy to miss one that's
+similar to what you're planning on contributing. Have a good plough
+through the modules list and the <I>by-module</I> directories, and make sure
+you're not the one reinventing the wheel!
+<DT>Discuss the need<DD>
+<A NAME="ixAAI"></A>
+You might love it. You might feel that everyone else needs it. But there
+might not actually be any real demand for it out there. If you're unsure
+about the demand your module will have, consider sending out feelers
+on the <TT>&quot;comp.lang.perl.modules&quot;</TT> newsgroup, or as a last resort, ask the
+modules list at <TT>&quot;<A HREF="mailto:modules@perl.org">modules@perl.org</A>&quot;</TT>. Remember that this is a closed list
+with a very long turn-around time - be prepared to wait a good while for
+a response from them.
+<DT>Choose a name<DD>
+<A NAME="ixAAJ"></A>
+Perl modules included on <FONT SIZE="-1">CPAN</FONT> have a naming hierarchy you should try to
+fit in with. See perlmodlib for more details on how this works, and
+browse around <FONT SIZE="-1">CPAN</FONT> and the modules list to get a feel of it. At the very
+least, remember this: modules should be title capitalised, (This::Thing)
+fit in with a category, and explain their purpose succinctly.
+<DT>Check again<DD>
+<A NAME="ixAAK"></A>
+While you're doing that, make really sure you haven't missed a module
+similar to the one you're about to write.
+
+
+<P>
+
+
+When you've got your name sorted out and you're sure that your module is
+wanted and not currently available, it's time to start coding.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Step-by-step: Making the module</H2>
+
+<A NAME="ixAAL"></A>
+<DL COMPACT>
+<DT>Start with <I>h2xs</I><DD>
+<A NAME="ixAAM"></A>
+Originally a utility to convert C header files into <FONT SIZE="-1">XS</FONT> modules,
+h2xs has become a useful utility for churning out skeletons for
+Perl-only modules as well. If you don't want to use the
+Autoloader which splits up big modules into smaller
+subroutine-sized chunks, you'll say something like this:
+
+
+<P>
+
+
+
+
+<PRE>
+    h2xs -AX -n Net::Acme
+
+</PRE>
+
+
+
+
+<P>
+
+
+The <TT>&quot;-A&quot;</TT> omits the Autoloader code, <TT>&quot;-X&quot;</TT> omits <FONT SIZE="-1">XS</FONT> elements, and <TT>&quot;-n&quot;</TT>
+specifies the name of the module.
+<DT>Use strict and warnings<DD>
+<A NAME="ixAAN"></A>
+A module's code has to be warning and strict-clean, since you can't
+guarantee the conditions that it'll be used under. Besides, you wouldn't
+want to distribute code that wasn't warning or strict-clean anyway,
+right?
+<DT>Use Carp<DD>
+<A NAME="ixAAO"></A>
+The Carp module allows you to present your error messages from
+the caller's perspective; this gives you a way to signal a problem with
+the caller and not your module. For instance, if you say this:
+
+
+<P>
+
+
+
+
+<PRE>
+    warn &quot;No hostname given&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+the user will see something like this:
+
+
+<P>
+
+
+
+
+<PRE>
+    No hostname given at /usr/local/lib/perl5/site_perl/5.6.0/Net/Acme.pm
+    line 123.
+
+</PRE>
+
+
+
+
+<P>
+
+
+which looks like your module is doing something wrong. Instead, you want
+to put the blame on the user, and say this:
+
+
+<P>
+
+
+
+
+<PRE>
+    No hostname given at bad_code, line 10.
+
+</PRE>
+
+
+
+
+<P>
+
+
+You do this by using Carp and replacing your <TT>&quot;warn&quot;</TT>s with
+<TT>&quot;carp&quot;</TT>s. If you need to <TT>&quot;die&quot;</TT>, say <TT>&quot;croak&quot;</TT> instead. However, keep
+<TT>&quot;warn&quot;</TT> and <TT>&quot;die&quot;</TT> in place for your sanity checks - where it really is
+your module at fault.
+<DT>Use Exporter - wisely!<DD>
+<A NAME="ixAAP"></A>
+<TT>&quot;h2xs&quot;</TT> provides stubs for Exporter, which gives you a
+standard way of exporting symbols and subroutines from your module into
+the caller's namespace. For instance, saying <TT>&quot;use Net::Acme qw(&amp;frob)&quot;</TT>
+would import the <TT>&quot;frob&quot;</TT> subroutine.
+
+
+<P>
+
+
+The package variable <TT>@EXPORT</TT> will determine which symbols will get
+exported when the caller simply says <TT>&quot;use Net::Acme&quot;</TT> - you will hardly
+ever want to put anything in there. <TT>@EXPORT_OK</TT>, on the other hand,
+specifies which symbols you're willing to export. If you do want to
+export a bunch of symbols, use the <TT>%EXPORT_TAGS</TT> and define a standard
+export set - look at Exporter for more details.
+<DT>Use plain old documentation<DD>
+<A NAME="ixAAQ"></A>
+The work isn't over until the paperwork is done, and you're going to
+need to put in some time writing some documentation for your module.
+<TT>&quot;h2xs&quot;</TT> will provide a stub for you to fill in; if you're not sure about
+the format, look at perlpod for an introduction. Provide a good
+synopsis of how your module is used in code, a description, and then
+notes on the syntax and function of the individual subroutines or
+methods. Use Perl comments for developer notes and <FONT SIZE="-1">POD</FONT> for end-user
+notes.
+<DT>Write tests<DD>
+<A NAME="ixAAR"></A>
+You're encouraged to create self-tests for your module to ensure it's
+working as intended on the myriad platforms Perl supports; if you upload
+your module to <FONT SIZE="-1">CPAN</FONT>, a host of testers will build your module and send
+you the results of the tests. Again, <TT>&quot;h2xs&quot;</TT> provides a test framework
+which you can extend - you should do something more than just checking
+your module will compile.
+<DT>Write the <FONT SIZE="-1">README</FONT><DD>
+<A NAME="ixAAS"></A>
+If you're uploading to <FONT SIZE="-1">CPAN</FONT>, the automated gremlins will extract the
+<FONT SIZE="-1">README</FONT> file and place that in your <FONT SIZE="-1">CPAN</FONT> directory. It'll also appear in
+the main <I>by-module</I> and <I>by-category</I> directories if you make it onto
+the modules list. It's a good idea to put here what the module actually
+does in detail, and the user-visible changes since the last release.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>Step-by-step: Distributing your module</H2>
+
+<A NAME="ixAAT"></A>
+<DL COMPACT>
+<DT>Get a <FONT SIZE="-1">CPAN</FONT> user <FONT SIZE="-1">ID</FONT><DD>
+<A NAME="ixAAU"></A>
+Every developer publishing modules on <FONT SIZE="-1">CPAN</FONT> needs a <FONT SIZE="-1">CPAN</FONT> <FONT SIZE="-1">ID</FONT>. See the
+instructions at <TT>&quot;<A HREF="http://www.cpan.org/modules/04pause.php">http://www.cpan.org/modules/04pause.html</A>&quot;</TT> (or
+equivalent on your nearest mirror) to find out how to do this.
+<DT>perl Makefile.PL; make test; make dist<DD>
+
+
+<A NAME="ixAAV"></A>
+Once again, <TT>&quot;h2xs&quot;</TT> has done all the work for you. It produces the
+standard <TT>&quot;Makefile.PL&quot;</TT> you'll have seen when you downloaded and
+installs modules, and this produces a Makefile with a <TT>&quot;dist&quot;</TT> target.
+
+
+<P>
+
+
+Once you've ensured that your module passes its own tests - always a
+good thing to make sure - you can <TT>&quot;make dist&quot;</TT>, and the Makefile will
+hopefully produce you a nice tarball of your module, ready for upload.
+<DT>Upload the tarball<DD>
+<A NAME="ixAAW"></A>
+The email you got when you received your <FONT SIZE="-1">CPAN</FONT> <FONT SIZE="-1">ID</FONT> will tell you how to
+log in to <FONT SIZE="-1">PAUSE</FONT>, the Perl Authors Upload SErver. From the menus there,
+you can upload your module to <FONT SIZE="-1">CPAN</FONT>.
+<DT>Announce to the modules list<DD>
+<A NAME="ixAAX"></A>
+Once uploaded, it'll sit unnoticed in your author directory. If you want
+it connected to the rest of the <FONT SIZE="-1">CPAN</FONT>, you'll need to tell the modules
+list about it. The best way to do this is to email them a line in the
+style of the modules list, like this:
+
+
+<P>
+
+
+
+
+<PRE>
+  Net::Acme bdpOP   Interface to Acme Frobnicator servers      FOOBAR
+  ^         ^^^^^   ^                                          ^
+  |         |||||   Module description                         Your ID
+  |         ||||| 
+  |         ||||\-Public Licence: (p)standard Perl, (g)GPL, (b)BSD,
+  |         ||||                  (l)LGPL, (a)rtistic, (o)ther
+  |         ||||
+  |         |||\- Interface: (O)OP, (r)eferences, (h)ybrid, (f)unctions
+  |         |||
+  |         ||\-- Language: (p)ure Perl, C(+)+, (h)ybrid, (C), (o)ther
+  |         ||
+  Module    |\--- Support: (d)eveloper, (m)ailing list, (u)senet, (n)one
+  Name      |
+            \---- Development: (i)dea, (c)onstructions, (a)lpha, (b)eta,
+                               (R)eleased, (M)ature, (S)tandard
+
+</PRE>
+
+
+
+
+<P>
+
+
+plus a description of the module and why you think it should be
+included. If you hear nothing back, that means your module will
+probably appear on the modules list at the next update. Don't try
+subscribing to <TT>&quot;<A HREF="mailto:modules@perl.org">modules@perl.org</A>&quot;</TT>; it's not another mailing list. Just
+have patience.
+<DT>Announce to clpa<DD>
+<A NAME="ixAAY"></A>
+If you have a burning desire to tell the world about your release, post
+an announcement to the moderated <TT>&quot;comp.lang.perl.announce&quot;</TT> newsgroup.
+<DT>Fix bugs!<DD>
+<A NAME="ixAAZ"></A>
+Once you start accumulating users, they'll send you bug reports. If
+you're lucky, they'll even send you patches. Welcome to the joys of
+maintaining a software project...
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABA"></A>
+Simon Cozens, <TT>&quot;<A HREF="mailto:simon@cpan.org">simon@cpan.org</A>&quot;</TT>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABB"></A>
+perlmod, perlmodlib, perlmodinstall, h2xs, strict,
+Carp, Exporter, perlpod, Test, ExtUtils::MakeMaker,
+<A HREF="http://www.cpan.org/">http://www.cpan.org/</A> , Ken Williams' tutorial on building your own
+module at <A HREF="http://mathforum.org/~ken/perl_modules.php">http://mathforum.org/~ken/perl_modules.html</A>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Warning</A><DD>
+<DT><A HREF="#lbAE">What should I make into a module?</A><DD>
+<DT><A HREF="#lbAF">Step-by-step: Preparing the ground</A><DD>
+<DT><A HREF="#lbAG">Step-by-step: Making the module</A><DD>
+<DT><A HREF="#lbAH">Step-by-step: Distributing your module</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

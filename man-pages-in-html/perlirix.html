@@ -1,0 +1,300 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLIRIX</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLIRIX</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.irix - Perl version 5 on Irix systems
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes various features of Irix that will affect how Perl
+version 5 (hereafter just Perl) is compiled and/or runs.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Building 32-bit Perl in Irix</H2>
+
+<A NAME="ixAAD"></A>
+Use
+<P>
+
+
+
+<PRE>
+        sh Configure -Dcc='cc -n32'
+
+</PRE>
+
+
+<P>
+
+to compile Perl 32-bit.  Don't bother with -n32 unless you have 7.1
+or later compilers (use cc -version to check).
+<P>
+
+(Building 'cc -n32' is the default.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>Building 64-bit Perl in Irix</H2>
+
+<A NAME="ixAAE"></A>
+Use
+<P>
+
+
+
+<PRE>
+        sh Configure -Dcc='cc -64' -Duse64bitint
+
+</PRE>
+
+
+<P>
+
+This requires require a 64-bit <FONT SIZE="-1">MIPS</FONT> <FONT SIZE="-1">CPU</FONT> (R8000, R10000, ...)
+<P>
+
+You can also use
+<P>
+
+
+
+<PRE>
+        sh Configure -Dcc='cc -64' -Duse64bitall
+
+</PRE>
+
+
+<P>
+
+but that makes no difference compared with the -Duse64bitint because
+of the <TT>&quot;cc -64&quot;</TT>.
+<P>
+
+You can also do
+<P>
+
+
+
+<PRE>
+        sh Configure -Dcc='cc -n32' -Duse64bitint
+
+</PRE>
+
+
+<P>
+
+to use long longs for the 64-bit integer type, in case you don't
+have a 64-bit <FONT SIZE="-1">CPU</FONT>.
+<P>
+
+If you are using gcc, just
+<P>
+
+
+
+<PRE>
+        sh Configure -Dcc=gcc -Duse64bitint
+
+</PRE>
+
+
+<P>
+
+should be enough, the Configure should automatically probe for the
+correct 64-bit settings.
+<A NAME="lbAF">&nbsp;</A>
+<H2>About Compiler Versions of Irix</H2>
+
+<A NAME="ixAAF"></A>
+Some Irix cc versions, e.g. 7.3.1.1m (try cc -version) have been known
+to have issues (coredumps) when compiling perl.c.  If you've used
+-OPT:fast_io=ON and this happens, try removing it.  If that fails, or
+you didn't use that, then try adjusting other optimization options
+(-LNO, -INLINE, -O3 to -O2, etcetera).  The compiler bug has been
+reported to <FONT SIZE="-1">SGI</FONT>.  (Allen Smith &lt;<A HREF="mailto:easmith@beatrice.rutgers.edu">easmith@beatrice.rutgers.edu</A>&gt;)
+<A NAME="lbAG">&nbsp;</A>
+<H2>Linker Problems in Irix</H2>
+
+<A NAME="ixAAG"></A>
+If you get complaints about so_locations then search in the file
+hints/irix_6.sh for ``lddflags'' and do the suggested adjustments.
+(David Billinghurst &lt;<A HREF="mailto:David.Billinghurst@riotinto.com.au">David.Billinghurst@riotinto.com.au</A>&gt;)
+<A NAME="lbAH">&nbsp;</A>
+<H2>Malloc in Irix</H2>
+
+<A NAME="ixAAH"></A>
+Do not try to use Perl's malloc, this will lead into very mysterious
+errors (especially with -Duse64bitall).
+<A NAME="lbAI">&nbsp;</A>
+<H2>Building with threads in Irix</H2>
+
+<A NAME="ixAAI"></A>
+Run Configure with -Duseithreads which will configure Perl with
+the new Perl 5.8.0 ``interpreter threads'', see threads.
+<P>
+
+The old Perl 5.005 threads is obsolete, unmaintained, and its use is
+discouraged.  If you really want it, run Configure with the
+-Dusethreads -Duse5005threads options as described in <FONT SIZE="-1">INSTALL</FONT>.
+<P>
+
+For either thread model and for Irix 6.2, you have to have the
+following patches installed:
+<P>
+
+
+
+<PRE>
+        1404 Irix 6.2 Posix 1003.1b man pages
+        1645 Irix 6.2 &amp; 6.3 POSIX header file updates
+        2000 Irix 6.2 Posix 1003.1b support modules
+        2254 Pthread library fixes
+        2401 6.2 all platform kernel rollup
+
+</PRE>
+
+
+<P>
+
+<B></B><FONT SIZE="-1"><B>IMPORTANT</B></FONT><B></B>: Without patch 2401, a kernel bug in Irix 6.2 will cause
+your machine to panic and crash when running threaded perl.  Irix 6.3
+and later are okay.
+<P>
+
+
+
+<PRE>
+    Thanks to Hannu Napari &lt;<A HREF="mailto:Hannu.Napari@hut.fi">Hannu.Napari@hut.fi</A>&gt; for the IRIX
+    pthreads patches information.
+
+</PRE>
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Irix 5.3</H2>
+
+<A NAME="ixAAJ"></A>
+While running Configure and when building, you are likely to get
+quite a few of these warnings:
+<P>
+
+
+
+<PRE>
+  ld:
+  The shared object /usr/lib/libm.so did not resolve any symbols.
+        You may want to remove it from your link line.
+
+</PRE>
+
+
+<P>
+
+Ignore them: in <FONT SIZE="-1">IRIX</FONT> 5.3 there is no way to quieten ld about this.
+<P>
+
+During compilation you will see this warning from toke.c:
+<P>
+
+
+
+<PRE>
+  uopt: Warning: Perl_yylex: this procedure not optimized because it
+        exceeds size threshold; to optimize this procedure, use -Olimit option
+        with value &gt;= 4252.
+
+</PRE>
+
+
+<P>
+
+Ignore the warning.
+<P>
+
+In <FONT SIZE="-1">IRIX</FONT> 5.3 and with Perl 5.8.1 (Perl 5.8.0 didn't compile in <FONT SIZE="-1">IRIX</FONT> 5.3)
+the following failures are known.
+<P>
+
+
+
+<PRE>
+ Failed Test                  Stat Wstat Total Fail  Failed  List of Failed
+ --------------------------------------------------------------------------
+ ../ext/List/Util/t/shuffle.t    0   139    ??   ??       %  ??
+ ../lib/Math/Trig.t            255 65280    29   12  41.38%  24-29
+ ../lib/sort.t                   0   138   119   72  60.50%  48-119
+ 56 tests and 474 subtests skipped.
+ Failed 3/811 test scripts, 99.63% okay. 78/75813 subtests failed, 99.90% okay.
+
+</PRE>
+
+
+<P>
+
+They are suspected to be compiler errors (at least the shuffle.t
+failure is known from some <FONT SIZE="-1">IRIX</FONT> 6 setups) and math library errors
+(the Trig.t failure), but since <FONT SIZE="-1">IRIX</FONT> 5 is long since end-of-lifed,
+further fixes for the <FONT SIZE="-1">IRIX</FONT> are unlikely.  If you can get gcc for 5.3,
+you could try that, too, since gcc in <FONT SIZE="-1">IRIX</FONT> 6 is a known workaround for
+at least the shuffle.t and sort.t failures.
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAK"></A>
+Jarkko Hietaniemi &lt;<A HREF="mailto:jhi@iki.fi">jhi@iki.fi</A>&gt;
+<P>
+
+Please report any errors, updates, or suggestions to <I><A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A></I>.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Building 32-bit Perl in Irix</A><DD>
+<DT><A HREF="#lbAE">Building 64-bit Perl in Irix</A><DD>
+<DT><A HREF="#lbAF">About Compiler Versions of Irix</A><DD>
+<DT><A HREF="#lbAG">Linker Problems in Irix</A><DD>
+<DT><A HREF="#lbAH">Malloc in Irix</A><DD>
+<DT><A HREF="#lbAI">Building with threads in Irix</A><DD>
+<DT><A HREF="#lbAJ">Irix 5.3</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

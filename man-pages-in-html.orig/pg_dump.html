@@ -1,0 +1,502 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PG_DUMP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PG_DUMP</H1>
+Section: PostgreSQL Client Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pg_dump - extract a PostgreSQL database into a script file or other archive file
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>pg_dump</B> [ <B></B><I>option</I><B></B>...<B> </B>] [ <B></B><I>dbname</I><B> </B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>pg_dump</B> is a utility for backing up a
+PostgreSQL database. It makes consistent
+backups even if the database is being used concurrently.
+<B>pg_dump</B> does not block other users
+accessing the database (readers or writers).
+<P>
+
+Dumps can be output in script or archive file formats. The script
+files are in plain-text format and contain the SQL commands required
+to reconstruct the database to the state it was in at the time it was
+saved. To restore these scripts, use <B><A HREF="../man1/psql.1.php">psql</A></B>(1). They
+can be used to reconstruct the database even on other machines and
+other architectures, with some modifications even on other SQL
+database products.
+<P>
+
+The alternative archive file formats that are meant to be used with
+<B><A HREF="../man1/pg_restore.1.php">pg_restore</A></B>(1) to rebuild the database, and they also
+allow <B>pg_restore</B> to be selective about
+what is restored, or even to reorder the items prior to being
+restored. The archive files are also designed to be portable across
+architectures.
+<P>
+
+When used with one of the archive file formats and combined with
+<B>pg_restore</B>,
+<B>pg_dump</B> provides a flexible archival and
+transfer mechanism. <B>pg_dump</B> can be used to
+backup an entire database, then <B>pg_restore</B>
+can be used to examine the archive and/or select which parts of the
+database are to be restored. The most flexible output file format is
+the ``custom'' format (<B>-Fc</B>). It allows
+for selection and reordering of all archived items, and is compressed
+by default. The <B>tar</B> format
+(<B>-Ft</B>) is not compressed and it is not possible to
+reorder data when loading, but it is otherwise quite flexible;
+moreover, it can be manipulated with other tools such as
+<B>tar</B>.
+<P>
+
+While running <B>pg_dump</B>, one should examine the
+output for any warnings (printed on standard error), especially in
+light of the limitations listed below.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+The following command-line options are used to control the output format.
+<DL COMPACT>
+<DT><B></B><I>dbname</I><B></B><DD>
+Specifies the name of the database to be dumped. If this is
+not specified, the environment variable
+<B>PGDATABASE</B> is used. If that is not set, the
+user name specified for the connection is used.
+<DT><B>-a</B><DD>
+<DT><B>--data-only</B><DD>
+Dump only the data, not the schema (data definitions).
+<P>
+This option is only meaningful for the plain-text format. For
+the other formats, you may specify the option when you
+call <B>pg_restore</B>.
+<DT><B>-b</B><DD>
+<DT><B>--blobs</B><DD>
+Include large objects in dump.
+<DT><B>-c</B><DD>
+<DT><B>--clean</B><DD>
+Output commands to clean (drop)
+database objects prior to (the commands for) creating them.
+<P>
+This option is only meaningful for the plain-text format. For
+the other formats, you may specify the option when you
+call <B>pg_restore</B>.
+<DT><B>-C</B><DD>
+<DT><B>--create</B><DD>
+Begin the output with a command to create the
+database itself and reconnect to the created database. (With a
+script of this form, it doesn't matter which database you connect
+to before running the script.)
+<P>
+This option is only meaningful for the plain-text format. For
+the other formats, you may specify the option when you
+call <B>pg_restore</B>.
+<DT><B>-d</B><DD>
+<DT><B>--inserts</B><DD>
+Dump data as <B>INSERT</B> commands (rather
+than <B>COPY</B>). This will make restoration very
+slow, but it makes the archives more portable to other SQL database
+packages.
+<DT><B>-D</B><DD>
+<DT><B>--column-inserts</B><DD>
+<DT><B>--attribute-inserts</B><DD>
+Dump data as <B>INSERT</B> commands with explicit
+column names (INSERT INTO
+<I>table</I>
+(<I>column</I>, ...) VALUES
+...). This will make restoration very slow,
+but it is necessary if you desire to rearrange the column ordering.
+<DT><B>-f </B><I>file</I><B></B><DD>
+<DT><B>--file=</B><I>file</I><B></B><DD>
+Send output to the specified file. If this is omitted, the
+standard output is used.
+<DT><B>-F </B><I>format</I><B></B><DD>
+<DT><B>--format=</B><I>format</I><B></B><DD>
+Selects the format of the output.
+<I>format</I> can be one of the following:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>p</B><DD>
+Output a plain-text SQL script file (default)
+<DT><B>t</B><DD>
+Output a <B>tar</B> archive suitable for input into 
+<B>pg_restore</B>. Using this archive format 
+allows reordering and/or exclusion of schema elements 
+at the time the database is restored. It is also possible to limit 
+which data is reloaded at restore time.
+<DT><B>c</B><DD>
+Output a custom archive suitable for input into 
+<B>pg_restore</B>. This is the most flexible 
+format in that it allows reordering of data load as well 
+as schema elements. This format is also compressed by default.
+</DL>
+</DL>
+
+</DL>
+<P>
+
+<DL COMPACT>
+<DT><B>-i</B><DD>
+<DT><B>--ignore-version</B><DD>
+Ignore version mismatch between
+<B>pg_dump</B> and the database server.
+<P>
+<B>pg_dump</B> can handle databases from
+previous releases of PostgreSQL, but very old
+versions are not supported anymore (currently prior to 7.0).
+Use this option if you need to override the version check (and
+if <B>pg_dump</B> then fails, don't say
+you weren't warned).
+<DT><B>-n </B><I>namespace</I><B></B><DD>
+<DT><B>--schema=</B><I>schema</I><B></B><DD>
+Dump the contents of <I>schema</I>
+only. If this option is not specified, all non-system schemas
+in the target database will be dumped.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+In this mode, <B>pg_dump</B> makes no
+attempt to dump any other database objects that objects in the
+selected schema may depend upon. Therefore, there is no
+guarantee that the results of a single-schema dump can be
+successfully restored by themselves into a clean database.
+</DL>
+
+<P>
+<DT><B>-o</B><DD>
+<DT><B>--oids</B><DD>
+Dump object identifiers (OIDs) for every
+table. Use this option if your application references the OID
+columns in some way (e.g., in a foreign key constraint).
+Otherwise, this option should not be used.
+<DT><B>-O</B><DD>
+<DT><B>--no-owner</B><DD>
+Do not output commands to set
+ownership of objects to match the original database.
+By default, <B>pg_dump</B> issues
+<B>SET SESSION AUTHORIZATION</B>
+statements to set ownership of created schema elements.
+These statements
+will fail when the script is run unless it is started by a superuser
+(or the same user that owns all of the objects in the script).
+To make a script that can be restored by any user, but will give
+that user ownership of all the objects, specify <B>-O</B>.
+<P>
+This option is only meaningful for the plain-text format. For
+the other formats, you may specify the option when you
+call <B>pg_restore</B>.
+<DT><B>-R</B><DD>
+<DT><B>--no-reconnect</B><DD>
+This option is obsolete but still accepted for backwards
+compatibility.
+<DT><B>-s</B><DD>
+<DT><B>--schema-only</B><DD>
+Dump only the schema (data definitions), no data.
+<DT><B>-S </B><I>username</I><B></B><DD>
+<DT><B>--superuser=</B><I>username</I><B></B><DD>
+Specify the superuser user name to use when disabling triggers.
+This is only relevant if <B>--disable-triggers</B> is used.
+(Usually, it's better to leave this out, and instead start the
+resulting script as superuser.)
+<DT><B>-t </B><I>table</I><B></B><DD>
+<DT><B>--table=</B><I>table</I><B></B><DD>
+Dump data for <I>table</I>
+only. It is possible for there to be
+multiple tables with the same name in different schemas; if that
+is the case, all matching tables will be dumped. Specify both
+<B>--schema</B> and <B>--table</B> to select just one table.
+<P>
+<DL COMPACT><DT><DD>
+<B>Note:</B>
+
+In this mode, <B>pg_dump</B> makes no
+attempt to dump any other database objects that the selected table
+may depend upon. Therefore, there is no guarantee
+that the results of a single-table dump can be successfully
+restored by themselves into a clean database.
+</DL>
+
+<P>
+<DT><B>-v</B><DD>
+<DT><B>--verbose</B><DD>
+Specifies verbose mode. This will cause
+<B>pg_dump</B> to print progress messages
+to standard error.
+<DT><B>-x</B><DD>
+<DT><B>--no-privileges</B><DD>
+<DT><B>--no-acl</B><DD>
+Prevent dumping of access privileges (grant/revoke commands).
+<DT><B>-X use-set-session-authorization</B><DD>
+<DT><B>--use-set-session-authorization</B><DD>
+This option is obsolete but still accepted for backwards
+compatibility.
+<B>pg_dump</B> now always behaves in the
+way formerly selected by this option.
+<DT><B>-X disable-triggers</B><DD>
+<DT><B>--disable-triggers</B><DD>
+This option is only relevant when creating a data-only dump.
+It instructs <B>pg_dump</B> to include commands
+to temporarily disable triggers on the target tables while
+the data is reloaded. Use this if you have referential
+integrity checks or other triggers on the tables that you
+do not want to invoke during data reload.
+<P>
+Presently, the commands emitted for <B>--disable-triggers</B>
+must be done as superuser. So, you should also specify
+a superuser name with <B>-S</B>, or preferably be careful to
+start the resulting script as a superuser.
+<P>
+This option is only meaningful for the plain-text format. For
+the other formats, you may specify the option when you
+call <B>pg_restore</B>.
+<DT><B>-Z </B><I>0..9</I><B></B><DD>
+<DT><B>--compress=</B><I>0..9</I><B></B><DD>
+Specify the compression level to use in archive formats that
+support compression. (Currently only the custom archive
+format supports compression.)
+</DL>
+<P>
+
+<P>
+
+The following command-line options control the database connection parameters.
+<DL COMPACT>
+<DT><B>-h </B><I>host</I><B></B><DD>
+<DT><B>--host=</B><I>host</I><B></B><DD>
+Specifies the host name of the machine on which the server is
+running. If the value begins with a slash, it is used as the
+directory for the Unix domain socket. The default is taken
+from the <B>PGHOST</B> environment variable, if set,
+else a Unix domain socket connection is attempted.
+<DT><B>-p </B><I>port</I><B></B><DD>
+<DT><B>--port=</B><I>port</I><B></B><DD>
+Specifies the TCP port or local Unix domain socket file
+extension on which the server is listening for connections.
+Defaults to the <B>PGPORT</B> environment variable, if
+set, or a compiled-in default.
+<DT><B>-U </B><I>username</I><B></B><DD>
+Connect as the given user
+<DT><B>-W</B><DD>
+Force a password prompt. This should happen automatically if
+the server requires password authentication.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGDATABASE</B><DD>
+<DT><B>PGHOST</B><DD>
+<DT><B>PGPORT</B><DD>
+<DT><B>PGUSER</B><DD>
+Default connection parameters.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<P>
+
+<B>pg_dump</B> internally executes
+<B>SELECT</B> statements. If you have problems running
+<B>pg_dump</B>, make sure you are able to
+select information from the database using, for example, <B><A HREF="../man1/psql.1.php">psql</A></B>(1).
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+If your database cluster has any local additions to the template1 database,
+be careful to restore the output of <B>pg_dump</B> into a
+truly empty database; otherwise you are likely to get errors due to
+duplicate definitions of the added objects. To make an empty database
+without any local additions, copy from template0 not template1,
+for example:
+<P>
+<PRE>
+CREATE DATABASE foo WITH TEMPLATE template0;
+
+</PRE>
+
+<P>
+
+<B>pg_dump</B> has a few limitations:
+<DL COMPACT>
+<DT>*<DD>
+When dumping a single table or as plain text, <B>pg_dump</B> 
+does not handle large objects. Large objects must be dumped with the
+entire database using one of the non-text archive formats.
+<DT>*<DD>
+When a data-only dump is chosen and the option
+<B>--disable-triggers</B> is used,
+<B>pg_dump</B> emits commands to disable
+triggers on user tables before inserting the data and commands
+to re-enable them after the data has been inserted. If the
+restore is stopped in the middle, the system catalogs may be
+left in the wrong state.
+</DL>
+<P>
+
+<P>
+
+Members of tar archives are limited to a size less than 8 GB.
+(This is an inherent limitation of the tar file format.) Therefore
+this format cannot be used if the textual representation of a table
+exceeds that size. The total size of a tar archive and any of the
+other output formats is not limited, except possibly by the
+operating system.
+<P>
+
+Once restored, it is wise to run <B>ANALYZE</B> on each
+restored table so the optimizer has useful statistics.
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+
+To dump a database:
+<P>
+<PRE>
+$ <B>pg_dump mydb &gt; db.out</B>
+
+</PRE>
+
+<P>
+
+To reload this database:
+<P>
+<PRE>
+$ <B>psql -d database -f db.out</B>
+
+</PRE>
+
+<P>
+
+To dump a database called mydb that contains
+large objects to a <I>tar</I> file:
+<P>
+<PRE>
+$ <B>pg_dump -Ft -b mydb &gt; db.tar</B>
+
+</PRE>
+
+<P>
+
+To reload this database (with large objects) to an
+existing database called newdb:
+<P>
+<PRE>
+$ <B>pg_restore -d newdb db.tar</B>
+
+</PRE>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<P>
+
+The <B>pg_dump</B> utility first appeared in
+<B>Postgres95</B> release 0.02. The
+non-plain-text output formats were introduced in
+PostgreSQL release 7.1.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/pg_dumpall.1.php">pg_dumpall</A></B>(1), <B><A HREF="../man1/pg_restore.1.php">pg_restore</A></B>(1), <B><A HREF="../man1/psql.1.php">psql</A></B>(1)
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">HISTORY</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

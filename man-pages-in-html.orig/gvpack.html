@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GVPACK</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GVPACK</H1>
+Section: User Commands  (1)<BR>Updated: 8 April 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gvpack - merge and pack disjoint graphs
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>gvpack</B>
+
+[
+<B>-nguv?</B>
+
+]
+[
+<B>-m</B><I>margin</I>
+
+]
+[
+<B>-o</B><I>outfile</I>
+
+]
+[
+<B>-G</B><I>name</I><B>=</B>value
+
+]
+[ 
+<I>files</I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>gvpack</B>
+
+reads in a stream of graphs, combines the graphs into a single
+layout, and produces a single graph serving as the union of the
+input graphs. The input graphs must be in dot format, and must have
+all necessary layout information. Acceptable input is produced
+by applying a Graphviz layout program, such as <B>dot</B> or <B>neato</B>, 
+with no <B>-T</B> flag.
+
+By default, the packing is done at the cluster level. Thus, parts of
+one graph will not intrude into any top-level clusters or overlap
+any nodes or edges of another.
+
+The output of <B>gvpack</B> can be used to produce concrete output
+by applying <B>neato -s -n2</B> with the desired <B>-T</B> flag.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options are supported:
+<DL COMPACT>
+<DT><B>-g</B>
+
+<DD>
+Combines the graphs at the graph level. This uses more space, but prevents
+parts of one graph from occurring between parts of another. 
+<DT><B>-G</B><I>name</I><B>=</B>value
+
+<DD>
+Specifies attributes to be added to the resulting union graph. For
+example, this can be used to specify a graph label.
+<DT><B>-m</B><I>margin</I>
+
+<DD>
+Packs the graphs allowing a margin of <I>output</I> points around
+the parts.
+<DT><B>-n</B>
+
+<DD>
+Combines the graphs at the node level. Clusters are ignored in the packing.
+<DT><B>-o</B><I>output</I>
+
+<DD>
+Prints output to the file <I>output</I>. If not given, <B>gvpack</B>
+uses stdout.
+<DT><B>-u</B>
+
+<DD>
+Don't pack the graphs. Just combine them into a single graph.
+<DT><B>-v</B>
+
+<DD>
+Verbose mode.
+<DT><B>-?</B>
+
+<DD>
+Prints usage information and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPERANDS</H2>
+
+The following operand is supported:
+<DL COMPACT>
+<DT><I>files</I>
+
+<DD>
+Names of files containing 1 or more graphs in dot format.
+If no
+<I>files</I>
+
+operand is specified,
+the standard input will be used.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>RETURN CODES</H2>
+
+<B>gvpack</B>
+
+returns
+<B>0</B>
+
+if there were no problems, and non-zero otherwise.
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+
+ccomps -x abc.dot | dot | gvpack | neato -s -n2 -Tps
+
+This pipeline decomposes the graph in <I>abc.dot</I> into its
+connected components, lays out each using <B>dot</B>, packs them all together
+again, and produces the final drawing in PostScript. Of course, 
+there is nothing to prevent one from using different layouts for
+each component.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+All the input graphs must be directed or undirected.
+
+An input graph should not have a label, since this will be used in its
+layout. Since <B>gvpack</B> ignores root graph labels, resulting layout
+may contain some extra space.
+
+<B>gvpack</B> unsets the bounding box attribute of all non-cluster
+subgraphs.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Emden R. Gansner &lt;<A HREF="mailto:erg@research.att.com">erg@research.att.com</A>&gt;
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/gvpr.1.php">gvpr</A>(1), <A HREF="../man1/dot.1.php">dot</A>(1), <A HREF="../man1/neato.1.php">neato</A>(1), <A HREF="../man1/twopi.1.php">twopi</A>(1), <A HREF="../man1/ccomps.1.php">ccomps</A>(1), <A HREF="../man3/libpack.3.php">libpack</A>(3)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">OPERANDS</A><DD>
+<DT><A HREF="#lbAG">RETURN CODES</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

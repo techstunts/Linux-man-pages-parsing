@@ -1,0 +1,1091 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CO</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CO</H1>
+Section: User Commands  (1)<BR>Updated: 1995/06/01<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+co - check out RCS revisions
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>co</B>
+
+[<I>options</I>]<I> file </I>...
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>co</B>
+
+retrieves a revision from each <FONT SIZE="-1">RCS</FONT> file and stores it into
+the corresponding working file.
+<P>
+
+Pathnames matching an <FONT SIZE="-1">RCS</FONT> suffix denote <FONT SIZE="-1">RCS</FONT> files;
+all others denote working files.
+Names are paired as explained in
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1).
+
+<P>
+
+Revisions of an <FONT SIZE="-1">RCS</FONT> file can be checked out locked or unlocked.  Locking a
+revision prevents overlapping updates.  A revision checked out for reading or
+processing (e.g., compiling) need not be locked.  A revision checked out
+for editing and later checkin must normally be locked.  Checkout with locking
+fails if the revision to be checked out is currently locked by another user.
+(A lock can be broken with
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1).)&nbsp;
+
+Checkout with locking also requires the caller to be on the access list of
+the <FONT SIZE="-1">RCS</FONT> file, unless he is the owner of the
+file or the superuser, or the access list is empty.
+Checkout without locking is not subject to accesslist restrictions, and is
+not affected by the presence of locks.
+<P>
+
+A revision is selected by options for revision or branch number,
+checkin date/time, author, or state.
+When the selection options
+are applied in combination,
+<B>co</B>
+
+retrieves the latest revision
+that satisfies all of them.
+If none of the selection options
+is specified,
+<B>co</B>
+
+retrieves the latest revision
+on the default branch (normally the trunk, see the
+<B>-b</B>
+
+option of
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1)).
+
+A revision or branch number can be attached
+to any of the options
+<B>-f</B>,
+
+<B>-I</B>,
+
+<B>-l</B>,
+
+<B>-M</B>,
+
+<B>-p</B>,
+
+<B>-q</B>,
+
+<B>-r</B>,
+
+or
+<B>-u</B>.
+
+The options
+<B>-d</B>
+
+(date),
+<B>-s</B>
+
+(state), and
+<B>-w</B>
+
+(author)
+retrieve from a single branch, the
+<I>selected</I>
+
+branch,
+which is either specified by one of
+<B>-f</B>,
+
+...,
+<B>-u</B>,
+
+or the default branch.
+<P>
+
+A
+<B>co</B>
+
+command applied to an <FONT SIZE="-1">RCS</FONT>
+file with no revisions creates a zero-length working file.
+<B>co</B>
+
+always performs keyword substitution (see below).
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-r</B>[<I>rev</I>]
+
+<DD>
+retrieves the latest revision whose number is less than or equal to
+<I>rev</I>.
+
+If
+<I>rev</I>
+
+indicates a branch rather than a revision,
+the latest revision on that branch is retrieved.
+If
+<I>rev</I>
+
+is omitted, the latest revision on the default branch
+(see the
+<B>-b</B>
+
+option of
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1))
+
+is retrieved.
+If
+<I>rev</I>
+
+is
+<B>$</B>,
+
+<B>co</B>
+
+determines the revision number from keyword values in the working file.
+Otherwise, a revision is composed of one or more numeric or symbolic fields
+separated by periods.
+If
+<I>rev</I>
+
+begins with a period,
+then the default branch (normally the trunk) is prepended to it.
+If
+<I>rev</I>
+
+is a branch number followed by a period,
+then the latest revision on that branch is used.
+The numeric equivalent of a symbolic field
+is specified with the
+<B>-n</B>
+
+option of the commands
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+and
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1).
+
+<DT><B>-l</B>[<I>rev</I>]
+
+<DD>
+same as
+<B>-r</B>,
+
+except that it also locks the retrieved revision for
+the caller.
+<DT><B>-u</B>[<I>rev</I>]
+
+<DD>
+same as
+<B>-r</B>,
+
+except that it unlocks the retrieved revision if it was
+locked by the caller.  If
+<I>rev</I>
+
+is omitted,
+<B>-u</B>
+
+retrieves the revision locked by the caller, if there is one; otherwise,
+it retrieves the latest revision on the default branch.
+<DT><B>-f</B>[<I>rev</I>]
+
+<DD>
+forces the overwriting of the working file;
+useful in connection with
+<B>-q</B>.
+
+See also
+<FONT SIZE="-1">FILE MODES</FONT>
+below.
+<DT><B>-kkv</B>
+
+<DD>
+Generate keyword strings using the default form, e.g.
+<B>$Revision: 5.13 $</B>
+
+for the
+<B>Revision</B>
+
+keyword.
+A locker's name is inserted in the value of the
+<B>Header</B>,
+
+<B>Id</B>,
+
+and
+<B>Locker</B>
+
+keyword strings
+only as a file is being locked,
+i.e. by
+<B>ci&nbsp;-l</B>
+
+and
+<B>co&nbsp;-l.</B>
+
+This is the default.
+<DT><B>-kkvl</B>
+
+<DD>
+Like
+<B>-kkv</B>,
+
+except that a locker's name is always inserted
+if the given revision is currently locked.
+<DT><B>-kk</B>
+
+<DD>
+Generate only keyword names in keyword strings; omit their values.
+See
+<FONT SIZE="-1">KEYWORD SUBSTITUTION</FONT>
+below.
+For example, for the
+<B>Revision</B>
+
+keyword, generate the string
+<B>$Revision$</B>
+
+instead of
+<B>$Revision: 5.13 $</B>.
+
+This option is useful to ignore differences due to keyword substitution
+when comparing different revisions of a file.
+Log messages are inserted after
+<B>$Log$</B>
+
+keywords even if
+<B>-kk</B>
+
+is specified,
+since this tends to be more useful when merging changes.
+<DT><B>-ko</B>
+
+<DD>
+Generate the old keyword string,
+present in the working file just before it was checked in.
+For example, for the
+<B>Revision</B>
+
+keyword, generate the string
+<B>$Revision: 1.1 $</B>
+
+instead of
+<B>$Revision: 5.13 $</B>
+
+if that is how the string appeared when the file was checked in.
+This can be useful for file formats
+that cannot tolerate any changes to substrings
+that happen to take the form of keyword strings.
+<DT><B>-kb</B>
+
+<DD>
+Generate a binary image of the old keyword string.
+This acts like
+<B>-ko</B>,
+
+except it performs all working file input and output in binary mode.
+This makes little difference on Posix and Unix hosts,
+but on DOS-like hosts one should use
+<B>rcs&nbsp;-i&nbsp;-kb</B>
+
+to initialize an <FONT SIZE="-1">RCS</FONT> file intended to be used for binary files.
+Also, on all hosts,
+<B><A HREF="../man1/rcsmerge.1.php">rcsmerge</A></B>(1)
+
+normally refuses to merge files when
+<B>-kb</B>
+
+is in effect.
+<DT><B>-kv</B>
+
+<DD>
+Generate only keyword values for keyword strings.
+For example, for the
+<B>Revision</B>
+
+keyword, generate the string
+<B>5.13</B>
+
+instead of
+<B>$Revision: 5.13 $</B>.
+
+This can help generate files in programming languages where it is hard to
+strip keyword delimiters like
+<B>$Revision:&nbsp;$</B>
+
+from a string.
+However, further keyword substitution cannot be performed once the
+keyword names are removed, so this option should be used with care.
+Because of this danger of losing keywords,
+this option cannot be combined with
+<B>-l</B>,
+
+and the owner write permission of the working file is turned off;
+to edit the file later, check it out again without
+<B>-kv</B>.
+
+<DT><B>-p</B>[<I>rev</I>]
+
+<DD>
+prints the retrieved revision on the standard output rather than storing it
+in the working file.
+This option is useful when
+<B>co</B>
+
+is part of a pipe.
+<DT><B>-q</B>[<I>rev</I>]
+
+<DD>
+quiet mode; diagnostics are not printed.
+<DT><B>-I</B>[<I>rev</I>]
+
+<DD>
+interactive mode;
+the user is prompted and questioned
+even if the standard input is not a terminal.
+<DT><B>-d</B><I>date</I>
+
+<DD>
+retrieves the latest revision on the selected branch whose checkin date/time is
+less than or equal to
+<I>date</I>.
+
+The date and time can be given in free format.
+The time zone
+<B>LT</B>
+
+stands for local time;
+other common time zone names are understood.
+For example, the following
+<I>date</I>s
+
+are equivalent
+if local time is January 11, 1990, 8pm Pacific Standard Time,
+eight hours west of Coordinated Universal Time (<FONT SIZE="-1">UTC</FONT>):
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<B>8:00 pm lt</B>
+<B>4:00 AM, Jan. 12, 1990</B>             default is <FONT SIZE="-1">UTC</FONT>
+<B>1990-01-12 04:00:00+00</B>             <FONT SIZE="-1">ISO</FONT> 8601 (<FONT SIZE="-1">UTC</FONT>)
+<B>1990-01-11 20:00:00-08</B>             <FONT SIZE="-1">ISO</FONT> 8601 (local time)
+<B>1990/01/12 04:00:00</B>                traditional <FONT SIZE="-1">RCS</FONT> format
+<B>Thu Jan 11 20:00:00 1990 LT</B>        output of <B><A HREF="../man3/ctime.3.php">ctime</A></B>(3) + <B>LT</B>
+<B>Thu Jan 11 20:00:00 PST 1990</B>       output of <B><A HREF="../man1/date.1.php">date</A></B>(1)
+<B>Fri Jan 12 04:00:00 GMT 1990</B>
+<B>Thu, 11 Jan 1990 20:00:00 -0800</B>    Internet RFC 822
+<B>12-January-1990, 04:00 WET</B>
+
+</PRE>
+
+</DL>
+
+<P>
+
+Most fields in the date and time can be defaulted.
+The default time zone is normally <FONT SIZE="-1">UTC</FONT>, but this can be overridden by the
+<B>-z</B>
+
+option.
+The other defaults are determined in the order year, month, day,
+hour, minute, and second (most to least significant).  At least one of these
+fields must be provided.  For omitted fields that are of higher significance
+than the highest provided field, the time zone's current values are assumed.
+For all other omitted fields,
+the lowest possible values are assumed.
+For example, without
+<B>-z</B>,
+
+the date
+<B>20, 10:30</B>
+
+defaults to
+10:30:00 <FONT SIZE="-1">UTC</FONT> of the 20th of the <FONT SIZE="-1">UTC</FONT> time zone's current month and year.
+The date/time must be quoted if it contains spaces.
+</DL>
+
+<DT><B>-M</B>[<I>rev</I>]
+
+<DD>
+Set the modification time on the new working file
+to be the date of the retrieved revision.
+Use this option with care; it can confuse
+<B><A HREF="../man1/make.1.php">make</A></B>(1).
+
+<DT><B>-s</B><I>state</I>
+
+<DD>
+retrieves the latest revision on the selected branch whose state is set to
+<I>state</I>.
+
+<DT><B>-S</B>
+
+<DD>
+Turns on same user locks.  When this is enabled the user cannot check out
+the same file twice.
+<DT><B>-T</B>
+
+<DD>
+Preserve the modification time on the <FONT SIZE="-1">RCS</FONT> file
+even if the <FONT SIZE="-1">RCS</FONT> file changes because a lock is added or removed.
+This option can suppress extensive recompilation caused by a
+<B><A HREF="../man1/make.1.php">make</A></B>(1)
+
+dependency of some other copy of the working file on the <FONT SIZE="-1">RCS</FONT> file.
+Use this option with care; it can suppress recompilation even when it is needed,
+i.e. when the change of lock
+would mean a change to keyword strings in the other working file.
+<DT><B>-w</B>[<I>login</I>]
+
+<DD>
+retrieves the latest revision on the selected branch which was checked in
+by the user with login name
+<I>login</I>.
+
+If the argument
+<I>login</I>
+
+is
+omitted, the caller's login is assumed.
+<DT><B>-j</B><I>joinlist</I>
+
+<DD>
+generates a new revision which is the join of the revisions on
+<I>joinlist</I>.
+
+This option is largely obsoleted by
+<B><A HREF="../man1/rcsmerge.1.php">rcsmerge</A></B>(1)
+
+but is retained for backwards compatibility.
+<DL COMPACT><DT><DD>
+<P>
+
+The
+<I>joinlist</I>
+
+is a comma-separated list of pairs of the form
+<I>rev2</I><B>:</B><I>rev3,</I>
+
+where
+<I>rev2</I>
+
+and
+<I>rev3</I>
+
+are (symbolic or numeric)
+revision numbers.
+For the initial such pair,
+<I>rev1</I>
+
+denotes the revision selected
+by the above options
+<B>-f</B>,
+
+...,
+<B>-w</B>.
+
+For all other pairs,
+<I>rev1</I>
+
+denotes the revision generated by the previous pair.
+(Thus, the output
+of one join becomes the input to the next.)
+<P>
+
+For each pair,
+<B>co</B>
+
+joins revisions
+<I>rev1</I>
+
+and
+<I>rev3</I>
+
+with respect to
+<I>rev2</I>.
+
+This means that all changes that transform
+<I>rev2</I>
+
+into
+<I>rev1</I>
+
+are applied to a copy of
+<I>rev3</I>.
+
+This is particularly useful if
+<I>rev1</I>
+
+and
+<I>rev3</I>
+
+are the ends of two branches that have
+<I>rev2</I>
+
+as a common ancestor.  If
+<I>rev1</I>&lt;<I>rev2</I>&lt;<I>rev3</I>
+
+on the same branch,
+joining generates a new revision which is like
+<I>rev3,</I>
+
+but with all changes that lead from
+<I>rev1</I>
+
+to
+<I>rev2</I>
+
+undone.
+If changes from
+<I>rev2</I>
+
+to
+<I>rev1</I>
+
+overlap with changes from
+<I>rev2</I>
+
+to
+<I>rev3,</I>
+
+<B>co</B>
+
+reports overlaps as described in
+<B><A HREF="../man1/merge.1.php">merge</A></B>(1).
+
+<P>
+
+For the initial pair,
+<I>rev2</I>
+
+can be omitted.  The default is the common
+ancestor.
+If any of the arguments indicate branches, the latest revisions
+on those branches are assumed.
+The options
+<B>-l</B>
+
+and
+<B>-u</B>
+
+lock or unlock
+<I>rev1</I>.
+
+</DL>
+
+<DT><B>-V</B>
+
+<DD>
+Print <FONT SIZE="-1">RCS</FONT>'s version number.
+<DT><B>-V</B><I>n</I>
+
+<DD>
+Emulate <FONT SIZE="-1">RCS</FONT> version
+<I>n,</I>
+
+where
+<I>n</I>
+
+can be
+<B>3</B>,
+
+<B>4</B>,
+
+or
+<B>5</B>.
+
+This can be useful when interchanging <FONT SIZE="-1">RCS</FONT> files with others who are
+running older versions of <FONT SIZE="-1">RCS</FONT>.
+To see which version of <FONT SIZE="-1">RCS</FONT> your correspondents are running, have them invoke
+<B>rcs -V</B>;
+
+this works with newer versions of <FONT SIZE="-1">RCS</FONT>.
+If it doesn't work, have them invoke
+<B>rlog</B>
+
+on an <FONT SIZE="-1">RCS</FONT> file;
+if none of the first few lines of output contain the string
+<B>branch:</B>
+
+it is version 3;
+if the dates' years have just two digits, it is version 4;
+otherwise, it is version 5.
+An <FONT SIZE="-1">RCS</FONT> file generated while emulating version 3 loses its default branch.
+An <FONT SIZE="-1">RCS</FONT> revision generated while emulating version 4 or earlier has
+a time stamp that is off by up to 13 hours.
+A revision extracted while emulating version 4 or earlier contains
+abbreviated dates of the form
+<I>yy</I><B>/</B><I>mm</I><B>/</B><I>dd</I>
+
+and can also contain different white space and line prefixes
+in the substitution for
+<B>$Log$</B>.
+
+<DT><B>-x</B><I>suffixes</I>
+
+<DD>
+Use
+<I>suffixes</I>
+
+to characterize <FONT SIZE="-1">RCS</FONT> files.
+See
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+for details.
+<DT><B>-z</B><I>zone</I>
+
+<DD>
+specifies the date output format in keyword substitution,
+and specifies the default time zone for
+<I>date</I>
+
+in the
+<B>-d</B><I>date</I>
+
+option.
+The
+<I>zone</I>
+
+should be empty, a numeric <FONT SIZE="-1">UTC</FONT> offset, or the special string
+<B>LT</B>
+
+for local time.
+The default is an empty
+<I>zone</I>,
+
+which uses the traditional <FONT SIZE="-1">RCS</FONT> format of <FONT SIZE="-1">UTC</FONT> without any time zone indication
+and with slashes separating the parts of the date;
+otherwise, times are output in <FONT SIZE="-1">ISO</FONT> 8601 format with time zone indication.
+For example, if local time is January 11, 1990, 8pm Pacific Standard Time,
+eight hours west of <FONT SIZE="-1">UTC</FONT>,
+then the time is output as follows:
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<I>option</I>      <I>time output</I>
+<B>-z</B>          <B>1990/01/12 04:00:00</B>          <I>(default)</I>
+<B>-zLT</B>        <B>1990-01-11 20:00:00-08</B>
+<B>-z+05:30</B>    <B>1990-01-12 09:30:00+05:30</B>
+
+</PRE>
+
+</DL>
+
+<P>
+
+The
+<B>-z</B>
+
+option does not affect dates stored in <FONT SIZE="-1">RCS</FONT> files,
+which are always <FONT SIZE="-1">UTC</FONT>.
+</DL>
+
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>KEYWORD SUBSTITUTION</H2>
+
+Strings of the form
+<B>$</B><I>keyword</I><B>$</B>
+
+and
+<B>$</B><I>keyword</I><B>:</B><I>...</I><B>$</B>
+
+embedded in
+the text are replaced
+with strings of the form
+<B>$</B><I>keyword</I><B>:</B><I>value</I><B>$</B>
+
+where
+<I>keyword</I>
+
+and
+<I>value</I>
+
+are pairs listed below.
+Keywords can be embedded in literal strings
+or comments to identify a revision.
+<P>
+
+Initially, the user enters strings of the form
+<B>$</B><I>keyword</I><B>$</B><I>.</I>
+
+On checkout,
+<B>co</B>
+
+replaces these strings with strings of the form
+<B>$</B><I>keyword</I><B>:</B><I>value</I><B>$</B><I>.</I>
+
+If a revision containing strings of the latter form
+is checked back in, the value fields will be replaced during the next
+checkout.
+Thus, the keyword values are automatically updated on checkout.
+This automatic substitution can be modified by the
+<B>-k</B>
+
+options.
+<P>
+
+Keywords and their corresponding values:
+<DL COMPACT>
+<DT><B>$Author$</B>
+
+<DD>
+The login name of the user who checked in the revision.
+<DT><B>$Date$</B>
+
+<DD>
+The date and time the revision was checked in.
+With
+<B>-z</B><I>zone</I>
+
+a numeric time zone offset is appended; otherwise, the date is <FONT SIZE="-1">UTC</FONT>.
+<DT><B>$Header$</B>
+
+<DD>
+A standard header containing the full pathname of the <FONT SIZE="-1">RCS</FONT> file, the
+revision number, the date and time, the author, the state,
+and the locker (if locked).
+With
+<B>-z</B><I>zone</I>
+
+a numeric time zone offset is appended to the date; otherwise, the date is <FONT SIZE="-1">UTC</FONT>.
+<DT><B>$Id$</B>
+
+<DD>
+Same as
+<B>$Header$</B>,
+
+except that the <FONT SIZE="-1">RCS</FONT> filename is without a path.
+<DT><B>$Locker$</B>
+
+<DD>
+The login name of the user who locked the revision (empty if not locked).
+<DT><B>$Log$</B>
+
+<DD>
+The log message supplied during checkin, preceded by a header
+containing the <FONT SIZE="-1">RCS</FONT> filename, the revision number, the author, and the date
+and time.
+With
+<B>-z</B><I>zone</I>
+
+a numeric time zone offset is appended; otherwise, the date is <FONT SIZE="-1">UTC</FONT>.
+Existing log messages are
+<I>not</I>
+
+replaced.
+Instead, the new log message is inserted after
+<B>$Log:</B>...<B>$</B>.
+
+This is useful for
+accumulating a complete change log in a source file.
+<DL COMPACT><DT><DD>
+<P>
+
+Each inserted line is prefixed by the string that prefixes the
+<B>$Log$</B>
+
+line.  For example, if the
+<B>$Log$</B>
+
+line is
+``<B>//&nbsp;$Log: tan.cc&nbsp;$</B>'',
+
+<FONT SIZE="-1">RCS</FONT> prefixes each line of the log with
+``<B>//&nbsp;</B>''.
+
+This is useful for languages with comments that go to the end of the line.
+The convention for other languages is to use a
+``<B> * </B>rq
+
+prefix inside a multiline comment.
+For example, the initial log comment of a C program
+conventionally is of the following form:
+<DL COMPACT><DT><DD>
+<P>
+
+<PRE>
+<B>/*
+* $Log$
+*/
+</B></PRE>
+
+</DL>
+
+<P>
+
+For backwards compatibility with older versions of <FONT SIZE="-1">RCS</FONT>, if the log prefix is
+<B>/*</B>
+
+or
+<B>(*</B>
+
+surrounded by optional white space, inserted log lines contain a space
+instead of
+<B>/</B>
+
+or
+<B>(</B>;
+
+however, this usage is obsolescent and should not be relied on.
+</DL>
+
+<DT><B>$Name$</B>
+
+<DD>
+The symbolic name used to check out the revision, if any.
+For example,
+<B>co&nbsp;-rJoe</B>
+
+generates
+<B>$Name:&nbsp;Joe&nbsp;$</B>.
+
+Plain
+<B>co</B>
+
+generates just
+<B>$Name:&nbsp;&nbsp;$</B>.
+
+<DT><B>$RCSfile$</B>
+
+<DD>
+The name of the <FONT SIZE="-1">RCS</FONT> file without a path.
+<DT><B>$Revision$</B>
+
+<DD>
+The revision number assigned to the revision.
+<DT><B>$Source$</B>
+
+<DD>
+The full pathname of the <FONT SIZE="-1">RCS</FONT> file.
+<DT><B>$State$</B>
+
+<DD>
+The state assigned to the revision with the
+<B>-s</B>
+
+option of
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1)
+
+or
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1).
+
+</DL>
+<P>
+
+The following characters in keyword values are represented by escape sequences
+to keep keyword strings well-formed.
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+<I>char     escape sequence</I>
+tab      <B>\t</B>
+newline  <B>\n</B>
+space    <B>\040
+$        \044
+\        \\</B>
+</PRE>
+
+</DL>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILE MODES</H2>
+
+The working file inherits the read and execute permissions from the <FONT SIZE="-1">RCS</FONT>
+file.  In addition, the owner write permission is turned on, unless
+<B>-kv</B>
+
+is set or the file
+is checked out unlocked and locking is set to strict (see
+<B><A HREF="../man1/rcs.1.php">rcs</A></B>(1)).
+
+<P>
+
+If a file with the name of the working file exists already and has write
+permission,
+<B>co</B>
+
+aborts the checkout,
+asking beforehand if possible.
+If the existing working file is
+not writable or
+<B>-f</B>
+
+is given, the working file is deleted without asking.
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+<B>co</B>
+
+accesses files much as
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+does, except that it does not need to read the working file
+unless a revision number of
+<B>$</B>
+
+is specified.
+<A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B></B><FONT SIZE="-1"><B>RCSINIT</B></FONT><B></B>
+
+<DD>
+options prepended to the argument list, separated by spaces.
+See
+<B><A HREF="../man1/ci.1.php">ci</A></B>(1)
+
+for details.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+The <FONT SIZE="-1">RCS</FONT> pathname, the working pathname,
+and the revision number retrieved are
+written to the diagnostic output.
+The exit status is zero if and only if all operations were successful.
+<A NAME="lbAK">&nbsp;</A>
+<H2>IDENTIFICATION</H2>
+
+Author: Walter F. Tichy.
+<BR>
+
+Manual Page Revision: 5.13; Release Date: 1995/06/01.
+<BR>
+
+Copyright &#169; 1982, 1988, 1989 Walter F. Tichy.
+<BR>
+
+Copyright &#169; 1990, 1991, 1992, 1993, 1994, 1995 Paul Eggert.
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/rcsintro.1.php">rcsintro</A>(1), <A HREF="../man1/ci.1.php">ci</A>(1), <A HREF="../man3/ctime.3.php">ctime</A>(3), <A HREF="../man1/date.1.php">date</A>(1), <A HREF="../man1/ident.1.php">ident</A>(1), <A HREF="../man1/make.1.php">make</A>(1),
+<A HREF="../man1/rcs.1.php">rcs</A>(1), <A HREF="../man1/rcsclean.1.php">rcsclean</A>(1), <A HREF="../man1/rcsdiff.1.php">rcsdiff</A>(1), <A HREF="../man1/rcsmerge.1.php">rcsmerge</A>(1), <A HREF="../man1/rlog.1.php">rlog</A>(1),
+<A HREF="../man5/rcsfile.5.php">rcsfile</A>(5)
+<BR>
+
+Walter F. Tichy,
+<FONT SIZE="-1">RCS</FONT>--A System for Version Control,
+<I>Software--Practice &amp; Experience</I>
+
+<B>15</B>,
+
+7 (July 1985), 637-654.
+<A NAME="lbAM">&nbsp;</A>
+<H2>LIMITS</H2>
+
+Links to the <FONT SIZE="-1">RCS</FONT> and working files are not preserved.
+<P>
+
+There is no way to selectively suppress the expansion of keywords, except
+by writing them differently.  In nroff and troff, this is done by embedding the
+null-character
+<B>\&amp;</B>
+
+into the keyword.
+<BR>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">KEYWORD SUBSTITUTION</A><DD>
+<DT><A HREF="#lbAG">FILE MODES</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAJ">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAK">IDENTIFICATION</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+<DT><A HREF="#lbAM">LIMITS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

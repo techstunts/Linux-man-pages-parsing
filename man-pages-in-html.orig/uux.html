@@ -1,0 +1,434 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>uux</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>uux</H1>
+Section: User Commands  (1)<BR>Updated: Taylor UUCP 1.07<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+uux - Remote command execution over UUCP
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>uux</B>
+
+[ options ] command
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The
+<I>uux</I>
+
+command is used to execute a command on a remote system, or to execute
+a command on the local system using files from remote systems.
+The command
+is not executed immediately; the request is queued until the
+<I>uucico</I>
+
+(8) daemon calls the system and executes it.  The daemon is
+started automatically unless one of the
+<B>-r</B>
+
+or
+<B>--nouucico</B>
+
+options is given.
+<P>
+The actual command execution is done by the
+<I>uuxqt</I>
+
+(8) daemon.
+<P>
+File arguments can be gathered from remote systems to the execution
+system, as can standard input.  Standard output may be directed to a
+file on a remote system.
+<P>
+The command name may be preceded by a system name followed by an
+exclamation point if it is to be executed on a remote system.  An
+empty system name is taken as the local system.
+<P>
+Each argument that contains an exclamation point is treated as naming
+a file.  The system which the file is on is before the exclamation
+point, and the pathname on that system follows it.  An empty system
+name is taken as the local system; this must be used to transfer a
+file to a command being executed on a remote system.  If the path is
+not absolute, it will be appended to the current working directory on
+the local system; the result may not be meaningful on the remote
+system.  A pathname may begin with ~/, in which case it is relative to
+the UUCP public directory (usually /usr/spool/uucppublic or
+/var/spool/uucppublic) on the appropriate system.  A pathname may
+begin with ~name/, in which case it is relative to the home directory
+of the named user on the appropriate system.
+<P>
+Standard input and output may be redirected as usual; the pathnames
+used may contain exclamation points to indicate that they are on
+remote systems.  Note that the redirection characters must be quoted
+so that they are passed to
+<I>uux</I>
+
+rather than interpreted by the shell.  Append redirection (&gt;&gt;) does
+not work.
+<P>
+All specified files are gathered together into a single directory
+before execution of the command begins.  This means that each file
+must have a distinct base name.  For example,
+<BR>
+
+
+<PRE>
+uux 'sys1!diff sys2!~user1/foo sys3!~user2/foo &gt;!foo.diff'
+</PRE>
+
+
+will fail because both files will be copied to sys1 and stored under
+the name foo.
+<P>
+Arguments may be quoted by parentheses to avoid interpretation of
+exclamation points.  This is useful when executing the
+<I>uucp</I>
+
+command on a remote system.
+<P>
+A request to execute an empty command (e.g.,
+<I>uux sys!)</I>
+
+will create a poll file for the specified system.
+<P>
+The exit status of
+<I>uux</I>
+
+is one of the codes found in the header file
+<B>sysexits.h.</B>
+
+In particular,
+<B>EX_OK</B>
+
+(
+<B>0</B>
+
+) indicates success, and 
+<B>EX_TEMPFAIL</B>
+
+(
+<B>75</B>
+
+) indicates a temporary failure.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The following options may be given to
+<I>uux.</I>
+
+<DL COMPACT>
+<DT><B>-, -p, --stdin</B>
+
+<DD>
+Read standard input and use it as the standard input for the command
+to be executed.
+<DT><B>-c, --nocopy</B>
+
+<DD>
+Do not copy local files to the spool directory.  This is the default.
+If they are
+removed before being processed by the
+<I>uucico</I>
+
+(8) daemon, the copy will fail.  The files must be readable by the
+<I>uucico</I>
+
+(8) daemon,
+as well as the by the invoker of
+<I>uux.</I>
+
+<DT><B>-C, --copy</B>
+
+<DD>
+Copy local files to the spool directory.
+<DT><B>-l, --link</B>
+
+<DD>
+Link local files into the spool directory.  If a file can not be
+linked because it is on a different device, it will be copied unless
+one of the
+<B>-c</B>
+
+or
+<B>--nocopy</B>
+
+options also appears (in other words, use of
+<B>--link</B>
+
+switches the default from
+<B>--nocopy</B>
+
+to
+<B>--copy).</B>
+
+If the files are changed before being processed by the
+<I>uucico</I>
+
+(8) daemon, the changed versions will be used.  The files must be
+readable by the
+<I>uucico</I>
+
+(8) daemon, as well as by the invoker of
+<I>uux.</I>
+
+<DT><B>-g grade, --grade grade</B>
+
+<DD>
+Set the grade of the file transfer command.  Jobs of a higher grade
+are executed first.  Grades run 0 ... 9 A ... Z a ... z from high to
+low.
+<DT><B>-n, --notification=no</B>
+
+<DD>
+Do not send mail about the status of the job, even if it fails.
+<DT><B>-z, --notification=error</B>
+
+<DD>
+Send mail about the status of the job if an error occurs.  For many
+<I>uuxqt</I>
+
+daemons, including the Taylor UUCP
+<I>uuxqt,</I>
+
+this is the default action; for those,
+<B>--notification=error</B>
+
+will have no effect.  However, some
+<I>uuxqt</I>
+
+daemons will send mail if the job succeeds unless the
+<B>--notification=error</B>
+
+option is used, and some other
+<I>uuxqt</I>
+
+daemons will not send mail if the job fails unless the
+<B>--notification=error</B>
+
+option is used.
+<DT><B>-r, --nouucico</B>
+
+<DD>
+Do not start the
+<I>uucico</I>
+
+(8) daemon immediately; merely queue up the execution request for later
+processing.
+<DT><B>-j, --jobid</B>
+
+<DD>
+Print jobids on standard output.  A jobid will be generated for each
+file copy operation required to perform the operation.  These file
+copies may be cancelled by passing the jobid to the
+<B>--kill</B>
+
+switch of
+<I>uustat</I>
+
+(1), which will make the execution impossible to complete.
+<DT><B>-a address, --requestor address</B>
+
+<DD>
+Report job status to the specified e-mail address.
+<DT><B>-x type, --debug type</B>
+
+<DD>
+Turn on particular debugging types.  The following types are
+recognized: abnormal, chat, handshake, uucp-proto, proto, port,
+config, spooldir, execute, incoming, outgoing.  Only abnormal, config,
+spooldir and execute are meaningful for
+<I>uux.</I>
+
+<P>
+Multiple types may be given, separated by commas, and the
+<B>--debug</B>
+
+option may appear multiple times.  A number may also be given, which
+will turn on that many types from the foregoing list; for example,
+<B>--debug 2</B>
+
+is equivalent to
+<B>--debug abnormal,chat.</B>
+
+<DT><B>-I file, --config file</B>
+
+<DD>
+Set configuration file to use.  This option may not be available,
+depending upon how
+<I>uux</I>
+
+was compiled.
+<DT><B>-v, --version</B>
+
+<DD>
+Report version information and exit.
+<DT><B>--help</B>
+
+<DD>
+Print a help message and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<BR>
+
+<PRE>
+uux -z - sys1!rmail user1
+</PRE>
+
+Execute the command ``rmail user1'' on the system sys1, giving it as
+standard input whatever is given to
+<I>uux</I>
+
+as standard input.  If a failure occurs, send a message using
+<I>mail</I>
+
+(1).
+<P>
+<BR>
+
+<PRE>
+uux 'diff -c sys1!~user1/file1 sys2!~user2/file2 &gt;!file.diff'
+</PRE>
+
+Fetch the two named files from system sys1 and system sys2 and execute
+<I>diff</I>
+
+putting the result in file.diff in the current directory.  The current
+directory must be writable by the
+<I>uuxqt</I>
+
+(8) daemon for this to work.
+<P>
+<BR>
+
+<PRE>
+uux 'sys1!uucp ~user1/file1 (sys2!~user2/file2)'
+</PRE>
+
+Execute 
+<I>uucp</I>
+
+on the system sys1 copying file1 (on system sys1) to sys2.  This
+illustrates the use of parentheses for quoting.
+<A NAME="lbAG">&nbsp;</A>
+<H2>RESTRICTIONS</H2>
+
+The remote system may not permit you to execute certain commands.
+Many remote systems only permit the execution of
+<I>rmail</I>
+
+and
+<I>rnews.</I>
+
+<P>
+Some of the options are dependent on the capabilities of the
+<I>uuxqt</I>
+
+(8) daemon on the remote system.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/mail.1.php">mail</A>(1), <A HREF="../man1/uustat.1.php">uustat</A>(1), <A HREF="../man1/uucp.1.php">uucp</A>(1), <A HREF="../man8/uucico.8.php">uucico</A>(8), <A HREF="../man8/uuxqt.8.php">uuxqt</A>(8)
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+Files can not be referenced across multiple systems.
+<P>
+Too many jobids are output by
+<B>--jobid,</B>
+
+and there is no good way to cancel a local execution requiring remote
+files.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Ian Lance Taylor
+(<A HREF="mailto:ian@airs.com">ian@airs.com</A>)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">RESTRICTIONS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

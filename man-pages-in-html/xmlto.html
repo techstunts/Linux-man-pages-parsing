@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XMLTO</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XMLTO</H1>
+Section: xmlto (1)<BR>Updated: October 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xmlto - apply an XSL stylesheet to an XML document
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+<DL COMPACT>
+<DT>
+<B>xmlto</B> [<B>-o</B>&nbsp;<I>output_dir</I>] [<B>-x</B>&nbsp;<I>custom_xsl</I>] [<B>-m</B>&nbsp;<I>xsl_fragment</I>] [<B>-v</B>] [<B>-p</B>&nbsp;<I>postprocessor_opts</I>] [<B>--extensions</B>] [<B>--searchpath</B>&nbsp;<I>path</I>] [<B>--skip-validation</B>] {<I>format</I>} {<I>file</I>}
+
+
+
+
+<DT>
+<B>xmlto</B> {<B>--help</B> | <B>--version</B>}
+
+
+<P>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<P>
+
+<DD>The purpose of <B>xmlto</B> is to convert an XML <I>file</I> to the desired <I>format</I> using whatever means necessary. This may involve two steps:
+<P>
+<DL COMPACT>
+<DT>1.<DD>
+The application of an appropriate XSL stylesheet using an XSL-T processor.
+<DT>2.<DD>
+Further processing with other tools. This step may not be necessary.
+</DL>
+<P>
+
+<P>
+<P>
+
+To decide which stylesheet to use and what, if any, needs to be done to post-process the output, <B>xmlto</B> makes use of format scripts, which are simple shell scripts that <B>xmlto</B> calls during the conversion.
+<P>
+<P>
+
+The appropriate format script is selected based on the type of XML file and the desired output format. <B>xmlto</B> comes with some format scripts for converting DocBook XML files to a variety of formats. You may specify your own format script by using an absolute filename for <I>format</I> on the command line.
+<P>
+<P>
+
+Firstly, if <B>xmlto</B> has not been told explicitly which stylesheet to use (with the <B>-x</B> option), the format script will be called with <B>$1</B> set to stylesheet. The environment variable <B>XSLT_PROCESSOR</B> contains the base name of the executable that will be used to perform the XSL-T transformation (for example xsltproc), and the environment variable <B>XSL_DIR</B> contains the path to the directory containing some useful stylesheets that come with <B>xmlto</B>. The format script should write the name of the stylesheet to use to standard output and exit successfully, or exit with a non-zero return code if there is no appropriate stylesheet to use (for example, if the only available stylesheet is known not to work with the XSL-T processor that will be used). If nothing is written to standard output but the script exits successfully, no XSL-T transformation will be performed.
+<P>
+<P>
+
+Secondly, after an XSL-T processor has been run using the stylesheet, the format script will be called again, this time with <B>$1</B> set to post-process. The format script should perform any necessary steps to translate the XSL-T processed output into the desired output format, including copying the output to the desired output directory. For post-processing, the format script is run in a temporary directory containing just the processed output (whose name is stored in <B>XSLT_PROCESSED</B> and whose basename is that of the original XML file with any filename extension replaced with .proc). <B>INPUT_FILE</B> is set to the name of the original XML file, <B>OUTPUT_DIR</B> is set to the name of the directory that the output (and only the output) must end up in, and <B>SEARCHPATH</B> is set to a colon-separate list of fallback directories in which to look for input (for images, for example). If this step is unsuccessful the format script should exit with a non-zero return code.
+<P>
+<DL COMPACT>
+<DT><B>-v</B><DD>
+Be verbose (<B>-vv</B> for very verbose).
+<P>
+<DT><B>-x</B> <I>stylesheet</I><DD>
+Use <I>stylesheet</I> instead of asking the format script to choose one.
+<P>
+<DT><B>-m</B> <I>fragment</I><DD>
+Use the provided XSL <I>fragment</I> to modify the stylesheet.
+<P>
+<DT><B>-o</B> <I>directory</I><DD>
+Put output in the specified <I>directory</I> instead of the current working directory.
+<P>
+<DT><B>-p</B> <I>postprocessor_opts</I><DD>
+Pass <I>postprocessor_opts</I> to processing stages after stylesheet application (e.g. lynx or links when going through HTML to text, or xmltex when going from through TeX to DVI). If <B>-p</B> is specified a second time, the options specified will be passed to second-stage postprocessing; presently this is only applicable when going through xmltex and dvips to PostScript.
+<P>
+<DT><B>--extensions</B><DD>
+Turn on stylesheet extensions for the tool chain in use (for example, this might turn on <I>passivetex.extensions</I> and <I>use.extensions</I> if PassiveTeX is being used). The variables turned on are the ones used by Norman Walsh's DocBook XSL stylesheets.
+<P>
+<DT><B>--searchpath</B> <I>path</I><DD>
+Add the colon-separated list of directories in <I>path</I> as fallback directories for including input.
+<P>
+<DT><B>--skip-validation</B><DD>
+Skip the validation step that is normally performed.
+<P>
+<DT><B>--help</B><DD>
+Display a short usage message. It will describe xmlto's options, and the available output formats.
+<P>
+<DT><B>--version</B><DD>
+Display the version number of xmlto.
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+<P>
+
+To convert a DocBook XML document to PDF, use:
+<P>
+<DL COMPACT>
+<DT><DD>
+xmlto pdf mydoc.xml
+<P>
+</DL>
+<P>
+
+To convert a DocBook XML document to HTML and store the resulting HTML files in a separate directory use:
+<P>
+<DL COMPACT>
+<DT><DD>
+xmlto -o html-dir html mydoc.xml
+<P>
+</DL>
+<P>
+
+To convert a DocBook XML document to a single HTML file use:
+<P>
+<DL COMPACT>
+<DT><DD>
+xmlto html-nochunks mydoc.xml
+<P>
+</DL>
+<P>
+
+To modify the output using an XSL fragment use:
+<P>
+<DL COMPACT>
+<DT><DD>
+xmlto -m ulink.xsl pdf mydoc.xml
+<P>
+</DL>
+<P>
+
+To specify which stylesheet to use (overriding the one that the format script would choose) use:
+<P>
+<DL COMPACT>
+<DT><DD>
+xmlto -x mystylesheet.xsl pdf mydoc.xml
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Tim Waugh &lt;<A HREF="mailto:twaugh@redhat.com">twaugh@redhat.com</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">EXAMPLES</A><DD>
+<DT><A HREF="#lbAF">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

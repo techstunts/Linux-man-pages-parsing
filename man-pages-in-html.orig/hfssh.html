@@ -1,0 +1,685 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>HFSSH</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>HFSSH</H1>
+Section: User Commands  (1)<BR>Updated: 19-Feb-1998<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+hfssh - Tcl interpreter with HFS extensions
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+hfssh
+[<I>script</I>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>hfssh</B>
+
+is a Tcl interpreter like <A HREF="../man1/tclsh.1.php">tclsh</A>(1) but which also implements the following
+extensions to support manipulation of Macintosh HFS media:
+
+<DL COMPACT>
+<DT><B>hfs mount</B><I> path [partno]</I>
+
+<DD>
+Mounts the indicated HFS partition from the given
+<I>path</I>.
+
+An HFS volume handle is returned, which may be used for further volume
+commands described below.
+<DT><B>hfs zero</B><I> path nparts</I>
+
+<DD>
+The given
+<I>path</I>
+
+is overwritten with a Macintosh partition structure which can accommodate up to
+<I>nparts</I>
+
+partitions. All space on the medium is initially allocated to an empty
+partition, from which new partitions can be created using
+<B>hfs mkpart</B>.
+
+The number of blocks in this empty space available for partitioning is
+returned.
+<DT><B>hfs mkpart</B><I> path nblocks</I>
+
+<DD>
+A new HFS partition is created from the available free space on the specified
+Macintosh-partitioned medium. The partition is created with a size of
+<I>nblocks</I>.
+
+Any remaining free blocks left in the empty partition space can be further
+allocated to other new partitions, as long as there are enough partition slots
+remaining.
+<DT><DD>
+N.B. When the last remaining partition slot is used, all remaining free space
+must be allocated to it. It is therefore best to consider this when initially
+creating the total number of partition slots with
+<B>hfs zero</B>.
+
+<DT><B>hfs nparts</B><I> path</I>
+
+<DD>
+This command returns the number of HFS partitions which exist on the
+Macintosh-formatted medium specified by
+<I>path</I>.
+
+If
+<I>path</I>
+
+does not appear to have a Macintosh partition map, or if an error occurs, this
+command will return -1. Otherwise, it will return a number greater than or
+equal to 0.
+<DT><B>hfs format</B><I> path partno vname [bblist]</I>
+
+<DD>
+This command creates a new HFS volume by formatting the given
+<I>path</I>
+
+and partition
+<I>partno</I>
+
+and giving it a volume label
+<I>vname</I>.
+
+<DT><DD>
+If it is desired to &quot;spare&quot; some blocks from being used by the volume, a list
+of &quot;bad block&quot; numbers can be given, relative to the beginning of the
+partition. The given blocks will be mapped out of use (if possible) and the
+size of the resulting volume will be decreased.
+<DT><B>hfs flushall</B>
+
+<DD>
+All pending changes to all open volumes are flushed immediately.
+This is useful to do periodically to avoid accidental loss of data when
+volumes are open for long periods of time.
+<DT><B>hfs chartrans</B><I> fromset toset string</I>
+
+<DD>
+This command translates the given
+<I>string</I>
+
+from the
+<I>fromset</I>
+
+character set to the
+<I>toset</I>
+
+set. Both
+<I>fromset</I>
+
+and
+<I>toset</I>
+
+can be one of
+<B>latin1</B>
+
+(ISO 8859-1)
+or
+<B>macroman</B>
+
+(MacOS Standard Roman).
+A new (translated) string is returned.
+<DT><DD>
+The translation is not necessarily reversible, since the two character sets do
+not have a complete one-to-one mapping.
+<DT><B>hfs version</B>
+
+<DD>
+The current running version of
+<B>hfsutils</B>
+
+is returned.
+<DT><B>hfs copyright</B>
+
+<DD>
+A copyright notice is returned.
+<DT><B>hfs author</B>
+
+<DD>
+The name and email address of the author of
+<B>hfsutils</B>
+
+is returned.
+<DT><B>hfs license</B>
+
+<DD>
+A license statement for
+<B>hfsutils</B>
+
+is returned.
+<DT><I>vol </I><B>vname</B>
+
+<DD>
+The volume name of the given
+<I>vol</I>
+
+handle is returned. This is also the name of the volume's root directory,
+needed to construct absolute pathnames on the volume.
+<DT><I>vol </I><B>size</B>
+
+<DD>
+A list of two numbers is returned; the first is the total size of the given
+<I>vol</I>
+
+(in bytes), and the second is the number of free bytes that are currently
+available.
+<DT><I>vol </I><B>crdate</B>
+
+<DD>
+The creation date of the given
+<I>vol</I>
+
+is returned, expressed as a number of seconds since 00:00:00 01-Jan-1970 UTC.
+<DT><I>vol </I><B>mddate</B>
+
+<DD>
+The last modification date of the given
+<I>vol</I>
+
+is returned, expressed as a number of seconds since 00:00:00 01-Jan-1970 UTC.
+<DT><I>vol </I><B>islocked</B>
+
+<DD>
+A boolean value (either 1 or 0) is returned, indicating whether the given
+<I>vol</I>
+
+handle is locked for read-only access. It may be locked because the medium is
+physically locked through hardware, or because the medium was opened read-only
+for special reasons (such as another process also has the medium open).
+<DT><I>vol </I><B>umount</B>
+
+<DD>
+The indicated
+<I>vol</I>
+
+is unmounted, flushing any unsaved data to the volume and closing the access
+path to the medium. The
+<I>vol</I>
+
+handle subsequently becomes invalid for further use.
+<DT><I>vol </I><B>cwd</B>
+
+<DD>
+A numeric value is returned indicating the catalog node ID (CNID) of the
+current working directory on the given
+<I>vol</I>.
+
+This value can be passed to
+<I>vol </I><B>dirinfo</B>
+
+to learn the directory's name and parent CNID.
+<DT><I>vol </I><B>path</B>
+
+<DD>
+A list of directory names is returned, representing the hierarchy between the
+root and the current directory. These names can be joined with
+<I>vol </I><B>sepchar</B>
+
+characters (:) to construct an absolute pathname to the current directory.
+<DT><DD>
+The same information can be acquired by traversing the CNIDs from the current
+directory to the root using
+<I>vol</I>
+
+<B>dirinfo</B>.
+
+(The root directory always has a CNID of 2.)
+<DT><I>vol </I><B>dir</B><I> [path]</I>
+
+<DD>
+A list is returned describing the contents of the given directory
+<I>path</I>
+
+(defaulting to the current directory) on the given
+<I>vol</I>.
+
+Each element of the list describes one entry, and contains a set of
+attribute/value pairs represented as another list, suitable for assignment to
+a Tcl array using
+<B>array set</B>.
+
+<DT><I>vol </I><B>flush</B>
+
+<DD>
+All pending changes to the given volume are flushed immediately.
+<DT><I>vol </I><B>sepchar</B>
+
+<DD>
+The HFS path separator character &quot;:&quot; is returned.
+<DT><I>vol </I><B>cd</B><I> path</I>
+
+<DD>
+
+<DT><I>vol </I><B>chdir</B><I> path</I>
+
+<DD>
+
+The current working directory on the given volume is changed to
+<I>path</I>,
+
+which may be either an absolute or relative path.
+<DT><I>vol </I><B>dirinfo</B><I> cnid</I>
+
+<DD>
+A two-element list describing the directory having the given
+<I>cnid</I>
+
+on the given
+<I>vol</I>
+
+is returned. The first element contains the name of the directory, while the
+second element contains the CNID of the directory's parent. Two CNID values
+are special: the root directory of the volume has CNID 2, and the &quot;parent&quot; of
+the root directory is returned with CNID 1.
+<DT><I>vol </I><B>open</B><I> path</I>
+
+<DD>
+The file on
+<I>vol</I>
+
+having the given
+<I>path</I>
+
+is opened. An HFS file handle is returned, which may be used for further file
+commands described below.
+<DT><I>vol </I><B>stat</B><I> path</I>
+
+<DD>
+Information about the file or directory having the given
+<I>path</I>
+
+is returned in much the same way as
+<I>vol </I><B>dir</B>
+
+except that only the single argument is described (not its contents).
+<DT><I>vol </I><B>mkdir</B><I> path</I>
+
+<DD>
+A new directory on
+<I>vol</I>
+
+having the given
+<I>path</I>
+
+is created. All of the parent directories leading to
+<I>path</I>
+
+must already exist, but
+<I>path</I>
+
+itself must not.
+<DT><I>vol </I><B>rmdir</B><I> path</I>
+
+<DD>
+The directory on
+<I>vol</I>
+
+with the given
+<I>path</I>
+
+is removed. The directory must be empty.
+<DT><I>vol </I><B>delete</B><I> path</I>
+
+<DD>
+The file on
+<I>vol</I>
+
+with the given
+<I>path</I>
+
+is removed. Both resource and data forks of the file are deleted.
+<DT><I>vol </I><B>touch</B><I> path</I>
+
+<DD>
+The modification time for the file or directory specified by
+<I>path</I>
+
+on the given
+<I>vol</I>
+
+is updated to the current time.
+<DT><I>vol </I><B>glob</B><I> pattern</I>
+
+<DD>
+The given
+<I>pattern</I>
+
+is treated as a list of globbing patterns, each of which may be expanded to
+the names of files or directories on the given
+<I>vol</I>
+
+according to the globbing rules described in the <A HREF="../man1/hfsutils.1.php">hfsutils</A>(1) documentation.
+The resulting pathnames are returned in a (possibly longer) list. If a pattern
+does not match any file or directory name, it is returned in the resulting
+list unchanged.
+<DT><I>vol </I><B>bless</B><I> path</I>
+
+<DD>
+The folder named by the given path is &quot;blessed&quot; as the MacOS System Folder.
+For this to be useful, the folder should contain valid Macintosh System and
+Finder files.
+<DT><I>vol </I><B>rename</B><I> oldpath newpath</I>
+
+<DD>
+The existing
+<I>oldpath</I>
+
+on the given
+<I>vol</I>
+
+is renamed to
+<I>newpath</I>,
+
+possibly changing its location at the same time. If
+<I>newpath</I>
+
+already exists, it must be a directory, and the item will simply be moved into
+it keeping the same name. (In the latter case, there must not be another file
+or directory already with the same name; in no case will another file or
+directory be overwritten.)
+<DT><I>vol </I><B>create</B><I> path type creator</I>
+
+<DD>
+A new, empty file is created on
+<I>vol</I>
+
+having the given
+<I>path</I>,
+
+and an HFS file handle is returned in the same manner as
+<I>vol</I>
+
+<B>open</B>.
+
+The file is given the specified MacOS
+<I>type</I>
+
+and
+<I>creator</I>
+
+codes, which must be 4 character strings.
+<DT><I>vol </I><B>copy</B><I> srcpath dstvol dstpath</I>
+
+<DD>
+The given file
+<I>srcpath</I>
+
+located on
+<I>vol</I>
+
+is copied to
+<I>dstpath</I>
+
+located on
+<I>dstvol</I>
+
+(which may be the same as
+<I>vol</I>).
+
+The file and its attributes are copied verbatim; no translation is performed.
+<DT><I>vol </I><B>copyin</B><I> mode srcpath dstpath</I>
+
+<DD>
+The specified local (UNIX)
+<I>srcpath</I>
+
+is copied into the given
+<I>vol</I>
+
+as a file having the specified (HFS)
+<I>dstpath</I>.
+
+A translation
+<I>mode</I>
+
+must be given as one of
+<B>macbinary</B>,
+
+<B>binhex</B>,
+
+<B>text</B>,
+
+or
+<B>raw</B>.
+
+<DT><I>vol </I><B>copyout</B><I> mode srcpath dstpath</I>
+
+<DD>
+The specified (HFS)
+<I>srcpath</I>
+
+on the given
+<I>vol</I>
+
+is copied out as a local file having the specified (UNIX)
+<I>dstpath</I>.
+
+A translation
+<I>mode</I>
+
+must be given as one of
+<B>macbinary</B>,
+
+<B>binhex</B>,
+
+<B>text</B>,
+
+or
+<B>raw</B>.
+
+<DT><I>file </I><B>close</B>
+
+<DD>
+The indicated
+<I>file</I>
+
+is closed, all pending changes to the file are flushed, and the file handle
+becomes invalid for any subsequent operation.
+<DT><I>file </I><B>tell</B>
+
+<DD>
+A numeric index is returned indicating the character position within
+<I>file</I>
+
+at which the next read or write operation will occur.
+<DT><I>file </I><B>stat</B>
+
+<DD>
+Information about the given
+<I>file</I>
+
+is returned in much the same way as
+<I>vol</I>
+
+<B>stat</B>.
+
+<DT><I>file </I><B>getfork</B>
+
+<DD>
+If the given
+<I>file</I>
+
+is currently performing I/O on its data fork, the string &quot;data&quot; is returned.
+Otherwise, the string &quot;rsrc&quot; is returned. When files are opened, they will
+default to read/write on their data fork. The current fork may be changed with
+<I>file</I>
+
+<B>setfork</B>.
+
+<DT><I>file </I><B>setfork</B><I> fork</I>
+
+<DD>
+The current fork of the given
+<I>file</I>
+
+is set to
+<I>fork</I>
+
+(which must be one of
+<B>data</B>
+
+or
+<B>rsrc</B>),
+
+and the current read/write position is reset to the beginning of the file.
+<DT><I>file </I><B>seek</B><I> pos [from]</I>
+
+<DD>
+The character position for the next read or write on
+<I>file</I>
+
+is changed to
+<I>pos</I>,
+
+relative to the indicated
+<I>from</I>
+
+position, which must be one of
+<B>start</B>,
+
+<B>current</B>,
+
+or
+<B>end</B>.
+
+The default is to position relative to the
+<B>start</B>
+
+of the file.
+<DT><I>file </I><B>read</B><I> length</I>
+
+<DD>
+<I>length</I>
+
+bytes are read from the current read/write position in
+<I>file</I>,
+
+and these bytes are returned as a string. This string may be shorter than
+<I>length</I>
+
+in some circumstances, or may even be empty, indicating the end of the file
+has been reached.
+<DT><I>file </I><B>write</B><I> string</I>
+
+<DD>
+The given
+<I>string</I>
+
+is written to
+<I>file</I>
+
+at the current read/write position. The number of bytes actually written to
+the file is returned, and may be less than the length of the string in unusual
+circumstances (such as when the volume is full).
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/hfsutils.1.php">hfsutils</A>(1), <A HREF="../man1/hfs.1.php">hfs</A>(1), <A HREF="../man1/tclsh.1.php">tclsh</A>(1)
+<A NAME="lbAF">&nbsp;</A>
+<H2>NOTES</H2>
+
+Precautions are taken to ensure all open files and mounted volumes are cleanly
+closed and unmounted before exiting the shell, however abnormal termination
+(e.g. CTRL-C) can circumvent this, potentially leaving volumes in an
+inconsistent state. Judicious use of
+<B>hfs flushall</B>
+
+may help reduce this risk.
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+Tcl does not provide a mechanism for manipulating arbitrary binary data.
+Therefore caution should be used when reading or writing files containing
+anything other than plain text.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Robert Leslie &lt;<A HREF="mailto:rob@mars.org">rob@mars.org</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">NOTES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1188 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>javac</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>javac</H1>
+Section: User Commands  (1)<BR>Updated: 05 March 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+javac - Java compiler
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>javac </B>
+
+[ 
+<B>-bootclasspath</B><I> bootclasspath</I>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+[
+<B>-classpath</B><I> classpath</I>
+
+]
+[
+<B>-d</B><I> directory</I>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[
+<B>-deprecation</B>
+
+] [
+<B>-encoding</B><I> encoding</I>
+
+] 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[
+<B>-extdirs</B><I> directories</I>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[
+<B>-g</B>
+
+| 
+<B>-g:none</B>
+
+|
+<B>-g:</B><I>keyword-list</I>
+
+] [
+<B>-J</B><I>option</I>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+[
+<B>-nowarn</B>
+
+] [
+<B>-O</B>
+
+]
+
+[
+<B>-sourcepath</B><I> sourcepath</I>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+[
+<B>-target</B><I> version</I>
+
+] [
+<B>-verbose</B>
+
+] [
+<B>-X</B>
+
+]
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[
+<B>-Xstdout</B><I> filename</I>
+
+] [ 
+<I>sourcefiles </I>
+
+] [ 
+<I>@files </I>
+
+]
+<A NAME="lbAD">&nbsp;</A>
+<H2>PARAMETERS</H2>
+
+Options may be in any order.
+For a discussion of
+parameters which apply to a specific option, see
+below.
+<DL COMPACT>
+<DT><I>sourcefiles</I>
+
+<DD>
+One or more source files to be compiled (such as
+<B>MyClass.java</B>).
+<DT><B>@</B><I>files</I><DD>
+One or more files that list source files.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAB"></A>
+<A NAME="ixAAC"></A>
+The
+<B>javac </B>
+
+tool reads class and interface definitions, written in
+the Java programming language, and compiles them into bytecode
+class files.
+<P>
+
+There are two ways to pass source code file names to 
+<B>javac</B>:
+
+<DL COMPACT>
+<DT>*<DD>
+For a small number of source files, simply list the file
+names on the command line.
+<DT>*<DD>
+For a large number of source files, list the the file names
+in a file, separated by blanks or line breaks. Then use the
+list file name on the 
+<B>javac </B>
+
+command line, preceded by an @
+character.
+</DL>
+<P>
+
+Source code file names must have 
+<B>.java </B>
+
+suffixes, class file names
+must have
+<B>.class</B>
+
+suffixes, and both source and class files must
+have root names that identify the class.
+For example, a class
+called
+<B>MyClass</B>
+
+would be written in a source file called
+<B>MyClass.java </B>
+
+and compiled into a bytecode class file called
+<B>MyClass.class</B>.
+
+<P>
+
+Inner class definitions produce additional class files.
+These class files have names combining the inner and outer class names,
+such as 
+<B>MyClass$MyInnerClass.class</B>.
+
+<P>
+
+You should arrange source files in a directory tree that reflects
+their package tree.
+For example, if you keep all your source files in 
+<B>/workspace</B>,
+
+the source code for 
+<B>com.mysoft.mypack.MyClass</B>
+
+should be in 
+<B>/workspace/com/mysoft/mypack/MyClass.java</B>.
+
+<P>
+
+By default, the compiler puts each class file in the same
+directory as its source file.
+You can specify a separate
+destination directory with
+<B>-d </B>
+
+(see 
+<B>OPTIONS</B>,
+
+below).
+<A NAME="lbAF">&nbsp;</A>
+<H3>Searching for Types</H3>
+
+<A NAME="ixAAD"></A>
+When compiling a source file, the compiler often needs information
+about a type it does not yet recognize.
+The compiler needs type
+information for every class or interface used, extended, or
+implemented in the source file.
+This includes classes and
+interfaces not explicitly mentioned in the source file but which
+provide information through inheritance.
+<P>
+
+For example, when you subclass 
+<B>java.applet.Applet</B>,
+
+you are also
+using Applet's ancestor classes: 
+<B>java.awt.Panel</B>,
+
+<B>java.awt.Container</B>,
+
+<B>java.awt.Component</B>,
+
+and 
+<B>java.awt.Object</B>.
+
+<P>
+
+When the compiler needs type information, it looks for a source
+file or class file which defines the type.
+The compiler searches
+first in the bootstrap and extension classes, then in the user
+class path.
+The user class path is defined by setting the
+<FONT SIZE="-1"><B>CLASSPATH </B></FONT>
+environment variable or by using the
+<B>-classpath </B>
+
+command line option.
+(For details, see 
+<B>Setting the Class Path</B>.)
+
+If you use the 
+<B>-sourcepath </B>
+
+option, the compiler
+searches the indicated path for source files; otherwise the
+compiler searches the user class path both for class files and
+source files.
+You can specify different bootstrap or extension
+classes with the 
+<B>-bootclasspath </B>
+
+and 
+<B>-extdirs </B>
+
+options; see
+<B>Cross-Compilation Options</B>
+
+below.
+<P>
+
+A successful type search may produce a class file, a source file,
+or both.
+Here is how 
+<B>javac </B>
+
+handles each situation:
+<DL COMPACT>
+<DT>*<DD>
+Search produces a class file but no source file: 
+<B>javac </B>
+
+uses the class file.
+<DT>*<DD>
+Search produces a source file but no class file: 
+<B>javac</B>
+
+compiles the source file and uses the resulting class file.
+<DT>*<DD>
+Search produces both a source file and a class file:
+<B>javac</B>
+
+determines whether the class file is out of date.
+If the class file is out of date, 
+<B>javac </B>
+
+recompiles the source file
+and uses the updated class file.
+Otherwise, 
+<B>javac </B>
+
+just uses the class file.
+<DL COMPACT><DT><DD>
+<P>
+
+By default, 
+<B>javac </B>
+
+considers a class file out of date only if
+it is older than the source file.
+</DL>
+
+</DL>
+<P>
+
+Note that 
+<B>javac </B>
+
+can silently compile source files not mentioned on
+the command line.
+Use the 
+<B>-verbose </B>
+
+option to trace automatic compilation.
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+The compiler has a set of standard options that are supported on
+the current development environment and will be supported in
+future releases.
+An additional set of non-standard options are
+specific to the current virtual machine implementation and are
+subject to change in the future.
+Non-standard options begin with
+<B>-X</B>.
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Standard Options</H3>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-classpath</B><I> classpath</I>
+
+<DD>
+Sets the user class path, overriding the user class path in
+the 
+<FONT SIZE="-1"><B>CLASSPATH </B></FONT>
+environment variable.
+If neither 
+<FONT SIZE="-1"><B>CLASSPATH </B></FONT>
+or
+<B>-classpath </B>
+
+is specified, the user class path consists of the
+current directory.
+See
+<B>Setting the Class Path</B>
+
+for more details.
+<DL COMPACT><DT><DD>
+<P>
+
+If the 
+<B>-sourcepath </B>
+
+option is not specified, the user class
+path is searched for source files as well as class files.
+</DL>
+
+<DT><B>-d</B><I> directory</I>
+
+<DD>
+Sets the destination directory for class files. 
+The destination directory must already exist; javac 
+will not create the destination directory.
+If a class is part of a package, 
+<B>javac </B>
+
+puts the class file in a
+subdirectory reflecting the package name, creating
+directories as needed.
+For example, if you specify 
+<B>-d /home/myclasses </B>
+
+and the class is called
+<B>com.mypackage.MyClass</B>,
+
+then the class file is called
+<B>/home/myclasses/com/mypackage/MyClass.class</B>.
+
+<DL COMPACT><DT><DD>
+<P>
+
+If 
+<B>-d </B>
+
+is not specified, 
+<B>javac </B>
+
+puts the class file in the same
+directory as the source file.
+<P>
+
+Note that the directory specified by 
+<B>-d </B>
+
+is not automatically
+added to your user class path.
+</DL>
+
+<DT><B>-deprecation</B>
+
+<DD>
+Shows a description of each use or override of a deprecated
+member or class.
+Without 
+<B>-deprecation</B>,
+
+<B>javac </B>
+
+shows the names
+of source files that use or override deprecated members or
+classes.
+<DT><B>-encoding</B><I> encoding</I>
+
+<DD>
+Sets the source file encoding name, such as EUCJIS/SJIS.
+If
+<B>-encoding </B>
+
+is not specified, the platform default converter is
+used.
+<DT><B>-g</B>
+
+<DD>
+Generates all debugging information, including local variables.
+By default, only line number and source file
+information is generated.
+<DT><B>-g:none</B>
+
+<DD>
+Does not generate any debugging information.
+<DT><B>-g:</B><I>keyword-list</I>
+
+<DD>
+Generates only some kinds of debugging information, specified
+by a comma separated list of keywords. Valid keywords are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>source</B>
+
+<DD>
+Source file debugging information
+<DT><B>lines</B>
+
+<DD>
+Line number debugging information
+<DT><B>vars</B>
+
+<DD>
+Local variable debugging information
+</DL>
+</DL>
+
+<DT><B>-help</B>
+
+<DD>
+Prints a synopsis of standard options.
+<DT><B>-nowarn</B>
+
+<DD>
+Disables warning messages.
+<DT><B>-source</B><I> release</I>
+
+<DD>
+Enables support for compiling source code containing assertions.
+<DL COMPACT><DT><DD>
+<P>
+
+When release
+is set to 1.4, the compiler accepts code containing assertions.
+Assertions were introduced in J2SE 1.4.
+<P>
+
+When release is set to 1.3, the compiler does
+<I>not</I>
+
+support assertions. The compiler defaults to the 1.3-behavior
+if the
+<B>-source</B>
+
+flag is not used.
+</DL>
+
+<DT><B>-sourcepath</B><I> sourcepath</I>
+
+<DD>
+Specifies the source code path to search for class or interface
+definitions.
+As with the user class path, source path entries
+are separated by colons
+(<B>:</B>)
+
+and can be directories,
+<FONT SIZE="-1">JAR</FONT>
+archives, or
+<FONT SIZE="-1">ZIP</FONT>
+archives.
+If packages are used, the local
+path name within the directory or archive must reflect the
+package name.
+<DL COMPACT><DT><DD>
+<P>
+
+Note that classes found through the classpath are subject to
+automatic recompilation if their sources are found.
+</DL>
+
+<DT><B>-verbose</B>
+
+<DD>
+Verbose output.
+This includes information about each class
+loaded and each source file compiled.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H3>Cross-Compilation Options</H3>
+
+<A NAME="ixAAF"></A>
+By default, classes are compiled against the bootstrap and
+extension classes of the JDK that 
+<B>javac </B>
+
+shipped with. But 
+<B>javac</B>
+
+also supports cross-compiling, where classes are compiled against
+a bootstrap and extension classes of a different Java platform
+implementation.
+It is important to use
+<B>-bootclasspath </B>
+
+and 
+<B>-extdirs</B>
+
+when cross-compiling; see
+<B>Cross-Compilation Example</B>
+
+below.
+<DL COMPACT>
+<DT><B>-bootclasspath</B><I> bootclasspath</I>
+
+<DD>
+Cross-compiles against the specified set of boot classes.
+As with the user class path, boot class path entries are
+separated by colons
+(<B>:</B>)
+
+and can be directories,
+<FONT SIZE="-1">JAR</FONT>
+archives, or
+<FONT SIZE="-1">ZIP</FONT>
+archives.
+<DT><B>-extdirs</B><I> directories</I>
+
+<DD>
+Cross-compiles against the specified extension directories.
+Directories are a colon-separated list of directories.
+Each
+<FONT SIZE="-1">JAR</FONT>
+archive in the specified directories is searched for class files.
+<DT><B>-target</B><I> version</I>
+
+<DD>
+Generates class files that will work on
+<FONT SIZE="-1">VM</FONT>s
+with the specified version.
+The default is to generate class files to be
+compatible with 1.2
+<FONT SIZE="-1">VM</FONT>s, with one exception.  When the 
+<B>-source</B> 1.4
+
+option is used, the default target is 1.4. 
+The versions supported are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>1.1<DD>
+Ensures that generated class files will be compatible
+with 1.1 and 1.2
+<FONT SIZE="-1">VM</FONT>s.
+<DT>1.2<DD>
+Generates class files that will run on 1.2
+<FONT SIZE="-1">VM</FONT>s,
+but will not run on 1.1
+<FONT SIZE="-1">VM</FONT>s. 
+This is the default.
+<DT>1.3<DD>
+Generates class files that run on 
+<FONT SIZE="-1">VM</FONT>s
+in the Java 2 SDK, v1.3 and later, but
+will not run on 1.1 or 1.2
+<FONT SIZE="-1">VM</FONT>s.
+<DT>1.4<DD>
+Generates class files that are compatible only with 1.4 
+<FONT SIZE="-1">VM</FONT>s.
+</DL>
+</DL>
+
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Non-Standard Options</H3>
+
+<A NAME="ixAAG"></A>
+<DL COMPACT>
+<DT><B>-J</B><I>option</I>
+
+<DD>
+Passes option to the java launcher called by
+<B>javac</B>.
+
+For
+example, 
+<B>-J-Xms48m </B>
+
+sets the startup memory to 48 megabytes.
+Although it does not begin with 
+<B>-X</B>,
+
+it is not a `standard option' of 
+<B>javac</B>.
+
+It is a common convention for 
+<B>-J </B>
+
+to pass options to the underlying
+<FONT SIZE="-1">VM</FONT>
+executing applications written in Java.
+<DL COMPACT><DT><DD>
+<P>
+
+Note that 
+<FONT SIZE="-1"><B>CLASSPATH</B></FONT><B></B>, 
+<B>-classpath</B>,
+
+<B>-bootclasspath</B>,
+
+and 
+<B>-extdirs</B>
+
+do not specify the classes used to run 
+<B>javac</B>.
+
+Fiddling with
+the implementation of the compiler in this way is usually
+pointless and always risky. If you do need to do this, use the 
+<B>-J </B>
+
+option to pass through options to the underlying java launcher.
+</DL>
+
+<DT><B>-X</B>
+
+<DD>
+Displays information about non-standard options and exit.
+<DT><B>-Xstdout  filename </B>
+
+<DD>
+Send compiler messages to the named file.
+By default, compiler
+messages go to
+<B>System.err</B>.
+
+<DT><B>-Xswitchcheck</B>
+
+<DD>
+Checks
+<B>switch</B>
+
+blocks for fall-through cases and provides a warning message for  
+any that are found. Fall-through cases are cases in a 
+<B>switch</B>
+
+block, other than the last case in the block, whose code does 
+not include a 
+<B>break</B>
+
+statement, allowing code execution to &quot;fall through&quot; from 
+that case to the next case. For example, the code following the 
+<B>case</B> 1
+
+label in this 
+<B>switch</B>
+
+block does not contain a 
+<B>break</B>
+
+statement:
+<P>
+<BR>&nbsp;&nbsp;switch&nbsp;(x)&nbsp;{
+<BR>&nbsp;&nbsp;case&nbsp;1:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;1&quot;);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;No&nbsp;&nbsp;break;&nbsp;&nbsp;statement&nbsp;here.
+<BR>&nbsp;&nbsp;case&nbsp;2:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;2&quot;);
+<BR>&nbsp;&nbsp;}
+<P>
+If the 
+<B>-Xswtichcheck</B>
+
+flag were used when compiling this code, the compiler would emit 
+a warning about &quot;possible fall-through into case,&quot; along with the 
+line number of the case in question. 
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>COMMAND LINE ARGUMENT FILES</H2>
+
+To shorten or simplify the javac command line, you can
+specify one or more files that themselves contain
+arguments to the 
+<B>javac</B>
+
+command. This enables 
+you to create javac commands of any length on any operating
+system.
+<P>
+
+An argument file can include javac options and source filenames in any 
+combination.  The arguments within a file can be space-separated or 
+newline-separated.  Filenames within an argument file are relative to 
+the current directory, not the location of the argument file.
+Wildcards (*) are not allowed in these lists (such as for specifying
+<B>*.java</B>).
+
+Use of the 
+<B>@</B>
+
+character to recursively 
+interpret files is not supported.  
+<P>
+
+When executing javac, pass in the path and name of each argument 
+file with the 
+<B>@</B>
+
+leading character.
+When javac encounters an argument beginning with 
+the character 
+<B>@</B>,
+
+it expands the contents of
+that file into the argument list.
+<A NAME="lbAL">&nbsp;</A>
+<H3>Example - Single Arg File</H3>
+
+You could use a single argument file named 
+<B>argfile</B>
+
+to hold 
+all javac arguments:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+  C:&gt; javac @argfile
+</PRE>
+
+
+</DL>
+
+<P>
+
+This argument file could contain the contents of both files shown
+in the next example.
+<A NAME="lbAM">&nbsp;</A>
+<H3>Example - Two Arg Files</H3>
+
+You can create two argument files -- one for the javac 
+options and the other for the source filenames:
+(Notice the following lists have no line-continuation characters.)
+<P>
+
+Create a file named
+<B>options</B>
+
+containing:
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+-d classes
+-g
+-sourcepath \java\pubs\ws\1.3\src\share\classes
+</PRE>
+
+
+</DL>
+
+<DL COMPACT>
+<DT>Create a file named<DD>
+<B>classes</B>
+
+containing:
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+MyClass1.java
+MyClass2.java
+MyClass3.java
+</PRE>
+
+
+</DL>
+
+<DL COMPACT>
+<DT>You would then run javac with:<DD>
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+C:&gt; javac @options @classes
+</PRE>
+
+
+</DL>
+
+<DL COMPACT>
+<DT></DL>
+<A NAME="lbAN">&nbsp;</A>
+<H3>Example - Arg Files with Paths</H3>
+
+<DD>
+The argument files can have paths, but any filenames inside
+the files are relative to the current working directory (not 
+<B>path1</B>
+
+or 
+<B>path2</B>):
+
+<P>
+
+<DL COMPACT><DT><DD>
+<B>
+</B><PRE>
+C:&gt; javac @path1\options @path2\classes
+</PRE>
+
+
+</DL>
+
+<DL COMPACT>
+<DT></DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DD>
+<A NAME="lbAP">&nbsp;</A>
+<H3>Compiling a Simple Program</H3>
+
+<A NAME="ixAAH"></A>
+One source file, 
+<B>Hello.java</B>,
+
+defines a class called
+<B>greetings.Hello</B>.
+
+The greetings directory is the package directory
+both for the source file and the class file and is off the current
+directory.
+This allows us to use the default user class path. It
+also makes it unnecessary to specify a separate destination
+directory with 
+<B>-d</B>.
+
+<P>
+
+<B>
+</B><PRE>
+   example% ls
+      greetings/
+   example% ls greetings
+      Hello.java
+   example% cat greetings/Hello.java
+      package greetings;
+   
+      public class Hello {
+           public static void main(String[] args) {
+              for (int i=0; i &lt; args.length; i++) {
+                  System.out.println(&quot;Hello &quot; + args[i]);
+              }
+           }
+      }
+   example% javac greetings/Hello.java
+   example% ls greetings
+      Hello.class   Hello.java
+   example% java greetings.Hello World Universe Everyone
+      Hello World
+      Hello Universe
+      Hello Everyone
+</PRE>
+
+
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Compiling Multiple Source Files</H3>
+
+<A NAME="ixAAI"></A>
+This example compiles all the source files in the package
+greetings.
+<P>
+
+<B>
+</B><PRE>
+   example% ls
+      greetings/
+   example% ls greetings
+      Aloha.java     GutenTag.java     Hello.java      Hi.java
+   example% javac greetings/*.java
+   example% ls greetings
+      Aloha.class    GutenTag.class    Hello.class     Hi.class
+      Aloha.java     GutenTag.java     Hello.java      Hi.java
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H3>Specifying a User Class Path</H3>
+
+<A NAME="ixAAJ"></A>
+Having changed one of the source files in the previous example, we
+recompile it:
+<P>
+
+<B>
+</B><PRE>
+   example% pwd
+      /examples
+   example% javac greetings/Hi.java
+</PRE>
+
+
+<P>
+
+Since
+<B>greetings.Hi</B>
+
+refers to other classes in the greetings
+package, the compiler needs to find these other classes.
+The example above works, because our default user class path happens
+to be the directory containing the package directory.
+But suppose
+we want to recompile this file and not worry about which directory
+we're in?
+Then we need to add 
+<B>/examples </B>
+
+to the user class path.
+We can do this by setting <FONT SIZE="-1"><B>CLASSPATH</B></FONT><B></B>, but here we'll use the
+<B>-classpath </B>
+
+option.
+<P>
+
+<B>
+</B><PRE>
+   example% javac -classpath \examples /examples/greetings/Hi.java
+</PRE>
+
+
+<P>
+
+If we change
+<B>greetings.Hi</B>
+
+again, to use a banner utility, that
+utility also needs to be accessible through the user class path.
+<P>
+
+<B>
+</B><PRE>
+   example% javac -classpath /examples:/lib/Banners.jar \
+                     /examples/greetings/Hi.java
+</PRE>
+
+
+<P>
+
+To execute a class in greetings, we need access both to greetings
+and to the classes it uses.
+<P>
+
+<B>
+</B><PRE>
+   example% java -classpath /examples:/lib/Banners.jar greetings.Hi
+</PRE>
+
+
+<A NAME="lbAS">&nbsp;</A>
+<H3>Separating Source Files and Class Files</H3>
+
+<A NAME="ixAAK"></A>
+It often makes sense to keep source files and class files in
+separate directories, especially on large projects.
+We use 
+<B>-d </B>
+
+to indicate the separate class file destination.
+Since the source files are not in the user class path, we use 
+<B>-sourcepath </B>
+
+to help the compiler find them.
+<P>
+
+<B>
+</B><PRE>
+   example% ls
+      classes/  lib/      src/
+   example% ls src
+      farewells/
+   example% ls src/farewells
+      Base.java      GoodBye.java
+   example% ls lib
+      Banners.jar
+   example% ls classes
+   example% javac -sourcepath src -classpath classes:lib/Banners.jar \
+      src/farewells/GoodBye.java -d classes
+   example% ls classes
+      farewells/
+   example% ls classes/farewells
+      Base.class      GoodBye.class
+</PRE>
+
+
+<P>
+
+Note that the compiler compiled src/farewells/Base.java, even
+though we didn't specify it on the command line.
+To trace automatic compiles, use the 
+<B>-verbose </B>
+
+option.
+<A NAME="lbAT">&nbsp;</A>
+<H3>Cross-Compilation Example</H3>
+
+<A NAME="ixAAL"></A>
+Here we use the JDK 1.2 
+<B>javac </B>
+
+to compile code that will run on a 1.1
+<FONT SIZE="-1">VM</FONT>.
+<P>
+
+<B>
+</B><PRE>
+   example% javac -target 1.1 -bootclasspath jdk1.1.7/lib/classes.zip \
+        -extdirs &quot;&quot; OldCode.java
+</PRE>
+
+
+<P>
+
+The 
+<B>-target 1.1 </B>
+
+option ensures that the generated class files will
+be compatible with 1.1
+<FONT SIZE="-1">VM</FONT>s.
+In JDK1.2,
+<B>javac </B>
+
+compiles for 1.1 by
+default, so this option is not strictly required.
+However, it is
+good form because other compilers may have other defaults.
+<P>
+
+The JDK 1.2 
+<B>javac </B>
+
+would also by default compile against its own
+1.2 bootstrap classes, so we need to tell 
+<B>javac </B>
+
+to compile against
+JDK 1.1 bootstrap classes instead.
+We do this with 
+<B>-bootclasspath</B>
+
+and 
+<B>-extdirs</B>.
+
+Failing to do this might allow compilation against a
+1.2
+<FONT SIZE="-1">API</FONT>
+that would not be present on a 1.1
+<FONT SIZE="-1">VM</FONT>
+and fail at runtime.
+<BR>
+
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/jar.1.php">jar</A></B>(1),
+
+<B><A HREF="../man1/java.1.php">java</A></B>(1),
+
+<B><A HREF="../man1/javadoc.1.php">javadoc</A></B>(1),
+
+<B><A HREF="../man1/javah.1.php">javah</A></B>(1),
+
+<B><A HREF="../man1/javap.1.php">javap</A></B>(1),
+
+<B><A HREF="../man1/jdb.1.php">jdb</A></B>(1)
+
+<P>
+
+See or search the Java web site for the following:
+<DL COMPACT>
+<DT><B>The Java Extensions Mechanism @</B>
+
+<DD>
+<A HREF="http://java.sun.com/j2se/1.4/docs/guide/extensions/index.php">http://java.sun.com/j2se/1.4/docs/guide/extensions/index.html</A>
+<P>
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">PARAMETERS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Searching for Types</A><DD>
+</DL>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAH">Standard Options</A><DD>
+<DT><A HREF="#lbAI">Cross-Compilation Options</A><DD>
+<DT><A HREF="#lbAJ">Non-Standard Options</A><DD>
+</DL>
+<DT><A HREF="#lbAK">COMMAND LINE ARGUMENT FILES</A><DD>
+<DL>
+<DT><A HREF="#lbAL">Example - Single Arg File</A><DD>
+<DT><A HREF="#lbAM">Example - Two Arg Files</A><DD>
+<DT><A HREF="#lbAN">Example - Arg Files with Paths</A><DD>
+</DL>
+<DT><A HREF="#lbAO">EXAMPLES</A><DD>
+<DL>
+<DT><A HREF="#lbAP">Compiling a Simple Program</A><DD>
+<DT><A HREF="#lbAQ">Compiling Multiple Source Files</A><DD>
+<DT><A HREF="#lbAR">Specifying a User Class Path</A><DD>
+<DT><A HREF="#lbAS">Separating Source Files and Class Files</A><DD>
+<DT><A HREF="#lbAT">Cross-Compilation Example</A><DD>
+</DL>
+<DT><A HREF="#lbAU">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

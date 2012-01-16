@@ -1,0 +1,501 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLFORK</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLFORK</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlfork - Perl's fork() emulation
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+    NOTE:  As of the 5.8.0 release, fork() emulation has considerably
+    matured.  However, there are still a few known bugs and differences
+    from real fork() that might affect you.  See the &quot;BUGS&quot; and
+    &quot;CAVEATS AND LIMITATIONS&quot; sections below.
+
+</PRE>
+
+
+<P>
+
+Perl provides a <I>fork()</I> keyword that corresponds to the Unix system call
+of the same name.  On most Unix-like platforms where the <I>fork()</I> system
+call is available, Perl's <I>fork()</I> simply calls it.
+<P>
+
+On some platforms such as Windows where the <I>fork()</I> system call is not
+available, Perl can be built to emulate <I>fork()</I> at the interpreter level.
+While the emulation is designed to be as compatible as possible with the
+real <I>fork()</I> at the level of the Perl program, there are certain
+important differences that stem from the fact that all the pseudo child
+``processes'' created this way live in the same real process as far as the
+operating system is concerned.
+<P>
+
+This document provides a general overview of the capabilities and
+limitations of the <I>fork()</I> emulation.  Note that the issues discussed here
+are not applicable to platforms where a real <I>fork()</I> is available and Perl
+has been configured to use it.
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The <I>fork()</I> emulation is implemented at the level of the Perl interpreter.
+What this means in general is that running <I>fork()</I> will actually clone the
+running interpreter and all its state, and run the cloned interpreter in
+a separate thread, beginning execution in the new thread just after the
+point where the <I>fork()</I> was called in the parent.  We will refer to the
+thread that implements this child ``process'' as the pseudo-process.
+<P>
+
+To the Perl program that called <I>fork()</I>, all this is designed to be
+transparent.  The parent returns from the <I>fork()</I> with a pseudo-process
+<FONT SIZE="-1">ID</FONT> that can be subsequently used in any process manipulation functions;
+the child returns from the <I>fork()</I> with a value of <TT>0</TT> to signify that
+it is the child pseudo-process.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Behavior of other Perl features in forked pseudo-processes</H2>
+
+<A NAME="ixAAE"></A>
+Most Perl features behave in a natural way within pseudo-processes.
+<DL COMPACT>
+<DT>$$ or $PROCESS_ID<DD>
+
+
+<A NAME="ixAAF"></A>
+This special variable is correctly set to the pseudo-process <FONT SIZE="-1">ID</FONT>.
+It can be used to identify pseudo-processes within a particular
+session.  Note that this value is subject to recycling if any
+pseudo-processes are launched after others have been <I>wait()</I>-ed on.
+<DT>%ENV<DD>
+<A NAME="ixAAG"></A>
+Each pseudo-process maintains its own virtual environment.  Modifications
+to <TT>%ENV</TT> affect the virtual environment, and are only visible within that
+pseudo-process, and in any processes (or pseudo-processes) launched from
+it.
+<DT><I>chdir()</I> and all other builtins that accept filenames<DD>
+<A NAME="ixAAH"></A>
+Each pseudo-process maintains its own virtual idea of the current directory.
+Modifications to the current directory using <I>chdir()</I> are only visible within
+that pseudo-process, and in any processes (or pseudo-processes) launched from
+it.  All file and directory accesses from the pseudo-process will correctly
+map the virtual working directory to the real working directory appropriately.
+<DT><I>wait()</I> and <I>waitpid()</I><DD>
+<A NAME="ixAAI"></A>
+<I>wait()</I> and <I>waitpid()</I> can be passed a pseudo-process <FONT SIZE="-1">ID</FONT> returned by <I>fork()</I>.
+These calls will properly wait for the termination of the pseudo-process
+and return its status.
+<DT><I>kill()</I><DD>
+<A NAME="ixAAJ"></A>
+<I>kill()</I> can be used to terminate a pseudo-process by passing it the <FONT SIZE="-1">ID</FONT> returned
+by <I>fork()</I>.  This should not be used except under dire circumstances, because
+the operating system may not guarantee integrity of the process resources
+when a running thread is terminated.  Note that using <I>kill()</I> on a
+pseudo-<I>process()</I> may typically cause memory leaks, because the thread that
+implements the pseudo-process does not get a chance to clean up its resources.
+<DT><I>exec()</I><DD>
+<A NAME="ixAAK"></A>
+Calling <I>exec()</I> within a pseudo-process actually spawns the requested
+executable in a separate process and waits for it to complete before
+exiting with the same exit status as that process.  This means that the
+process <FONT SIZE="-1">ID</FONT> reported within the running executable will be different from
+what the earlier Perl <I>fork()</I> might have returned.  Similarly, any process
+manipulation functions applied to the <FONT SIZE="-1">ID</FONT> returned by <I>fork()</I> will affect the
+waiting pseudo-process that called <I>exec()</I>, not the real process it is
+waiting for after the <I>exec()</I>.
+<DT><I>exit()</I><DD>
+<A NAME="ixAAL"></A>
+<I>exit()</I> always exits just the executing pseudo-process, after automatically
+<I>wait()</I>-ing for any outstanding child pseudo-processes.  Note that this means
+that the process as a whole will not exit unless all running pseudo-processes
+have exited.
+<DT>Open handles to files, directories and network sockets<DD>
+<A NAME="ixAAM"></A>
+All open handles are <I>dup()</I>-ed in pseudo-processes, so that closing
+any handles in one process does not affect the others.  See below for
+some limitations.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Resource limits</H2>
+
+<A NAME="ixAAN"></A>
+In the eyes of the operating system, pseudo-processes created via the <I>fork()</I>
+emulation are simply threads in the same process.  This means that any
+process-level limits imposed by the operating system apply to all
+pseudo-processes taken together.  This includes any limits imposed by the
+operating system on the number of open file, directory and socket handles,
+limits on disk space usage, limits on memory size, limits on <FONT SIZE="-1">CPU</FONT> utilization
+etc.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Killing the parent process</H2>
+
+<A NAME="ixAAO"></A>
+If the parent process is killed (either using Perl's <I>kill()</I> builtin, or
+using some external means) all the pseudo-processes are killed as well,
+and the whole process exits.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Lifetime of the parent process and pseudo-processes</H2>
+
+<A NAME="ixAAP"></A>
+During the normal course of events, the parent process and every
+pseudo-process started by it will wait for their respective pseudo-children
+to complete before they exit.  This means that the parent and every
+pseudo-child created by it that is also a pseudo-parent will only exit
+after their pseudo-children have exited.
+<P>
+
+A way to mark a pseudo-processes as running detached from their parent (so
+that the parent would not have to <I>wait()</I> for them if it doesn't want to)
+will be provided in future.
+<A NAME="lbAI">&nbsp;</A>
+<H2><FONT SIZE="-1">CAVEATS</FONT> <FONT SIZE="-1">AND</FONT> <FONT SIZE="-1">LIMITATIONS</FONT></H2>
+
+<A NAME="ixAAQ"></A>
+<DL COMPACT>
+<DT><FONT SIZE="-1">BEGIN</FONT> blocks<DD>
+<A NAME="ixAAR"></A>
+The <I>fork()</I> emulation will not work entirely correctly when called from
+within a <FONT SIZE="-1">BEGIN</FONT> block.  The forked copy will run the contents of the
+<FONT SIZE="-1">BEGIN</FONT> block, but will not continue parsing the source stream after the
+<FONT SIZE="-1">BEGIN</FONT> block.  For example, consider the following code:
+
+
+<P>
+
+
+
+
+<PRE>
+    BEGIN {
+        fork and exit;          # fork child and exit the parent
+        print &quot;inner\n&quot;;
+    }
+    print &quot;outer\n&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+This will print:
+
+
+<P>
+
+
+
+
+<PRE>
+    inner
+
+</PRE>
+
+
+
+
+<P>
+
+
+rather than the expected:
+
+
+<P>
+
+
+
+
+<PRE>
+    inner
+    outer
+
+</PRE>
+
+
+
+
+<P>
+
+
+This limitation arises from fundamental technical difficulties in
+cloning and restarting the stacks used by the Perl parser in the
+middle of a parse.
+<DT>Open filehandles<DD>
+<A NAME="ixAAS"></A>
+Any filehandles open at the time of the <I>fork()</I> will be <I>dup()</I>-ed.  Thus,
+the files can be closed independently in the parent and child, but beware
+that the <I>dup()</I>-ed handles will still share the same seek pointer.  Changing
+the seek position in the parent will change it in the child and vice-versa.
+One can avoid this by opening files that need distinct seek pointers
+separately in the child.
+<DT>Forking pipe <I>open()</I> not yet implemented<DD>
+<A NAME="ixAAT"></A>
+The <TT>&quot;open(FOO, &quot;|-&quot;)&quot;</TT> and <TT>&quot;open(BAR, &quot;-|&quot;)&quot;</TT> constructs are not yet
+implemented.  This limitation can be easily worked around in new code
+by creating a pipe explicitly.  The following example shows how to
+write to a forked child:
+
+
+<P>
+
+
+
+
+<PRE>
+    # simulate open(FOO, &quot;|-&quot;)
+    sub pipe_to_fork ($) {
+        my $parent = shift;
+        pipe my $child, $parent or die;
+        my $pid = fork();
+        die &quot;fork() failed: $!&quot; unless defined $pid;
+        if ($pid) {
+            close $child;
+        }
+        else {
+            close $parent;
+            open(STDIN, &quot;&lt;&amp;=&quot; . fileno($child)) or die;
+        }
+        $pid;
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    if (pipe_to_fork('FOO')) {
+        # parent
+        print FOO &quot;pipe_to_fork\n&quot;;
+        close FOO;
+    }
+    else {
+        # child
+        while (&lt;STDIN&gt;) { print; }
+        exit(0);
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+And this one reads from the child:
+
+
+<P>
+
+
+
+
+<PRE>
+    # simulate open(FOO, &quot;-|&quot;)
+    sub pipe_from_fork ($) {
+        my $parent = shift;
+        pipe $parent, my $child or die;
+        my $pid = fork();
+        die &quot;fork() failed: $!&quot; unless defined $pid;
+        if ($pid) {
+            close $child;
+        }
+        else {
+            close $parent;
+            open(STDOUT, &quot;&gt;&amp;=&quot; . fileno($child)) or die;
+        }
+        $pid;
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    if (pipe_from_fork('BAR')) {
+        # parent
+        while (&lt;BAR&gt;) { print; }
+        close BAR;
+    }
+    else {
+        # child
+        print &quot;pipe_from_fork\n&quot;;
+        exit(0);
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+Forking pipe <I>open()</I> constructs will be supported in future.
+<DT>Global state maintained by XSUBs<DD>
+<A NAME="ixAAU"></A>
+External subroutines (XSUBs) that maintain their own global state may
+not work correctly.  Such XSUBs will either need to maintain locks to
+protect simultaneous access to global data from different pseudo-processes,
+or maintain all their state on the Perl symbol table, which is copied
+naturally when <I>fork()</I> is called.  A callback mechanism that provides
+extensions an opportunity to clone their state will be provided in the
+near future.
+<DT>Interpreter embedded in larger application<DD>
+<A NAME="ixAAV"></A>
+The <I>fork()</I> emulation may not behave as expected when it is executed in an
+application which embeds a Perl interpreter and calls Perl APIs that can
+evaluate bits of Perl code.  This stems from the fact that the emulation
+only has knowledge about the Perl interpreter's own data structures and
+knows nothing about the containing application's state.  For example, any
+state carried on the application's own call stack is out of reach.
+<DT>Thread-safety of extensions<DD>
+<A NAME="ixAAW"></A>
+Since the <I>fork()</I> emulation runs code in multiple threads, extensions
+calling into non-thread-safe libraries may not work reliably when
+calling <I>fork()</I>.  As Perl's threading support gradually becomes more
+widely adopted even on platforms with a native <I>fork()</I>, such extensions
+are expected to be fixed for thread-safety.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAX"></A>
+<DL COMPACT>
+<DT>*<DD>
+Having pseudo-process IDs be negative integers breaks down for the integer
+<TT>&quot;-1&quot;</TT> because the <I>wait()</I> and <I>waitpid()</I> functions treat this number as
+being special.  The tacit assumption in the current implementation is that
+the system never allocates a thread <FONT SIZE="-1">ID</FONT> of <TT>1</TT> for user threads.  A better
+representation for pseudo-process IDs will be implemented in future.
+<DT>*<DD>
+In certain cases, the OS-level handles created by the <I>pipe()</I>, <I>socket()</I>,
+and <I>accept()</I> operators are apparently not duplicated accurately in
+pseudo-processes.  This only happens in some situations, but where it
+does happen, it may result in deadlocks between the read and write ends
+of pipe handles, or inability to send or receive data across socket
+handles.
+<DT>*<DD>
+This document may be incomplete in some respects.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAY"></A>
+Support for concurrent interpreters and the <I>fork()</I> emulation was implemented
+by ActiveState, with funding from Microsoft Corporation.
+<P>
+
+This document is authored and maintained by Gurusamy Sarathy
+&lt;<A HREF="mailto:gsar@activestate.com">gsar@activestate.com</A>&gt;.
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAZ"></A>
+``fork'' in perlfunc, perlipc
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Behavior of other Perl features in forked pseudo-processes</A><DD>
+<DT><A HREF="#lbAF">Resource limits</A><DD>
+<DT><A HREF="#lbAG">Killing the parent process</A><DD>
+<DT><A HREF="#lbAH">Lifetime of the parent process and pseudo-processes</A><DD>
+<DT><A HREF="#lbAI"><FONT SIZE="-1">CAVEATS</FONT> <FONT SIZE="-1">AND</FONT> <FONT SIZE="-1">LIMITATIONS</FONT></A><DD>
+<DT><A HREF="#lbAJ">BUGS</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

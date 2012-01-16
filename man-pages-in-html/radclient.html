@@ -1,0 +1,211 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RADCLIENT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RADCLIENT</H1>
+Section: FreeRADIUS Daemon (1)<BR>Updated: 22 June 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+radclient - send packets to a RADIUS server, show reply
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>radclient</B>
+
+[<B>-d</B>
+
+<I>raddb_directory</I>]
+
+[<B>-c</B>
+
+<I>count</I>]
+
+[<B>-f</B>
+
+<I>file</I>]
+
+[<B>-i</B>
+
+<I>id</I>]
+
+[<B>-r</B>
+
+<I>num_retries</I>]
+
+[<B>-s</B>]
+
+[<B>-S</B>
+
+<I>shared_secret_file</I>]
+
+[<B>-t</B>
+
+<I>timeout</I>]
+
+[<B>-qvx</B>]
+
+<I>server {acct|auth|status|disconnect} secret</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>radclient</B> is a radius client program. It can send arbitrary radius
+packets to a radius server, then shows the reply. It can be used to
+test changes you made in the configuration of the radius server,
+or it can be used to monitor if a radius server is up.
+<P>
+
+<B>radclient</B> reads radius attribute/value pairs from it standard
+input, or from a file specified on the command line. It then encodes
+these attribute/value pairs using the dictionary, and sends them
+to the remote server.
+<P>
+
+The <I>User-Password</I> attribute is automatically encrypted by <I>radclient</I>.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT>-c&nbsp;<I>count</I><DD>
+Send each packet <I>count</I> times.
+<I>/etc/raddb</I>.
+<P>
+<DT>-d&nbsp;<I>raddb_directory</I><DD>
+The directory that contains the RADIUS dictionary files. Defaults to
+<I>/etc/raddb</I>.
+<P>
+<DT>-f&nbsp;<I>file</I><DD>
+File to read the attribute/value pairs from. If this is not specified,
+they are read from stdin.
+<P>
+<DT>-i&nbsp;<I>id</I><DD>
+Use <I>id</I> as the RADIUS request Id.
+<P>
+<DT>-q<DD>
+Go to quiet mode, and do not print out anything.
+<P>
+<DT>-r&nbsp;<I>num_retries</I><DD>
+Try to send each packet <I>num_retries</I> times, before giving up on
+it.  The default is 10.
+<P>
+<DT>-sPrint<DD>
+<P>
+<DT>-S&nbsp;<I>shared_secret_file</I><DD>
+Rather than reading the shared secret from the command-line (where it
+can be seen by others on the local system), read it instead from
+<I>shared_secret_file</I>.
+<P>
+<DT>-t&nbsp;<I>timeout</I><DD>
+Wait <I>timeout</I> seconds before deciding that the NAS has not
+responded to a request, and re-sending the packet.  The default
+timeout is 3.
+<P>
+<DT>-v<DD>
+Print out version information.
+<P>
+<DT>-x<DD>
+Print out extra debugging information.
+<P>
+<DT>server[:port]<DD>
+The hostname or IP address of the remote server. Optionally a UDP port
+can be specified. If no UDP port is specified, it is looked up in
+<I>/etc/services</I>. The service name looked for is <B>radacct</B> for
+accounting packets, and <B>radius</B> for all other requests. If a
+service is not found in <I>/etc/services</I>, 1813 and 1812 are used
+respectively.
+<P>
+<DT>acct&nbsp;|&nbsp;auth<DD>
+Use <B>auth</B> to send an authentication packet (Access-Request),
+<B>acct</B> to send an accounting packet (Accounting-Request),
+<B>status</B> to send an status packet (Status-Server), or
+<B>disconnect</B> to send a disconnection request. Instead of these
+values, you can also use a decimal code here. For example, code 12 is
+also <B>Status-Server</B>.
+<P>
+<DT>secret<DD>
+The shared secret for this client.  It needs to be defined on the
+radius server side too, for the IP address you are sending the radius
+packets from.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<P>
+A sample session that queries the remote server for <I>Status-Server</I>
+(not all servers support this.  Cistron-radiusd does since version
+1.6.5):
+<DL COMPACT><DT><DD>
+<P>
+<PRE>
+
+$ echo &quot;User-Name = fnord&quot; | radclient 192.168.1.42 12 s3cr3t
+Sending request to server 192.168.1.42, port 1812.
+radrecv: Packet from host 192.168.1.42 code=2, id=140, length=54
+    Reply-Message = &quot;FreeRADIUS up 21 days, 02:05&quot;
+
+</PRE>
+
+<P>
+</DL>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man8/radiusd.8.php">radiusd</A>(8),
+<A HREF="../man1/radtest.1.php">radtest</A>(1).
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Miquel van Smoorenburg, <A HREF="mailto:miquels@cistron.nl">miquels@cistron.nl</A>.
+Alan DeKok &lt;<A HREF="mailto:aland@freeradius.org">aland@freeradius.org</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLE</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

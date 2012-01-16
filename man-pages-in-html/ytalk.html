@@ -1,0 +1,661 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>YTalk</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>YTalk</H1>
+Section: User Commands  (1)<BR>Updated: 18 November 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ytalk - A multi-user chat program. 
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+ytalk [-x] [-s] [-Y] [-i] [-q] [-h hostname_or_ip] username...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>YTalk V3.1.2-dev</I>
+
+<P>
+
+YTalk is in essence a multi-user chat program.  It works almost exactly like
+the UNIX talk program and even communicates with the same talk daemon(s), but
+YTalk allows for multiple connections.
+<P>
+The 
+<I>username</I>
+
+field may be formatted in several different ways:
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>name          - some user on your machine<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><A HREF="mailto:name@host">name@host</A>     - some user on a different machine<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>name#tty      - some user on a particular terminal<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>name#<A HREF="mailto:tty@host">tty@host</A> - some user on a particular tty on a <BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT> different machine<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><A HREF="mailto:name@host">name@host</A>#tty - same as &quot;name#<A HREF="mailto:tty@host">tty@host</A>&quot;<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>aliasname     - an alias defined in your .ytalkrc<BR>
+<P>
+
+You can specify multiple user names on the command line, ie:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>ytalk george <A HREF="mailto:fred@hissun.edu">fred@hissun.edu</A> <A HREF="mailto:marc@grumpy.cc">marc@grumpy.cc</A><BR>
+<P>
+
+The -x option enables the X11 interface (described below).
+<P>
+
+The -s option starts your YTalk window in a shell.
+<P>
+
+The -q option causes YTalk to prompt you before quitting.
+<P>
+
+The -i option disables the auto-invite port (meaning you won't see
+&quot;talk to <A HREF="mailto:blah@blah.com">blah@blah.com</A>&quot;, but your talk daemon will beep you instead).
+<P>
+
+The -h option specifies the name or address of the local machine; this
+is useful on multi-homed machines, or virtual hosts, to specify which
+network interface to use for communication.
+<P>
+
+The -Y option requires a capital Y or N as an answer to any yes/no
+question.
+<P>
+
+For each user on the command line, YTalk will attempt to connect to the talk
+daemon on the specified user's host and determine if that user has left an
+invitation for you to call.  If not, YTalk leaves an invitation for him
+and tells his talk daemon to send an announcement to his screen.  There
+is no dedicated YTalk daemon.  Right now, YTalk is able to communicate
+with BOTH existing versions of UNIX talk daemons.  For any particular
+host, YTalk will attempt to communicate with a talk daemon the caller's
+host also supports.  If the two hosts have no daemon in common, then
+UNIX talk will not function at all, but a connection is possible through
+(and only through) YTalk.
+<P>
+
+Once a connection has been established between two users, they can chat back
+and forth to their hearts' content.  The connection is terminated when one
+of them hits control-C or selects quit off the main menu.
+<P>
+
+YTalk is perfectly compatible with UNIX talk and they can even converse
+with each other without any problems.  However, many of the features of YTalk
+can only operate when you are connected to a user who is also using YTalk.
+For the rest of this document, it will be assumed that all connected users
+are using YTalk, unless otherwise stated.
+<P>
+
+If you specified more than one user on the YTalk command line, then YTalk
+will process and add each user to the conversation as they respond to your
+invitation.  As each new user enters the conversation, the screen is further
+subdivided into smaller and smaller windows, one for each connected user.
+Right now, the number of connected users is limited by the number of lines
+on your terminal (or window), for each connected user needs at least three
+lines.
+<P>
+
+YTalk does implement primitive support of the X11 Windowing System.  If the
+environment variable DISPLAY is set, then YTalk attempts to connect to that
+X server.  Further details about the X11 interface (and how to turn it off)
+are given below.
+<P>
+
+As each new user is added to the conversation, YTalk will transmit information
+about that user to all other connected YTalk users so that their screens will
+also subdivide and incorporate the new user.  If the new user is using UNIX
+talk, then information about him will NOT be transmitted, for his screen
+would be unable to accept multiple connections.  It was given brief thought
+to allowing at least the output of UNIX talk users to be transmitted to
+all connected YTalk users, but there was no code written to do so.  Note
+that even though UNIX talk cannot handle multiple connections, it is still
+possible for YTalk to handle multiple UNIX &quot;talk&quot; connections.  For example,
+george (using YTalk) could communicate with fred and joe (both using UNIX
+talk), but fred and joe would be unaware of each other.  The best way to
+understand the limitations that UNIX &quot;talk&quot; places on YTalk is to test
+various connections between the two and see how things work.
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>ESCAPE MENU</H2>
+
+Whenever you are using YTalk, you can hit the 
+<I>ESCAPE </I>
+
+key to bring up a menu which at this
+moment has these options:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a:&nbsp;add&nbsp;a&nbsp;user
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d:&nbsp;delete&nbsp;a&nbsp;user
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;k:&nbsp;kill&nbsp;all&nbsp;unconnected
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o:&nbsp;options
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s:&nbsp;shell
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u:&nbsp;user&nbsp;list
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w:&nbsp;output&nbsp;user&nbsp;to&nbsp;file
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q:&nbsp;quit
+<P>
+
+By choosing option &quot;a&quot;, you are given the opportunity to type the name of any
+user you wish to include into the conversation.  Again, YTalk will accept an
+invitation from that user if an invitation exists, or will leave an invitation
+and ring the given user.
+<P>
+
+By choosing option &quot;d&quot;, you can select the name of a connection to terminate.
+<P>
+
+By choosing option &quot;k&quot;, you can make YTalk forget all pending (waiting)
+connections.
+<P>
+
+By choosing option &quot;o&quot;, you can view and/or modify any of the YTalk options.
+See the OPTIONS section below for a list of YTalk options.
+<P>
+
+By choosing option &quot;s&quot;, you can invoke a shell in your YTalk window.  All
+other users will see what happens in your shell.  YTalk will automatically
+resize your window down to the size of the smallest window you are
+connected to, in order to ensure that all users always see the same thing.
+<P>
+
+The &quot;u&quot; option displays a list of connected and unconnected users, as well
+as their window sizes and what version of talk software they are running.
+<P>
+
+By choosing option &quot;w&quot;, you can select any connected user and type the
+name of a file, and all further output from that user will be dumped to the
+specified file.  The file, if it exists, will be OVERWRITTEN.  By choosing
+&quot;w&quot; and the same user again, further output to the file will be terminated.
+<P>
+
+Oh, one other thing:  when user A attempts to ytalk to user B, but user B is
+already ytalking with user C, user A's YTalk program will realize that user
+B is already using YTalk, and will communicate with user B's YTalk program
+directly in order to initialize the conversation.  User B will see a nice
+windowed message like:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>Do you wish to talk with user A?<BR>
+<P>
+
+and he will be prompted for a yes/no answer.  This, in my opinion, is much
+preferable to blitting the announcement message and messing up user B's
+screen. The command-line option &quot;-i&quot; turns this off.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RUNTIME OPTIONS</H2>
+
+When you select Options off of the main menu, you are given the opportunity
+to edit the YTalk options.  The current options are:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>s: turn scrolling [off/on]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>w: turn word-wrap [off/on]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>i: turn auto-import [off/on]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>v: turn auto-invite [off/on]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>r: turn reringing [off/on]<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>p: [don't] prompt before rerings<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>q: [don't] prompt before quitting<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>a: turn asides [off/on]<BR>
+<P>
+
+If
+<I>scrolling</I>
+
+is turned on, then a user's window will scroll when he reaches the bottom,
+instead of wrapping back around to the top.
+<P>
+
+If
+<I>word-wrap</I>
+
+is turned on, then any word which would overextend the right margin will
+be automatically moved to the next line on your screen.
+<P>
+
+If
+<I>auto-import</I>
+
+is turned on, then YTalk will assume that you wish to talk to any users
+which connect to other YTalk users which are connected to you.  That last
+sentence does make sense; try again.  YTalk will add these users to your
+session automatically, without asking you for verification.
+<P>
+
+If
+<I>auto-invite</I>
+
+is turned on, then YTalk will automatically accept any connection requested
+by another user and add them to your session.  You will not be asked for
+verification.
+<P>
+
+If
+<I>rering</I>
+
+is turned on, then YTalk will re-ring any user who does not respond to
+your invitation within 30 seconds.
+<P>
+
+If
+<I>prompt-rering</I>
+
+is turned on, then YTalk will ask you before re-ringing a user.
+<P>
+
+If
+<I>prompt-quit</I>
+
+is turned on, then Ytalk will wait for keyboard input before quitting.
+<P>
+
+If
+<I>asides</I>
+
+is turned on (it may not be available), then keyboard input received while
+the input focus is in a specific users' window will only be sent to that
+user.  See the X11 interface description below.
+<P>
+
+Any of these options can be set to your preference in your .ytalkrc file,
+as described below.
+<A NAME="lbAG">&nbsp;</A>
+<H2>YTALK STARTUP FILE</H2>
+
+If your home directory contains a file named &quot;.ytalkrc&quot; then YTalk will
+read this file while starting up.  All YTalk runtime options, as well as
+some startup options, can be set in this file.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SETTING BOOLEAN OPTIONS</H2>
+
+Boolean options can be pre-set with the following syntax:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>turn<BR>
+<I>option</I>
+
+[off | on]
+<P>
+
+where
+<I>option</I>
+
+is one of
+<I>scrolling ,</I>
+
+<I>word-wrap ,</I>
+
+<I>auto-import ,</I>
+
+<I>auto-invite ,</I>
+
+<I>rering ,</I>
+
+<I>prompt-rering ,</I>
+
+<I>prompt-quit ,</I>
+
+<I>caps ,</I>
+
+<I>noinvite ,</I>
+
+<I>asides ,</I>
+
+or
+<I>X .</I>
+
+Setting these options works just like described above.  Turning
+<I>X</I>
+
+on or off will enable or disable the X11 Interface described below.
+For example, one could enable word-wrap with the line:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>turn word-wrap on<BR>
+<A NAME="lbAI">&nbsp;</A>
+<H2>ALIASES</H2>
+
+You can setup aliases so you don't have to type the full address of
+the user you want to ring.  There are three types of aliases:
+<DL COMPACT>
+<DT><B>alias </B><I>aliasname</I>@ <I>username</I>@
+
+<DD>
+Replaces <I>aliasname</I>@<I>host</I> with <I>username</I>@<I>host</I> for
+every host. The '@' at the end of <I>username@</I> is not required.
+<DT><B>alias @</B><I>aliashost</I> @<I>realhost</I>
+
+<DD>
+Replaces <I>user</I>@<I>aliashost</I> with <I>user</I>@<I>realhost</I> for
+every user. The '@' at the beginning of @<I>realhost</I> is not required.
+<DT><B>alias </B><I>aliasname</I> <I>user</I>@<I>host</I>
+
+<DD>
+Replaces <I>aliasname</I> with <I>user</I>@<I>host</I>.
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SELECTING INTERFACES AND VIRTUAL HOSTS</H2>
+
+On machines with multiple IP addresses (multiple interfaces, or virtual
+hosts), you can choose the default address to use for communication with
+YTalk, using the
+<B>localhost</B>
+
+command in your .ytalkrc file.  The syntax is:
+<DL COMPACT>
+<DT><B>localhost </B><I>hostname-or-IP-address</I>
+
+<DD>
+<P>
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SETTING RE-ADDRESS MODES</H2>
+
+The purpose of readdressing is to allow Ytalk connections across
+point-to-point network gateways where the local machines know themselves
+by a different address (and typically hostname) than the remote machines.
+The basic syntax of a readdress command is this:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>readdress<BR>
+<I>from-address</I>
+
+<I>to-address</I>
+
+<I>domain</I>
+
+<P>
+
+The
+<I>readdress</I>
+
+statement simply makes a claim that the machine(s) in
+<I>domain</I>
+
+communicate with the machine(s) at
+<I>from-address</I>
+
+by sending a packet to
+<I>to-address .</I>
+
+Since most users have no use for this whatsoever, it will be described only
+briefly.
+<P>
+
+THIS IS NOT ROUTING.  For example, my machine at home is connected via
+PPP to the network at my office.  My machine at home thinks its ethernet
+address is 192.188.253.1 and its hostname is &quot;talisman.com&quot;.  The network
+at my office has the address 192.67.141.0.  When I'm connected via PPP,
+my home machine is placed into the office network as address 192.67.141.9
+with hostname &quot;talisman.austin.eds.com&quot;.
+<P>
+
+YTalk needs to know that if it is running on domain 192.67.141.0 and
+receives packets from 192.188.253.1 that it should respond to
+192.67.141.9, not 192.188.253.1.  right?  right.  okay, okay, okay.
+I put this line into my .ytalkrc on both ends:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>readdress talisman talisman.austin.eds.com 192.67.141.0<BR>
+<P>
+
+On my home end, this translates to:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>readdress 192.188.253.1 192.67.141.9 192.67.141.0<BR>
+<P>
+
+which tells my home machine to advertise itself as &quot;192.67.141.9&quot; instead
+of &quot;192.188.253.1&quot; when YTalk-ing to machines on the network &quot;192.67.141.0&quot;.
+On the office end, the readdress command translates to:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>readdress 192.67.141.9 192.67.141.9 192.67.141.0<BR>
+<P>
+
+which the office machines basically ignore.
+<P>
+
+Note that, in this case, the problem could also have been solved by
+telling the home YTalk to use the 192.67.141.0 interface, when doing
+YTalk requests across the PPP link.
+<P>
+
+Enough.  For more information on how to use this, consult the source code
+or send me a letter.  :-)
+<A NAME="lbAL">&nbsp;</A>
+<H2>X11 INTERFACE</H2>
+
+If the DISPLAY environment variable is defined when YTalk starts up, then
+YTalk will attempt to communicate with that X server.  A window will be
+created for you and each user you are connected to.  The X11 Interface can
+be disabled either by specifying -x on the command line or by putting this
+line into your .ytalkrc file:
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>turn X off<BR>
+<P>
+
+A window is created for each individual user in the conversation.  If the
+input focus is in the main window (ie: the one with &quot;ytalk&quot; in the title
+bar) then anything typed will be sent to all connected users.  If the input
+focus is in one of the users' windows, then anything typed will be sent
+as an aside to only that user.  If the &quot;aside&quot; option is turned off (see
+above) then ytalk will beep and not accept anything typed when the input
+focus is not in the main window.
+<P>
+
+YTalk consults the X11 Resource Database for these user-definable
+configuration options:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;YTalk.display:&nbsp;&nbsp;X&nbsp;server&nbsp;to&nbsp;connect&nbsp;to,&nbsp;defaulting&nbsp;to&nbsp;the
+DISPLAY environment variable.
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;YTalk.reverse:&nbsp;&nbsp;reverse&nbsp;black/white&nbsp;pixels.
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;YTalk.font:&nbsp;&nbsp;font&nbsp;to&nbsp;use,&nbsp;defaulting&nbsp;to&nbsp;&quot;9x15&quot;.
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;YTalk.geometry:&nbsp;&nbsp;window&nbsp;size,&nbsp;defaulting&nbsp;to&nbsp;&nbsp;&quot;80x24&quot;.
+<A NAME="lbAM">&nbsp;</A>
+<H2>FUTURE WORK</H2>
+
+Work is being done on the following ideas:
+<P>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>1) a dedicated YTalk daemon.<BR>
+<BR>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>2) MBCS/NLS support.<BR>
+<BR>
+
+<P>
+
+However, as this was claimed over 5 years ago, I wouldn't hold my breath on 
+it. :=)
+<P>
+<A NAME="lbAN">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+/etc/ytalkrc
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;System-wide&nbsp;defaults&nbsp;file.
+<P>
+
+$HOME/.ytalkrc
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;User's&nbsp;local&nbsp;configuration&nbsp;file.&nbsp;&nbsp;This&nbsp;file&nbsp;overrides
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;options&nbsp;set&nbsp;in&nbsp;the&nbsp;system&nbsp;ytalkrc&nbsp;file.
+<P>
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+Britt Yenne
+<BR>
+
+<A HREF="mailto:yenne@austin.eds.com">yenne@austin.eds.com</A>
+<P>
+<A NAME="lbAP">&nbsp;</A>
+<H2>FORMER MAINTAINER</H2>
+
+<P>
+Roger Espel Llima
+<BR>
+
+<A HREF="mailto:roger.espel.llima@pobox.com">roger.espel.llima@pobox.com</A>
+<P>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>CURRENT MAINTAINER</H2>
+
+<P>
+Metawire.org Coding Team
+<BR>
+
+&lt;<A HREF="mailto:angel@metawire.org">angel@metawire.org</A>&gt;
+<BR>
+
+<A HREF="http://www.metawire.org/ytalk/">http://www.metawire.org/ytalk/</A>
+<P>
+<A NAME="lbAR">&nbsp;</A>
+<H2>CONTRIBUTORS</H2>
+
+Special thanks to Carl Edman for numerous code patches, beta testing,
+and comments.  I think this guy spends as much time on ytalk as I do.
+<P>
+
+Special thanks to Tobias Hahn and Geoff W. for beta testing and
+suggestions.
+<P>
+
+Thanks to Sitaram Ramaswamy for the original YTalk manpage.
+<P>
+
+Thanks to Magnus Hammerin for Solaris 2.* support.
+<P>
+
+Thanks to Thilo Wunderlich for Linux support.
+<P>
+
+Thanks to Jonas Yngvesson for aside messages in X.
+<P>
+
+Thanks to Andreas Stolcke for fixing the X resource database calls.
+<P>
+
+Thanks to Pete Wenzel for fixing the #elif directive.
+<P>
+
+Thanks to John Vanderpool, Shih-Chen Huang, Andrew Myers, Duncan Sinclair,
+Evan McLean, Larry Schwimmer, J. Adam Hawkes, and Mark Musone for comments
+and ideas.
+<P>
+
+Thanks to Steve McIntyre for patches and ideas.
+<P>
+
+The README file shipped with ytalk gives detailed attributions.
+<P>
+<A NAME="lbAS">&nbsp;</A>
+<H2>BUGS</H2>
+
+Please mail any bugs to the maintainer of this version, at
+&lt;<A HREF="mailto:angel@metawire.org">angel@metawire.org</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">ESCAPE MENU</A><DD>
+<DT><A HREF="#lbAF">RUNTIME OPTIONS</A><DD>
+<DT><A HREF="#lbAG">YTALK STARTUP FILE</A><DD>
+<DT><A HREF="#lbAH">SETTING BOOLEAN OPTIONS</A><DD>
+<DT><A HREF="#lbAI">ALIASES</A><DD>
+<DT><A HREF="#lbAJ">SELECTING INTERFACES AND VIRTUAL HOSTS</A><DD>
+<DT><A HREF="#lbAK">SETTING RE-ADDRESS MODES</A><DD>
+<DT><A HREF="#lbAL">X11 INTERFACE</A><DD>
+<DT><A HREF="#lbAM">FUTURE WORK</A><DD>
+<DT><A HREF="#lbAN">FILES</A><DD>
+<DT><A HREF="#lbAO">AUTHOR</A><DD>
+<DT><A HREF="#lbAP">FORMER MAINTAINER</A><DD>
+<DT><A HREF="#lbAQ">CURRENT MAINTAINER</A><DD>
+<DT><A HREF="#lbAR">CONTRIBUTORS</A><DD>
+<DT><A HREF="#lbAS">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DOTLOCKFILE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DOTLOCKFILE</H1>
+Section: Cistron Utilities (1)<BR>Updated: 05 June 1999<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dotlockfile - Utility to manage lockfiles
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>/usr/bin/dotlockfile</B>
+
+[<B>-p</B>]
+
+[<B>-c</B>]
+
+[<B>-u</B>]
+
+[<B>-m</B>]
+
+[<B>-l|-u</B>]
+
+[<B>-r</B>
+
+<I>retries</I>]
+
+[<B>lockfile]</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Dotlockfile</B> is a command line utility to safely create, test and
+remove lockfiles. Lockfiles are created in an NFS-safe way. <B>Dotlockfile</B>
+can lock and unlock mailboxes even if the mailspool directory is only
+writable by group mail.
+<P>
+
+The name <B>dotlockfile</B> comes from the way mailboxes are locked for updates
+on a lot of UNIX systems. A lockfile is created with the same filename
+as the mailbox but with the string &quot;<I>.lock</I>&quot; appended.
+<P>
+
+The names <B>dotlock</B> and <B>lockfile</B> were already taken - hence
+the name <B>dotlockfile</B> <I>:)</I>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-l</B><DD>
+Create a lockfile. This is the default.
+<DT><B>-u</B><DD>
+Remove a lockfile.
+<DT><B>-c</B><DD>
+Check for the existence of a <B>valid</B> lockfile.
+<DT><B>-p</B><DD>
+Write the <I>process-id</I> of the calling process into the lockfile. Also
+when testing for an existing lockfile, check the contents for a process-id
+to find out if the lockfile is still valid.
+<DT><B>-r retries</B><DD>
+The number of times <B>dotlockfile</B> tries to acquire the lock before giving
+up. The initial sleep after failing to acquire the lock is 5 seconds.
+After each next try, a sleep of 5 seconds <I>extra</I> occurs up to a
+maximum sleep of 60 seconds between tries.
+<DT><B>-m</B><DD>
+Lock or unlock the current users mailbox. The path to the mailbox is the
+default system mailspool directory (usually <I>/var/mail</I>) with the
+username as gotten from <I>getpwuid()</I> appended. If the environment
+variable <I>$MAIL</I> is set, that is used instead. Then the string
+<I>&quot;.lock&quot;</I> is appended to get the name of the actual lockfile.
+<DT>lockfile<DD>
+The lockfile to be created/removed, unless the <B>-m</B> option is in effect.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+Zero on success, and non-zero on failure. For the <B>-c</B> option,
+sucess means that a valid lockfile is already present. When locking
+(the default, or the <B>-l</B> option) <B>dotlockfile</B> returns the same
+values as the library function <I><A HREF="../man3/lockfile_create.3.php">lockfile_create</A></I>(3).
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+The lockfile is created exactly as named on the command line. The
+extension <I>.lock</I> is <I>not</I> automatically added.
+<P>
+
+This utility is a lot like the <I><A HREF="../man1/lockfile.1.php">lockfile</A></I>(1) utility included with
+<I>procmail</I>, and the <I><A HREF="../man1/mutt_dotlock.1.php">mutt_dotlock</A></I>(1) utility included with
+<I>mutt</I>. However the command-line arguments differ, and so does the
+return status. It is believed that <I>dotlockfile</I> is the most flexible
+implementation, since it automatically detects when it needs to use
+priviliges to lock a mailbox, and does it safely.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+None known.
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man3/lockfile_create.3.php">lockfile_create</A>(3),
+<A HREF="../man3/maillock.3.php">maillock</A>(3)
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Miquel van Smoorenburg, <A HREF="mailto:miquels@cistron.nl">miquels@cistron.nl</A>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAG">NOTES</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

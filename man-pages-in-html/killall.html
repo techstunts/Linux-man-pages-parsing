@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>KILLALL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>KILLALL</H1>
+Section: User Commands (1)<BR>Updated: September 26, 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+killall - kill processes by name
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<B>killall</B>
+
+[<B>-c</B>,<B>--context</B>]
+
+[<B>-e</B>,<B>--exact</B>]
+
+[<B>-g</B>,<B>--process-group</B>]
+
+[<B>-i</B>,<B>--interactive</B>]
+
+[<B>-q</B>,<B>--quiet</B>]
+
+[<B>-s</B>,<B>--signal</B>
+
+<I>signal</I>]
+
+[<B>-v</B>,<B>--verbose</B>]
+
+[<B>-w</B>,<B>--wait</B>]
+
+[<B>-V,</B>--version<B>]</B>
+
+[<B>--</B>]
+
+<I>name ...</I>
+
+<BR>
+
+<B>killall</B>
+
+-l
+
+<BR>
+
+<B>killall</B>
+
+-V,<B>--version</B>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>killall</B>
+
+sends a signal to all processes running any of the specified commands. If no
+signal name is specified, SIGTERM is sent.
+<P>
+
+Signals can be specified either by name (e.g. <B>-HUP</B>) or by number
+(e.g. <B>-1</B>). 
+<P>
+
+If the command name contains a slash (<B>/</B>), processes executing that
+particular file will be selected for killing, independent of their name.
+<P>
+
+<B>killall</B> returns a zero return code if at least one process has been 
+killed for each listed command. <B>killall</B> returns non-zero otherwise.
+<P>
+
+A <B>killall</B> process never kills itself (but may kill other <B>killall</B>
+processes).
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-e</B>, <B>--exact</B><DD>
+Require an exact match for very long names. If a command name is longer
+than 15 characters, the full name may be unavailable (i.e. it is swapped
+out). In this case, <B>killall</B> will kill everything that matches within
+the first 15 characters. With <B>-e</B>, such entries are skipped.
+<B>killall</B> prints a message for each skipped entry 
+if <B>-v</B> is specified in addition to <B>-e</B>,
+<DT><B>-g</B>, <B>--process-group</B><DD>
+Kill the process group to which the process belongs. The kill signal is only
+sent once per group, even if multiple processes belonging to the same process
+group were found.
+<DT><B>-i</B>, <B>--interactive</B><DD>
+Interactively ask for confirmation before killing.
+<DT><B>-l</B>, <B>--list</B><DD>
+List all known signal names.
+<DT><B>-q</B>, <B>--quiet</B><DD>
+Do not complain if no processes were killed.
+<DT><B>-v</B>, <B>--verbose</B><DD>
+Report if the signal was successfully sent.
+<DT><B>-V</B>, <B>--version</B><DD>
+Display version information.
+<DT><B>-w</B>, <B>--wait</B><DD>
+Wait for all killed processes to die. <B>killall</B> checks once per second if
+any of the killed processes still exist and only returns if none are left.
+Note that <B>killall</B> may wait forever if the signal was ignored, had no
+effect, or if the process stays in zombie state.
+<DT><B>-Z</B><DD>
+(SELinux Only) Specify security context: kill only processes with given security context.
+Must precede other arguments on the command line.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+/proc   location of the proc file system
+</PRE>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>KNOWN BUGS</H2>
+
+Killing by file only works for executables that are kept open during
+execution, i.e. impure executables can't be killed this way.
+<P>
+
+Be warned that typing <B>killall</B> <I>name</I> may not have the desired
+effect on non-Linux systems, especially when done by a privileged
+user.
+<P>
+
+<B>killall -w</B> doesn't detect if a process disappears and is replaced by
+a new process with the same PID between scans.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+Werner Almesberger &lt;<A HREF="mailto:werner@almesberger.net">werner@almesberger.net</A>&gt; wrote the original version
+of psmisc.  Since version 20 Craig Small &lt;<A HREF="mailto:csmall@small.dropbear.id.au">csmall@small.dropbear.id.au</A>&gt; 
+can be blamed.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/kill.1.php">kill</A></B>(1),<B><A HREF="../man1/fuser.1.php">fuser</A></B>(1),<B><A HREF="../man1/pgrep.1.php">pgrep</A></B>(1),<B><A HREF="../man1/pidof.1.php">pidof</A></B>(1),<B><A HREF="../man1/pkill.1.php">pkill</A></B>(1),<B><A HREF="../man1/ps.1.php">ps</A></B>(1),<B><A HREF="../man2/kill.2.php">kill</A></B>(2)
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">KNOWN BUGS</A><DD>
+<DT><A HREF="#lbAH">AUTHORS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

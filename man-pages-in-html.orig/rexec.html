@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>REXEC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>REXEC</H1>
+Section: User Commands  (1)<BR>Updated: February 14, 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+rexec -- remote execution client for an exec server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>rexec </B>
+
+[  
+<B>-abcdhns -l </B>
+
+username 
+<B>-p </B>
+
+password
+] host command
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Rexec</B>
+
+calls the 
+<B><A HREF="../man3/rexec.3.php">rexec</A>(3)</B>
+
+routine to act as a client for the remote host's
+<B><A HREF="../man8/rexecd.8.php">rexecd</A>(8)</B>
+
+server.  
+<P>
+
+It asks that ``command'' be run on the host computer,
+using username/password authentication. See 
+<B><A HREF="../man3/rexec.3.php">rexec</A>(3)</B>
+
+and
+<B><A HREF="../man8/rexecd.8.php">rexecd</A>(8)</B>
+
+for details of the protocol.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<B>Rexec</B>
+
+accepts several options, but only three are likely to be very useful:
+
+<P>
+
+<B>-l username</B>
+<DL COMPACT>
+<DT><DD>
+Set the log-in name on the remote host to username.
+
+</DL>
+<P>
+
+<B>-p password</B>
+<DL COMPACT>
+<DT><DD>
+Provide the password for the remote account.  The command line argument
+will be blanked after being parsed, to prevent it from being
+seen with 
+<B><A HREF="../man1/ps.1.php">ps</A>(1).</B>
+
+However, it is still not very secure to type the password on the 
+command line.  In particular, be sure that the shell's history file
+is protected.
+<DT><B>-n</B><DD>
+Explicitly prompt for name and password, even if provided in
+the environment, in the $HOME/.netrc file, or in the environmental
+variables REXEC_USER and REXEC_PASS.
+</DL>
+<P>
+
+Other options that might be useful with non-standard remote exec
+daemons, or to debug connections:
+<DL COMPACT>
+<DT><B>-a</B><DD>
+Do not set up an auxiliary channel for standard error from command;
+the remote standard error and output are then both returned on the
+local standard output.  By default, 
+<B>rexec</B>
+
+asks that a separate channel be set up for diagnostic output
+from the remote command.
+<DT><B>-b</B><DD>
+Use signal handling as in BSD <A HREF="../man1/rsh.1.php">rsh</A>(1).  Only the signals 
+SIGINT, SIGQUIT, and SIGTERM are echoed to the remote process.
+They do not remain raised locally, so rexec waits for the
+remote command to shutdown its side of the socket.  Also, CNTRL-Z will
+only suspend execution locally--the remote command may continue to run.
+<DT><B>-c</B><DD>
+Do not close remote standard input when local standard input closes.
+Normally the standard input to the remote command is closed when
+the local standard input is closed.
+<DT><B>-d</B><DD>
+Turn on debugging information. In particular the command sent to the
+remote host will be echoed.
+<DT><B>-h</B><DD>
+Print a usage message.
+<DT><B>-s</B><DD>
+Do not echo signals received by the rexec onto the remote
+process.  Normally, signals which can be trapped are passed
+on to the remote process; then, when you type CNTRL-C, the remote
+process terminates as well.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>USERNAME AND PASSWORD</H2>
+
+<B><A HREF="../man1/Rexec.1.php">Rexec</A>(1)</B>
+
+searches for the username and password in the following order:
+<DL COMPACT>
+<DT><DD>
+1. If -n is given on the command line, the user will always be
+prompted for both, even if they are also given on the command line.
+<DT><DD>
+2. The command line will be parsed
+<DT><DD>
+3. If the environmental variables REXEC_USER or REXEC_PASS are
+defined, they will define the username or password.
+<DT><DD>
+4. The $HOME/.netrc file will be searched.  See
+<B><A HREF="../man1/ftp.1.php">ftp</A>(1)</B>
+
+for a description of this file's format.
+<DT><DD>
+5. Finally, the user will be prompted if either the username or password 
+remains undefined.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SECURITY</H2>
+
+Users of this command should be aware that 
+<B><A HREF="../man3/rexec.3.php">rexec</A>(3)</B>
+
+transmits their password to the remote host clear text, not
+encrypted.  If the network is not secure to the remote host, the
+password can be comprimised.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SIGNALS</H2>
+
+Without the -b option,
+all signals which can be handled are echoed to the remote process.
+Afterwards, however, they remain raised in the local process.  
+Typically, this means that 
+<B><A HREF="../man1/rexec.1.php">rexec</A>(1)</B>
+
+will exit after receiving a fatal signal, even if the remote
+process has arranged to handle or ignore it.
+<P>
+Differing operating systems use differing signal numbers; for example
+AIX and SunOS use 18 for SIGTSTP (^Z), while Linux uses 20.  Therefore, 
+it may have a different effect remotely than
+locally.  In particular, typing CNTL-Z may not suspend the execution
+of the remote process.
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<P>
+
+rexec othermachine cat &quot;&gt;remote_file; date&quot; &lt;local_file
+<P>
+
+will send local_file to the othermachine as remote_file.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+Please send bug reports, system incompatibilities,
+and job offers to the author.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man3/rexec.3.php">rexec</A>(3), <A HREF="../man8/rexecd.8.php">rexecd</A>(8), <A HREF="../man1/rsh.1.php">rsh</A>(1)
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Michael Sadd 
+<BR>
+
+<A HREF="mailto:mas22@cornell.edu">mas22@cornell.edu</A>
+<BR>
+
+<A HREF="http://www.tc.cornell.edu/~sadd/">http://www.tc.cornell.edu/~sadd/</A>
+<P>
+Thanks to Orange Gopher (2/10/97) and Johannes Plass
+(<A HREF="mailto:plass@dipmza.physik.uni-mainz.de">plass@dipmza.physik.uni-mainz.de</A>, Oct. 17 1996) for useful suggestions.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">USERNAME AND PASSWORD</A><DD>
+<DT><A HREF="#lbAG">SECURITY</A><DD>
+<DT><A HREF="#lbAH">SIGNALS</A><DD>
+<DT><A HREF="#lbAI">EXAMPLE</A><DD>
+<DT><A HREF="#lbAJ">BUGS</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

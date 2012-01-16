@@ -1,0 +1,301 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>POSTQUEUE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>POSTQUEUE</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+postqueue
+-
+Postfix queue control
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<PRE>
+<B>postqueue</B> [<B>-c </B><I>config_dir</I>] <B>-f</B>
+<BR>
+<B>postqueue</B> [<B>-c </B><I>config_dir</I>] <B>-p</B>
+<BR>
+<B>postqueue</B> [<B>-c </B><I>config_dir</I>] <B>-s </B><I>site</I>
+</PRE><A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+
+
+The <B>postqueue</B> program implements the Postfix user interface
+for queue management. It implements operations that are
+traditionally available via the <B><A HREF="../man1/sendmail.1.php">sendmail</A></B>(1) command.
+See the <B><A HREF="../man1/postsuper.1.php">postsuper</A></B>(1) command for queue operations
+that require super-user privileges such as deleting a message
+from the queue or changing the status of a message.
+<P>
+The following options are recognized:
+<DL COMPACT>
+<DT><B>-c </B><I>config_dir</I><DD>
+The <B>main.cf</B> configuration file is in the named directory
+instead of the default configuration directory. See also the
+MAIL_CONFIG environment setting below.
+<DT><B>-f</B><DD>
+Flush the queue: attempt to deliver all queued mail.
+<P>
+This option implements the traditional <B>sendmail -q</B> command,
+by contacting the Postfix <B><A HREF="../man8/qmgr.8.php">qmgr</A></B>(8) daemon.
+<P>
+Warning: flushing undeliverable mail frequently will result in
+poor delivery performance of all other mail.
+<DT><B>-p</B><DD>
+Produce a traditional sendmail-style queue listing.
+This option implements the traditional <B>mailq</B> command,
+by contacting the Postfix <B><A HREF="../man8/showq.8.php">showq</A></B>(8) daemon.
+<P>
+Each queue entry shows the queue file ID, message
+size, arrival time, sender, and the recipients that still need to
+be delivered.  If mail could not be delivered upon the last attempt,
+the reason for failure is shown. This mode of operation is implemented
+by executing the <B><A HREF="../man1/postqueue.1.php">postqueue</A></B>(1) command. The queue ID string
+is followed by an optional status character:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>*</B><DD>
+The message is in the <B>active</B> queue, i.e. the message is
+selected for delivery.
+<DT><B>!</B><DD>
+The message is in the <B>hold</B> queue, i.e. no further delivery
+attempt will be made until the mail is taken off hold.
+</DL>
+</DL>
+
+<DT><B>-s </B><I>site</I><DD>
+Schedule immediate delivery of all mail that is queued for the named
+<I>site</I>. The site must be eligible for the &quot;fast flush&quot; service.
+See <B><A HREF="../man8/flush.8.php">flush</A></B>(8) for more information about the &quot;fast flush&quot;
+service.
+<P>
+This option implements the traditional <B>sendmail -qR</B><I>site</I>
+command, by contacting the Postfix <B><A HREF="../man8/flush.8.php">flush</A></B>(8) daemon.
+<DT><B>-v</B><DD>
+Enable verbose logging for debugging purposes. Multiple <B>-v</B>
+options make the software increasingly verbose.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SECURITY</H2>
+
+
+<PRE>
+</PRE>
+
+This program is designed to run with set-group ID privileges, so
+that it can connect to Postfix daemon processes.
+<A NAME="lbAF">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+
+
+Problems are logged to <B><A HREF="../man8/syslogd.8.php">syslogd</A></B>(8) and to the standard error
+stream.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+
+<PRE>
+</PRE>
+
+<DL COMPACT>
+<DT>MAIL_CONFIG<DD>
+Directory with the <B>main.cf</B> file. In order to avoid exploitation
+of set-group ID privileges, a non-standard directory is allowed only
+if:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+The name is listed in the standard <B>main.cf</B> file with the
+<B>alternate_config_directories</B> configuration parameter.
+<DT>*<DD>
+The command is invoked by the super-user.
+</DL>
+</DL>
+
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFIGURATION PARAMETERS</H2>
+
+
+<PRE>
+</PRE>
+
+The following <B>main.cf</B> parameters are especially relevant to
+this program.
+The text below provides only a parameter summary. See
+<A HREF="../man5/postconf.5.php">postconf</A>(5) for more details including examples.
+<DL COMPACT>
+<DT><B>alternate_config_directories (empty)</B><DD>
+A list of non-default Postfix configuration directories that may
+be specified with &quot;-c config_directory&quot; on the command line, or
+via the MAIL_CONFIG environment parameter.
+<DT><B>config_directory (see 'postconf -d' output)</B><DD>
+The default location of the Postfix main.cf and master.cf
+configuration files.
+<DT><B>command_directory (see 'postconf -d' output)</B><DD>
+The location of all postfix administrative commands.
+<DT><B>fast_flush_domains ($relay_domains)</B><DD>
+Optional list of destinations that are eligible for per-destination
+logfiles with mail that is queued to those destinations.
+<DT><B>import_environment (see 'postconf -d' output)</B><DD>
+The list of environment parameters that a Postfix process will
+import from a non-Postfix parent process.
+<DT><B>queue_directory (see 'postconf -d' output)</B><DD>
+The location of the Postfix top-level queue directory.
+<DT><B>syslog_facility (mail)</B><DD>
+The syslog facility of Postfix logging.
+<DT><B>syslog_name (postfix)</B><DD>
+The mail system name that is prepended to the process name in syslog
+records, so that &quot;smtpd&quot; becomes, for example, &quot;postfix/smtpd&quot;.
+<DT><B>trigger_timeout (10s)</B><DD>
+The time limit for sending a trigger to a Postfix daemon (for
+example, the <A HREF="../man8/pickup.8.php">pickup</A>(8) or <A HREF="../man8/qmgr.8.php">qmgr</A>(8) daemon).
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+
+<PRE>
+/var/spool/postfix, mail queue
+</PRE><A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+
+<PRE>
+<A HREF="../man8/qmgr.8.php">qmgr</A>(8), queue manager
+<A HREF="../man8/showq.8.php">showq</A>(8), list mail queue
+<A HREF="../man8/flush.8.php">flush</A>(8), fast flush service
+<A HREF="../man1/sendmail.1.php">sendmail</A>(1), Sendmail-compatible user interface
+<A HREF="../man1/postsuper.1.php">postsuper</A>(1), privileged queue operations
+</PRE><A NAME="lbAK">&nbsp;</A>
+<H2>README FILES</H2>
+
+
+<PRE>
+</PRE>
+
+Use &quot;<B>postconf readme_directory</B>&quot; or
+&quot;<B>postconf html_directory</B>&quot; to locate this information.
+
+<PRE>
+ETRN_README, Postfix ETRN howto
+</PRE><A NAME="lbAL">&nbsp;</A>
+<H2>LICENSE</H2>
+
+
+<PRE>
+</PRE>
+
+The Secure Mailer license must be distributed with this software.
+<A NAME="lbAM">&nbsp;</A>
+<H2>HISTORY</H2>
+
+
+<PRE>
+</PRE>
+
+The postqueue command was introduced with Postfix version 1.1.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR(S)</H2>
+
+
+<PRE>
+Wietse Venema
+IBM T.J. Watson Research
+P.O. Box 704
+Yorktown Heights, NY 10598, USA
+
+</PRE>
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SECURITY</A><DD>
+<DT><A HREF="#lbAF">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAG">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAH">CONFIGURATION PARAMETERS</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">README FILES</A><DD>
+<DT><A HREF="#lbAL">LICENSE</A><DD>
+<DT><A HREF="#lbAM">HISTORY</A><DD>
+<DT><A HREF="#lbAN">AUTHOR(S)</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

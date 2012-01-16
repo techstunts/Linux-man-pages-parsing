@@ -1,0 +1,820 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GPROF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GPROF</H1>
+Section: GNU (1)<BR>Updated: 2004-10-20<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+gprof - display call graph profile data
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+gprof [ -[abcDhilLrsTvwxyz] ] [ -[ACeEfFJnNOpPqQZ][<I>name</I>] ] 
+<BR>&nbsp;[&nbsp;-I&nbsp;<I>dirs</I>&nbsp;]&nbsp;[&nbsp;-d[<I>num</I>]&nbsp;]&nbsp;[&nbsp;-k&nbsp;<I>from/to</I>&nbsp;]
+<BR>&nbsp;[&nbsp;-m&nbsp;<I>min-count</I>&nbsp;]&nbsp;[&nbsp;-R&nbsp;<I>map_file</I>&nbsp;]&nbsp;[&nbsp;-t&nbsp;<I>table-length</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--[no-]annotated-source[=<I>name</I>]&nbsp;]&nbsp;
+<BR>&nbsp;[&nbsp;--[no-]exec-counts[=<I>name</I>]&nbsp;]
+<BR>&nbsp;[&nbsp;--[no-]flat-profile[=<I>name</I>]&nbsp;]&nbsp;[&nbsp;--[no-]graph[=<I>name</I>]&nbsp;]
+<BR>&nbsp;[&nbsp;--[no-]time=<I>name</I>]&nbsp;[&nbsp;--all-lines&nbsp;]&nbsp;[&nbsp;--brief&nbsp;]&nbsp;
+<BR>&nbsp;[&nbsp;--debug[=<I>level</I>]&nbsp;]&nbsp;[&nbsp;--function-ordering&nbsp;]&nbsp;
+<BR>&nbsp;[&nbsp;--file-ordering&nbsp;]&nbsp;[&nbsp;--directory-path=<I>dirs</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--display-unused-functions&nbsp;]&nbsp;[&nbsp;--file-format=<I>name</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--file-info&nbsp;]&nbsp;[&nbsp;--help&nbsp;]&nbsp;[&nbsp;--line&nbsp;]&nbsp;[&nbsp;--min-count=<I>n</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--no-static&nbsp;]&nbsp;[&nbsp;--print-path&nbsp;]&nbsp;[&nbsp;--separate-files&nbsp;]
+<BR>&nbsp;[&nbsp;--static-call-graph&nbsp;]&nbsp;[&nbsp;--sum&nbsp;]&nbsp;[&nbsp;--table-length=<I>len</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--traditional&nbsp;]&nbsp;[&nbsp;--version&nbsp;]&nbsp;[&nbsp;--width=<I>n</I>&nbsp;]
+<BR>&nbsp;[&nbsp;--ignore-non-functions&nbsp;]&nbsp;[&nbsp;--demangle[=<I></I><FONT SIZE="-1"><I>STYLE</I></FONT><I></I>]&nbsp;]
+<BR>&nbsp;[&nbsp;--no-demangle&nbsp;]&nbsp;[&nbsp;<I>image-file</I>&nbsp;]&nbsp;[&nbsp;<I>profile-file</I>&nbsp;...&nbsp;]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<TT>&quot;gprof&quot;</TT> produces an execution profile of C, Pascal, or Fortran77 
+programs.  The effect of called routines is incorporated in the profile 
+of each caller.  The profile data is taken from the call graph profile file
+(<I>gmon.out</I> default) which is created by programs
+that are compiled with the <B>-pg</B> option of
+<TT>&quot;cc&quot;</TT>, <TT>&quot;pc&quot;</TT>, and <TT>&quot;f77&quot;</TT>.
+The <B>-pg</B> option also links in versions of the library routines
+that are compiled for profiling.  <TT>&quot;Gprof&quot;</TT> reads the given object 
+file (the default is <TT>&quot;a.out&quot;</TT>) and establishes the relation between
+its symbol table and the call graph profile from <I>gmon.out</I>.
+If more than one profile file is specified, the <TT>&quot;gprof&quot;</TT>
+output shows the sum of the profile information in the given profile files.
+<P>
+
+<TT>&quot;Gprof&quot;</TT> calculates the amount of time spent in each routine.
+Next, these times are propagated along the edges of the call graph.
+Cycles are discovered, and calls into a cycle are made to share the time
+of the cycle.
+<P>
+
+Several forms of output are available from the analysis.
+<P>
+
+The <I>flat profile</I> shows how much time your program spent in each function,
+and how many times that function was called.  If you simply want to know
+which functions burn most of the cycles, it is stated concisely here.
+<P>
+
+The <I>call graph</I> shows, for each function, which functions called it, which
+other functions it called, and how many times.  There is also an estimate
+of how much time was spent in the subroutines of each function.  This can
+suggest places where you might try to eliminate function calls that use a
+lot of time.  
+<P>
+
+The <I>annotated source</I> listing is a copy of the program's
+source code, labeled with the number of times each line of the
+program was executed.  
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+These options specify which of several output formats
+<TT>&quot;gprof&quot;</TT> should produce.
+<P>
+
+Many of these options take an optional <I>symspec</I> to specify
+functions to be included or excluded.  These options can be
+specified multiple times, with different symspecs, to include
+or exclude sets of symbols.  
+<P>
+
+Specifying any of these options overrides the default (<B>-p -q</B>),
+which prints a flat profile and call graph analysis
+for all functions.
+<DL COMPACT>
+<DT>-A[symspec<TT>]<DD>
+
+
+<A NAME="ixAAF"></A>
+
+<DT>--annotated-source[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAG"></A>
+
+The </TT><B>-A</B> option causes <TT>&quot;gprof&quot;</TT> to print annotated source code.
+If <I>symspec</I> is specified, print output only for matching symbols.
+<DT>-b<DD>
+
+
+<A NAME="ixAAH"></A>
+
+<DT>--brief<DD>
+
+
+<A NAME="ixAAI"></A>
+
+If the <B>-b</B> option is given, <TT>&quot;gprof&quot;</TT> doesn't print the
+verbose blurbs that try to explain the meaning of all of the fields in
+the tables.  This is useful if you intend to print out the output, or
+are tired of seeing the blurbs.
+<DT>-C[symspec<TT>]<DD>
+
+
+<A NAME="ixAAJ"></A>
+
+<DT>--exec-counts[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAK"></A>
+
+The </TT><B>-C</B> option causes <TT>&quot;gprof&quot;</TT> to
+print a tally of functions and the number of times each was called.
+If <I>symspec</I> is specified, print tally only for matching symbols.
+
+
+<P>
+
+
+If the profile data file contains basic-block count records, specifying
+the <B>-l</B> option, along with <B>-C</B>, will cause basic-block
+execution counts to be tallied and displayed.
+<DT>-i<DD>
+
+
+<A NAME="ixAAL"></A>
+
+<DT>--file-info<DD>
+
+
+<A NAME="ixAAM"></A>
+
+The <B>-i</B> option causes <TT>&quot;gprof&quot;</TT> to display summary information
+about the profile data file(s) and then exit.  The number of histogram,
+call graph, and basic-block count records is displayed.
+<DT>-I dirs<TT><DD>
+
+
+<A NAME="ixAAN"></A>
+
+<DT>--directory-path=</TT>dirs<TT><DD>
+
+
+<A NAME="ixAAO"></A>
+
+The </TT><B>-I</B> option specifies a list of search directories in
+which to find source files.  Environment variable <I></I><FONT SIZE="-1"><I>GPROF_PATH</I></FONT><I></I>
+can also be used to convey this information.
+Used mostly for annotated source output.
+<DT>-J[symspec<TT>]<DD>
+
+
+<A NAME="ixAAP"></A>
+
+<DT>--no-annotated-source[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAQ"></A>
+
+The </TT><B>-J</B> option causes <TT>&quot;gprof&quot;</TT> not to
+print annotated source code.
+If <I>symspec</I> is specified, <TT>&quot;gprof&quot;</TT> prints annotated source,
+but excludes matching symbols.
+<DT>-L<DD>
+
+
+<A NAME="ixAAR"></A>
+
+<DT>--print-path<DD>
+
+
+<A NAME="ixAAS"></A>
+
+Normally, source filenames are printed with the path
+component suppressed.  The <B>-L</B> option causes <TT>&quot;gprof&quot;</TT>
+to print the full pathname of
+source filenames, which is determined
+from symbolic debugging information in the image file
+and is relative to the directory in which the compiler
+was invoked.
+<DT>-p[symspec<TT>]<DD>
+
+
+<A NAME="ixAAT"></A>
+
+<DT>--flat-profile[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAU"></A>
+
+The </TT><B>-p</B> option causes <TT>&quot;gprof&quot;</TT> to print a flat profile.
+If <I>symspec</I> is specified, print flat profile only for matching symbols.
+<DT>-P[symspec<TT>]<DD>
+
+
+<A NAME="ixAAV"></A>
+
+<DT>--no-flat-profile[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAW"></A>
+
+The </TT><B>-P</B> option causes <TT>&quot;gprof&quot;</TT> to suppress printing a flat profile.
+If <I>symspec</I> is specified, <TT>&quot;gprof&quot;</TT> prints a flat profile,
+but excludes matching symbols.
+<DT>-q[symspec<TT>]<DD>
+
+
+<A NAME="ixAAX"></A>
+
+<DT>--graph[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixAAY"></A>
+
+The </TT><B>-q</B> option causes <TT>&quot;gprof&quot;</TT> to print the call graph analysis.
+If <I>symspec</I> is specified, print call graph only for matching symbols
+and their children.
+<DT>-Q[symspec<TT>]<DD>
+
+
+<A NAME="ixAAZ"></A>
+
+<DT>--no-graph[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixABA"></A>
+
+The </TT><B>-Q</B> option causes <TT>&quot;gprof&quot;</TT> to suppress printing the
+call graph.
+If <I>symspec</I> is specified, <TT>&quot;gprof&quot;</TT> prints a call graph,
+but excludes matching symbols.
+<DT>-t<DD>
+
+
+<A NAME="ixABB"></A>
+
+<DT>--table-length=num<TT><DD>
+
+
+<A NAME="ixABC"></A>
+
+The </TT><B>-t</B> option causes the <I>num</I> most active source lines in
+each source file to be listed when source annotation is enabled.  The
+default is 10.
+<DT>-y<DD>
+
+
+<A NAME="ixABD"></A>
+
+<DT>--separate-files<DD>
+
+
+<A NAME="ixABE"></A>
+
+This option affects annotated source output only.
+Normally, <TT>&quot;gprof&quot;</TT> prints annotated source files
+to standard-output.  If this option is specified,
+annotated source for a file named <I>path/filename</I>
+is generated in the file <I>filename-ann</I>.  If the underlying
+filesystem would truncate <I>filename-ann</I> so that it
+overwrites the original <I>filename</I>, <TT>&quot;gprof&quot;</TT> generates
+annotated source in the file <I>filename.ann</I> instead (if the
+original file name has an extension, that extension is <I>replaced</I>
+with <I>.ann</I>).
+<DT>-Z[symspec<TT>]<DD>
+
+
+<A NAME="ixABF"></A>
+
+<DT>--no-exec-counts[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixABG"></A>
+
+The </TT><B>-Z</B> option causes <TT>&quot;gprof&quot;</TT> not to
+print a tally of functions and the number of times each was called.
+If <I>symspec</I> is specified, print tally, but exclude matching symbols.
+<DT>-r<DD>
+
+
+<A NAME="ixABH"></A>
+
+<DT>--function-ordering<DD>
+
+
+<A NAME="ixABI"></A>
+
+The <B>--function-ordering</B> option causes <TT>&quot;gprof&quot;</TT> to print a
+suggested function ordering for the program based on profiling data.
+This option suggests an ordering which may improve paging, tlb and
+cache behavior for the program on systems which support arbitrary
+ordering of functions in an executable.
+
+
+<P>
+
+
+The exact details of how to force the linker to place functions
+in a particular order is system dependent and out of the scope of this
+manual.
+<DT>-R map_file<TT><DD>
+
+
+<A NAME="ixABJ"></A>
+
+<DT>--file-ordering </TT>map_file<TT><DD>
+
+
+<A NAME="ixABK"></A>
+
+The </TT><B>--file-ordering</B> option causes <TT>&quot;gprof&quot;</TT> to print a
+suggested .o link line ordering for the program based on profiling data.
+This option suggests an ordering which may improve paging, tlb and
+cache behavior for the program on systems which do not support arbitrary
+ordering of functions in an executable.
+
+
+<P>
+
+
+Use of the <B>-a</B> argument is highly recommended with this option.
+
+
+<P>
+
+
+The <I>map_file</I> argument is a pathname to a file which provides
+function name to object file mappings.  The format of the file is similar to
+the output of the program <TT>&quot;nm&quot;</TT>.
+
+
+<P>
+
+
+
+
+<PRE>
+        c-parse.o:00000000 T yyparse
+        c-parse.o:00000004 C yyerrflag
+        c-lang.o:00000000 T maybe_objc_method_name
+        c-lang.o:00000000 T print_lang_statistics
+        c-lang.o:00000000 T recognize_objc_keyword
+        c-decl.o:00000000 T print_lang_identifier
+        c-decl.o:00000000 T print_lang_type
+        ...
+
+</PRE>
+
+
+
+
+<P>
+
+
+To create a <I>map_file</I> with <FONT SIZE="-1">GNU</FONT> <TT>&quot;nm&quot;</TT>, type a command like
+<TT>&quot;nm --extern-only --defined-only -v --print-file-name program-name&quot;</TT>.
+<DT>-T<DD>
+
+
+<A NAME="ixABL"></A>
+
+<DT>--traditional<DD>
+
+
+<A NAME="ixABM"></A>
+
+The <B>-T</B> option causes <TT>&quot;gprof&quot;</TT> to print its output in
+``traditional'' <FONT SIZE="-1">BSD</FONT> style.
+<DT>-w width<TT><DD>
+
+
+<A NAME="ixABN"></A>
+
+<DT>--width=</TT>width<TT><DD>
+
+
+<A NAME="ixABO"></A>
+
+Sets width of output lines to </TT><I>width</I>.
+Currently only used when printing the function index at the bottom
+of the call graph.
+<DT>-x<DD>
+
+
+<A NAME="ixABP"></A>
+
+<DT>--all-lines<DD>
+
+
+<A NAME="ixABQ"></A>
+
+This option affects annotated source output only.
+By default, only the lines at the beginning of a basic-block
+are annotated.  If this option is specified, every line in
+a basic-block is annotated by repeating the annotation for the
+first line.  This behavior is similar to <TT>&quot;tcov&quot;</TT>'s <B>-a</B>.
+<DT>--demangle[=style<TT>]<DD>
+
+
+<A NAME="ixABR"></A>
+
+<DT>--no-demangle<DD>
+
+
+<A NAME="ixABS"></A>
+
+These options control whether C<FONT SIZE="-2">++</FONT> symbol names should be demangled when
+printing output.  The default is to demangle symbols.  The
+&quot;--no-demangle&quot;</TT> option may be used to turn off demangling. Different 
+compilers have different mangling styles.  The optional demangling style 
+argument can be used to choose an appropriate demangling style for your 
+compiler.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Analysis Options</H2>
+
+<A NAME="ixABT"></A>
+<DL COMPACT>
+<DT>-a<DD>
+
+
+<A NAME="ixABU"></A>
+
+<DT>--no-static<DD>
+
+
+<A NAME="ixABV"></A>
+
+The <B>-a</B> option causes <TT>&quot;gprof&quot;</TT> to suppress the printing of
+statically declared (private) functions.  (These are functions whose
+names are not listed as global, and which are not visible outside the
+file/function/block where they were defined.)  Time spent in these
+functions, calls to/from them, etc, will all be attributed to the
+function that was loaded directly before it in the executable file.
+This option affects both the flat profile and the call graph.
+<DT>-c<DD>
+
+
+<A NAME="ixABW"></A>
+
+<DT>--static-call-graph<DD>
+
+
+<A NAME="ixABX"></A>
+
+The <B>-c</B> option causes the call graph of the program to be
+augmented by a heuristic which examines the text space of the object
+file and identifies function calls in the binary machine code.
+Since normal call graph records are only generated when functions are
+entered, this option identifies children that could have been called,
+but never were.  Calls to functions that were not compiled with
+profiling enabled are also identified, but only if symbol table
+entries are present for them.
+Calls to dynamic library routines are typically <I>not</I> found
+by this option.
+Parents or children identified via this heuristic
+are indicated in the call graph with call counts of <B>0</B>.
+<DT>-D<DD>
+
+
+<A NAME="ixABY"></A>
+
+<DT>--ignore-non-functions<DD>
+
+
+<A NAME="ixABZ"></A>
+
+The <B>-D</B> option causes <TT>&quot;gprof&quot;</TT> to ignore symbols which
+are not known to be functions.  This option will give more accurate
+profile data on systems where it is supported (Solaris and <FONT SIZE="-1">HPUX</FONT> for
+example).
+<DT>-k from<TT>/</TT>to<TT><DD>
+
+
+<A NAME="ixACA"></A>
+The </TT><B>-k</B> option allows you to delete from the call graph any arcs from
+symbols matching symspec <I>from</I> to those matching symspec <I>to</I>.
+<DT>-l<DD>
+
+
+<A NAME="ixACB"></A>
+
+<DT>--line<DD>
+
+
+<A NAME="ixACC"></A>
+
+The <B>-l</B> option enables line-by-line profiling, which causes
+histogram hits to be charged to individual source code lines,
+instead of functions.
+If the program was compiled with basic-block counting enabled,
+this option will also identify how many times each line of
+code was executed.
+While line-by-line profiling can help isolate where in a large function
+a program is spending its time, it also significantly increases
+the running time of <TT>&quot;gprof&quot;</TT>, and magnifies statistical
+inaccuracies.
+<DT>-m num<TT><DD>
+
+
+<A NAME="ixACD"></A>
+
+<DT>--min-count=</TT>num<TT><DD>
+
+
+<A NAME="ixACE"></A>
+
+This option affects execution count output only.
+Symbols that are executed less than </TT><I>num</I> times are suppressed.
+<DT>-n[symspec<TT>]<DD>
+
+
+<A NAME="ixACF"></A>
+
+<DT>--time[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixACG"></A>
+
+The </TT><B>-n</B> option causes <TT>&quot;gprof&quot;</TT>, in its call graph analysis,
+to only propagate times for symbols matching <I>symspec</I>.
+<DT>-N[symspec<TT>]<DD>
+
+
+<A NAME="ixACH"></A>
+
+<DT>--no-time[=</TT>symspec<TT>]<DD>
+
+
+<A NAME="ixACI"></A>
+
+The </TT><B>-n</B> option causes <TT>&quot;gprof&quot;</TT>, in its call graph analysis,
+not to propagate times for symbols matching <I>symspec</I>.
+<DT>-z<DD>
+
+
+<A NAME="ixACJ"></A>
+
+<DT>--display-unused-functions<DD>
+
+
+<A NAME="ixACK"></A>
+
+If you give the <B>-z</B> option, <TT>&quot;gprof&quot;</TT> will mention all
+functions in the flat profile, even those that were never called, and
+that had no time spent in them.  This is useful in conjunction with the
+<B>-c</B> option for discovering which routines were never called.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Miscellaneous Options</H2>
+
+<A NAME="ixACL"></A>
+<DL COMPACT>
+<DT>-d[num<TT>]<DD>
+
+
+<A NAME="ixACM"></A>
+
+<DT>--debug[=</TT>num<TT>]<DD>
+
+
+<A NAME="ixACN"></A>
+
+The </TT><B>-d</B> <I>num</I> option specifies debugging options.
+If <I>num</I> is not specified, enable all debugging.
+<DT>-h<DD>
+
+
+<A NAME="ixACO"></A>
+
+<DT>--help<DD>
+
+
+<A NAME="ixACP"></A>
+
+The <B>-h</B> option prints command line usage.
+<DT>-Oname<TT><DD>
+
+
+<A NAME="ixACQ"></A>
+
+<DT>--file-format=</TT>name<TT><DD>
+
+
+<A NAME="ixACR"></A>
+
+Selects the format of the profile data files.  Recognized formats are
+</TT><B>auto</B> (the default), <B>bsd</B>, <B>4.4bsd</B>, <B>magic</B>, and
+<B>prof</B> (not yet supported).
+<DT>-s<DD>
+
+
+<A NAME="ixACS"></A>
+
+<DT>--sum<DD>
+
+
+<A NAME="ixACT"></A>
+
+The <B>-s</B> option causes <TT>&quot;gprof&quot;</TT> to summarize the information
+in the profile data files it read in, and write out a profile data
+file called <I>gmon.sum</I>, which contains all the information from
+the profile data files that <TT>&quot;gprof&quot;</TT> read in.  The file <I>gmon.sum</I>
+may be one of the specified input files; the effect of this is to
+merge the data in the other input files into <I>gmon.sum</I>.
+
+
+<P>
+
+
+Eventually you can run <TT>&quot;gprof&quot;</TT> again without <B>-s</B> to analyze the
+cumulative data in the file <I>gmon.sum</I>.
+<DT>-v<DD>
+
+
+<A NAME="ixACU"></A>
+
+<DT>--version<DD>
+
+
+<A NAME="ixACV"></A>
+
+The <B>-v</B> flag causes <TT>&quot;gprof&quot;</TT> to print the current version
+number, and then exit.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>Deprecated Options</H2>
+
+<A NAME="ixACW"></A>
+<DL COMPACT><DT><DD>
+These options have been replaced with newer versions that use symspecs.
+</DL>
+
+<DL COMPACT>
+<DT>-e function_name<TT><DD>
+
+
+<A NAME="ixACX"></A>
+The </TT><B>-e</B> <I>function</I> option tells <TT>&quot;gprof&quot;</TT> to not print
+information about the function <I>function_name</I> (and its
+children...) in the call graph.  The function will still be listed
+as a child of any functions that call it, but its index number will be
+shown as <B>[not printed]</B>.  More than one <B>-e</B> option may be
+given; only one <I>function_name</I> may be indicated with each <B>-e</B>
+option. 
+<DT>-E function_name<TT><DD>
+
+
+<A NAME="ixACY"></A>
+The &quot;-E </TT>function<TT>&quot;</TT> option works like the <TT>&quot;-e&quot;</TT> option, but
+time spent in the function (and children who were not called from
+anywhere else), will not be used to compute the percentages-of-time for
+the call graph.  More than one <B>-E</B> option may be given; only one
+<I>function_name</I> may be indicated with each <B>-E</B> option.
+<DT>-f function_name<TT><DD>
+
+
+<A NAME="ixACZ"></A>
+The </TT><B>-f</B> <I>function</I> option causes <TT>&quot;gprof&quot;</TT> to limit the
+call graph to the function <I>function_name</I> and its children (and
+their children...).  More than one <B>-f</B> option may be given;
+only one <I>function_name</I> may be indicated with each <B>-f</B>
+option.  
+<DT>-F function_name<TT><DD>
+
+
+<A NAME="ixADA"></A>
+The </TT><B>-F</B> <I>function</I> option works like the <TT>&quot;-f&quot;</TT> option, but
+only time spent in the function and its children (and their
+children...) will be used to determine total-time and
+percentages-of-time for the call graph.  More than one <B>-F</B> option
+may be given; only one <I>function_name</I> may be indicated with each
+<B>-F</B> option.  The <B>-F</B> option overrides the <B>-E</B> option.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<A NAME="ixADB"></A>
+<DL COMPACT>
+<DT>a.out<TT><DD>
+
+
+<A NAME="ixADC"></A>
+the namelist and text space.
+<DT></TT>gmon.out<TT><DD>
+
+
+<A NAME="ixADD"></A>
+dynamic call graph and profile.
+<DT></TT>gmon.sum<TT><DD>
+
+
+<A NAME="ixADE"></A>
+summarized dynamic call graph and profile.  
+</DL>
+</TT><A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixADF"></A>
+The granularity of the sampling is shown, but remains
+statistical at best.
+We assume that the time for each execution of a function
+can be expressed by the total time for the function divided
+by the number of times the function is called.
+Thus the time propagated along the call graph arcs to the function's
+parents is directly proportional to the number of times that
+arc is traversed.
+<P>
+
+Parents that are not themselves profiled will have the time of
+their profiled children propagated to them, but they will appear
+to be spontaneously invoked in the call graph listing, and will
+not have their time propagated further.
+Similarly, signal catchers, even though profiled, will appear
+to be spontaneous (although for more obscure reasons).
+Any profiled children of signal catchers should have their times
+propagated properly, unless the signal catcher was invoked during
+the execution of the profiling routine, in which case all is lost.
+<P>
+
+The profiled program must call <TT>&quot;exit&quot;</TT>(2)
+or return normally for the profiling information to be saved
+in the <I>gmon.out</I> file.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixADG"></A>
+<I><A HREF="../man3/monitor.3.php">monitor</A></I>(3), <I><A HREF="../man2/profil.2.php">profil</A></I>(2), <I><A HREF="../man1/cc.1.php">cc</A></I>(1), <I><A HREF="../man1/prof.1.php">prof</A></I>(1), and the Info entry for <I>gprof</I>.
+<P>
+
+``An Execution Profiler for Modular Programs'',
+by S. Graham, P. Kessler, M. McKusick;
+Software - Practice and Experience,
+Vol. 13, pp. 671-685, 1983.
+<P>
+
+``gprof: A Call Graph Execution Profiler'',
+by S. Graham, P. Kessler, M. McKusick;
+Proceedings of the <FONT SIZE="-1">SIGPLAN</FONT> '82 Symposium on Compiler Construction,
+<FONT SIZE="-1">SIGPLAN</FONT> Notices, Vol. 17, No  6, pp. 120-126, June 1982.
+<A NAME="lbAL">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+<A NAME="ixADH"></A>
+Copyright (C) 1988, 92, 97, 98, 99, 2000, 2001, 2003 Free Software Foundation, Inc.
+<P>
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the <FONT SIZE="-1">GNU</FONT> Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, with no Front-Cover Texts, and with no
+Back-Cover Texts.  A copy of the license is included in the
+section entitled ``<FONT SIZE="-1">GNU</FONT> Free Documentation License''.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">Analysis Options</A><DD>
+<DT><A HREF="#lbAG">Miscellaneous Options</A><DD>
+<DT><A HREF="#lbAH">Deprecated Options</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">BUGS</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">COPYRIGHT</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>vncserver</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>vncserver</H1>
+Section: Virtual Network Computing (1)<BR>Updated: 18 May 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+vncserver - start or stop a VNC server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>vncserver</B>
+
+[:<I>display#</I>]
+
+[<B>-name</B>
+
+<I>desktop-name</I>]
+
+[<B>-geometry</B>
+
+<I>width</I>x<I>height</I>]
+
+[<B>-depth</B>
+
+<I>depth</I>]
+
+[<B>-pixelformat</B>
+
+<I>format</I>]
+
+[<I>Xvnc-options...</I>]
+
+<BR>
+
+<B>vncserver -kill :</B><I>display#</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>vncserver</B>
+
+is used to start a VNC (Virtual Network Computing) desktop.
+<B>vncserver</B>
+
+is a Perl script which simplifies the process of starting an Xvnc server.  It
+runs Xvnc with appropriate options and starts some X applications to be
+displayed in the VNC desktop.
+<P>
+<B>vncserver</B>
+
+can be run with no options at all. In this case it will choose the first
+available display number (usually :1), start Xvnc as that display, and run a
+couple of basic applications to get you started. You can also specify the
+display number, in which case it will use that number if it is available and
+exit if not, eg:
+<P>
+<DL COMPACT><DT><DD>
+vncserver :13
+</DL>
+
+<P>
+Editing the file $HOME/.vnc/xstartup allows you to change the applications run
+at startup (but note that this will not affect an existing desktop).
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+You can get a list of options by giving <B>-h</B> as an option to vncserver.
+In addition to the options listed below, any unrecognised options will be
+passed to Xvnc - see the Xvnc man page, or &quot;Xvnc -help&quot; for details.
+<P>
+<DL COMPACT>
+<DT><B>-name </B><I>desktop-name</I>
+
+<DD>
+Each desktop has a name which may be displayed by the viewer. It defaults to
+&quot;<I>host</I>:<I>display#</I> (<I>username</I>)&quot; but you can change it with this
+option.  It is passed in to the xstartup script via the $VNCDESKTOP environment
+variable, allowing you to run a different set of applications according to the
+name of the desktop.
+<P>
+<DT><B>-geometry </B><I>width</I>x<I>height</I>
+
+<DD>
+Specify the size of the desktop to be created. Default is 1024x768. 
+<P>
+<DT><B>-depth </B><I>depth</I>
+
+<DD>
+Specify the pixel depth in bits of the desktop to be created. Default is 16,
+other possible values are 8, 15 and 24 - anything else is likely to cause
+strange behaviour by applications.
+<P>
+<DT><B>-pixelformat </B><I>format</I>
+
+<DD>
+Specify pixel format for server to use (BGRnnn or RGBnnn).  The default for
+depth 8 is BGR233 (meaning the most significant two bits represent blue, the
+next three green, and the least significant three represent red), the default
+for depth 16 is RGB565 and for depth 24 is RGB888.
+<P>
+<DT><B>-cc 3</B>
+
+<DD>
+As an alternative to the default TrueColor visual, this allows you to run an
+Xvnc server with a PseudoColor visual (i.e. one which uses a colour map or
+palette), which can be useful for running some old X applications which only
+work on such a display.  Values other than 3 (PseudoColor) and 4 (TrueColor)
+for the -cc option may result in strange behaviour, and PseudoColor desktops
+must be 8 bits deep.
+<P>
+<DT><B>-kill :</B><I>display#</I>
+
+<DD>
+This kills a VNC desktop previously started with vncserver.  It does this by
+killing the Xvnc process, whose process ID is stored in the file
+&quot;$HOME/.vnc/<I>host</I>:<I>display#</I>.pid&quot;.  It actually ignores anything
+preceding a &quot;:&quot; in its argument.  This can be useful so you can write
+&quot;vncserver -kill $DISPLAY&quot;, for example at the end of your xstartup file after
+a particular application exits.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+Several VNC-related files are found in the directory $HOME/.vnc:
+<DL COMPACT>
+<DT>$HOME/.vnc/xstartup<DD>
+A shell script specifying X applications to be run when a VNC desktop is
+started.  If it doesn't exist, vncserver will create a new one which runs a
+couple of basic applications.
+<DT>$HOME/.vnc/passwd<DD>
+The VNC password file.
+<DT>$HOME/.vnc/<I>host</I>:<I>display#</I>.log<DD>
+The log file for Xvnc and applications started in xstartup.
+<DT>$HOME/.vnc/<I>host</I>:<I>display#</I>.pid<DD>
+Identifies the Xvnc process ID, used by the
+<B>-kill</B>
+
+option.
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/vncviewer.1.php">vncviewer</A></B>(1),
+
+<B><A HREF="../man1/vncpasswd.1.php">vncpasswd</A></B>(1),
+
+<B><A HREF="../man1/vncconfig.1.php">vncconfig</A></B>(1),
+
+<B><A HREF="../man1/Xvnc.1.php">Xvnc</A></B>(1)
+
+<BR>
+
+<A HREF="http://www.realvnc.com">http://www.realvnc.com</A>
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Tristan Richardson, RealVNC Ltd.
+<P>
+VNC was originally developed by the RealVNC team while at Olivetti Research Ltd
+/ AT&amp;T Laboratories Cambridge.  It is now being maintained by RealVNC Ltd.  See
+<A HREF="http://www.realvnc.com">http://www.realvnc.com</A> for details.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

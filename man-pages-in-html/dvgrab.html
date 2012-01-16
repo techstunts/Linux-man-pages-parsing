@@ -1,0 +1,345 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DVGRAB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DVGRAB</H1>
+Section: Misc. Reference Manual Pages (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME </H2>
+
+dvgrab --- Grab DV video and audio data via IEEE1394 links 
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS </H2>
+
+<P>
+
+<B>dvgrab</B> [<B>-i, --interactive</B>]  [<B>--noavc</B>]  [<B>--autosplit</B>]  [<B>--timestamp</B>]  [<B>--timesys</B>]  [<B>--card </B><I>num</I>]  [<B>--channel </B><I>num</I>]  [<B>--stdin</B>]  [<B>--dv1394 </B><I>device</I>] [<B>--format </B><I>fmt</I>]  [<B>--frames </B><I>num</I>]  [<B>--size </B><I>num</I>] [<B>--csize </B><I>num</I>] [<B>--cmincutsize </B><I>num</I>]  [<B>--every </B><I>num</I>]  [<B>--duration </B><I>time</I>]  [<B>--help</B>]  [<B>--version</B>]  [base]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION </H2>
+
+<BR>&nbsp;
+<P>
+
+<B>dvgrab</B> is a program that captures DV 
+video and audio data from digital camcorders via an IEEE1394 link.  
+(IEEE1394 is also known under the various trademarks FireWire,  
+i.Link, or Lynx.) The DV data is stored in one or several files 
+and can later be processed by video editing software.  
+<B>dvgrab</B> can remote control the camcorder 
+but it does not show the video's content on screen. 
+<P>
+
+The <B>base</B> argument is used to construct the 
+filename to store video data in, like  
+<B>base-id.ext</B> where <B>id</B> is a  
+running number starting from 001 and <B>ext</B> is the  
+file name extension specifying the file format used, e.g. avi. 
+A different naming scheme is used whenever the  
+<B>--timestamp</B> or <B>--timesys</B> is given (see below).
+If <B>base</B> is '-' then the format is forced to raw DV and sent to
+stdout. <B>dvgrab</B> will also output raw DV to stdout while capturing to
+a file if stdout is piped or redirected. The default base is <B>dvgrab-</B>
+if not specified.
+<P>
+
+You can use <B>dvgrab's</B> powerful file writing capabilities with other programs
+that produce raw DV. Using the <I>--stdin</I> option and if <B>dvgrab</B> detects that 
+it is on the receiving end of a pipe and it is not in interactive mode,
+then it will try to read raw DV on stdin. 
+<BR>&nbsp;
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS </H2>
+
+<DL COMPACT>
+<DT><B>-i, --interactive</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Make dvgrab interactive where single keypresses on stdin control<BR>
+the camera VTR or start and stop capture. Otherwise, dvgrab runs
+in session mode, where it immediately starts capture and stops as
+directed or interrupted (ctrl-c).
+<P>
+<DT><B>--noavc</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Disable use of AV/C VTR control. This is useful if you are capturing <BR>
+live video from a camera because in camera mode, an AV/C play command
+tells the camera to start recording, perhaps over material on the current tape.
+This applies to either interactive more or non-interactive because
+non-interactive stills sends a play and stop to the VTR upon capture start
+and stop.
+<P>
+<DT><B>--autosplit</B> <TT>&nbsp;&nbsp;&nbsp;</TT><DD>
+Try to detect whenever a new recording starts, and store it <BR>
+into a separate file. This can be combined with the --frames and --size 
+options, and a split occurs whenever a specified event arises.
+<BR>&nbsp;
+<DT><DD>
+Autosplit is off by default. 
+<BR>&nbsp;
+<DT><B>--timestamp</B> <TT>&nbsp;&nbsp;&nbsp;</TT><DD>
+Put information on date and time of recording into file name. <BR>
+<BR>&nbsp;
+<DT><B>--timesys</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Put system rather than recording date and time into file name.<BR>
+This is useful when using converter devices that do not change the recording
+date time in the DV stream.
+<BR>&nbsp;
+<DT><B>--card </B><I>num</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Tells <B>dvgrab</B> to receive data from IEEE1394 card  <BR>
+<I>num</I>. The default behaviour is to automatically select the first card 
+containing the first discovered camera.
+If used in conjunction with <B>--noavc</B>, then no bus probing is performed.
+If used in conjunction with <B>--guid</B> <I>hex</I>, then only the specified
+bus is probed for node with guid <I>hex</I>.
+If used in conjunction with <B>--dv1394</B> with no device file specified,
+then <B>dvgrab</B> constructs a device file name using <I>num</I>
+and the dv1394 devfs naming convention.
+<P>
+<DT><B>--guid </B><I>hex</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If you have more than one DV device, then select one using the node's<BR>
+GUID specified in <I>hex</I> (hexadecimal) format. This is the format as
+displayed in /proc/bus/ieee1394/devices or the new kernel 2.6 /sys
+filesystem.
+<P>
+<DT><B>--channel </B><I>num</I> <TT>&nbsp;</TT><DD>
+Isochronous channel to receive data from. Defaults to 63, which is <BR>
+pretty much standard among DV camcorders these days. If you specify anything
+different, no attempt is made at this time to tell the device which channel
+to use. You must have some manual way to tell the transmitting device which
+channel to use.
+<BR>&nbsp;
+<DT><B>--buffers </B><I>num</I> <TT>&nbsp;</TT><DD>
+The number of frames to use for buffering device I/O delays. Defaults to 100. <BR>
+<BR>&nbsp;
+<DT><B>--stdin</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Read the DV stream from a pipe on stdin instead of using a IEEE 1394 driver.<BR>
+<BR>&nbsp;
+<DT><B>--dv1394 </B><I>[device]</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Use the dv1394 driver to capture instead of raw1394.<BR>
+The <I>device</I> specification is optional if you follow the dv1394 devfs
+naming convention, e.g. /dev/ieee1394/dv/host0/PAL/in.
+If <I>device</I> is supplied in conjunction with <B>--noavc</B>, then no bus
+probing is performed.
+If <I>device</I> is not supplied, but <B>--card </B><I>num</I> is,
+then <B>dvgrab</B> constructs a device file name using <I>num</I>
+and the dv1394 devfs naming convention. <B>dvgrab</B> can automatically
+handle both NTSC and PAL using just /dev/ieee1394/dv/hostX/PAL/in!
+<BR>&nbsp;
+<DT><B>--format </B><I>dv1</I> | <I>dv2</I> | <I>raw</I> | <I>dif</I> | <I>qt</I> | <I>jpeg</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Specifies the format of the output file(s).  <BR>
+<I>dv1</I> and  
+<I>dv2</I> both are AVI files with slightly different formats.  
+<I>dv2</I> stores a separate audio track in addition to 
+the DV video track, which is more compatible with other applications. 
+<I>dv1</I> only stores a single, integrated DV track since the DV format
+natively interleaves audio with video. Therefore, while <I>dv1</I> produces
+smaller output, some applications won't grok it and require <I>dv2</I> instead.
+<B>dvgrab</B> is capable of creating extremely large AVI files--well over 2 or
+4 GB--however, compatibility with other tools starts to decrease over 
+the 1 GB size.
+<BR>&nbsp;
+<DT><DD>
+<I>raw</I> stores the data unmodified and have the .dv extension. These files
+are read by a number of GNU/Linux tools as well as Apple Quicktime.
+<BR>&nbsp;
+<DT><DD>
+<I>dif</I> is a variation of raw DV that names files with a .dif extension
+so they can be more immediately loaded into MainConcept MainActor5.
+<BR>&nbsp;
+<DT><DD>
+<I>qt</I> is Quicktime, but requires that dvgrab be compiled with libquicktime.
+<P>
+<DT><DD>
+<I>jpg</I> is for a sequence of JPEG image files if dvgrab was compiled with
+jpeglib.
+<P>
+<DT><DD>
+Defaults to <I>dv2</I>
+<P>
+<DT><B>--opendml</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If using <B>--format dv2</B>, create an OpenDML-compliant type 2 DV AVI. This<BR>
+is required to support dv2 files &gt;1GB. dv1 always supports files &gt;1GB.
+<P>
+<DT><B>--jpeg-quality </B><I>num</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If using <B>--format jpeg</B>, set the JPEG quality level from 0 (worst) to <BR>
+100 (best).
+<P>
+<DT><B>--jpeg-deinterlace</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If using <B>--format jpeg</B>, deinterlace the output by doubling the lines<BR>
+of the upper field. This is a cheap form of deinterlace that results in an
+effective 50% loss in resolution.
+<P>
+<DT><B>--jpeg-width </B><I>num</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If using <B>--format jpeg</B>, scale the output of the width to <I>num</I><BR>
+(1 - 2048).
+<P>
+<DT><B>--jpeg-height </B><I>num</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+If using <B>--format jpeg</B>, scale the output of the height to <I>num</I><BR>
+(1 - 2048).
+<P>
+<DT><DD>
+The JPEG scaling width and height must be both either less than or greater
+than the normal frame size. For example, the scaled size of 700 wide by
+525 high yields a nice 4:3 aspect image with square pixels, but it is illegal
+for NTSC because 700 is less than the normal width of 720 while the height is
+greater than the normal height of 480.
+<P>
+<DT><DD>
+Since DV uses non-square pixels, it is nice to be able to scale to an image 
+based upon a 4:3 aspect ratio using square pixels. For NTSC, example sizes are 
+800x600, 640x480, and 320x240. For PAL, example square pixel sizes are 384x270
+and 768x540.
+<P>
+<DT><B>--frames </B><I>num</I> <TT>&nbsp;&nbsp;</TT><DD>
+This option tells <B>dvgrab</B> to store <BR>
+at most <I>num</I> frames per file before splitting to a new file,
+where <I>num</I> = 0 means ulimited.
+The corresponding time depends on the video system used. 
+PAL shows 25, NTSC about 30 frames per second. 
+<BR>&nbsp;
+<DT><B>--size </B><I>num</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+This option tells <B>dvgrab</B> to store at most <I>num</I> megabytes<BR>
+per file, where <I>num</I> = 0 means unlimited file size for large
+files. The default size limit is 1024 MB.
+<P>
+<DT><B>--csize </B><I>num</I>       <DD>
+This option tells <B>dvgrab</B> to split the files when the collection
+of files exceeds <I>num</I> megabytes. This option is used to create
+collections of files that fit perfectly into <I>num</I> megabytes
+(i.e. for archiving onto DVD). When this occurs, a new collection is
+started (See also the --cmincutsize option)
+<P>
+<DT><B>--cmincutsize </B><I>num</I> <DD>
+This option is used to start the collection if a cut occurs <I>num</I>
+megabytes prior to the end of the collection. This option reduces
+small files being created when using the <I>--csize</I> option. When a
+new collection is started in this manner, the amount of free space in
+the previous collection is stored, and while the following clips fit
+within the previous collection, the new collection starting point is
+reset.
+<P>
+<DT><B>--every </B><I>n</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+This option tells <B>dvgrab</B> to <BR>
+write every <I>n</I>'th frame only (default all frames). 
+<BR>&nbsp;
+<DT><B>--duration </B><I>time</I> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><DD>
+Set the maximum capture duration across all file splits for a single<BR>
+capture session (multiple sessions are possible in interactive mode).
+The <I>time</I> value is expressed in SMIL2 MediaClipping Time format.
+See <A HREF="http://w3.org/AudioVideo/">http://w3.org/AudioVideo/</A> for the specification.
+<DT><DD>
+Briefly, the formats are:
+<DT><DD>
+XXX[.Y]h, XXX[.Y]min, XXX[.Y][s], XXXms,
+<DT><DD>
+[[HH:]MM:]SS[.ms], or smpte=[[[HH:]MM:]SS:]FF.
+<P>
+<DT><B>--help</B>         <DD>
+Show summary of options. 
+<BR>&nbsp;
+<DT><B>--version</B>         <DD>
+Show version of program. 
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES </H2>
+
+<P>
+<DL COMPACT>
+<DT><B>dvgrab foo-</B> <TT>&nbsp;&nbsp;&nbsp;</TT>  <DD>
+Captures video data from the default IEEE1394 source <BR>
+and stores it to files <B>foo-001.avi</B>, 
+<B>foo-002.avi</B>, etc. 
+<BR>&nbsp;
+<DT><B>dvgrab --frames 25 foo-</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  <DD>
+Assuming a PAL video source, this command records one <BR>
+second's worth of video data. 
+<BR>&nbsp;
+<DT><B>dvgrab --autosplit --frames 750 --timestamp foo-</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>  <DD>
+Records video data from the default IEEE1394 source, cuts it into<BR>
+chunks of 30 seconds (assuming PAL) or when a new recording starts and
+names the resulting files according to date and time info in the
+videostream.
+<P>
+<DT><B>dvgrab --autosplit --size 1998 --csize 4400 --cmincutsize 10  foo-</B> <TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT>  <DD>
+Records video data from the default IEEE1394 source, cuts it into<BR>
+chunks when a new recording starts or when the current file exceeds
+1998 megabytes, or the current collection of files exceeds 4400
+megabytes. It also reduces the size of the smallest file made due to a
+collection size cut to 10 megabytes.
+<P>
+<DT><DD>
+This option is perfect for backing up DV to DVD's as 2 Gb is around
+the maximum file size that (the current) linux implementation of the
+ISO9660 filesystem can handle!
+<P>
+<DT><DD>
+Warning: It is possible to make ISO9660 filesystems with files greater
+than 2 Gb, but the current linux IS09660 driver can't read them! Newer
+linux kernels may be able to handle ISO9660 filesystems with filesizes
+greater than 2 Gb.
+<BR>&nbsp;
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR </H2>
+
+<P>
+
+This manual page was written by Daniel Kobras <A HREF="mailto:kobras@debian.org">kobras@debian.org</A> for 
+the <B>Debian GNU/Linux</B> system (but may be used by others). It has
+been updated by Dan Dennedy. See the website <A HREF="http://kino.schirmacher.de/">http://kino.schirmacher.de/</A>
+for more information and support.
+<BR>&nbsp;
+<P>
+
+Permission is granted to copy, distribute and/or modify 
+this document under the terms of the GNU Free 
+Documentation License, Version 1.1 or any later version 
+published by the Free Software Foundation; with no Invariant 
+Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy 
+of the license can be found under 
+<B>/usr/share/common-licenses/FDL</B>. 
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME </A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS </A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION </A><DD>
+<DT><A HREF="#lbAE">OPTIONS </A><DD>
+<DT><A HREF="#lbAF">EXAMPLES </A><DD>
+<DT><A HREF="#lbAG">AUTHOR </A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

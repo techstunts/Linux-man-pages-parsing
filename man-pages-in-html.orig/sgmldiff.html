@@ -1,0 +1,218 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SGMLDIFF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SGMLDIFF</H1>
+Section:  (1)<BR>Updated: 11 February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+sgmldiff - Find differences in the markup of two SGML files
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>sgmldiff</B> [ <B>options </B><I> ...</I> ] <B></B><I>file1</I><B></B> <B></B><I>file2</I><B></B> [ <B>-a</B> | <B>--attributes</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<B>-c&nbsp;&nbsp;[&nbsp;attributes&nbsp;|&nbsp;nesting&nbsp;|&nbsp;textpos&nbsp;]</B>&nbsp;|&nbsp;<B>--context&nbsp;&nbsp;[&nbsp;attributes&nbsp;|&nbsp;nesting&nbsp;|&nbsp;textpos&nbsp;]</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<B>-s</B>&nbsp;|&nbsp;<B>--statistics</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<B>-h</B>&nbsp;|&nbsp;<B>--help</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<B>-v</B>&nbsp;|&nbsp;<B>--version</B>&nbsp;]
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+This perl script allows to determine the structural differences
+between two SGML files. It compares the files, regardless of what
+is in between the tags, to only focus on the markup. Its output
+is similar to <B><A HREF="../man1/diff.1.php">diff</A></B>(1).
+<P>
+
+The typical use of <B>sgmldiff</B> is to
+compare an SGML file with its translation into another language. If
+the translation was done cleanly, <B>sgmldiff</B>
+returns without finding any difference in the markup.
+<P>
+
+An example of a typical call to sgmldiff is:
+<P>
+<PRE>
+      sgmldiff english.sgml italiano.sgml
+    
+</PRE>
+
+<P>
+
+If there are differences in markup between both files,
+<B>sgmldiff</B> will output a series of differences
+reports summarized with lines of the form:
+<DL COMPACT>
+<DT><B>169a164</B><DD>
+At line 169 of the first file, line 164 of the
+second file has been added.
+<DT><B>8a12,15</B><DD>
+At line 8 of the first file, lines 12 to 15
+of the second file have been added.
+<DT><B>41d28</B><DD>
+Line 41 of the first file has been destroyed, to
+obtain line 28 of the second file.
+<DT><B>63,66d61</B><DD>
+Lines 63 to 66 of the first file have been
+destroyed. to obtain line 61 of the second file.
+<DT><B>52c51</B><DD>
+Line 52 of the first file has been changed into
+line 51 of the second file.
+<DT><B>5,7c8,10</B><DD>
+Lines 5 to 7 of the first file have been changed
+into lines 8 to 10 of the second line.
+In addition to those summaries, the lines of the first file are
+shown preceeded by '&lt;' and the lines of the second file are
+shown preceeded by '&gt;&quot;.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+Here is the list of actions that can be requested to
+sgmldiff:
+<DL COMPACT>
+<DT><B>             [ -a | --attributes ]  </B><DD>
+Include the attribute values in the difference tests.
+Don't set this value if the attributes are likely to be
+translated. Set this value if the attributes value shouldn't
+change between both files. Default is to don't include the
+attributes in the difference tests.
+<DT><B>             [ -c  [ attributes | nesting | textpos ] | --context  [ attributes | nesting | textpos ] ]  </B><DD>
+Add more context to the difference. Since every test between the tags is removed before testing the differences, <B>sgmldiff</B> is likely to resynchronize itself at the wrong place, by thinking the location in both files correspond, while it's not true. By adding more context to the compared area, such risk is disminished.
+<P>
+The allowed values for the <B>--context</B> option are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>attributes</B><DD>
+Take into account the attribute
+<B>names</B>. The attribute
+<B>values</B> are controlled by the
+<B>attributes</B> option.
+<DT><B>nesting</B><DD>
+Take into account the nesting level of all the compared tags.
+<DT><B>textpos</B><DD>
+Take into account the position in the text.
+</DL>
+</DL>
+
+<DT><B>             [ -s | --statistics ]  </B><DD>
+Print some SGML information at the end.
+<DT><B>             [ -h | --help ]  </B><DD>
+Print a short help message and exit
+<DT><B>             [ -v | --version ]  </B><DD>
+Print the version identifier and exit
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<DL COMPACT>
+<DT><B>          Frederik Fouvry </B><DD>
+Developer of <B>sgmldiff</B>.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<DL COMPACT>
+<DT><B>          <A HREF="../man1/jw.1.php">jw</A>(1) </B><DD>
+conversion from a SGML file to other file formats
+<DT><B>   <A HREF="../man1/nsgmls.1.php">nsgmls</A>(1) </B><DD>
+a base component of <B>Jade</B> DSSSL engine
+<DT><B>   <A HREF="http://sources.redhat.com/docbook-tools/">http://sources.redhat.com/docbook-tools/</A> &lt;URL:<A HREF="http://sources.redhat.com/docbook-tools/">http://sources.redhat.com/docbook-tools/</A>&gt; </B><DD>
+the home page of the DocBook tools, a compendium of
+all tools necessary to process DocBook files, including
+the DocBook-utils
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">AUTHORS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PG_CTL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PG_CTL</H1>
+Section: PostgreSQL Server Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pg_ctl - start, stop, or restart a PostgreSQL server
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>pg_ctl</B> <B>start</B> [ <B>-w </B>] [ <B>-s </B>] [ <B>-D </B><I>datadir</I><B> </B>] [ <B>-l </B><I>filename</I><B> </B>] [ <B>-o </B><I>options</I><B> </B>] [ <B>-p </B><I>path</I><B> </B>]
+<P>
+<B>pg_ctl</B> <B>stop</B> [ <B>-W </B>] [ <B>-s </B>] [ <B>-D </B><I>datadir</I><B> </B>] [ <B>-m </B><B> s[mart]</B> | <B>f[ast]</B> | <B>i[mmediate]</B><B> </B>]
+<P>
+<B>pg_ctl</B> <B>restart</B> [ <B>-w </B>] [ <B>-s </B>] [ <B>-D </B><I>datadir</I><B> </B>] [ <B>-m </B><B> s[mart]</B> | <B>f[ast]</B> | <B>i[mmediate]</B><B> </B>] [ <B>-o </B><I>options</I><B> </B>]
+<P>
+<B>pg_ctl</B> <B>reload</B> [ <B>-s </B>] [ <B>-D </B><I>datadir</I><B> </B>]
+<P>
+<B>pg_ctl</B> <B>status</B> [ <B>-D </B><I>datadir</I><B> </B>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>pg_ctl</B> is a utility for starting,
+stopping, or restarting the PostgreSQL
+backend server (<B><A HREF="../man1/postmaster.1.php">postmaster</A></B>(1)), or displaying the
+status of a running server. Although the server can be started
+manually, <B>pg_ctl</B> encapsulates tasks such
+as redirecting log output and properly detaching from the terminal
+and process group. It also provides convenient options for
+controlled shutdown.
+<P>
+
+In <B>start</B> mode, a new server is launched. The
+server is started in the background, and standard input is attached to
+<I>/dev/null</I>. The standard output and standard
+error are either appended to a log file (if the <B>-l</B>
+option is used), or redirected to <B>pg_ctl</B>'s 
+standard output (not standard error). If no log file is chosen, the 
+standard output of <B>pg_ctl</B> should be redirected 
+to a file or piped to another process, for example a log rotating program,
+otherwise <B>postmaster</B> will write its output to the controlling
+terminal (from the background) and will not leave the shell's
+process group.
+<P>
+
+In <B>stop</B> mode, the server that is running in
+the specified data directory is shut down. Three different
+shutdown methods can be selected with the <B>-m</B>
+option: ``Smart'' mode waits for all the clients to
+disconnect. This is the default. ``Fast'' mode does
+not wait for clients to disconnect. All active transactions are
+rolled back and clients are forcibly disconnected, then the
+server is shut down. ``Immediate'' mode will abort
+all server processes without a clean shutdown. This will lead to 
+a recovery run on restart.
+<P>
+
+<B>restart</B> mode effectively executes a stop followed
+by a start. This allows changing the <B>postmaster</B>
+command-line options.
+<P>
+
+<B>reload</B> mode simply sends the
+<B>postmaster</B> process a <B>SIGHUP</B>
+signal, causing it to reread its configuration files
+(<I>postgresql.conf</I>,
+<I>pg_hba.conf</I>, etc.). This allows changing of
+configuration-file options that do not require a complete restart
+to take effect.
+<P>
+
+<B>status</B> mode checks whether a server is running in
+the specified data directory. If it is, the PID
+and the command line options that were used to invoke it are
+displayed.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<DL COMPACT>
+<DT><B>-D </B><I>datadir</I><B></B><DD>
+Specifies the file system location of the database files. If
+this is omitted, the environment variable
+<B>PGDATA</B> is used.
+<DT><B>-l </B><I>filename</I><B></B><DD>
+Append the server log output to
+<I>filename</I>. If the file does not
+exist, it is created. The <B>umask</B> is set to 077, so access to
+the log file from other users is disallowed by default.
+<DT><B>-m </B><I>mode</I><B></B><DD>
+Specifies the shutdown mode. <I>mode</I>
+may be smart, fast, or
+immediate, or the first letter of one of
+these three.
+<DT><B>-o </B><I>options</I><B></B><DD>
+Specifies options to be passed directly to the
+<B>postmaster</B> command.
+<P>
+The options are usually surrounded by single or double
+quotes to ensure that they are passed through as a group.
+<DT><B>-p </B><I>path</I><B></B><DD>
+Specifies the location of the <I>postmaster</I>
+executable. By default the <I>postmaster</I> executable is taken from the same
+directory as <B>pg_ctl</B>, or failing that, the hard-wired
+installation directory. It is not necessary to use this
+option unless you are doing something unusual and get errors
+that the <I>postmaster</I> executable was not found.
+<DT><B>-s</B><DD>
+Only print errors, no informational messages.
+<DT><B>-w</B><DD>
+Wait for the start or shutdown to complete. Times out after
+60 seconds. This is the default for shutdowns. A successful 
+shutdown is indicated by removal of the PID 
+file. For starting up, a successful <B>psql -l</B> 
+indicates success. <B>pg_ctl</B> will attempt to 
+use the proper port for <B>psql</B>. If the environment variable 
+<B>PGPORT</B> exists, that is used. Otherwise, it will see if a port 
+has been set in the <I>postgresql.conf</I> file. 
+If neither of those is used, it will use the default port that 
+PostgreSQL was compiled with 
+(5432 by default).
+<DT><B>-W</B><DD>
+Do not wait for start or shutdown to complete. This is the
+default for starts and restarts.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGDATA</B><DD>
+Default data directory location.
+<DT><B>PGPORT</B><DD>
+Default port for <B><A HREF="../man1/psql.1.php">psql</A></B>(1) (used by the -w option).
+</DL>
+<P>
+
+For others, see <B><A HREF="../man1/postmaster.1.php">postmaster</A></B>(1).
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B></B><I>postmaster.pid</I><B></B><DD>
+The existence of this file in the data directory is used to help
+<B>pg_ctl</B> determine if the server is
+currently running or not.
+<DT><B></B><I>postmaster.opts.default</I><B></B><DD>
+If this file exists in the data directory,
+<B>pg_ctl</B> (in <B>start</B>
+mode) will pass the contents of the file as options to the
+<B>postmaster</B> command, unless overridden by the
+<B>-o</B> option.
+<DT><B></B><I>postmaster.opts</I><B></B><DD>
+If this file exists in the data directory,
+<B>pg_ctl</B> (in <B>restart</B> mode) 
+will pass the contents of the file as options to the 
+<B>postmaster</B>, unless overridden 
+by the <B>-o</B> option. The contents of this file 
+are also displayed in <B>status</B> mode.
+<DT><B></B><I>postgresql.conf</I><B></B><DD>
+This file, located in the data directory, is parsed to find the
+proper port to use with <B>psql</B> when the
+<B>-w</B> is given in <B>start</B> mode.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+Waiting for complete start is not a well-defined operation and may
+fail if access control is set up so that a local client cannot
+connect without manual interaction (e.g., password authentication).
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>STARTING THE SERVER</H3>
+
+<P>
+
+To start up a server:
+<P>
+<PRE>
+$ <B>pg_ctl start</B>
+
+</PRE>
+
+<P>
+
+An example of starting the server, blocking until the server has
+come up is:
+<P>
+<PRE>
+$ <B>pg_ctl -w start</B>
+
+</PRE>
+
+<P>
+
+For a server using port 5433, and
+running without <B>fsync</B>, use:
+<P>
+<PRE>
+$ <B>pg_ctl -o &quot;-F -p 5433&quot; start</B>
+
+</PRE>
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>STOPPING THE SERVER</H3>
+
+<P>
+
+<P>
+<PRE>
+$ <B>pg_ctl stop</B>
+
+</PRE>
+
+stops the server. Using the <B>-m</B> switch allows one
+to control <B>how</B> the backend shuts down.
+<A NAME="lbAL">&nbsp;</A>
+<H3>RESTARTING THE SERVER</H3>
+
+<P>
+
+Restarting the server is almost equivalent to stopping the
+server and starting it again
+except that <B>pg_ctl</B> saves and reuses the command line options that
+were passed to the previously running instance. To restart
+the server in the simplest form, use:
+<P>
+<PRE>
+$ <B>pg_ctl restart</B>
+
+</PRE>
+
+<P>
+
+To restart server,
+waiting for it to shut down and to come up:
+<P>
+<PRE>
+$ <B>pg_ctl -w restart</B>
+
+</PRE>
+
+<P>
+
+To restart using port 5433 and disabling <B>fsync</B> after restarting:
+<P>
+<PRE>
+$ <B>pg_ctl -o &quot;-F -p 5433&quot; restart</B>
+
+</PRE>
+
+<A NAME="lbAM">&nbsp;</A>
+<H3>SHOWING THE SERVER STATUS</H3>
+
+<P>
+
+Here is a sample status output from
+<B>pg_ctl</B>:
+<P>
+<PRE>
+$ <B>pg_ctl status</B>
+pg_ctl: postmaster is running (pid: 13718)
+Command line was:
+/usr/local/pgsql/bin/postmaster '-D' '/usr/local/pgsql/data' '-p' '5433' '-B' '128'
+
+</PRE>
+
+This is the command line that would be invoked in restart mode.
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man1/postmaster.1.php">postmaster</A></B>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DL>
+<DT><A HREF="#lbAJ">STARTING THE SERVER</A><DD>
+<DT><A HREF="#lbAK">STOPPING THE SERVER</A><DD>
+<DT><A HREF="#lbAL">RESTARTING THE SERVER</A><DD>
+<DT><A HREF="#lbAM">SHOWING THE SERVER STATUS</A><DD>
+</DL>
+<DT><A HREF="#lbAN">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

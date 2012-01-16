@@ -1,0 +1,262 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FUSER</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>FUSER</H1>
+Section: User Commands (1)<BR>Updated: September 26, 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fuser - identify processes using files or sockets
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<B>fuser</B>
+
+[<B>-a</B>|<B>-s</B>]
+
+[<B>-4</B>|<B>-6</B>]
+
+[<B>-n&nbsp;</B><I>space</I>]
+
+[<B>-</B><I>signal</I><B></B>]
+
+[<B>-kimuv</B>]
+
+<I>name ...</I>
+
+<BR>
+
+<B>fuser </B>
+
+-l
+
+<BR>
+
+<B>fuser </B>
+
+-V
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>fuser</B>
+
+displays the PIDs of processes using the specified files or file systems.
+In the default display mode, each file name is followed by a letter denoting
+the type of access:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>c</B><DD>
+current directory.
+<DT><B>e</B><DD>
+executable being run.
+<DT><B>f</B><DD>
+open file. <B>f</B> is omitted in default display mode.
+<DT><B>r</B><DD>
+root directory.
+<DT><B>m</B><DD>
+mmap'ed file or shared library.
+</DL>
+</DL>
+
+<P>
+
+<B>fuser</B> returns a non-zero return code if none of the specified files
+is accessed or in case of a fatal error. If at least one access has been
+found, <B>fuser</B> returns zero.
+<P>
+
+In order to look up processes using TCP and UDP sockets, the corresponding
+name space has to be selected with the <B>-n</B> option.  By default 
+<B>fuser</B> will look in both IPv6 and IPv4 sockets.  To change the default,
+behavour, use the <B>-4</B> and <B>-6</B> options. The socket(s) can
+be specified by the local and remote port, and the remote address. All fields
+are optional, but commas in front of missing fields must be present:
+<P>
+<B>[</B><I>lcl_port</I><B>][</B>,<B>[</B><I>rmt_host</I><B>][</B>,<B>[</B><I>rmt_port</I><B>]]]</B>
+
+<P>
+Either symbolic or numeric values can be used for IP addresses and port
+numbers.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a</B><DD>
+Show all files specified on the command line. By default, only files that are
+accessed by at least one process are shown.
+<DT><B>-k</B><DD>
+Kill processes accessing the file. Unless changed with <B>-</B><I>signal</I>,
+SIGKILL is sent. An <B>fuser</B> process never kills itself, but may kill
+other <B>fuser</B> processes. The effective user ID of the process executing
+<B>fuser</B> is set to its real user ID before attempting to kill.
+<DT><B>-i</B><DD>
+Ask the user for confirmation before killing a process. This option is
+silently ignored if <B>-k</B> is not present too.
+<DT><B>-l</B><DD>
+List all known signal names.
+<DT><B>-m</B><DD>
+<I>name</I> specifies a file on a mounted file system or a block device that
+is mounted. All processes accessing files on that file system are listed.
+If a directory file is specified, it is automatically changed to
+<I>name</I>/. to use any file system that might be mounted on that
+directory.
+<DT><B>-n&nbsp;</B><I>space</I><DD>
+Select a different name space. The name spaces <B>file</B> (file names, the
+default), <B>udp</B> (local UDP ports), and <B>tcp</B> (local TCP ports) are
+supported.  For ports, either the port number or the symbolic name can be
+specified. If there is no ambiguity, the shortcut notation
+<I>name</I><B>/</B><I>space</I> (e.g. <I>name</I><B>/</B><I>proto</I>) can be used.
+<DT><B>-s</B><DD>
+Silent operation. <B>-u</B> and <B>-v</B> are ignored in this mode.
+<B>-a</B> must not be used with <B>-s</B>.
+<DT><B>-</B><I>signal</I><DD>
+Use the specified signal instead of SIGKILL when killing processes. Signals
+can be specified either by name (e.g. <B>-HUP</B>) or by number
+(e.g. <B>-1</B>).
+<DT><B>-u</B><DD>
+Append the user name of the process owner to each PID.
+<DT><B>-v</B><DD>
+Verbose mode. Processes are shown in a <B>ps</B>-like style. The fields PID,
+USER and COMMAND are similar to <B>ps</B>. ACCESS shows how the process
+accesses the file. If the access is by the kernel (e.g. in the case of a
+mount point, a swap file, etc.), <B>kernel</B> is shown instead of the PID.
+<DT><B>-V</B><DD>
+Display version information.
+<DT><B>-4</B><DD>
+Search only for IPv4 sockets.  This option must not be used with the
+<B>-6</B> option and only has an effect with the tcp and udp namespaces.
+<DT><B>-6</B><DD>
+Search only for IPv6 sockets.  This option must not be used with the <B>-4</B>
+option and only has an effect with the tcp and udp namespaces.
+<DT><B>-</B><DD>
+Reset all options and set the signal back to SIGKILL.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+/proc   location of the proc file system
+</PRE>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<B>fuser -km /home</B> kills all processes accessing the file system /home
+in any way.
+<P>
+
+<B>if fuser -s /dev/ttyS1; then :; else </B><I>something</I>; fi invokes
+<I>something</I> if no other process is using /dev/ttyS1.
+<P>
+
+<B>fuser telnet/tcp</B> shows all processes at the (local) TELNET port.
+<A NAME="lbAH">&nbsp;</A>
+<H2>RESTRICTIONS</H2>
+
+Processes accessing the same file or file system several times in the same way
+are only shown once.
+<P>
+
+If the same object is specified several times on the command line, some of
+those entries may be ignored.
+<P>
+
+<B>fuser</B> may only be able to gather partial information unless run with
+privileges. As a consequence, files opened by processes belonging to other
+users may not be listed and executables may be classified as mapped only.
+<P>
+
+Installing <B>fuser</B> SUID root will avoid problems associated with
+partial information, but may be undesirable for security and privacy
+reasons.
+<P>
+
+<B>udp</B> and <B>tcp</B> name spaces, and UNIX domain sockets can't be
+searched with kernels older than 1.3.78.
+<P>
+
+<B>udp</B> and <B>tcp</B> currently  work with IPv6 and IPv4, but the
+address fields can only be IPv4 addresses.
+<P>
+
+Accesses by the kernel are only shown with the <B>-v</B> option.
+<P>
+
+The <B>-k</B> option only works on processes. If the user is the kernel,
+<B>fuser</B> will print an advice, but take no action beyond that.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+fuser -m /dev/sgX will show (or kill with the -k flag) all processes, even
+if you don't have that device configured. There may be other devices it 
+does this for too.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<P>
+
+Werner Almesberger &lt;<A HREF="mailto:werner@almesberger.net">werner@almesberger.net</A>&gt;
+<P>
+
+Craig Small &lt;<A HREF="mailto:csmall@small.dropbear.id.au">csmall@small.dropbear.id.au</A>&gt;
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/kill.1.php">kill</A>(1), <A HREF="../man1/killall.1.php">killall</A>(1), <A HREF="../man8/lsof.8.php">lsof</A>(8), <A HREF="../man1/ps.1.php">ps</A>(1), <A HREF="../man2/kill.2.php">kill</A>(2)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">RESTRICTIONS</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

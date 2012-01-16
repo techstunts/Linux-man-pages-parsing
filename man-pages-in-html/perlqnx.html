@@ -1,0 +1,214 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLQNX</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLQNX</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.qnx - Perl version 5 on QNX
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+As of perl5.7.2 all tests pass under:
+<P>
+
+
+
+<PRE>
+  QNX 4.24G
+  Watcom 10.6 with Beta/970211.wcc.update.tar.F
+  socket3r.lib Nov21 1996.
+
+</PRE>
+
+
+<P>
+
+As of perl5.8.1 there is at least one test still failing.
+<P>
+
+Some tests may complain under known circumstances.
+<P>
+
+See below and hints/qnx.sh for more information.
+<P>
+
+Under <FONT SIZE="-1">QNX</FONT> 6.2.0 there are still a few tests which fail.
+See below and hints/qnx.sh for more information.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Required Software for Compiling Perl on <FONT SIZE="-1">QNX4</FONT></H2>
+
+<A NAME="ixAAD"></A>
+As with many unix ports, this one depends on a few ``standard''
+unix utilities which are not necessarily standard for <FONT SIZE="-1">QNX4</FONT>.
+<DL COMPACT>
+<DT>/bin/sh<DD>
+<A NAME="ixAAE"></A>
+This is used heavily by Configure and then by
+perl itself. <FONT SIZE="-1">QNX4</FONT>'s version is fine, but Configure
+will choke on the 16-bit version, so if you are
+running <FONT SIZE="-1">QNX</FONT> 4.22, link /bin/sh to /bin32/ksh
+<DT>ar<DD>
+<A NAME="ixAAF"></A>
+This is the standard unix library builder.
+We use wlib. With Watcom 10.6, when wlib is
+linked as ``ar'', it behaves like ar and all is
+fine. Under 9.5, a cover is required. One is
+included in ../qnx
+<DT>nm<DD>
+<A NAME="ixAAG"></A>
+This is used (optionally) by configure to list
+the contents of libraries. I will generate
+a cover function on the fly in the <FONT SIZE="-1">UU</FONT> directory.
+<DT>cpp<DD>
+<A NAME="ixAAH"></A>
+Configure and perl need a way to invoke a C
+preprocessor. I have created a simple cover
+for cc which does the right thing. Without this,
+Configure will create its own wrapper which works,
+but it doesn't handle some of the command line arguments
+that perl will throw at it.
+<DT>make<DD>
+<A NAME="ixAAI"></A>
+You really need <FONT SIZE="-1">GNU</FONT> make to compile this. <FONT SIZE="-1">GNU</FONT> make
+ships by default with <FONT SIZE="-1">QNX</FONT> 4.23, but you can get it
+from quics for earlier versions.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>Outstanding Issues with Perl on <FONT SIZE="-1">QNX4</FONT></H2>
+
+<A NAME="ixAAJ"></A>
+There is no support for dynamically linked libraries in <FONT SIZE="-1">QNX4</FONT>.
+<P>
+
+If you wish to compile with the Socket extension, you need
+to have the <FONT SIZE="-1">TCP/IP</FONT> toolkit, and you need to make sure that
+-lsocket locates the correct copy of socket3r.lib. Beware
+that the Watcom compiler ships with a stub version of
+socket3r.lib which has very little functionality. Also
+beware the order in which wlink searches directories for
+libraries. You may have /usr/lib/socket3r.lib pointing to
+the correct library, but wlink may pick up
+/usr/watcom/10.6/usr/lib/socket3r.lib instead. Make sure
+they both point to the correct library, that is,
+/usr/tcptk/current/usr/lib/socket3r.lib.
+<P>
+
+The following tests may report errors under <FONT SIZE="-1">QNX4:</FONT>
+<P>
+
+ext/Cwd/Cwd.t will complain if `pwd` and cwd don't give
+the same results. cwd calls `fullpath -t`, so if you
+cd `fullpath -t` before running the test, it will
+pass.
+<P>
+
+lib/File/Find/taint.t will complain if '.' is in your
+<FONT SIZE="-1">PATH</FONT>. The <FONT SIZE="-1">PATH</FONT> test is triggered because cwd calls
+`fullpath -t`.
+<P>
+
+ext/IO/lib/IO/t/io_sock.t: Subtests 14 and 22 are skipped due to
+the fact that the functionality to read back the non-blocking
+status of a socket is not implemented in <FONT SIZE="-1">QNX</FONT>'s <FONT SIZE="-1">TCP/IP</FONT>. This has
+been reported to <FONT SIZE="-1">QNX</FONT> and it may work with later versions of
+<FONT SIZE="-1">TCP/IP</FONT>.
+<P>
+
+t/io/tell.t: Subtest 27 is failing. We are still investigating.
+<A NAME="lbAF">&nbsp;</A>
+<H2><FONT SIZE="-1">QNX</FONT> auxiliary files</H2>
+
+<A NAME="ixAAK"></A>
+The files in the ``qnx'' directory are:
+<DL COMPACT>
+<DT>qnx/ar<DD>
+<A NAME="ixAAL"></A>
+A script that emulates the standard unix archive (aka library)
+utility.  Under Watcom 10.6, ar is linked to wlib and provides the
+expected interface. With Watcom 9.5, a cover function is
+required. This one is fairly crude but has proved adequate for
+compiling perl.
+<DT>qnx/cpp<DD>
+<A NAME="ixAAM"></A>
+A script that provides C preprocessing functionality.  Configure can
+generate a similar cover, but it doesn't handle all the command-line
+options that perl throws at it. This might be reasonably placed in
+/usr/local/bin.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Outstanding issues with perl under <FONT SIZE="-1">QNX6</FONT></H2>
+
+<A NAME="ixAAN"></A>
+The following tests are still failing for Perl 5.8.1 under <FONT SIZE="-1">QNX</FONT> 6.2.0:
+<P>
+
+
+
+<PRE>
+  op/sprintf.........................FAILED at test 91
+  lib/Benchmark......................FAILED at test 26
+
+</PRE>
+
+
+<P>
+
+This is due to a bug in the C library's printf routine.
+printf(``'%e''', 0. ) produces '0.000000e+0', but <FONT SIZE="-1">ANSI</FONT> requires
+'0.000000e+00'. <FONT SIZE="-1">QNX</FONT> has acknowledged the bug.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAO"></A>
+Norton T. Allen (<A HREF="mailto:allen@huarp.harvard.edu">allen@huarp.harvard.edu</A>)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Required Software for Compiling Perl on <FONT SIZE="-1">QNX4</FONT></A><DD>
+<DT><A HREF="#lbAE">Outstanding Issues with Perl on <FONT SIZE="-1">QNX4</FONT></A><DD>
+<DT><A HREF="#lbAF"><FONT SIZE="-1">QNX</FONT> auxiliary files</A><DD>
+<DT><A HREF="#lbAG">Outstanding issues with perl under <FONT SIZE="-1">QNX6</FONT></A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

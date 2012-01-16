@@ -1,0 +1,310 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DICTZIP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DICTZIP</H1>
+Section:  (1)<BR>Updated: 22 Jun 1997<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dictzip, dictunzip - compress (or expand) files, allowing random access
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<PRE>
+<B>dictzip [</B><I>options</I><B>] </B><I>name</I>
+<BR>
+<B>dictunzip [</B><I>options</I><B>] </B><I>name</I>
+</PRE>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>dictzip</B>
+
+compresses files using the
+<B><A HREF="../man1/gzip.1.php">gzip</A></B>(1)
+
+algorithm (LZ77) in a manner which is completely compatible with the
+<B>gzip</B>
+
+file format.  An extension to the
+<B>gzip</B>
+
+file format (Extra Field, described in 2.3.1.1 of RFC 1952) allows extra
+data to be stored in the header of a compressed file.  Programs like
+<B>gzip</B>
+
+and
+<B>zcat</B>
+
+will ignore this extra data.  However,
+<B><A HREF="../man8/dictd.8.php">dictd</A></B>(8),
+
+the DICT protocol dictionary server will make use of this data to perform
+pseudo-random access on the file.  Files in the
+<B>dictzip</B>
+
+format should end in &quot;.dz&quot; so that they may be distinguished from common
+<B>gzip</B>
+
+files that do not contain the special header information.
+
+From RFC 1952, the extra field is specified as follows:
+<P>
+<DL COMPACT><DT><DD>
+If the FLG.FEXTRA bit is set, an &quot;extra field&quot; is present in
+the header, with total length XLEN bytes.  It consists of a
+series of subfields, each of the form:
+<P>
+<PRE>
++---+---+---+---+==================================+
+|SI1|SI2|  LEN  |... LEN bytes of subfield data ...|
++---+---+---+---+==================================+
+</PRE>
+
+<P>
+SI1 and SI2 provide a subfield ID, typically two ASCII letters
+with some mnemonic value.  Jean-Loup Gailly
+&lt;<A HREF="mailto:gzip@prep.ai.mit.edu">gzip@prep.ai.mit.edu</A>&gt; is maintaining a registry of subfield
+IDs; please send him any subfield ID you wish to use.  Subfield
+IDs with SI2 = 0 are reserved for future use.
+
+LEN gives the length of the subfield data, excluding the 4
+initial bytes.
+</DL>
+
+<P>
+The
+<B>dictzip</B>
+
+program uses 'R' for SI1, and 'A' for SI2 (i.e., &quot;Random Access&quot;).  After
+the LEN field, the data is arranged as follows:
+<P>
+<PRE>
++---+---+---+---+---+---+===============================+
+|  VER  | CHLEN | CHCNT |  ... CHCNT words of data ...  |
++---+---+---+---+---+---+===============================+
+</PRE>
+
+<P>
+As per RFC 1952, all data is stored least-significant byte first.  For VER
+1 of the data, all values are 16-bits long (2 bytes), and are unsigned
+integers.
+
+XLEN (which is specified earlier in the header) is a two byte integer, so
+the extra field can be 0xffff bytes long, 2 bytes of which are used for the
+subfield ID (SI1 and SI1), and 2 bytes of which are used for the subfield
+length (LEN).  This leaves 0xfffb bytes (0x7ffd 2-byte entries or 0x3ffe
+4-byte entries).  Given that the zip output buffer must be 10% + 12 bytes
+larger than the input buffer, we can store 58969 bytes per entry, or about
+1.8GB if the 2-byte entries are used.  If this becomes a limiting factor,
+another format version can be selected and defined for 4-byte entries.
+
+For compression, the file is divided up into &quot;chunks&quot; of data, each chunk
+is less than 64kB, and can be compressed into an area that is also less
+than 64kB long (taking incompressible data into account -- usually the data
+is compressed into a block that is much smaller than the original).  The
+CHLEN field specifies the length of a &quot;chunk&quot; of data.  The CHCNT field
+specifies how many chunks are preset, and the CHCNT words of data specifies
+how long each chunk is after compression (i.e., in the current compressed
+file).
+
+To perform random access on the data, the offset and length of the data are
+provided to library routines.  These routines determine the chunk in which
+the desired data begins, and decompresses that chunk.  Consecutive chunks
+are decompressed as necessary.
+<A NAME="lbAE">&nbsp;</A>
+<H2>TRADEOFFS</H2>
+
+<DL COMPACT>
+<DT><B>Speed</B>
+
+<DD>
+True random file access is not realized, since any access, even for a
+single byte, requires that a 64kB chunk be read and decompressed.  This is
+slower than accessing a flat text file, but is much, much faster than
+performing serial access on a fully compressed file.
+<DT><B>Space</B>
+
+<DD>
+For the textual dictionary databases we are working with, the use of 64kB
+chunks and maximal LZ77 compression realizes a file which is only about 4%
+larger than the same file compressed all at once.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-d</B> or <B>--decompress</B>
+
+<DD>
+Decompress.  This is the default if the executable is called
+<B>dictunzip</B>.
+
+<DT><B>-c</B> or <B>--stdout</B>
+
+<DD>
+Write output on standard output; keep original files unchanged.  This is
+only available when decompressing (because parts of the header must be
+updated after a write when compressing).
+<DT><B>-f</B> or <B>--force</B>
+
+<DD>
+Force compression or decompression even if the output file already exists.
+<DT><B>-h</B> or <B>--help</B>
+
+<DD>
+Display help.
+<DT><B>-k</B> or <B>--keep</B>
+
+<DD>
+Do not delete the original file.
+<DT><B>-l</B> or <B>--list</B>
+
+<DD>
+For each compressed file, list the following fields:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;type:&nbsp;dzip,&nbsp;gzip,&nbsp;or&nbsp;text&nbsp;(includes&nbsp;files&nbsp;in&nbsp;unknown&nbsp;formats)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;crc:&nbsp;CRC&nbsp;checksum
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;and&nbsp;time:&nbsp;from&nbsp;header
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;chunks:&nbsp;number&nbsp;of&nbsp;chunks&nbsp;in&nbsp;file
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;size:&nbsp;size&nbsp;of&nbsp;each&nbsp;uncompressed&nbsp;chunk
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;compr.:&nbsp;compressed&nbsp;size
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;uncompr.:&nbsp;uncompressed&nbsp;size
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;ratio:&nbsp;compression&nbsp;ratio&nbsp;(0.0%&nbsp;if&nbsp;unknown)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;name:&nbsp;name&nbsp;of&nbsp;uncompressed&nbsp;file
+<P>
+Unlike
+<B>gzip</B>,
+
+the compression method is not detected.
+<DT><B>-L</B> or <B>--license</B>
+
+<DD>
+Display the
+<B>dictzip</B>
+
+license and quit.
+<DT><B>-t</B> or <B>--test</B>
+
+<DD>
+Check the compressed file integrity.  This option is not implemented.
+Instead, it will list the header information.
+<DT><B>-v</B> or <B>--verbose</B>
+
+<DD>
+Verbose. Display extra information during compression.
+<DT><B>-V</B> or <B>--version</B>
+
+<DD>
+Version. Display the version number and compilation options then quit.
+<DT><B>-s</B><I> start</I> or <B>--start</B><I> start</I>
+
+<DD>
+Specify the offer to start decompression, using decimal numbers.  The
+default is at the beginning of the file.
+<DT><B>-e</B><I> size</I> or <B>--size</B><I> size</I>
+
+<DD>
+Specify the size of the portion of the file to decompress, using decimal
+numbers.  The default is the whole file.
+<DT><B>-S</B><I> start</I> or <B>--Start</B><I> start</I>
+
+<DD>
+Specify the offer to start decompression, using base64 numbers.  The
+default is at the beginning of the file.
+<DT><B>-E</B><I> size</I> or <B>--Size</B><I> start</I>
+
+<DD>
+Specify the size of the portion of the file to decompress, using base64
+numbers.  The default is the whole file.
+<DT><B>-p</B><I> prefilter</I> or <B>--pre</B><I> prefilter</I>
+
+<DD>
+Specify a shell command to execute as a filter before compression or
+decompression of a chunk.  The pre- and post-compression filters can be
+used to provide additional compression or output formatting.  The filters
+may not increase the buffer size significantly.  The pre- and
+post-compression filters were designed to provide the most general
+interface possible.
+<DT><B>-P</B><I> postfilter</I> or <B>--post</B><I> postfilter</I>
+
+<DD>
+Specify a shell command to execute as a filter after compression or
+decompression.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CREDITS</H2>
+
+<B>dictzip</B>
+
+was written by Rik Faith (<A HREF="mailto:faith@cs.unc.edu">faith@cs.unc.edu</A>) and is distributed under the
+terms of the GNU General Public License.  If you need to distribute under
+other terms, write to the author.
+
+The main libraries used by this programs (zlib, regex, libmaa) are
+distributed under different terms, so you may be able to use the libraries
+for applications which are incompatible with the GPL -- please see the
+copyright notices and license information that come with the libraries for
+more information, and consult with your attorney to resolve these issues.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/dict.1.php">dict</A></B>(1),
+
+<B><A HREF="../man8/dictd.8.php">dictd</A></B>(8),
+
+<B><A HREF="../man1/gzip.1.php">gzip</A></B>(1),
+
+<B><A HREF="../man1/gunzip.1.php">gunzip</A></B>(1),
+
+<B><A HREF="../man1/zcat.1.php">zcat</A></B>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">TRADEOFFS</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">CREDITS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

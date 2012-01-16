@@ -1,0 +1,209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>APLAY</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>APLAY</H1>
+Section: User Commands  (1)<BR>Updated: 2 August 2001<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+arecord, aplay - command-line sound recorder and player for ALSA 
+soundcard driver
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>arecord</B> [<I>flags</I>] [filename]
+<A NAME="lbAD">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>aplay</B> [<I>flags</I>] [filename [filename]] ...
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>arecord</B> is a command-line soundfile recorder for the ALSA soundcard
+driver. It supports several file formats and multiple soundcards with
+multiple devices. 
+<P>
+<B>aplay</B> is much the same, only it plays instead of recording. For
+supported soundfile formats, the sampling rate, bit depth, and so
+forth can be automatically determined from the soundfile header.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>INVOKING</H2>
+
+<P>
+[<B>arecord</B> | <B>aplay</B> ] [<I>flags</I>] filename
+<DL COMPACT>
+<DT>If filename is not specified, the standard output or input is used. The <B>aplay</B> utility accepts multiple filenames.<DD>
+<P>
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Options</H3>
+
+<DL COMPACT>
+<DT><I>-h, --help</I><DD>
+Help: show syntax.
+<DT><I>--version</I><DD>
+Print current version.
+<DT><I>-l, --list-devices</I><DD>
+List all soundcards and digital audio devices
+<DT><I>-L, --list-pcms</I><DD>
+List all PCMs defined
+<DT><I>-D, --device=NAME</I><DD>
+Select PCM by name
+<DT><I>-q --quiet</I><DD>
+Quiet mode. Suppress messages (not sound :))
+<DT><I>-t, --file-type TYPE</I><DD>
+File type (voc, wav, raw or au)
+<DT><I>-c, --channels=#</I><DD>
+The number of channels
+<DT><I>-f --format=FORMAT</I><DD>
+Sample format
+<BR>
+
+Recognized sample formats are: S8 U8 S16_LE S16_BE U16_LE U16_BE S24_LE
+S24_BE U24_LE U24_BE S32_LE S32_BE U32_LE U32_BE FLOAT_LE FLOAT_BE
+FLOAT64_LE FLOAT64_BE IEC958_SUBFRAME_LE IEC958_SUBFRAME_BE MU_LAW
+A_LAW IMA_ADPCM MPEG GSM
+<BR>
+
+Some of these may not be available on selected hardware
+<BR>
+
+There are also two format shortcuts available:
+<PRE>
+-f cd (16 bit little endian, 44100, stereo [-f S16_LE -c2 -r44100]
+-f dat (16 bit little endian, 48000, stereo) [-f S16_LE -c2 -r48000]
+</PRE>
+
+<DT><I>-r, --rate=#&lt;Hz&gt;</I><DD>
+Sampling rate in Hertz.
+<DT><I>-d, --duration=#</I><DD>
+Interrupt after # seconds
+<DT><I>-s, --sleep-min=#</I><DD>
+Min ticks to sleep
+<DT><I>-M, --mmap</I>            <DD>
+Mmap stream
+<DT><I>-N, --nonblock</I>          <DD>
+Nonblocking mode
+<DT><I>-F, --period-time=#</I>     <DD>
+Distance between interrupts is # microseconds
+<DT><I>-B, --buffer-time=#</I>     <DD>
+Buffer duration is # microseconds
+<DT><I>--period-size=#</I>     <DD>
+Distance between interrupts is # frames
+<DT><I>--buffer-size=#</I>     <DD>
+Buffer duration is # frames
+<DT><I>-A, --avail-min=#</I>       <DD>
+Min available space for wakeup is # microseconds
+<DT><I>-R, --start-delay=#</I>     <DD>
+Delay for automatic PCM start is # microseconds 
+(relative to buffer size if &lt;= 0)
+<DT><I>-T, --stop-delay=#</I>      <DD>
+Delay for automatic PCM stop is # microseconds from xrun
+<DT><I>-v, --verbose</I>           <DD>
+Show PCM structure and setup.
+This option is accumulative.  The VU meter is displayed when this
+is given twice.
+<DT><I>-I, --separate-channels</I> <DD>
+One file for each channel
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Example:</H3>
+
+<P>
+<DL COMPACT>
+<DT><B>aplay -c 1 -t raw -r 22050 -f mu_law foobar</B><DD>
+will play the raw file &quot;foobar&quot; as a
+22050-Hz, mono, 8-bit, Mu-Law .au file. 
+<P>
+<DT><B>arecord -d 10 -f cd -t wav -D copy foobar.wav</B><DD>
+will record foobar.wav as a 10-second, CD-quality wave file, using the
+PCM &quot;copy&quot; (which might be defined in the user's .asoundrc file as:
+<PRE>
+pcm.copy {
+  type plug
+  slave {
+    pcm hw
+  }
+  route_policy copy
+}
+</PRE>
+
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>
+<A HREF="../man1/alsamixer.1.php">alsamixer</A>(1),
+<A HREF="../man1/amixer.1.php">amixer</A>(1)
+</B>
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS </H2>
+
+Note that .aiff files are not currently supported.
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<B>arecord</B> and <B>aplay</B> are by Jaroslav Kysela &lt;<A HREF="mailto:perex@suse.cz">perex@suse.cz</A>&gt;
+This document is by Paul Winkler &lt;<A HREF="mailto:zarmzarm@erols.com">zarmzarm@erols.com</A>&gt;.
+Updated for Alsa 0.9 by James Tappin &lt;<A HREF="mailto:james@xena.uklinux.net">james@xena.uklinux.net</A>&gt;
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">INVOKING</A><DD>
+<DL>
+<DT><A HREF="#lbAG">Options</A><DD>
+<DT><A HREF="#lbAH">Example:</A><DD>
+</DL>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">BUGS </A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

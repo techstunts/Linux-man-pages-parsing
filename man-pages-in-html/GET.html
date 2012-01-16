@@ -1,0 +1,235 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>GET</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>GET</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-08-13<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lwp-request - Simple command line user agent
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+ lwp-request [-aeEdvhx] [-m method] [-b &lt;base URL&gt;] [-t &lt;timeout&gt;]
+             [-i &lt;if-modified-since&gt;] [-c &lt;content-type&gt;] [-C &lt;credentials&gt;]
+             [-p &lt;proxy-url&gt;] [-o &lt;format&gt;] &lt;url&gt;...
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This program can be used to send requests to <FONT SIZE="-1">WWW</FONT> servers and your
+local file system. The request content for <FONT SIZE="-1">POST</FONT> and <FONT SIZE="-1">PUT</FONT>
+methods is read from stdin.  The content of the response is printed on
+stdout.  Error messages are printed on stderr.  The program returns a
+status value indicating the number of URLs that failed.
+<P>
+
+The options are:
+<DL COMPACT>
+<DT>-m &lt;method&gt;<DD>
+<A NAME="ixAAE"></A>
+Set which method to use for the request.  If this option is not used,
+then the method is derived from the name of the program.
+<DT>-f<DD>
+<A NAME="ixAAF"></A>
+Force request through, even if the program believes that the method is
+illegal.  The server might reject the request eventually.
+<DT>-b &lt;uri&gt;<DD>
+<A NAME="ixAAG"></A>
+This <FONT SIZE="-1">URI</FONT> will be used as the base <FONT SIZE="-1">URI</FONT> for resolving all relative URIs
+given as argument.
+<DT>-t &lt;timeout&gt;<DD>
+<A NAME="ixAAH"></A>
+Set the timeout value for the requests.  The timeout is the amount of
+time that the program will wait for a response from the remote server
+before it fails.  The default unit for the timeout value is seconds.
+You might append ``m'' or ``h'' to the timeout value to make it minutes or
+hours, respectively.  The default timeout is '3m', i.e. 3 minutes.
+<DT>-i &lt;time&gt;<DD>
+<A NAME="ixAAI"></A>
+Set the If-Modified-Since header in the request. If <I>time</I> is the
+name of a file, use the modification timestamp for this file. If
+<I>time</I> is not a file, it is parsed as a literal date. Take a look at
+HTTP::Date for recognized formats.
+<DT>-c &lt;content-type&gt;<DD>
+<A NAME="ixAAJ"></A>
+Set the Content-Type for the request.  This option is only allowed for
+requests that take a content, i.e. <FONT SIZE="-1">POST</FONT> and <FONT SIZE="-1">PUT</FONT>.  You can
+force methods to take content by using the <TT>&quot;-f&quot;</TT> option together with
+<TT>&quot;-c&quot;</TT>.  The default Content-Type for <FONT SIZE="-1">POST</FONT> is
+<TT>&quot;application/x-www-form-urlencoded&quot;</TT>.  The default Content-type for
+the others is <TT>&quot;text/plain&quot;</TT>.
+<DT>-p &lt;proxy-url&gt;<DD>
+<A NAME="ixAAK"></A>
+Set the proxy to be used for the requests.  The program also loads
+proxy settings from the environment.  You can disable this with the
+<TT>&quot;-P&quot;</TT> option.
+<DT>-H &lt;header&gt;<DD>
+<A NAME="ixAAL"></A>
+Send this <FONT SIZE="-1">HTTP</FONT> header with each request. You can specify several, e.g.:
+
+
+<P>
+
+
+
+
+<PRE>
+    lwp-request \
+        -H 'Referer: <A HREF="http://other.url/'">http://other.url/'</A> \
+        -H 'Host: somehost' \
+        <A HREF="http://this.url/">http://this.url/</A>
+
+</PRE>
+
+
+<DT>-C &lt;username&gt;:&lt;password&gt;<DD>
+<A NAME="ixAAM"></A>
+Provide credentials for documents that are protected by Basic
+Authentication.  If the document is protected and you did not specify
+the username and password with this option, then you will be prompted
+to provide these values.
+</DL>
+<P>
+
+The following options controls what is displayed by the program:
+<DL COMPACT>
+<DT>-u<DD>
+<A NAME="ixAAN"></A>
+Print request method and absolute <FONT SIZE="-1">URL</FONT> as requests are made.
+<DT>-U<DD>
+<A NAME="ixAAO"></A>
+Print request headers in addition to request method and absolute <FONT SIZE="-1">URL</FONT>.
+<DT>-s<DD>
+<A NAME="ixAAP"></A>
+Print response status code.  This option is always on for <FONT SIZE="-1">HEAD</FONT> requests.
+<DT>-S<DD>
+<A NAME="ixAAQ"></A>
+Print response status chain. This shows redirect and authorization
+requests that are handled by the library.
+<DT>-e<DD>
+<A NAME="ixAAR"></A>
+Print response headers.  This option is always on for <FONT SIZE="-1">HEAD</FONT> requests.
+<DT>-d<DD>
+<A NAME="ixAAS"></A>
+Do <B>not</B> print the content of the response.
+<DT>-o &lt;format&gt;<DD>
+<A NAME="ixAAT"></A>
+Process <FONT SIZE="-1">HTML</FONT> content in various ways before printing it.  If the
+content type of the response is not <FONT SIZE="-1">HTML</FONT>, then this option has no
+effect.  The legal format values are; <I>text</I>, <I>ps</I>, <I>links</I>,
+<I>html</I> and <I>dump</I>.
+
+
+<P>
+
+
+If you specify the <I>text</I> format then the <FONT SIZE="-1">HTML</FONT> will be formatted as
+plain latin1 text.  If you specify the <I>ps</I> format then it will be
+formatted as Postscript.
+
+
+<P>
+
+
+The <I>links</I> format will output all links found in the <FONT SIZE="-1">HTML</FONT> document.
+Relative links will be expanded to absolute ones.
+
+
+<P>
+
+
+The <I>html</I> format will reformat the <FONT SIZE="-1">HTML</FONT> code and the <I>dump</I> format
+will just dump the <FONT SIZE="-1">HTML</FONT> syntax tree.
+<DT>-v<DD>
+<A NAME="ixAAU"></A>
+Print the version number of the program and quit.
+<DT>-h<DD>
+<A NAME="ixAAV"></A>
+Print usage message and quit.
+<DT>-x<DD>
+<A NAME="ixAAW"></A>
+Extra debugging output.
+<DT>-a<DD>
+<A NAME="ixAAX"></A>
+Set text(ascii) mode for content input and output.  If this option is not
+used, content input and output is done in binary mode.
+</DL>
+<P>
+
+Because this program is implemented using the <FONT SIZE="-1">LWP</FONT> library, it will
+only support the protocols that <FONT SIZE="-1">LWP</FONT> supports.
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAY"></A>
+lwp-mirror, <FONT SIZE="-1">LWP</FONT>
+<A NAME="lbAF">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+<A NAME="ixAAZ"></A>
+Copyright 1995-1999 Gisle Aas.
+<P>
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABA"></A>
+Gisle Aas &lt;<A HREF="mailto:gisle@aas.no">gisle@aas.no</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,413 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>saned</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>saned</H1>
+Section: SANE Scanner Access Now Easy (1)<BR>Updated: 29 Oct 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="ixAAB"></A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+saned - SANE network daemon
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>saned</B>
+
+[<B>-d</B>|<B>-s</B>
+
+[<I>n</I>]]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>saned</B>
+
+is the SANE (Scanner Access Now Easy) daemon that allows remote clients
+to access image acquisition devices available on the local host.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+The
+<B>-d</B>
+
+and
+<B>-s</B>
+
+flags request that
+<B>saned</B>
+
+run in debug mode (as opposed to
+<B><A HREF="../man8/inetd.8.php">inetd</A></B>(8)
+
+mode).  In this mode,
+<B>saned</B>
+
+explicitly waits for a connection request.  When compiled with
+debugging enabled, these flags may be followed by a number to request
+debug info. The larger the number, the more verbose the debug output.
+E.g.,
+<B>-d128</B>
+
+will request printing of all debug info. Debug level 0 means no debug output
+at all. The default value is 2. If flag
+<B>-d</B>
+
+is used, the debug messages will be printed to stderr while
+<B>-s</B>
+
+requests using syslog.
+<P>
+
+If 
+<B>saned</B>
+
+is run from inetd or xinetd, no option can be given.
+<A NAME="lbAF">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+First and foremost: 
+<B>saned</B>
+
+is not intended to be exposed to the internet or other non-trusted
+networks. Make sure that access is limited by tcpwrappers and/or a firewall
+setup. Don't depend only on 
+<B>saned</B>'s
+
+own authentification. Don't run
+<B>saned</B>
+
+as root if it's not necessary. And do
+<B>not</B>
+
+install
+<B>saned</B>
+
+as setuid root.
+<P>
+
+The contents of the
+<I>saned.conf</I>
+
+file is a list of host names, IP addresses or IP subnets (CIDR notation) that
+are permitted to use local SANE devices. IPv6 addresses must be enclosed in
+brackets, and should always be specified in their compressed form.
+Connections from localhost are always permitted.
+Empty lines and lines starting with a hash mark (#) are ignored.  A line
+containing the single character ``+'' is interpreted to match any hostname.
+This allows any remote machine to use your scanner and may present a security
+risk, so this shouldn't be used unless you know what you're doing.  A sample
+configuration file is shown below:
+<P>
+
+<DL COMPACT><DT><DD>
+scan-client.somedomain.firm
+<BR>
+
+# this is a comment
+<BR>
+
+192.168.0.1
+<BR>
+
+192.168.2.12/29
+<BR>
+
+[::1]
+<BR>
+
+[2001:7a8:185e::42:12]/64
+</DL>
+
+<P>
+
+The case of the host names does not matter, so AHost.COM is considered
+identical to ahost.com.
+<P>
+For
+<B>saned</B>
+
+to work properly, it is also necessary to add a configuration line to
+<I>/etc/inetd.conf</I>.
+
+Note that your inetd must support IPv6 if you
+want to connect to saned over IPv6 ; xinetd and openbsd-inetd are known to
+support IPv6, check the documentation for your inetd daemon.
+<P>
+
+The configuration line normally looks like this:
+<P>
+
+<DL COMPACT><DT><DD>
+sane stream tcp nowait saned.saned /usr/sbin/saned saned
+</DL>
+
+<P>
+
+However, if your system uses
+<B><A HREF="../man8/tcpd.8.php">tcpd</A></B>(8)
+
+for additional security screening, you may want to disable saned
+access control by putting ``+'' in
+<I>saned.conf</I>
+
+and use a line of the following form in
+<I>/etc/inetd.conf</I>
+
+instead:
+<P>
+
+<DL COMPACT><DT><DD>
+sane stream tcp nowait saned.saned /usr/sbin/tcpd /usr/sbin/saned
+</DL>
+
+<P>
+
+Note that both examples assume that there is a
+<B>saned</B>
+
+group and a
+<B>saned</B>
+
+user.  If you follow this example, please make sure that the 
+access permissions on the special device are set such that
+<B>saned</B>
+
+can access the scanner (the program generally needs read and
+write access to scanner devices).
+<P>
+
+If xinetd is installed on your system instead of inetd the following example
+for xinetd.conf may be helpful:
+<P>
+
+<DL COMPACT><DT><DD>
+# default: off
+<BR>
+
+# description: The sane server accepts requests 
+<BR>
+
+# for network access to a local scanner via the
+<BR>
+
+# network.
+<BR>
+
+service sane
+<BR>
+
+{
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6566
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;socket_type&nbsp;=&nbsp;stream
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;wait&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;no
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;saned
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;group&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;saned
+<BR>
+
+<BR>&nbsp;&nbsp;&nbsp;server&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;/usr/sbin/saned
+<BR>
+
+}
+</DL>
+
+<P>
+
+Finally, it is also necessary to add a line of the following form to
+<I>/etc/services</I>:
+
+<P>
+
+<DL COMPACT><DT><DD>
+sane 6566/tcp # SANE network scanner daemon
+</DL>
+
+<P>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>RESTRICTIONS</H2>
+
+In addition to the control connection (port 6566) saned also uses a data
+connection. The port of this socket is selected by the operating system and
+can't be specified by the user currently. This may be a problem if the
+connection must go through a firewall (packet filter). If you must use a packet
+filter, make sure that all ports &gt; 1024 are open on the server for connections
+from the client.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/etc/hosts.equiv</I>
+
+<DD>
+The hosts listed in this file are permitted to access all local SANE
+devices.  Caveat: this file imposes serious security risks and its use
+is not recommended.
+<DT><I>/etc/sane.d/saned.conf</I>
+
+<DD>
+Contains a list of hosts permitted to access local SANE devices (see
+also description of
+<B>SANE_CONFIG_DIR</B>
+
+below).
+<DT><I>/etc/sane.d/saned.users</I>
+
+<DD>
+If this file contains lines of the form
+</DL>
+<P>
+
+<DL COMPACT><DT><DD>
+user:password:backend
+<P>
+
+access to the listed backends is restricted. A backend may be listed multiple
+times for different user/password combinations. The server uses MD5 encryption
+if supported by the client.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>SANE_CONFIG_DIR</B>
+
+<DD>
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (&quot;.&quot;) and then in /etc/sane.d.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+<B>SANE_CONFIG_DIR</B>
+
+to &quot;/tmp/config:&quot; would result in directories &quot;tmp/config&quot;, &quot;.&quot;, and
+&quot;/etc/sane.d&quot; being searched (in this order).
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man7/sane.7.php">sane</A></B>(7),
+
+<B><A HREF="../man1/scanimage.1.php">scanimage</A></B>(1),
+
+<B><A HREF="../man1/xscanimage.1.php">xscanimage</A></B>(1),
+
+<B><A HREF="../man1/xcam.1.php">xcam</A></B>(1),
+
+<B><A HREF="../man5/sane-dll.5.php">sane-dll</A></B>(5),
+
+<B><A HREF="../man5/sane-net.5.php">sane-net</A></B>(5),
+
+<B><A HREF="../man5/sane-backendname.5.php">sane-backendname</A></B>(5)
+
+<BR>
+
+<I><A HREF="http://www.penguin-breeder.org/?page=sane-net">http://www.penguin-breeder.org/?page=sane-net</A></I>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+David Mosberger
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAG">RESTRICTIONS</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

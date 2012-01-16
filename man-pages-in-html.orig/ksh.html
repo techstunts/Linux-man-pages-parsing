@@ -1,0 +1,3751 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>KSH</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>KSH</H1>
+Section: User commands (1)<BR>Updated: August 19, 1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ksh - Public domain Korn shell
+
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+<B>ksh</B>
+[<B>&#177;abCefhikmnprsuvxX</B>] [<B>&#177;o</B> <I>option</I>] [ [ <B>-c</B> <I>command-string</I> [<I>command-name</I>] | <B>-s</B> | <I>file</I> ] [<I>argument</I> ...] ]
+
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>ksh</B> is a command interpreter that is intended for both 
+interactive and shell script use.  Its command language is a superset
+of the <I><A HREF="../man1/sh.1.php">sh</A></I>(1) shell language.
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Shell Startup</H3>
+
+The following options can be specified only on the command line:
+<DL COMPACT>
+<DT><B>-c</B> <I>command-string</I><DD>
+the shell executes the command(s) contained in <I>command-string</I>
+<DT><B>-i</B><DD>
+interactive mode --- see below
+<DT><B>-l</B><DD>
+login shell --- see below
+interactive mode --- see below
+<DT><B>-s</B><DD>
+the shell reads commands from standard input; all non-option arguments
+are positional parameters
+<DT><B>-r</B><DD>
+restricted mode --- see below
+</DL>
+<P>
+
+In addition to the above, the options described in the <B>set</B> built-in
+command can also be used on the command line.
+<P>
+
+If neither the <B>-c</B> nor the <B>-s</B> options are specified, the
+first non-option argument specifies the name of a file the shell reads
+commands from; if there are no non-option arguments, the shell reads
+commands from standard input.
+The name of the shell (<I>i.e.</I>, the contents of the <B>$0</B>) parameter
+is determined as follows: if the <B>-c</B> option is used and there is
+a non-option argument, it is used as the name; if commands are being
+read from a file, the file is used as the name; otherwise the name
+the shell was called with (<I>i.e.</I>, argv[0]) is used.
+<P>
+
+A shell is <B>interactive</B> if the <B>-i</B> option is used or
+if both standard input and standard error are attached to a tty.
+An interactive shell has job control enabled (if available),
+ignores the INT, QUIT and TERM signals, and prints prompts before
+reading input (see <B>PS1</B> and <B>PS2</B> parameters).
+For non-interactive shells, the <B>trackall</B> option is on by default
+(see <B>set</B> command below).
+<P>
+
+A shell is <B>restricted</B> if the <B>-r</B> option is used or if either
+the basename of the name the shell is invoked with or the <B>SHELL</B>
+parameter match the pattern *r*sh (<I>e.g.</I>, rsh, rksh, rpdksh, <I>etc.</I>).
+The following restrictions come into effect after the shell processes
+any profile and <B>$ENV</B> files:
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+the <B>cd</B> command is disabled
+<DT>&nbsp;&nbsp;*<DD>
+the <B>SHELL</B>, <B>ENV</B> and <B>PATH</B> parameters can't be changed
+<DT>&nbsp;&nbsp;*<DD>
+command names can't be specified with absolute or relative paths
+<DT>&nbsp;&nbsp;*<DD>
+the <B>-p</B> option of the <B>command</B> built-in can't be used
+<DT>&nbsp;&nbsp;*<DD>
+redirections that create files can't be used (<I>i.e.</I>, <B>&gt;</B>,
+<B>&gt;|</B>, <B>&gt;&gt;</B>, <B>&lt;&gt;</B>)
+
+</DL>
+<P>
+
+A shell is <B>privileged</B> if the <B>-p</B> option is used or if
+the real user-id or group-id does not match the effective user-id
+or group-id (see <I><A HREF="../man2/getuid.2.php">getuid</A></I>(2), <I><A HREF="../man2/getgid.2.php">getgid</A></I>(2)).
+A privileged shell does not process $HOME/.profile nor the <B>ENV</B>
+parameter (see below), instead the file /etc/suid_profile is processed.
+Clearing the privileged option causes the shell to set its effective
+user-id (group-id) to its real user-id (group-id).
+<P>
+
+If the basename of the name the shell is called with (<I>i.e.</I>, argv[0])
+starts with <B>-</B> or if the <B>-l</B> option is used, the shell is assumed
+to be a login shell and the shell reads and executes the contents of
+<B>/etc/profile</B> and <B>$HOME/.profile</B> if they exist and are readable.
+<P>
+
+If the <B>ENV</B> parameter is set when the shell starts (or, in the
+case of login shells, after any profiles are processed), its value
+is subjected to parameter, command, arithmetic and tilde substitution and
+the resulting file (if any) is read and executed.
+If <B>ENV</B> parameter is not set (and not null) and pdksh was compiled
+with the <B>DEFAULT_ENV</B> macro defined, the file named in that macro
+is included (after the above mentioned substitutions have been performed).
+<P>
+
+The exit status of the shell is 127 if the command file specified
+on the command line could not be opened, or non-zero if a fatal syntax
+error occurred during the execution of a script.
+In the absence of fatal errors, the exit status is that of the last
+command executed, or zero, if no command is executed.
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Command Syntax</H3>
+
+
+The shell begins parsing its input by breaking it into <I>word</I>s.
+Words, which are sequences of characters, are delimited by unquoted
+<I>white-space</I> characters (space, tab and newline) or <I>meta-characters</I>
+(<B>&lt;</B>, <B>&gt;</B>, <B>|</B>, <B>;</B>, <B>&amp;</B>, <B>(</B> and <B>)</B>).
+Aside from delimiting words, spaces and tabs are ignored, while
+newlines usually delimit commands.
+The meta-characters are used in building the following tokens:
+<B>&lt;</B>, <B>&lt;&amp;</B>, <B>&lt;&lt;</B>, <B>&gt;</B>, <B>&gt;&amp;</B>, <B>&gt;&gt;</B>, <I>etc.</I> are
+used to specify redirections (see Input/Output Redirection below);
+<B>|</B> is used to create pipelines;
+<B>|&amp;</B> is used to create co-processes (see Co-Processes below);
+<B>;</B> is used to separate commands;
+<B>&amp;</B> is used to create asynchronous pipelines;
+<B>&amp;&amp;</B> and <B>||</B> are used to specify conditional execution;
+<B>;;</B> is used in <B>case</B> statements;
+<B>((</B> .. <B>))</B> are used in arithmetic expressions;
+and lastly,
+<B>(</B> .. <B>)</B> are used to create subshells.
+<P>
+
+White-space and meta-characters can be quoted individually using
+backslash (<B>\</B>), or in groups using double (<B>&quot;</B>) or single (<B>'</B>)
+quotes.
+Note that the following characters are also treated specially by the shell and
+must be quoted if they are to represent themselves:
+<B>\</B>, <B>&quot;</B>, <B>'</B>, <B>#</B>, <B>$</B>, <B>`</B>, <B>~</B>, <B>{</B>,
+<B>}</B>, <B>*</B>, <B>?</B> and <B>[</B>.
+The first three of these are the above mentioned quoting characters
+(see Quoting below);
+<B>#</B>, if used at the beginning of a word, introduces a comment --- everything
+after the <B>#</B> up to the nearest newline is ignored;
+<B>$</B> is used to introduce parameter, command and arithmetic substitutions
+(see Substitution below);
+<B>`</B> introduces an old-style command substitution
+(see Substitution below);
+<B>~</B> begins a directory expansion (see Tilde Expansion below);
+<B>{</B> and <B>}</B> delimit <I><A HREF="../man1/csh.1.php">csh</A></I>(1) style alternations
+(see Brace Expansion below);
+and, finally, <B>*</B>, <B>?</B> and <B>[</B> are used in file name generation
+(see File Name Patterns below).
+
+
+<P>
+
+As words and tokens are parsed, the shell builds commands, of which
+there are two basic types: <I>simple-commands</I>, typically programs
+that are executed, and <I>compound-commands</I>, such as <B>for</B> and
+<B>if</B> statements, grouping constructs and function definitions.
+<P>
+
+A simple-command consists of some combination of parameter assignments (see
+Parameters below), input/output redirections (see Input/Output Redirections
+below), and command words; the only restriction is that parameter assignments
+come before any command words.
+The command words, if any, define the command that is to be executed and its
+arguments.
+The command may be a shell built-in command, a function or an <I>external
+command</I>, <I>i.e.</I>, a separate executable file that is located using the
+<B>PATH</B> parameter (see Command Execution below).
+Note that all command constructs have an <I>exit status</I>: for external
+commands, this is related to the status returned by <I><A HREF="../man2/wait.2.php">wait</A></I>(2) (if the
+command could not be found, the exit status is 127, if it could not be
+executed, the exit status is 126);
+the exit status of other command constructs (built-in commands, functions,
+compound-commands, pipelines, lists, <I>etc.</I>) are all well defined and are
+described where the construct is described.
+The exit status of a command consisting only of parameter assignments is that
+of the last command substitution performed during the parameter assignment
+or zero if there were no command substitutions.
+
+
+<P>
+
+Commands can be chained together using the <B>|</B> token to
+form <I>pipelines</I>, in which the standard output of each command but
+the last is piped (see <I><A HREF="../man2/pipe.2.php">pipe</A></I>(2)) to the standard input of the following
+command.
+The exit status of a pipeline is that of its last command.
+A pipeline may be prefixed by the <B>!</B> reserved word which
+causes the exit status of the pipeline to be logically
+complemented: if the original status was 0 the complemented status will
+be 1, and if the original status was not 0, then the complemented
+status will be 0.
+
+
+<P>
+
+<I>Lists</I> of commands can be created by separating pipelines by
+any of the following tokens: <B>&amp;&amp;</B>, <B>||</B>, <B>&amp;</B>, <B>|&amp;</B> and <B>;</B>.
+The first two are for conditional execution: <I>cmd1</I> <B>&amp;&amp;</B> <I>cmd2</I>
+executes <I>cmd2</I> only if the exit status of <I>cmd1</I> is zero;
+<B>||</B> is the opposite --- <I>cmd2</I> is executed only if the exit status
+of <I>cmd1</I> is non-zero.
+<B>&amp;&amp;</B> and <B>||</B> have equal precedence which is higher than that of
+<B>&amp;</B>, <B>|&amp;</B> and <B>;</B>, which also have equal precedence.
+The <B>&amp;</B> token causes the preceding command to be executed asynchronously,
+that is, the shell starts the command, but does not wait for it to complete
+(the shell does keep track of the status of asynchronous commands --- see
+Job Control below).
+When an asynchronous command is started when job control is disabled
+(<I>i.e.</I>, in most scripts), the command is started with signals INT
+and QUIT ignored and with input redirected from /dev/null
+(however, redirections specified in the asynchronous command have precedence).
+The <B>|&amp;</B> operator starts a <I>co-process</I> which is special kind of
+asynchronous process (see Co-Processes below).
+Note that a command must follow the <B>&amp;&amp;</B> and <B>||</B> operators, while
+a command need not follow <B>&amp;</B>, <B>|&amp;</B> and <B>;</B>.
+The exit status of a list is that of the last command executed, with the
+exception of asynchronous lists, for which the exit status is 0.
+
+
+<P>
+
+Compound commands are created using the following reserved words --- these
+words are only recognized if they are unquoted and if they are used as
+the first word of a command (<I>i.e.</I>, they can't be preceded by parameter
+assignments or redirections):
+<CENTER><TABLE>
+<TR VALIGN=top><TD><B>case</B></TD><TD><B>else</B></TD><TD><B>function</B></TD><TD><B>then</B></TD><TD><B>!</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>do</B></TD><TD><B>esac</B></TD><TD><B>if</B></TD><TD><B>time</B></TD><TD><B>[[</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>done</B></TD><TD><B>fi</B></TD><TD><B>in</B></TD><TD><B>until</B></TD><TD><B>{</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>elif</B></TD><TD><B>for</B></TD><TD><B>select</B></TD><TD><B>while</B></TD><TD><B>}</B><BR></TD></TR>
+</TABLE></CENTER>
+
+<B>Note:</B> Some shells (but not this one) execute control structure commands
+in a subshell when one or more of their file descriptors are redirected, so
+any environment changes inside them may fail.
+To be portable, the <B>exec</B> statement should be used instead to redirect
+file descriptors before the control structure.
+<P>
+
+In the following compound command descriptions, command lists (denoted as
+<I>list</I>) that are followed by reserved words must end with a
+semi-colon, a newline or a (syntactically correct) reserved word.
+For example,
+<DL COMPACT><DT><DD>
+<B>{ echo foo; echo bar; }</B>
+<BR>
+
+<B>{ echo foo; echo bar&lt;newline&gt;}</B>
+<BR>
+
+<B>{ { echo foo; echo bar; } }</B>
+</DL>
+
+are all valid, but
+<DL COMPACT><DT><DD>
+<B>{ echo foo; echo bar }</B>
+</DL>
+
+is not.
+
+<DL COMPACT>
+<DT><B>(</B> <I>list</I> <B>)</B><DD>
+Execute <I>list</I> in a subshell.  There is no implicit way to pass
+environment changes from a subshell back to its parent.
+
+
+<DT><B>{</B> <I>list</I> <B>}</B><DD>
+Compound construct; <I>list</I> is executed, but not in a subshell.
+Note that <B>{</B> and <B>}</B> are reserved words, not meta-characters.
+
+
+<DT><B>case</B> <I>word</I> <B>in</B> [ [<B>(</B>] <I>pattern</I> [<B>|</B> <I>pattern</I>] ... <B>)</B> <I>list</I> <B>;;</B> ] ... <B>esac</B><DD>
+The <B>case</B> statement attempts to match <I>word</I> against the specified
+<I>pattern</I>s; the <I>list</I> associated with the first successfully matched
+pattern is executed.  Patterns used in <B>case</B> statements are the same as
+those used for file name patterns except that the restrictions regarding
+<B>.</B> and <B>/</B> are dropped.  Note that any unquoted space before and
+after a pattern is stripped; any space with a pattern must be quoted.  Both the
+word and the patterns are subject to parameter, command, and arithmetic
+substitution as well as tilde substitution.
+For historical reasons, open and close braces may be used instead
+of <B>in</B> and <B>esac</B> (<I>e.g.</I>, <B>case $foo { *) echo bar; }</B>).
+The exit status of a <B>case</B> statement is that of the executed <I>list</I>;
+if no <I>list</I> is executed, the exit status is zero.
+
+
+<DT><B>for</B> <I>name</I> [ <B>in</B> <I>word</I> ... <I>term</I> ] <B>do</B> <I>list</I> <B>done</B><DD>
+where <I>term</I> is either a newline or a <B>;</B>.
+For each <I>word</I> in the specified word list, the parameter <I>name</I> is
+set to the word and <I>list</I> is executed.  If <B>in</B> is not used to
+specify a word list, the positional parameters (<B>&quot;$1&quot;</B>, <B>&quot;$2&quot;</B>,
+<I>etc.</I>) are used instead.
+For historical reasons, open and close braces may be used instead
+of <B>do</B> and <B>done</B> (<I>e.g.</I>, <B>for i; { echo $i; }</B>).
+The exit status of a <B>for</B> statement is the last exit status
+of <I>list</I>; if <I>list</I> is never executed, the exit status is zero.
+
+
+<DT><B>if</B> <I>list</I> <B>then</B> <I>list</I> [<B>elif</B> <I>list</I> <B>then</B> <I>list</I>] ... [<B>else</B> <I>list</I>] <B>fi</B><DD>
+If the exit status of the first <I>list</I> is zero, the second <I>list</I>
+is executed; otherwise the <I>list</I> following the <B>elif</B>, if any, is
+executed with similar consequences.  If all the lists following the <B>if</B>
+and <B>elif</B>s fail (<I>i.e.</I>, exit with non-zero status), the <I>list</I>
+following the <B>else</B> is executed.
+The exit status of an <B>if</B> statement is that
+of non-conditional <I>list</I> that is executed; if no non-conditional
+<I>list</I> is executed, the exit status is zero.
+
+
+<DT><B>select</B> <I>name</I> [ <B>in</B> <I>word</I> ... <I>term</I> ] <B>do</B> <I>list</I> <B>done</B><DD>
+where <I>term</I> is either a newline or a <B>;</B>.
+The <B>select</B> statement provides an automatic method of presenting
+the user with a menu and selecting from it.
+An enumerated list of the specified <I>words</I> is printed on standard
+error, followed by a prompt (<B>PS3</B>, normally `<B>#? </B>').
+A number corresponding to one of the enumerated words is then read
+from standard input, <I>name</I> is set to the selected word (or is
+unset if the selection is not valid), <B>REPLY</B>
+is set to what was read (leading/trailing space is stripped),
+and <I>list</I> is executed.
+If a blank line (<I>i.e.</I>, zero or more <B>IFS</B> characters) is entered,
+the menu is re-printed without executing <I>list</I>.
+When <I>list</I> completes, the enumerated list is printed if <B>REPLY</B>
+is null, the prompt is printed and so on.
+This process is continues until an end-of-file is read, an interrupt is
+received or a break statement is executed inside the loop.
+If <B>in</B> <I>word</I> <B>...</B> is omitted, the positional parameters
+are used (<I>i.e.</I>, <B>&quot;$1&quot;</B>, <B>&quot;$2&quot;</B>, <I>etc.</I>).
+For historical reasons, open and close braces may be used instead
+of <B>do</B> and <B>done</B> (<I>e.g.</I>, <B>select i; { echo $i; }</B>).
+The exit status of a <B>select</B> statement is zero if a break statement
+is used to exit the loop, non-zero otherwise.
+
+
+<DT><B>until</B> <I>list</I> <B>do</B> <I>list</I> <B>done</B><DD>
+This works like <B>while</B>, except that the body is executed only while the
+exit status of the first <I>list</I> is non-zero.
+
+
+<DT><B>while</B> <I>list</I> <B>do</B> <I>list</I> <B>done</B><DD>
+A <B>while</B> is a prechecked loop.  Its body is executed as often
+as the exit status of the first <I>list</I> is zero.
+The exit status of a <B>while</B> statement is the last exit status
+of the <I>list</I> in the body of the loop; if the body is not executed,
+the exit status is zero.
+
+
+<DT><B>function</B> <I>name</I> <B>{</B> <I>list</I> <B>}</B><DD>
+Defines the function <I>name</I>.
+See Functions below.
+Note that redirections specified after a function definition are
+performed whenever the function is executed, not when the function
+definition is executed.
+
+
+<DT><I>name</I> <B>()</B> <I>command</I><DD>
+Mostly the same as <B>function</B>.
+See Functions below.
+
+
+<DT><B>time</B> [ <B>-p</B> ] [ <I>pipeline</I> ]<DD>
+The <B>time</B> reserved word is described in the Command Execution section.
+
+
+<DT><B>((</B> <I>expression</I> <B>))</B><DD>
+The arithmetic expression <I>expression</I> is evaluated;
+equivalent to <B>let &quot;</B><I>expression</I><B>&quot;</B>.
+See Arithmetic Expressions and the <B>let</B> command below.
+
+
+<DT><B>[[</B> <I>expression</I> <B>]]</B><DD>
+Similar to the <B>test</B> and <B>[</B> ... <B>]</B> commands (described later),
+with the following exceptions:
+<DL COMPACT><DT><DD>
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+Field splitting and file name generation are not performed on
+arguments.
+<DT>&nbsp;&nbsp;*<DD>
+The <B>-a</B> (and) and <B>-o</B> (or) operators are replaced with
+<B>&amp;&amp;</B> and <B>||</B>, respectively.
+<DT>&nbsp;&nbsp;*<DD>
+Operators (<I>e.g.</I>, <B>-f</B>, <B>=</B>, <B>!</B>, <I>etc.</I>) must be unquoted.
+<DT>&nbsp;&nbsp;*<DD>
+The second operand of <B>!=</B> and <B>=</B>
+expressions are patterns (<I>e.g.</I>, the comparison in
+<CENTER>
+<B>[[ foobar = f*r ]]</B><BR>
+</CENTER>
+
+succeeds).
+<DT>&nbsp;&nbsp;*<DD>
+There are two additional binary operators: <B>&lt;</B> and <B>&gt;</B>
+which return true if their first string operand is less than,
+or greater than, their second string operand, respectively.
+<DT>&nbsp;&nbsp;*<DD>
+The single argument form
+of <B>test</B>, which tests if the argument has non-zero length, is not valid
+- explicit operators must be always be used, <I>e.g.</I>, instead of
+<CENTER>
+<B>[</B> <I>str</I> <B>]</B><BR>
+</CENTER>
+
+use
+<CENTER>
+<B>[[ -n </B><I>str</I><B> ]]</B><BR>
+</CENTER>
+
+<DT>&nbsp;&nbsp;*<DD>
+Parameter, command and arithmetic substitutions are performed as
+expressions are evaluated and lazy expression evaluation is used for
+the <B>&amp;&amp;</B> and <B>||</B> operators.
+This means that in the statement
+<CENTER>
+<B>[[ -r foo &amp;&amp; $(&lt; foo) = b*r ]]</B><BR>
+</CENTER>
+
+the <B>$(&lt; foo)</B> is evaluated if and only if the file <B>foo</B> exists
+and is readable.
+
+</DL>
+</DL>
+
+
+
+
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Quoting</H3>
+
+Quoting is used to prevent the shell from treating characters or words
+specially.
+There are three methods of quoting: First, <B>\</B> quotes
+the following character, unless it is at the end of a line, in which
+case both the <B>\</B> and the newline are stripped.
+Second, a single quote (<B>'</B>) quotes everything up to the next single
+quote (this may span lines).
+Third, a double quote (<B>&quot;</B>) quotes all characters,
+except <B>$</B>, <B>`</B> and <B>\</B>, up to the next unquoted double quote.
+<B>$</B> and <B>`</B> inside double quotes have their usual meaning (<I>i.e.</I>,
+parameter, command or arithmetic substitution) except no field splitting
+is carried out on the results of double-quoted substitutions.
+If a <B>\</B> inside a double-quoted string is followed by <B>\</B>, <B>$</B>,
+<B>`</B> or <B>&quot;</B>, it is replaced by the second character; if it is
+followed by a newline, both the <B>\</B> and the newline are stripped;
+otherwise, both the <B>\</B> and the character following are unchanged.
+<P>
+
+Note: see POSIX Mode below for a special rule regarding sequences
+of the form <B>&quot;</B>...<B>`</B>...<B>\&quot;</B>...<B>`</B>..<B>&quot;</B>.
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Aliases</H3>
+
+There are two types of aliases: normal command aliases and tracked
+aliases.  Command aliases are normally used as a short hand for a long
+or often used command.  The shell expands command aliases (<I>i.e.</I>,
+substitutes the alias name for its value) when it reads the first word
+of a command.  An expanded alias is re-processed to check for more
+aliases.  If a command alias ends in a space or tab, the following word
+is also checked for alias expansion.  The alias expansion process stops
+when a word that is not an alias is found, when a quoted word is found
+or when an alias word that is currently being expanded is found.
+<P>
+
+The following command aliases are defined automatically by the shell:
+<B>
+<DL COMPACT><DT><DD>
+autoload='typeset -fu'
+<BR>
+
+functions='typeset -f'
+<BR>
+
+hash='alias -t'
+<BR>
+
+history='fc -l'
+<BR>
+
+integer='typeset -i'
+<BR>
+
+local='typeset'
+<BR>
+
+login='exec login'
+<BR>
+
+newgrp='exec newgrp'
+<BR>
+
+nohup='nohup '
+<BR>
+
+r='fc -e -'
+<BR>
+
+stop='kill -STOP'
+<BR>
+
+suspend='kill -STOP $$'
+<BR>
+
+type='whence -v'
+</DL>
+
+</B>
+<P>
+
+Tracked aliases allow the shell to remember where it found a particular
+command.  The first time the shell does a path search for a command that
+is marked as a tracked alias, it saves the full path of the command.
+The next time the command is executed, the shell checks the saved path
+to see that it is still valid, and if so, avoids repeating the path
+search.  Tracked aliases can be listed and created using <B>alias
+-t</B>.  Note that changing the <B>PATH</B> parameter clears the saved
+paths for all tracked aliases.  If the <B>trackall</B> option is set (<I>i.e.</I>,
+<B>set -o trackall</B> or <B>set -h</B>), the shell tracks all
+commands.  This option is set automatically for non-interactive shells.
+For interactive shells, only the following commands are automatically
+tracked: <B>cat</B>, <B>cc</B>, <B>chmod</B>, <B>cp</B>, <B>date</B>, <B>ed</B>,
+<B>emacs</B>, <B>grep</B>, <B>ls</B>, <B>mail</B>, <B>make</B>, <B>mv</B>,
+<B>pr</B>, <B>rm</B>, <B>sed</B>, <B>sh</B>, <B>vi</B> and <B>who</B>.
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>Substitution</H3>
+
+The first step the shell takes in executing a simple-command is to
+perform substitutions on the words of the command.
+There are three kinds of substitution: parameter, command and arithmetic.
+Parameter substitutions, which are described in detail in the next section,
+take the form <B>$name</B> or <B>${</B>...<B>}</B>; command substitutions take
+the form <B>$(</B><I>command</I><B>)</B> or <B>`</B><I>command</I><B>`</B>;
+and arithmetic substitutions take the form <B>$((</B><I>expression</I><B>))</B>.
+<P>
+
+If a substitution appears outside of double quotes, the results of the
+substitution are generally subject to word or field splitting according to
+the current value of the <B>IFS</B> parameter.
+The <B>IFS</B> parameter specifies a list of characters which 
+are used to break a string up into several words;
+any characters from the set space, tab and newline that appear in the
+IFS characters are called <I>IFS white space</I>.
+Sequences of one or more IFS white space characters, in combination with
+zero or one non-IFS white space characters delimit a field.
+As a special case, leading and trailing IFS white space is stripped (<I>i.e.</I>,
+no leading or trailing empty field is created by it); leading or trailing
+non-IFS white space does create an empty field.
+Example: if <B>IFS</B> is set to `&lt;space&gt;:', the sequence of characters
+`&lt;space&gt;A&lt;space&gt;:&lt;space&gt;&lt;space&gt;B::D' contains four fields: `A', `B', `' and `D'.
+Note that if the <B>IFS</B> parameter is set to the null string, no
+field splitting is done; if the parameter is unset, the default value
+of space, tab and newline is used.
+<P>
+
+The results of substitution are, unless otherwise specified, also subject
+to brace expansion and file name expansion (see the relevant sections
+below).
+<P>
+
+A command substitution is replaced by the output generated by the specified
+command, which is run in a subshell.
+For <B>$(</B><I>command</I><B>)</B> substitutions, normal quoting rules
+are used when <I>command</I> is parsed, however, for the
+<B>`</B><I>command</I><B>`</B> form, a <B>\</B> followed by any of
+<B>$</B>, <B>`</B> or <B>\</B> is stripped (a <B>\</B> followed by any other
+character is unchanged).
+As a special case in command substitutions, a command of the form
+<B>&lt;</B> <I>file</I> is interpreted to mean substitute the contents
+of <I>file</I> ($(&lt; foo) has the same effect as $(cat foo), but it
+is carried out more efficiently because no process is started).
+<BR>
+
+
+NOTE: <B>$(</B><I>command</I><B>)</B> expressions are currently parsed by
+finding the matching parenthesis, regardless of quoting.  This will hopefully
+be fixed soon.
+<P>
+
+Arithmetic substitutions are replaced by the value of the specified
+expression.
+For example, the command <B>echo $((2+3*4))</B> prints 14.
+See Arithmetic Expressions for a description of an <I>expression</I>.
+
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Parameters</H3>
+
+Parameters are shell variables; they can be assigned values and
+their values can be accessed using a parameter substitution.
+A parameter name is either one of the special single punctuation or digit
+character parameters described below, or a letter followed by zero or more
+letters or digits (`_' counts as a letter).
+The later form can be treated as arrays by appending an array
+index of the form: <B>[</B><I>expr</I><B>]</B> where <I>expr</I> is
+an arithmetic expression.
+Array indicies are currently limited to the range 0 through 1023, inclusive.
+Parameter substitutions take the form <B>$</B><I>name</I>,
+<B>${</B><I>name</I><B>}</B> or
+<B>${</B><I>name</I><B>[</B><I>expr</I><B>]}</B>, where <I>name</I> is a
+parameter name.
+If substitution is performed on a parameter (or an array parameter element)
+that is not set, a null
+string is substituted unless the <B>nounset</B> option (<B>set -o nounset</B>
+or <B>set -u</B>) is set, in which case an error occurs.
+<P>
+
+
+Parameters can be assigned values in a number of ways.
+First, the shell implicitly sets some parameters like <B>#</B>, <B>PWD</B>,
+etc.; this is the only way the special single character parameters are
+set.
+Second, parameters are imported from the shell's environment at startup.
+Third, parameters can be assigned values on the command line, for example,
+`<B>FOO=bar</B>' sets the parameter FOO to bar; multiple parameter
+assignments can be given on a single command line and they can
+be followed by a simple-command, in which case the assignments are
+in effect only for the duration of the command (such assignments are
+also exported, see below for implications of this).
+Note that both the parameter name and the <B>=</B> must be unquoted for
+the shell to recognize a parameter assignment.
+The fourth way of setting a parameter is with the <B>export</B>, <B>readonly</B>
+and <B>typeset</B> commands; see their descriptions in the Command Execution
+section.
+Fifth, <B>for</B> and <B>select</B> loops set parameters as well as
+the <B>getopts</B>, <B>read</B> and <B>set -A</B> commands.
+Lastly, parameters can be assigned values using assignment operators
+inside arithmetic expressions (see Arithmetic Expressions below) or
+using the <B>${</B><I>name</I><B>=</B><I>value</I><B>}</B> form
+of parameter substitution (see below).
+
+<P>
+
+
+Parameters with the export attribute (set using the <B>export</B> or
+<B>typeset -x</B> commands, or by parameter assignments followed by simple
+commands) are put in the environment (see <I><A HREF="../man5/environ.5.php">environ</A></I>(5)) of commands
+run by the shell as <I>name</I><B>=</B><I>value</I> pairs.
+The order in which parameters appear in the environment of a command
+is unspecified.
+When the shell starts up, it extracts parameters and their values from its
+environment and automatically sets the export attribute for those parameters.
+
+
+<P>
+
+Modifiers can be applied to the <B>${</B><I>name</I><B>}</B> form of parameter
+substitution:
+<DL COMPACT>
+<DT><B>${</B><I>name</I><B>:-</B><I>word</I><B>}</B><DD>
+if <I>name</I> is set and not null, it is substituted, otherwise <I>word</I> is
+substituted.
+<DT><B>${</B><I>name</I><B>:+</B><I>word</I><B>}</B><DD>
+if <I>name</I> is set and not null, <I>word</I> is substituted, otherwise nothing is substituted.
+<DT><B>${</B><I>name</I><B>:=</B><I>word</I><B>}</B><DD>
+if <I>name</I> is set and not null, it is substituted, otherwise it is
+assigned <I>word</I> and the resulting value of <I>name</I> is substituted.
+<DT><B>${</B><I>name</I><B>:?</B><I>word</I><B>}</B><DD>
+if <I>name</I> is set and not null, it is substituted, otherwise <I>word</I>
+is printed on standard error (preceded by <I>name</I>:) and an error occurs
+(normally causing termination of a shell script, function or .-script).
+If word is omitted the string `parameter null or not set' is used instead.
+</DL>
+<P>
+
+In the above modifiers, the <B>:</B> can be omitted, in which case the
+conditions only depend on <I>name</I> being set (as opposed to set and
+not null).
+If <I>word</I> is needed, parameter, command, arithmetic and tilde substitution
+are performed on it; if <I>word</I> is not needed, it is not evaluated.
+
+<P>
+
+The following forms of parameter substitution can also be used:
+
+<DL COMPACT>
+<DT><B>${#</B><I>name</I><B>}</B><DD>
+The number of positional parameters if <I>name</I> is <B>*</B>, <B>@</B> or
+is not specified,
+or the length of the string value of parameter <I>name</I>.
+
+
+<DT><B>${#</B><I>name</I><B>[*]}</B>, <B>${#</B><I>name</I><B>[@]}</B><DD>
+The number of elements in the array <I>name</I>.
+
+
+<DT><B>${</B><I>name</I><B>#</B><I>pattern</I><B>}</B>, <B>${</B><I>name</I><B>##</B><I>pattern</I><B>}</B><DD>
+If <I>pattern</I> matches the beginning of the value of parameter <I>name</I>,
+the matched text is deleted from the result of substitution.  A single
+<B>#</B> results in the shortest match, two <B>#</B>'s results in the
+longest match.
+
+
+<DT><B>${</B><I>name</I><B>%</B><I>pattern</I><B>}</B>, <B>${</B><I>name</I><B>%%</B><I>pattern</I><B>}</B><DD>
+Like <B>${</B>..<B>#</B>..<B>}</B> substitution, but it deletes from the end of the
+value.
+
+
+</DL>
+<P>
+
+The following special parameters are implicitly set by the shell and cannot be
+set directly using assignments:
+
+<DL COMPACT>
+<DT><B>!</B><DD>
+Process id of the last background process started.  If no background
+processes have been started, the parameter is not set.
+
+
+<DT><B>#</B><DD>
+The number of positional parameters (<I>i.e.</I>, <B>$1</B>, <B>$2</B>,
+<I>etc.</I>).
+
+
+<DT><B>$</B><DD>
+The process ID of the shell, or the PID of the original shell if
+it is a subshell.
+
+
+<DT><B>-</B><DD>
+The concatenation of the current single letter options
+(see <B>set</B> command below for list of options).
+
+
+<DT><B>?</B><DD>
+The exit status of the last non-asynchronous command executed.
+If the last command was killed by a signal, <B>$?</B> is set to 128 plus
+the signal number.
+
+
+<DT><B>0</B><DD>
+The name the shell was invoked with (<I>i.e.</I>, <B>argv[0]</B>), or the
+<B>command-name</B> if it was invoked with the <B>-c</B> option and the
+<B>command-name</B> was supplied, or the <I>file</I> argument, if it was
+supplied.
+If the <B>posix</B> option is not set, <B>$0</B> is the name of the current
+function or script.
+
+
+<DT><B>1</B> ... <B>9</B><DD>
+The first nine positional parameters that were supplied to the shell,
+function or <B>.</B>-script.
+Further positional parameters may be accessed using
+<B>${</B><I>number</I><B>}</B>.
+
+
+<DT><B>*</B><DD>
+All positional parameters (except parameter 0), 
+<I>i.e.</I>, <B>$1 $2 $3</B>....
+If used outside of double quotes, parameters are separate words
+(which are subjected to word splitting); if used within double quotes,
+parameters are separated by the first character of the <B>IFS</B> parameter
+(or the empty string if <B>IFS</B> is null).
+
+
+<DT><B>@</B><DD>
+Same as <B>$*</B>, unless it is used inside double quotes, in which case
+a separate word is generated for each positional parameter - if there
+are no positional parameters, no word is generated (&quot;$@&quot; can be used
+to access arguments, verbatim, without loosing null arguments or
+splitting arguments with spaces).
+
+
+
+</DL>
+<P>
+
+The following parameters are set and/or used by the shell:
+
+<DL COMPACT>
+<DT><B>_</B> <I>(underscore)</I><DD>
+When an external command is executed by the shell, this parameter is
+set in the environment of the new process to the path of the executed
+command.
+In interactive use, this parameter is also set in the parent shell to
+the last word of the previous command.
+When <B>MAILPATH</B> messages are evaluated, this parameter contains
+the name of the file that changed (see <B>MAILPATH</B> parameter below).
+
+
+<DT><B>CDPATH</B><DD>
+Search path for the <B>cd</B> built-in command.  Works the same way as
+<B>PATH</B> for those directories not beginning with <B>/</B> in <B>cd</B>
+commands.
+Note that if CDPATH is set and does not contain <B>.</B> nor an empty path,
+the current directory is not searched.
+
+
+<DT><B>COLUMNS</B><DD>
+Set to the number of columns on the terminal or window.
+Currently set to the <B>cols</B> value as reported by <I><A HREF="../man1/stty.1.php">stty</A></I>(1) if that
+value is non-zero.
+This parameter is used by the interactive line editing modes, and by
+<B>select</B>, <B>set -o</B> and <B>kill -l</B> commands
+to format information in columns.
+
+
+<DT><B>EDITOR</B><DD>
+If the <B>VISUAL</B> parameter is not set, this parameter controls the
+command line editing mode for interactive shells.
+See <B>VISUAL</B> parameter below for how this works.
+
+
+<DT><B>ENV</B><DD>
+If this parameter is found to be set after any profile files are
+executed, the expanded value is used as a shell start-up file.  It
+typically contains function and alias definitions.
+
+
+<DT><B>ERRNO</B><DD>
+Integer value of the shell's errno variable --- indicates the reason
+the last system call failed.
+
+<P>
+Not implemented yet.
+
+
+<DT><B>EXECSHELL</B><DD>
+If set, this parameter is assumed to contain the shell that is to be
+used to execute commands that <I><A HREF="../man2/execve.2.php">execve</A></I>(2) fails to execute and
+which do not start with a `<B>#!</B> <I>shell</I>' sequence.
+
+
+<DT><B>FCEDIT</B><DD>
+The editor used by the <B>fc</B> command (see below).
+
+
+<DT><B>FPATH</B><DD>
+Like <B>PATH</B>, but used when an undefined function is executed to locate
+the file defining the function.
+It is also searched when a command can't be found using <B>PATH</B>.
+See Functions below for more information.
+
+
+<DT><B>HISTFILE</B><DD>
+The name of the file used to store history.
+When assigned to, history is loaded from the specified file.
+Also, several invocations of the
+shell running on the same machine will share history if their
+<B>HISTFILE</B> parameters all point at the same file.
+<BR>
+
+NOTE: if HISTFILE isn't set, no history file is used.  This is
+different from the original Korn shell, which uses <B>$HOME/.sh_history</B>;
+in future, pdksh may also use a default history file.
+
+
+<DT><B>HISTSIZE</B><DD>
+The number of commands normally stored for history, default 128.
+
+
+<DT><B>HOME</B><DD>
+The default directory for the <B>cd</B> command and the value
+substituted for an unqualified <B>~</B> (see Tilde Expansion below).
+
+
+<DT><B>IFS</B><DD>
+Internal field separator, used during substitution and by the <B>read</B>
+command, to split values into distinct arguments; normally set to
+space, tab and newline.  See Substitution above for details.
+<BR>
+
+<B>Note:</B> this parameter is not imported from the environment
+when the shell is started.
+
+
+<DT><B>KSH_VERSION</B><DD>
+The version of shell and the date the version was created (readonly).
+See also the version commands in Emacs Editing Mode
+and Vi Editing Mode sections, below.
+
+
+
+
+<DT><B>LINENO</B><DD>
+The line number of the function or shell script that is currently being
+executed.
+
+
+<DT><B>LINES</B><DD>
+Set to the number of lines on the terminal or window.
+
+
+
+<P>
+Not implemented yet.
+
+
+<DT><B>MAIL</B><DD>
+If set, the user will be informed of the arrival of mail in the named
+file.  This parameter is ignored if the <B>MAILPATH</B> parameter is set.
+
+
+<DT><B>MAILCHECK</B><DD>
+How often, in seconds, the shell will check for mail in the file(s)
+specified by <B>MAIL</B> or <B>MAILPATH</B>.  If 0, the shell checks
+before each prompt.  The default is 600 (10 minutes).
+
+
+<DT><B>MAILPATH</B><DD>
+A list of files to be checked for mail.  The list is colon separated,
+and each file may be followed by a <B>?</B> and a message to be printed
+if new mail has arrived.  Command, parameter and arithmetic substitution is
+performed on the message, and, during substitution, the parameter <B>$_</B>
+contains the name of the file.
+The default message is <B>you have mail in $_</B>.
+
+
+<DT><B>OLDPWD</B><DD>
+The previous working directory.
+Unset if <B>cd</B> has not successfully changed directories since the
+shell started, or if the shell doesn't know where it is.
+
+
+<DT><B>OPTARG</B><DD>
+When using <B>getopts</B>, it contains the argument for a parsed option,
+if it requires one.
+
+
+<DT><B>OPTIND</B><DD>
+The index of the last argument processed when using <B>getopts</B>.
+Assigning 1 to this parameter causes <B>getopts</B> to
+process arguments from the beginning the next time it is invoked.
+
+
+<DT><B>PATH</B><DD>
+A colon separated list of directories that are searched when looking
+for commands and <B>.</B>'d files.
+An empty string resulting from a leading or trailing colon, or two adjacent
+colons is treated as a `.', the current directory.
+
+
+<DT><B>POSIXLY_CORRECT</B><DD>
+If set, this parameter causes the <B>posix</B> option to be enabled.
+See POSIX Mode below.
+
+
+<DT><B>PPID</B><DD>
+The process ID of the shell's parent (readonly).
+
+
+<DT><B>PS1</B><DD>
+<B>PS1</B> is the primary prompt for interactive shells.
+Parameter, command and arithmetic substitutions are performed, and
+<B>!</B> is replaced with the current command number (see <B>fc</B>
+command below).  A literal ! can be put in the prompt by placing !! in PS1.
+Note that since the command line editors try to figure out how long the
+prompt is (so they know how far it is to edge of the screen),
+escape codes in the prompt tend to mess things up.
+You can tell the shell not to count certain sequences (such as escape codes)
+by prefixing your prompt with a non-printing character (such as control-A)
+followed by a carriage return and then delimiting the escape codes with
+this non-printing character.
+If you don't have any non-printing characters, you're out of luck...
+BTW, don't blame me for this hack; it's in the original ksh.
+Default is `<B>$&nbsp;</B>' for non-root users, `<B>#&nbsp;</B>' for root..
+
+
+<DT><B>PS2</B><DD>
+Secondary prompt string, by default `<B>&gt;</B> ', used when more input is
+needed to complete a command.
+
+
+<DT><B>PS3</B><DD>
+Prompt used by <B>select</B> statement when reading a menu selection.
+Default is `<B>#?&nbsp;</B>'.
+
+
+<DT><B>PS4</B><DD>
+Used to prefix commands that are printed during execution tracing
+(see <B>set -x</B> command below).
+Parameter, command and arithmetic substitutions are performed
+before it is printed.
+Default is `<B>+&nbsp;</B>'.
+
+
+<DT><B>PWD</B><DD>
+The current working directory.  Maybe unset or null if shell doesn't
+know where it is.
+
+
+<DT><B>RANDOM</B><DD>
+A simple random number generator.  Every time <B>RANDOM</B> is
+referenced, it is assigned the next number in a random number series.
+The point in the series can be set by assigning a number to
+<B>RANDOM</B> (see <I><A HREF="../man3/rand.3.php">rand</A></I>(3)).
+
+
+<DT><B>REPLY</B><DD>
+Default parameter for the <B>read</B> command if no names are given.
+Also used in <B>select</B> loops to store the value that is read from
+standard input.
+
+
+<DT><B>SECONDS</B><DD>
+The number of seconds since the shell started or, if the parameter has been
+assigned an integer value, the number of seconds since the assignment plus
+the value that was assigned.
+
+
+<DT><B>TMOUT</B><DD>
+If set to a positive integer in an interactive shell, it specifies
+the maximum number of seconds the shell will wait for input after
+printing the primary prompt (<B>PS1</B>).  If the time is exceeded, the
+shell exits.
+
+
+<DT><B>TMPDIR</B><DD>
+The directory shell temporary files are created in.  If this parameter
+is not set, or does not contain the absolute path of a writable
+directory, temporary files are created in <B>/tmp</B>.
+
+
+<DT><B>VISUAL</B><DD>
+If set, this parameter controls the command line editing mode for
+interactive shells.  If the last component of the path specified in this
+parameter contains the string <B>vi</B>, <B>emacs</B> or <B>gmacs</B>, the
+vi, emacs or gmacs (Gosling emacs) editing mode is enabled, respectively.
+
+
+
+
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Tilde Expansion</H3>
+
+Tilde expansion, which is done in parallel with parameter substitution,
+is done on words starting with an unquoted <B>~</B>.  The characters
+following the tilde, up to the first <B>/</B>, if any, are assumed to be
+a login name.  If the login name is empty, <B>+</B> or <B>-</B>, the
+value of the <B>HOME</B>, <B>PWD</B>, or <B>OLDPWD</B> parameter is
+substituted, respectively.  Otherwise, the password file is searched for
+the login name, and the tilde expression is substituted with the
+user's home directory.  If the login name is not found in the password
+file or if any quoting or parameter substitution occurs in the login name,
+no substitution is performed.
+<P>
+
+In parameter assignments (those preceding a simple-command or those
+occurring in the arguments of <B>alias</B>, <B>export</B>, <B>readonly</B>,
+and <B>typeset</B>), tilde expansion is done after any unquoted colon
+(<B>:</B>), and login names are also delimited by colons.
+<P>
+
+The home directory of previously expanded login names are cached and
+re-used.  The <B>alias -d</B> command may be used to list, change and
+add to this cache (<I>e.g.</I>, `alias -d fac=/usr/local/facilities; cd
+~fac/bin').
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H3>Brace Expansion (alternation)</H3>
+
+Brace expressions, which take the form
+<DL COMPACT><DT><DD>
+<I>prefix</I><B>{</B><I>str</I>1<B>,</B>...<B>,</B><I>str</I>N<B>}</B><I>suffix</I>
+</DL>
+
+are expanded to N words, each of which is the concatenation of
+<I>prefix</I>, <I>str</I>i and <I>suffix</I>
+(<I>e.g.</I>, `a{c,b{X,Y},d}e' expands to four word: ace, abXe, abYe, and ade).
+As noted in the example, brace expressions can be nested and the resulting
+words are not sorted.
+Brace expressions must contain an unquoted comma (<B>,</B>) for expansion
+to occur (<I>i.e.</I>, <B>{}</B> and <B>{foo}</B> are not expanded).
+Brace expansion is carried out after parameter substitution and before
+file name generation.
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H3>File Name Patterns</H3>
+
+<P>
+
+A file name pattern is a word containing one or more unquoted <B>?</B> or
+<B>*</B> characters or <B>[</B>..<B>]</B> sequences.  Once brace expansion has
+been performed, the shell replaces file name patterns with the sorted names
+of all the files that match the pattern (if no files match, the word is
+left unchanged).  The pattern elements have the following meaning:
+<DL COMPACT>
+<DT><B>?</B><DD>
+matches any single character.
+<DT><B>*</B><DD>
+matches any sequence of characters.
+<DT><B>[</B>..<B>]</B><DD>
+matches any of the characters inside the brackets.  Ranges of characters
+can be specified by separating two characters by a <B>-</B>, <I>e.g.</I>,
+<B>[a0-9]</B> matches the letter <B>a</B> or any digit.
+In order to represent itself, a
+<B>-</B> must either be quoted or the first or last character in the character
+list.  Similarly, a <B>]</B> must be quoted or the first character in the list
+if it is represent itself instead of the end of the list.  Also, a <B>!</B>
+appearing at the start of the list has special meaning (see below), so to
+represent itself it must be quoted or appear later in the list.
+<DT><B>[!</B>..<B>]</B><DD>
+like <B>[</B>..<B>]</B>, except it matches any character not inside the brackets.
+<DT><B>*(</B><I>pattern</I><B>|</B> ... |<I>pattern</I><B>)</B><DD>
+matches any string of characters that matches zero or more occurances
+of the specified patterns.
+Example: the pattern <B>*(foo|bar)</B> matches the strings
+`', `foo', `bar', `foobarfoo', <I>etc.</I>.
+<DT><B>+(</B><I>pattern</I><B>|</B> ... |<I>pattern</I><B>)</B><DD>
+matches any string of characters that matches one or more occurances
+of the specified patterns.
+Example: the pattern <B>+(foo|bar)</B> matches the strings
+`foo', `bar', `foobarfoo', <I>etc.</I>.
+<DT><B>?(</B><I>pattern</I><B>|</B> ... |<I>pattern</I><B>)</B><DD>
+matches the empty string or a string that matches one of the
+specified patterns.
+Example: the pattern <B>?(foo|bar)</B> only matches the strings
+`', `foo' and `bar'.
+<DT><B>@(</B><I>pattern</I><B>|</B> ... |<I>pattern</I><B>)</B><DD>
+matches a string that matches one of the
+specified patterns.
+Example: the pattern <B>@(foo|bar)</B> only matches the strings
+`foo' and `bar'.
+<DT><B>!(</B><I>pattern</I><B>|</B> ... |<I>pattern</I><B>)</B><DD>
+matches any string that does not match one of the specified
+patterns.
+Examples: the pattern <B>!(foo|bar)</B> matches all strings except
+`foo' and `bar'; the pattern <B>!(*)</B> matches no strings;
+the pattern <B>!(?)*</B> matches all strings (think about it).
+</DL>
+<P>
+
+Note that pdksh currently never matches <B>.</B> and <B>..</B>, but the original
+ksh, Bourne sh and bash do, so this may have to change (too bad).
+<P>
+
+Note that none of the above pattern elements match either a period (<B>.</B>)
+at the start of a file name or a slash (<B>/</B>), even if they are explicitly
+used in a <B>[</B>..<B>]</B> sequence; also, the names <B>.</B> and <B>..</B>
+are never matched, even by the pattern <B>.*</B>.
+<P>
+
+If the <B>markdirs</B> option is set, any directories that result from
+file name generation are marked with a trailing <B>/</B>.
+<P>
+
+
+The POSIX character classes (<I>i.e.</I>,
+<B>[:</B><I>class-name</I><B>:]</B> inside a <B>[</B>..<B>]</B> expression)
+are not yet implemented.
+
+
+<A NAME="lbAN">&nbsp;</A>
+<H3>Input/Output Redirection</H3>
+
+When a command is executed, its standard input, standard output and
+standard error (file descriptors 0, 1 and 2, respectively) are normally
+inherited from the shell.
+Three exceptions to this are commands in pipelines, for which standard input
+and/or standard output are those set up by the pipeline, asynchronous commands
+created when job control is disabled, for which standard input is initially
+set to be from <B>/dev/null</B>, and commands for which any of the following
+redirections have been specified:
+<DL COMPACT>
+<DT><B>&gt;</B> <I>file</I><DD>
+standard output is redirected to <I>file</I>.  If <I>file</I> does not exist,
+it is created; if it does exist, is a regular file and the <B>noclobber</B>
+option is set, an error occurs, otherwise the file is truncated.
+Note that this means the command <I>cmd &lt; foo &gt; foo</I> will open
+<I>foo</I> for reading and then truncate it when it opens it for writing,
+before <I>cmd</I> gets a chance to actually read <I>foo</I>.
+<DT><B>&gt;|</B> <I>file</I><DD>
+same as <B>&gt;</B>, except the file is truncated, even if the <B>noclobber</B>
+option is set.
+<DT><B>&gt;&gt;</B> <I>file</I><DD>
+same as <B>&gt;</B>, except the file an existing file is appended to instead
+of being truncated.  Also, the file is opened in append mode, so writes
+always go to the end of the file (see <I><A HREF="../man2/open.2.php">open</A></I>(2)).
+<DT><B>&lt;</B> <I>file</I><DD>
+standard input is redirected from <I>file</I>, which is opened for reading.
+<DT><B>&lt;&gt;</B> <I>file</I><DD>
+same as <B>&lt;</B>, except the file is opened for reading and writing.
+<DT><B>&lt;&lt;</B> <I>marker</I><DD>
+after reading the command line containing this kind of redirection (called a
+here document), the shell copies lines from the command source into a temporary
+file until a line matching <I>marker</I> is read.
+When the command is executed, standard input is redirected from the temporary
+file.
+If <I>marker</I> contains no quoted characters, the contents of the
+temporary file are processed as if enclosed in double quotes each time
+the command is executed, so parameter, command and arithmetic substitutions
+are performed, along with backslash (<B>\</B>) escapes for
+<B>$</B>, <B>`</B>, <B>\</B> and <B>\newline</B>.
+If multiple here documents are used on the same command line, they are
+saved in order.
+<DT><B>&lt;&lt;-</B> <I>marker</I><DD>
+same as <B>&lt;&lt;</B>, except leading tabs are stripped from lines in the
+here document.
+<DT><B>&lt;&amp;</B> <I>fd</I><DD>
+standard input is duplicated from file descriptor <I>fd</I>.
+<I>fd</I> can be a single digit, indicating the number of an existing
+file descriptor, the letter <B>p</B>, indicating the file descriptor
+associated with the output of the current co-process, or
+the character <B>-</B>, indicating standard input is to be closed.
+<DT><B>&gt;&amp;</B> <I>fd</I><DD>
+same as <B>&lt;&amp;</B>, except the operation is done on standard output.
+</DL>
+<P>
+
+In any of the above redirections, the file descriptor that is redirected
+(<I>i.e.</I>, standard input or standard output) can be explicitly given by
+preceding the redirection with a single digit.
+Parameter, command and arithmetic substitutions, tilde substitutions and
+(if the shell is interactive) file name generation are all performed
+on the <I>file</I>, <I>marker</I> and <I>fd</I> arguments of redirections.
+Note however, that the results of any file name generation are only used
+if a single file is matched; if multiple files match, the word with the
+unexpanded file name generation characters is used.
+Note that in restricted shells, redirections which can create files cannot
+be used.
+<P>
+
+For simple-commands, redirections may appear anywhere in the command, for
+compound-commands (<B>if</B> statements, <I>etc.</I>), any redirections must
+appear at the end.
+Redirections are processed after pipelines are created and in the order they
+are given, so
+<DL COMPACT><DT><DD>
+<B>cat /foo/bar 2&gt;&amp;1 &gt; /dev/null | cat -n</B>
+</DL>
+
+will print an error with a line number prepended to it.
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H3>Arithmetic Expressions</H3>
+
+Integer arithmetic expressions can be used
+with the <B>let</B> command,
+inside <B>$((</B>..<B>))</B> expressions,
+inside array references (<I>e.g.</I>, <I>name</I><B>[</B><I>expr</I><B>]</B>),
+as numeric arguments to the <B>test</B> command,
+and as the value of an assignment to an integer parameter.
+<P>
+
+Expression may contain alpha-numeric parameter identifiers, array
+references, and integer constants and may be combined with the
+following C operators (listed and grouped in increasing order of precedence).
+<DL COMPACT>
+<DT>Unary operators:<DD>
+<B>+ - ! ~ ++ --</B>
+<DT>Binary operators:<DD>
+<B>,</B>
+<BR>
+
+<B>= *= /= %= += -= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</B>
+<BR>
+
+<B>||</B>
+<BR>
+
+<B>&amp;&amp;</B>
+<BR>
+
+<B>|</B>
+<BR>
+
+<B>^</B>
+<BR>
+
+<B>&amp;</B>
+<BR>
+
+<B>== !=</B>
+<BR>
+
+<B>&lt; &lt;= &gt;= &gt;</B>
+<BR>
+
+<B>&lt;&lt; &gt;&gt;</B>
+<BR>
+
+<B>+ -</B>
+<BR>
+
+<B>* / %</B>
+<DT>Ternary operator:<DD>
+<B>?:</B> (precedence is immediately higher than assignment)
+<DT>Grouping operators:<DD>
+<B>( )</B>
+</DL>
+<P>
+
+Integer constants may be specified with arbitrary bases using the notation
+<I>base</I><B>#</B><I>number</I>, where <I>base</I> is a decimal integer specifying
+the base, and <I>number</I> is a number in the specified base.
+<P>
+
+The operators are evaluated as follows:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>unary <B>+</B><DD>
+result is the argument (included for completeness).
+<DT>unary <B>-</B><DD>
+negation.
+<DT><B>!</B><DD>
+logical not; the result is 1 if argument is zero, 0 if not.
+<DT><B>~</B><DD>
+arithmetic (bit-wise) not.
+<DT><B>++</B><DD>
+increment; must be applied to a parameter (not a literal or other
+expression) - the parameter is incremented by 1.
+When used as a prefix operator, the result is the incremented value of
+the parameter, when used as a postfix operator, the result is the
+original value of the parameter.
+<DT><B>++</B><DD>
+similar to <B>++</B>, except the paramter is decremented by 1.
+<DT><B>,</B><DD>
+separates two arithmetic expressions; the left hand side is evaluated first,
+then the right.  The result is value of the expression on the right hand side.
+<DT><B>=</B><DD>
+assignment; variable on the left is set to the value on the right.
+<DT><B>*= /= %= += -= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</B><DD>
+assignment operators; <I>&lt;var&gt; &lt;op&gt;</I><B>=</B> <I>&lt;expr&gt;</I> is the same as
+<I>&lt;var&gt;</I> <B>=</B> <I>&lt;var&gt; &lt;op&gt;</I> <B>(</B> <I>&lt;expr&gt;</I> <B>)</B>.
+<DT><B>||</B><DD>
+logical or; the result is 1 if either argument is non-zero, 0 if not.
+The right argument is evaluated only if the left argument is zero.
+<DT><B>&amp;&amp;</B><DD>
+logical and; the result is 1 if both arguments are non-zero, 0 if not.
+The right argument is evaluated only if the left argument is non-zero.
+<DT><B>|</B><DD>
+arithmetic (bit-wise) or.
+<DT><B>^</B><DD>
+arithmetic (bit-wise) exclusive-or.
+<DT><B>&amp;</B><DD>
+arithmetic (bit-wise) and.
+<DT><B>==</B><DD>
+equal; the result is 1 if both arguments are equal, 0 if not.
+<DT><B>!=</B><DD>
+not equal; the result is 0 if both arguments are equal, 1 if not.
+<DT><B>&lt;</B><DD>
+less than; the result is 1 if the left argument is less than the right,
+0 if not.
+<DT><B>&lt;= &gt;= &gt;</B><DD>
+less than or equal, greater than or equal, greater than.  See &lt;.
+<DT><B>&lt;&lt; &gt;&gt;</B><DD>
+shift left (right); the result is the left argument with its bits shifted
+left (right) by the amount given in the right argument.
+<DT><B>+ - * /</B><DD>
+addition, subtraction, multiplication, and division.
+<DT><B>%</B><DD>
+remainder; the result is the remainder of the division of the left argument
+by the right.  The sign of the result is unspecified if either argument
+is negative.
+<DT><I>&lt;arg1&gt;</I> <B>?</B> <I>&lt;arg2&gt;</I> <B>:</B> <I>&lt;arg3&gt;</I><DD>
+if <I>&lt;arg1&gt;</I> is non-zero, the result is <I>&lt;arg2&gt;</I>,
+otherwise <I>&lt;arg3&gt;</I>.
+</DL>
+</DL>
+
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H3>Co-Processes</H3>
+
+A co-process, which is a pipeline created with the <B>|&amp;</B> operator,
+is an asynchronous process that the shell can both write to
+(using <B>print -p</B>) and read from (using <B>read -p</B>).
+The input and output of the co-process can also be manipulated
+using <B>&gt;&amp;p</B> and <B>&lt;&amp;p</B> redirections, respectively.
+Once a co-process has been started, another can't be started until
+the co-process exits, or until the co-process input has been redirected using
+an <B>exec </B><I>n</I><B>&gt;&amp;p</B> redirection.
+If a co-process's input is redirected in this way, the next 
+co-process to be started will share the output with the first co-process,
+unless the output of the initial co-process has been redirected using an
+<B>exec </B><I>n</I><B>&lt;&amp;p</B> redirection.
+<P>
+
+Some notes concerning co-processes:
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+the only way to close the co-process input (so the co-process reads
+an end-of-file) is to redirect the input to a numbered file descriptor
+and then close that file descriptor (<I>e.g.</I>, <B>exec 3&gt;&amp;p;exec 3&gt;&amp;-</B>).
+<DT>&nbsp;&nbsp;*<DD>
+in order for co-processes to share a common output, the shell must keep
+the write portion of the output pipe open.
+This means that end of file will not be detected until all co-processes
+sharing the co-process output have exited (when they all exit, the shell
+closes its copy of the pipe).
+This can be avoided by redirecting the output to a numbered
+file descriptor (as this also causes the shell to close its copy).
+Note that this behaviour is slightly different from the original Korn shell
+which closes its copy of the write portion of the co-processs output when the
+most recently started co-process (instead of when all sharing co-processes)
+exits.
+<DT>&nbsp;&nbsp;*<DD>
+<B>print -p</B> will ignore SIGPIPE signals during writes
+if the signal is not being trapped or ignored; the same is not true if
+the co-process input has been duplicated to another file descriptor and
+<B>print -u</B><I>n</I> is used.
+
+
+
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Functions</H3>
+
+Functions are defined using either Korn shell <B>function</B> <I>name</I>
+syntax or the Bourne/POSIX shell <I>name</I><B>()</B> syntax
+(see below for the difference between the two forms).
+Functions are like <B>.</B>-scripts in that they are executed in
+the current environment, however, unlike <B>.</B>-scripts, shell arguments
+(<I>i.e.</I>, positional parameters, <B>$1</B>, <I>etc.</I>) are never visible
+inside them.
+When the shell is determining the location of a command, functions are
+searched after special built-in commands, and before regular and non-regular
+built-ins, and before the <B>PATH</B> is searched.
+<P>
+
+An existing function may be deleted using <B>unset -f</B> <I>function-name</I>.
+A list of functions can be obtained using <B>typeset +f</B> and the
+function definitions can be listed using <B>typeset -f</B>.
+<B>autoload</B> (which is an alias for <B>typeset -fu</B>) may be used to
+create undefined functions; when an undefined function is executed, the
+shell searches the path specified in the <B>FPATH</B> parameter for a file
+with the same name as the function, which, if found is read and executed.
+If after executing the file, the named function is found to be defined, the
+function is executed, otherwise, the normal command search is continued
+(<I>i.e.</I>, the shell searches the regular built-in command table
+and <B>PATH</B>).
+Note that if a command is not found using <B>PATH</B>, an attempt is
+made to autoload a function using <B>FPATH</B> (this is an undocumented
+feature of the original Korn shell).
+<P>
+
+Functions can have two attributes, trace and export, which can be set
+with <B>typeset -ft</B> and <B>typeset -fx</B>, respectively.
+When a traced function is executed, the shell's <B>xtrace</B> option is turned
+on for the functions duration, otherwise the <B>xtrace</B> option is turned off.
+The export attribute of functions is currently not used.  In the original
+Korn shell, exported functions are visible to shell scripts that are executed.
+<P>
+
+Since functions are executed in the current shell environment, parameter
+assignments made inside functions are visible after the function completes.
+If this is not the desired effect, the <B>typeset</B> command can be used
+inside a function to create a local parameter.
+Note that special parameters (<I>e.g.</I>, <B>$$</B>, <B>$!</B>) can't be
+scoped in this way.
+<P>
+
+The exit status of a function is that of the last command executed in
+the function.
+A function can be made to finish immediately using the <B>return</B> command;
+this may also be used to explicitly specify the exit status.
+<P>
+
+Functions defined with the <B>function</B> reserved word are
+treated differently in the following ways from functions defined with
+the <B>()</B> notation:
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+the <B>$0</B> parameter is set to the name of the function
+(Bourne-style functions leave <B>$0</B> untouched).
+<DT>&nbsp;&nbsp;*<DD>
+parameter assignments preceeding function calls are not kept in
+the shell environment
+(executing Bourne-style functions will keep assignments).
+<DT>&nbsp;&nbsp;*<DD>
+<B>OPTIND</B> is saved/reset and restored on entry and exit from the function
+so <B>getopts</B> can be used properly both inside and outside the function
+(Bourne-style functions leave <B>OPTIND</B> untouched, so using <B>getopts</B>
+inside a function interferes with using <B>getopts</B> outside the function).
+
+In the future, the following differences will also be added:
+
+
+<DT>&nbsp;&nbsp;*<DD>
+A separate trap/signal environment will be used during the execution of
+functions.
+This will mean that traps set inside a function will not affect the shell's
+traps and signals that are not ignored in the shell (but may be trapped) will
+have their default effect in a function.
+<DT>&nbsp;&nbsp;*<DD>
+The EXIT trap, if set in a function, will be executed after the function
+returns.
+
+
+
+</DL>
+<A NAME="lbAR">&nbsp;</A>
+<H3>POSIX Mode</H3>
+
+The shell is intended to be POSIX compliant, however, in some cases, POSIX
+behaviour is contrary either to the original Korn shell behaviour or to
+user convenience.
+How the shell behaves in these cases is determined by the state of
+the posix option (<B>set -o posix</B>) --- if it is on, the POSIX behaviour
+is followed, otherwise it is not.
+The <B>posix</B> option is set automatically when the shell starts up
+if the environment contains the <B>POSIXLY_CORRECT</B> parameter.
+(The shell can also be compiled so that it is in POSIX mode by default,
+however this is usually not desirable).
+<P>
+
+The following is a list of things that are affected by the state of
+the <B>posix</B> option:
+
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+<B>\&quot;</B> inside double quoted <B>`</B>..<B>`</B> command substitutions:
+in posix mode, the <B>\&quot;</B> is interpreted when the command is interpreted;
+in non-posix mode, the backslash is stripped before the command substitution
+is interpreted.  For example, <B>echo &quot;`echo \&quot;hi\&quot;`&quot;</B> produces `&quot;hi&quot;' in
+posix mode, `hi' in non-posix mode.  To avoid problems, use the <B>$(...</B>)
+form of command substitution.
+<DT>&nbsp;&nbsp;*<DD>
+<B>kill -l</B> output: in posix mode, signal names are listed one a single line;
+in non-posix mode, signal numbers, names and descriptions are printed in
+columns.
+In future, a new option (<B>-v</B> perhaps) will be added to distinguish
+the two behaviours.
+<DT>&nbsp;&nbsp;*<DD>
+<B>fg</B> exit status: in posix mode, the exit status is 0 if no errors occur;
+in non-posix mode, the exit status is that of the last foregrounded job.
+<DT>&nbsp;&nbsp;*<DD>
+<B>eval</B> exit status: if eval gets to see an empty command (<I>e.g.</I>,
+<B>eval &quot;`false`&quot;</B>), its exit status in posix mode will be 0.
+In non-posix mode, it will be the exit status of the last
+command substitution that was done in the processing of the arguments to eval
+(or 0 if there were no command substitutions).
+<DT>&nbsp;&nbsp;*<DD>
+<B>getopts</B>: in posix mode, options must start with a <B>-</B>; in non-posix
+mode, options can start with either <B>-</B> or <B>+</B>.
+<DT>&nbsp;&nbsp;*<DD>
+brace expansion (also known as alternation): in posix mode, brace expansion
+is disabled; in non-posix mode, brace expansion enabled.
+Note that <B>set -o posix</B> (or setting the <B>POSIXLY_CORRECT</B> parameter)
+automatically turns the <B>braceexpand</B> option off, however it can be
+explicitly turned on later.
+<DT>&nbsp;&nbsp;*<DD>
+<B>set -</B>: in posix mode, this does not clear the <B>verbose</B> or
+<B>xtrace</B> options; in non-posix mode, it does.
+<DT>&nbsp;&nbsp;*<DD>
+<B>set</B> exit status: in posix mode, the exit status of set is 0
+if there are no errors; in non-posix mode, the exit status is that of
+any command substitutions performed in generating the set command.
+For example, `<B>set -- `false`; echo $?</B>' prints 0 in posix mode,
+1 in non-posix mode.  This construct is used in most shell scripts that
+use the old <I><A HREF="../man1/getopt.1.php">getopt</A></I>(1) command.
+<DT>&nbsp;&nbsp;*<DD>
+argument expansion of <B>alias</B>, <B>export</B>, <B>readonly</B>, and
+<B>typeset</B> commands: in posix mode, normal argument expansion done;
+in non-posix mode, field splitting, file globing, brace expansion and
+(normal) tilde expansion are turned off, and assignment tilde expansion
+is turned on.
+<DT>&nbsp;&nbsp;*<DD>
+signal specification: in posix mode, signals can be specified as digits only
+if signal numbers match POSIX values (<I>i.e.</I>, HUP=1, INT=2, QUIT=3, ABRT=6,
+KILL=9, ALRM=14, and TERM=15); in non-posix mode, signals can be always digits.
+<DT>&nbsp;&nbsp;*<DD>
+alias expansion: in posix mode, alias expansion is only carried out when
+reading command words; in non-posix mode, alias expansion is carried out
+on any word following an alias that ended in a space.
+For example, the following for loop
+<DL COMPACT><DT><DD>
+<B>
+alias a='for ' i='j'
+<BR>
+
+a i in 1 2; do echo i=$i j=$j; done
+</B>
+</DL>
+
+uses parameter <B>i</B> in posix mode, <B>j</B> in non-posix mode.
+<DT>&nbsp;&nbsp;*<DD>
+test: in posix mode, the expression &quot;<B>-t</B>&quot; (preceded by
+some number of &quot;<B>!</B>&quot; arguments) is always true as it is a non-zero length
+string; in non-posix mode, it tests if file descriptor 1 is a tty (<I>i.e.</I>,
+the <I>fd</I> argument to the <B>-t</B> test may be left out and defaults to 1).
+
+
+
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H3>Command Execution</H3>
+
+After evaluation of command line arguments, redirections and parameter
+assignments, the type of command is determined: a special built-in,
+a function, a regular built-in or the name of a file to execute found
+using the <B>PATH</B> parameter.
+The checks are made in the above order.
+Special built-in commands differ from other commands in that 
+the <B>PATH</B> parameter is not used to find them, an error
+during their execution can cause a non-interactive shell to exit and
+parameter assignments that are specified before the command are
+kept after the command completes.
+Just to confuse things, if the posix option is turned off (see <B>set</B>
+command below) some special commands are very special in that
+no field splitting, file globing, brace expansion nor tilde expansion
+is preformed on arguments that look like assignments.
+Regular built-in commands are different only in that the <B>PATH</B>
+parameter is not used to find them.
+<P>
+
+The original ksh and POSIX differ somewhat in which commands are considered
+special or regular:
+<DL COMPACT>
+<DT>POSIX special commands<DD>
+<TABLE>
+<TR VALIGN=top><TD><B>.</B></TD><TD><B>continue</B></TD><TD><B>exit</B></TD><TD><B>return</B></TD><TD><B>trap</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>:</B></TD><TD><B>eval</B></TD><TD><B>export</B></TD><TD><B>set</B></TD><TD><B>unset</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>break</B></TD><TD><B>exec</B></TD><TD><B>readonly</B></TD><TD><B>shift</B></TD><TD><B></B><BR></TD></TR>
+</TABLE>
+
+<DT>Additional ksh special commands<DD>
+<TABLE>
+<TR VALIGN=top><TD><B>builtin</B></TD><TD><B>times</B></TD><TD><B>typeset</B></TD><TD><B></B></TD><TD><B></B><BR></TD></TR>
+</TABLE>
+
+<DT>Very special commands (non-posix mode)<DD>
+<TABLE>
+<TR VALIGN=top><TD><B>alias</B></TD><TD><B>readonly</B></TD><TD><B>set</B></TD><TD><B>typeset</B></TD><TD><B></B><BR></TD></TR>
+</TABLE>
+
+<DT>POSIX regular commands<DD>
+<TABLE>
+<TR VALIGN=top><TD><B>alias</B></TD><TD><B>command</B></TD><TD><B>fg</B></TD><TD><B>kill</B></TD><TD><B>umask</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>bg</B></TD><TD><B>false</B></TD><TD><B>getopts</B></TD><TD><B>read</B></TD><TD><B>unalias</B><BR></TD></TR>
+<TR VALIGN=top><TD><B>cd</B></TD><TD><B>fc</B></TD><TD><B>jobs</B></TD><TD><B>true</B></TD><TD><B>wait</B><BR></TD></TR>
+</TABLE>
+
+<DT>Additional ksh regular commands<DD>
+<TABLE>
+<TR VALIGN=top><TD><B>[</B></TD><TD><B>let</B></TD><TD><B>pwd</B></TD><TD><B>ulimit</B></TD><TD><B></B><BR></TD></TR>
+<TR VALIGN=top><TD><B>echo</B></TD><TD><B>print</B></TD><TD><B>test</B></TD><TD><B>whence</B></TD><TD><B></B><BR></TD></TR>
+</TABLE>
+
+</DL>
+<P>
+
+In the future, the additional ksh special and regular commands may
+be treated differently from the POSIX special and regular commands.
+<P>
+
+Once the type of the command has been determined, any command line parameter
+assignments are performed and exported for the duration of the command.
+<P>
+
+The following describes the special and regular built-in commands:
+
+<DL COMPACT>
+<DT><B>.</B> <I>file</I> [<I>arg1</I> ...]<DD>
+Execute the commands in <I>file</I> in the current environment.
+The file is searched for in the directories of <B>PATH</B>.
+If arguments are given, the positional parameters may be used to
+access them while <I>file</I> is being executed.
+If no arguments are given, the positional parameters are those of the
+environment the command is used in.
+
+
+<DT><B>:</B> [ ... ]<DD>
+The null command.
+Exit status is set to zero.
+
+
+<DT><B>alias</B> [ <B>-d</B> | <B>&#177;t</B> [<B>-r</B>] ] [<B>&#177;px</B>] [<B>&#177;</B>] [<I>name1</I>[<B>=</B><I>value1</I>] ...]<DD>
+Without arguments, <B>alias</B> lists all aliases.
+For any name without a value, the existing alias is listed.
+Any name with a value defines an alias (see Aliases above).
+<P>
+When listing aliases, one of two formats is used: 
+normally, aliases are listed as <I>name</I><B>=</B><I>value</I>, where
+<I>value</I> is quoted; if options were preceded with <B>+</B> 
+or a lone <B>+</B> is given on the command line, only <I>name</I>
+is printed.
+In addition, if the <B>-p</B> option is used, each alias
+is prefixed with the string &quot;<B>alias</B>&nbsp;&quot;.
+<P>
+The <B>-x</B> option sets (<B>+x</B> clears) the export attribute of an alias,
+or, if no names are given, lists the aliases with the export attribute
+(exporting an alias has no affect).
+<P>
+The <B>-t</B> option indicates that tracked aliases are to be listed/set
+(values specified on the command line are ignored for tracked aliases).
+The <B>-r</B> option indicates that all tracked aliases are to be reset.
+<P>
+The <B>-d</B> causes directory aliases, which are used in tilde expansion,
+to be listed or set (see Tilde Expansion above).
+
+
+<DT><B>bg</B> [<I>job</I> ...]<DD>
+Resume the specified stopped job(s) in the background.
+If no jobs are specified, <B>%+</B> is assumed.
+This command is only available on systems which support job control.
+See Job Control below for more information.
+
+
+<DT><B>bind</B> [<B>-m</B>] [<I>key</I>[<B>=</B><I>editing-command</I>] ...]<DD>
+Set or view the current emacs command editing key bindings/macros.
+See Emacs Editing Mode below for a complete description.
+
+
+<DT><B>break</B> [<I>level</I>]<DD>
+<B>break</B> exits the <I>level</I>th inner most for, select, until, or while
+loop.
+<I>level</I> defaults to 1.
+
+
+<DT><B>builtin</B> <I>command</I> [<I>arg1</I> ...]<DD>
+Execute the built-in command <I>command</I>.
+
+
+<DT><B>cd</B> [<B>-LP</B>] [<I>dir</I>]<DD>
+Set the working directory to <I>dir</I>.  If the parameter <B>CDPATH</B>
+is set, it lists directories to search in for <I>dir</I>.
+<I>dir</I>.  An empty entry in the <B>CDPATH</B> entry means the current
+directory.
+If a non-empty directory from <B>CDPATH</B> is used, the resulting full
+path is printed to standard output.
+If <I>dir</I> is
+missing, the home directory <B>$HOME</B> is used.  If <I>dir</I> is
+<B>-</B>, the previous working directory is used (see OLDPWD parameter).
+If <B>-L</B> option (logical path) is used or if the <B>physical</B> option
+(see <B>set</B> command below) isn't set, references to <B>..</B> in <I>dir</I>
+are relative to the path used get to the directory.
+If <B>-P</B> option (physical path) is used or if the <B>physical</B> option
+is set, <B>..</B> is relative to the filesystem directory tree.
+The <B>PWD</B> and <B>OLDPWD</B> parameters are updated to reflect the
+current and old wording directory, respectively.
+
+
+<DT><B>cd</B> [<B>-LP</B>] <I>old new</I><DD>
+The string <I>new</I> is substituted for <I>old</I> in the current
+directory, and the shell attempts to change to the new directory.
+
+
+<DT><B>command</B> [<B>-pvV</B>] <I>cmd</I> [<I>arg1</I> ...]<DD>
+If neither the <B>-v</B> nor <B>-V</B> options are given,
+<I>cmd</I>
+is executed exactly as if the <B>command</B> had not been specified,
+with two exceptions: first, <I>cmd</I> cannot be a shell function, and
+second, special built-in commands lose their specialness (<I>i.e.</I>,
+redirection and utility errors do not cause the shell to exit, and command
+assignments are not permanent).
+If the <B>-p</B> option is given, a default search path is used instead of
+the current value of <B>PATH</B> (the actual value of the default path is
+system dependent: on POSIXish systems, it is the value returned by
+<CENTER>
+<B>getconf CS_PATH</B><BR>
+</CENTER>
+
+).
+<P>
+If the <B>-v</B> option is given, instead of executing <I>cmd</I>, information
+about what would be executed is given (and the same is done for
+<I>arg1</I> ...):
+for special and regular built-in commands and functions,
+their names are simply printed,
+for aliases, a command that defines them is printed,
+and for commands found by searching the <B>PATH</B> parameter,
+the full path of the command is printed.
+If no command is be found, (<I>i.e.</I>, the path search fails), nothing
+is printed and <B>command</B> exits with a non-zero status.
+The <B>-V</B> option is like the <B>-v</B> option, except it is more verbose.
+
+
+<DT><B>continue</B> [<I>levels</I>]<DD>
+<B>continue</B> jumps to the beginning of the <I>level</I>th inner most for,
+select, until, or while loop.
+<I>level</I> defaults to 1.
+
+
+<DT><B>echo</B> [<B>-neE</B>] [<I>arg</I> ...]<DD>
+Prints its arguments (separated by spaces) followed by a newline, to
+standard out.
+The newline is suppressed if any of the arguments contain the backslash
+sequence <B>\c</B>.
+See <B>print</B> command below for a list of other backslash sequences
+that are recognized.
+<P>
+The options are provided for compatibility with BSD shell scripts:
+<B>-n</B> suppresses the trailing newline, <B>-e</B> enables backslash
+interpretation (a no-op, since this is normally done), and <B>-E</B> which
+suppresses backslash interpretation.
+
+
+<DT><B>eval</B> <I>command ...</I><DD>
+The arguments are concatenated (with spaces between them) to form
+a single string which the shell then parses and executes
+in the current environment.
+
+
+<DT><B>exec</B> [<I>command</I> [<I>arg</I> ...]]<DD>
+The command is executed without forking, replacing the shell process.
+<P>
+If no arguments are given, any IO redirection is permanent and the shell
+is not replaced.
+Any file descriptors greater than 2 which are opened or <I><A HREF="../man2/dup.2.php">dup</A></I>(2)-ed
+in this way are not
+made available to other executed commands (<I>i.e.</I>,
+commands that are not built-in to the shell).
+Note that the Bourne shell differs here: it does pass these
+file descriptors on.
+
+
+<DT><B>exit</B> [<I>status</I>]<DD>
+The shell exits with the specified exit status.
+If <I>status</I> is not specified, the exit status is the current
+value of the <B>?</B> parameter.
+
+
+<DT><B>export</B> [<B>-p</B>] [<I>parameter</I>[<B>=</B><I>value</I>]] ...<DD>
+Sets the export attribute of the named parameters.
+Exported parameters are passed in the environment to executed commands.
+If values are specified, the named parameters also assigned.
+<P>
+If no parameters are specified, the names of all parameters with the export
+attribute are printed one per line, unless the <B>-p</B> option is used,
+in which case <B>export</B> commands defining all exported
+parameters, including their values, are printed.
+
+
+<DT><B>false</B><DD>
+A command that exits with a non-zero status.
+
+
+<DT><B>fc</B> [<B>-e</B> <I>editor</I> | <B>-l</B> [<B>-n</B>]] [<B>-r</B>] [<I>first</I> [<I>last</I>]]<DD>
+<I>first</I> and <I>last</I> select commands from the history.
+Commands can be selected by
+history number, or a string specifying the most recent command starting
+with that string.  The <B>-l</B> option lists the command on stdout,
+and <B>-n</B> inhibits the default command numbers.  The <B>-r</B>
+option reverses the order of the list.  Without <B>-l</B>, the selected
+commands are edited by the editor specified with the <B>-e</B>
+option, or if no <B>-e</B> is specified, the editor specified by the
+<B>FCEDIT</B> parameter (if this parameter is not set, <B>/bin/ed</B> is used),
+and then executed by the shell.
+
+
+<DT><B>fc</B> [<B>-e -</B> | <B>-s</B>] [<B>-g</B>] [<I>old</I><B>=</B><I>new</I>] [<I>prefix</I>]<DD>
+Re-execute the selected command (the previous command by default) after
+performing the optional substitution of <I>old</I> with <I>new</I>.  If
+<B>-g</B> is specified, all occurrences of <I>old</I> are replaced with
+<I>new</I>.  This command is usually accessed with the predefined alias
+<B>r='fc -e -'</B>.
+
+
+<DT><B>fg</B> [<I>job</I> ...]<DD>
+Resume the specified job(s) in the foreground.
+If no jobs are specified, <B>%+</B> is assumed.
+This command is only available on systems which support job control.
+See Job Control below for more information.
+
+
+<DT><B>getopts</B> <I>optstring</I> <I>name</I> [<I>arg</I> ...]<DD>
+<B>getopts</B> is used by shell procedures to parse the specified arguments
+(or positional parameters, if no arguments are given) and to check for legal
+options.
+<I>optstring</I> contains the option letters that
+<B>getopts</B> is to recognize.  If a letter is followed by a colon, the
+option is expected to have an argument.
+Options that do not take arguments may be grouped in a single argument.
+If an option takes an argument and the option character is not the last
+character of the argument it is found in, the remainder of the argument
+is taken to be the option's argument, otherwise, the next argument is
+the option's argument.
+<P>
+Each time <B>getopts</B> is invoked, it places the next option in
+the shell parameter <I>name</I> and the index of the next argument to be
+processed in the shell parameter <B>OPTIND</B>.
+If the option was introduced with a <B>+</B>, the option placed in
+<I>name</I> is prefixed with a <B>+</B>.
+When an option requires an argument, <B>getopts</B> places it in the
+shell parameter <B>OPTARG</B>.
+When an illegal option or a missing option argument is
+encountered a question mark or a colon is placed in <I>name</I>
+(indicating an illegal option or missing argument, respectively)
+and <B>OPTARG</B> is set to the option character that caused the problem.
+An error message is also printed to standard error if <I>optstring</I>
+does not begin with a colon.
+<P>
+When the end of the options is encountered, <B>getopts</B> exits with a
+non-zero exit status.
+Options end at the first (non-option argument) argument that does not
+start with a -, or when a <B>--</B> argument is encountered.
+<P>
+Option parsing can be reset by setting <B>OPTIND</B> to 1 (this is done
+automatically whenever the shell or a shell procedure is invoked).
+<P>
+Warning: Changing the value of the shell parameter <B>OPTIND</B> to
+a value other than 1, or parsing different sets of arguments without
+resetting <B>OPTIND</B> may lead to unexpected results.
+
+
+<DT><B>hash</B> [<B>-r</B>] [<I>name ...</I>]<DD>
+Without arguments, any hashed executable command pathnames are listed.
+The <B>-r</B> option causes all hashed commands to be removed
+from the hash table.
+Each <I>name</I> is searched as if it where a command name and added to the
+hash table if it is an executable command.
+
+
+<DT><B>jobs</B> [<B>-lpn</B>] [<I>job</I> ...]<DD>
+Display information about the specified jobs; if no jobs are specified,
+all jobs are displayed.
+The <B>-n</B> option causes information to be displayed only for jobs
+that have changed state since the last notification.
+If the <B>-l</B> option is used, the process-id of each process in a job
+is also listed.
+The <B>-p</B> option causes only the process group of each job to be printed.
+See Job Control below for the format of <I>job</I> and the displayed job.
+
+
+<DT><B>kill</B> [<B>-s</B> <I>signame</I> | <B>-signum</B> | <B>-signame</B> ] { <I>job</I> | <I>pid</I> | <B>-</B><I>pgrp</I> } ...<DD>
+Send the specified signal to the specified jobs, process ids, or process groups.
+If no signal is specified, the signal TERM is sent.
+If a job is specified, the signal is sent to the job's process group.
+See Job Control below for the format of <I>job</I>.
+
+
+<DT><B>kill -l</B> [<I>exit-status</I> ...]<DD>
+Print the name of the signal that killed a process which exited with
+the specified <I>exit-status</I>es.
+If no arguments are specified, a list of all the signals, their numbers and
+a short description of them are printed.
+
+
+<DT><B>let</B> [<I>expression</I> ...]<DD>
+Each expression is evaluated, see Arithmetic Expressions above.
+If all expressions are successfully evaluated, the exit status
+is 0 (1) if the last expression evaluated to non-zero (zero).
+If an error occurs during the parsing or evaluation of an expression,
+the exit status is greater than 1.
+Since expressions may need to be
+quoted, <B>((</B> <I>expr</I> <B>))</B> is syntactic sugar for <B>let
+&quot;</B><I>expr</I><B>&quot;</B>.
+
+
+<DT><B>print</B> [<B>-nprsu</B><I>n</I> | <B>-R</B> [<B>-en</B>]] [<I>argument ...</I>]<DD>
+<B>Print</B> prints its arguments on the standard output, separated by
+spaces, and terminated with a newline.  The <B>-n</B> option suppresses
+the newline.  By default, certain C escapes are translated.  These
+include \b, \f, \n, \r, \t, \v, and \0### (# is an octal digit, of
+which there may be 0 to 3).
+\c is equivalent to using the <B>-n</B> option.  \ expansion may be
+inhibited with the <B>-r</B> option.
+The <B>-s</B> option prints to the history file instead of standard output,
+the <B>-u</B> option prints to file descriptor <I>n</I> (<I>n</I>
+defaults to 1 if omitted), and the <B>-p</B> option prints to the co-process
+(see Co-Processes above).
+<P>
+The <B>-R</B> option is used to emulate, to some degree, the BSD echo
+command, which does not process \ sequences unless the <B>-e</B> option
+is given.
+As above, the <B>-n</B> option suppresses the trailing newline.
+
+
+<DT><B>pwd</B> [<B>-LP</B>]<DD>
+Print the present working directory.
+If <B>-L</B> option is used or if the <B>physical</B> option
+(see <B>set</B> command below) isn't set, the logical path is printed
+(<I>i.e.</I>, the path used to <B>cd</B> to the current directory).
+If <B>-P</B> option (physical path) is used or if the <B>physical</B> option
+is set, the path determined from the filesystem (by following <B>..</B>
+directories to the root directory) is printed.
+
+
+<DT><B>read</B> [<B>-prsu</B><I>n</I>] [<I>parameter ...</I>]<DD>
+Reads a line of input from standard input, separate the line into fields using
+the <B>IFS</B> parameter (see Substitution above), and assign each field to the
+specified parameters.
+If there are more parameters than fields, the extra parameters are set to null,
+or alternatively, if there are more fields than parameters, the last parameter
+is assigned the remaining fields (inclusive of any separating spaces).
+If no parameters are specified, the <B>REPLY</B> parameter is used.
+If the input line ends in a backslash and the <B>-r</B> option was not used, the
+backslash and newline are stripped and more input is read.
+If no input is read, <B>read</B> exits with a non-zero status.
+<P>
+The first parameter may have a question mark and a string appended to it, in
+which case the string is used as a prompt (printed to standard error before
+any input is read) if the input is a tty
+(<I>e.g.</I>, <B>read nfoo?'number of foos: '</B>).
+<P>
+The <B>-u</B><I>n</I> and <B>-p</B> options cause input to be read
+from file descriptor <I>n</I> or the current co-process (see Co-Processes above
+for comments on this), respectively.
+If the <B>-s</B> option is used, input is saved to the history file.
+
+
+<DT><B>readonly</B> [<B>-p</B>] [<I>parameter</I>[<B>=</B><I>value</I>]] ...<DD>
+Sets the readonly attribute of the named parameters.  If values are given,
+parameters are set to them before setting the attribute.
+Once a parameter is made readonly, it cannot be unset and its value cannot
+be changed.
+<P>
+If no parameters are specified, the names of all parameters with the readonly
+attribute are printed one per line, unless the <B>-p</B> option is used,
+in which case <B>readonly</B> commands defining all readonly
+parameters, including their values, are printed.
+
+
+<DT><B>return</B> [<I>status</I>]<DD>
+Returns from a function or <B>.</B> script, with exit status <I>status</I>.
+If no <I>status</I> is given, the exit status of the last executed command
+is used.
+If used outside of a function or <B>.</B> script, it has the same effect
+as <B>exit</B>.
+Note that pdksh treats both profile and <B>$ENV</B> files as <B>.</B> scripts,
+while the original Korn shell only treats profiles as <B>.</B> scripts.
+
+
+<DT><B>set</B> [<B>&#177;abCefhkmnpsuvxX</B>] [<B>&#177;o</B> [<I>option</I>]] [<B>&#177;A</B> <I>name</I>] [<B>--</B>] [<I>arg</I> ...]<DD>
+The set command can be used to set (<B>-</B>) or clear (<B>+</B>) shell options,
+set the positional parameters, or set an array parameter.
+Options can be changed using the <B>&#177;o</B> <I>option</I> syntax,
+where <I>option</I> is the long name of an option, or using
+the <B>&#177;</B><I>letter</I> syntax, where <I>letter</I> is the
+option's single letter name (not all options have a single letter name).
+The following table lists both option letters (if they exist) and long names
+along with a description of what the option does.
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B>-A</B></TD><TD><B></B></TD><TD>
+Sets the elements of the array parameter <I>name</I> to <I>arg</I> ...;
+If <B>-A</B> is used, the array is reset (<I>i.e.</I>, emptied) first;
+if <B>+A</B> is used, the first N elements are set (where N is the number
+of <I>arg</I>s), the rest are left untouched.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-a</B></TD><TD><B>allexport</B></TD><TD>
+all new parameters are created with the export attribute
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-b</B></TD><TD><B>notify</B></TD><TD>
+Print job notification messages asynchronously, instead of just before the
+prompt.
+Only used if job control is enabled (<B>-m</B>).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-C</B></TD><TD><B>noclobber</B></TD><TD>
+Prevent <B>&gt;</B> redirection from overwriting existing files (<B>&gt;|</B> must
+be used to force an overwrite).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-e</B></TD><TD><B>errexit</B></TD><TD>
+Exit (after executing the <B>ERR</B> trap) as soon as an error occurs or
+a command fails (<I>i.e.</I>, exits with a non-zero status).
+This does not apply to commands whose exit status is explicitly tested by a
+shell construct such as <B>if</B>, <B>until</B>, <B>while</B>, <B>&amp;&amp;</B> or
+<B>||</B> statements.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-f</B></TD><TD><B>noglob</B></TD><TD>
+Do not expand file name patterns.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-h</B></TD><TD><B>trackall</B></TD><TD>
+Create tracked aliases for all executed commands (see Aliases above).
+On by default for non-interactive shells.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-i</B></TD><TD><B>interactive</B></TD><TD>
+Enable interactive mode - this can only be set/unset when the shell is
+invoked.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-k</B></TD><TD><B>keyword</B></TD><TD>
+Parameter assignments are recognized anywhere in a command.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-l</B></TD><TD><B>login</B></TD><TD>
+The shell is a login shell - this can only be set/unset when the shell is
+invoked (see Shell Startup above).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-m</B></TD><TD><B>monitor</B></TD><TD>
+Enable job control (default for interactive shells).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-n</B></TD><TD><B>noexec</B></TD><TD>
+Do not execute any commands - useful for checking the syntax of scripts
+(ignored if interactive).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-p</B></TD><TD><B>privileged</B></TD><TD>
+Set automatically if, when the shell starts, the read uid or gid does not
+match the effective uid or gid, respectively.
+See Shell Startup above for a description of what this
+means.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-r</B></TD><TD><B>restricted</B></TD><TD>
+Enable restricted mode --- this option can only be used when the shell is
+invoked.  See Shell Startup above for a description of what this
+means.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-s</B></TD><TD><B>stdin</B></TD><TD>
+If used when the shell is invoked, commands are read from standard input.
+Set automatically if the shell is invoked with no arguments.
+<P>
+When <B>-s</B> is used in the <B>set</B> command, it causes the specified
+arguments to be sorted before assigning them to the positional parameters
+(or to array <I>name</I>, if <B>-A</B> is used).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-u</B></TD><TD><B>nounset</B></TD><TD>
+Referencing of an unset parameter is treated as an error, unless
+one of the <B>-</B>, <B>+</B> or <B>=</B> modifiers is used.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-v</B></TD><TD><B>verbose</B></TD><TD>
+Write shell input to standard error as it is read.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-x</B></TD><TD><B>xtrace</B></TD><TD>
+Print commands and parameter assignments when they are executed,
+preceded by the value of <B>PS4</B>.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-X</B></TD><TD><B>markdirs</B></TD><TD>
+Mark directories with a trailing <B>/</B> during file name generation.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>bgnice</B></TD><TD>
+Background jobs are run with lower priority.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>braceexpand</B></TD><TD>
+Enable brace expansion (aka, alternation).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>emacs</B></TD><TD>
+Enable BRL emacs-like command line editing (interactive shells only);
+see Emacs Editing Mode.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>gmacs</B></TD><TD>
+Enable gmacs-like (Gosling emacs) command line editing (interactive shells
+only);
+currently identical to emacs editing except that transpose (^T) acts
+slightly differently.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>ignoreeof</B></TD><TD>
+The shell will not (easily) exit on when end-of-file is read, <B>exit</B> must
+be used.
+To avoid infinite loops, the shell will exit if eof is read 13 times in
+a row.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>nohup</B></TD><TD>
+Do not kill running jobs with a <B>HUP</B> signal when a login shell exists.
+Currently set by default, but this will change in the future to be compatible
+with the original Korn shell (which doesn't have this option, but does
+send the <B>HUP</B> signal).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>nolog</B></TD><TD>
+No effect - in the original Korn shell, this prevents function definitions
+from being stored in the history file.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>physical</B></TD><TD>
+Causes the <B>cd</B> and <B>pwd</B> commands to use `physical'
+(<I>i.e.</I>, the filesystem's) <B>..</B> directories instead of `logical'
+directories (<I>i.e.</I>,  the shell handles <B>..</B>, which allows the user
+to be obliveous of symlink links to directories).
+Clear by default.  Note that setting
+this option does not effect the current value of the <B>PWD</B> parameter;
+only the <B>cd</B> command changes <B>PWD</B>.
+See the <B>cd</B> and <B>pwd</B> commands above for more details.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>posix</B></TD><TD>
+Enable posix mode.  See POSIX Mode above.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>vi</B></TD><TD>
+Enable vi-like command line editing (interactive shells only).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>viraw</B></TD><TD>
+No effect - in the original Korn shell, unless viraw was set, the vi command
+line mode would let the tty driver do the work until ESC (^[) was entered.
+pdksh is always in viraw mode.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>vi-esccomplete</B></TD><TD>
+In vi command line editing, do command / file name completion when
+escape (^[) is entered in command mode.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>vi-show8</B></TD><TD>
+Prefix characters with the eighth bit set with `M-'.
+If this option is not set, characters in the range
+128-160 are printed as is, which may cause problems.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B></B></TD><TD><B>vi-tabcomplete</B></TD><TD>
+In vi command line editing, do command / file name completion when
+tab (^I) is entered in insert mode.
+<BR></TD></TR>
+</TABLE>
+
+<P>
+These options can also be used upon invocation of the shell.  The current
+set of options (with single letter names) can be found in the
+parameter <B>-</B>.
+<B>set -o</B> with no option name will list all the options and whether each
+is on or off; <B>set +o</B> will print the long names of all options that
+are currently on.
+<P>
+Remaining arguments, if any, are positional parameters and are assigned,
+in order, to the
+positional parameters (<I>i.e.</I>, <B>1</B>, <B>2</B>, <I>etc.</I>).
+If options are ended with <B>--</B> and there are no remaining arguments,
+all positional parameters are cleared.
+If no options or arguments are given, then the values of all names are printed.
+For unknown historical reasons, a lone <B>-</B> option is treated specially:
+it clears both the <B>-x</B> and <B>-v</B> options.
+
+
+<DT><B>shift</B> [<I>number</I>]<DD>
+The positional parameters <I>number</I>+1, <I>number</I>+2 <I>etc.</I> are
+renamed to <B>1</B>, <B>2</B>, <I>etc.</I>
+<I>number</I> defaults to 1.
+
+
+<DT><B>test</B> <I>expression</I><DD>
+<DT><B>[</B> <I>expression</I> <B>]</B><DD>
+<B>test</B> evaluates the <I>expression</I> and returns zero status if
+true, and 1 status if false and greater than 1 if there was an error.
+It is normally used as the
+condition command of <B>if</B> and <B>while</B> statements.
+The following basic expressions are available:
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B><I>str</I></B></TD><TD>
+<I>str</I> has non-zero length.  Note that there is the potential
+for problems if <I>str</I> turns out to be an operator (<I>e.g.</I>, <B>-r</B>)
+- it is generally better to use a test like
+<DL COMPACT><DT><DD>
+<B>[ X&quot;</B><I>str</I><B>&quot; != X ]</B>
+</DL>
+
+instead (double quotes are used in case <I>str</I> contains spaces or file
+globing characters).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-r <I>file</I></B></TD><TD>
+<I>file</I> exists and is readable.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-w <I>file</I></B></TD><TD>
+<I>file</I> exists and is writable.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-x <I>file</I></B></TD><TD>
+<I>file</I> exists and is executable.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-a <I>file</I></B></TD><TD>
+<I>file</I> exists.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-e <I>file</I></B></TD><TD>
+<I>file</I> exists.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-f <I>file</I></B></TD><TD>
+<I>file</I> is a regular file.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-d <I>file</I></B></TD><TD>
+<I>file</I> is a directory.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-c <I>file</I></B></TD><TD>
+<I>file</I> is a character special device.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-b <I>file</I></B></TD><TD>
+<I>file</I> is a block special device.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-p <I>file</I></B></TD><TD>
+<I>file</I> is a named pipe.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-u <I>file</I></B></TD><TD>
+<I>file</I>'s mode has setuid bit set.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-g <I>file</I></B></TD><TD>
+<I>file</I>'s mode has setgid bit set.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-k <I>file</I></B></TD><TD>
+<I>file</I>'s mode has sticky bit set.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-s <I>file</I></B></TD><TD>
+<I>file</I> is not empty.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-O <I>file</I></B></TD><TD>
+<I>file</I>'s owner is the shell's effective user-ID.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-G <I>file</I></B></TD><TD>
+<I>file</I>'s group is the shell's effective group-ID.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-h <I>file</I></B></TD><TD>
+<I>file</I> is a symbolic link.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-H <I>file</I></B></TD><TD>
+<I>file</I> is a context dependent directory (only useful on HP-UX).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-L <I>file</I></B></TD><TD>
+<I>file</I> is a symbolic link.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-S <I>file</I></B></TD><TD>
+<I>file</I> is a socket.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-o <I>option</I></B></TD><TD>
+shell <I>option</I> is set (see <B>set</B> command above for list of options).
+As a non-standard extension, if the option starts with a <B>!</B>, the test
+is negated; the test always fails if option doesn't exist (thus
+<DL COMPACT><DT><DD>
+<B>[ -o </B><I>foo</I> <B>-o -o !</B><I>foo</I> <B>]</B>
+</DL>
+
+returns true if and only if option <I>foo</I> exists).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>file</I> -nt <I>file</I></B></TD><TD>
+first <I>file</I> is newer than second <I>file</I> or first 
+<I>file</I> exists and the second <I>file</I> does not.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>file</I> -ot <I>file</I></B></TD><TD>
+first <I>file</I> is older than second <I>file</I> or second <I>file</I> 
+exists and the first <I>file</I> does not.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>file</I> -ef <I>file</I></B></TD><TD>
+first <I>file</I> is the same file as second <I>file</I>.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-t&nbsp;[<I>fd</I>]</B></TD><TD>
+file descriptor is a tty device.
+If the posix option (<B>set -o posix</B>, see POSIX Mode above) is not
+set, <I>fd</I> may be left out, in which case it is taken to be 1
+(the behaviour differs due to the special POSIX rules described below).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>string</I></B></TD><TD>
+<I>string</I> is not empty.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-z&nbsp;<I>string</I></B></TD><TD>
+<I>string</I> is empty.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-n&nbsp;<I>string</I></B></TD><TD>
+<I>string</I> is not empty.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>string</I>&nbsp;=&nbsp;<I>string</I></B></TD><TD>
+strings are equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>string</I>&nbsp;==&nbsp;<I>string</I></B></TD><TD>
+strings are equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>string</I>&nbsp;!=&nbsp;<I>string</I></B></TD><TD>
+strings are not equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-eq&nbsp;<I>number</I></B></TD><TD>
+numbers compare equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-ne&nbsp;<I>number</I></B></TD><TD>
+numbers compare not equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-ge&nbsp;<I>number</I></B></TD><TD>
+numbers compare greater than or equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-gt&nbsp;<I>number</I></B></TD><TD>
+numbers compare greater than.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-le&nbsp;<I>number</I></B></TD><TD>
+numbers compare less than or equal.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>number</I>&nbsp;-lt&nbsp;<I>number</I></B></TD><TD>
+numbers compare less than.
+<BR></TD></TR>
+</TABLE>
+
+<P>
+The above basic expressions, in which unary operators have precedence over
+binary operators, may be combined with the following operators
+(listed in increasing order of precedence):
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B><I>expr</I> -o <I>expr</I></B></TD><TD>logical or<BR></TD></TR>
+<TR VALIGN=top><TD><B><I>expr</I> -a <I>expr</I></B></TD><TD>logical and<BR></TD></TR>
+<TR VALIGN=top><TD><B>! <I>expr</I></B></TD><TD>logical not<BR></TD></TR>
+<TR VALIGN=top><TD><B>( <I>expr</I> )</B></TD><TD>grouping<BR></TD></TR>
+</TABLE>
+
+<P>
+On operating systems not supporting <B>/dev/fd/</B><I>n</I> devices
+(where <I>n</I> is a file descriptor number),
+the <B>test</B> command will attempt to fake it for all tests that
+operate on files (except the <B>-e</B> test).
+I.e., <B>[ -w /dev/fd/2 ]</B> tests if file descriptor 2 is writable.
+<P>
+Note that some special rules are applied (courtesy of POSIX) if the
+number of arguments to <B>test</B> or <B>[</B> ... <B>]</B> is less than
+five: if leading <B>!</B> arguments can be stripped such that only one
+argument remains then a string length test is performed (again, even if
+the argument is a unary operator);
+if leading <B>!</B> arguments can be stripped such that three
+arguments remain and the second argument is a binary operator, then the
+binary operation is performed (even if first argument is a unary
+operator, including an unstripped <B>!</B>).
+<P>
+<B>Note:</B> A common mistake is to use <B>if [ $foo = bar ]</B> which
+fails if parameter <B>foo</B> is null or unset, if it has embedded spaces
+(<I>i.e.</I>, <B>IFS</B> characters), or if it is a unary operator like <B>!</B> or
+<B>-n</B>.  Use tests like <B>if [ &quot;X$foo&quot; = Xbar ]</B> instead.
+
+
+<DT><B>time</B> [<B>-p</B>] [ <I>pipeline</I> ]<DD>
+If a pipeline is given, the times used to execute the pipeline are reported.
+If no pipeline is given, then the user and system time used by the shell
+itself, and all the commands it has run since it was started, are reported.
+The times reported are
+the real time (elapsed time from start to finish),
+the user cpu time (time spent running in user mode)
+and the system cpu time (time spent running in kernel mode).
+Times are reported to standard error; the format of the output is:
+<PRE>
+    0.00s real     0.00s user     0.00s system
+</PRE>
+
+unless the -p option is given (only possible if <I>pipeline</I> is a simple
+command), in which case the output is slightly longer:
+<PRE>
+    real   0.00
+    user   0.00
+    sys    0.00
+</PRE>
+
+(the number of digits after the decimal may vary from system to system).
+Note that simple redirections of standard error do not effect the output
+of the time command:
+<CENTER>
+<B>time sleep 1 2&gt; </B><I>afile</I><BR>
+</CENTER>
+
+<CENTER>
+<B>{ time sleep 1; } 2&gt; </B><I>afile</I><BR>
+</CENTER>
+
+times for the first command do not go to <I>afile</I>, but those of the
+second command do.
+
+
+<DT><B>times</B><DD>
+Print the accumulated user and system times used by the shell and by
+processes which have exited that the shell started.
+
+
+<DT><B>trap</B> [<I>handler</I> <I>signal ...</I>]<DD>
+Sets trap handler that is to be executed when any of the specified signals
+are received.
+<B>Handler</B> is either a null string, indicating the signals are to
+be ignored, a minus (<B>-</B>), indicating that the default action is to
+be taken for the signals (see signal(2 or 3)), or a string containing shell
+commands to be evaluated and executed at the first opportunity (<I>i.e.</I>,
+when the current command completes, or before printing the next <B>PS1</B>
+prompt) after receipt of one of the signals.
+<B>Signal</B> is the name of a signal (<I>e.g.</I>, PIPE or ALRM) or the number
+of the signal (see <B>kill -l</B> command above).
+There are two special signals: <B>EXIT</B> (also known as <B>0</B>), which
+is executed when the shell is about to exit, and <B>ERR</B> which is
+executed after an error occurs (an error is something that would cause
+the shell to exit if the <B>-e</B> or <B>errexit</B> option were set ---
+see <B>set</B> command above).
+<B>EXIT</B> handlers are executed in the environment of the last executed
+command.
+Note that for non-interactive shells, the trap handler cannot be changed for
+signals that were ignored when the shell started.
+<P>
+With no arguments, <B>trap</B> lists, as a series of <B>trap</B> commands,
+the current state of the traps that have been set since the shell started.
+Note that the output of <B>trap</B> can not be usefully piped to another process
+(an artifact of the fact that traps are cleared when subprocesses are
+created).
+<P>
+
+The original Korn shell's <B>DEBUG</B> trap and the handling of <B>ERR</B> and
+<B>EXIT</B> traps in functions are not yet implemented.
+
+
+<DT><B>true</B><DD>
+A command that exits with a zero value.
+
+
+<DT><B>typeset</B> [[&#177;Ulprtux] [<B>-L</B>[<I>n</I>]] [<B>-R</B>[<I>n</I>]] [<B>-Z</B>[<I>n</I>]] [<B>-i</B>[<I>n</I>]] | <B>-f</B> [<B>-tux</B>]] [<I>name</I>[<B>=</B><I>value</I>] ...]<DD>
+Display or set parameter attributes.
+With no <I>name</I> arguments, parameter attributes are displayed: if no options
+arg used, the current attributes of all parameters are printed as typeset
+commands; if an option is given (or <B>-</B> with no option letter)
+all parameters and their values with the specified attributes are printed;
+if options are introduced with <B>+</B>, parameter values are not printed.
+<P>
+If <I>name</I> arguments are given, the attributes of the named parameters
+are set (<B>-</B>) or cleared (<B>+</B>).
+Values for parameters may optionally be specified.
+If typeset is used inside a function, any newly created parameters are local
+to the function.
+<P>
+When <B>-f</B> is used, typeset operates on the attributes of functions.
+As with parameters, if no <I>name</I>s are given, functions are listed
+with their values (<I>i.e.</I>, definitions) unless options are introduced with
+<B>+</B>, in which case only the function names are reported.
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B>-L<I>n</I></B></TD><TD>
+Left justify attribute: <I>n</I> specifies the field width.
+If <I>n</I> is not specified, the current width of a parameter (or the
+width of its first assigned value) is used.
+Leading white space (and zeros, if used with the <B>-Z</B> option) is stripped.
+If necessary, values are either truncated or space padded to fit the
+field width.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-R<I>n</I></B></TD><TD>
+Right justify attribute: <I>n</I> specifies the field width.
+If <I>n</I> is not specified, the current width of a parameter (or the
+width of its first assigned value) is used.
+Trailing white space are stripped.
+If necessary, values are either stripped of leading characters
+or space padded to make them fit the field width.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-Z<I>n</I></B></TD><TD>
+Zero fill attribute: if not combined with <B>-L</B>, this is the
+same as <B>-R</B>, except zero padding is used instead of space padding.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-i<I>n</I></B></TD><TD>
+integer attribute:
+<I>n</I> specifies the base to use when displaying the integer
+(if not specified, the base given in the first assignment is used).
+Parameters with this attribute may be assigned values containing
+arithmetic expressions.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-U</B></TD><TD>
+unsigned integer attribute: integers are printed as unsigned values
+(only useful when combined with the <B>-i</B> option).
+This option is not in the original Korn shell.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-f</B></TD><TD>
+Function mode: display or set functions and their attributes, instead of
+parameters.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-l</B></TD><TD>
+Lower case attribute: all  upper case characters in values are converted to
+lower case.
+(In the original Korn shell, this parameter meant `long integer' when used
+with the <B>-i</B> option).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-p</B></TD><TD>
+Print complete typeset commands that can be used to re-create the
+attributes (but not the values) of parameters.
+This is the default action (option exists for ksh93 compatability).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-r</B></TD><TD>
+Readonly attribute: parameters with the this attribute may not be assigned to
+or unset.
+Once this attribute is set, it can not be turned off.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-t</B></TD><TD>
+Tag attribute: has no meaning to the shell; provided for application use.
+<P>
+For functions, <B>-t</B> is the trace attribute.
+When functions with the trace attribute are executed, the <B>xtrace</B> (<B>-x</B>) shell option is temporarily turned on.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-u</B></TD><TD>
+Upper case attribute: all lower case characters in values are converted to
+upper case.
+(In the original Korn shell, this parameter meant `unsigned integer' when used
+with the <B>-i</B> option, which meant upper case letters would never be used
+for bases greater than 10.  See the <B>-U</B> option).
+<P>
+For functions, <B>-u</B> is the undefined attribute.  See Functions above
+for the implications of this.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>-x</B></TD><TD>
+Export attribute: parameters (or functions) are placed in the environment of
+any executed commands.  Exported functions are not implemented yet.
+<BR></TD></TR>
+</TABLE>
+
+
+
+<DT><B>ulimit</B> [<B>-acdfHlmnpsStvw</B>] [<I>value</I>]<DD>
+Display or set process limits.
+If no options are used, the file size limit (<B>-f</B>) is assumed.
+<B>value</B>, if specified, may be either be an arithmetic expression or the
+word <B>unlimited</B>.
+The limits affect the shell and any processes created by the shell after
+a limit is imposed.
+Note that some systems may not allow limits to be increased once they
+are set.
+Also note that the types of limits available are system dependent - some
+systems have only the <B>-f</B> limit.
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>-a</B><DD>
+Displays all limits; unless <B>-H</B> is used, soft limits are displayed.
+<DT><B>-H</B><DD>
+Set the hard limit only (default is to set both hard and soft limits).
+<DT><B>-S</B><DD>
+Set the soft limit only (default is to set both hard and soft limits).
+<DT><B>-c</B><DD>
+Impose a size limit of <I>n</I> blocks on the size of core dumps.
+<DT><B>-d</B><DD>
+Impose a size limit of <I>n</I> kbytes on the size of the data area.
+<DT><B>-f</B><DD>
+Impose a size limit of <I>n</I> blocks on files written by the shell and
+its child processes (files of any size may be read).
+<DT><B>-l</B><DD>
+Impose a limit of <I>n</I> kbytes on the amount of locked (wired) physical
+memory.
+<DT><B>-m</B><DD>
+Impose a limit of <I>n</I> kbytes on the amount of physical memory used.
+<DT><B>-n</B><DD>
+Impose a limit of <I>n</I> file descriptors that can be open at once.
+<DT><B>-p</B><DD>
+Impose a limit of <I>n</I> processes that can be run by the user at any one
+time.
+<DT><B>-s</B><DD>
+Impose a size limit of <I>n</I> kbytes on the size of the stack area.
+<DT><B>-t</B><DD>
+Impose a time limit of <I>n</I> cpu seconds to be used by each process.
+<DT><B>-v</B><DD>
+Impose a limit of <I>n</I> kbytes on the amount of virtual memory used;
+on some systems this is the maximum allowable virtual address (in bytes,
+not kbytes).
+<DT><B>-w</B><DD>
+Impose a limit of <I>n</I> kbytes on the amount of swap space used.
+</DL>
+<P>
+
+As far as <B>ulimit</B> is concerned, a block is 512 bytes.
+</DL>
+
+
+
+<DT><B>umask</B> [<B>-S</B>] [<I>mask</I>]<DD>
+<DL COMPACT><DT><DD>
+Display or set the file permission creation mask, or umask (see <I><A HREF="../man2/umask.2.php">umask</A></I>(2)).
+If the <B>-S</B> option is used, the mask displayed or set is symbolic,
+otherwise it is an octal number.
+<P>
+Symbolic masks are like those used by <I><A HREF="../man1/chmod.1.php">chmod</A></I>(1):
+<DL COMPACT><DT><DD>
+[<B>ugoa</B>]{{<B>=+-</B>}{<B>rwx</B>}*}+[<B>,</B>...]
+</DL>
+
+in which the first group of characters is the <I>who</I> part, the second
+group is the <I>op</I> part, and the last group is the <I>perm</I> part.
+The <I>who</I> part specifies which part of the umask is to be modified.
+The letters mean:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>u</B><DD>
+the user permissions
+<DT><B>g</B><DD>
+the group permissions
+<DT><B>o</B><DD>
+the other permissions (non-user, non-group)
+<DT><B>a</B><DD>
+all permissions (user, group and other)
+</DL>
+</DL>
+
+<P>
+The <I>op</I> part indicates how the <I>who</I> permissions are to be modified:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>=</B><DD>
+set
+<DT><B>+</B><DD>
+added to
+<DT><B>-</B><DD>
+removed from
+</DL>
+</DL>
+
+<P>
+The <I>perm</I> part specifies which permissions are to be set, added or removed:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>r</B><DD>
+read permission
+<DT><B>w</B><DD>
+write permission
+<DT><B>x</B><DD>
+execute permission
+</DL>
+</DL>
+
+<P>
+When symbolic masks are used, they describe what permissions may
+be made available (as opposed to octal masks in which a set bit means
+the corresponding bit is to be cleared).
+Example: `ug=rwx,o=' sets the mask so files will not be readable, writable
+or executable by `others', and is equivalent (on most systems) to the octal
+mask `07'.
+</DL>
+
+
+
+<DT><B>unalias</B> [<B>-adt</B>] [<I>name1</I> ...]<DD>
+The aliases for the given names are removed.
+If the <B>-a</B> option is used, all aliases are removed.
+If the <B>-t</B> or <B>-d</B> options are used, the indicated operations
+are carried out on tracked or directory aliases, respectively.
+
+
+<DT><B>unset</B> [<B>-fv</B>] <I>parameter</I> ...<DD>
+Unset the named parameters (<B>-v</B>, the default) or functions (<B>-f</B>).
+The exit status is non-zero if any of the parameters were already unset,
+zero otherwise.
+
+
+<DT><B>wait</B> [<I>job</I>]<DD>
+Wait for the specified job(s) to finish.
+The exit status of wait is that of the last specified job:
+if the last job is killed by a signal, the exit status is 128 + the
+number of the signal (see <B>kill -l</B> <I>exit-status</I> above); if the last
+specified job can't be found (because it never existed, or had already
+finished), the exit status of wait is 127.
+See Job Control below for the format of <I>job</I>.
+<B>Wait</B> will return if a signal for which a trap has been set is received,
+or if a HUP, INT or QUIT signal is received.
+<P>
+If no jobs are specified, <B>wait</B> waits for all currently running jobs
+(if any) to finish and exits with a zero status.
+If job monitoring is enabled, the completion status of jobs is
+printed (this is not the case when jobs are explicitly specified).
+
+
+<DT><B>whence</B> [<B>-pv</B>] [name ...]<DD>
+For each name, the type of command is listed (reserved word, built-in, alias,
+function, tracked alias or executable).
+If the <B>-p</B> option is used, a path search done even if <I>name</I>
+is a reserved word, alias, <I>etc.</I>
+Without the <B>-v</B> option, <B>whence</B> is similar to <B>command -v</B>
+except that <B>whence</B> will find reserved words and won't print aliases
+as alias commands;
+with the <B>-v</B> option, <B>whence</B> is the same as <B>command -V</B>.
+Note that for <B>whence</B>, the <B>-p</B> option does not affect the search
+path used, as it does for <B>command</B>.
+If the type of one or more of the names could not be determined, the
+exit status is non-zero.
+
+
+
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H3>Job Control</H3>
+
+Job control refers to the shell's ability to monitor and control <B>jobs</B>,
+which are processes or groups of processes created for commands or pipelines.
+At a minimum, the shell keeps track of the status of the background
+(<I>i.e.</I>, asynchronous) jobs that currently exist; this information can be
+displayed using the <B>jobs</B> command.
+If job control is fully enabled (using <B>set -m</B> or
+<B>set -o monitor</B>), as it is for interactive shells,
+the processes of a job are placed in their own process group,
+foreground jobs can be stopped by typing the suspend character from the
+terminal (normally ^Z),
+jobs can be restarted in either the foreground
+or background, using the <B>fg</B> and <B>bg</B> commands, respectively,
+and the state of the terminal is saved or restored when a foreground
+job is stopped or restarted, respectively.
+<P>
+Note that only commands that create processes (<I>e.g.</I>,
+asynchronous commands, subshell commands, and non-built-in,
+non-function commands) can be stopped; commands like <B>read</B> cannot be.
+<P>
+When a job is created, it is assigned a job-number.
+For interactive shells, this number is printed inside <B>[</B>..<B>]</B>,
+followed by the process-ids of the processes in the job when an asynchronous
+command is run.
+A job may be referred to in <B>bg</B>, <B>fg</B>, <B>jobs</B>, <B>kill</B> and
+<B>wait</B> commands either by the process id of the last process in the
+command pipeline (as stored in the <B>$!</B> parameter) or by prefixing the
+job-number with a percent sign (<B>%</B>).
+Other percent sequences can also be used to refer to jobs:
+<P>
+<TABLE>
+<TR VALIGN=top><TD><B>%+</B></TD><TD>
+The most recently stopped job, or, if there are no stopped jobs, the oldest
+running job.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>%%, %</B></TD><TD>
+Same as <B>%+</B>.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>%-</B></TD><TD>
+The job that would be the <B>%+</B> job, if the later did not exist.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>%<I>n</I></B></TD><TD>
+The job with job-number <I>n</I>.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>%?<I>string</I></B></TD><TD>
+The job containing the string <I>string</I> (an error occurs if multiple jobs
+are matched).
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>%<I>string</I></B></TD><TD>
+The job starting with string <I>string</I> (an error occurs if multiple jobs
+are matched).
+<BR></TD></TR>
+</TABLE>
+
+<P>
+When a job changes state (<I>e.g.</I>, a background job finishes or foreground
+job is stopped), the shell prints the following status information:
+<DL COMPACT><DT><DD>
+<B>[</B><I>number</I><B>]</B> <I>flag status command</I>
+</DL>
+
+where
+<DL COMPACT>
+<DT>&nbsp;<I>number</I><DD>
+is the job-number of the job.
+<DT>&nbsp;<I>flag</I><DD>
+is <B>+</B> or <B>-</B> if the job is the <B>%+</B> or <B>%-</B> job,
+respectively, or space if it is neither.
+<DT>&nbsp;<I>status</I><DD>
+indicates the current state of the job and can be
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>Running</B><DD>
+the job has neither stopped or exited (note that running does not
+necessarily mean consuming CPU time --- the process could be blocked waiting
+for some event).
+<DT><B>Done</B> [<B>(</B><I>number</I><B>)</B>]<DD>
+the job exited. <I>number</I> is the exit status of the job, which is
+omitted if the status is zero.
+<DT><B>Stopped</B> [<B>(</B><I>signal</I><B>)</B>]<DD>
+the job was stopped by the indicated <I>signal</I> (if no signal is given,
+the job was stopped by SIGTSTP).
+<DT><I>signal-description</I> [<B>(core dumped)</B>]<DD>
+the job was killed by a signal (<I>e.g.</I>, Memory&nbsp;fault,
+Hangup, <I>etc.</I> --- use
+<B>kill -l</B> for a list of signal descriptions).
+The <B>(core&nbsp;dumped)</B> message indicates the process created a core file.
+</DL>
+</DL>
+
+<DT>&nbsp;<I>command</I><DD>
+is the command that created the process.
+If there are multiple processes in the job, then each process will
+have a line showing its <I>command</I> and possibly its <I>status</I>,
+if it is different from the status of the previous process.
+</DL>
+<P>
+
+When an attempt is made to exit the shell while there are jobs in
+the stopped state, the shell warns the user that there are stopped jobs
+and does not exit.
+If another attempt is immediately made to exit the shell, the stopped
+jobs are sent a <B>HUP</B> signal and the shell exits.
+Similarly, if the <B>nohup</B> option is not set and there are running
+jobs when an attempt is made to exit a login shell, the shell warns the
+user and does not exit.
+If another attempt is immediately made to exit the shell, the running
+jobs are sent a <B>HUP</B> signal and the shell exits.
+
+
+
+<A NAME="lbAU">&nbsp;</A>
+<H3>Interactive Input Line Editing</H3>
+
+The shell supports three modes of reading command lines from a tty
+in an interactive session.
+Which is used is controlled by the <B>emacs</B>, <B>gmacs</B> and <B>vi</B> 
+<B>set</B> options (at most one of these can be set at once).
+If none of these options is enabled, the shell simply reads lines
+using the normal tty driver.
+If the <B>emacs</B> or <B>gmacs</B> option is set, the shell allows
+emacs like editing of the command; similarly, if the <B>vi</B> option
+is set, the shell allows vi like editing of the command.
+These modes are described in detail in the following sections.
+
+
+<P>
+
+In these editing modes, if a line is longer that the screen width
+(see <B>COLUMNS</B> parameter),
+a <B>&gt;</B>, <B>+</B> or <B>&lt;</B> character is displayed in the last column
+indicating that there are more characters after, before and after, or
+before the current position, respectively.
+The line is scrolled horizontally as necessary.
+
+
+<A NAME="lbAV">&nbsp;</A>
+<H3>Emacs Editing Mode</H3>
+
+When the <B>emacs</B> option is set, interactive input line editing is
+enabled.  <B>Warning</B>: This mode is slightly different from the emacs
+mode in the original Korn shell and the 8th bit is stripped in emacs mode.
+In this mode various editing commands (typically bound to one or more
+control characters) cause immediate actions without waiting for a
+new-line.  Several editing commands are bound to particular control
+characters when the shell is invoked; these bindings can be changed
+using the following commands:
+
+<DL COMPACT>
+<DT><B>bind</B><DD>
+The current bindings are listed.
+
+
+<DT><B>bind</B> <I>string</I><B>=</B>[<I>editing-command</I>]<DD>
+The specified editing command is bound to the given <B>string</B>, which
+should consist of a control character (which may be written using caret
+notation <B>^</B><I>X</I>), optionally preceded by one of the two prefix
+characters.  Future input of the <I>string</I> will cause the editing
+command to be immediately invoked.  Note that although only two prefix
+characters (usually ESC and ^X) are supported, some multi-character
+sequences can be supported.  The following binds the arrow keys on
+an ANSI terminal, or xterm (these are in the default bindings).  Of course
+some escape sequences won't work out quite this nicely:
+<P>
+<DL COMPACT><DT><DD>
+<B>bind '^[['=prefix-2
+<BR>
+
+bind '^XA'=up-history
+<BR>
+
+bind '^XB'=down-history
+<BR>
+
+bind '^XC'=forward-char
+<BR>
+
+bind '^XD'=backward-char</B>
+</DL>
+
+
+
+<DT><B>bind -l</B><DD>
+Lists the names of the functions to which keys may be bound.
+
+
+<DT><B>bind -m</B> <I>string</I><B>=</B>[<I>substitute</I>]<DD>
+The specified input <I>string</I> will afterwards be immediately
+replaced by the given <I>substitute</I> string, which may contain
+editing commands.
+
+</DL>
+<P>
+
+The following is a list of editing commands available.
+Each description starts with the name of the command,
+a <I>n</I>, if the command can be prefixed with a count,
+and any keys the command is bound to by default (written using
+caret notation, <I>e.g.</I>, ASCII ESC character is written as ^[).
+A count prefix for a command is entered using the sequence
+<B>^[</B><I>n</I>, where <I>n</I> is a sequence of 1 or more digits;
+unless otherwise specified, if a count is omitted, it defaults to 1.
+Note that editing command names are
+used only with the <B>bind</B> command.  Furthermore, many editing
+commands are useful only on terminals with a visible cursor.  The
+default bindings were chosen to resemble corresponding EMACS key
+bindings.  The users tty characters (<I>e.g.</I>, ERASE) are bound to
+reasonable substitutes and override the default bindings.
+
+<DL COMPACT>
+<DT><B>abort ^G</B><DD>
+Useful as a response to a request for a <B>search-history</B> pattern in
+order to abort the search.
+
+
+<DT><B>auto-insert</B> <I>n</I><DD>
+Simply causes the character to appear as literal input.  Most ordinary
+characters are bound to this.
+
+
+<DT><B>backward-char</B>  <I>n</I> <B>^B</B><DD>
+Moves the cursor backward <I>n</I> characters.
+
+
+<DT><B>backward-word</B>  <I>n</I> <B>^[B</B><DD>
+Moves the cursor backward to the beginning of a word; words consist
+of alphanumerics, underscore (_) and dollar ($).
+
+
+<DT><B>beginning-of-history ^[&lt;</B><DD>
+Moves to the beginning of the history.
+
+
+<DT><B>beginning-of-line ^A</B><DD>
+Moves the cursor to the beginning of the edited input line.
+
+
+<DT><B>capitalize-word</B> <I>n</I> <B>^[c</B>, <B>^[C</B><DD>
+Uppercase the first character in the next <I>n</I> words,
+leaving the cursor past the end of the last word.
+
+
+If the current line does not begin with a comment character, one
+is added at the beginning of the line and the line is entered (as if
+return had been pressed), otherwise the existing comment characters
+are removed and the cursor is placed at the beginning of the line.
+
+
+<DT><B>complete ^[^[</B><DD>
+Automatically completes as much as is unique of the command name
+or the file name containing the cursor.  If the entire remaining command
+or file name is unique a space is printed after its completion, unless
+it is a directory name in which case <B>/</B> is appended.  If there is
+no command or file name with the current partial word as its
+prefix, a bell character is output (usually causing a audio beep).
+
+
+<DT><B>complete-command ^X^[</B><DD>
+Automatically completes as much as is unique of the command name
+having the partial word up to the cursor as its prefix, as in the
+<B>complete</B> command described above.
+
+
+<DT><B>complete-file ^[^X</B><DD>
+Automatically completes as much as is unique of the file name having
+the partial word up to the cursor as its prefix, as in the
+<B>complete</B> command described above.
+
+
+<DT><B>complete-list ^[=</B><DD>
+List the possible completions for the current word.
+
+
+<DT><B>delete-char-backward</B> <I>n</I> <B>ERASE</B>, <B>^?</B>, <B>^H</B><DD>
+Deletes <I>n</I> characters before the cursor.
+
+
+<DT><B>delete-char-forward</B> <I>n</I><DD>
+Deletes <I>n</I> characters after the cursor.
+
+
+<DT><B>delete-word-backward</B> <I>n</I> <B>^[ERASE</B>, <B>^[^?</B>, <B>^[^H</B>, <B>^[h</B><DD>
+Deletes <I>n</I> words before the cursor.
+
+
+<DT><B>delete-word-forward</B> <I>n</I> <B>^[d</B><DD>
+Deletes characters after the cursor up to the end of <I>n</I> words.
+
+
+<DT><B>down-history</B> <I>n</I> <B>^N</B><DD>
+Scrolls the history buffer forward <I>n</I> lines (later).  Each input line
+originally starts just after the last entry in the history buffer, so
+<B>down-history</B> is not useful until either <B>search-history</B> or
+<B>up-history</B> has been performed.
+
+
+<DT><B>downcase-word</B> <I>n</I> <B>^[L</B>, <B>^[l</B><DD>
+Lowercases the next <I>n</I> words.
+
+
+<DT><B>end-of-history ^[&gt;</B><DD>
+Moves to the end of the history.
+
+
+<DT><B>end-of-line ^E</B><DD>
+Moves the cursor to the end of the input line.
+
+
+<DT><B>eot ^_</B><DD>
+Acts as an end-of-file; this is useful because edit-mode input disables
+normal terminal input canonicalization.
+
+
+<DT><B>eot-or-delete</B> <I>n</I> <B>^D</B><DD>
+Acts as eot if alone on a line; otherwise acts as delete-char-forward.
+
+
+<DT><B>error</B><DD>
+Error (ring the bell).
+
+
+<DT><B>exchange-point-and-mark ^X^X</B><DD>
+Places the cursor where the mark is, and sets the mark to where the
+cursor was.
+
+
+<DT><B>expand-file ^[*</B><DD>
+Appends a * to the current word and replaces the word with
+the result of performing file globbing on the word.
+If no files match the pattern, the bell is rung.
+
+
+<DT><B>forward-char</B> <I>n</I> <B>^F</B><DD>
+Moves the cursor forward <I>n</I> characters.
+
+
+<DT><B>forward-word</B> <I>n</I> <B>^[f</B><DD>
+Moves the cursor forward to the end of the <I>n</I>th word.
+
+
+<DT><B>goto-history</B> <I>n</I> <B>^[g</B><DD>
+Goes to history number <I>n</I>.
+
+
+<DT><B>kill-line KILL</B><DD>
+Deletes the entire input line.
+
+
+<DT><B>kill-region ^W</B><DD>
+Deletes the input between the cursor and the mark.
+
+
+<DT><B>kill-to-eol</B> <I>n</I> <B>^K</B><DD>
+Deletes the input from the cursor to the end of the line if <I>n</I> is
+not specified, otherwise deletes characters between the cursor and
+column <I>n</I>.
+
+
+<DT><B>list ^[?</B><DD>
+Prints a sorted, columnated list of command names or file names
+(if any) that can complete the partial word containing the cursor.
+Directory names have <B>/</B> appended to them.
+
+
+<DT><B>list-command ^X?</B><DD>
+Prints a sorted, columnated list of command names (if any) that
+can complete the partial word containing the cursor.
+
+
+<DT><B>list-file ^X^Y</B><DD>
+Prints a sorted, columnated list of file names (if any) that can
+complete the partial word containing the cursor.  File type indicators
+are appended as described under <B>list</B> above.
+
+
+<DT><B>newline ^J</B>, <B>^M</B><DD>
+Causes the current input line to be processed by the shell.  The
+current cursor position may be anywhere on the line.
+
+
+<DT><B>newline-and-next ^O</B><DD>
+Causes the current input line to be processed by the shell, and
+the next line from history becomes the current line.  This is
+only useful after an up-history or search-history.
+
+
+<DT><B>no-op QUIT</B><DD>
+This does nothing.
+
+
+<DT><B>prefix-1 ^[</B><DD>
+Introduces a 2-character command sequence.
+
+
+<DT><B>prefix-2 ^X</B><DD>
+<DT><B>prefix-2 ^[[</B><DD>
+Introduces a 2-character command sequence.
+
+
+<DT><B>prev-hist-word</B> <I>n</I> <B>^[.</B>, <B>^[_</B><DD>
+The last (<I>n</I>th) word of the previous command is inserted at the cursor.
+
+
+<DT><B>quote ^^</B><DD>
+The following character is taken literally rather than as an editing
+command.
+
+
+<DT><B>redraw ^L</B><DD>
+Reprints the prompt string and the current input line.
+
+
+<DT><B>search-character-backward</B> <I>n</I> <B>^[^]</B><DD>
+Search backward in the current line for the <I>n</I>th occurance of the
+next character typed.
+
+
+<DT><B>search-character-forward</B> <I>n</I> <B>^]</B><DD>
+Search forward in the current line for the <I>n</I>th occurance of the
+next character typed.
+
+
+<DT><B>search-history ^R</B><DD>
+Enter incremental search mode.  The internal history list is searched
+backwards for commands matching the input.  An initial <B>^</B> in the
+search string anchors the search.  The abort key will leave search mode.
+Other commands will be executed after leaving search mode.  Successive
+<B>search-history</B> commands continue searching backward to the next
+previous occurrence of the pattern.  The history buffer retains only a
+finite number of lines; the oldest are discarded as necessary.
+
+
+<DT><B>set-mark-command ^[</B>&lt;space&gt;<DD>
+Set the mark at the cursor position.
+
+
+<DT><B>stuff</B><DD>
+On systems supporting it, pushes the bound character back onto the
+terminal input where it may receive special processing by the terminal
+handler.  This is useful for the BRL <B>^T</B> mini-systat feature, for
+example.
+
+
+<DT><B>stuff-reset</B><DD>
+Acts like <B>stuff</B>, then aborts input the same as an interrupt.
+
+
+<DT><B>transpose-chars ^T</B><DD>
+If at the end of line, or if the <B>gmacs</B> option is set, 
+this exchanges the two previous characters; otherwise, it
+exchanges the previous and current characters and moves the cursor
+one character to the right.
+
+
+<DT><B>up-history</B> <I>n</I> <B>^P</B><DD>
+Scrolls the history buffer backward <I>n</I> lines (earlier).
+
+
+<DT><B>upcase-word</B> <I>n</I> <B>^[U</B>, <B>^[u</B><DD>
+Uppercases the next <I>n</I> words.
+
+
+<DT><B>version ^V</B><DD>
+Display the version of ksh.  The current edit buffer is restored as soon
+as any key is pressed (the key is then processed, unless it is a space).
+
+
+<DT><B>yank ^Y</B><DD>
+Inserts the most recently killed text string at the current cursor position.
+
+
+<DT><B>yank-pop ^[y</B><DD>
+Immediately after a <B>yank</B>, replaces the inserted text string with
+the next previous killed text string.
+
+
+
+
+</DL>
+<A NAME="lbAW">&nbsp;</A>
+<H3>Vi Editing Mode</H3>
+
+The vi command line editor in ksh has basically the same commands as the
+vi editor (see <I><A HREF="../man1/vi.1.php">vi</A></I>(1)), with the following exceptions:
+
+<DL COMPACT>
+<DT>&nbsp;&nbsp;*<DD>
+you start out in insert mode,
+<DT>&nbsp;&nbsp;*<DD>
+there are file name and command completion commands
+(<B>=</B>, <B>\</B>, <B>*</B>, <B>^X</B>, <B>^E</B>, <B>^F</B> and,
+optionally, <B>&lt;tab&gt;</B>),
+<DT>&nbsp;&nbsp;*<DD>
+the <B>_</B> command is different (in ksh it is the last argument command,
+in vi it goes to the start of the current line),
+<DT>&nbsp;&nbsp;*<DD>
+the <B>/</B> and <B>G</B> commands move in the opposite direction as the <B>j</B>
+command
+<DT>&nbsp;&nbsp;*<DD>
+and commands which don't make sense in a single line editor are not available
+(<I>e.g.</I>, screen movement commands, ex <B>:</B> commands, <I>etc.</I>).
+
+</DL>
+<P>
+
+Note that the <B>^X</B> stands for control-X; also <B>&lt;esc&gt;</B>, <B>&lt;space&gt;</B>
+and <B>&lt;tab&gt;</B> are used for escape, space and tab, respectively (no kidding).
+
+
+<P>
+
+Like vi, there are two modes: insert mode and command mode.
+In insert mode, most characters are simply put in the buffer at the
+current cursor position as they are typed, however, some characters
+are treated specially.
+In particular, the following characters are taken from current tty settings
+(see <I><A HREF="../man1/stty.1.php">stty</A></I>(1)) and have their usual meaning (normal values are in
+parentheses):
+kill (<B>^U</B>), erase (<B>^?</B>), werase (<B>^W</B>), eof (<B>^D</B>),
+intr (<B>^C</B>) and quit (<B>^\</B>).
+In addition to the above, the following characters are also treated
+specially in insert mode:
+<TABLE>
+<TR VALIGN=top><TD><B>^H</B></TD><TD>
+erases previous character
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>^V</B></TD><TD>
+literal next: the next character typed is not treated specially (can be
+used to insert the characters being described here)
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>^J ^M</B></TD><TD>
+end of line: the current line is read, parsed and executed by the shell
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&lt;esc&gt;</B></TD><TD>
+puts the editor in command mode (see below)
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>^E</B></TD><TD>
+command and file name enumeration (see below)
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>^F</B></TD><TD>
+command and file name completion (see below).
+If used twice in a row, the list of possible completions is displayed;
+if used a third time, the completion is undone.
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>^X</B></TD><TD>
+command and file name expansion (see below)
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>&lt;tab&gt;</B></TD><TD>
+optional file name and command completion (see <B>^F</B> above), enabled with
+<B>set -o vi-tabcomplete</B>
+<BR></TD></TR>
+</TABLE>
+
+
+
+<P>
+
+In command mode, each character is interpreted as a command.
+Characters that don't correspond to commands, are illegal combinations of
+commands or are commands that can't be carried out all cause beeps.
+In the following command descriptions, a <I>n</I> indicates the
+command may be prefixed by a number (<I>e.g.</I>, <B>10l</B> moves right 10
+characters); if no number prefix is used, <I>n</I> is assumed to be 1
+unless otherwise specified.
+The term `current position' refers to the position between the cursor
+and the character preceding the cursor.
+A `word' is a sequence of letters, digits and underscore characters or a
+sequence of non-letter, non-digit, non-underscore, non-white-space characters
+(<I>e.g.</I>, ab2*&amp;^ contains two words) and a `big-word' is a sequence of
+non-white-space characters.
+
+<DL COMPACT>
+<DT>Special ksh vi commands<DD>
+The following commands are not in, or are different from, the normal vi file
+editor:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>n</I><B>_</B><DD>
+insert a space followed by the <I>n</I>th big-word from the last command in the
+history at the current position and enter insert mode; if <I>n</I> is not
+specified, the last word is inserted.
+<DT><B>#</B><DD>
+insert the comment character (<B>#</B>) at the start of the current line and
+return the line to the shell (equivalent to <B>I#^J</B>).
+<DT><I>n</I><B>g</B><DD>
+like <B>G</B>, except if <I>n</I> is not specified, it goes to the most recent 
+remembered line.
+<DT><I>n</I><B>v</B><DD>
+edit line <I>n</I> using the vi editor; 
+if <I>n</I> is not specified, the current line is edited.
+The actual command executed is
+`<B>fc -e ${VISUAL:-${EDITOR:-vi}}</B> <I>n</I>'.
+<DT><B>*</B> and <B>^X</B><DD>
+command or file name expansion is applied to the current big-word
+(with an appended *, if the word contains no file globing characters) - the
+big-word is replaced with the resulting words.
+If the current big-word is the first on the line (or follows one
+of the following characters: <B>;</B>, <B>|</B>, <B>&amp;</B>, <B>(</B>, <B>)</B>)
+and does not contain a slash (<B>/</B>) then command expansion is done,
+otherwise file name expansion is done.
+Command expansion will match the big-word against all aliases, functions
+and built-in commands as well as any executable files found by searching
+the directories in the <B>PATH</B> parameter.
+File name expansion matches the big-word against the files in the
+current directory.
+After expansion, the cursor is placed just past the last word and the editor
+is in insert mode.
+<DT><I>n</I><B>\</B>, <I>n</I><B>^F</B>, <I>n</I><B>&lt;tab&gt;</B> and <I>n</I><B>&lt;esc&gt;</B><DD>
+command/file name completion: 
+replace the current big-word with the longest unique
+match obtained after performing command/file name expansion.
+<B>&lt;tab&gt;</B> is only recognized if the <B>vi-tabcomplete</B> option is set,
+while <B>&lt;esc&gt;</B> is only recognized if the <B>vi-esccomplete</B> option
+is set (see <B>set -o</B>).
+If <I>n</I> is specified, the <I>n</I>th possible
+completion is selected (as reported by the command/file name enumeration
+command).
+<DT><B>=</B> and <B>^E</B><DD>
+command/file name enumeration: list all the commands or files that match
+the current big-word.
+<DT><B>^V</B><DD>
+display the version of pdksh; it is displayed until another key is pressed
+(this key is ignored).
+<DT><B>@</B><I>c</I><DD>
+macro expansion: execute the commands found in the alias _<I>c</I>.
+</DL>
+</DL>
+
+
+
+<DT>Intra-line movement commands<DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>n</I><B>h</B> and <I>n</I><B>^H</B><DD>
+move left <I>n</I> characters.
+<DT><I>n</I><B>l</B> and <I>n</I><B>&lt;space&gt;</B><DD>
+move right <I>n</I> characters.
+<DT><B>0</B><DD>
+move to column 0.
+<DT><B>^</B><DD>
+move to the first non white-space character.
+<DT><I>n</I><B>|</B><DD>
+move to column <I>n</I>.
+<DT><B>$</B><DD>
+move to the last character.
+<DT><I>n</I><B>b</B><DD>
+move back <I>n</I> words.
+<DT><I>n</I><B>B</B><DD>
+move back <I>n</I> big-words.
+<DT><I>n</I><B>e</B><DD>
+move forward to the end the word, <I>n</I> times.
+<DT><I>n</I><B>E</B><DD>
+move forward to the end the big-word, <I>n</I> times.
+<DT><I>n</I><B>w</B><DD>
+move forward <I>n</I> words.
+<DT><I>n</I><B>W</B><DD>
+move forward <I>n</I> big-words.
+<DT><B>%</B><DD>
+find match: the editor looks forward for the nearest parenthesis,
+bracket or brace and then moves the to the matching parenthesis, bracket or
+brace.
+<DT><I>n</I><B>f</B><I>c</I><DD>
+move forward to the <I>n</I>th occurrence of the character <I>c</I>.
+<DT><I>n</I><B>F</B><I>c</I><DD>
+move backward to the <I>n</I>th occurrence of the character <I>c</I>.
+<DT><I>n</I><B>t</B><I>c</I><DD>
+move forward to just before the <I>n</I>th occurrence of the character <I>c</I>.
+<DT><I>n</I><B>T</B><I>c</I><DD>
+move backward to just before the <I>n</I>th occurrence of the character <I>c</I>.
+<DT><I>n</I><B>;</B><DD>
+repeats the last <B>f</B>, <B>F</B>, <B>t</B> or <B>T</B> command.
+<DT><I>n</I><B>,</B><DD>
+repeats the last <B>f</B>, <B>F</B>, <B>t</B> or <B>T</B> command, but moves
+in the opposite direction.
+</DL>
+</DL>
+
+
+
+<DT>Inter-line movement commands<DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>n</I><B>j</B> and <I>n</I><B>+</B> and <I>n</I><B>^N</B><DD>
+move to the <I>n</I>th next line in the history.
+<DT><I>n</I><B>k</B> and <I>n</I><B>-</B> and <I>n</I><B>^P</B><DD>
+move to the <I>n</I>th previous line in the history.
+<DT><I>n</I><B>G</B><DD>
+move to line <I>n</I> in the history; if <I>n</I> is not specified, the
+number first remembered line is used.
+<DT><I>n</I><B>g</B><DD>
+like <B>G</B>, except if <I>n</I> is not specified, it goes to the most recent 
+remembered line.
+<DT><I>n</I><B>/</B><I>string</I><DD>
+search backward through the history for the <I>n</I>th line containing
+<I>string</I>; if <I>string</I> starts with <B>^</B>, the remainder of the
+string must appear at the start of the history line for it to match.
+<DT><I>n</I><B>?</B><I>string</I><DD>
+same as <B>/</B>, except it searches forward through the history.
+<DT><I>n</I><B>n</B><DD>
+search for the <I>n</I>th occurrence of the last search string; the
+direction of the search is the same as the last search.
+<DT><I>n</I><B>N</B><DD>
+search for the <I>n</I>th occurrence of the last search string; the
+direction of the search is the opposite of the last search.
+</DL>
+</DL>
+
+
+
+<DT>Edit commands<DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>n</I><B>a</B><DD>
+append text <I>n</I> times: goes into insert mode just after the current
+position.
+The append is only replicated if command mode is re-entered (<I>i.e.</I>,
+&lt;esc&gt; is used).
+<DT><I>n</I><B>A</B><DD>
+same as <B>a</B>, except it appends at the end of the line.
+<DT><I>n</I><B>i</B><DD>
+insert text <I>n</I> times: goes into insert mode at the current
+position.
+The insertion is only replicated if command mode is re-entered (<I>i.e.</I>,
+&lt;esc&gt; is used).
+<DT><I>n</I><B>I</B><DD>
+same as <B>i</B>, except the insertion is done just before the first non-blank
+character.
+<DT><I>n</I><B>s</B><DD>
+substitute the next <I>n</I> characters (<I>i.e.</I>, delete the characters
+and go into insert mode).
+<DT><B>S</B><DD>
+substitute whole line: all characters from the first non-blank character
+to the end of line are deleted and insert mode is entered.
+<DT><I>n</I><B>c</B><I>move-cmd</I><DD>
+change from the current position to the position resulting from <I>n</I>
+<I>move-cmd</I>s (<I>i.e.</I>, delete the indicated region and go into insert
+mode);
+if <I>move-cmd</I> is <B>c</B>, the line starting from the first non-blank
+character is changed.
+<DT><B>C</B><DD>
+change from the current position to the end of the line (<I>i.e.</I>, delete to
+the end of the line and go into insert mode).
+<DT><I>n</I><B>x</B><DD>
+delete the next <I>n</I> characters.
+<DT><I>n</I><B>X</B><DD>
+delete the previous <I>n</I> characters.
+<DT><B>D</B><DD>
+delete to the end of the line.
+<DT><I>n</I><B>d</B><I>move-cmd</I><DD>
+delete from the current position to the position resulting from
+<I>n</I> <I>move-cmd</I>s;
+<I>move-cmd</I> is a movement command (see above) or <B>d</B>, in which case
+the current line is deleted.
+<DT><I>n</I><B>r</B><I>c</I><DD>
+replace the next <I>n</I> characters with the character <I>c</I>.
+<DT><I>n</I><B>R</B><DD>
+replace: enter insert mode but overwrite existing characters instead of
+inserting before existing characters.  The replacement is repeated <I>n</I>
+times.
+<DT><I>n</I><B>~</B><DD>
+change the case of the next <I>n</I> characters.
+<DT><I>n</I><B>y</B><I>move-cmd</I><DD>
+yank from the current position to the position resulting from <I>n</I>
+<I>move-cmd</I>s into the yank buffer; if <I>move-cmd</I> is <B>y</B>, the
+whole line is yanked.
+<DT><B>Y</B><DD>
+yank from the current position to the end of the line.
+<DT><I>n</I><B>p</B><DD>
+paste the contents of the yank buffer just after the current position,
+<I>n</I> times.
+<DT><I>n</I><B>P</B><DD>
+same as <B>p</B>, except the buffer is pasted at the current position.
+</DL>
+</DL>
+
+
+
+<DT>Miscellaneous vi commands<DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>^J</B> and <B>^M</B><DD>
+the current line is read, parsed and executed by the shell.
+<DT><B>^L</B> and <B>^R</B><DD>
+redraw the current line.
+<DT><I>n</I><B>.</B><DD>
+redo the last edit command <I>n</I> times.
+<DT><B>u</B><DD>
+undo the last edit command.
+<DT><B>U</B><DD>
+undo all changes that have been made to the current line.
+<DT><I>intr</I> and <I>quit</I><DD>
+the interrupt and quit terminal characters cause the current line to
+be deleted and a new prompt to be printed.
+</DL>
+</DL>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</DL>
+<A NAME="lbAX">&nbsp;</A>
+<H2>FILES</H2>
+
+~/.profile
+<BR>
+
+/etc/profile
+<BR>
+
+/etc/suid_profile
+
+
+<A NAME="lbAY">&nbsp;</A>
+<H2>BUGS</H2>
+
+Any bugs in pdksh should be reported to <A HREF="mailto:pdksh@cs.mun.ca">pdksh@cs.mun.ca</A>.  Please
+include the version of pdksh (echo $KSH_VERSION shows it), the machine,
+operating system and compiler you are using and a description of how to
+repeat the bug (a small shell script that demonstrates the bug is
+best).  The following, if relevant (if you are not sure, include them),
+can also helpful: options you are using (both options.h options and set
+-o options) and a copy of your config.h (the file generated by the
+configure script).  New versions of pdksh can be obtained from
+<A HREF="ftp://ftp.cs.mun.ca/pub/pdksh/.">ftp://ftp.cs.mun.ca/pub/pdksh/.</A>
+<P>
+
+BTW, the most frequently reported bug is
+<DL COMPACT><DT><DD>
+<B> echo hi | read a; echo $a</B>&nbsp;&nbsp;&nbsp;# Does not print hi
+</DL>
+
+I'm aware of this and there is no need to report it.
+
+
+<A NAME="lbAZ">&nbsp;</A>
+<H2>VERSION</H2>
+
+This page documents version
+<CENTER>
+of the public domain korn shell.<BR>
+</CENTER>
+
+
+
+<A NAME="lbBA">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+This shell is based on the public domain 7th edition Bourne shell clone by
+Charles Forsyth and parts of the BRL shell by Doug A. Gwyn, Doug Kingston,
+Ron Natalie, Arnold Robbins, Lou Salkind and others.  The first release
+of pdksh was created by Eric Gisin, and it was subsequently maintained by
+John R. MacMillan (chance!<A HREF="mailto:john@sq.sq.com">john@sq.sq.com</A>), and
+Simon J. Gerraty (<A HREF="mailto:sjg@zen.void.oz.au">sjg@zen.void.oz.au</A>).  The current maintainer is
+Michael Rendell (<A HREF="mailto:michael@cs.mun.ca">michael@cs.mun.ca</A>).
+The CONTRIBUTORS file in the source distribution contains a more complete
+list of people and their part in the shell's development.
+
+
+<A NAME="lbBB">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/awk.1.php">awk</A>(1), 
+<A HREF="../man1/sh.1.php">sh</A>(1),
+<A HREF="../man1/csh.1.php">csh</A>(1), <A HREF="../man1/ed.1.php">ed</A>(1), <A HREF="../man1/getconf.1.php">getconf</A>(1), <A HREF="../man1/getopt.1.php">getopt</A>(1), <A HREF="../man1/sed.1.php">sed</A>(1), <A HREF="../man1/stty.1.php">stty</A>(1), <A HREF="../man1/vi.1.php">vi</A>(1),
+<A HREF="../man2/dup.2.php">dup</A>(2), <A HREF="../man2/execve.2.php">execve</A>(2), <A HREF="../man2/getgid.2.php">getgid</A>(2), <A HREF="../man2/getuid.2.php">getuid</A>(2), <A HREF="../man2/open.2.php">open</A>(2), <A HREF="../man2/pipe.2.php">pipe</A>(2), <A HREF="../man2/wait.2.php">wait</A>(2),
+<A HREF="../man3/getopt.3.php">getopt</A>(3), <A HREF="../man3/rand.3.php">rand</A>(3), <A HREF="../man3/signal.3.php">signal</A>(3), <A HREF="../man3/system.3.php">system</A>(3),
+<A HREF="../man5/environ.5.php">environ</A>(5)
+<P>
+
+<I>The KornShell Command and Programming Language</I>,
+
+Morris Bolsky and David Korn, 1989, ISBN 0-13-516972-0.
+<P>
+
+
+<I>UNIX Shell Programming</I>,
+
+Stephen G. Kochan, Patrick H. Wood, Hayden.
+<P>
+
+<I>IEEE Standard for information Technology - Portable Operating System Interface (POSIX) - Part 2: Shell and Utilities</I>,
+
+IEEE Inc, 1993, ISBN 1-55937-255-9.
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Shell Startup</A><DD>
+<DT><A HREF="#lbAF">Command Syntax</A><DD>
+<DT><A HREF="#lbAG">Quoting</A><DD>
+<DT><A HREF="#lbAH">Aliases</A><DD>
+<DT><A HREF="#lbAI">Substitution</A><DD>
+<DT><A HREF="#lbAJ">Parameters</A><DD>
+<DT><A HREF="#lbAK">Tilde Expansion</A><DD>
+<DT><A HREF="#lbAL">Brace Expansion (alternation)</A><DD>
+<DT><A HREF="#lbAM">File Name Patterns</A><DD>
+<DT><A HREF="#lbAN">Input/Output Redirection</A><DD>
+<DT><A HREF="#lbAO">Arithmetic Expressions</A><DD>
+<DT><A HREF="#lbAP">Co-Processes</A><DD>
+<DT><A HREF="#lbAQ">Functions</A><DD>
+<DT><A HREF="#lbAR">POSIX Mode</A><DD>
+<DT><A HREF="#lbAS">Command Execution</A><DD>
+<DT><A HREF="#lbAT">Job Control</A><DD>
+<DT><A HREF="#lbAU">Interactive Input Line Editing</A><DD>
+<DT><A HREF="#lbAV">Emacs Editing Mode</A><DD>
+<DT><A HREF="#lbAW">Vi Editing Mode</A><DD>
+</DL>
+<DT><A HREF="#lbAX">FILES</A><DD>
+<DT><A HREF="#lbAY">BUGS</A><DD>
+<DT><A HREF="#lbAZ">VERSION</A><DD>
+<DT><A HREF="#lbBA">AUTHORS</A><DD>
+<DT><A HREF="#lbBB">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

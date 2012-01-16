@@ -1,0 +1,173 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SESSREG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SESSREG</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+sessreg - manage utmp/wtmp entries for non-init clients
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>sessreg</B>
+
+[-w <I>wtmp-file</I>]
+[-u <I>utmp-file</I>]
+[-l <I>line-name</I>]
+[-h <I>host-name</I>]
+[-s <I>slot-number</I>]
+[-x <I>Xservers-file</I>]
+[-t <I>ttys-file</I>]
+[-a]
+[-d]
+<I>user-name</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<I>Sessreg</I> is a simple program for managing utmp/wtmp
+entries for xdm sessions.
+<P>
+
+System V has a better interface to /etc/utmp than BSD; it
+dynamically allocates entries in the file, instead of writing them at fixed
+positions indexed by position in /etc/ttys.
+<P>
+
+To manage BSD-style utmp files, <I>sessreg</I> has two strategies.  In
+conjunction with xdm, the -x option counts the number of lines in /etc/ttys
+and then adds to that the number of the line in the Xservers file which
+specifies the display.  The display name must be specified as the
+&quot;line-name&quot; using the -l option.  This sum is used as the &quot;slot-number&quot; in
+/etc/utmp that this entry will be written at.  In the more general case, the
+-s option specifies the slot-number directly.  If for some strange reason
+your system uses a file other that /etc/ttys to manage init, the -t option
+can direct
+<I>sessreg</I> to look elsewhere for a count of terminal sessions.
+<P>
+
+Conversely, System V managers will not ever need to use these options (-x,
+-s and -t).  To make the program easier to document and explain,
+<I>sessreg</I> accepts the BSD-specific flags in the System V
+environment and ignores them.
+<P>
+
+BSD and Linux also have a host-name field in the utmp file which doesn't
+exist in System V.  This option is also ignored by the System V version of
+<I>sessreg</I>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>USAGE</H2>
+
+<P>
+
+In Xstartup, place a call like:
+<PRE>
+
+       sessreg -a -l $DISPLAY -x /usr/X11R6/lib/xdm/Xservers $USER
+
+</PRE>
+
+and in Xreset:
+<PRE>
+
+       sessreg -d -l $DISPLAY -x /usr/X11R6/lib/xdm/Xservers $USER
+</PRE>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-w</B> <I>wtmp-file</I><DD>
+This specifies an alternate wtmp file, instead of /usr/adm/wtmp for BSD or
+/etc/wtmp for sysV.  The special name &quot;none&quot; disables writing records to
+/usr/adm/wtmp.
+<DT><B>-u</B> <I>utmp-file</I><DD>
+This specifies an alternate utmp file, instead of &quot;/etc/utmp&quot;.  The special
+name &quot;none&quot; disables writing records to /etc/utmp.
+<DT><B>-l</B> <I>line-name</I><DD>
+This describes the &quot;line&quot; name of the entry.  For terminal sessions,
+this is the final pathname segment of the terminal device filename
+(e.g. ttyd0).  For X sessions, it should probably be the local display name
+given to the users session (e.g. :0).  If none is specified, the
+terminal name will be determined with <A HREF="../man3/ttyname.3.php">ttyname</A>(3) and stripped of leading
+components.
+<DT><B>-h</B> <I>host-name</I><DD>
+This is set for BSD hosts to indicate that the session was initiated from
+a remote host.  In typical xdm usage, this options is not used.
+<DT><B>-s</B> <I>slot-number</I><DD>
+Each potential session has a unique slot number in BSD systems, most are
+identified by the position of the <I>line-name</I> in the /etc/ttys file.
+This option overrides the default position determined with <A HREF="../man3/ttyslot.3.php">ttyslot</A>(3).
+This option is inappropriate for use with xdm, the -x option is more useful.
+<DT><B>-x</B> <I>Xservers-file</I><DD>
+As X sessions are one-per-display, and each display is entered in this file,
+this options sets the <I>slot-number</I> to be the number of lines in
+the <I>ttys-file</I> plus the index into this file that the <I>line-name</I>
+is found.
+<DT><B>-t</B> <I>ttys-file</I><DD>
+This specifies an alternate file which the <I>-x</I> option will use to count
+the number of terminal sessions on a host.
+<DT><B>-a</B><DD>
+This session should be added to utmp/wtmp.
+<DT><B>-d</B><DD>
+This session should be deleted from utmp/wtmp.  One of -a/-d must
+be specified.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/xdm.1.php">xdm</A>(1)
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Keith Packard, MIT X Consortium
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">USAGE</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

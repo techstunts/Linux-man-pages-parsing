@@ -1,0 +1,1882 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>KERMIT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>KERMIT</H1>
+Section: User Commands  (1)<BR>Updated: OCTOBER 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+kermit -
+<B>C-Kermit 8.0:</B>
+
+transport- and platform-independent
+interactive and scriptable communications software.
+<DL COMPACT>
+<DT><DD>
+<P>
+This document is intended to give the beginner sufficient information to make
+basic (if not advanced) use of C-Kermit 8.0.  Although it might be rather long
+for a Unix manual page, it's still far shorter than the C-Kermit manual, which
+should be consulted for advanced topics such as customization, character-sets,
+scripting, etc. We also attempt to provide a clear structural overview of
+C-Kermit's many capabilities, functional areas, states, and modes and their
+interrelation, that should be helpful to beginners and veterans alike, as well
+as to those upgrading to version 8.0 from earlier releases.
+</DL>
+<P>
+
+This document is also available as a Web page at:
+<DL COMPACT>
+<DT><DD>
+<A HREF="http://www.columbia.edu/kermit/ckututor.php">http://www.columbia.edu/kermit/ckututor.html</A>
+</DL>
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+C-Kermit is an all-purpose communications software package from the Kermit
+Project at Columbia University that:
+<P>
+
+<PRE>
+*       Is portable to many platforms, Unix and non-Unix alike.
+<BR>
+*       Can make both serial and network connections.
+<BR>
+*       Can conduct interactive terminal sessions over its connection.
+<BR>
+*       Can transfer text or binary files over the same connection.
+<BR>
+*       Can convert character sets in the terminal session.
+<BR>
+*       Can convert character sets during text-file file transfer.
+<BR>
+*       Is customizable in every aspect of its operation.
+</PRE>
+
+<P>
+
+C-Kermit is a modem program, a Telnet client, an Rlogin client, an FTP
+client, an HTTP client, and on selected platforms, also an X.25 client. It
+can make its own secure Internet connections using IETF-approved security
+methods including Kerberos IV, Kerberos V, SSL/TLS, and SRP and it can also
+make SSH connections through your external SSH client application. It can
+be the far-end file-transfer or client/server partner of your desktop
+Kermit client. It can also accept incoming dialed and network connections.
+It can even be installed as an Internet service on its own standard TCP
+socket, 1649 [RFC2839, RFC2840].
+<P>
+
+And perhaps most important, everything you can do &quot;by hand&quot; (interactively)
+with C-Kermit, can be &quot;scripted&quot; (automated) using its built-in
+cross-platform transport-independent script programming language, which
+happens to be identical to its interactive command language.
+<P>
+
+This manual page offers an overview of C-Kermit 8.0 for Unix (&quot;Unix&quot; is an
+operating system family that includes AIX, DG/UX, FreeBSD, HP-UX, IRIX,
+Linux, Mac OS X, NetBSD, OpenBSD, Open Server, Open Unix, QNX, Solaris,
+SunOS, System V R3, System V R4, Tru64 Unix, Unixware, Xenix, and many
+others). For thorough coverage, please consult the published C-Kermit
+manual and supplements (see DOCUMENTATION below). For further information
+about C-Kermit, Kermit software for other platforms, and Kermit manuals,
+visit the Kermit Project website:
+<P>
+
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/">http://www.columbia.edu/kermit/</A>
+<P>
+
+This is a longer-than-average manual page, and yet it barely scratches the
+surface. Don't be daunted. C-Kermit is a large and complex package,
+evolving over decades of practice and experience, but that doesn't mean
+it's hard to learn or use. Its most commonly used functions are explained
+here with pointers to additional information elsewhere.
+<A NAME="lbAD">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>kermit [</B>
+
+<I>filename</I>
+
+<B>] [</B>
+
+<I>options</I>
+
+<B>] [ {=,--,+}</B>
+
+<I>text</I>
+
+<B>] ]</B>
+
+<P>
+
+or:
+<P>
+
+<B>kermit </B>
+
+<I>URL</I>
+
+<P>
+
+If the first command-line argument is the name of a file, interactive-mode
+commands are executed from the file. The '=' (or &quot;--&quot;) argument tells
+Kermit not to parse the remainder of the command line, but to make the
+words following '=' available as \%1, \%2, ... \%9. The &quot;+&quot; argument is
+like &quot;=&quot; but for use in &quot;kerbang scripts&quot; (explained below). A second
+command-line format allows the one and only argument to be a Telnet, FTP,
+HTTP, or IKSD URL.
+<P>
+
+Order of execution:
+<DL COMPACT>
+<DT><BR>&nbsp;1.<DD>
+The command file (if any).
+<DT><PRE>
+<DD> 2.
+The initialization file, if any, unless suppressed with -Y.
+</PRE>
+
+<DT><BR>&nbsp;3.<DD>
+The customization file (if it is executed by the initialization file).
+<DT><BR>&nbsp;4.<DD>
+The command-line URL (if any, and if so, execution stops here).
+<DT><BR>&nbsp;5.<DD>
+Command-line options (if any).
+<DT><BR>&nbsp;6.<DD>
+Interactive commands.
+</DL>
+<P>
+
+Some command-line options can cause actions (such as -s to send a file);
+others just set parameters. If any action options are included on the
+command line, Kermit exits when finished unless also given the -S (&quot;stay&quot;)
+option. If no action options are given, no initialization or command files
+contained an EXIT or QUIT command, and no fatal errors occurred, Kermit
+issues its prompt and waits for you to type commands.
+<DL COMPACT>
+<DT><DD>
+Bear in mind that C-Kermit can be built with selected features
+disabled, and also that certain features are not available on all
+platforms. For example, C-Kermit can't be built with TCP/IP
+support on a platform that does not have TCP/IP header files and
+libraries (and even if Kermit does include TCP/IP support, it
+can't be used to make TCP/IP connections on a computer that does
+not have a TCP/IP stack installed). If your version of lacks
+C-Kermit a feature mentioned here, use its SHOW FEATURES command to
+see what might have been excluded.
+</DL>
+<P>
+
+C-Kermit has three kinds of commands: regular single-letter command-line
+options, extended-format command-line options, and interactive commands.
+<P>
+
+Like most Unix commands, C-Kermit can be be given options on the command
+line. But C-Kermit also can be used interactively by giving it commands
+composed of words, which are more intuitive than cryptic command-line
+options, and more flexible too. In other words, you don't have to use
+C-Kermit's command-line options, but they are available if you want to. (By
+the same token, you don't have to use its interactive commands either --
+you can use either or both in any combination.)
+<P>
+
+C-Kermit is generally installed in the PATH as &quot;kermit&quot;, and therefore is
+invoked by typing the word &quot;kermit&quot; (lowercase) at the shell prompt, and
+then pressing the Return or Enter key. If you wish to include command-line
+options, put them after the word &quot;kermit&quot; but before pressing Return or
+Enter, separated by spaces, for example:
+<P>
+
+<BR>&nbsp;&nbsp;$&nbsp;kermit&nbsp;-s&nbsp;ckermit.tar.gz
+<P>
+
+('$' is the shell prompt; &quot;kermit -s ckermit.tar.gz&quot; is what you type,
+followed by Return or Enter.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+Here is a list of C-Kermit's single-letter command-line options, which
+start with a single dash (-), in ASCII (&quot;alphabetical&quot;) order. Alphabetic
+case is significant (-A is not the same as -a).  Action options are 
+tagged &quot;ACTION&quot;.
+<DL COMPACT>
+<DT>-0<DD>
+(digit zero)  100% transparent Connect state for
+&quot;in-the-middle&quot; operation: 8 bits, no parity, no
+escape character, everything passes through.
+<DT>-8<DD>
+(digit eight)  Connection is 8-bit clean (this is the
+default in C-Kermit 8.0). Equivalent to the EIGHTBIT
+command, which in turn is a shortcut for SET TERMINAL
+BYTESIZE 8, SET COMMAND BYTESIZE 8, SET PARITY NONE.
+<DT>-9 arg<DD>
+(digit nine)  Make a connection to an FTP server.
+Equivalent to the FTP OPEN command.
+Argument: IP-address-or-hostname[:optional-TCP-port].
+NOTE: C-Kermit also has a separate FTP command-line
+personality, with regular FTP-like command-line
+syntax. More about this below.
+<DT>-A<DD>
+Kermit is to be started as an Internet service (IKSD)
+(only from inetd.conf).
+<DT>-B<DD>
+Kermit is running in Batch or Background (no
+controlling terminal). To be used in case Kermit
+doesn't automatically sense its background status.
+Equivalent to the SET BACKGROUND ON command.
+<DT>-C arg<DD>
+Interactive-mode Commands to be executed.
+Argument: Commands separated by commas, list in
+doublequotes.
+<DT>-D arg<DD>
+Delay before starting to send in Remote mode.
+Equivalent to the SET DELAY command.
+Argument: Number of seconds.
+<DT>-E<DD>
+Exit automatically when connection closes. Equivalent
+to SET EXIT ON-DISCONNECT ON.
+<DT>-F arg<DD>
+Use an open TCP connection.
+Argument: Numeric file descriptor of open TCP
+connection.
+Also see: -j, -J.
+<DT>-G arg<DD>
+(ACTION) Get file(s) from server, send contents to standard
+output, which normally would be piped to another
+process.
+Argument: Remote file specification, in quotes if it
+contains metacharacters.
+Also see: -g, -k.
+<DT>-H<DD>
+Suppress program startup Herald and greeting.
+<DT>-I<DD>
+Tell Kermit it has a reliable connection, to force streaming to be used where
+it normally would not be.  Equivalent to the SET RELIABLE ON command.
+<DT>-J arg<DD>
+(ACTION) &quot;Be like Telnet.&quot; Like -j but implies -E.  Argument: IP
+hostname/address optionally followed by service.  NOTE: C-Kermit also has a
+separate Telnet command-line personality, with regular Telnet-like
+command-line syntax. More about this below.
+<DT>-L<DD>
+Recursive directory descent for files in -s option.
+<DT>-M arg<DD>
+My user name (for use with Telnet, Rlogin, FTP, etc).
+Equivalent to the SET LOGIN USER command.
+Argument: Username string.
+<DT>-O<DD>
+(ACTION) (Uppercase letter O) Be a server for One command only.
+Also see: -x.
+<DT>-P<DD>
+Don't convert file (Path) names of transferred files.
+Equivalent to SET FILE NAMES LITERAL.
+<DT>-Q<DD>
+Quick Kermit protocol settings. Equivalent to the FAST
+command. This is the default in C-Kermit 7.0 and later.
+<DT>-R<DD>
+Remote-only (this just makes IF REMOTE true).
+<DT>-S<DD>
+Stay (enter command parser after action options).
+<DT>-T<DD>
+Force Text mode for file transfer; implies -V.
+Equivalent to SET TRANSFER MODE MANUAL, SET FILE TYPE TEXT.
+<DT>-V<DD>
+Disable automatic per-file text/binary switching.
+Equivalent to SET TRANSFER MODE MANUAL.
+<DT>-Y<DD>
+Skip (don't execute) the initialization file.
+<DT>-a arg<DD>
+As-name for file(s) in -s, -r, or -g.
+Argument: As-name string (alternative filename). When
+receiving files, this can be a directory name.
+<DT>-b arg<DD>
+Speed for serial device. Equivalent to SET SPEED.
+Argument: Numeric Bits per second for serial
+connections.
+<DT>-c<DD>
+(ACTION) Enter Connect state before transferring files.
+<DT>-d<DD>
+Create a debug.log file with detailed debugging
+information (a second -d adds timestamps). Equivalent
+to LOG DEBUG but takes effect sooner.
+<DT>-e arg<DD>
+Maximum length for incoming Kermit file-transfer
+packets. Equivalent to SET RECEIVE PACKET-LENGTH.
+Argument: Length in bytes.
+<DT>-f<DD>
+(ACTION) Send a FINISH command to a Kermit server.
+<DT>-g arg<DD>
+Get file(s) from a Kermit server.
+Argument: File specification on other computer, in
+quotes if it contains metacharacters. Equivalent to
+GET. Also see: -a, -G, -r.
+<DT>-h<DD>
+(ACTION) Print Help text for single-letter command-line options
+(pipe thru 'more' to prevent scrolling).
+<DT>-i<DD>
+Force binary (Image) mode for file transfer; implies
+-V. Equivalent to SET TRANSFER MODE MANUAL, SET FILE
+TYPE BINARY.
+<DT>-j arg<DD>
+Make a TCP/IP connection.
+Argument: IP host name/address and optional service
+name or number. Equivalent to the TELNET command.
+Also see: -J, -F.
+<DT>-k<DD>
+(ACTION) Receive file(s) to standard output, which normally 
+would be piped to another process.
+Also see: -r, -G.
+<DT>-l arg<DD>
+(Lowercase letter L) Make a connection on the given
+serial communications device. Equivalent to the SET
+LINE (SET PORT) command.
+Argument: Serial device name, e.g. /dev/ttyS0.
+<DT>-m arg<DD>
+Modem type for use with the -l device. Equivalent to
+the SET MODEM TYPE command.
+Argument: Modem name as in SET MODEM TYPE command,
+e.g. &quot;usrobotics&quot;.
+<DT>-n<DD>
+(ACTION) Enter Connect state after transferring files (historical).
+<DT>-p arg<DD>
+Parity. Equivalent to the SET PARITY command.
+Argument: One of the following: e(ven), o(dd), m(ark),
+n(one), s(pace).
+<DT>-q<DD>
+Quiet (suppress most messages). Equivalent to SET QUIET ON.
+<DT>-r<DD>
+(ACTION) Receive file(s). Equivalent to the RECEIVE command.
+Argument: (none, but see -a)
+<DT>-s arg<DD>
+Send file(s).
+Argument: One or more local file specifications.
+Equivalent to the SEND command.
+Also see: -a.
+<DT>-t<DD>
+(Historical) Xon (Ctrl-Q) Turnaround character for
+half-duplex connections (used on serial linemode
+connections to old mainframes). Equivalent to SET
+DUPLEX HALF, SET HANDSHAKE XON.
+<DT>-v arg<DD>
+Window size for Kermit protocol (ignored when
+streaming). Equivalanet to SET WINDOW-SIZE.
+Argument: Number, 1 to 32.
+<DT>-w<DD>
+Incoming files Write over existing files. Equivalent
+to SET FILE COLLISION OVERWRITE.
+<DT>-x<DD>
+(ACTION) Enter server mode. Equivalent to the SERVER command.
+Also see: -O.
+<DT>-y arg<DD>
+Alternative initialization file.
+Argument: Filename.
+<DT>-z<DD>
+Force foreground behavior. To be used in case Kermit
+doesn't automatically sense its foreground status.
+Equivalent to the SET BACKGROUND OFF command.
+</DL>
+<P>
+
+Extended command-line options (necessary because single-letter ones are
+about used up) start with two dashes (--), with words rather than single
+letters as option names. If an extended option takes an argument, it is
+separated from the option word by a colon (:). Extended options include:
+<P>
+<DL COMPACT>
+<DT><BR>&nbsp;--bannerfile:filename<DD>
+File to display upon startup or IKSD login.
+<DT><BR>&nbsp;--cdfile:filename<DD>
+File to be sent for display to the client when
+server changes directory (filename is relative to
+the changed-to directory).
+<DT><BR>&nbsp;--cdmessage:{on,off}<DD>
+Enable/disable the server CD message feature.
+<DT><BR>&nbsp;--help<DD>
+Prints usage message for extended options.
+<DT><BR>&nbsp;--helpfile:filename<DD>
+Designates a file containing custom text to
+replace the top-level HELP command.
+<DT><BR>&nbsp;--nointerrupts<DD>
+Disables keyboard interrupts.
+<DT><BR>&nbsp;--noperms<DD>
+Disables the Kermit protocol file Permissions
+attribute, to prevent transmission of file
+permissions (protection) from sender to receiver.
+<DT><BR>&nbsp;--version<DD>
+(ACTION) C-Kermit prints its version number.
+</DL>
+<P>
+
+Plus several other IKSD-Only options described at:
+<P>
+
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/iksd.php">http://www.columbia.edu/kermit/iksd.html</A>
+<P>
+
+See the file-transfer section for examples of command-line invocation.
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMMAND LANGUAGE</H2>
+
+C-Kermit's interactive command language is the subject of a 622-page book
+and another several hundred pages of updates, far too much for a manual
+page. But it's not hard to get started. At the shell prompt, just type
+&quot;kermit&quot; to get C-Kermit's interactive command prompt:
+<P>
+
+<PRE>
+  $ kermit
+  (/current/directory) C-Kermit&gt;
+</PRE>
+
+<P>
+
+Begin by typing &quot;help&quot; (and then press the Return or Enter key) for a
+top-level overview, read it, and go from there. Your second command should
+probably be &quot;intro&quot; (introduction). Note the prompt shows your current
+directory (unless you tell Kermit to prompt you with something else).
+<P>
+
+Interactive commands are composed mainly of regular English words, usually
+in the form of imperative sentences, such as:
+<P>
+
+<BR>&nbsp;&nbsp;send&nbsp;oofa.txt
+<P>
+
+which tells Kermit to send (transfer) the file whose name is oofa.txt, or:
+<P>
+
+<BR>&nbsp;&nbsp;set&nbsp;transfer&nbsp;mode&nbsp;automatic
+<P>
+
+which sets Kermit's &quot;transfer mode&quot; to &quot;automatic&quot; (whatever that means).
+<P>
+
+While typing commands, you can abbreviate, ask for help (by pressing the
+&quot;?&quot; key anywhere in a command), complete keywords or filenames (with the
+Tab or Esc key), and edit your typing with Backspace or Delete, Ctrl-W,
+Ctrl-U, etc. You can also recall previous commands, save your command
+history, and who knows what else. Give the INTRO command for details.
+<P>
+
+C-Kermit has hundreds of commands, and they can be issued in infinite
+variety and combinations, including commands for:
+<PRE>
+
+*       Making connections (SET LINE, DIAL, TELNET, SSH, FTP, ...)
+<BR>
+*       Breaking connections (HANGUP, CLOSE)
+<BR>
+*       Transferring files (SEND, GET, RECEIVE, MOVE, RESEND, ...)
+<BR>
+*       Establishing preferences (SET)
+<BR>
+*       Displaying preferences (SHOW)
+<BR>
+*       Managing local files (CD, DELETE, MKDIR, DIR, RENAME, TYPE, ...)
+<BR>
+*       Managing remote files (RCD, RDEL, RMKDIR, RDIR, ...)
+<BR>
+*       Using local files (FOPEN, FCLOSE, FREAD, FWRITE)
+<BR>
+*       Programming (TAKE, DEFINE, IF, FOR, WHILE, SWITCH, DECLARE, ...)
+<BR>
+*       Interacting with the user (ECHO, ASK, ...)
+<BR>
+*       Interacting with a remote computer (INPUT, OUTPUT, ...)
+<BR>
+*       Interacting with local programs (RUN, EXEC, PTY, ...)
+<BR>
+*       Logging things (LOG SESSION, LOG PACKETS, LOG DEBUG, ...)
+
+</PRE>
+
+And of course QUIT or EXIT to get out and HELP to get help, and for
+programmers: loops, decision making, variables, arrays, associative arrays,
+integer and floating point arithmetic, macros, built-in and user-defined
+functions, string manipulation, pattern matching, block structure, scoping,
+recursion, and all the rest. To get a list of all C-Kermit's commands, type
+a question mark (?) at the prompt. To get a description of any command,
+type HELP followed by the name of the command, for example:
+<P>
+
+<BR>&nbsp;&nbsp;help&nbsp;send
+<P>
+
+The command interruption character is Ctrl-C (hold down the Ctrl key and
+press the C key).
+<P>
+
+The command language &quot;escape character&quot;, used to introduce variable names,
+function invocations, and so on, is backslash (). If you need to include a
+literal backslash in a command, type two of them, e.g.:
+<P>
+
+<BR>&nbsp;&nbsp;get&nbsp;c:\k95\k95custom.ini
+<A NAME="lbAG">&nbsp;</A>
+<H3>Command Files, Macros, and Scripts</H3>
+
+A file containing Kermit commands is called a Kermit command file or Kermit
+script. It can be executed with Kermit's TAKE command:
+<P>
+
+<BR>&nbsp;&nbsp;(/current/dir)&nbsp;C-Kermit&gt;&nbsp;take&nbsp;commandfile
+<P>
+
+(where &quot;commandfile&quot; is the name of the command file). Please don't pipe a
+command file into Kermit's standard input (which might or might not work);
+if you have Kermit commands in a file, tell Kermit to TAKE the file.
+<P>
+
+In Unix only, a Kermit command file can also be executed directly by
+including a &quot;kerbang&quot; line as the first line of the file:
+<P>
+
+<BR>&nbsp;&nbsp;#!/usr/local/bin/kermit&nbsp;+
+<P>
+
+That is, a top line that starts with &quot;#!&quot;, followed immediately by the full
+path of the Kermit executable, and then, if the Kermit script is to be
+given arguments on the command line, a space and a plus sign. The script
+file must also have execute permission:
+<P>
+
+<BR>&nbsp;&nbsp;chmod&nbsp;+x&nbsp;commandfile
+<P>
+
+Except for the &quot; +&quot; part, this is exactly the same as you would do for a
+shell script, a Perl script, etc. Here's a simple but useless example
+script that regurgitates its arguments (up to three of them):
+<P>
+
+<BR>&nbsp;&nbsp;#!/usr/local/bin/kermit&nbsp;+
+<BR>&nbsp;&nbsp;if&nbsp;defined&nbsp;\%1&nbsp;echo&nbsp;&quot;Argument&nbsp;1:&nbsp;\%1&quot;
+<BR>&nbsp;&nbsp;if&nbsp;defined&nbsp;\%2&nbsp;echo&nbsp;&quot;Argument&nbsp;2:&nbsp;\%2&quot;
+<BR>&nbsp;&nbsp;if&nbsp;defined&nbsp;\%3&nbsp;echo&nbsp;&quot;Argument&nbsp;3:&nbsp;\%3&quot;
+<BR>&nbsp;&nbsp;if&nbsp;defined&nbsp;\%4&nbsp;echo&nbsp;&quot;etc...&quot;
+<BR>&nbsp;&nbsp;exit
+<P>
+
+If this file is stored in your current directory as &quot;commandfile&quot;, then:
+<P>
+
+<BR>&nbsp;&nbsp;./commandfile&nbsp;one&nbsp;two&nbsp;three&nbsp;four&nbsp;five
+<P>
+
+prints:
+<P>
+
+<BR>&nbsp;&nbsp;Argument&nbsp;1:&nbsp;one
+<BR>&nbsp;&nbsp;Argument&nbsp;2:&nbsp;two
+<BR>&nbsp;&nbsp;Argument&nbsp;3:&nbsp;three
+<BR>&nbsp;&nbsp;etc...
+<P>
+
+This illustrates the basic structure of a standalone Kermit script: the
+&quot;kerbang line&quot;, then some commands. It should end with &quot;exit&quot; unless you
+want the Kermit prompt to appear when it is finished. \%1 is the first
+argument, \%2 the second, and so on.
+<P>
+
+You can also create your own commands by defining named macros composed of
+other Kermit commands (or macros). For example:
+<P>
+
+<PRE>
+  define mydelete {
+      local trash
+      assign trash \v(home)trashcan/
+      if not defined \%1 end 1 &quot;Delete what?&quot;
+      if wild \%1 {
+          end 1 &quot;Deleting multiple files is too scary&quot;
+      }
+      if not exist \%1 end 1 &quot;I can't find \%1&quot;
+      if not directory \m(trash) {
+          mkdir \m(trash)
+          if fail end 1 &quot;No trash can&quot;
+      }
+      rename /list \%1 \m(trash)
+  }
+  define myundelete {
+      local trash
+      assign trash \v(home)trashcan/
+      if not defined \%1 end 1 &quot;Undelete what?&quot;
+      if wild \%1 {
+          end 1 &quot;Undeleting multiple files is too hard&quot;
+      }
+      if not directory \m(trash) end 1 &quot;No trash can&quot;
+      if not exist \m(trash)\%1 {
+          end 1 &quot;I can't find \%1 in trash can&quot;
+      }
+      rename /list \m(trash)\%1 .
+  }
+
+</PRE>
+
+These sample macros are not exactly production quality (they don't handle
+filenames that include path segments, they don't handle multiple files,
+etc), but you get the idea: you can pass arguments to macros, and they can
+check them and make other kinds of decisions. If you put the above lines
+into your initialization or customization file (explained below), you'll
+have MYDELETE and MYUNDELETE commands available every time you start
+Kermit, at least as long as you don't suppress execution of the
+initialization file. (Exercise for the reader: Make these macros generally
+useful: remove limitations, add trashcan display, browsing, emptying, etc.)
+<P>
+
+Kerbang scripts execute without the initialization file. This to keep them
+portable and also to make them start faster. If you want to write Kerbang
+scripts that depend on the initialization file, include the command
+<P>
+
+<BR>&nbsp;&nbsp;take&nbsp;\v(home).kermrc
+<P>
+
+at the desired spot in the script. By the way, \v(xxx) is a built-in
+variable (xxx is the variable name, &quot;home&quot; in this case). To see what
+built-in variables are available, type &quot;show variables&quot; at the C-Kermit
+prompt. To see what else you can show, type &quot;show ?&quot;. \m(xxx) is a user
+defined variable (strictly speaking, it is a macro used as a variable).
+<A NAME="lbAH">&nbsp;</A>
+<H3>Command List</H3>
+
+C-Kermit has more than 200 top-level commands, and some of these, such as
+SET, branch off into hundreds of subcommands of their own, so it's not
+practical to describe them all here. Instead, here's a concise list of the
+most commonly used top-level commands, grouped by category. To learn about
+each command, type &quot;help&quot; followed by the command name, e.g. &quot;help set&quot;.
+Terms such as Command state and Connect state are explained in subsequent
+sections.
+<P>
+
+Optional fields are shown in [ brackets ].  &quot;filename&quot; means the
+name of a single file. filespec means a file specification that is allowed
+to contain wildcard characters like '*' to match groups of files. options
+are (optional) switches like /PAGE, /NOPAGE, /QUIET, etc, listed in the
+HELP text for each command. Example:
+<P>
+
+<PRE>
+  send /recursive /larger:10000 /after:-1week /except:*.txt *
+</PRE>
+
+<P>
+
+which can be read as &quot;send all the files in this directory and all the ones
+underneath it that are larger than 10000 bytes, no more than one week old,
+and whose names don't end with &quot;.txt&quot;.
+<A NAME="lbAI">&nbsp;</A>
+<H3>Basic Commands</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>HELP<DD>
+Requests top-level help.
+<DT>HELP command<DD>
+Requests help about the given command.
+<DT>INTRODUCTION<DD>
+Requests a brief introduction to C-Kermit.
+<DT>LICENSE<DD>
+Displays the C-Kermit software copyright and license.
+<DT>VERSION<DD>
+Displays C-Kermit's version number.
+<DT>EXIT [ number ]<DD>
+Exits from Kermit with the given
+status code. Synonyms: QUIT, E, Q.
+<DT>TAKE filename [ parameters... ]<DD>
+Executes commands from the given
+<DT>LOG item [ filename ]<DD>
+Keeps a log of the given item in the given file.
+<DT>[ DO ] macro [ parameters... ]<DD>
+Executes commands from the given macro.
+<DT>SET parameter value<DD>
+Sets the given parameter to the given value.
+<DT>SHOW category<DD>
+Shows settings in a given category.
+<DT>STATUS<DD>
+Tells whether previous command succeeded or failed.
+<DT>DATE [ date-and/or-time ]<DD>
+Shows current date-time or interprets given date-time.
+<DT>RUN [ extern-command [ parameters... ]                 <DD>
+Runs the given external command. Synonym: !.
+<DT>EXEC [ extern-command [ params... ]<DD>
+Kermit overlays itself with the given command.
+<DT>SUSPEND<DD>
+Stops Kermit and puts it in the background. Synonym: Z.
+</DL>
+</DL>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Local File Management</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>TYPE [ options ] filename<DD>
+Displays the contents of the given file.
+<DT>MORE [ options ] filename     <DD>
+Equivalent to TYPE /PAGE (pause after each screenful).
+<DT>CAT [ options ] filename      <DD>
+Equivalent to TYPE /NOPAGE.
+<DT>HEAD [ options ] filename     <DD>
+Displays the first few lines of a given file.
+<DT>TAIL [ options ] filename     <DD>
+Displays the last few lines of a given file.
+<DT>GREP [ options ] pattern filespec<DD>
+Displays lines from files that match
+the pattern. Synonym: FIND.
+<DT>DIRECTORY [ options ] [filespec ]<DD>
+Lists files (built-in, many options).
+<DT>LS [ options ] [ filespec ]   <DD>
+Lists files (runs external &quot;ls&quot; command).
+<DT>DELETE [ options ] [ filespec ]<DD>
+Deletes files. Synonym: RM.
+<DT>PURGE [ options ] [ filespec ]<DD>
+Removes backup (*.~n~) files.
+<DT>COPY [ options ] [ filespecs... ]<DD>
+Copies files. Synonym: CP.
+<DT>RENAME [ options ] [ filespecs... ]<DD>
+Renames files. Synonym: MV.
+<DT>CHMOD [ options ] [ filespecs... ]<DD>
+Changes permissions of files.
+<DT>TRANSLATE filename charsets [ filename ]<DD>
+Converts file's character set. Synonym: XLATE.
+<DT>CD<DD>
+Changes your working directory to your home directory.
+<DT>CD directory<DD>
+Changes your working directory to the one given.
+<DT>CDUP<DD>
+Changes your working directory one level up.
+<DT>PWD<DD>
+Displays your working directory.
+<DT>BACK<DD>
+Returns to your previous working directory.
+<DT>MKDIR [ directory ]<DD>
+Creates a directory.
+<DT>RMDIR [ directory ]<DD>
+Removes a directory.
+</DL>
+</DL>
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>Making Connections</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>SET LINE [ options ] devicename                      <DD>
+Opens the named serial port. Synonym: SET PORT.
+<DT>OPEN LINE [ options ] devicename<DD>
+Same as SET LINE. Synonym: OPEN PORT.
+<DT>SET MODEM TYPE [ name ]<DD>
+Tells Kermit what kind of modem is on the port.
+<DT>DIAL [ number ]<DD>
+Tells Kermit to dial the given phone number with the modem.
+<DT>REDIAL<DD>
+Redials the most recently dialed phone number.
+<DT>ANSWER<DD>
+Waits for and answers an incoming call on the modem.
+<DT>AUTHENTICATE [ parameters... ]<DD>
+Performs secure authentication on a TCP/IP connection.
+<DT>SET NETWORK TYPE { TCP/IP, X.25, ... }<DD>
+Selects network type for subsequent SET HOST commands.
+<DT>SET HOST [ options ] host [ port ]                          <DD>
+Opens a network connection to the given host and port.
+<DT>SET HOST * port<DD>
+Waits for an incoming TCP/IP connection on the given port.
+<DT>TELNET [ options ] host<DD>
+Opens a Telnet connection to the host and enters Connect state.
+<DT>RLOGIN [ options ] host<DD>
+Opens an Rlogin connection to the host and enters Connect state.
+<DT>IKSD [ options ] host<DD>
+Opens a connection to an Internet Kermit Service.
+<DT>SSH [ options ] host<DD>
+Opens an SSH connection to the host and enters Connect state.
+<DT>FTP OPEN host [ options ]<DD>
+Opens an FTP connection to the host.
+<DT>HTTP [ options ] OPEN host<DD>
+Opens an HTTP connection to the host.
+<DT>PTY external-command<DD>
+Runs the command on a pseudoterminal as if it were a connection.
+<DT>PIPE external-command<DD>
+Runs the command through a pipe as if it were a connection.
+</DL>
+</DL>
+
+<A NAME="lbAL">&nbsp;</A>
+<H3>Using Connections</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>CONNECT [ options ]<DD>
+Enters Connect (terminal) state.  Synonym: C.
+<DT>REDIRECT command<DD>
+Redirects the given external command over the connection.
+<DT>TELOPT command<DD>
+Sends a Telnet protocol command (Telnet connections only).
+<DT>Ctrl-\C<DD>
+&quot;Escapes back&quot; from Connect state to Command state.
+<DT>Ctrl-\B<DD>
+(In Connect state) Sends a BREAK signal (serial or Telnet).
+<DT>Ctrl-\!<DD>
+(In Connect state) Enters inferior shell; &quot;exit&quot; to return.
+<DT>Ctrl-\?<DD>
+(In Connect state) Shows a menu of other escape-level options.
+<DT>Ctrl-\Ctrl-\<DD>
+(In Connect state) Type two
+Ctrl-Backslashes to send one of them.
+<DT>SET ESCAPE [ character ]<DD>
+Changes Kermit's Connect-state escape character.
+</DL>
+</DL>
+
+<A NAME="lbAM">&nbsp;</A>
+<H3>Closing Connections</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>HANGUP<DD>
+Hangs up the currently open
+serial-port or network connection.
+<DT>CLOSE<DD>
+Closes the currently open
+serial-port or network connection.
+<DT>SET LINE (with no devicename)<DD>
+Closes the currently open
+serial-port or network connection.
+<DT>SET HOST (with no hostname)<DD>
+Closes the currently open serial-port or network connection.
+<DT>FTP CLOSE<DD>
+Closes the currently open FTP connection.
+<DT>HTTP CLOSE<DD>
+Closes the currently open HTTP connection.
+<DT>EXIT <DD>
+Also closes all connections. Synonym: QUIT.
+<DT>SET EXIT WARNING OFF<DD>
+Suppresses warning about open connections on exit or close.
+</DL>
+</DL>
+
+<A NAME="lbAN">&nbsp;</A>
+<H3>File Transfer</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>SEND [ options ] filename [ as-name ]<DD>
+Sends the given file. Synonym: S.
+<DT>SEND [ options ] filespec<DD>
+Sends all files that match.
+<DT>RESEND [ options ] filespec<DD>
+Resumes an interupted SEND from the point of failure.
+<DT>RECEIVE [ options ] [ as-name ]                    <DD>
+Waits passively for files to arrive. Synonym: R.
+<DT>LOG TRANSACTIONS [ filename ]<DD>
+Keeps a record of file transfers.
+<DT>FAST<DD>
+Use fast file-transfer settings (default).
+<DT>CAUTIOUS<DD>
+Use cautious and less fast file-transfer settings.
+<DT>ROBUST<DD>
+Use ultra-conservative and slow file-transfer settings.
+<DT>STATISTICS [ options ] <DD>
+Gives statistics about the most recent file transfer.
+<DT>WHERE<DD>
+After transfer: &quot;Where did my files go?&quot;.
+<DT>TRANSMIT [ options ] [ofilename ]<DD>
+Sends file without protocol. Synonym: XMIT.
+<DT>LOG SESSION [ filename ]<DD>
+Captures remote text or files without protocol.
+<DT>SET PROTOCOL [ name... ]<DD>
+Tells Kermit to use an external file-transfer protocol.
+<DT>FTP { PUT, MPUT, GET, MGET, ... }<DD>
+FTP client commands.
+<DT>HTTP { PUT, GET, HEAD, POST, ... }<DD>
+HTTP client commands.
+</DL>
+</DL>
+
+<A NAME="lbAO">&nbsp;</A>
+<H3>Kermit Server</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>ENABLE, DISABLE<DD>
+Controls which server features can be used by clients.
+<DT>SET SERVER<DD>
+Sets parameters prior to entering Server state.
+<DT>SERVER<DD>
+Enters Server state.
+</DL>
+</DL>
+
+<A NAME="lbAP">&nbsp;</A>
+<H3>Client of Kermit or FTP Server</H3>
+
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>[ REMOTE ] LOGIN [ user password ]         <DD>
+Logs in to a Kermit server or IKSD that requires it.
+<DT>[ REMOTE ] LOGOUT<DD>
+Logs out from a Kermit server or IKSD.
+<DT>SEND [ options ] filename [ as-name ]                   <DD>
+Sends the given file to the server. Synonyms: S, PUT.
+<DT>SEND [ options ] filespec<DD>
+Sends all files that match.
+<DT>RESEND [ options ] filespec<DD>
+Resumes an interupted SEND from the point of failure.
+<DT>GET [ options ] remote-filespec<DD>
+Asks the server to send the given files. Synonym: G.
+<DT>REGET [ options ] remote-filespec<DD>
+Resumes an interrupted GET from the point of failure.
+<DT>REMOTE CD [ directory ]<DD>
+Asks server to change its working
+directory. Synonym: RCD.
+<DT>REMOTE PWD [ directory ]<DD>
+Asks server to display its working directory. Synonym: RPWD.
+<DT>REMOTE DIRECTORY [ filespec... ]<DD>
+Asks server to send a directory listing. Synonym: RDIR.
+<DT>REMOTE DELETE [ filespec... ]<DD>
+Asks server to delete files. Synonym: RDEL.
+<DT>REMOTE [ command... ]<DD>
+(Many other commands: &quot;remote ?&quot; for a list).
+<DT>MAIL [ options ] filespec<DD>
+Sends file(s) to be delivered as e-mail (Kermit only).
+<DT>FINISH<DD>
+Asks the server to exit server state (Kermit only).
+<DT>BYE<DD>
+Asks the server to log out and close the connection.
+</DL>
+</DL>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Script Programming</H3>
+
+<P>
+
+<DL COMPACT><DT><DD>
+DEFINE, DECLARE, UNDEFINE, UNDECLARE, ASSIGN, EVALUATE, SEXPRESSION,
+ARRAY, SORT, INPUT, OUTPUT, IF, FOR, WHILE, SWITCH, GOTO, ECHO, ASK,
+GETC, GETOK, ASSERT, WAIT, SLEEP, FOPEN, FREAD, FWRITE, FCLOSE, STOP,
+END, RETURN, LEARN, SHIFT, TRACE, VOID, INCREMENT, DECREMENT, ... For
+these and many more you'll need to consult the manual and supplements,
+and/or visit the Kermit Script Library, which also includes a brief
+tutorial. Hint: HELP LEARN to find out how to get Kermit to write
+simple scripts for you.
+</DL>
+
+<P>
+
+Many of Kermit's commands have synonyms, variants, relatives, and so on.
+For example, MSEND is a version of SEND that accepts a list of file
+specifications to be sent, rather than just one file specification, and
+MPUT is a synonym of MSEND. MOVE means to SEND and then DELETE the source
+file if successful. MMOVE is like MOVE, but accepts a list of filespecs,
+and so on. These are described in the full documentation.
+<P>
+
+Use question mark to feel your way through an unfamiliar command, as in
+this example:
+<P>
+
+<PRE>
+  C-Kermit&gt; remote ? One of the following:
+   assign     directory  kermit     print      rmdir
+   cd         exit       login      pwd        set
+   copy       help       logout     query      space
+   delete     host       mkdir      rename     type
+  C-Kermit&gt; remote set ? One of the following:
+   attributes   file         retry        transfer
+   block-check  receive      server       window
+  C-Kermit&gt; remote set file ? One of the following:
+   character-set  incomplete     record-length
+   collision      names          type
+  C-Kermit&gt; remote set file names ? One of the following:
+   converted  literal
+  C-Kermit&gt; remote set file names literal
+  C-Kermit&gt;
+
+</PRE>
+
+This is called menu on demand: you get a menu when you want one, but menus
+are not forced on you even when know what you're doing. Note that you can
+also abbreviate most keywords, and you can complete them with the Tab or
+Esc key. Also note that ? works for filenames too, and that you can use it
+in the middle of a keyword or filename, not just at the beginning. For
+example, &quot;send x?&quot; lists all the files in the current directory whose names
+start with 'x'.
+<A NAME="lbAR">&nbsp;</A>
+<H2>INITIALIZATION FILE</H2>
+
+In its default configuration, C-Kermit executes commands from a file 
+called .kermrc in your home directory when it starts, unless it is given the
+-Y or -y command-line option. Custom configurations might substitute a shared
+system-wide initialization file. The SHOW FILE command tells what
+initialization file, if any, was used. The standard initialization file
+&quot;chains&quot; to an individual customization file, .mykermc, in the home directory,
+in which each user can establish her/his own preferences, define macros, and
+so on.
+<P>
+
+Since execution of the initialization file (at least the standard one)
+makes C-Kermit take longer to start, it might be better not to have an
+initialization file, especially now that Kermit's default startup
+configuration is well attuned to modern computing and networking -- in
+other words, you no longer have do anything special to make Kermit
+transfers go fast. So instead of having an initialization file that is
+executed every time Kermit starts, you might consider making one or more
+kerbang scripts (with names other that .kermrc) that do NOT include an
+&quot;exit&quot; command, and invoke those when you need the settings, macro
+definitions, and/or scripted actions they contain, and invoke C-Kermit
+directly when you don't.
+<P>
+
+To put it another way... We still distribute the standard initialization
+file since it's featured in the manual and backwards compatibility is
+important to us. But there's no harm in not using it if you don't need the
+stuff that's in it (services directory, dialing directory, network
+directory, and associated macro definitions). On the other hand, if there
+are settings or macros you want in effect EVERY time you use Kermit, the
+initialization file (or the customization file it chains to) is the place
+to put them, because that's the only place Kermit looks for them
+automatically each time you start it.
+<A NAME="lbAS">&nbsp;</A>
+<H2>MODES OF OPERATION</H2>
+
+Kermit is said to be in Local mode if it has made a connection to another
+computer, e.g. by dialing it or establishing a Telnet connection to it. The
+other computer is remote, so if you start another copy of Kermit on the
+remote computer, it is said to be in Remote mode (as long as it has not
+made any connections of its own). The local Kermit communicates over the
+communications device or network connection, acting as a conduit between
+the the remote computer and your keyboard and screen. The remote Kermit is
+the file-transfer partner to the local Kermit and communicates only through
+its standard input and output.
+<P>
+
+At any moment, a Kermit program can be in any of the following states. It's
+important to know what they are and how to change from one to the other.
+<DL COMPACT>
+<DT>Command state<DD>
+In this state, Kermit reads commands from:
+<P>
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>Your keyboard; or:<BR>
+<BR>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>A file, or:<BR>
+<BR>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>A macro definition.<BR>
+<P>
+You can exit from Command state back to Unix with the EXIT or QUIT
+command (same thing). You can enter Connect state with any of various
+commands (CONNECT, DIAL, TELNET, etc). You can enter file transfer
+state with commands like SEND, RECEIVE, and GET. You can enter Server
+state with the SERVER command. The TAKE command tells Kermit to read
+and execute commands from a file. The (perhaps implied) DO command
+tells Kermit to read and execute commands from a macro definition.
+While in Command state, you can interrupt any command, macro, or
+command file by typing Ctrl-C (hold down the Ctrl key and press the C
+key); this normally brings you back to the prompt.
+<DT>Shell state<DD>
+You can invoke an inferior shell or external command from the Kermit
+command prompt by using the PUSH, RUN (!), EDIT, or BROWSE command.
+While the inferior shell or command is active, Kermit is suspended and
+does nothing. Return to Kermit Command state by exiting from the
+inferior shell or application.
+<DT>Connect state<DD>
+In this state, which can be entered only when in Local mode (i.e. when
+Kermit has made a connection to another computer), Kermit is acting as
+a terminal to the remote computer. Your keystrokes are sent to the
+remote computer and characters that arrive over the communication
+connection are displayed on your screen. This state is entered when
+you give a CONNECT, DIAL, TELNET, RLOGIN, or IKSD command. You can
+return to command state by logging out of the remote computer, or by
+typing:
+<P>
+<BR>&nbsp;&nbsp;Ctrl-\c
+<P>
+That is: Hold down the Ctrl key and press the backslash key, then let
+go of the Ctrl key and press the C key. This is called escaping back.
+Certain other escape-level commands are also provided; type Ctrl-\?
+for a list. For example, you can enter Shell state with:
+<P>
+<BR>&nbsp;&nbsp;Ctrl-\!
+<P>
+To send a Ctrl-\ to the host while in Connect state, type two of them
+in a row. See HELP CONNECT and HELP SET ESCAPE for more info.
+<DT>Local file-transfer state<DD>
+In this state, Kermit is sending packets back and forth with the other
+computer in order to transfer a file or accomplish some other
+file-related task. And at the same time, it is displaying its progress
+on your screen and watching your keyboard for interruptions. In this
+state, the following single-keystroke commands are accepted:
+<P>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>X<DD>
+Interrupt the current file and go on to the next (if any).
+<DT>Z<DD>
+Interrupt the current file and skip all the rest.
+<DT>E<DD>
+Like Z but uses a &quot;stronger&quot; protocol (use if X or Z don't work).
+<DT>Ctrl-C<DD>
+Interrupt file-transfer mode (use if Z or E don't work).
+<P>
+</DL>
+</DL>
+
+Kermit returns to its previous state (Command or Connect) when the
+transfer is complete or when interrupted successfully by X, Z, E, or
+Ctrl-C (hold down the Ctrl key and press the C key).
+<DT>Remote file-transfer state<DD>
+In this state, Kermit is exchanging file-transfer packets with its
+local partner over its standard i/o. It leaves this state
+automatically when the transfer is complete. In case you find your
+local Kermit in Connect state and the remote one in File-transfer
+state (in which it seems to ignore your keystrokes), you can usually
+return it to command state by typing three Ctrl-C's in a row. If that
+doesn't work, return your local Kermit to Command state (Ctrl-\ C) and
+type &quot;e-packet&quot; and then press the Return or Enter key; this forces a
+fatal Kermit protocol error.
+<DT>Remote Server state<DD>
+This is like Remote File-transfer state, except it never returns
+automatically to Command state. Rather, it awaits further instructions
+from the client program; that is, from your Local Kermit program. You
+can return the Remote Server to its previous state by issuing a
+&quot;finish&quot; command to the client, or if you are in Connect state, by
+typing three Ctrl-C's in a row. You can tell the server job to log out
+and break the connection by issuing a &quot;bye&quot; command to the client.
+<DT>Local Server state<DD>
+Like Remote-Server state, but in local mode, and therefore with its
+file-transfer display showing, and listening for single-key commands,
+as in Local File-transfer state. Usually this state is entered
+automatically when a remote Kermit program gives a GET command.
+<P>
+C-Kermit, Kermit 95, and MS-DOS Kermit all can switch automatically from
+Connect state to Local File-transfer state when you initiate a file
+transfer from the remote computer by starting Kermit and telling it to send
+or get a file, in which case, Connect state is automatically resumed after
+the file transfer is finished.
+<P>
+Note that C-Kermit is not a terminal emulator. It is a communications
+application that you run in a terminal window (e.g. console or Xterm). The
+specific emulation, such as VT100, VT220, Linux Console, or Xterm, is
+provided by the terminal window in which you are running C-Kermit. Kermit
+95 and MS-DOS Kermit, on the other hand, are true terminal emulators. Why
+is C-Kermit not a terminal emulator? CLICK HERE to read about it.
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H2>MAKING CONNECTIONS</H2>
+
+Here is how to make different kinds of connections using interactive Kermit
+commands (as noted above, you can also make connections with command-line
+options). Note that you don't have to make connections with Kermit. It can
+also be used on the far end of a connection as the remote file transfer and
+management partner of your local communications software.
+<DL COMPACT>
+<DT>Making a Telnet Connection<DD>
+At the C-Kermit command prompt, simply type:
+<P>
+<PRE>
+  telnet foo.bar.com
+</PRE>
+
+<P>
+(substituting desired hostname or address).  
+You can also include a port number:
+<P>
+<PRE>
+  telnet xyzcorp.com 3000 ; 
+</PRE>
+
+<P>
+If the connection is successful, Kermit automically enters Connect
+state. When you logout from the remote host, Kermit automatically
+returns to its prompt. More info: HELP TELNET, HELP SET TELNET, HELP
+SET TELOPT. Also see the IKSD section below.
+<DT>Making an Rlogin connection<DD>
+This is just like Telnet, except you have to be root to do it because
+Rlogin uses a privileged TCP port:
+<P>
+<PRE>
+  rlogin foo.bar.com
+</PRE>
+
+<P>
+More info: HELP RLOGIN.
+<DT>Making an SSH Connection<DD>
+Unlike Telnet and Rlogin, SSH connections are not built-in, but
+handled by running your external SSH client through a pseudoterminal.
+Using C-Kermit to control the SSH client gives you all of Kermit's
+features (file transfer, character-set conversion, scripting, etc)
+over SSH.
+<P>
+<BR>&nbsp;&nbsp;ssh&nbsp;foo.bar.com
+<P>
+More info: HELP SSH, HELP SET SSH.
+<DT>Dialing with a Modem<DD>
+If it's an external modem, make sure it is connected to a usable
+serial port on your computer with a regular (straight-through) modem
+cable, and to the telephone jack with a telephone cable, and that it's
+turned on. Then use these commands:
+<P>
+<PRE>
+  set modem type usrobotics  ; Or other supported type
+  set line /dev/ttyS0        ; Specify device name
+  set speed 57600            ; Or other desired speed
+  set flow rts/cts           ; Most modern modems support this
+  set dial method tone       ; (or pulse)
+  dial 7654321               ; Dial the desired number
+</PRE>
+
+<P>
+Type &quot;set modem type ?&quot; for a list of supported modem types. If you
+omit the SET MODEM TYPE command, the default type is
+&quot;generic-high-speed&quot;, which should work for most modern AT-command-set
+modems. If the line is busy, Kermit redials automatically. If the call
+does not succeed, use &quot;set dial display on&quot; and try it again to watch
+what happens. If the call succeeds, Kermit enters Connect state
+automatically and returns to its prompt automatically when you log out
+from the remote computer or the connection is otherwise lost.
+<P>
+You can also dial from a modem that is accessible by Telnet, e.g. to a
+reverse terminal server. In this case the command sequence is:
+<P>
+<PRE>
+  set host ts.xxx.com 2000   ; Terminal-server and port
+  set modem type usrobotics  ; Or other supported type
+  set dial method tone       ; (or pulse)
+  dial 7654321               ; Dial the desired number
+</PRE>
+
+<P>
+If the terminal server supports the Telnet Com Port Option, RFC 2217,
+you can also give serial-port related commands such as SET SPEED, SET
+PARITY, and so on, and Kermit relays them to the terminal server using
+the protocol specified in the RFC.
+<P>
+More info: HELP SET MODEM, HELP SET LINE, HELP SET SPEED, HELP SET
+FLOW, HELP DIAL, HELP SET DIAL, HELP SET MODEM, HELP SET 
+CARRIER-WATCH, SHOW COMMUNICATIONS, SHOW MODEM, SHOW DIAL.
+<DT>Direct Serial Port<DD>
+Connect the two computers, A and B, with a null modem cable (or two
+modem cables interconnected with a null-modem adapter or modem
+eliminator). From Computer A:
+<P>
+<PRE>
+  set modem type none   ; There is no modem
+  set line /dev/ttyS0   ; Specify device name
+  set carrier-watch off ; If DTR CD are not cross-connected
+  set speed 57600       ; Or other desired speed
+  set flow rts/cts      ; If RTS and CTS are cross-connected
+  set parity even       ; (or &quot;mark&quot; or &quot;space&quot;, if necessary)
+  set stop-bits 2       ; (rarely necessary)
+  set flow xon/xoff     ; If you can't use RTS/CTS
+  connect               ; Enter Connect (terminal) state
+</PRE>
+
+<P>
+This assumes Computer B is set up to let you log in. If it isn't, you 
+can run a copy of Kermit on Computer B and follow approximately the
+same directions. More info: As above plus HELP CONNECT.
+</DL>
+<P>
+
+With modems or direct serial connections, you might also have to &quot;set
+parity even&quot; (or &quot;mark&quot; or &quot;space&quot;) if it's a 7-bit connection.
+<P>
+
+Of the connection types listed above, only one can be open at a time.
+However, any one of these can be open concurrently with an FTP or HTTP
+session. Each connection type can be customized to any desired degree,
+scripted, logged, you name it. See the manual.
+<P>
+
+NOTE: On selected platforms, C-Kermit also can make X.25 connections. See
+the manual for details.
+<A NAME="lbAU">&nbsp;</A>
+<H2>TRANSFERRING FILES WITH KERMIT</H2>
+
+There is a widespread and persistent belief that Kermit is a slow protocol.
+This is because, until recently, it used conservative tuning by default to
+make sure file transfers succeeded, rather than failing because they
+overloaded the connection. Some extra commands (or command-line options,
+like -Q) were needed to make it go fast, but nobody bothered to find out
+about them. Also, it takes two to tango: most non-Kermit-Project Kermit
+protocol implementations really ARE slow. The best file-transfer partners
+for C-Kermit are: another copy of C-Kermit (7.0 or later) and Kermit 95.
+These combinations work well and they work fast by default. MS-DOS Kermit
+is good too, but you have to tell it to go fast (by giving it the FAST
+command).
+<P>
+
+Furthermore, all three of these Kermit programs support &quot;autodownload&quot; and
+&quot;autoupload&quot;, meaning that when they are in Connect state and a Kermit
+packet comes in from the remote, they automatically switch into file
+transfer mode.
+<P>
+
+And plus, C-Kermit and K95 also switch automatically between text and
+binary mode for each file, so there is no need to &quot;set file type binary&quot; or
+&quot;set file type text&quot;, or to worry about files being corrupted because they
+were transferred in the wrong mode.
+<P>
+
+What all of these words add up to is that now, when you use up-to-date
+Kermit software from the Kermit Project, file transfer is not only fast,
+it's ridiculously easy. You barely have to give any commands at all.
+<DL COMPACT>
+<DT>Downloading Files<DD>
+Let's say you have Kermit 95, C-Kermit, or MS-DOS Kermit on your
+desktop computer, with a connection to a Unix computer that has
+C-Kermit installed as &quot;kermit&quot;. To download a file (send it from Unix
+to your desktop computer), just type the following command at your
+Unix shell prompt:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-s&nbsp;oofa.txt
+<P>
+(where oofa.txt is the filename). If you want to send more than one
+file, you can put as many filenames as you want on the command line,
+and they can be any combination of text and binary:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-s&nbsp;oofa.txt&nbsp;oofa.zip&nbsp;oofa.html&nbsp;oofa.tar.gz
+<P>
+and/or you can use wildcards to send groups of files:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-s&nbsp;oofa.*
+<P>
+If you want to send a file under an assumed name, use:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-s&nbsp;friday.txt&nbsp;-a&nbsp;today.txt
+<P>
+This sends the file friday.txt but tells the receiving Kermit that its
+name is today.txt. In all cases, as noted, when the file transfer is
+finished, your desktop Kermit returns automatically to Connect state.
+No worries about escaping back, re-connecting, text/binary mode
+switching. Almost too easy, right?
+<DT>Uploading Files<DD>
+To upload files (send them from your desktop computer to the remote
+Unix computer) do the same thing, but use the -g (GET) option instead
+of -s:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-g&nbsp;oofa.txt
+<P>
+This causes your local Kermit to enter server mode; then the remote
+Kermit program requests the named file and the local Kermit sends it
+and returns automatically to Connect state when done.
+<P>
+If you want to upload multiple files, you have have use shell quoting
+rules, since these aren't local files:
+<P>
+<PRE>
+  kermit -g &quot;oofa.txt oofa.zip oofa.html oofa.tar.gz&quot;
+  kermit -g &quot;oofa.*&quot;
+</PRE>
+
+<P>
+If you want to upload a file but store it under a different name, use:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-g&nbsp;friday.txt&nbsp;-a&nbsp;today.txt
+<DT>Kermit Transfers the Old-Fashioned Way<DD>
+If your desktop communications software does not support autoupload or
+autodownload, or it does not include Kermit server mode, the procedure
+requires more steps.
+<P>
+To download a file, type:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-s&nbsp;filename
+<P>
+on the host as before, but if nothing happens automatically in
+response to this command, you have to switch your desktop
+communications software into Kermit Receive state. This might be done
+by escaping back using keyboard characters or hot keys (Alt-x is
+typical) and/or with a command (like RECEIVE) or a menu. When the file
+transfer is complete, you have to go back to Connect state, Terminal
+emulation, or whatever terminology applies to your desktop
+communications software.
+<P>
+To upload a file, type:
+<P>
+<BR>&nbsp;&nbsp;kermit&nbsp;-r
+<P>
+on the host (rather than &quot;kermit -g&quot;). This tells C-Kermit to wait
+passively for a file to start arriving. Then regain the attention of
+your desktop software (Alt-x or whatever) and instruct it to send the
+desired file(s) with Kermit protocol. When the transfer is finished,
+return to the Connect or Terminal screen.
+<DT>If File Transfer Fails<DD>
+Although every aspect of Kermit's operation can be finely tuned, there
+are also three short and simple &quot;omnibus tuning&quot; commands you can use
+for troubleshooting:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>FAST<DD>
+Use fast file-transfer settings. This has been the default since
+C-Kermit 7.0 now that most modern computers and connections
+support it. If transfers fail with fast settings, try . . .
+<DT>CAUTIOUS<DD>
+Use cautious but not paranoid settings. File transfers, if they
+work, will go at medium speed. If not, try . . .
+<DT>ROBUST<DD>
+Use the most robust, resilient, conservative, safe, and reliable
+settings. File transfers will almost certainly work, but they
+will be quite slow (of course this is a classic tradeoff; ROBUST
+was C-Kermit's default tuning in versions 6.0 and earlier, which
+made everybody think Kermit protocol was slow). If ROBUST doesn't
+do the trick, try again with SET PARITY SPACE first in case it's
+not an 8-bit connection.
+</DL>
+</DL>
+
+<P>
+Obviously the success and performance of a file transfer also depends
+on C-Kermit's file transfer partner. Up-to-date, real Kermit Project
+partners are recommended because they contain the best Kermit protocol
+implementations and because we can support them in case of trouble.
+<P>
+If you still have trouble, consult Chapter 10 of Using C-Kermit, or
+send email to <A HREF="mailto:kermit-support@columbia.edu">kermit-support@columbia.edu</A>.
+<DT>Advanced Kermit File-Transfer Features<DD>
+Obviously there is a lot more to Kermit file transfer, including all
+sorts of interactive commands, preferences, options, logging,
+debugging, troubleshooting, and anything else you can imagine but
+that's what the manual and updates are for. Here are a few topics you
+can explore if you're interested by Typing HELP for the listed
+commands:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>Logging transfers:<DD>
+LOG TRANSACTIONS (HELP LOG)
+<DT>Automatic per-file text/binary mode switching:<DD>
+SET TRANSFER MODE { AUTOMATIC, MANUAL } (HELP SET TRANSFER).
+<DT>Cross-platform recursive directory tree transfer:<DD>
+SEND /RECURSIVE, GET /RECURSIVE (HELP SEND, HELP GET).
+<DT>File collision options:<DD>
+SET FILE COLLISION { OVERWRITE, BACKUP, DISCARD, ... } (HELP SET FILE).
+<DT>Update: Transfer only files that changed since last time:<DD>
+SET FILE COLLISION UPDATE (HELP SET FILE).
+<DT>Filename selection patterns:<DD>
+(HELP WILDCARD).
+<DT>Flexible file selection:<DD>
+SEND (or GET) /BEFORE /AFTER /LARGER /SMALLER /TYPE /EXCEPT, ...
+<DT>Character-set conversion:<DD>
+SET { FILE, TRANSFER } CHARACTER-SET, ASSOCIATE, ...
+<DT>File/Pathname control:<DD>
+SET { SEND, RECEIVE } PATHNAMES, SET FILE NAMES.
+<DT>Atomic file movement:<DD>
+SEND (or GET) /DELETE /RENAME /MOVE-TO
+<DT>Transferring to/from standard i/o of other commands:<DD>
+SEND (or GET) /COMMAND
+<DT>Recovery of interrupted transfer from point of failure:<DD>
+RESEND, REGET (HELP RESEND, HELP REGET).
+</DL>
+</DL>
+
+<DT>Non-Kermit File Transfer<DD>
+You can also use C-Kermit to transfer files with FTP or HTTP Internet
+protocols; see below.
+<P>
+On a regular serial or Telnet connection where the other computer
+doesn't support Kermit protocol at all, you have several options. For
+example, if your desktop communications software supports Zmodem, use
+&quot;rz&quot; and &quot;sz&quot; on the host rather than Kermit. But if Kermit is your
+desktop software, and you are using it to make calls or network
+connections to other computers that don't support Kermit protocol (or
+that don't have a good implementation of it), then if your computer
+also has external X, Y, or Zmodem programs that are redirectable,
+Kermit can use them as external protocols. HELP SET PROTOCOL for
+details.
+<P>
+You can also capture &quot;raw&quot; data streams from the other computer with
+LOG SESSION (HELP LOG and HELP SET SESSION-LOG for details), and you
+can upload files without any protocol at all with TRANSMIT (HELP
+TRANSMIT, HELP SET TRANSMIT).
+</DL>
+<A NAME="lbAV">&nbsp;</A>
+<H2>KERMIT'S BUILT-IN FTP AND HTTP CLIENTS</H2>
+
+Kermit's FTP client is like the regular Unix FTP client that you're used
+to, but with some differences:
+<DL COMPACT>
+<DT>*<DD>
+It has lots more commands and features.
+<DT>*<DD>
+Each FTP command must be prefixed with &quot;ftp&quot;, for example &quot;ftp open&quot;,
+&quot;ftp get&quot;, &quot;ftp bye&quot;, etc (this is not strictly true, but until you're
+more familiar with it, it's best to follow this rule).
+<DT>*<DD>
+Commands like &quot;cd&quot;, &quot;directory&quot;, etc, execute locally, not on the
+server. Use &quot;ftp cd&quot;, &quot;ftp dir&quot;, etc, to have them act on the server.
+<DT>*<DD>
+You can have an FTP session and a regular Kermit serial or Telnet
+session open at the same time.
+<DT>*<DD>
+FTP sessions can be fully automated.
+</DL>
+<P>
+
+Pending publication of the next edition of the manual, the Kermit FTP
+client is thoroughly documented at the Kermit Project website:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/ftpclient.php">http://www.columbia.edu/kermit/ftpclient.html</A>
+<P>
+You also can use HELP FTP and HELP SET FTP to get descriptions of Kermit's
+FTP-related commands.
+<P>
+
+The HTTP client is similar to the FTP one, except you prefix each command
+with HTTP instead of FTP: HTTP OPEN, HTTP GET, HTTP PUT, HTTP CLOSE, etc.
+Type HELP HTTP for details, or visit the to view the manual supplements.
+HTTP connections can be open at the same time as regular serial or Telnet
+connections and FTP connections. So Kermit can manage up to three types
+connections simultaneously.
+<A NAME="lbAW">&nbsp;</A>
+<H2>INTERNET KERMIT SERVICE</H2>
+
+C-Kermit can be configured and run as an Internet service (called IKSD),
+similar to an FTP server (FTPD) except you can (but need not) interact with
+it directly, plus it does a lot more than an FTP server can do. The TCP
+port for IKSD is 1649. It uses Telnet protocol. C-Kermit can be an Internet
+Kermit Server, or it can be a client of an IKSD. You can make connections
+from C-Kermit to an IKSD with any of the following commands:
+<P>
+<PRE>
+  telnet foo.bar.edu 1649
+  telnet foo.bar.edu kermit   ; if &quot;kermit&quot; is listed in /etc/services
+  iksd foo.bar.edu
+</PRE>
+
+<P>
+The IKSD command is equivalent to a TELNET command specifying port 1649.
+For more information about making and using connections to an IKSD, see:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/cuiksd.php">http://www.columbia.edu/kermit/cuiksd.html</A>
+<P>
+You can run an Internet Kermit Service on your own computer too (if you are
+the system administrator). For instructions, see:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/iksd.php">http://www.columbia.edu/kermit/iksd.html</A>
+<A NAME="lbAX">&nbsp;</A>
+<H2>SECURITY</H2>
+
+All of C-Kermit's built-in TCP/IP networking methods (Telnet, Rlogin, IKSD,
+FTP, and HTTP) can be secured by one or more of the following IETF-approved
+methods:
+<P>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>MIT Kerberos IV<BR>
+<BR>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>MIT Kerberos V<BR>
+<BR>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>SSL/TLS<BR>
+<BR>
+
+*<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>Stanford SRP<BR>
+<P>
+
+For complete instructions see:
+<P>
+
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/security.php">http://www.columbia.edu/kermit/security.html</A>
+<P>
+
+And as noted previously, you can also make SSH connections with C-Kermit if
+you already have an SSH client installed.
+<A NAME="lbAY">&nbsp;</A>
+<H2>ALTERNATIVE COMMAND-LINE PERSONALITIES</H2>
+
+When invoked as &quot;kermit&quot; or any other name besides &quot;ftp&quot; or &quot;telnet&quot;,
+C-Kermit has the command-line options described above in the OPTIONS
+section. However, if you invoke C-Kermit as &quot;telnet&quot; or &quot;ftp&quot;, it changes
+its command-line personality to match. This can be done (among other ways)
+with symbolic links (symlinks). For example, if you want C-Kermit to be
+your regular Telnet client, or the Telnet helper of your Web browser, you
+can create a link like the following in a directory that lies in your PATH
+ahead of the regular telnet program:
+<P>
+<BR>&nbsp;&nbsp;ln&nbsp;-s&nbsp;/usr/local/bin/kermit&nbsp;telnet
+<P>
+Now when you give a &quot;telnet&quot; command, you are invoking Kermit instead, but
+with its Telnet command-line personality so, for example:
+<P>
+<BR>&nbsp;&nbsp;telnet&nbsp;xyzcorp.com
+<P>
+Makes a Telnet connection to xyzcorp.com, and Kermit exits automatically
+when the connection is closed (just like the regular Telnet client). Type
+&quot;telnet -h&quot; to get a list of Kermit's Telnet-personality command-line
+options, which are intended to be as compatible as possible with the
+regular Telnet client.
+<P>
+
+Similarly for FTP:
+<P>
+<BR>&nbsp;&nbsp;ln&nbsp;-s&nbsp;/usr/local/bin/kermit&nbsp;ftp
+<P>
+And now type &quot;ftp -h&quot; to see its command-line options, and command lines
+just like you would give your regular FTP client:
+<P>
+<BR>&nbsp;&nbsp;ftp&nbsp;xyzcorp.com
+<P>
+but with additional options allowing an entire session to be specified on
+the command line. Finally, if Kermit's
+first command-line option is a Telnet, FTP, IKSD, or HTTP URL, Kermit
+automatically makes the appropriate kind of connection and, if indicated by
+the URL, takes the desired action:
+<DL COMPACT>
+<DT>kermit telnet:xyzcorp.com<DD>
+Opens a Telnet session
+<DT>kermit <A HREF="telnet://olga@xyzcorp.com">telnet://olga@xyzcorp.com</A><DD>
+Ditto for user olga
+<DT>kermit <A HREF="ftp://olga@xyzcorp.com/public/oofa.zip">ftp://olga@xyzcorp.com/public/oofa.zip</A><DD>
+Downloads a file
+<DT>kermit <A HREF="kermit://kermit.columbia.edu/kermit/f/READ.ME">kermit://kermit.columbia.edu/kermit/f/READ.ME</A><DD>
+Ditto for IKSD
+<DT>kermit <A HREF="iksd://kermit.columbia.edu/kermit/f/READ.ME">iksd://kermit.columbia.edu/kermit/f/READ.ME</A><DD>
+(This works too)
+<DT>kermit <A HREF="http://www.columbia.edu/kermit/index.php">http://www.columbia.edu/kermit/index.html</A><DD>
+Grabs a web page
+
+</DL>
+<A NAME="lbAZ">&nbsp;</A>
+<H2>LICENSE</H2>
+
+C-Kermit has an unusual license, but a fair and sensible one since the
+Kermit Project must support itself out of revenue: it's not a BSD license,
+not GPL, not Artistic, not commercial, not shareware, not freeware. It can
+be summed up like this: if you want C-Kermit for your own use, you can
+download and use it without cost or license (but we'd appreciate it if you
+would purchase the manual). But if you want to sell C-Kermit or bundle it
+with a product or otherwise distribute it in a commercial setting EXCEPT
+WITH AN OPEN-SOURCE OPERATING SYSTEM DISTRIBUTION such as Linux, FreeBSD,
+NetBSD, or OpenBSD, you must license it. To see the complete license, give
+the LICENSE command at the prompt, or see the COPYING.TXT file distributed
+with C-Kermit 7.0 or later, or download it from
+<P>
+<BR>&nbsp;&nbsp;<A HREF="ftp://kermit.columbia.edu/kermit/c-kermit/COPYING.TXT">ftp://kermit.columbia.edu/kermit/c-kermit/COPYING.TXT</A>
+<P>
+Send licensing inquiries to <A HREF="mailto:kermit@columbia.edu">kermit@columbia.edu</A>.
+<A NAME="lbBA">&nbsp;</A>
+<H2>BUGS</H2>
+
+See the following files for listings of known bugs, limitations,
+workarounds, hints and tips:
+<DL COMPACT>
+<DT>ckcbwr.txt<DD>
+General C-Kermit bugs, hints, tips.
+<DT>ckubwr.txt<DD>
+Unix-specific C-Kermit bugs, hints, tips.
+</DL>
+<P>
+
+Report bugs and problems by email to:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;<A HREF="mailto:kermit-support@columbia.edu">kermit-support@columbia.edu</A>.
+<P>
+Before requesting technical support, please read the hints here:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/support.php">http://www.columbia.edu/kermit/support.html</A>
+<P>
+and also read the C-Kermit Frequently Asked Questions:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/ckfaq.php">http://www.columbia.edu/kermit/ckfaq.html</A>
+<A NAME="lbBB">&nbsp;</A>
+<H2>OTHER TOPICS</H2>
+
+There's way more to C-Kermit than we've touched on here -- troubleshooting,
+customization, character sets, dialing directories, sending pages, script
+writing, and on and on, all of which are covered in the manual and updates
+and supplements. For the most up-to-date information on documentation (or
+updated documentation itself) visit the Kermit Project website:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/">http://www.columbia.edu/kermit/</A>
+<P>
+
+There you will also find Kermit software packages for other platforms:
+different Unix varieties, Windows, DOS, VMS, IBM mainframes, and many
+others: 20+ years' worth.
+<A NAME="lbBC">&nbsp;</A>
+<H2>DOCUMENTATION AND UPDATES</H2>
+
+The manual for C-Kermit is:
+<DL COMPACT>
+<DT><I>Using C-Kermit</I>
+
+<DD>
+Frank da Cruz and Christine M. Gianone,
+Second Edition, Digital Press / Butterworth-Heinemann, Woburn, MA, 1997, 622
+pages, ISBN 1-55558-164-1. This is a printed book. It covers C-Kermit 6.0.
+<DT>The C-Kermit 7.0 Supplement<DD>
+<A HREF="http://www.columbia.edu/kermit/ckermit2.php">http://www.columbia.edu/kermit/ckermit2.html</A>
+<DT>The C-Kermit 8.0 Supplement<DD>
+<A HREF="http://www.columbia.edu/kermit/ckermit3.php">http://www.columbia.edu/kermit/ckermit3.html</A>
+</DL>
+<P>
+
+Visit C-Kermit home page:
+<P>
+<BR>&nbsp;&nbsp;<A HREF="http://www.columbia.edu/kermit/ckermit.php">http://www.columbia.edu/kermit/ckermit.html</A>
+<P>
+to learn about new versions, Beta tests, and other news; to
+read case studies and tutorials; to download source code, install packages,
+and prebuilt binaries for many platforms. Also visit:
+<DL COMPACT>
+<DT><A HREF="http://www.columbia.edu/kermit/scriptlib.php">http://www.columbia.edu/kermit/scriptlib.html</A><DD>
+The Kermit script library and tutorial
+<DT><A HREF="http://www.columbia.edu/kermit/newfaq.php">http://www.columbia.edu/kermit/newfaq.html</A><DD>
+The Kermit FAQ (Frequently Asked Questions about Kermit)
+<DT><A HREF="http://www.columbia.edu/kermit/ckfaq.php">http://www.columbia.edu/kermit/ckfaq.html</A><DD>
+The C-Kermit FAQ (Frequently Asked Questions about C-Kermit)
+<DT><A HREF="http://www.columbia.edu/kermit/telnet.php">http://www.columbia.edu/kermit/telnet.html</A><DD>
+C-Kermit Telnet client documentation
+<DT><A HREF="http://www.columbia.edu/kermit/security.php">http://www.columbia.edu/kermit/security.html</A><DD>
+C-Kermit security documentation (Kerberos, SSL/TLS, etc)
+<DT><A HREF="http://www.columbia.edu/kermit/cuiksd.php">http://www.columbia.edu/kermit/cuiksd.html</A><DD>
+Internet Kermit Service user documentation
+<DT><A HREF="http://www.columbia.edu/kermit/iksd.php">http://www.columbia.edu/kermit/iksd.html</A><DD>
+Internet Kermit Service administrator documentation
+<DT><A HREF="http://www.columbia.edu/kermit/studies.php">http://www.columbia.edu/kermit/studies.html</A><DD>
+Case studies.
+<DT><A HREF="http://www.columbia.edu/kermit/support.php">http://www.columbia.edu/kermit/support.html</A><DD>
+Technical support.
+<DT><A HREF="http://www.columbia.edu/kermit/k95tutorial.php">http://www.columbia.edu/kermit/k95tutorial.html</A><DD>
+Kermit 95 tutorial.
+<DT>comp.protocols.kermit.misc<DD>
+The Kermit newsgroup (unmoderated).
+</DL>
+<A NAME="lbBD">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>COPYING.TXT<DD>
+C-Kermit license.
+<DT>~/.kermrc<DD>
+Initialization file.
+<DT>~/.mykermrc<DD>
+Customization file.
+<DT>~/.kdd<DD>
+Kermit dialing directory (see manual).
+<DT>~/.knd<DD>
+Kermit network directory (see manual).
+<DT>~/.ksd<DD>
+Kermit services directory (see manual).
+<DT>ca_certs.pem<DD>
+Certificate Authority certifcates used for SSL connections.
+<DT>ckuins.txt<DD>
+Installation instructions for Unix.  Also at
+<A HREF="http://www.columbia.edu/kermit/ckuins.html.">http://www.columbia.edu/kermit/ckuins.html.</A>
+<DT>ckcbwr.txt<DD>
+General C-Kermit bugs, hints, tips.
+<DT>ckubwr.txt<DD>
+Unix-specific C-Kermit bugs, hints, tips.
+<DT>ckcplm.txt<DD>
+C-Kermit program logic manual.
+<DT>ckccfg.txt<DD>
+C-Kermit compile-time configuration options.
+<DT>ssh<DD>
+(in your PATH) SSH connection helper.
+<DT>rz, sz, etc.<DD>
+(in your PATH) external protocols for XYZmodem.
+<DT>/var/spool/locks (or whatever)<DD>
+UUCP lockfile for dialing out (see installation instructions).
+</DL>
+<A NAME="lbBE">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<DL COMPACT>
+<DT>Software<DD>
+Frank da Cruz and Jeffrey E Altman,
+<BR>
+
+1985-present, with contributions from hundreds of others all over the
+world.
+<DT>Documentation<DD>
+Frank da Cruz and Christine M Gianone
+<DT>Address<DD>
+<PRE>
+The Kermit Project - Columbia Univerity
+612 West 115th Street
+New York NY 10025-7799
+USA
+</PRE>
+
+<DT>E-Mail<DD>
+<A HREF="mailto:kermit@columbia.edu">kermit@columbia.edu</A>
+<DT>Web<DD>
+<A HREF="http://www.columbia.edu/kermit/">http://www.columbia.edu/kermit/</A>
+
+<BR>
+
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">COMMAND LANGUAGE</A><DD>
+<DL>
+<DT><A HREF="#lbAG">Command Files, Macros, and Scripts</A><DD>
+<DT><A HREF="#lbAH">Command List</A><DD>
+<DT><A HREF="#lbAI">Basic Commands</A><DD>
+<DT><A HREF="#lbAJ">Local File Management</A><DD>
+<DT><A HREF="#lbAK">Making Connections</A><DD>
+<DT><A HREF="#lbAL">Using Connections</A><DD>
+<DT><A HREF="#lbAM">Closing Connections</A><DD>
+<DT><A HREF="#lbAN">File Transfer</A><DD>
+<DT><A HREF="#lbAO">Kermit Server</A><DD>
+<DT><A HREF="#lbAP">Client of Kermit or FTP Server</A><DD>
+<DT><A HREF="#lbAQ">Script Programming</A><DD>
+</DL>
+<DT><A HREF="#lbAR">INITIALIZATION FILE</A><DD>
+<DT><A HREF="#lbAS">MODES OF OPERATION</A><DD>
+<DT><A HREF="#lbAT">MAKING CONNECTIONS</A><DD>
+<DT><A HREF="#lbAU">TRANSFERRING FILES WITH KERMIT</A><DD>
+<DT><A HREF="#lbAV">KERMIT'S BUILT-IN FTP AND HTTP CLIENTS</A><DD>
+<DT><A HREF="#lbAW">INTERNET KERMIT SERVICE</A><DD>
+<DT><A HREF="#lbAX">SECURITY</A><DD>
+<DT><A HREF="#lbAY">ALTERNATIVE COMMAND-LINE PERSONALITIES</A><DD>
+<DT><A HREF="#lbAZ">LICENSE</A><DD>
+<DT><A HREF="#lbBA">BUGS</A><DD>
+<DT><A HREF="#lbBB">OTHER TOPICS</A><DD>
+<DT><A HREF="#lbBC">DOCUMENTATION AND UPDATES</A><DD>
+<DT><A HREF="#lbBD">FILES</A><DD>
+<DT><A HREF="#lbBE">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

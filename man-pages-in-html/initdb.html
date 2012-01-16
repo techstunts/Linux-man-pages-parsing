@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>INITDB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>INITDB</H1>
+Section: PostgreSQL Server Applications (1)<BR>Updated: 2003-11-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+initdb - create a new PostgreSQL database cluster
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>initdb</B> [ <B></B><I>option</I><B></B>...<B> </B>]  <B>--pgdata </B> | <B>-D </B><I>directory</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>initdb</B> creates a new
+PostgreSQL database cluster. A database
+cluster is a collection of databases that are managed by a single
+server instance.
+<P>
+
+Creating a database cluster consists of creating the directories in which
+the database data will live, generating the shared catalog tables 
+(tables that belong to the whole cluster rather than to any particular
+database), and creating the template1
+database. When you later create a new database, everything in the
+template1 database is copied.
+It contains catalog tables filled in for things like the
+built-in types.
+<P>
+
+<B>initdb</B> initializes the database cluster's
+default locale and character set encoding. Some locale categories
+are fixed for the lifetime of the cluster, so it is important to
+make the right choice when running <B>initdb</B>.
+Other locale categories can be changed later when the server is
+started. <B>initdb</B> will write those locale
+settings into the <I>postgresql.conf</I>
+configuration file so they are the default, but they can be changed
+by editing that file. To set the locale that
+<B>initdb</B> uses, see the description of the
+<B>--locale</B> option. The character set encoding can
+be set separately for each database as it is created.
+<B>initdb</B> determines the encoding for the
+template1 database, which will serve as the
+default for all other databases. To alter the default encoding use
+the <B>--encoding</B> option.
+<P>
+
+<B>initdb</B> must be run as the user that will own the
+server process, because the server needs to have access to the
+files and directories that <B>initdb</B> creates.
+Since the server may not be run as root, you must not run
+<B>initdb</B> as root either. (It will in fact refuse
+to do so.)
+<P>
+
+Although <B>initdb</B> will attempt to create the
+specified data directory, often it won't have permission to do so,
+since the parent of the desired data directory is often a root-owned
+directory. To set up an arrangement like this, create an empty data
+directory as root, then use <B>chown</B> to hand over
+ownership of that directory to the database user account, then
+<B>su</B> to become the database user, and
+finally run <B>initdb</B> as the database user.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+<DL COMPACT>
+<DT><B>-D </B><I>directory</I><B></B><DD>
+<DT><B>--pgdata=</B><I>directory</I><B></B><DD>
+This option specifies the directory where the database cluster
+should be stored. This is the only information required by
+<B>initdb</B>, but you can avoid writing it by
+setting the <B>PGDATA</B> environment variable, which
+can be convenient since the database server
+(<B>postmaster</B>) can find the database
+directory later by the same variable.
+<DT><B>-E </B><I>encoding</I><B></B><DD>
+<DT><B>--encoding=</B><I>encoding</I><B></B><DD>
+Selects the encoding of the template database. This will also
+be the default encoding of any database you create later, unless you
+override it there. The default is SQL_ASCII.
+<DT><B>--locale=</B><I>locale</I><B></B><DD>
+Sets the default locale for the database cluster. If this
+option is not specified, the locale is inherited from the
+environment that <B>initdb</B> runs in.
+<DT><B>--lc-collate=</B><I>locale</I><B></B><DD>
+<DT><B>--lc-ctype=</B><I>locale</I><B></B><DD>
+<DT><B>--lc-messages=</B><I>locale</I><B></B><DD>
+<DT><B>--lc-monetary=</B><I>locale</I><B></B><DD>
+<DT><B>--lc-numeric=</B><I>locale</I><B></B><DD>
+<DT><B>--lc-time=</B><I>locale</I><B></B><DD>
+Like <B>--locale</B>, but only sets the locale in
+the specified category.
+<DT><B>-U </B><I>username</I><B></B><DD>
+<DT><B>--username=</B><I>username</I><B></B><DD>
+Selects the user name of the database superuser. This defaults
+to the name of the effective user running
+<B>initdb</B>. It is really not important what the
+superuser's name is, but one might choose to keep the
+customary name <B>postgres</B>, even if the operating
+system user's name is different.
+<DT><B>-W</B><DD>
+<DT><B>--pwprompt</B><DD>
+Makes <B>initdb</B> prompt for a password
+to give the database superuser. If you don't plan on using password
+authentication, this is not important. Otherwise you won't be
+able to use password authentication until you have a password
+set up.
+</DL>
+<P>
+
+<P>
+
+Other, less commonly used, parameters are also available:
+<DL COMPACT>
+<DT><B>-d</B><DD>
+<DT><B>--debug</B><DD>
+Print debugging output from the bootstrap backend and a few other
+messages of lesser interest for the general public.
+The bootstrap backend is the program <B>initdb</B>
+uses to create the catalog tables. This option generates a tremendous
+amount of extremely boring output.
+<DT><B>-L </B><I>directory</I><B></B><DD>
+Specifies where <B>initdb</B> should find
+its input files to initialize the database cluster. This is
+normally not necessary. You will be told if you need to
+specify their location explicitly.
+<DT><B>-n</B><DD>
+<DT><B>--noclean</B><DD>
+By default, when <B>initdb</B>
+determines that an error prevented it from completely creating the database
+cluster, it removes any files it may have created before discovering
+that it can't finish the job. This option inhibits tidying-up and is
+thus useful for debugging.
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<DL COMPACT>
+<DT><B>PGDATA</B><DD>
+Specifies the directory where the database cluster is to be
+stored; may be overridden using the <B>-D</B> option.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/postgres.1.php">postgres</A></B>(1), <B><A HREF="../man1/postmaster.1.php">postmaster</A></B>(1)
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,912 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLOS390</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLOS390</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.os390 - building and installing Perl for OS/390 and z/OS
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+This document will help you Configure, build, test and install Perl
+on <FONT SIZE="-1">OS/390</FONT> (aka z/OS) Unix System Services.
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This is a fully ported Perl for <FONT SIZE="-1">OS/390</FONT> Version 2 Release 3, 5, 6, 7,
+8, and 9.  It may work on other versions or releases, but those are
+the ones we've tested it on.
+<P>
+
+You may need to carry out some system configuration tasks before
+running the Configure script for Perl.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Tools</H2>
+
+<A NAME="ixAAE"></A>
+The z/OS Unix Tools and Toys list may prove helpful and contains links
+to ports of much of the software helpful for building Perl.
+<A HREF="http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1toy.php">http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1toy.html</A>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Unpacking Perl distribution on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAF"></A>
+If using ftp remember to transfer the distribution in binary format.
+<P>
+
+Gunzip/gzip for <FONT SIZE="-1">OS/390</FONT> is discussed at:
+<P>
+
+
+
+<PRE>
+  <A HREF="http://www-1.ibm.com/servers/eserver/zseries/zos/unix/faq/bpxqp1.php">http://www-1.ibm.com/servers/eserver/zseries/zos/unix/faq/bpxqp1.html</A>
+
+</PRE>
+
+
+<P>
+
+to extract an <FONT SIZE="-1">ASCII</FONT> tar archive on <FONT SIZE="-1">OS/390</FONT>, try this:
+<P>
+
+
+
+<PRE>
+   pax -o to=IBM-1047,from=ISO8859-1 -r &lt; latest.tar
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+   zcat latest.tar.Z | pax -o to=IBM-1047,from=ISO8859-1 -r
+
+</PRE>
+
+
+<P>
+
+If you get lots of errors of the form
+<P>
+
+
+
+<PRE>
+  tar: FSUM7171 ...: cannot set uid/gid: EDC5139I Operation not permitted.
+
+</PRE>
+
+
+<P>
+
+you didn't read the above and tried to use tar instead of pax, you'll
+first have to remove the (now corrupt) perl directory
+<P>
+
+
+
+<PRE>
+   rm -rf perl-...
+
+</PRE>
+
+
+<P>
+
+and then use pax.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Setup and utilities for Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAG"></A>
+Be sure that your yacc installation is in place including any necessary
+parser template files. If you have not already done so then be sure to:
+<P>
+
+
+
+<PRE>
+  cp /samples/yyparse.c /etc
+
+</PRE>
+
+
+<P>
+
+This may also be a good time to ensure that your /etc/protocol file
+and either your /etc/resolv.conf or /etc/hosts files are in place.
+The <FONT SIZE="-1">IBM</FONT> document that described such <FONT SIZE="-1">USS</FONT> system setup issues was
+<FONT SIZE="-1">SC28-1890-07</FONT> ``<FONT SIZE="-1">OS/390</FONT> <FONT SIZE="-1">UNIX</FONT> System Services Planning'', in particular
+Chapter 6 on customizing the <FONT SIZE="-1">OE</FONT> shell.
+<P>
+
+<FONT SIZE="-1">GNU</FONT> make for <FONT SIZE="-1">OS/390</FONT>, which is recommended for the build of perl (as
+well as building <FONT SIZE="-1">CPAN</FONT> modules and extensions), is available from the
+``Tools''.
+<P>
+
+Some people have reported encountering ``Out of memory!'' errors while
+trying to build Perl using <FONT SIZE="-1">GNU</FONT> make binaries.  If you encounter such
+trouble then try to download the source code kit and build <FONT SIZE="-1">GNU</FONT> make
+from source to eliminate any such trouble.  You might also find <FONT SIZE="-1">GNU</FONT> make
+(as well as Perl and Apache) in the red-piece/book ``Open Source Software
+for <FONT SIZE="-1">OS/390</FONT> <FONT SIZE="-1">UNIX</FONT>'', <FONT SIZE="-1">SG24-5944-00</FONT> from <FONT SIZE="-1">IBM</FONT>.
+<P>
+
+If instead of the recommended <FONT SIZE="-1">GNU</FONT> make you would like to use the system
+supplied make program then be sure to install the default rules file
+properly via the shell command:
+<P>
+
+
+
+<PRE>
+    cp /samples/startup.mk /etc
+
+</PRE>
+
+
+<P>
+
+and be sure to also set the environment variable _C89_CCMODE=1 (exporting
+_C89_CCMODE=1 is also a good idea for users of <FONT SIZE="-1">GNU</FONT> make).
+<P>
+
+You might also want to have <FONT SIZE="-1">GNU</FONT> groff for <FONT SIZE="-1">OS/390</FONT> installed before
+running the `make install` step for Perl.
+<P>
+
+There is a syntax error in the /usr/include/sys/socket.h header file
+that <FONT SIZE="-1">IBM</FONT> supplies with <FONT SIZE="-1">USS</FONT> V2R7, V2R8, and possibly V2R9.  The problem with
+the header file is that near the definition of the <FONT SIZE="-1">SO_REUSEPORT</FONT> constant
+there is a spurious extra '/' character outside of a comment like so:
+<P>
+
+
+
+<PRE>
+ #define SO_REUSEPORT    0x0200    /* allow local address &amp; port
+                                      reuse */                    /
+
+</PRE>
+
+
+<P>
+
+You could edit that header yourself to remove that last '/', or you might
+note that Language Environment (<FONT SIZE="-1">LE</FONT>) <FONT SIZE="-1">APAR</FONT> <FONT SIZE="-1">PQ39997</FONT> describes the problem
+and <FONT SIZE="-1">PTF</FONT>'s <FONT SIZE="-1">UQ46272</FONT> and <FONT SIZE="-1">UQ46271</FONT> are the (R8 at least) fixes and apply them.
+If left unattended that syntax error will turn up as an inability for Perl
+to build its ``Socket'' extension.
+<P>
+
+For successful testing you may need to turn on the sticky bit for your
+world readable /tmp directory if you have not already done so (see man chmod).
+<A NAME="lbAH">&nbsp;</A>
+<H2>Configure Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAH"></A>
+Once you've unpacked the distribution, run ``sh Configure'' (see <FONT SIZE="-1">INSTALL</FONT>
+for a full discussion of the Configure options).  There is a ``hints'' file
+for os390 that specifies the correct values for most things.  Some things
+to watch out for include:
+<DL COMPACT>
+<DT>*<DD>
+A message of the form:
+
+
+<P>
+
+
+
+
+<PRE>
+ (I see you are using the Korn shell.  Some ksh's blow up on Configure,
+ mainly on older exotic systems.  If yours does, try the Bourne shell instead.)
+
+</PRE>
+
+
+
+
+<P>
+
+
+is nothing to worry about at all.
+<DT>*<DD>
+Some of the parser default template files in /samples are needed in /etc.
+In particular be sure that you at least copy /samples/yyparse.c to /etc
+before running Perl's Configure.  This step ensures successful extraction
+of <FONT SIZE="-1">EBCDIC</FONT> versions of parser files such as perly.c, perly.h, and x2p/a2p.c.
+This has to be done before running Configure the first time.  If you failed
+to do so then the easiest way to re-Configure Perl is to delete your
+misconfigured build root and re-extract the source from the tar ball.
+Then you must ensure that /etc/yyparse.c is properly in place before
+attempting to re-run Configure.
+<DT>*<DD>
+This port will support dynamic loading, but it is not selected by
+default.  If you would like to experiment with dynamic loading then
+be sure to specify -Dusedl in the arguments to the Configure script.
+See the comments in hints/os390.sh for more information on dynamic loading.
+If you build with dynamic loading then you will need to add the
+<TT>$archlibexp</TT>/CORE directory to your <FONT SIZE="-1">LIBPATH</FONT> environment variable in order
+for perl to work.  See the config.sh file for the value of <TT>$archlibexp</TT>.
+If in trying to use Perl you see an error message similar to:
+
+
+<P>
+
+
+
+
+<PRE>
+ CEE3501S The module libperl.dll was not found.
+         From entry point __dllstaticinit at compile unit offset +00000194 at
+
+</PRE>
+
+
+
+
+<P>
+
+
+then your <FONT SIZE="-1">LIBPATH</FONT> does not have the location of libperl.x and either
+libperl.dll or libperl.so in it.  Add that directory to your <FONT SIZE="-1">LIBPATH</FONT> and
+proceed.
+<DT>*<DD>
+Do not turn on the compiler optimization flag ``-O''.  There is
+a bug in either the optimizer or perl that causes perl to
+not work correctly when the optimizer is on.
+<DT>*<DD>
+Some of the configuration files in /etc used by the
+networking APIs are either missing or have the wrong
+names.  In particular, make sure that there's either
+an /etc/resolv.conf or an /etc/hosts, so that
+<I>gethostbyname()</I> works, and make sure that the file
+/etc/proto has been renamed to /etc/protocol (<FONT SIZE="-1">NOT</FONT>
+/etc/protocols, as used by other Unix systems).
+You may have to look for things like <FONT SIZE="-1">HOSTNAME</FONT> and <FONT SIZE="-1">DOMAINORIGIN</FONT>
+in the ``//'<FONT SIZE="-1">SYS1</FONT>.TCPPARMS(<FONT SIZE="-1">TCPDATA</FONT>)''' <FONT SIZE="-1">PDS</FONT> member in order to
+properly set up your /etc networking files.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>Build, Test, Install Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAI"></A>
+Simply put:
+<P>
+
+
+
+<PRE>
+    sh Configure
+    make
+    make test
+
+</PRE>
+
+
+<P>
+
+if everything looks ok (see the next section for test/IVP diagnosis) then:
+<P>
+
+
+
+<PRE>
+    make install
+
+</PRE>
+
+
+<P>
+
+this last step may or may not require UID=0 privileges depending
+on how you answered the questions that Configure asked and whether
+or not you have write access to the directories you specified.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Build Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAJ"></A>
+``Out of memory!'' messages during the build of Perl are most often fixed
+by re building the <FONT SIZE="-1">GNU</FONT> make utility for <FONT SIZE="-1">OS/390</FONT> from a source code kit.
+<P>
+
+Another memory limiting item to check is your <FONT SIZE="-1">MAXASSIZE</FONT> parameter in your
+'<FONT SIZE="-1">SYS1</FONT>.PARMLIB(BPXPRMxx)' data set (note too that as of V2R8 address space
+limits can be set on a per user <FONT SIZE="-1">ID</FONT> basis in the <FONT SIZE="-1">USS</FONT> segment of a <FONT SIZE="-1">RACF</FONT>
+profile).  People have reported successful builds of Perl with <FONT SIZE="-1">MAXASSIZE</FONT>
+parameters as small as 503316480 (and it may be possible to build Perl
+with a <FONT SIZE="-1">MAXASSIZE</FONT> smaller than that).
+<P>
+
+Within <FONT SIZE="-1">USS</FONT> your /etc/profile or <TT>$HOME</TT>/.profile may limit your ulimit
+settings.  Check that the following command returns reasonable values:
+<P>
+
+
+
+<PRE>
+    ulimit -a
+
+</PRE>
+
+
+<P>
+
+To conserve memory you should have your compiler modules loaded into the
+Link Pack Area (<FONT SIZE="-1">LPA/ELPA</FONT>) rather than in a link list or step lib.
+<P>
+
+If the c89 compiler complains of syntax errors during the build of the
+Socket extension then be sure to fix the syntax error in the system
+header /usr/include/sys/socket.h.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Testing Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAK"></A>
+The `make test` step runs a Perl Verification Procedure, usually before
+installation.  You might encounter <FONT SIZE="-1">STDERR</FONT> messages even during a successful
+run of `make test`.  Here is a guide to some of the more commonly seen
+anomalies:
+<DL COMPACT>
+<DT>*<DD>
+A message of the form:
+
+
+<P>
+
+
+
+
+<PRE>
+ comp/cpp.............ERROR CBC3191 ./.301989890.c:1     The character $ is not a
+  valid C source character.
+ FSUM3065 The COMPILE step ended with return code 12.
+ FSUM3017 Could not compile .301989890.c. Correct the errors and try again.
+ ok
+
+</PRE>
+
+
+
+
+<P>
+
+
+indicates that the t/comp/cpp.t test of Perl's -P command line switch has
+passed but that the particular invocation of c89 -E in the cpp script does
+not suppress the C compiler check of source code validity.
+<DT>*<DD>
+A message of the form:
+
+
+<P>
+
+
+
+
+<PRE>
+ io/openpid...........CEE5210S The signal SIGHUP was received.
+ CEE5210S The signal SIGHUP was received.
+ CEE5210S The signal SIGHUP was received.
+ ok
+
+</PRE>
+
+
+
+
+<P>
+
+
+indicates that the t/io/openpid.t test of Perl has passed but done so
+with extraneous messages on stderr from <FONT SIZE="-1">CEE</FONT>.
+<DT>*<DD>
+A message of the form:
+
+
+<P>
+
+
+
+
+<PRE>
+ lib/ftmp-security....File::Temp::_gettemp: Parent directory (/tmp/) is not safe
+ (sticky bit not set when world writable?) at lib/ftmp-security.t line 100
+ File::Temp::_gettemp: Parent directory (/tmp/) is not safe (sticky bit not
+ set when world writable?) at lib/ftmp-security.t line 100
+ ok
+
+</PRE>
+
+
+
+
+<P>
+
+
+indicates a problem with the permissions on your /tmp directory within the <FONT SIZE="-1">HFS</FONT>.
+To correct that problem issue the command:
+
+
+<P>
+
+
+
+
+<PRE>
+     chmod a+t /tmp
+
+</PRE>
+
+
+
+
+<P>
+
+
+from an account with write access to the directory entry for /tmp.
+<DT>*<DD>
+Out of Memory!
+
+
+<P>
+
+
+Recent perl test suite is quite memory hunrgy. In addition to the comments
+above on memory limitations it is also worth checking for _CEE_RUNOPTS
+in your environment. Perl now has (in miniperlmain.c) a C #pragma
+to set <FONT SIZE="-1">CEE</FONT> run options, but the environment variable wins.
+
+
+<P>
+
+
+The C code asks for:
+
+
+<P>
+
+
+
+
+<PRE>
+ #pragma runopts(HEAP(2M,500K,ANYWHERE,KEEP,8K,4K) STACK(,,ANY,) ALL31(ON))
+
+</PRE>
+
+
+
+
+<P>
+
+
+The important parts of that are the second argument (the increment) to <FONT SIZE="-1">HEAP</FONT>,
+and allowing the stack to be ``Above the (16M) line''. If the heap
+increment is too small then when perl (for example loading unicode/Name.pl) tries
+to create a ``big'' (400K+) string it cannot fit in a single segment
+and you get ``Out of Memory!'' - even if there is still plenty of memory
+available.
+
+
+<P>
+
+
+A related issue is use with perl's malloc. Perl's malloc uses <TT>&quot;sbrk()&quot;</TT>
+to get memory, and <TT>&quot;sbrk()&quot;</TT> is limited to the first allocation so in this
+case something like:
+
+
+<P>
+
+
+
+
+<PRE>
+  HEAP(8M,500K,ANYWHERE,KEEP,8K,4K)
+
+</PRE>
+
+
+
+
+<P>
+
+
+is needed to get through the test suite.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>Installation Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAL"></A>
+The installman script will try to run on <FONT SIZE="-1">OS/390</FONT>.  There will be fewer errors
+if you have a roff utility installed.  You can obtain <FONT SIZE="-1">GNU</FONT> groff from the
+Redbook <FONT SIZE="-1">SG24-5944-00</FONT> ftp site.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Usage Hints for Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAM"></A>
+When using perl on <FONT SIZE="-1">OS/390</FONT> please keep in mind that the <FONT SIZE="-1">EBCDIC</FONT> and <FONT SIZE="-1">ASCII</FONT>
+character sets are different.  See perlebcdic.pod for more on such character
+set issues.  Perl builtin functions that may behave differently under
+<FONT SIZE="-1">EBCDIC</FONT> are also mentioned in the perlport.pod document.
+<P>
+
+Open Edition (<FONT SIZE="-1">UNIX</FONT> System Services) from V2R8 onward does support
+#!/path/to/perl script invocation.  There is a <FONT SIZE="-1">PTF</FONT> available from
+<FONT SIZE="-1">IBM</FONT> for V2R7 that will allow shell/kernel support for #!.  <FONT SIZE="-1">USS</FONT>
+releases prior to V2R7 did not support the #! means of script invocation.
+If you are running V2R6 or earlier then see:
+<P>
+
+
+
+<PRE>
+    head `whence perldoc`
+
+</PRE>
+
+
+<P>
+
+for an example of how to use the ``eval exec'' trick to ask the shell to
+have Perl run your scripts on those older releases of Unix System Services.
+<P>
+
+If you are having trouble with square brackets then consider switching your
+rlogin or telnet client.  Try to avoid older 3270 emulators and <FONT SIZE="-1">ISHELL</FONT> for
+working with Perl on <FONT SIZE="-1">USS</FONT>.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Floating Point Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAN"></A>
+There appears to be a bug in the floating point implementation on S/390
+systems such that calling <I>int()</I> on the product of a number and a small
+magnitude number is not the same as calling <I>int()</I> on the quotient of
+that number and a large magnitude number.  For example, in the following
+Perl code:
+<P>
+
+
+
+<PRE>
+    my $x = 100000.0;
+    my $y = int($x * 1e-5) * 1e5; # '0'
+    my $z = int($x / 1e+5) * 1e5;  # '100000'
+    print &quot;\$y is $y and \$z is $z\n&quot;; # $y is 0 and $z is 100000
+
+</PRE>
+
+
+<P>
+
+Although one would expect the quantities <TT>$y</TT> and <TT>$z</TT> to be the same and equal
+to 100000 they will differ and instead will be 0 and 100000 respectively.
+<P>
+
+The problem can be further examined in a roughly equivalent C program:
+<P>
+
+
+
+<PRE>
+    #include &lt;<A HREF="file:/usr/include/stdio.h">stdio.h</A>&gt;
+    #include &lt;<A HREF="file:/usr/include/math.h">math.h</A>&gt;
+    main()
+    {
+    double r1,r2;
+    double x = 100000.0;
+    double y = 0.0;
+    double z = 0.0;
+    x = 100000.0 * 1e-5;
+    r1 = modf (x,&amp;y);
+    x = 100000.0 / 1e+5;
+    r2 = modf (x,&amp;z);
+    printf(&quot;y is %e and z is %e\n&quot;,y*1e5,z*1e5);
+    /* y is 0.000000e+00 and z is 1.000000e+05 (with c89) */
+    }
+
+</PRE>
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>Modules and Extensions for Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAO"></A>
+Pure pure (that is non xs) modules may be installed via the usual:
+<P>
+
+
+
+<PRE>
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+</PRE>
+
+
+<P>
+
+If you built perl with dynamic loading capability then that would also
+be the way to build xs based extensions.  However, if you built perl with
+the default static linking you can still build xs based extensions for <FONT SIZE="-1">OS/390</FONT>
+but you will need to follow the instructions in ExtUtils::MakeMaker for
+building statically linked perl binaries.  In the simplest configurations
+building a static perl + xs extension boils down to:
+<P>
+
+
+
+<PRE>
+    perl Makefile.PL
+    make
+    make perl
+    make test
+    make install
+    make -f Makefile.aperl inst_perl MAP_TARGET=perl
+
+</PRE>
+
+
+<P>
+
+In most cases people have reported better results with <FONT SIZE="-1">GNU</FONT> make rather
+than the system's /bin/make program, whether for plain modules or for
+xs based extensions.
+<P>
+
+If the make process encounters trouble with either compilation or
+linking then try setting the _C89_CCMODE to 1.  Assuming sh is your
+login shell then run:
+<P>
+
+
+
+<PRE>
+    export _C89_CCMODE=1
+
+</PRE>
+
+
+<P>
+
+If tcsh is your login shell then use the setenv command.
+<A NAME="lbAP">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixAAP"></A>
+David Fiander and Peter Prymmer with thanks to Dennis Longnecker
+and William Raffloer for valuable reports, <FONT SIZE="-1">LPAR</FONT> and <FONT SIZE="-1">PTF</FONT> feedback.
+Thanks to Mike MacIsaac and Egon Terwedow for <FONT SIZE="-1">SG24-5944-00</FONT>.
+Thanks to Ignasi Roca for pointing out the floating point problems.
+Thanks to John Goodyear for dynamic loading help.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAQ"></A>
+<FONT SIZE="-1">INSTALL</FONT>, perlport, perlebcdic, ExtUtils::MakeMaker.
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1toy.php">http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1toy.html</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.redbooks.ibm.com/abstracts/sg245944.php">http://www.redbooks.ibm.com/abstracts/sg245944.html</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1ty1.html#opensrc">http://www-1.ibm.com/servers/eserver/zseries/zos/unix/bpxa1ty1.html#opensrc</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/">http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/ceea3030/">http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/ceea3030/</A>
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    <A HREF="http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/CBCUG030/">http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/CBCUG030/</A>
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>Mailing list for Perl on <FONT SIZE="-1">OS/390</FONT></H2>
+
+<A NAME="ixAAR"></A>
+If you are interested in the <FONT SIZE="-1">VM/ESA</FONT>, z/OS (formerly known as <FONT SIZE="-1">OS/390</FONT>)
+and POSIX-BC (<FONT SIZE="-1">BS2000</FONT>) ports of Perl then see the perl-mvs mailing list.
+To subscribe, send an empty message to <A HREF="mailto:perl-mvs-subscribe@perl.org">perl-mvs-subscribe@perl.org</A>.
+<P>
+
+See also:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://lists.perl.org/showlist.cgi?name=perl-mvs">http://lists.perl.org/showlist.cgi?name=perl-mvs</A>
+
+</PRE>
+
+
+<P>
+
+There are web archives of the mailing list at:
+<P>
+
+
+
+<PRE>
+    <A HREF="http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/">http://www.xray.mpe.mpg.de/mailing-lists/perl-mvs/</A>
+    <A HREF="http://archive.develooper.com/perl-mvs@perl.org/">http://archive.develooper.com/perl-mvs@perl.org/</A>
+
+</PRE>
+
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAAS"></A>
+This document was originally written by David Fiander for the 5.005
+release of Perl.
+<P>
+
+This document was podified for the 5.005_03 release of Perl 11 March 1999.
+<P>
+
+Updated 28 November 2001 for broken URLs.
+<P>
+
+Updated 12 November 2000 for the 5.7.1 release of Perl.
+<P>
+
+Updated 15 January 2001 for the 5.7.1 release of Perl.
+<P>
+
+Updated 24 January 2001 to mention dynamic loading.
+<P>
+
+Updated 12 March 2001 to mention //'<FONT SIZE="-1">SYS1</FONT>.TCPPARMS(<FONT SIZE="-1">TCPDATA</FONT>)'.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Tools</A><DD>
+<DT><A HREF="#lbAF">Unpacking Perl distribution on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAG">Setup and utilities for Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAH">Configure Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAI">Build, Test, Install Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAJ">Build Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAK">Testing Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAL">Installation Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAM">Usage Hints for Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAN">Floating Point Anomalies with Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAO">Modules and Extensions for Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAP">AUTHORS</A><DD>
+<DT><A HREF="#lbAQ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAR">Mailing list for Perl on <FONT SIZE="-1">OS/390</FONT></A><DD>
+<DT><A HREF="#lbAS">HISTORY</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

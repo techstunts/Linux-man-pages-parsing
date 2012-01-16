@@ -1,0 +1,422 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DIG</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DIG</H1>
+Section:  (1)<BR>Updated: Jun 30, 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dig - DNS lookup utility
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>dig</B> [ <B>@server</B> ]  [ <B>-b </B><I>address</I><B></B> ]  [ <B>-c </B><I>class</I><B></B> ]  [ <B>-f </B><I>filename</I><B></B> ]  [ <B>-k </B><I>filename</I><B></B> ]  [ <B>-p </B><I>port#</I><B></B> ]  [ <B>-t </B><I>type</I><B></B> ]  [ <B>-x </B><I>addr</I><B></B> ]  [ <B>-y </B><I>name:key</I><B></B> ]  [ <B>name</B> ]  [ <B>type</B> ]  [ <B>class</B> ]  [ <B>queryopt</B><I>...</I> ] 
+<P>
+<B>dig</B> [ <B>-h</B> ] 
+<P>
+<B>dig</B> [ <B>global-queryopt</B><I>...</I> ]  [ <B>query</B><I>...</I> ] 
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+<B>dig</B> (domain information groper) is a flexible tool
+for interrogating DNS name servers. It performs DNS lookups and
+displays the answers that are returned from the name server(s) that
+were queried. Most DNS administrators use <B>dig</B> to
+troubleshoot DNS problems because of its flexibility, ease of use and
+clarity of output. Other lookup tools tend to have less functionality
+than <B>dig</B>.
+<P>
+
+Although <B>dig</B> is normally used with command-line
+arguments, it also has a batch mode of operation for reading lookup
+requests from a file. A brief summary of its command-line arguments
+and options is printed when the <B>-h</B> option is given.
+Unlike earlier versions, the BIND9 implementation of
+<B>dig</B> allows multiple lookups to be issued from the
+command line.
+<P>
+
+Unless it is told to query a specific name server,
+<B>dig</B> will try each of the servers listed in
+<I>/etc/resolv.conf</I>.
+<P>
+
+When no command line arguments or options are given, will perform an
+NS query for &quot;.&quot; (the root).
+<P>
+
+It is possible to set per user defaults for <B>dig</B> via
+<I>${HOME}/.digrc</I>. This file is read and any options in it
+are applied before the command line arguments.
+<A NAME="lbAE">&nbsp;</A>
+<H2>SIMPLE USAGE</H2>
+
+<P>
+
+A typical invocation of <B>dig</B> looks like:
+<P>
+<PRE>
+ dig @server name type 
+
+</PRE>
+
+where:
+<DL COMPACT>
+<DT><B>server</B><DD>
+is the name or IP address of the name server to query. This can be an IPv4
+address in dotted-decimal notation or an IPv6
+address in colon-delimited notation. When the supplied
+<I>server</I> argument is a hostname,
+<B>dig</B> resolves that name before querying that name
+server. If no <I>server</I> argument is provided,
+<B>dig</B> consults <I>/etc/resolv.conf</I>
+and queries the name servers listed there. The reply from the name
+server that responds is displayed.
+<DT><B>name</B><DD>
+is the name of the resource record that is to be looked up.
+<DT><B>type</B><DD>
+indicates what type of query is required ---
+ANY, A, MX, SIG, etc.
+<I>type</I> can be any valid query type. If no
+<I>type</I> argument is supplied,
+<B>dig</B> will perform a lookup for an A record.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+The <B>-b</B> option sets the source IP address of the query
+to <I>address</I>. This must be a valid address on
+one of the host's network interfaces.
+<P>
+
+The default query class (IN for internet) is overridden by the
+<B>-c</B> option. <I>class</I> is any valid
+class, such as HS for Hesiod records or CH for CHAOSNET records.
+<P>
+
+The <B>-f</B> option makes <B>dig </B> operate
+in batch mode by reading a list of lookup requests to process from the
+file <I>filename</I>. The file contains a number of
+queries, one per line. Each entry in the file should be organised in
+the same way they would be presented as queries to
+<B>dig</B> using the command-line interface.
+<P>
+
+If a non-standard port number is to be queried, the
+<B>-p</B> option is used. <I>port#</I> is
+the port number that <B>dig</B> will send its queries
+instead of the standard DNS port number 53. This option would be used
+to test a name server that has been configured to listen for queries
+on a non-standard port number.
+<P>
+
+The <B>-t</B> option sets the query type to
+<I>type</I>. It can be any valid query type which is
+supported in BIND9. The default query type &quot;A&quot;, unless the
+<B>-x</B> option is supplied to indicate a reverse lookup.
+A zone transfer can be requested by specifying a type of AXFR. When
+an incremental zone transfer (IXFR) is required,
+<I>type</I> is set to ixfr=N.
+The incremental zone transfer will contain the changes made to the zone
+since the serial number in the zone's SOA record was
+<I>N</I>.
+<P>
+
+Reverse lookups - mapping addresses to names - are simplified by the
+<B>-x</B> option. <I>addr</I> is an IPv4
+address in dotted-decimal notation, or a colon-delimited IPv6 address.
+When this option is used, there is no need to provide the
+<I>name</I>, <I>class</I> and
+<I>type</I> arguments. <B>dig</B>
+automatically performs a lookup for a name like
+11.12.13.10.in-addr.arpa and sets the query type and
+class to PTR and IN respectively. By default, IPv6 addresses are
+looked up using the IP6.ARPA domain and binary labels as defined in
+RFC2874. To use the older RFC1886 method using the IP6.INT domain and
+&quot;nibble&quot; labels, specify the <B>-n</B> (nibble) option.
+<P>
+
+To sign the DNS queries sent by <B>dig</B> and their
+responses using transaction signatures (TSIG), specify a TSIG key file
+using the <B>-k</B> option. You can also specify the TSIG
+key itself on the command line using the <B>-y</B> option;
+<I>name</I> is the name of the TSIG key and
+<I>key</I> is the actual key. The key is a base-64
+encoded string, typically generated by <B><A HREF="../man8/dnssec-keygen.8.php">dnssec-keygen</A></B>(8).
+Caution should be taken when using the <B>-y</B> option on
+multi-user systems as the key can be visible in the output from
+<B><A HREF="../man1/ps.1.php">ps</A></B>(1) or in the shell's history file. When
+using TSIG authentication with <B>dig</B>, the name
+server that is queried needs to know the key and algorithm that is
+being used. In BIND, this is done by providing appropriate
+<B>key</B> and <B>server</B> statements in
+<I>named.conf</I>.
+<A NAME="lbAG">&nbsp;</A>
+<H2>QUERY OPTIONS</H2>
+
+<P>
+
+<B>dig</B> provides a number of query options which affect
+the way in which lookups are made and the results displayed. Some of
+these set or reset flag bits in the query header, some determine which
+sections of the answer get printed, and others determine the timeout
+and retry strategies.
+<P>
+
+Each query option is identified by a keyword preceded by a plus sign
+(+). Some keywords set or reset an option. These may be preceded
+by the string no to negate the meaning of that keyword. Other
+keywords assign values to options like the timeout interval. They
+have the form <B>+keyword=value</B>.
+The query options are:
+<DL COMPACT>
+<DT><B>+[no]tcp</B><DD>
+Use [do not use] TCP when querying name servers. The default
+behaviour is to use UDP unless an AXFR or IXFR query is requested, in
+which case a TCP connection is used.
+<DT><B>+[no]vc</B><DD>
+Use [do not use] TCP when querying name servers. This alternate
+syntax to <I>+[no]tcp</I> is provided for backwards
+compatibility. The &quot;vc&quot; stands for &quot;virtual circuit&quot;.
+<DT><B>+[no]ignore</B><DD>
+Ignore truncation in UDP responses instead of retrying with TCP. By
+default, TCP retries are performed.
+<DT><B>+domain=somename</B><DD>
+Set the search list to contain the single domain
+<I>somename</I>, as if specified in a
+<B>domain</B> directive in
+<I>/etc/resolv.conf</I>, and enable search list
+processing as if the <I>+search</I> option were given.
+<DT><B>+[no]search</B><DD>
+Use [do not use] the search list defined by the searchlist or domain
+directive in <I>resolv.conf</I> (if any).
+The search list is not used by default.
+<DT><B>+[no]defname</B><DD>
+Deprecated, treated as a synonym for <I>+[no]search</I>
+<DT><B>+[no]aaonly</B><DD>
+This option does nothing. It is provided for compatibility with old
+versions of <B>dig</B> where it set an unimplemented
+resolver flag.
+<DT><B>+[no]adflag</B><DD>
+Set [do not set] the AD (authentic data) bit in the query. The AD bit
+currently has a standard meaning only in responses, not in queries,
+but the ability to set the bit in the query is provided for
+completeness.
+<DT><B>+[no]cdflag</B><DD>
+Set [do not set] the CD (checking disabled) bit in the query. This
+requests the server to not perform DNSSEC validation of responses.
+<DT><B>+[no]recurse</B><DD>
+Toggle the setting of the RD (recursion desired) bit in the query.
+This bit is set by default, which means <B>dig</B>
+normally sends recursive queries. Recursion is automatically disabled
+when the <I>+nssearch</I> or
+<I>+trace</I> query options are used.
+<DT><B>+[no]nssearch</B><DD>
+When this option is set, <B>dig</B> attempts to find the
+authoritative name servers for the zone containing the name being
+looked up and display the SOA record that each name server has for the
+zone.
+<DT><B>+[no]trace</B><DD>
+Toggle tracing of the delegation path from the root name servers for
+the name being looked up. Tracing is disabled by default. When
+tracing is enabled, <B>dig</B> makes iterative queries to
+resolve the name being looked up. It will follow referrals from the
+root servers, showing the answer from each server that was used to
+resolve the lookup.
+<DT><B>+[no]cmd</B><DD>
+toggles the printing of the initial comment in the output identifying
+the version of <B>dig</B> and the query options that have
+been applied. This comment is printed by default.
+<DT><B>+[no]short</B><DD>
+Provide a terse answer. The default is to print the answer in a
+verbose form.
+<DT><B>+[no]identify</B><DD>
+Show [or do not show] the IP address and port number that supplied the
+answer when the <I>+short</I> option is enabled. If
+short form answers are requested, the default is not to show the
+source address and port number of the server that provided the answer.
+<DT><B>+[no]comments</B><DD>
+Toggle the display of comment lines in the output. The default is to
+print comments.
+<DT><B>+[no]stats</B><DD>
+This query option toggles the printing of statistics: when the query
+was made, the size of the reply and so on. The default behaviour is
+to print the query statistics.
+<DT><B>+[no]qr</B><DD>
+Print [do not print] the query as it is sent.
+By default, the query is not printed.
+<DT><B>+[no]question</B><DD>
+Print [do not print] the question section of a query when an answer is
+returned. The default is to print the question section as a comment.
+<DT><B>+[no]answer</B><DD>
+Display [do not display] the answer section of a reply. The default
+is to display it.
+<DT><B>+[no]authority</B><DD>
+Display [do not display] the authority section of a reply. The
+default is to display it.
+<DT><B>+[no]additional</B><DD>
+Display [do not display] the additional section of a reply.
+The default is to display it.
+<DT><B>+[no]all</B><DD>
+Set or clear all display flags.
+<DT><B>+time=T</B><DD>
+Sets the timeout for a query to
+<I>T</I> seconds. The default time out is 5 seconds.
+An attempt to set <I>T</I> to less than 1 will result
+in a query timeout of 1 second being applied.
+<DT><B>+tries=T</B><DD>
+Sets the number of times to retry UDP queries to server to
+<I>T</I> instead of the default, 3. If
+<I>T</I> is less than or equal to zero, the number of
+retries is silently rounded up to 1.
+<DT><B>+ndots=D</B><DD>
+Set the number of dots that have to appear in
+<I>name</I> to <I>D</I> for it to be
+considered absolute. The default value is that defined using the
+ndots statement in <I>/etc/resolv.conf</I>, or 1 if no
+ndots statement is present. Names with fewer dots are interpreted as
+relative names and will be searched for in the domains listed in the
+<B>search</B> or <B>domain</B> directive in
+<I>/etc/resolv.conf</I>.
+<DT><B>+bufsize=B</B><DD>
+Set the UDP message buffer size advertised using EDNS0 to
+<I>B</I> bytes. The maximum and minimum sizes of this
+buffer are 65535 and 0 respectively. Values outside this range are
+rounded up or down appropriately.
+<DT><B>+[no]multiline</B><DD>
+Print records like the SOA records in a verbose multi-line
+format with human-readable comments. The default is to print
+each record on a single line, to facilitate machine parsing 
+of the <B>dig</B> output.
+<DT><B>+[no]fail</B><DD>
+Do not try the next server if you receive a SERVFAIL. The default is
+to not try the next server which is the reverse of normal stub resolver
+behaviour.
+<DT><B>+[no]besteffort</B><DD>
+Attempt to display the contents of messages which are malformed.
+The default is to not display malformed answers.
+<DT><B>+[no]dnssec</B><DD>
+Requests DNSSEC records be sent by setting the DNSSEC OK bit (DO)
+in the OPT record in the additional section of the query.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>MULTIPLE QUERIES</H2>
+
+<P>
+
+The BIND 9 implementation of <B>dig </B> supports
+specifying multiple queries on the command line (in addition to
+supporting the <B>-f</B> batch file option). Each of those
+queries can be supplied with its own set of flags, options and query
+options.
+<P>
+
+In this case, each <I>query</I> argument represent an
+individual query in the command-line syntax described above. Each
+consists of any of the standard options and flags, the name to be
+looked up, an optional query type and class and any query options that
+should be applied to that query.
+<P>
+
+A global set of query options, which should be applied to all queries,
+can also be supplied. These global query options must precede the
+first tuple of name, class, type, options, flags, and query options
+supplied on the command line. Any global query options (except
+the <B>+[no]cmd</B> option) can be
+overridden by a query-specific set of query options. For example:
+<P>
+<PRE>
+dig +qr <A HREF="http://www.isc.org">www.isc.org</A> any -x 127.0.0.1 isc.org ns +noqr
+
+</PRE>
+
+shows how <B>dig</B> could be used from the command line
+to make three lookups: an ANY query for <A HREF="http://www.isc.org">www.isc.org</A>, a
+reverse lookup of 127.0.0.1 and a query for the NS records of
+isc.org.
+A global query option of <I>+qr</I> is applied, so
+that <B>dig</B> shows the initial query it made for each
+lookup. The final query has a local query option of
+<I>+noqr</I> which means that <B>dig</B>
+will not print the initial query when it looks up the NS records for
+isc.org.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+
+<I>/etc/resolv.conf</I>
+<P>
+
+<I>${HOME}/.digrc</I>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="../man1/host.1.php">host</A></B>(1),
+<B><A HREF="../man8/named.8.php">named</A></B>(8),
+<B><A HREF="../man8/dnssec-keygen.8.php">dnssec-keygen</A></B>(8),
+<I>RFC1035</I>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+There are probably too many query options. 
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">SIMPLE USAGE</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">QUERY OPTIONS</A><DD>
+<DT><A HREF="#lbAH">MULTIPLE QUERIES</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">BUGS</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

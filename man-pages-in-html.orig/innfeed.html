@@ -1,0 +1,676 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>INNFEED</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>INNFEED</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+innfeed - multi-host, multi-connection, streaming NNTP feeder.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>innfeed</B>
+
+[
+<B>-a spool-dir</B>
+
+]
+[
+<B>-b</B><I> directory</I>
+
+]
+[
+<B>-C</B>
+
+]
+[
+<B>-c</B><I> filename</I>
+
+]
+[
+<B>-d</B><I> num</I>
+
+]
+[
+<B>-e</B><I> bytes</I>
+
+]
+[
+<B>-h</B>
+
+]
+[
+<B>-l</B><I> filename</I>
+
+]
+[
+<B>-m</B>
+
+]
+[
+<B>-M</B>
+
+]
+[
+<B>-o bytes</B>
+
+]
+[
+<B>-p file</B>
+
+]
+[
+<B>-S file</B>
+
+]
+[
+<B>-x </B>
+
+]
+[
+<B>-y</B>
+
+]
+[
+<B>-z </B>
+
+]
+[
+<B>-v</B>
+
+]
+[ file ]
+
+
+
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+This man page describes version 1.0 of innfeed.
+<P>
+
+<I>Innfeed</I>
+
+implements the NNTP protocol for transferring news between computers. It
+handles both the standard IHAVE protocol as well as the CHECK/TAKETHIS
+streaming extension. Innfeed can feed any number of remote hosts at once
+and will open multiple connections to each host if configured to do so. The
+only limitations are the process limits for open file descriptors and memory.
+
+
+
+
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>MODES</H2>
+
+<P>
+
+<I>Innfeed</I>
+
+has three modes of operation: channel, funnel-file and batch.
+<P>
+
+Channel mode is used when no filename is given on the command line,
+the ``input-file'' keyword is <I>not</I> given in the config file, <I>and</I>
+the ``<I>-x</I>'' option is <I>not</I> given.
+In channel mode innfeed runs with stdin connected via a pipe to
+innd. Whenever innd closes this pipe (and it has several reasons during
+normal processing to do so), innfeed will exit. It first will try to
+finish sending all articles it was in the middle of transmitting, before
+issuing a QUIT command. This means innfeed may take a while to exit
+depending on how slow your peers are. It never (well, almost never) just
+drops the connection.
+<P>
+
+Funnel-file mode is used when a filename is given as an argument
+or the ``input-file'' keyword is given in the config file.
+In funnel file mode it reads the specified file for the same formatted
+information as innd would give in channel mode. It is expected that innd is
+continually writing to this file, so when innfeed reaches the end of the file
+it will check periodically for new information. To prevent the funnel file
+from growing without bounds, you will need to periodically move the file to
+the side (or simply remove it) and have innd flush the file. Then, after
+the file is flushed by innd, you can send innfeed a SIGALRM, and it too
+will close the file and open the new file created by innd. Something like:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+innfeed -p /var/run/news/innfeed.pid my-funnel-file &amp;
+while true; do
+        sleep 43200
+        rm -f my-funnel-file
+        ctlinnd flush funnel-file-site
+        kill -ALRM `cat /var/run/news/innfeed.pid`
+done
+</PRE>
+
+</DL>
+
+<P>
+
+Batch mode is used when the ``<I>-x</I>'' flag is used.
+In batch mode innfeed will ignore stdin, and will simply process any
+backlog created by a previously running innfeed. This mode is not normally
+needed as innfeed will take care of backlog processing.
+
+
+
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+Innfeed expects a couple of things to be able to run correctly: a directory
+where it can store backlog files and a configuration file to describe which
+peers it should handle.
+<P>
+
+The configuration file is described in <A HREF="../man5/innfeed.conf.5.php">innfeed.conf</A>(5). The ``<I>-c</I>''
+option can be used to specify a different file.
+<P>
+
+For each peer (say, ``<I>foo</I>''), innfeed manages up to 4 files in the
+backlog directory: a ``<I>foo.lock</I>'' file, which prevents other
+instances of innfeed from interfering with this one; a ``<I>foo.input</I>''
+file which has old article information innfeed is reading for
+re-processing; a ``<I>foo.output</I>'' file where innfeed is writing
+information on articles that couldn't be processed (normally due to a slow
+or blocked peer); and a ``<I>foo</I>'' file.
+<P>
+
+This last file (``<I>foo</I>'') is never created by innfeed, but if innfeed
+notices it, it will rename it to ``<I>foo.input</I>'' at the next
+opportunity and will start reading from it. This lets you create a batch
+file and put it in a place where innfeed will find it. You should never
+alter the .input or .output files of a running innfeed.
+<P>
+
+The format of these last three files is:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+/path/to/article &lt;message-id&gt;
+</PRE>
+
+</DL>
+
+<P>
+
+This is the same as the first two fields of the lines innd feeds to
+innfeed, and the same as the first two fields of the lines of the batch
+file innd will write if innfeed is unavailable for some reason. When
+innfeed processes its own batch files it ignores everything after the first
+two whitespace separated fields, so moving the innd-created batch file to
+the appropriate spot will work, even though the lines are longer.
+<P>
+
+Innfeed writes its current status to the file ``<I>innfeed.status</I>'' (or
+the file given by the ``<I>-S</I>'' option). This file contains details on
+the process as a whole, and on each peer this instance of innfeed is
+managing.
+<P>
+
+If innfeed is told to send an article to a host it is not managing, then
+the article information will be put into a file matching the pattern
+``<I>innfeed-dropped.*</I>'', with part of the file name matching the pid of
+the innfeed process that is writing to it.  Innfeed will not process this
+file except to write to it. If nothing is written to the file then it will
+be removed if innfeed exits normally.
+
+
+
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>SIGNALS</H2>
+
+<P>
+
+Upon receipt of a SIGALRM innfeed will close the funnel-file specified on
+the command line, and will reopen it (see funnel file description above).
+<P>
+
+Innfeed with catch SIGINT and will write a large debugging snapshot of the
+state of the running system.
+<P>
+
+Innfeed will catch SIGHUP and will reload the config file. 
+See <A HREF="../man5/innfeed.conf.5.php">innfeed.conf</A>(5) for more details.
+<P>
+
+Innfeed will catch SIGCHLD and will close and reopen all backlog files.
+<P>
+
+Innfeed will catch SIGTERM and will do an orderly shutdown.
+<P>
+
+Upon receipt of a SIGUSR1 innfeed will increment the debugging level by
+one, receipt of a SIGUSR2 will decrement it by one. The debugging level
+starts at zero (unless the ``-d'' option it used), and no debugging
+information is emitted. A larger value for the level means more debugging
+information. Numbers up to 5 are currently useful.
+
+
+
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>SYSLOG ENTRIES</H2>
+
+<P>
+
+There are 3 different categories of syslog entries for statistics. Host,
+Connection and Global.
+<P>
+
+The Host statistics are generated for a given peer at regular intervals
+after the first connection is made (or, if the remote is unreachable, after
+spooling starts). The Host statistics give totals over all Connections that
+have been active during the given time frame. For example (broken here to
+fit the page, with ``vixie'' being the peer):
+<P>
+
+<PRE>
+  May 23 12:49:08 data innfeed[16015]: vixie checkpoint
+                seconds 1381 offered 2744 accepted 1286 
+                refused 1021 rejected 437 missing 0 spooled 990
+                on_close 0 unspooled 240 deferred 10 requeued 25
+                queue 42.1/100:14,35,13,4,24,10
+</PRE>
+
+<P>
+
+These meanings of these fields are:
+
+<DL COMPACT>
+<DT>seconds<DD>
+The time since innfeed connected to the host or since the statistics
+were reset by a ``final'' log entry.
+<DT>offered<DD>
+The number of IHAVE commands sent to the host if it is not in streaming mode.
+The sum of the number of TAKETHIS commands sent when no-CHECK mode
+is in effect plus the number CHECK commands sent in streaming mode (when
+no-CHECK mode is not in effect).
+<DT>accepted<DD>
+The number of articles which were sent to the remote host and accepted
+by it.
+<DT>refused<DD>
+The number of articles offered to the host that it it indicated it
+didn't want because it had already seen the Message-ID.  The remote
+host indicates this by sending a 435 response to an IHAVE command or
+a 438 response to a CHECK command.
+<DT>rejected<DD>
+The number of articles transferred to the host that it did not accept
+because it determined either that it already had the article or it did
+not want it because of the article's Newsgroups: or Distribution: headers,
+etc.  The remote host indicates that it is rejecting the article by
+sending a 437 or 439 response after innfeed sent the entire article.
+<DT>missing<DD>
+The number of articles which innfeed was told to offer to the host but
+which were not present in the article spool.  These articles were probably
+cancelled or expired before innfeed was able to offer them to the host.
+<DT>spooled<DD>
+The number of article entries that were written to the .output backlog file
+because the articles could not either be sent to the host or be refused
+by it.  Articles are generally spooled either because new articles are
+arriving more quickly than they can be offered to the host, or because
+innfeed closed all the connections to the host and pushed all the
+articles currently in progress to the .output backlog file.
+<DT>on_close<DD>
+The number of articles that were spooled when innfeed closed all the
+connections to the host.
+<DT>unspooled<DD>
+The number of article entries that were read from the .input backlog
+file.
+<DT>deferred<DD>
+The number of articles that the host told innfeed to retry later by
+sending a 431 or 436 response.  Innfeed immediately puts these articles
+back on the tail of the queue.
+<DT>requeued<DD>
+The number of articles that were in progress on connections when innfeed
+dropped those connections and put the articles back on the queue.  These
+connections may have been broken by a network problem or became unresponsive
+causing innfeed to time them out.
+<DT>queue<DD>
+The first number is the average (mean) queue size during the previous logging
+interval.  The second number is the maximum allowable queue size.
+The third number is the percentage of the time that the queue
+was empty.  The fourth through seventh numbers are the percentages of the
+time that the queue was &gt;0% to 25% full, 25% to 50% full, 50% to 75%
+full, and 75% to &lt;100% full.  The last number is the percentage of the
+time that the queue was totally full.
+</DL>
+<P>
+
+If the ``<I>-z</I>'' option is used (see below), then when the peer stats are
+generated, each Connection will log its stats too. For example, for
+connection number zero (from a set of five):
+<P>
+
+<PRE>
+  May 23 12:49:08 data innfeed[16015]: vixie:0 checkpoint
+                seconds 1381 offered 596 accepted 274 
+                refused 225 rejected 97
+</PRE>
+
+<P>
+
+If you only open a maximum of one Connection to a remote, then there will
+be a close correlation between Connection numbers and Host numbers, but in
+general you can't tie the two sets of number together in any easy or very
+meaningful way. When a Connection closes it will always log its stats.
+<P>
+
+If all Connections for a Host get closed together, then the Host logs its
+stats as ``final'' and resets its counters. If the feed is so busy that
+there's always at least one Connection open and running, then after some
+amount of time (set via the config file), the Host stats are logged as
+final and reset. This is to make generating higher level stats from log
+files, by other programs, easier.
+<P>
+
+There is one log entry that is emitted for a Host just after its last
+Connection closes and innfeed is preparing to exit. This entry contains
+counts over the entire life of the process. The ``seconds'' field is from the
+first time a Connection was successfully built, or the first time spooling
+started. If a Host has been completely idle, it will have no such log entry.
+<P>
+
+<PRE>
+  May 23 12:49:08 data innfeed[16015]: decwrl global 
+                seconds 1381 offered 34 accepted 22 
+                refused 3 rejected 7 missing 0
+</PRE>
+
+<P>
+
+The final log entry is emitted immediately before exiting. It contains a
+summary of the statistics over the entire life of the process.
+<P>
+
+<PRE>
+  Feb 13 14:43:41 data innfeed-0.9.4[22344]: ME global
+                seconds 15742 offered 273441 accepted 45750
+                refused 222008 rejected 3334 missing 217
+</PRE>
+
+<P>
+
+
+
+
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+The ``<I>-a</I>'' flag is used to specify the top of the article spool
+tree. Innfeed does a <A HREF="../man2/chdir.2.php">chdir</A>(2) to this directory, so it should probably be
+an absolute path. The default is &lt;patharticles&nbsp;in&nbsp;inn.conf&gt;.
+<DT><B>-b</B>
+
+<DD>
+The ``<I>-b</I>'' flag may be used to specify a different directory for backlog
+file storage and retrieval. If the path is relative then it is relative
+to &lt;pathspool&nbsp;in&nbsp;inn.conf&gt;. The default is ``<I>innfeed</I>''.
+<DT><B>-c</B>
+
+<DD>
+The ``<I>-c</I>'' flag may be used to specify a different config file from the
+default value. If the path is relative then it is relative to
+&lt;pathetc&nbsp;in&nbsp;inn.conf&gt;. The default is ``<I>innfeed.conf</I>''.
+<DT><B>-C </B>
+
+<DD>
+The ``<I>-C</I>'' flag is used to have innfeed simply check the config
+file, report on any errors and then exit.
+<DT><B>-d </B>
+
+<DD>
+The ``<I>-d</I>'' flag may be used to specify the initial logging level. All
+debugging messages to to stderr (see the ``<I>-l</I>'' flag below.
+<DT><B>-e</B>
+
+<DD>
+The ``<I>-e</I>'' flag may be used to specify the size limit (in bytes) for the
+<I>.output</I> backlog files innfeed creates. If the output file gets bigger
+than 10% more than the given number, innfeed will replace the output file
+with the tail of the original version. The default value is 0, which means
+there is no limit.
+<DT><B>-h</B>
+
+<DD>
+Use the ``<I>-h</I>'' flag to print the usage message.
+<DT><B>-l</B>
+
+<DD>
+The  ``<I>-l</I>'' flag may be used to specify a different log file from
+stderr. As innd starts innfeed with stderr attached to /dev/null using this
+option can be useful in catching any abnormal error messages, or andy
+debugging messages (all ``normal'' errors messages go to syslog).
+<DT><B>-M</B>
+
+<DD>
+If innfeed has been built with mmap support, then the ``<I>-M</I>'' flag
+turns OFF the use of mmap(), otherwise it has no effect.
+<DT><B>-m</B>
+
+<DD>
+The ``<I>-m</I>'' flag is used to turn on logging of all missing
+articles. Normally if an article is missing, innfeed keeps a count, but
+logs no further information. When this flag is used, details about
+message-id and expected pathname are logged.
+<DT><B>-o</B>
+
+<DD>
+The ``<I>-o</I>'' flag sets a value of the maximum number of bytes of article
+data innfeed is supposed to keep in memory. This doesn't work properly yet.
+<DT><B>-p </B>
+
+<DD>
+The ``<I>-p</I>'' flag is used to specify the filename to write the pid of the
+process into. A relative path is relative to &lt;pathrun&nbsp;in&nbsp;inn.conf&gt;. The
+default is ``<I>innfeed.pid</I>''.
+<DT><B>-S</B>
+
+<DD>
+The ``<I>-S</I>'' flag specifies the name of the file to write the periodic
+staus to. If the path is relative it is considered relative to
+&lt;pathlog&nbsp;in&nbsp;inn.conf&gt;. The default is ``<I>innfeed.status</I>''.
+<DT><B>-v</B>
+
+<DD>
+When the ``<I>-v</I>'' flag is given, version information is printed to stderr
+and then innfeed exits.
+<DT><B>-x</B>
+
+<DD>
+The ``<I>-x</I>'' flag is used to tell innfeed not to expect any article
+information from innd but just to process any backlog files that exist and
+then exit.
+<DT><B>-y</B>
+
+<DD>
+The ``<I>-y</I>'' flag is used to allow dynamic peer binding. If this flag is
+used and article information is received from innd that specifies an
+unknown peer, then the peer name is taken to be the IP name too, and an
+association with it is created. Using this it is possible to only 
+have the global defaults in the
+<I><A HREF="../man5/innfeed.conf.5.php">innfeed.conf</A></I>(5)
+
+file, provided the peername as used by innd is the same as the ip name.
+Note that
+<I>innfeed</I>
+
+with ``<I>-y</I>'' and no peer in
+<I><A HREF="../man5/innfeed.conf.5.php">innfeed.conf</A></I>(5)
+
+would cause a problem that
+<I>innfeed</I>
+
+drops the first article.
+<DT><B>-z</B>
+
+<DD>
+The ``<I>-z</I>'' flag is used to cause each connection, in a parallel feed
+configuration, to report statistics when the controller for the connections
+prints its statistics.
+<DT>
+<DD>
+
+
+
+
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+
+When using the ``-x'' option, the config file entry's
+``initial-connections'' field will be the total number of connections
+created and used--no matter how many big the batch file, and no
+matter how big the ``max-connectiond'' field specifies. Thus a value
+of 0 for ``initial-connections'', means nothing will happen in ``-x''
+mode.
+<P>
+
+Innfeed does not automatically grab the file out of out.going--this needs
+to be prepared for it by external means.
+<P>
+
+Probably too many other bugs to count.
+
+
+
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>FILES</H2>
+
+infeed.conf<TT>&nbsp;&nbsp;&nbsp;&nbsp;</TT>config file.<BR>
+<BR>
+
+innfeed<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>directory for backlog files.<BR>
+
+
+
+
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>HISTORY</H2>
+
+Written by James Brister &lt;<A HREF="mailto:brister@vix.com">brister@vix.com</A>&gt; for InterNetNews.
+
+
+This is revision 1.7, dated 1999/11/16.
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<I><A HREF="../man5/innfeed.conf.5.php">innfeed.conf</A>(5)</I>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">MODES</A><DD>
+<DT><A HREF="#lbAF">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAG">SIGNALS</A><DD>
+<DT><A HREF="#lbAH">SYSLOG ENTRIES</A><DD>
+<DT><A HREF="#lbAI">OPTIONS</A><DD>
+<DT><A HREF="#lbAJ">BUGS</A><DD>
+<DT><A HREF="#lbAK">FILES</A><DD>
+<DT><A HREF="#lbAL">HISTORY</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

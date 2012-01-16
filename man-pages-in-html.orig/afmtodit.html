@@ -1,0 +1,387 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>AFMTODIT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>AFMTODIT</H1>
+Section: User Commands  (1)<BR>Updated: 01 March 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+afmtodit - create font files for use with groff -Tps
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+
+
+<BR>
+
+<B>afmtodit</B>
+
+
+[ <B>-nsv</B> ]
+
+[ <B>-d </B><I>desc_file</I> ]
+
+[ <B>-e </B><I>enc_file</I> ]
+
+[ <B>-i </B><I>n</I> ]
+
+[ <B>-a </B><I>n</I> ]
+
+<I>afm_file</I>
+
+<I>map_file</I>
+
+<I>font</I>
+
+<BR>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>afmtodit</B>
+
+creates a font file for use with groff and
+<B>grops</B>.
+
+<B>afmtodit</B>
+
+is written in perl;
+you must have perl version 3 or newer installed in order to run
+<B>afmtodit</B>.
+
+<I>afm_file</I>
+
+is the AFM (Adobe Font Metric) file for the font.
+<I>map_file</I>
+
+is a file that says which groff character names map onto
+each PostScript character name;
+this file should contain a sequence of lines of the form
+<DL COMPACT>
+<DT><DD>
+<I>ps_char groff_char</I>
+
+</DL>
+<P>
+
+where
+<I>ps_char</I>
+
+is the PostScript name of the character
+and
+<I>groff_char</I>
+
+is the groff name of the character (as used in the groff font file).
+The same
+<I>ps_char</I>
+
+can occur multiple times in the file;
+each
+<I>groff_char</I>
+
+must occur at most once.
+Lines starting with
+<B>#</B>
+
+and blank lines are ignored.
+<I>font</I>
+
+is the groff name of the font.
+If a PostScript character is in the encoding to be used for the font
+but is not mentioned in
+<I>map_file</I>
+
+then
+<B>afmtodit</B>
+
+will put it in the groff font file as an unnamed character,
+which can be accessed by the
+<B>\N</B>
+
+escape sequence in
+<B>troff</B>.
+
+The groff font file will be output to a file called
+<I>font</I>.
+
+<P>
+
+If there is a downloadable font file for the font, it may be listed in
+the file
+<B>/usr/share/groff/1.18.1.1/font/devps/download</B>;
+
+see
+<B><A HREF="../man1/grops.1.php">grops</A></B>(1).
+
+<P>
+
+If the
+<B>-i</B>
+
+option is used,
+<B>afmtodit</B>
+
+will automatically generate an italic correction,
+a left italic correction and a subscript correction
+for each character
+(the significance of these parameters is explained in
+<B><A HREF="../man5/groff_font.5.php">groff_font</A></B>(5));
+
+these parameters may be specified for individual characters by
+adding to the
+<I>afm_file</I>
+
+lines of the form:
+<DL COMPACT>
+<DT><DD>
+<B>italicCorrection&nbsp;</B><I>ps_char&nbsp;n</I>
+
+<BR>
+
+<B>leftItalicCorrection&nbsp;</B><I>ps_char&nbsp;n</I>
+
+<BR>
+
+<B>subscriptCorrection&nbsp;</B><I>ps_char&nbsp;n</I>
+
+</DL>
+<P>
+
+where
+<I>ps_char</I>
+
+is the PostScript name of the character,
+and
+<I>n</I>
+
+is the desired value of the corresponding parameter in thousandths of an em.
+These parameters are normally needed only for italic (or oblique) fonts.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-v</B>
+
+<DD>
+Print version.
+<DT><B>-n</B>
+
+<DD>
+Don't output a
+<B>ligatures</B>
+
+command for this font.
+Use this with constant-width fonts.
+<DT><B>-s</B>
+
+<DD>
+The font is special.
+The effect of this option is to add the
+<B>special</B>
+
+command to the font file.
+<DT><B>-d</B><I>desc_file</I>
+
+<DD>
+The device description file is
+<I>desc_file</I>
+
+rather than the default
+<B>DESC</B>.
+
+<DT><B>-e</B><I>enc_file</I>
+
+<DD>
+The PostScript font should be reencoded to use the encoding described
+in enc_file.
+The format of
+<I>enc_file</I>
+
+is described in
+<B><A HREF="../man1/grops.1.php">grops</A></B>(1).
+
+<DT><B>-a</B><I>n</I>
+
+<DD>
+Use
+<I>n</I>
+
+as the slant parameter in the font file;
+this is used by groff in the positioning of accents.
+By default
+<B>afmtodit</B>
+
+uses the negative of the ItalicAngle specified in the afm file;
+with true italic fonts it is sometimes desirable to use
+a slant that is less than this.
+If you find that characters from an italic font have accents
+placed too far to the right over them,
+then use the
+<B>-a</B>
+
+option to give the font a smaller slant.
+<DT><B>-i</B><I>n</I>
+
+<DD>
+Generate an italic correction for each character so that 
+the character's width plus the character's italic correction
+is equal to
+<I>n</I>
+
+thousandths of an em
+plus the amount by which the right edge of the character's bounding
+is to the right of the character's origin.
+If this would result in a negative italic correction, use a zero
+italic correction instead.
+<DT><DD>
+Also generate a subscript correction equal to the 
+product of the tangent of the slant of the font and
+four fifths of the x-height of the font.
+If this would result in a subscript correction greater than the italic
+correction, use a subscript correction equal to the italic correction
+instead.
+<DT><DD>
+Also generate a left italic correction for each character
+equal to
+<I>n</I>
+
+thousandths of an em
+plus the amount by which the left edge of the character's bounding box
+is to the left of the character's origin.
+The left italic correction may be negative.
+<DT><DD>
+This option is normally needed only with italic (or oblique) fonts.
+The font files distributed with groff were created using an option of
+<B>-i50</B>
+
+for italic fonts.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+
+u+2n<DL COMPACT>
+<DT>
+<DD>
+
+
+<B>/usr/share/groff/1.18.1.1/font/devps/DESC</B>
+
+Device description file.
+<DT><B>/usr/share/groff/1.18.1.1/font/devps/</B><I>F</I>
+
+<DD>
+Font description file for font
+<I>F</I>.
+
+<DT><B>/usr/share/groff/1.18.1.1/font/devps/download</B>
+
+<DD>
+List of downloadable fonts.
+<DT><B>/usr/share/groff/1.18.1.1/font/devps/text.enc</B>
+
+<DD>
+Encoding used for text fonts.
+<DT><B>/usr/share/groff/1.18.1.1/font/devps/generate/textmap</B>
+
+<DD>
+Standard mapping.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/groff.1.php">groff</A></B>(1),
+
+<B><A HREF="../man1/grops.1.php">grops</A></B>(1),
+
+<B><A HREF="../man5/groff_font.5.php">groff_font</A></B>(5),
+
+<B><A HREF="../man1/perl.1.php">perl</A></B>(1)
+
+
+
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

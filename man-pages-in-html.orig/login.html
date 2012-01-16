@@ -1,0 +1,537 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LOGIN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LOGIN</H1>
+Section: Linux Programmer's Manual (1)<BR>Updated: 4 November 1996<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+login - sign on
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>login [ </B>name<B> ]</B>
+
+<BR>
+
+<B>login -p</B>
+
+<BR>
+
+<B>login -h </B>hostname
+
+<BR>
+
+<B>login -f </B>name
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>login</B>
+
+is used when signing onto a system.  It can also be used to switch from one
+user to another at any time (most modern shells have support for this
+feature built into them, however).
+<P>
+If an argument is not given,
+<B>login</B>
+
+prompts for the username.
+<P>
+If the user is
+<I>not</I>
+
+root, and if
+<I>/etc/nologin</I>
+
+exists, the contents of this file are printed to the screen, and the
+login is terminated.  This is typically used to prevent logins when the
+system is being taken down.
+<P>
+If special access restrictions are specified for the user in
+<I>/etc/usertty</I>,
+
+these must be met, or the log in attempt will be denied and a 
+<B>syslog</B>
+
+message will be generated. See the section on &quot;Special Access Restrictions&quot;.
+<P>
+If the user is root, then the login must be occurring on a tty listed in
+<I>/etc/securetty</I>.
+
+Failures will be logged with the
+<B>syslog</B>
+
+facility.
+<P>
+After these conditions have been checked, the password will be requested and
+checked (if a password is required for this username).  Ten attempts
+are allowed before
+<B>login</B>
+
+dies, but after the first three, the response starts to get very slow.
+Login failures are reported via the
+<B>syslog</B>
+
+facility.  This facility is also used to report any successful root logins.
+<P>
+If the file
+<I>.hushlogin</I>
+
+exists, then a &quot;quiet&quot; login is performed (this disables the checking
+of mail and the printing of the last login time and message of the day).
+Otherwise, if
+<I>/var/log/lastlog</I>
+
+exists, the last login time is printed (and the current login is
+recorded).
+<P>
+Random administrative things, such as setting the UID and GID of the
+tty are performed.  The TERM environment variable is preserved, if it
+exists (other environment variables are preserved if the
+<B>-p</B>
+
+option is used).  Then the HOME, PATH, SHELL, TERM, MAIL, and LOGNAME
+environment variables are set.  PATH defaults to
+<I>/usr/local/bin:/bin:/usr/bin</I>
+
+for normal users, and to
+<I>/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin</I>
+
+for root.  Last, if this is not a &quot;quiet&quot; login, the message of the
+day is printed and the file with the user's name in
+<I>/var/spool/mail</I>
+
+will be checked, and a message printed if it has non-zero length.
+<P>
+The user's shell is then started.  If no shell is specified for the
+user in
+<B>/etc/passwd</B>,
+
+then
+<B>/bin/sh</B>
+
+is used.  If there is no directory specified in
+<I>/etc/passwd</I>,
+
+then
+<I>/</I>
+
+is used (the home directory is checked for the
+<I>.hushlogin</I>
+
+file described above).
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-p</B>
+
+<DD>
+Used by
+<B><A HREF="../man8/getty.8.php">getty</A></B>(8)
+
+to tell
+<B>login</B>
+
+not to destroy the environment
+<DT><B>-f</B>
+
+<DD>
+Used to skip a second login authentication.  This specifically does
+<B>not</B>
+
+work for root, and does not appear to work well under Linux.
+<DT><B>-h</B>
+
+<DD>
+Used by other servers (i.e.,
+<B><A HREF="../man8/telnetd.8.php">telnetd</A></B>(8))
+
+to pass the name of the remote host to
+<B>login</B>
+
+so that it may be placed in utmp and wtmp.  Only the superuser may use
+this option.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SPECIAL ACCESS RESTRICTIONS</H2>
+
+The file
+<I>/etc/securetty</I>
+
+lists the names of the ttys where root is allowed to log in. One name
+of a tty device without the /dev/ prefix must be specified on each
+line.  If the file does not exist, root is allowed to log in on any
+tty.
+<P>
+
+On most modern Linux systems PAM (Pluggable Authentication Modules)
+is used. On systems that do not use PAM, the file
+<I>/etc/usertty</I>
+
+specifies additional access restrictions for specific users.
+If this file does not exist, no additional access restrictions are
+imposed. The file consists of a sequence of sections. There are three
+possible section types: CLASSES, GROUPS and USERS. A CLASSES section
+defines classes of ttys and hostname patterns, A GROUPS section
+defines allowed ttys and hosts on a per group basis, and a USERS
+section defines allowed ttys and hosts on a per user basis.
+<P>
+
+Each line in this file in may be no longer than 255
+characters. Comments start with # character and extend to the end of
+the line.
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>The CLASSES Section</H3>
+
+A CLASSES section begins with the word CLASSES at the start of a line
+in all upper case. Each following line until the start of a new
+section or the end of the file consists of a sequence of words
+separated by tabs or spaces. Each line defines a class of ttys and
+host patterns.
+<P>
+
+The word at the beginning of a line becomes defined as a collective
+name for the ttys and host patterns specified at the rest of the
+line. This collective name can be used in any subsequent GROUPS or
+USERS section. No such class name must occur as part of the definition
+of a class in order to avoid problems with recursive classes.
+<P>
+
+An example CLASSES section:
+<P>
+
+<PRE>
+CLASSES
+myclass1                tty1 tty2
+myclass2                tty3 @.foo.com
+</PRE>
+
+<P>
+
+This defines the classes 
+<I>myclass1</I>
+
+and
+<I>myclass2</I>
+
+as the corresponding right hand sides.
+<P>
+
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>The GROUPS Section</H3>
+
+A GROUPS section defines allowed ttys and hosts on a per Unix group basis. If
+a user is a member of a Unix group according to 
+<I>/etc/passwd</I>
+
+and
+<I>/etc/group</I>
+
+and such a group is mentioned in a GROUPS section in 
+<I>/etc/usertty</I>
+
+then the user is granted access if the group is.
+<P>
+
+A GROUPS section starts with the word GROUPS in all upper case at the start of
+a line, and each following line is a sequence of words separated by spaces
+or tabs. The first word on a line is the name of the group and the rest
+of the words on the line specifies the ttys and hosts where members of that
+group are allowed access. These specifications may involve the use of
+classes defined in previous CLASSES sections.
+<P>
+
+An example GROUPS section.
+<P>
+
+<PRE>
+GROUPS
+sys             tty1 @.bar.edu
+stud            myclass1 tty4
+</PRE>
+
+<P>
+
+This example specifies that members of group 
+<I>sys</I>
+
+may log in on tty1 and from hosts in the bar.edu domain. Users in
+group
+<I>stud</I>
+
+may log in from hosts/ttys specified in the class myclass1 or from
+tty4.
+<P>
+
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H3>The USERS Section</H3>
+
+A USERS section starts with the word USERS in all upper case at the
+start of a line, and each following line is a sequence of words
+separated by spaces or tabs. The first word on a line is a username
+and that user is allowed to log in on the ttys and from the hosts
+mentioned on the rest of the line. These specifications may involve
+classes defined in previous CLASSES sections.  If no section header is
+specified at the top of the file, the first section defaults to be a
+USERS section.
+<P>
+
+An example USERS section:
+<P>
+
+<PRE>
+USERS
+zacho           tty1 @130.225.16.0/255.255.255.0
+blue            tty3 myclass2
+</PRE>
+
+<P>
+
+This lets the user zacho login only on tty1 and from hosts with IP
+addreses in the range 130.225.16.0 - 130.225.16.255, and user blue is
+allowed to log in from tty3 and whatever is specified in the class
+myclass2.
+<P>
+
+There may be a line in a USERS section starting with a username of
+*. This is a default rule and it will be applied to any user not
+matching any other line.
+<P>
+
+If both a USERS line and GROUPS line match a user then the user is
+allowed access from the union of all the ttys/hosts mentioned in these
+specifications.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Origins</H3>
+
+The tty and host pattern specifications used in the specification of
+classes, group and user access are called origins. An origin string
+may have one of these formats:
+<DL COMPACT>
+<DT>o<DD>
+The name of a tty device without the /dev/ prefix, for example tty1 or
+ttyS0.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>o<DD>
+The string @localhost, meaning that the user is allowed to
+telnet/rlogin from the local host to the same host. This also allows
+the user to for example run the command: xterm -e /bin/login.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>o<DD>
+A domain name suffix such as @.some.dom, meaning that the user may
+rlogin/telnet from any host whose domain name has the suffix
+.some.dom.
+</DL>
+<P>
+
+<DL COMPACT>
+<DT>o<DD>
+A range of IPv4 addresses, written @x.x.x.x/y.y.y.y where x.x.x.x is
+the IP address in the usual dotted quad decimal notation, and y.y.y.y
+is a bitmask in the same notation specifying which bits in the address
+to compare with the IP address of the remote host. For example
+@130.225.16.0/255.255.254.0 means that the user may rlogin/telnet from
+any host whose IP address is in the range 130.225.16.0 -
+130.225.17.255.
+</DL>
+<P>
+
+Any of the above origins may be prefixed by a time specification
+according to the syntax:
+<P>
+
+<PRE>
+timespec    ::= '[' &lt;day-or-hour&gt; [':' &lt;day-or-hour&gt;]* ']'
+day         ::= 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+hour        ::= '0' | '1' | ... | '23'
+hourspec    ::= &lt;hour&gt; | &lt;hour&gt; '-' &lt;hour&gt;
+day-or-hour ::= &lt;day&gt; | &lt;hourspec&gt;
+</PRE>
+
+<P>
+
+For example, the origin [mon:tue:wed:thu:fri:8-17]tty3 means that log
+in is allowed on mondays through fridays between 8:00 and 17:59 (5:59
+pm) on tty3.  This also shows that an hour range a-b includes all
+moments between a:00 and b:59. A single hour specification (such as
+10) means the time span between 10:00 and 10:59.
+<P>
+
+Not specifying any time prefix for a tty or host means log in from
+that origin is allowed any time. If you give a time prefix be sure to
+specify both a set of days and one or more hours or hour ranges. A
+time specification may not include any white space.
+<P>
+
+If no default rule is given then users not matching any line
+<I>/etc/usertty</I>
+
+are allowed to log in from anywhere as is standard behavior.
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+<I>/var/run/utmp</I>
+<I>/var/log/wtmp</I>
+<I>/var/log/lastlog</I>
+<I>/var/spool/mail/*</I>
+<I>/etc/motd</I>
+<I>/etc/passwd</I>
+<I>/etc/nologin</I>
+<I>/etc/usertty</I>
+<I>.hushlogin</I>
+</PRE>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man8/init.8.php">init</A></B>(8),
+
+<B><A HREF="../man8/getty.8.php">getty</A></B>(8),
+
+<B><A HREF="../man1/mail.1.php">mail</A></B>(1),
+
+<B><A HREF="../man1/passwd.1.php">passwd</A></B>(1),
+
+<B><A HREF="../man5/passwd.5.php">passwd</A></B>(5),
+
+<B><A HREF="../man7/environ.7.php">environ</A></B>(7),
+
+<B><A HREF="../man8/shutdown.8.php">shutdown</A></B>(8)
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>BUGS</H2>
+
+<P>
+The undocumented BSD
+<B>-r</B>
+
+option is not supported.  This may be required by some
+<B><A HREF="../man8/rlogind.8.php">rlogind</A></B>(8)
+
+programs.
+<P>
+A recursive login, as used to be possible in the good old days,
+no longer works; for most purposes
+<B><A HREF="../man1/su.1.php">su</A></B>(1)
+
+is a satisfactory substitute. Indeed, for security reasons,
+login does a vhangup() system call to remove any possible
+listening processes on the tty. This is to avoid password
+sniffing. If one uses the command &quot;login&quot;, then the surrounding shell
+gets killed by vhangup() because it's no longer the true owner of the tty.
+This can be avoided by using &quot;exec login&quot; in a top-level shell or xterm.
+<A NAME="lbAN">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Derived from BSD login 5.40 (5/9/89) by Michael Glad (<A HREF="mailto:glad@daimi.dk">glad@daimi.dk</A>)
+for HP-UX
+<BR>
+
+Ported to Linux 0.12: Peter Orbaek (<A HREF="mailto:poe@daimi.aau.dk">poe@daimi.aau.dk</A>)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SPECIAL ACCESS RESTRICTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAG">The CLASSES Section</A><DD>
+<DT><A HREF="#lbAH">The GROUPS Section</A><DD>
+<DT><A HREF="#lbAI">The USERS Section</A><DD>
+<DT><A HREF="#lbAJ">Origins</A><DD>
+</DL>
+<DT><A HREF="#lbAK">FILES</A><DD>
+<DT><A HREF="#lbAL">SEE ALSO</A><DD>
+<DT><A HREF="#lbAM">BUGS</A><DD>
+<DT><A HREF="#lbAN">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

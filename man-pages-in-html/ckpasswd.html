@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CKPASSWD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CKPASSWD</H1>
+Section: InterNetNews Documentation (1)<BR>Updated: INN 2.3<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ckpasswd - nnrpd password authenticator
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+<B>ckpasswd</B> [<B>-s</B>] [<B>-d</B> <I>database</I>] [<B>-f</B> <I>filename</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<B>ckpasswd</B> is the basic password authenticator for nnrpd, suitable for
+being run from an auth stanza in <I><A HREF="../man5/readers.conf.5.php">readers.conf</A></I>(5).  See <I><A HREF="../man5/readers.conf.5.php">readers.conf</A></I>(5) for
+more information on how to configure an nnrpd authenticator.
+<P>
+
+<B>ckpasswd</B> accepts a username and password from nnrpd and tells <I><A HREF="../man8/nnrpd.8.php">nnrpd</A></I>(8)
+whether that's the correct password for that username.  By default, when
+given no arguments, it checks the password against the password field
+returned by <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3).  Note that these days most systems no longer make
+real passwords available via <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3) (some still do if and only if the
+program calling <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3) is running as root).
+<P>
+
+Note that <B>ckpasswd</B> expects all passwords to be stored encrypted by the
+system <I><A HREF="../man3/crypt.3.php">crypt</A></I>(3) function and calls <I><A HREF="../man3/crypt.3.php">crypt</A></I>(3) on the supplied password
+before comparing it to the expected password.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+
+<BR>
+
+
+
+
+<DL COMPACT>
+<DT><B>-d</B> <I>database</I><DD>
+
+<A NAME="ixAAF"></A>
+Read passwords from a database (ndbm or dbm format depending on what your
+system has) rather than by using <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3).  <B>ckpasswd</B> expects
+<I>database</I>.dir and <I>database</I>.pag to exist and to be a database keyed by
+username with the encrypted passwords as the values.
+
+
+<P>
+
+
+While <FONT SIZE="-1">INN</FONT> doesn't come with a program intended specifically to create such
+databases, on most systems it's fairly easy to write a Perl script to do
+so.  Something like:
+
+
+<P>
+
+
+
+
+<PRE>
+    #!/usr/bin/perl
+    use NDBM_File;
+    use Fcntl;
+    tie (%db, 'NDBM_File', '/path/to/database', O_RDWR | O_CREAT, 0640)
+        or die &quot;Cannot open /path/to/database: $!\n&quot;;
+    $| = 1;
+    print &quot;Username: &quot;;
+    my $user = &lt;STDIN&gt;;
+    chomp $user;
+    print &quot;Password: &quot;;
+    my $passwd = &lt;STDIN&gt;;
+    chomp $passwd;
+    my @alphabet = ('.', '/', 0..9, 'A'..'Z', 'a'..'z');
+    my $salt = join '', @alphabet[rand 64, rand 64];
+    $db{$user} = crypt ($passwd, $salt);
+    untie %db;
+
+
+</PRE>
+
+
+Note that this will echo back the password when typed; there are obvious
+improvements that could be made to this, but it should be a reasonable
+start.
+
+
+<P>
+
+
+This option will not be available on systems without dbm or ndbm
+libraries.
+
+<BR>
+
+
+
+
+<DT><B>-f</B> <I>filename</I><DD>
+
+<A NAME="ixAAG"></A>
+Read passwords from the given file rather than using <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3).  The
+file is expected to be formatted like a system password file, at leat
+vaguely.  That means each line should look something like:
+
+
+<P>
+
+
+
+
+<PRE>
+    username:pdIh9NCNslkq6
+
+
+</PRE>
+
+
+(and each line may have an additional colon after the encrypted password
+and additional data; that data will be ignored by <B>ckpasswd</B>).  <FONT SIZE="-1">INN</FONT> does
+not come with a utility to create the encrypted passwords, but it's a
+quick job with Perl (see the example script under <B>-d</B>).
+
+<BR>
+
+
+
+
+<DT><B>-s</B><DD>
+
+<A NAME="ixAAH"></A>
+Check passwords against the result of <I><A HREF="../man3/getspnam.3.php">getspnam</A></I>(3) instead of <I><A HREF="../man3/getpwnam.3.php">getpwnam</A></I>(3).
+This function, on those systems that supports it, reads from /etc/shadow
+or similar more restricted files.  If you want to check passwords supplied
+to <I><A HREF="../man8/nnrpd.8.php">nnrpd</A></I>(8) against system account passwords, you will probably have to
+use this option on most systems.
+
+
+<P>
+
+
+Most systems require special privileges to call <I><A HREF="../man3/getspnam.3.php">getspnam</A></I>(3), so in order
+to use this option you may need to make <B>ckpasswd</B> setgid to some group
+(like group ``shadow'') or even setuid root.  <B>ckpasswd</B> has not been
+specifically audited for such uses!  It is, however, a very small program
+that you should be able to check by hand for security.
+
+
+<P>
+
+
+This configuration is not recommended if it can be avoided, since the <FONT SIZE="-1">NNTP</FONT>
+protocol has no way of protecting passwords from casual interception, and
+using system passwords to authenticate <FONT SIZE="-1">NNTP</FONT> connections therefore opens
+you up to the risk of password sniffing.  If you do use system passwords
+to authenticate connections, you should seriously consider only doing <FONT SIZE="-1">NNTP</FONT>
+through ssh tunnels or over <FONT SIZE="-1">SSL</FONT>.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAI"></A>
+See <I><A HREF="../man5/readers.conf.5.php">readers.conf</A></I>(5) for examples of <I><A HREF="../man8/nnrpd.8.php">nnrpd</A></I>(8) authentication configuration
+that uses <B>ckpasswd</B> to check passwords.
+<A NAME="lbAG">&nbsp;</A>
+<H2>HISTORY</H2>
+
+<A NAME="ixAAJ"></A>
+Written by Russ Allbery &lt;<A HREF="mailto:rra@stanford.edu">rra@stanford.edu</A>&gt; for InterNetNews.
+<P>
+
+$Id: ckpasswd.1,v 1.1.2.1 2000/11/06 08:41:11 rra Exp $
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAK"></A>
+<I><A HREF="../man5/readers.conf.5.php">readers.conf</A></I>(5), <I><A HREF="../man8/nnrpd.8.php">nnrpd</A></I>(8)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">HISTORY</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

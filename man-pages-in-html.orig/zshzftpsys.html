@@ -1,0 +1,897 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ZSHZFTPSYS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ZSHZFTPSYS</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: March 19, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+zshzftpsys - zftp function front-end
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+This describes the set of shell functions supplied with the source
+distribution as an interface to the <B>zftp</B> builtin command, allowing you
+to perform FTP operations from the shell command line or within functions
+or scripts.  The interface is similar to a traditional FTP client (e.g. the
+<B>ftp</B> command itself, see <I><A HREF="../man1/ftp.1.php">ftp</A></I>(1)), but as it is entirely done
+within the shell all the familiar completion, editing and globbing features,
+and so on, are present, and macros are particularly simple to write as they
+are just ordinary shell functions.
+<P>
+
+The prerequisite is that the <B>zftp</B> command, as described in
+<I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1)
+, must be available in the
+version of <B>zsh</B> installed at your site.  If the shell is configured to
+load new commands at run time, it probably is: typing `<B>zmodload zsh/zftp</B>'
+will make sure (if that runs silently, it has worked).  If this is not the
+case, it is possible <B>zftp</B> was linked into the shell anyway: to test
+this, type `<B>which zftp</B>' and if <B>zftp</B> is available you will get the
+message `<B>zftp: shell built-in command</B>'.
+<P>
+
+Commands given directly with <B>zftp</B> builtin may be interspersed between
+the functions in this suite; in a few cases, using <B>zftp</B> directly may
+cause some of the status information stored in shell parameters to become
+invalid.  Note in particular the description of the variables
+<B>$ZFTP_TMOUT</B>, <B>$ZFTP_PREFS</B> and <B>$ZFTP_VERBOSE</B> for <B>zftp</B>.
+<P>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>INSTALLATION</H2>
+
+<P>
+
+You should make sure all the functions from the <B>Functions/Zftp</B>
+directory of the source distribution are available; they all begin with the
+two letters `<B>zf</B>'.  They may already have been installed on your system;
+otherwise, you will need to find them and copy them.  The directory should
+appear as one of the elements of the <B>$fpath</B> array (this should already
+be the case if they were installed), and at least the function <B>zfinit</B>
+should be autoloaded; it will autoload the rest.  Finally, to initialize
+the use of the system you need to call the <B>zfinit</B> function.  The
+following code in your <B>.zshrc</B> will arrange for this; assume the
+functions are stored in the directory <B>~/myfns</B>:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>fpath=(~/myfns $fpath)
+autoload -U zfinit
+zfinit</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Note that <B>zfinit</B> assumes you are using the <B>zmodload</B> method to
+load the <B>zftp</B> command.  If it is already built into the shell, change
+<B>zfinit</B> to <B>zfinit -n</B>.  It is helpful (though not essential) if the
+call to <B>zfinit</B> appears after any code to initialize the new completion
+system, else unnecessary <B>compctl</B> commands will be given.
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>FUNCTIONS</H2>
+
+<P>
+
+The sequence of operations in performing a file transfer is essentially the
+same as that in a standard FTP client.  Note that, due to a quirk of the
+shell's <B>getopts</B> builtin, for those functions that handle options you
+must use `<B>-</B><B>-</B>' rather than `<B>-</B>' to ensure the remaining arguments
+are treated literally (a single `<B>-</B>' is treated as an argument).
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Opening a connection</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfparams [ </B><I>host</I> [ <I>user</I> [ <I>password</I> ... ] ] ]
+Set or show the parameters for a future <B>zfopen</B> with no arguments.  If
+no arguments are given, the current parameters are displayed (the password
+will be shown as a line of asterisks).  If a host is given, and either the
+<I>user</I> or <I>password</I> is not, they will be prompted for; also, any
+parameter given as `<B>?</B>' will be prompted for, and if the `<B>?</B>' is
+followed by a string, that will be used as the prompt.  As <B>zfopen</B> calls
+<B>zfparams</B> to store the parameters, this usually need not be called
+directly.
+<DL COMPACT><DT><DD>
+<P>
+
+A single argument `<B>-</B>' will delete the stored parameters.  This will
+also cause the memory of the last directory (and so on) on the other host
+to be deleted.
+</DL>
+
+<DT><B>zfopen [ -1 ] [ </B><I>host</I> [ <I>user</I> [ <I>password</I> [ <I>account</I> ] ] ] ]<DD>
+If <I>host</I> is present, open a connection to that host under username
+<I>user</I> with password <I>password</I> (and, on the rare occasions when it
+is necessary, account <I>account</I>).  If a necessary parameter is missing or
+given as `<B>?</B>' it will be prompted for.  If <I>host</I> is not present, use
+a previously stored set of parameters.
+<DL COMPACT><DT><DD>
+<P>
+
+If the command was successful, and the terminal is compatible with
+<B>xterm</B> or is <B>sun-cmd</B>, a summary will appear in the title bar,
+giving the local <B>host:directory</B> and the remote <B>host:directory</B>;
+this is handled by the function <B>zftp_chpwd</B>, described below.
+<P>
+
+Normally, the <I>host</I>, <I>user</I> and <I>password</I> are internally
+recorded for later re-opening, either by a <B>zfopen</B> with no arguments, or
+automatically (see below).  With the option `<B>-1</B>', no information is
+stored.  Also, if an open command with arguments failed, the parameters
+will not be retained (and any previous parameters will also be deleted).
+A <B>zfopen</B> on its own, or a <B>zfopen -1</B>, never alters the stored
+parameters.
+<P>
+
+Both <B>zfopen</B> and <B>zfanon</B> (but not <B>zfparams</B>) understand URLs of
+the form <B>ftp://</B><I>host</I>/<I>path...</I> as meaning to connect to the
+<I>host</I>, then change directory to <I>path</I> (which must be a directory,
+not a file).  The `<B>ftp://</B>' can be omitted; the trailing `<B>/</B>' is enough
+to trigger recognition of the <I>path</I>.  Note prefixes other than
+`<B>ftp:</B>' are not recognized, and that all characters after the first
+slash beyond <I>host</I> are significant in <I>path</I>.
+</DL>
+
+<DT><B>zfanon [ -1 ] </B><I>host</I><DD>
+Open a connection <I>host</I> for anonymous FTP.  The username used is
+`<B>anonymous</B>'.  The password (which will be reported the first time) is
+generated as <I>user</I><B>@</B><I>host</I>; this is then stored in the shell
+parameter <B>$EMAIL_ADDR</B> which can alternatively be set manually to a
+suitable string.
+</DL>
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Directory management</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfcd [ </B><I>dir</I> ]
+<DT>
+<DD>
+<B>zfcd -</B>
+<DT>
+<DD>
+<B>zfcd </B><I>old</I> <I>new</I>
+Change the current directory on the remote server:  this is implemented to
+have many of the features of the shell builtin <B>cd</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+In the first form with <I>dir</I> present, change to the directory <I>dir</I>.
+The command `<B>zfcd ..</B>' is treated specially, so is guaranteed to work on
+non-UNIX servers (note this is handled internally by <B>zftp</B>).  If <I>dir</I>
+is omitted, has the effect of `<B>zfcd ~</B>'.
+<P>
+
+The second form changes to the directory previously current.
+<P>
+
+The third form attempts to change the current directory by replacing the
+first occurrence of the string <I>old</I> with the string <I>new</I> in the
+current directory.
+<P>
+
+Note that in this command, and indeed anywhere a remote filename is
+expected, the string which on the local host corresponds to `<B>~</B>' is
+converted back to a `<B>~</B>' before being passed to the remote machine.
+This is convenient because of the way expansion is performed on the command
+line before <B>zfcd</B> receives a string.  For example, suppose the command
+is `<B>zfcd ~/foo</B>'.  The shell will expand this to a full path such as
+`<B>zfcd /home/user2/pws/foo</B>'.  At this stage, <B>zfcd</B> recognises the
+initial path as corresponding to `<B>~</B>' and will send the directory to
+the remote host as <B>~/foo</B>, so that the `<B>~</B>' will be expanded by the
+server to the correct remote host directory.  Other named directories of
+the form `<B>~name</B>' are not treated in this fashion.
+</DL>
+
+<DT><B>zfhere</B><DD>
+Change directory on the remote server to the one corresponding to the
+current local directory, with special handling of `<B>~</B>' as in <B>zfcd</B>.
+For example, if the current local directory is <B>~/foo/bar</B>, then
+<B>zfhere</B> performs the effect of `<B>zfcd ~/foo/bar</B>'.
+<DT><B>zfdir [ -rfd ] [ - ] [ </B><I>dir-options</I> ] [ <I>dir</I> ]<DD>
+Produce a long directory listing.  The arguments <I>dir-options</I> and
+<I>dir</I> are passed directly to the server and their effect is
+implementation dependent, but specifying a particular remote directory
+<I>dir</I> is usually possible.  The output is passed through a pager
+given by the environment variable <B>$PAGER</B>, or `<B>more</B>' if that is not
+set.
+<DL COMPACT><DT><DD>
+<P>
+
+The directory is usually cached for re-use.  In fact, two caches are
+maintained.  One is for use when there is no <I>dir-options</I> or <I>dir</I>,
+i.e. a full listing of the current remote directory; it is flushed
+when the current remote directory changes.  The other is
+kept for repeated use of <B>zfdir</B> with the same arguments; for example,
+repeated use of `<B>zfdir /pub/gnu</B>' will only require the directory to be
+retrieved on the first call.  Alternatively, this cache can be re-viewed with
+the <B>-r</B> option.  As relative directories will confuse
+<B>zfdir</B>, the <B>-f</B> option can be used to force the cache to be flushed
+before the directory is listed.  The option <B>-d</B> will delete both
+caches without showing a directory listing; it will also delete the cache
+of file names in the current remote directory, if any.
+</DL>
+
+<DT><B>zfls</B> [ <I>ls-options</I> ] [ <I>dir</I> ]<DD>
+List files on the remote server.  With no arguments, this will produce a
+simple list of file names for the current remote directory.  Any arguments
+are passed directly to the server.  No pager and no caching is used.
+</DL>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Status commands</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zftype</B> [ <I>type</I> ]
+With no arguments, show the type of data to be transferred, usually ASCII
+or binary.  With an argument, change the type: the types `<B>A</B>' or
+`<B>ASCII</B>' for ASCII data and `<B>B</B>' or `<B>BINARY</B>', `<B>I</B>' or
+`<B>IMAGE</B>' for binary data are understood case-insensitively.
+<DT><B>zfstat</B> [ -v ]<DD>
+Show the status of the current or last connection, as well as the status of
+some of <B>zftp</B>'s status variables.  With the <B>-v</B> option, a more
+verbose listing is produced by querying the server for its version of
+events, too.
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H3>Retrieving files</H3>
+
+The commands for retrieving files all take at least two options. <B>-G</B>
+suppresses remote filename expansion which would otherwise be performed
+(see below for a more detailed description of that).  <B>-t</B> attempts
+to set the modification time of the local file to that of the remote file:
+this requires version 5 of <B>perl</B>, see the description of the function
+<B>zfrtime</B> below for more information.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfget [ -Gtc ] </B><I>file1</I> ...
+Retrieve all the listed files <I>file1</I> ... one at a time from the remote
+server.  If a file contains a `<B>/</B>', the full name is passed to the
+remote server, but the file is stored locally under the name given by the
+part after the final `<B>/</B>'.  The option <B>-c</B> (cat) forces all files to
+be sent as a single stream to standard output; in this case the <B>-t</B>
+option has no effect.
+<DT><B>zfuget [ -Gvst ] </B><I>file1</I> ...<DD>
+As <B>zfget</B>, but only retrieve files where the version on the remote
+server is newer (has a later modification time), or where the local file
+does not exist.  If the remote file is older but the files have different
+sizes, or if the sizes are the same but the remote file is newer, the user
+will usually be queried.  With the option <B>-s</B>, the command runs silently
+and will always retrieve the file in either of those two cases.  With the
+option <B>-v</B>, the command prints more information about the files while it
+is working out whether or not to transfer them.
+<DT><B>zfcget [ -Gt ] </B><I>file1</I> ...<DD>
+As <B>zfget</B>, but if any of the local files exists, and is shorter than
+the corresponding remote file, the command assumes that it is the result of
+a partially completed transfer and attempts to transfer the rest of the
+file.  This is useful on a poor connection which keeps failing.
+<DL COMPACT><DT><DD>
+<P>
+
+Note that this requires a commonly implemented, but non-standard, version
+of the FTP protocol, so is not guaranteed to work on all servers.
+</DL>
+
+<DT>
+<DD>
+<B>zfgcp [ -Gt ] </B><I>remote-file</I> <I>local-file</I>
+<DT>
+<DD>
+<B>zfgcp [ -Gt ] </B><I>rfile1</I> ... <I>ldir</I>
+This retrieves files from the remote server with arguments behaving
+similarly to the <B>cp</B> command.
+<DL COMPACT><DT><DD>
+<P>
+
+In the first form, copy <I>remote-file</I> from the server to the local file
+<I>local-file</I>.
+<P>
+
+In the second form, copy all the remote files <I>rfile1</I> ... into the
+local directory <I>ldir</I> retaining the same basenames.  This assumes UNIX
+directory semantics.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H3>Sending files</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfput [ -r ] </B><I>file1</I> ...
+Send all the <I>file1</I> ... given separately to the remote server.  If a
+filename contains a `<B>/</B>', the full filename is used locally to find the
+file, but only the basename is used for the remote file name.
+<DL COMPACT><DT><DD>
+<P>
+
+With the option <B>-r</B>, if any of the <I>files</I> are directories they are
+sent recursively with all their subdirectories, including files beginning
+with `<B>.</B>'.  This requires that the remote machine understand UNIX file
+semantics, since `<B>/</B>' is used as a directory separator.
+</DL>
+
+<DT><B>zfuput [ -vs ] </B><I>file1</I> ...<DD>
+As <B>zfput</B>, but only send files which are newer than their local
+equivalents, or if the remote file does not exist.  The logic is the same
+as for <B>zfuget</B>, but reversed between local and remote files.
+<DT><B>zfcput </B><I>file1</I> ...<DD>
+As <B>zfput</B>, but if any remote file already exists and is shorter than the
+local equivalent, assume it is the result of an incomplete transfer and
+send the rest of the file to append to the existing part.  As the FTP
+append command is part of the standard set, this is in principle more
+likely to work than <B>zfcget</B>.
+<DT>
+<DD>
+<B>zfpcp </B><I>local-file</I> <I>remote-file</I>
+<DT>
+<DD>
+<B>zfpcp </B><I>lfile1</I> ... <I>rdir</I>
+This sends files to the remote server with arguments behaving similarly to
+the <B>cp</B> command.
+<DL COMPACT><DT><DD>
+<P>
+
+With two arguments, copy <I>local-file</I> to the server as
+<I>remote-file</I>.
+<P>
+
+With more than two arguments, copy all the local files <I>lfile1</I> ... into
+the existing remote directory <I>rdir</I> retaining the same basenames.  This
+assumes UNIX directory semantics.
+<P>
+
+A problem arises if you attempt to use <B>zfpcp</B> <I>lfile1</I> <I>rdir</I>,
+i.e. the second form of copying but with two arguments, as the command has
+no simple way of knowing if <I>rdir</I> corresponds to a directory or a
+filename.  It attempts to resolve this in various ways.  First, if the
+<I>rdir</I> argument is `<B>.</B>' or `<B>..</B>' or ends in a slash, it is assumed
+to be a directory.  Secondly, if the operation of copying to a remote file
+in the first form failed, and the remote server sends back the expected
+failure code 553 and a reply including the string `<B>Is a directory</B>',
+then <B>zfpcp</B> will retry using the second form.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H3>Closing the connection</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfclose</B>
+Close the connection.
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H3>Session management</H3>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfsession</B> [ <B>-lvod</B> ] [ <I>sessname</I> ]
+Allows you to manage multiple FTP sessions at once.  By default,
+connections take place in a session called `<B>default</B>'; by giving the
+command `<B>zfsession</B> <I>sessname</I>' you can change to a new or existing
+session with a name of your choice.  The new session remembers its own
+connection, as well as associated shell parameters, and also the host/user
+parameters set by <B>zfparams</B>.  Hence you can have different sessions set
+up to connect to different hosts, each remembering the appropriate host,
+user and password.
+<DL COMPACT><DT><DD>
+<P>
+
+With no arguments, <B>zfsession</B> prints the name of the current session;
+with the option <B>-l</B> it lists all sessions which currently exist, and
+with the option <B>-v</B> it gives a verbose list showing the host and
+directory for each session, where the current session is marked with an
+asterisk.  With <B>-o</B>, it will switch to the most recent previous session.
+<P>
+
+With <B>-d</B>, the given session (or else the current one) is removed;
+everything to do with it is completely forgotten.  If it was the only
+session, a new session called `<B>default</B>' is created and made current.
+It is safest not to delete sessions while background commands using
+<B>zftp</B> are active.
+</DL>
+
+<DT><B>zftransfer</B> <I>sess1</I><B>:</B><I>file1</I> <I>sess2</I><B>:</B><I>file2</I><DD>
+Transfer files between two sessions; no local copy is made.  The file
+is read from the session <I>sess1</I> as <I>file1</I> and written to session
+<I>sess2</I> as file <I>file2</I>; <I>file1</I> and <I>file2</I> may be relative to
+the current directories of the session.  Either <I>sess1</I> or <I>sess2</I>
+may be omitted (though the colon should be retained if there is a
+possibility of a colon appearing in the file name) and defaults to the
+current session; <I>file2</I> may be omitted or may end with a slash, in
+which case the basename of <I>file1</I> will be added.  The sessions
+<I>sess1</I> and <I>sess2</I> must be distinct.
+<DL COMPACT><DT><DD>
+<P>
+
+The operation is performed using pipes, so it is required that the
+connections still be valid in a subshell, which is not the case under 
+versions of some operating systems, presumably due to a system bug.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H3>Bookmarks</H3>
+
+The two functions <B>zfmark</B> and <B>zfgoto</B> allow you to `bookmark' the
+present location (host, user and directory) of the current FTP connection
+for later use.  The file to be used for storing and retrieving bookmarks is
+given by the parameter <B>$ZFTP_BMFILE</B>; if not set when one of the two
+functions is called, it will be set to the file <B>.zfbkmarks</B> in the
+directory where your zsh startup files live (usually <B>~</B>).
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfmark [ </B><I>bookmark</I><B> ]</B>
+If given an argument, mark the current host, user and directory under the
+name <I>bookmark</I> for later use by <B>zfgoto</B>.  If there is no connection
+open, use the values for the last connection immediately before it was
+closed; it is an error if there was none.  Any existing bookmark
+under the same name will be silently replaced.
+<DL COMPACT><DT><DD>
+<P>
+
+If not given an argument, list the existing bookmarks and the points to
+which they refer in the form <I>user</I><B>@</B><I>host</I><B>:</B><I>directory</I>;
+this is the format in which they are stored, and the file may be edited
+directly.
+</DL>
+
+<DT><B>zfgoto [ -n ] </B><I>bookmark</I><DD>
+Return to the location given by <I>bookmark</I>, as previously set by
+<B>zfmark</B>.  If the location has user `<B>ftp</B>' or `<B>anonymous</B>', open
+the connection with <B>zfanon</B>, so that no password is required.  If the
+user and host parameters match those stored for the current session, if
+any, those will be used, and again no password is required.  Otherwise a
+password will be prompted for.
+<DL COMPACT><DT><DD>
+<P>
+
+With the option <B>-n</B>, the bookmark is taken to be a nickname stored by
+the <B>ncftp</B> program in its bookmark file, which is assumed to be
+<B>~/.ncftp/bookmarks</B>.  The function works identically in other ways.
+Note that there is no mechanism for adding or modifying <B>ncftp</B> bookmarks
+from the zftp functions.
+</DL>
+
+
+</DL>
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H3>Other functions</H3>
+
+Mostly, these functions will not be called directly (apart from
+<B>zfinit</B>), but are described here for completeness.  You may wish to
+alter <B>zftp_chpwd</B> and <B>zftp_progress</B>, in particular.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>zfinit [ -n ]</B>
+As described above, this is used to initialize the zftp function system.
+The <B>-n</B> option should be used if the zftp command is already built into
+the shell.
+<DT><B>zfautocheck [ -dn ]</B><DD>
+This function is called to implement automatic reopening behaviour, as
+described in more detail below.  The options must appear in the first
+argument; <B>-n</B> prevents the command from changing to the old directory,
+while <B>-d</B> prevents it from setting the variable <B>do_close</B>, which it
+otherwise does as a flag for automatically closing the connection after a
+transfer.  The host and directory for the last session are stored in the
+variable <B>$zflastsession</B>, but the internal host/user/password parameters
+must also be correctly set.
+<DT><B>zfcd_match </B><I>prefix</I> <I>suffix</I><DD>
+This performs matching for completion of remote directory names.  If the
+remote server is UNIX, it will attempt to persuade the server to list the
+remote directory with subdirectories marked, which usually works but is not
+guaranteed.  On other hosts it simply calls <B>zfget_match</B> and hence
+completes all files, not just directories.  On some systems, directories
+may not even look like filenames.
+<DT><B>zfget_match </B><I>prefix</I> <I>suffix</I><DD>
+This performs matching for completion of remote filenames.  It caches files
+for the current directory (only) in the shell parameter <B>$zftp_fcache</B>.
+It is in the form to be called by the <B>-K</B> option of <B>compctl</B>, but
+also works when called from a widget-style completion function with
+<I>prefix</I> and <I>suffix</I> set appropriately.
+<DT><B>zfrglob </B><I>varname</I><DD>
+Perform remote globbing, as describes in more detail below.  <I>varname</I>
+is the name of a variable containing the pattern to be expanded; if there
+were any matches, the same variable will be set to the expanded set of
+filenames on return.
+<DT><B>zfrtime </B><I>lfile</I> <I>rfile</I> [ <I>time</I> ]<DD>
+Set the local file <I>lfile</I> to have the same modification time as the
+remote file <I>rfile</I>, or the explicit time <I>time</I> in FTP format
+<B>CCYYMMDDhhmmSS</B> for the GMT timezone.
+<DL COMPACT><DT><DD>
+<P>
+
+Currently this requires <B>perl</B> version 5 to perform the conversion from
+GMT to local time.  This is unfortunately difficult to do using shell code
+alone.
+</DL>
+
+<DT><B>zftp_chpwd</B><DD>
+This function is called every time a connection is opened, or closed, or
+the remote directory changes.  This version alters the title bar of an
+<B>xterm</B>-compatible or <B>sun-cmd</B> terminal emulator to reflect the 
+local and remote hostnames and current directories.  It works best when
+combined with the function <B>chpwd</B>.  In particular, a function of 
+the form
+<DL COMPACT><DT><DD>
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>chpwd() {
+  if [[ -n $ZFTP_USER ]]; then
+    zftp_chpwd
+  else
+    # usual chpwd e.g put host:directory in title bar
+  fi
+}</B>
+</PRE>
+
+</DL>
+
+<P>
+
+fits in well.
+</DL>
+
+<DT><B>zftp_progress</B><DD>
+This function shows the status of the transfer.  It will not write anything
+unless the output is going to a terminal; however, if you transfer files in
+the background, you should turn off progress reports by hand using
+`<B>zstyle ':zftp:*' progress none</B>'.  Note also that if you alter it, any
+output <I>must</I> be to standard error, as standard output may be a file
+being received.  The form of the progress meter, or whether it is used at
+all, can be configured without altering the function, as described in the
+next section.
+<DT><B>zffcache</B><DD>
+This is used to implement caching of files in the current directory for
+each session separately.  It is used by <B>zfget_match</B> and <B>zfrglob</B>.
+</DL>
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>MISCELLANEOUS FEATURES</H2>
+
+<P>
+
+<A NAME="lbAP">&nbsp;</A>
+<H3>Configuration</H3>
+
+<P>
+
+Various styles are available using the standard shell style mechanism,
+described in
+<I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1). Briefly, the
+command `<B>zstyle ':zftp:*'</B> <I>style</I> <I>value</I> ...'.
+defines the <I>style</I> to have value <I>value</I>; more than one value may be
+given, although that is not useful in the cases described here.  These
+values will then be used throughout the zftp function system.  For more
+precise control, the first argument, which gives a context in which the
+style applies, can be modified to include a particular function, as for
+example `<B>:zftp:zfget</B>': the style will then have the given value only
+in the <B>zfget</B> function.  Values for the same style in different contexts
+may be set; the most specific function will be used, where
+strings are held to be more specific than patterns, and longer patterns and
+shorter patterns.  Note that only the top level function name, as called by
+the user, is used; calling of lower level functions is transparent to the
+user.  Hence modifications to the title bar in <B>zftp_chpwd</B> use the
+contexts <B>:zftp:zfopen</B>, <B>:zftp:zfcd</B>, etc., depending where it was
+called from.  The following styles are understood:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>progress</B>
+Controls the way that <B>zftp_progress</B> reports on the progress of a
+transfer.  If empty, unset, or `<B>none</B>', no progress report is made; if
+`<B>bar</B>' a growing bar of inverse video is shown; if `<B>percent</B>' (or any
+other string, though this may change in future), the percentage of the file
+transferred is shown.  The bar meter requires that the width of the
+terminal be available via the <B>$COLUMNS</B> parameter (normally this is set
+automatically).  If the size of the file being transferred is not
+available, <B>bar</B> and <B>percent</B> meters will simply show the number of
+bytes transferred so far.
+<DL COMPACT><DT><DD>
+<P>
+
+When <B>zfinit</B> is run, if this style is not defined for the context
+<B>:zftp:*</B>, it will be set to `bar'.
+</DL>
+
+<DT><B>update</B><DD>
+Specifies the minimum time interval between updates of the progress meter
+in seconds.  No update is made unless new data has been received, so the
+actual time interval is limited only by <B>$ZFTP_TIMEOUT</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+As described for <B>progress</B>, <B>zfinit</B> will force this to default to 1.
+</DL>
+
+<DT><B>remote-glob</B><DD>
+If set to `1', `yes' or `true', filename generation (globbing) is
+performed on the remote machine instead of by zsh itself; see below.
+<DT><B>titlebar</B><DD>
+If set to `1', `yes' or `true', <B>zftp_chpwd</B> will put the remote host and
+remote directory into the titlebar of terminal emulators such as xterm or
+sun-cmd that allow this.
+<DL COMPACT><DT><DD>
+<P>
+
+As described for <B>progress</B>, <B>zfinit</B> will force this to default to 1.
+</DL>
+
+<DT><B>chpwd</B><DD>
+If set to `1' `yes' or `true', <B>zftp_chpwd</B> will call the function
+<B>chpwd</B> when a connection is closed.  This is useful if the remote host
+details were put into the terminal title bar by <B>zftp_chpwd</B> and your
+usual <B>chpwd</B> also modifies the title bar.
+<DL COMPACT><DT><DD>
+<P>
+
+When <B>zfinit</B> is run, it will determine whether <B>chpwd</B> exists and if
+so it will set the default value for the style to 1 if none exists
+already.
+</DL>
+
+
+</DL>
+<P>
+
+Note that there is also an associative array <B>zfconfig</B> which contains
+values used by the function system.  This should not be modified or
+overwritten.
+<P>
+
+<A NAME="lbAQ">&nbsp;</A>
+<H3>Remote globbing</H3>
+
+<P>
+
+The commands for retrieving files usually perform filename generation
+(globbing) on their arguments; this can be turned off by passing the option
+<B>-G</B> to each of the commands.  Normally this operates by retrieving a
+complete list of files for the directory in question, then matching these
+locally against the pattern supplied.  This has the advantage that the full
+range of zsh patterns (respecting the setting of the option
+<B>EXTENDED_GLOB</B>) can be used.  However, it means that the directory part
+of a filename will not be expanded and must be given exactly.  If the
+remote server does not support the UNIX directory semantics, directory
+handling is problematic and it is recommended that globbing only be used
+within the current directory.  The list of files in the current directory,
+if retrieved, will be cached, so that subsequent globs in the same
+directory without an intervening <B>zfcd</B> are much faster.
+<P>
+
+If the <B>remote-glob</B> style (see above) is set, globbing is instead
+performed on the remote host: the server is asked for a list of matching
+files.  This is highly dependent on how the server is implemented, though
+typically UNIX servers will provide support for basic glob patterns.  This
+may in some cases be faster, as it avoids retrieving the entire list of
+directory contents.
+<P>
+
+<A NAME="lbAR">&nbsp;</A>
+<H3>Automatic and temporary reopening</H3>
+
+<P>
+
+As described for the <B>zfopen</B> command, a subsequent <B>zfopen</B> with no
+parameters will reopen the connection to the last host (this includes
+connections made with the <B>zfanon</B> command).  Opened in this fashion, the
+connection starts in the default remote directory and will remain open
+until explicitly closed.
+<P>
+
+Automatic re-opening is also available.  If a connection is not currently
+open and a command requiring a connection is given, the last connection is
+implicitly reopened.  In this case the directory which was current when the
+connection was closed again becomes the current directory (unless, of
+course, the command given changes it).  Automatic reopening will also take
+place if the connection was close by the remote server for whatever reason
+(e.g. a timeout).  It is not available if the <B>-1</B> option to <B>zfopen</B>
+or <B>zfanon</B> was used.
+<P>
+
+Furthermore, if the command issued is a file transfer, the connection will
+be closed after the transfer is finished, hence providing a one-shot mode
+for transfers.  This does not apply to directory changing or listing
+commands; for example a <B>zfdir</B> may reopen a connection but will leave it
+open.  Also, automatic closure will only ever happen in the same command as
+automatic opening, i.e a <B>zfdir</B> directly followed by a <B>zfget</B> will
+never close the connection automatically.
+<P>
+
+Information about the previous connection is given by the <B>zfstat</B>
+function.  So, for example, if that reports:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>Session:        default
+Not connected.
+Last session:   <A HREF="ftp://ftp.bar.com">ftp.bar.com</A>:/pub/textfiles</B>
+</PRE>
+
+</DL>
+
+<P>
+
+then the command <B>zfget file.txt</B> will attempt to reopen a connection to
+<B><A HREF="ftp://ftp.bar.com">ftp.bar.com</A></B>, retrieve the file <B>/pub/textfiles/file.txt</B>, and
+immediately close the connection again.  On the other hand, <B>zfcd ..</B>
+will open the connection in the directory <B>/pub</B> and leave it open.
+<P>
+
+Note that all the above is local to each session; if you return to a
+previous session, the connection for that session is the one which will be
+reopened.
+<P>
+
+<A NAME="lbAS">&nbsp;</A>
+<H3>Completion</H3>
+
+<P>
+
+Completion of local and remote files, directories, sessions and bookmarks
+is supported.  The older, <B>compctl</B>-style completion is defined when
+<B>zfinit</B> is called; support for the new widget-based completion system is
+provided in the function <B>Completion/Zsh/Command/_zftp</B>, which should be
+installed with the other functions of the completion system and hence
+should automatically be available.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">INSTALLATION</A><DD>
+<DT><A HREF="#lbAE">FUNCTIONS</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Opening a connection</A><DD>
+<DT><A HREF="#lbAG">Directory management</A><DD>
+<DT><A HREF="#lbAH">Status commands</A><DD>
+<DT><A HREF="#lbAI">Retrieving files</A><DD>
+<DT><A HREF="#lbAJ">Sending files</A><DD>
+<DT><A HREF="#lbAK">Closing the connection</A><DD>
+<DT><A HREF="#lbAL">Session management</A><DD>
+<DT><A HREF="#lbAM">Bookmarks</A><DD>
+<DT><A HREF="#lbAN">Other functions</A><DD>
+</DL>
+<DT><A HREF="#lbAO">MISCELLANEOUS FEATURES</A><DD>
+<DL>
+<DT><A HREF="#lbAP">Configuration</A><DD>
+<DT><A HREF="#lbAQ">Remote globbing</A><DD>
+<DT><A HREF="#lbAR">Automatic and temporary reopening</A><DD>
+<DT><A HREF="#lbAS">Completion</A><DD>
+</DL>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

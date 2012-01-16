@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>WHICH</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>WHICH</H1>
+Section: User Commands  (1)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+
+
+
+
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+which - shows the full path of (shell) commands.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>which</B>
+
+[options] [--] programname [...]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>Which</B> takes one or more arguments. For each of its arguments
+it prints to stdout the full path of the executables
+that would have been executed when this argument had been
+entered at the shell prompt. It does this by searching
+for an executable or script in the directories listed in
+the environment variable <B>PATH</B> using the same algorithm as <B><A HREF="../man1/bash.1.php">bash</A>(1)</B>.
+<P>
+This man page is generated from the file <I>which.texinfo</I>.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>--all</B>, <B>-a</B>
+
+<DD>
+Print all matching executables in <B>PATH</B>, not just the first.
+<DT><B>--read-alias</B>, <B>-i</B>
+
+<DD>
+Read aliases from stdin, reporting matching ones on
+stdout. This is useful in combination with using an
+alias for which itself. For example
+<BR>
+
+<B>alias which='alias | which -i'</B>.
+
+<DT><B>--skip-alias</B>
+
+<DD>
+Ignore option `--read-alias', if any. This is useful to
+explicity search for normal binaries, while using
+the `--read-alias' option in an alias or function for which.
+<DT><B>--read-functions</B>
+
+<DD>
+Read shell function definitions from stdin, reporting matching
+ones on stdout. This is useful in combination with using a shell
+function for which itself.  For example:
+<BR>
+
+<B>which() { declare -f | which --read-functions $@ }</B>
+
+<BR>
+
+export -f which
+<DT><B>--skip-functions</B>
+
+<DD>
+Ignore option `--read-functions', if any. This is useful to
+explicity search for normal binaries, while using
+the `--read-functions' option in an alias or function for which.
+<DT><B>--skip-dot</B>
+
+<DD>
+Skip directories in <B>PATH</B> that start with a dot.
+<DT><B>--skip-tilde</B>
+
+<DD>
+Skip directories in <B>PATH</B> that start with a tilde and
+executables which reside in the <B>HOME</B> directory.
+<DT><B>--show-dot</B>
+
+<DD>
+If a directory in <B>PATH</B> starts with a dot and a matching
+executable was found for that path, then print
+&quot;./programname&quot; rather than the full path.
+<DT><B>--show-tilde</B>
+
+<DD>
+Output a tilde when a directory matches the <B>HOME</B>
+directory. This option is ignored when which is
+invoked as root.
+<DT><B>--tty-only</B>
+
+<DD>
+Stop processing options on the right if not on tty.
+<DT><B>--version,-v,-V</B>
+
+<DD>
+Print version information on standard output then exit
+successfully.
+<DT><B>--help</B>
+
+<DD>
+Print usage information on standard output then exit
+successfully.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<B>Which</B> returns the number of failed arguments, or -1 when
+no `programname' was given.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+The recommended way to use this utility is by adding an alias (C shell)
+or shell function (Bourne shell) for <B>which</B> like the following:
+<P>
+[ba]sh:
+<P>
+
+<PRE>
+which ()
+{
+  (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@
+}
+export -f which
+</PRE>
+
+<P>
+[t]csh:
+<P>
+
+<PRE>
+alias which 'alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+</PRE>
+
+<P>
+This will print the readable ~/ and ./ when starting which
+from your prompt, while still printing the full path when
+used from a script:
+<P>
+
+<PRE>
+&gt; which q2
+~/bin/q2
+&gt; echo `which q2`
+/home/carlo/bin/q2
+</PRE>
+
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+The <B>HOME</B> directory is determined by looking for the <B>HOME</B>
+environment variable, which aborts when this variable
+doesn't exist.  <B>Which</B> will consider two equivalent directories
+to be different when one of them contains a path
+with a symbolic link.
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<BR>
+
+Carlo Wood &lt;<A HREF="mailto:carlo@gnu.org">carlo@gnu.org</A>&gt;
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/bash.1.php">bash</A>(1)</B>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAG">EXAMPLE</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

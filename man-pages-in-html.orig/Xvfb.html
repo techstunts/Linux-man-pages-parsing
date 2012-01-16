@@ -1,0 +1,227 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XVFB</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XVFB</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+Xvfb - virtual framebuffer X server for X Version 11
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>Xvfb</B>
+
+[ option ] ...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>Xvfb</I>
+
+is an X server that can run on machines with no display hardware
+and no physical input devices.  It emulates a dumb framebuffer using
+virtual memory.
+<P>
+
+The primary use of this server was intended to be server testing.  The
+mfb or cfb code for any depth can be exercised with this server
+without the need for real hardware that supports the desired depths.
+The X community has found many other novel uses for <I>Xvfb</I>,
+including testing clients against unusual depths and screen
+configurations, doing batch processing with <I>Xvfb</I> as a background
+rendering engine, load testing, as an aid to porting the X server to a
+new platform, and providing an unobtrusive way to run applications
+that don't really need an X server but insist on having one anyway.
+<A NAME="lbAE">&nbsp;</A>
+<H2>BUILDING</H2>
+
+To build <I>Xvfb</I>, put the following in your host.def and remake.
+<P>
+
+#define BuildServer YES /* if you aren't already building other servers */
+<BR>
+
+#define XVirtualFramebufferServer YES
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+
+In addition to the normal server options described in the <I><A HREF="../man1/Xserver.1.php">Xserver</A>(1)</I>
+manual page, <I>Xvfb</I> accepts the following command line switches:
+<DL COMPACT>
+<DT><B>-screen </B><I>screennum</I> <I>WxHxD</I>
+
+<DD>
+This option creates screen <I>screennum</I> and sets its width, height,
+and depth to W, H, and D respectively.  By default, only screen 0 exists
+and has the dimensions 1280x1024x8.
+<DT><B>-pixdepths </B><I>list-of-depths</I>
+
+<DD>
+This option specifies a list of pixmap depths that the server should
+support in addition to the depths implied by the supported screens.
+<I>list-of-depths</I> is a space-separated list of integers that can
+have values from 1 to 32.
+<DT><B>-fbdir </B><I>framebuffer-directory</I>
+
+<DD>
+This option specifies the directory in which the memory mapped files
+containing the framebuffer memory should be created.
+See FILES. 
+This option only exists on machines that have the mmap and msync system
+calls.
+<DT><B>-shmem</B>
+
+<DD>
+This option specifies that the framebuffer should be put in shared memory.
+The shared memory ID for each screen will be printed by the server.
+The shared memory is in xwd format.
+This option only exists on machines that support the System V shared memory
+interface.
+</DL>
+<P>
+
+If neither <B>-shmem</B> nor <B>-fbdir</B> is specified,
+the framebuffer memory will be allocated with malloc().
+<DL COMPACT>
+<DT><B>-linebias </B><I>n</I>
+
+<DD>
+This option specifies how to adjust the pixelization of thin lines.
+The value <I>n</I> is a bitmask of octants in which to prefer an axial
+step when the Bresenham error term is exactly zero.  See the file
+Xserver/mi/miline.h for more information.  This option is probably only useful
+to server developers to experiment with the range of line pixelization
+possible with the cfb and mfb code.
+<DT><B>-blackpixel </B><I>pixel-value</I>, -whitepixel <I>pixel-value</I>
+
+<DD>
+These options specify the black and white pixel values the server should use.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+The following files are created if the -fbdir option is given.
+<DL COMPACT>
+<DT><I>framebuffer-directory</I>/Xvfb_screen&lt;n&gt;<DD>
+Memory mapped file containing screen n's framebuffer memory, one file
+per screen.  The file is in xwd format.  Thus, taking a full-screen
+snapshot can be done with a file copy command, and the resulting
+snapshot will even contain the cursor image.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>Xvfb :1 -screen 0 1600x1200x32<DD>
+The server will listen for connections as server number 1, and screen 0
+will be depth 32 1600x1200.
+<DT>Xvfb :1 -screen 1 1600x1200x16<DD>
+The server will listen for connections as server number 1, will have the
+default screen configuration (one screen, 1280x1024x8), and screen 1
+will be depth 16 1600x1200.
+<DT>Xvfb -pixdepths 3 27 -fbdir /usr/tmp<DD>
+The server will listen for connections as server number 0, will have the
+default screen configuration (one screen, 1280x1024x8),
+will also support pixmap
+depths of 3 and 27, 
+and will use memory mapped files in /usr/tmp for the framebuffer.
+<DT>xwud -in /usr/tmp/Xvfb_screen0<DD>
+Displays screen 0 of the server started by the preceding example.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<A HREF="../man7/X.7x.php">X</A>(7x), <A HREF="../man1/Xserver.1.php">Xserver</A>(1), <A HREF="../man1/xwd.1.php">xwd</A>(1), <A HREF="../man1/xwud.1.php">xwud</A>(1), XWDFile.h
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+David P. Wiggins, The Open Group, Inc.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">BUILDING</A><DD>
+<DT><A HREF="#lbAF">OPTIONS</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ntpdate</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ntpdate</H1>
+Section: User Commands  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ntpdate - set the date and time via NTP
+<P>
+Disclaimer: The functionality of this program is now available
+in the 
+<B>ntpd</B>  program. See the 
+<B>-q</B>  command line
+option in the 
+<B>ntpd</B>  - Network Time
+Protocol (NTP) daemon page. After a suitable period of
+mourning, the 
+<B>ntpdate</B>  program is to be retired from this
+distribution
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+<B>ntpdate [ -bBdoqsuv ] [ -a 
+</B><I>key</I>  ] [ -e 
+<I>authdelay</I>  ]
+[ -k 
+<I>keyfile</I>  ] [ -o 
+<I>version</I>  ] [ -p 
+<I>samples</I>  ] [
+-t 
+<I>timeout</I>  ] [
+-U
+<I>user_name</I>  ]
+<I>server</I>  [ ... ] 
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<B>ntpdate</B>  sets the local date and time by polling the
+Network Time Protocol (NTP) server(s) given as the 
+<I>server</I> arguments to determine the correct time. It must be run as root on
+the local host. A number of samples are obtained from each of the
+servers specified and a subset of the NTP clock filter and
+selection algorithms are applied to select the best of these. Note
+that the accuracy and reliability of 
+<B>ntpdate</B>  depends on
+the number of servers, the number of polls each time it is run and
+the interval between runs. 
+<P>
+<P>
+<B>ntpdate</B>  can be run manually as necessary to set the
+host clock, or it can be run from the host startup script to set
+the clock at boot time. This is useful in some cases to set the
+clock initially before starting the NTP daemon 
+<B>ntpd</B> . It is
+also possible to run 
+<B>ntpdate</B>  from a 
+<B>cron</B>  script.
+However, it is important to note that 
+<B>ntpdate</B>  with
+contrived 
+<B>cron</B>  scripts is no substitute for the NTP
+daemon, which uses sophisticated algorithms to maximize accuracy
+and reliability while minimizing resource use. Finally, since 
+<B>ntpdate</B>  does not discipline the host clock frequency as does
+<B>ntpd</B> , the accuracy using 
+<B>ntpdate</B>  is limited.
+<P>
+Time adjustments are made by 
+<B>ntpdate</B>  in one of two
+ways. If 
+<B>ntpdate</B>  determines the clock is in error more
+than 0.5 second it will simply step the time by calling the system
+<B>settimeofday()</B>  routine. If the error is less than 0.5
+seconds, it will slew the time by calling the system 
+<B>adjtime()</B>  routine. The latter technique is less disruptive and
+more accurate when the error is small, and works quite well when
+<B>ntpdate</B>  is run by 
+<B>cron</B>  every hour or two.
+<P>
+<P>
+<B>ntpdate</B>  will decline to set the date if an NTP server
+daemon (e.g., 
+<B>ntpd</B> ) is running on the same host. When
+running 
+<B>ntpdate</B>  on a regular basis from 
+<B>cron</B>  as
+an alternative to running a daemon, doing so once every hour or two
+will result in precise enough timekeeping to avoid stepping the
+clock.
+<P>
+If NetInfo support is compiled into 
+<B>ntpdate</B> , then the
+<B>server</B>  argument is optional if 
+<B>ntpdate</B>  can find a
+time server in the NetInfo configuration for 
+<B>ntpd</B> .
+<A NAME="lbAE">&nbsp;</A>
+<H2>COMMAND LINE OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a <DD>
+</B><I>key</I>  
+Enable the authentication function and specify the key
+identifier to be used for authentication as the argument 
+<I>key</I> 
+<B>ntpdate</B> . The keys and key identifiers must match in
+both the client and server key files. The default is to disable the
+authentication function.
+<DT><B>-B</B> <DD>
+Force the time to always be slewed using the adjtime() system
+call, even if the measured offset is greater than +-128 ms. The
+default is to step the time using settimeofday() if the offset is
+greater than +-128 ms. Note that, if the offset is much greater
+than +-128 ms in this case, that it can take a long time (hours) to
+slew the clock to the correct value. During this time. the host
+should not be used to synchronize clients.
+<DT><B>-b</B> <DD>
+Force the time to be stepped using the settimeofday() system
+call, rather than slewed (default) using the adjtime() system call.
+This option should be used when called from a startup file at boot
+time.
+<DT><B>-d</B> <DD>
+Enable the debugging mode, in which 
+<B>ntpdate</B>  will go
+through all the steps, but not adjust the local clock. Information
+useful for general debugging will also be printed.
+<DT><B>-e <DD>
+</B><I>authdelay</I>  
+Specify the processing delay to perform an authentication
+function as the value 
+<I>authdelay</I> , in seconds and fraction
+(see 
+<B>ntpd</B>  for details). This number is usually small
+enough to be negligible for most purposes, though specifying a
+value may improve timekeeping on very slow CPU's.
+<DT><B>-k <DD>
+</B><I>keyfile</I>  
+Specify the path for the authentication key file as the string
+<I>keyfile</I> . The default is 
+<B>/etc/ntp.keys</B> . This file
+should be in the format described in 
+<B>ntpd</B> .
+<DT><B>-o <DD>
+</B><I>version</I>  
+Specify the NTP version for outgoint packets as the integer 
+<I>version</I> , which can be 1 or 2. The default is 3. This allows
+<B>ntpdate</B>  to be used with older NTP versions.
+<DT><B>-p <DD>
+</B><I>samples</I>  
+Specify the number of samples to be acquired from each server
+as the integer 
+<I>samples</I> , with values from 1 to 8 inclusive.
+The default is 4.
+<DT><I><DD>
+</I><B>-q</B>  
+Query only - don't set the clock.
+<DT><B>-s</B> <DD>
+Divert logging output from the standard output (default) to the
+system 
+<B>syslog</B>  facility. This is designed primarily for
+convenience of 
+<B>cron</B>  scripts.
+<DT><B>-t <DD>
+</B><I>timeout</I>  
+Specify the maximum time waiting for a server response as the
+value 
+<I>timeout</I> , in seconds and fraction. The value is is
+rounded to a multiple of 0.2 seconds. The default is 1 second, a
+value suitable for polling across a LAN.
+<DT><B>-u</B> <DD>
+Direct 
+<B>ntpdate</B>  to use an unprivileged port or outgoing
+packets. This is most useful when behind a firewall that blocks
+incoming traffic to privileged ports, and you want to synchronise
+with hosts beyond the firewall. Note that the 
+<DT><B>-U</B><DD>
+<I>user_name</I> 
+ntpdate process drops root privileges and changes user ID to
+<I>user_name</I> and group ID to the primary group of <I>server_user</I>.
+<DT><B>-d</B> <DD>
+always uses unprivileged ports.
+<DT><B>-v</B>  <DD>
+Be verbose. This option will cause 
+<B>ntpdate</B> 's version
+identification string to be logged.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>FILES</H2>
+
+<P>
+<B>/etc/ntp/keys</B>  - encryption keys used by 
+<B>ntpdate</B> . 
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+The slew adjustment is actually 50% larger than the measured
+offset, since this (it is argued) will tend to keep a badly
+drifting clock more accurate. This is probably not a good idea and
+may cause a troubling hunt for some values of the kernel variables
+<B>tick</B>  and 
+<B>tickadj</B> .&#194;&#160; 
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+Primary source of documentation: /usr/share/doc/ntp-*/ntpdate.html
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+David L. Mills
+&lt;<A HREF="mailto:mills@udel.edu">mills@udel.edu</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COMMAND LINE OPTIONS</A><DD>
+<DT><A HREF="#lbAF">FILES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LAMGROW</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LAMGROW</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lamgrow - Extend a LAM multicomputer.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+<DD>lamgrow [-hvd] [-cpu &lt;num&gt;] [-n &lt;nodeid&gt;] [-no-schedule] [-ssi &lt;key&gt; &lt;value&gt;] &lt;hostname&gt;
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-cpu &lt;num&gt;</B>
+
+<DD>
+Indicate how many CPUs are available to LAM on the new node.
+<DT><B>-d</B>
+
+<DD>
+Turn on debugging output.  This implies -v.
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-n &lt;nodeid&gt;</B>
+
+<DD>
+Assign this ID to the new node.
+<DT><B>-no-schedule</B>
+
+<DD>
+Indicate that C and N expansion in
+<I>mpirun</I>
+
+and
+<I>lamexec </I>
+
+should not schedule on this node.
+<DT><B>-ssi &lt;key&gt; &lt;value&gt;</B>
+
+<DD>
+Send arguments to various SSI modules.  See the &quot;SSI&quot; section, below.
+<DT><B>-v</B>
+
+<DD>
+Be verbose.
+<DT><B>&lt;hostname&gt;</B>
+
+<DD>
+Extend LAM with this host.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+An existing LAM universe, initiated by <A HREF="../man1/lamboot.1.php">lamboot</A>(1), can be enlarged to
+include more nodes with
+<I>lamgrow</I>.
+
+One new node is added for each invocation.  At a minimum, the host
+name that will run the new node is given on the command line.  If a
+different userid is required to access the host, it is specified with
+the appropriate boot SSI options (see <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7)).
+<P>
+
+The new node can be assigned any unused, non-negative identifier.  If
+no identifier is specified, the highest node identifier in the current
+LAM universe plus one is used.  Note that <A HREF="../man1/lamboot.1.php">lamboot</A>(1) always assigns
+node identifiers consecutively from 0.
+<P>
+
+<I>lamgrow</I>
+
+can be run from any node in the current LAM universe.  Specifically --
+it cannot be run from the intended new host.  Two invocations of
+<I>lamgrow</I>
+
+should not run concurrently, and the command attempts to detect this
+situation.  There is no protection against specifying the name of host
+that is already part of the user's existing LAM universe.  This is not
+the proper use of
+<I>lamgrow</I>.
+
+<P>
+
+Resource managers will be the most common user of
+<I>lamgrow</I>.
+
+When hosts become idle and a user has expressed a desire to the manager
+that extra cycles should be exploited, the manager could invoke
+<I>lamgrow</I>
+
+and then launch the specified application process(es) on the new node.
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>lamgrow -v newhost<DD>
+Start LAM on newhost and add it to the existing LAM universe.  Choose
+the next available node identifier and report about important steps as
+they are done.
+<DT>lamgrow -n 30 newhost<DD>
+Start LAM on newhost with node ID 30 and add it to the existing LAM
+universe.  Operate silently.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>laminstalldir/etc/lam-conf.lamd<DD>
+default configuration file for LAM nodes, where &quot;laminstalldir&quot; is the
+directory where LAM/MPI was installed.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+It is not currently possible to specify a configuration file other
+than lam-conf.lamd on the remote node, even though this is possible
+with
+<I>lamboot</I>.
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/lamboot.1.php">lamboot</A>(1), <A HREF="../man1/lamhalt.1.php">lamhalt</A>(1), <A HREF="../man1/hboot.1.php">hboot</A>(1), <A HREF="../man1/wipe.1.php">wipe</A>(1), <A HREF="../man1/tkill.1.php">tkill</A>(1), <A HREF="../man5/bhost.5.php">bhost</A>(5), <A HREF="../man5/conf.5.php">conf</A>(5), <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

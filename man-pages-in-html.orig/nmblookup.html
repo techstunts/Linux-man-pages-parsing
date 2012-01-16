@@ -1,0 +1,241 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>NMBLOOKUP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>NMBLOOKUP</H1>
+Section:  (1)<BR>Updated: <BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+nmblookup - NetBIOS over TCP/IP client used to lookup NetBIOS names
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+<DL COMPACT>
+<DT>
+<B>nmblookup</B> [-M] [-R] [-S] [-r] [-A] [-h] [-B&nbsp;&lt;broadcast&nbsp;address&gt;] [-U&nbsp;&lt;unicast&nbsp;address&gt;] [-d&nbsp;&lt;debug&nbsp;level&gt;] [-s&nbsp;&lt;smb&nbsp;config&nbsp;file&gt;] [-i&nbsp;&lt;NetBIOS&nbsp;scope&gt;] [-T] [-f] {name}
+
+
+<P>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<P>
+
+<DD>This tool is part of the <B><A HREF="../man7/samba.7.php">samba</A></B>(7) suite.
+<P>
+<P>
+
+<B>nmblookup</B> is used to query NetBIOS names and map them to IP addresses in a network using NetBIOS over TCP/IP queries. The options allow the name queries to be directed at a particular IP broadcast area or to a particular machine. All queries are done over UDP.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT>-M<DD>
+Searches for a master browser by looking up the NetBIOS name <I>name</I> with a type of <B>0x1d</B>. If <I> name</I> is &quot;-&quot; then it does a lookup on the special name<B>__MSBROWSE__</B>. Please note that in order to use the name &quot;-&quot;, you need to make sure &quot;-&quot; isn't parsed as an argument, e.g. use :<B>nmblookup -M -- -</B>.
+<P>
+<DT>-R<DD>
+Set the recursion desired bit in the packet to do a recursive lookup. This is used when sending a name query to a machine running a WINS server and the user wishes to query the names in the WINS server. If this bit is unset the normal (broadcast responding) NetBIOS processing code on a machine is used instead. See RFC1001, RFC1002 for details.
+<P>
+<DT>-S<DD>
+Once the name query has returned an IP address then do a node status query as well. A node status query returns the NetBIOS names registered by a host.
+<P>
+<DT>-r<DD>
+Try and bind to UDP port 137 to send and receive UDP datagrams. The reason for this option is a bug in Windows 95 where it ignores the source port of the requesting packet and only replies to UDP port 137. Unfortunately, on most UNIX systems root privilege is needed to bind to this port, and in addition, if the <B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8) daemon is running on this machine it also binds to this port.
+<P>
+<DT>-A<DD>
+Interpret <I>name</I> as an IP Address and do a node status query on this address.
+<P>
+<DT>-n &lt;primary NetBIOS name&gt;<DD>
+This option allows you to override the NetBIOS name that Samba uses for itself. This is identical to setting the netbios name parameter in the <I>smb.conf</I> file. However, a command line setting will take precedence over settings in <I>smb.conf</I>.
+<P>
+<DT>-i &lt;scope&gt;<DD>
+This specifies a NetBIOS scope that <B>nmblookup</B> will use to communicate with when generating NetBIOS names. For details on the use of NetBIOS scopes, see rfc1001.txt and rfc1002.txt. NetBIOS scopes are <B>very</B> rarely used, only set this parameter if you are the system administrator in charge of all the NetBIOS systems you communicate with.
+<P>
+<DT>-W|--workgroup=domain<DD>
+Set the SMB domain of the username. This overrides the default domain which is the domain defined in smb.conf. If the domain specified is the same as the servers NetBIOS name, it causes the client to log on using the servers local SAM (as opposed to the Domain SAM).
+<P>
+<DT>-O socket options<DD>
+TCP socket options to set on the client socket. See the socket options parameter in the <I>smb.conf</I> manual page for the list of valid options.
+<P>
+<DT>-h|--help<DD>
+Print a summary of command line options.
+<P>
+<DT>-B &lt;broadcast address&gt;<DD>
+Send the query to the given broadcast address. Without this option the default behavior of nmblookup is to send the query to the broadcast address of the network interfaces as either auto-detected or defined in the <I>interfaces</I> parameter of the <B><A HREF="../man5/smb.conf.5.php">smb.conf</A></B>(5) file.
+<P>
+<DT>-U &lt;unicast address&gt;<DD>
+Do a unicast query to the specified address or host <I>unicast address</I>. This option (along with the <I>-R</I> option) is needed to query a WINS server.
+<P>
+<DT>-V<DD>
+Prints the program version number.
+<P>
+<DT>-s &lt;configuration file&gt;<DD>
+The file specified contains the configuration details required by the server. The information in this file includes server-specific information such as what printcap file to use, as well as descriptions of all the services that the server is to provide. See <I>smb.conf</I> for more information. The default configuration file name is determined at compile time.
+<P>
+<DT>-d|--debug=debuglevel<DD>
+<I>debuglevel</I> is an integer from 0 to 10. The default value if this parameter is not specified is zero.
+<P>
+The higher this value, the more detail will be logged to the log files about the activities of the server. At level 0, only critical errors and serious warnings will be logged. Level 1 is a reasonable level for day-to-day running - it generates a small amount of information about operations carried out.
+<P>
+Levels above 1 will generate considerable amounts of log data, and should only be used when investigating a problem. Levels above 3 are designed for use only by developers and generate HUGE amounts of log data, most of which is extremely cryptic.
+<P>
+Note that specifying this parameter here will override the log level parameter in the <I>smb.conf</I> file.
+<P>
+<DT>-l|--logfile=logdirectory<DD>
+Base directory name for log/debug files. The extension <B>&quot;.progname&quot;</B> will be appended (e.g. log.smbclient, log.smbd, etc...). The log file is never removed by the client.
+<P>
+<DT>-T<DD>
+This causes any IP addresses found in the lookup to be looked up via a reverse DNS lookup into a DNS name, and printed out before each
+<P>
+<B>IP address .... NetBIOS name</B>
+<P>
+pair that is the normal output.
+<P>
+<DT>-f<DD>
+Show which flags apply to the name that has been looked up. Possible answers are zero or more of: Response, Authoritative, Truncated, Recursion_Desired, Recursion_Available, Broadcast.
+<P>
+<DT>name<DD>
+This is the NetBIOS name being queried. Depending upon the previous options this may be a NetBIOS name or IP address. If a NetBIOS name then the different name types may be specified by appending '#&lt;type&gt;' to the name. This name may also be '*', which will return all registered names within a broadcast area.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+<P>
+
+<B>nmblookup</B> can be used to query a WINS server (in the same way <B>nslookup</B> is used to query DNS servers). To query a WINS server, <B>nmblookup</B> must be called like this:
+<P>
+<P>
+
+<B>nmblookup -U server -R 'name'</B>
+<P>
+<P>
+
+For example, running :
+<P>
+<P>
+
+<B>nmblookup -U samba.org -R 'IRIX#1B'</B>
+<P>
+<P>
+
+would query the WINS server samba.org for the domain master browser (1B name type) for the IRIX workgroup.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>VERSION</H2>
+
+<P>
+<P>
+
+This man page is correct for version 3.0 of the Samba suite.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<P>
+
+<B><A HREF="../man8/nmbd.8.php">nmbd</A></B>(8), <B><A HREF="../man7/samba.7.php">samba</A></B>(7), and <B><A HREF="../man5/smb.conf.5.php">smb.conf</A></B>(5).
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+<P>
+
+The original Samba software and related utilities were created by Andrew Tridgell. Samba is now developed by the Samba Team as an Open Source project similar to the way the Linux kernel is developed.
+<P>
+<P>
+
+The original Samba man pages were written by Karl Auer. The man page sources were converted to YODL format (another excellent piece of Open Source software, available at <A HREF="ftp://ftp.icce.rug.nl/pub/unix/)">ftp://ftp.icce.rug.nl/pub/unix/)</A> and updated for the Samba 2.0 release by Jeremy Allison. The conversion to DocBook for Samba 2.2 was done by Gerald Carter. The conversion to DocBook XML 4.2 for Samba 3.0 was done by Alexander Bokovoy.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">VERSION</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

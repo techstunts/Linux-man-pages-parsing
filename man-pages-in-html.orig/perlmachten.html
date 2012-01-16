@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLMACHTEN</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLMACHTEN</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+README.machten - Perl version 5 on Power MachTen systems
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document describes how to build Perl 5 on Power MachTen systems,
+and discusses a few wrinkles in the implementation.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Perl version 5.8.x and greater not supported</H2>
+
+<A NAME="ixAAD"></A>
+<B>Power MachTen is not supported by versions of Perl later than
+5.6.x.</B>
+If you wish to build a version from the 5.6 track, please
+obtain a source distribution from the archive at
+&lt;<A HREF="http://cpan.org/src/5.0/">http://cpan.org/src/5.0/</A>&gt; and follow the instructions in its
+<FONT SIZE="-1">README</FONT>.machten file.
+<P>
+
+MachTen is no longer supported by its developers, Tenon Intersystems.
+A <FONT SIZE="-1">UNIX</FONT> environment hosted on Mac <FONT SIZE="-1">OS</FONT> Classic, MachTen has been
+superseded by Mac <FONT SIZE="-1">OS</FONT> X and by <FONT SIZE="-1">BSD</FONT> and Linux implementations for Macintosh
+hardware.
+The final version of Power MachTen, 4.1.4, lacks many features found in
+modern implementations of <FONT SIZE="-1">UNIX</FONT>, and has a number of bugs.
+These shortcomings prevent recent versions of Perl from being able to use
+extensions on MachTen, and cause numerous test suite failures in the
+perl core.
+<P>
+
+In September 2003, a discussion on the MachTen mailing list determined
+that there was no interest in making a later version of Perl build
+successfully on MachTen.
+Consequently, support for building Perl under MachTen has been suppressed
+in Perl distributions published after February 2004.
+The hints file, <I>hints/machten.sh</I>, remains a part of the
+distributions for reference purposes.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Compiling Perl 5.6.x on MachTen</H2>
+
+<A NAME="ixAAE"></A>
+To compile perl 5.6.x under MachTen 4.1.4 (and probably earlier versions):
+<P>
+
+
+
+<PRE>
+  ./Configure -de
+  make
+  make test
+  make install
+
+</PRE>
+
+
+<P>
+
+This builds and installs a statically-linked perl; MachTen's dynamic
+linking facilities are not adequate to support Perl's use of
+dynamically linked libraries.  (See <I>hints/machten.sh</I> for more
+information.)
+<P>
+
+You should have at least 32 megabytes of free memory on your
+system before running the <TT>&quot;make&quot;</TT> command.
+<P>
+
+For much more information on building perl --- for example, on how to
+change the default installation directory --- see <I></I><FONT SIZE="-1"><I>INSTALL</I></FONT><I></I>.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Failures during make test on MachTen</H2>
+
+
+
+<A NAME="ixAAF"></A>
+<DL COMPACT>
+<DT>op/lexassign.t<DD>
+<A NAME="ixAAG"></A>
+This test may fail when first run after building perl.  It does not
+fail subsequently.  The cause is unknown.
+<DT>pragma/warnings.t<DD>
+<A NAME="ixAAH"></A>
+Test 257 fails due to a failure to warn about attempts to read from a
+filehandle which is a duplicate of stdout when stdout is attached to a
+pipe.  The output of the test contains a block comment which discusses
+a different failure, not applicable to MachTen.
+
+
+<P>
+
+
+The root of the problem is that Machten does not assign a file type to
+either end of a pipe (see stat), resulting, among other things
+in Perl's <TT>&quot;-p&quot;</TT> test failing on file descriptors belonging to pipes.
+As a result, perl becomes confused, and the test for reading from a
+write-only file fails.  I am reluctant to patch perl to get around
+this, as it's clearly an <FONT SIZE="-1">OS</FONT> bug (about which Tenon has been informed),
+and limited in its effect on practical Perl programs.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Building external modules on MachTen</H2>
+
+<A NAME="ixAAI"></A>
+To add an external module to perl, build in the normal way, which
+is documented in ExtUtils::MakeMaker, or which can be driven
+automatically by the <FONT SIZE="-1">CPAN</FONT> module (see <FONT SIZE="-1">CPAN</FONT>), which is part of the
+standard distribution.  If you want to install a module which
+contains <FONT SIZE="-1">XS</FONT> code (C or C<FONT SIZE="-2">++</FONT> source which compiles to object code
+for linking with perl), you will have to replace your perl binary with
+a new version containing the new statically-linked object module.  The
+build process tells you how to do this.
+<P>
+
+There is a gotcha, however, which users usually encounter immediately
+they respond to <FONT SIZE="-1">CPAN</FONT>'s invitation to <TT>&quot;install Bundle::CPAN&quot;</TT>. When
+installing a <I>bundle</I> --- a group of modules which together achieve
+some particular purpose, the installation process for later modules in
+the bundle tends to assume that earlier modules have been fully
+installed and are available for use.  This is not true on a
+statically-linked system for earlier modules which contain <FONT SIZE="-1">XS</FONT> code.
+As a result the installation of the bundle fails.  The work-around is
+not to install the bundle as a one-shot operation, but instead to see
+what modules it contains, and install these one-at-a-time by hand in
+the order given.
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAJ"></A>
+Dominic Dunlop &lt;<A HREF="mailto:domo@computer.org">domo@computer.org</A>&gt;
+<A NAME="lbAI">&nbsp;</A>
+<H2>DATE</H2>
+
+<A NAME="ixAAK"></A>
+Version 1.1.0 2004-02-13
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Perl version 5.8.x and greater not supported</A><DD>
+<DT><A HREF="#lbAE">Compiling Perl 5.6.x on MachTen</A><DD>
+<DT><A HREF="#lbAF">Failures during make test on MachTen</A><DD>
+<DT><A HREF="#lbAG">Building external modules on MachTen</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">DATE</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

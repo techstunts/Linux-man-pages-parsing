@@ -1,0 +1,3915 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLPODSPEC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLPODSPEC</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlpodspec - Plain Old Documentation: format specification and notes
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This document is detailed notes on the Pod markup language.  Most
+people will only have to read perlpod to know how to write
+in Pod, but this document may answer some incidental questions to do
+with parsing and rendering Pod.
+<P>
+
+In this document, ``must'' / ``must not'', ``should'' /
+``should not'', and ``may'' have their conventional (cf. <FONT SIZE="-1">RFC</FONT> 2119)
+meanings: ``X must do Y'' means that if X doesn't do Y, it's against
+this specification, and should really be fixed.  ``X should do Y''
+means that it's recommended, but X may fail to do Y, if there's a
+good reason.  ``X may do Y'' is merely a note that X can do Y at
+will (although it is up to the reader to detect any connotation of
+&quot;and I think it would be <I>nice</I> if X did Y`` versus ''it wouldn't
+really <I>bother</I> me if X did Y&quot;).
+<P>
+
+Notably, when I say ``the parser should do Y'', the
+parser may fail to do Y, if the calling application explicitly
+requests that the parser <I>not</I> do Y.  I often phrase this as
+``the parser should, by default, do Y.''  This doesn't <I>require</I>
+the parser to provide an option for turning off whatever
+feature Y is (like expanding tabs in verbatim paragraphs), although
+it implicates that such an option <I>may</I> be provided.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Pod Definitions</H2>
+
+<A NAME="ixAAD"></A>
+Pod is embedded in files, typically Perl source files --- although you
+can write a file that's nothing but Pod.
+<P>
+
+A <B>line</B> in a file consists of zero or more non-newline characters,
+terminated by either a newline or the end of the file.
+<P>
+
+A <B>newline sequence</B> is usually a platform-dependent concept, but
+Pod parsers should understand it to mean any of <FONT SIZE="-1">CR</FONT> (<FONT SIZE="-1">ASCII</FONT> 13), <FONT SIZE="-1">LF</FONT>
+(<FONT SIZE="-1">ASCII</FONT> 10), or a <FONT SIZE="-1">CRLF</FONT> (<FONT SIZE="-1">ASCII</FONT> 13 followed immediately by <FONT SIZE="-1">ASCII</FONT> 10), in
+addition to any other system-specific meaning.  The first <FONT SIZE="-1">CR/CRLF/LF</FONT>
+sequence in the file may be used as the basis for identifying the
+newline sequence for parsing the rest of the file.
+<P>
+
+A <B>blank line</B> is a line consisting entirely of zero or more spaces
+(<FONT SIZE="-1">ASCII</FONT> 32) or tabs (<FONT SIZE="-1">ASCII</FONT> 9), and terminated by a newline or end-of-file.
+A <B>non-blank line</B> is a line containing one or more characters other
+than space or tab (and terminated by a newline or end-of-file).
+<P>
+
+(<I>Note:</I> Many older Pod parsers did not accept a line consisting of
+spaces/tabs and then a newline as a blank line --- the only lines they
+considered blank were lines consisting of <I>no characters at all</I>,
+terminated by a newline.)
+<P>
+
+<B>Whitespace</B> is used in this document as a blanket term for spaces,
+tabs, and newline sequences.  (By itself, this term usually refers
+to literal whitespace.  That is, sequences of whitespace characters
+in Pod source, as opposed to &quot;E&lt;32&gt;&quot;, which is a formatting
+code that <I>denotes</I> a whitespace character.)
+<P>
+
+A <B>Pod parser</B> is a module meant for parsing Pod (regardless of
+whether this involves calling callbacks or building a parse tree or
+directly formatting it).  A <B>Pod formatter</B> (or <B>Pod translator</B>)
+is a module or program that converts Pod to some other format (<FONT SIZE="-1">HTML</FONT>,
+plaintext, TeX, PostScript, <FONT SIZE="-1">RTF</FONT>).  A <B>Pod processor</B> might be a
+formatter or translator, or might be a program that does something
+else with the Pod (like wordcounting it, scanning for index points,
+etc.).
+<P>
+
+Pod content is contained in <B>Pod blocks</B>.  A Pod block starts with a
+line that matches &lt;m/\A=[a-zA-Z]/&gt;, and continues up to the next line
+that matches <TT>&quot;m/\A=cut/&quot;</TT> --- or up to the end of the file, if there is
+no <TT>&quot;m/\A=cut/&quot;</TT> line.
+<P>
+
+Within a Pod block, there are <B>Pod paragraphs</B>.  A Pod paragraph
+consists of non-blank lines of text, separated by one or more blank
+lines.
+<P>
+
+For purposes of Pod processing, there are four types of paragraphs in
+a Pod block:
+<DL COMPACT>
+<DT>*<DD>
+A command paragraph (also called a ``directive'').  The first line of
+this paragraph must match <TT>&quot;m/\A=[a-zA-Z]/&quot;</TT>.  Command paragraphs are
+typically one line, as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  =head1 NOTES
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item *
+
+</PRE>
+
+
+
+
+<P>
+
+
+But they may span several (non-blank) lines:
+
+
+<P>
+
+
+
+
+<PRE>
+  =for comment
+  Hm, I wonder what it would look like if
+  you tried to write a BNF for Pod from this.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =head3 Dr. Strangelove, or: How I Learned to
+  Stop Worrying and Love the Bomb
+
+</PRE>
+
+
+
+
+<P>
+
+
+<I>Some</I> command paragraphs allow formatting codes in their content
+(i.e., after the part that matches <TT>&quot;m/\A=[a-zA-Z]\S*\s*/&quot;</TT>), as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  =head1 Did You Remember to C&lt;use strict;&gt;?
+
+</PRE>
+
+
+
+
+<P>
+
+
+In other words, the Pod processing handler for ``head1'' will apply the
+same processing to &quot;Did You Remember to C&lt;use strict;&gt;?`` that it
+would to an ordinary paragraph --- i.e., formatting codes (like
+''C&lt;...&gt;&quot;) are parsed and presumably formatted appropriately, and
+whitespace in the form of literal spaces and/or tabs is not
+significant.
+<DT>*<DD>
+A <B>verbatim paragraph</B>.  The first line of this paragraph must be a
+literal space or tab, and this paragraph must not be inside a &quot;=begin
+<I>identifier</I>``, ... ''=end <I>identifier</I>`` sequence unless
+''<I>identifier</I>`` begins with a colon ('':&quot;).  That is, if a paragraph
+starts with a literal space or tab, but <I>is</I> inside a
+&quot;=begin <I>identifier</I>``, ... ''=end <I>identifier</I>`` region, then it's
+a data paragraph, unless ''<I>identifier</I>&quot; begins with a colon.
+
+
+<P>
+
+
+Whitespace <I>is</I> significant in verbatim paragraphs (although, in
+processing, tabs are probably expanded).
+<DT>*<DD>
+An <B>ordinary paragraph</B>.  A paragraph is an ordinary paragraph
+if its first line matches neither <TT>&quot;m/\A=[a-zA-Z]/&quot;</TT> nor
+<TT>&quot;m/\A[ \t]/&quot;</TT>, <I>and</I> if it's not inside a &quot;=begin <I>identifier</I>``,
+... ''=end <I>identifier</I>`` sequence unless ''<I>identifier</I>`` begins with
+a colon ('':&quot;).
+<DT>*<DD>
+A <B>data paragraph</B>.  This is a paragraph that <I>is</I> inside a &quot;=begin
+<I>identifier</I>`` ... ''=end <I>identifier</I>`` sequence where
+''<I>identifier</I>&quot; does <I>not</I> begin with a literal colon (``:'').  In
+some sense, a data paragraph is not part of Pod at all (i.e.,
+effectively it's ``out-of-band''), since it's not subject to most kinds
+of Pod parsing; but it is specified here, since Pod
+parsers need to be able to call an event for it, or store it in some
+form in a parse tree, or at least just parse <I>around</I> it.
+</DL>
+<P>
+
+For example: consider the following paragraphs:
+<P>
+
+
+
+<PRE>
+  # &lt;- that's the 0th column
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =head1 Foo
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Stuff
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $foo-&gt;bar
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =cut
+
+</PRE>
+
+
+<P>
+
+Here, ``=head1 Foo'' and ``=cut'' are command paragraphs because the first
+line of each matches <TT>&quot;m/\A=[a-zA-Z]/&quot;</TT>.  &quot;<I>[space][space]</I>$foo-&gt;bar``
+is a verbatim paragraph, because its first line starts with a literal
+whitespace character (and there's no ''=begin``...''=end&quot; region around).
+<P>
+
+The &quot;=begin <I>identifier</I>`` ... ''=end <I>identifier</I>&quot; commands stop
+paragraphs that they surround from being parsed as data or verbatim
+paragraphs, if <I>identifier</I> doesn't begin with a colon.  This
+is discussed in detail in the section
+``About Data Paragraphs and ''=begin/=end`` Regions''.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Pod Commands</H2>
+
+<A NAME="ixAAE"></A>
+This section is intended to supplement and clarify the discussion in
+``Command Paragraph'' in perlpod.  These are the currently recognized
+Pod commands:
+<DL COMPACT>
+<DT>=head1, =head2, =head3, =head4<DD>
+
+
+<A NAME="ixAAF"></A>
+This command indicates that the text in the remainder of the paragraph
+is a heading.  That text may contain formatting codes.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =head1 Object Attributes
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =head3 What B&lt;Not&gt; to Do!
+
+</PRE>
+
+
+<DT>=pod<DD>
+
+
+<A NAME="ixAAG"></A>
+This command indicates that this paragraph begins a Pod block.  (If we
+are already in the middle of a Pod block, this command has no effect at
+all.)  If there is any text in this command paragraph after ``=pod'',
+it must be ignored.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =pod
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  This is a plain Pod paragraph.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =pod This text is ignored.
+
+</PRE>
+
+
+<DT>=cut<DD>
+
+
+<A NAME="ixAAH"></A>
+This command indicates that this line is the end of this previously
+started Pod block.  If there is any text after ``=cut'' on the line, it must be
+ignored.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =cut
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =cut The documentation ends here.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =cut
+  # This is the first line of program text.
+  sub foo { # This is the second.
+
+</PRE>
+
+
+
+
+<P>
+
+
+It is an error to try to <I>start</I> a Pod block with a ``=cut'' command.  In
+that case, the Pod processor must halt parsing of the input file, and
+must by default emit a warning.
+<DT>=over<DD>
+
+
+<A NAME="ixAAI"></A>
+This command indicates that this is the start of a list/indent
+region.  If there is any text following the ``=over'', it must consist
+of only a nonzero positive numeral.  The semantics of this numeral is
+explained in the ``About =over...=back Regions'' section, further
+below.  Formatting codes are not expanded.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =over 3
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =over 3.5
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+<DT>=item<DD>
+
+
+<A NAME="ixAAJ"></A>
+This command indicates that an item in a list begins here.  Formatting
+codes are processed.  The semantics of the (optional) text in the
+remainder of this paragraph are
+explained in the ``About =over...=back Regions'' section, further
+below.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item *
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item      *
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item 14
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item   3.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item C&lt;&lt; $thing-&gt;stuff(I&lt;dodad&gt;) &gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item For transporting us beyond seas to be tried for pretended
+  offenses
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item He is at this time transporting large armies of foreign
+  mercenaries to complete the works of death, desolation and
+  tyranny, already begun with circumstances of cruelty and perfidy
+  scarcely paralleled in the most barbarous ages, and totally
+  unworthy the head of a civilized nation.
+
+</PRE>
+
+
+<DT>=back<DD>
+
+
+<A NAME="ixAAK"></A>
+This command indicates that this is the end of the region begun
+by the most recent ``=over'' command.  It permits no text after the
+``=back'' command.
+<DT>=begin formatname<DD>
+
+
+<A NAME="ixAAL"></A>
+This marks the following paragraphs (until the matching ``=end
+formatname'') as being for some special kind of processing.  Unless
+``formatname'' begins with a colon, the contained non-command
+paragraphs are data paragraphs.  But if ``formatname'' <I>does</I> begin
+with a colon, then non-command paragraphs are ordinary paragraphs
+or data paragraphs.  This is discussed in detail in the section
+``About Data Paragraphs and ''=begin/=end`` Regions''.
+
+
+<P>
+
+
+It is advised that formatnames match the regexp
+<TT>&quot;m/\A:?[-a-zA-Z0-9_]+\z/&quot;</TT>.  Implementors should anticipate future
+expansion in the semantics and syntax of the first parameter
+to ``=begin''/``=end''/``=for''.
+<DT>=end formatname<DD>
+
+
+<A NAME="ixAAM"></A>
+This marks the end of the region opened by the matching
+``=begin formatname'' region.  If ``formatname'' is not the formatname
+of the most recent open ``=begin formatname'' region, then this
+is an error, and must generate an error message.  This
+is discussed in detail in the section
+``About Data Paragraphs and ''=begin/=end`` Regions''.
+<DT>=for formatname text...<DD>
+
+
+<A NAME="ixAAN"></A>
+This is synonymous with:
+
+
+<P>
+
+
+
+
+<PRE>
+     =begin formatname
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+     text...
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+     =end formatname
+
+</PRE>
+
+
+
+
+<P>
+
+
+That is, it creates a region consisting of a single paragraph; that
+paragraph is to be treated as a normal paragraph if ``formatname''
+begins with a ``:''; if ``formatname'' <I>doesn't</I> begin with a colon,
+then ``text...'' will constitute a data paragraph.  There is no way
+to use ``=for formatname text...'' to express ``text...'' as a verbatim
+paragraph.
+<DT>=encoding encodingname<DD>
+
+
+<A NAME="ixAAO"></A>
+This command, which should occur early in the document (at least
+before any non-US-ASCII data!), declares that this document is
+encoded in the encoding <I>encodingname</I>, which must be
+an encoding name that Encoding recognizes.  (Encoding's list
+of supported encodings, in Encoding::Supported, is useful here.)
+If the Pod parser cannot decode the declared encoding, it 
+should emit a warning and may abort parsing the document
+altogether.
+
+
+<P>
+
+
+A document having more than one ``=encoding'' line should be
+considered an error.  Pod processors may silently tolerate this if
+the not-first ``=encoding'' lines are just duplicates of the
+first one (e.g., if there's a ``=use utf8'' line, and later on
+another ``=use utf8'' line).  But Pod processors should complain if
+there are contradictory ``=encoding'' lines in the same document
+(e.g., if there is a ``=encoding utf8'' early in the document and
+``=encoding big5'' later).  Pod processors that recognize BOMs
+may also complain if they see an ``=encoding'' line
+that contradicts the <FONT SIZE="-1">BOM</FONT> (e.g., if a document with a <FONT SIZE="-1">UTF-16LE</FONT>
+<FONT SIZE="-1">BOM</FONT> has an ``=encoding shiftjis'' line).
+</DL>
+<P>
+
+If a Pod processor sees any command other than the ones listed
+above (like ``=head'', or ``=haed1'', or ``=stuff'', or ``=cuttlefish'',
+or ``=w123''), that processor must by default treat this as an
+error.  It must not process the paragraph beginning with that
+command, must by default warn of this as an error, and may
+abort the parse.  A Pod parser may allow a way for particular
+applications to add to the above list of known commands, and to
+stipulate, for each additional command, whether formatting
+codes should be processed.
+<P>
+
+Future versions of this specification may add additional
+commands.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Pod Formatting Codes</H2>
+
+<A NAME="ixAAP"></A>
+(Note that in previous drafts of this document and of perlpod,
+formatting codes were referred to as ``interior sequences'', and
+this term may still be found in the documentation for Pod parsers,
+and in error messages from Pod processors.)
+<P>
+
+There are two syntaxes for formatting codes:
+<DL COMPACT>
+<DT>*<DD>
+A formatting code starts with a capital letter (just US-ASCII [A-Z])
+followed by a ``&lt;'', any number of characters, and ending with the first
+matching ``&gt;''.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+    That's what I&lt;you&gt; think!
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    What's C&lt;dump()&gt; for?
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    X&lt;C&lt;chmod&gt; and C&lt;unlink()&gt; Under Different Operating Systems&gt;
+
+</PRE>
+
+
+<DT>*<DD>
+A formatting code starts with a capital letter (just US-ASCII [A-Z])
+followed by two or more ``&lt;'''s, one or more whitespace characters,
+any number of characters, one or more whitespace characters,
+and ending with the first matching sequence of two or more ``&gt;'''s, where
+the number of ``&gt;'''s equals the number of ``&lt;'''s in the opening of this
+formatting code.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+    That's what I&lt;&lt; you &gt;&gt; think!
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    C&lt;&lt;&lt; open(X, &quot;&gt;&gt;thing.dat&quot;) || die $! &gt;&gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    B&lt;&lt; $foo-&gt;bar(); &gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+With this syntax, the whitespace character(s) after the &quot;C&lt;&lt;&lt;``
+and before the ''&gt;&gt;&quot; (or whatever letter) are <I>not</I> renderable --- they
+do not signify whitespace, are merely part of the formatting codes
+themselves.  That is, these are all synonymous:
+
+
+<P>
+
+
+
+
+<PRE>
+    C&lt;thing&gt;
+    C&lt;&lt; thing &gt;&gt;
+    C&lt;&lt;           thing     &gt;&gt;
+    C&lt;&lt;&lt;   thing &gt;&gt;&gt;
+    C&lt;&lt;&lt;&lt;
+    thing
+               &gt;&gt;&gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+and so on.
+</DL>
+<P>
+
+In parsing Pod, a notably tricky part is the correct parsing of
+(potentially nested!) formatting codes.  Implementors should
+consult the code in the <TT>&quot;parse_text&quot;</TT> routine in Pod::Parser as an
+example of a correct implementation.
+<DL COMPACT>
+<DT>I&lt;text&gt; --- italic text<DD>
+
+
+<A NAME="ixAAQ"></A>
+See the brief discussion in ``Formatting Codes'' in perlpod.
+<DT>B&lt;text&gt; --- bold text<DD>
+
+
+<A NAME="ixAAR"></A>
+See the brief discussion in ``Formatting Codes'' in perlpod.
+<DT>C&lt;code&gt; --- code text<DD>
+
+
+<A NAME="ixAAS"></A>
+See the brief discussion in ``Formatting Codes'' in perlpod.
+<DT>F&lt;filename&gt; --- style for filenames<DD>
+
+
+<A NAME="ixAAT"></A>
+See the brief discussion in ``Formatting Codes'' in perlpod.
+<DT>X&lt;topic name&gt; --- an index entry<DD>
+
+
+<A NAME="ixAAU"></A>
+See the brief discussion in ``Formatting Codes'' in perlpod.
+
+
+<P>
+
+
+This code is unusual in that most formatters completely discard
+this code and its content.  Other formatters will render it with
+invisible codes that can be used in building an index of
+the current document.
+<DT>Z&lt;&gt; --- a null (zero-effect) formatting code<DD>
+
+
+<A NAME="ixAAV"></A>
+Discussed briefly in ``Formatting Codes'' in perlpod.
+
+
+<P>
+
+
+This code is unusual is that it should have no content.  That is,
+a processor may complain if it sees <TT>&quot;Z&lt;potatoes&gt;&quot;</TT>.  Whether
+or not it complains, the <I>potatoes</I> text should ignored.
+<DT>L&lt;name&gt; --- a hyperlink<DD>
+
+
+<A NAME="ixAAW"></A>
+The complicated syntaxes of this code are discussed at length in
+``Formatting Codes'' in perlpod, and implementation details are
+discussed below, in &quot;About L&lt;...&gt; Codes&quot;.  Parsing the
+contents of L&lt;content&gt; is tricky.  Notably, the content has to be
+checked for whether it looks like a <FONT SIZE="-1">URL</FONT>, or whether it has to be split
+on literal ``|'' and/or ``/'' (in the right order!), and so on,
+<I>before</I> E&lt;...&gt; codes are resolved.
+<DT>E&lt;escape&gt; --- a character escape<DD>
+
+
+<A NAME="ixAAX"></A>
+See ``Formatting Codes'' in perlpod, and several points in
+``Notes on Implementing Pod Processors''.
+<DT>S&lt;text&gt; --- text contains non-breaking spaces<DD>
+
+
+<A NAME="ixAAY"></A>
+This formatting code is syntactically simple, but semantically
+complex.  What it means is that each space in the printable
+content of this code signifies a non-breaking space.
+
+
+<P>
+
+
+Consider:
+
+
+<P>
+
+
+
+
+<PRE>
+    C&lt;$x ? $y    :  $z&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    S&lt;C&lt;$x ? $y     :  $z&gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Both signify the monospace (c[ode] style) text consisting of
+``$x'', one space, ``?'', one space, ``:'', one space, ``$z''.  The
+difference is that in the latter, with the S code, those spaces
+are not ``normal'' spaces, but instead are non-breaking spaces.
+</DL>
+<P>
+
+If a Pod processor sees any formatting code other than the ones
+listed above (as in &quot;N&lt;...&gt;``, or ''Q&lt;...&gt;&quot;, etc.), that
+processor must by default treat this as an error.
+A Pod parser may allow a way for particular
+applications to add to the above list of known formatting codes;
+a Pod parser might even allow a way to stipulate, for each additional
+command, whether it requires some form of special processing, as
+L&lt;...&gt; does.
+<P>
+
+Future versions of this specification may add additional
+formatting codes.
+<P>
+
+Historical note:  A few older Pod processors would not see a ``&gt;'' as
+closing a &quot;C&lt;`` code, if the ''&gt;`` was immediately preceded by
+a ''-&quot;.  This was so that this:
+<P>
+
+
+
+<PRE>
+    C&lt;$foo-&gt;bar&gt;
+
+</PRE>
+
+
+<P>
+
+would parse as equivalent to this:
+<P>
+
+
+
+<PRE>
+    C&lt;$foo-E&lt;lt&gt;bar&gt;
+
+</PRE>
+
+
+<P>
+
+instead of as equivalent to a ``C'' formatting code containing 
+only ``$foo-'', and then a ``bar&gt;'' outside the ``C'' formatting code.  This
+problem has since been solved by the addition of syntaxes like this:
+<P>
+
+
+
+<PRE>
+    C&lt;&lt; $foo-&gt;bar &gt;&gt;
+
+</PRE>
+
+
+<P>
+
+Compliant parsers must not treat ``-&gt;'' as special.
+<P>
+
+Formatting codes absolutely cannot span paragraphs.  If a code is
+opened in one paragraph, and no closing code is found by the end of
+that paragraph, the Pod parser must close that formatting code,
+and should complain (as in ``Unterminated I code in the paragraph
+starting at line 123: 'Time objects are not...''').  So these
+two paragraphs:
+<P>
+
+
+
+<PRE>
+  I&lt;I told you not to do this!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Don't make me say it again!&gt;
+
+</PRE>
+
+
+<P>
+
+...must <I>not</I> be parsed as two paragraphs in italics (with the I
+code starting in one paragraph and starting in another.)  Instead,
+the first paragraph should generate a warning, but that aside, the
+above code must parse as if it were:
+<P>
+
+
+
+<PRE>
+  I&lt;I told you not to do this!&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Don't make me say it again!E&lt;gt&gt;
+
+</PRE>
+
+
+<P>
+
+(In SGMLish jargon, all Pod commands are like block-level
+elements, whereas all Pod formatting codes are like inline-level
+elements.)
+<A NAME="lbAG">&nbsp;</A>
+<H2>Notes on Implementing Pod Processors</H2>
+
+<A NAME="ixAAZ"></A>
+The following is a long section of miscellaneous requirements
+and suggestions to do with Pod processing.
+<DL COMPACT>
+<DT>*<DD>
+Pod formatters should tolerate lines in verbatim blocks that are of
+any length, even if that means having to break them (possibly several
+times, for very long lines) to avoid text running off the side of the
+page.  Pod formatters may warn of such line-breaking.  Such warnings
+are particularly appropriate for lines are over 100 characters long, which
+are usually not intentional.
+<DT>*<DD>
+Pod parsers must recognize <I>all</I> of the three well-known newline
+formats: <FONT SIZE="-1">CR</FONT>, <FONT SIZE="-1">LF</FONT>, and <FONT SIZE="-1">CRLF</FONT>.  See perlport.
+<DT>*<DD>
+Pod parsers should accept input lines that are of any length.
+<DT>*<DD>
+Since Perl recognizes a Unicode Byte Order Mark at the start of files
+as signaling that the file is Unicode encoded as in <FONT SIZE="-1">UTF-16</FONT> (whether
+big-endian or little-endian) or <FONT SIZE="-1">UTF-8</FONT>, Pod parsers should do the
+same.  Otherwise, the character encoding should be understood as
+being <FONT SIZE="-1">UTF-8</FONT> if the first highbit byte sequence in the file seems
+valid as a <FONT SIZE="-1">UTF-8</FONT> sequence, or otherwise as Latin-1.
+
+
+<P>
+
+
+Future versions of this specification may specify
+how Pod can accept other encodings.  Presumably treatment of other
+encodings in Pod parsing would be as in <FONT SIZE="-1">XML</FONT> parsing: whatever the
+encoding declared by a particular Pod file, content is to be
+stored in memory as Unicode characters.
+<DT>*<DD>
+The well known Unicode Byte Order Marks are as follows:  if the
+file begins with the two literal byte values 0xFE 0xFF, this is
+the <FONT SIZE="-1">BOM</FONT> for big-endian <FONT SIZE="-1">UTF-16</FONT>.  If the file begins with the two
+literal byte value 0xFF 0xFE, this is the <FONT SIZE="-1">BOM</FONT> for little-endian
+<FONT SIZE="-1">UTF-16</FONT>.  If the file begins with the three literal byte values
+0xEF 0xBB 0xBF, this is the <FONT SIZE="-1">BOM</FONT> for <FONT SIZE="-1">UTF-8</FONT>.
+<DT>*<DD>
+A naive but sufficient heuristic for testing the first highbit
+byte-sequence in a BOM-less file (whether in code or in Pod!), to see
+whether that sequence is valid as <FONT SIZE="-1">UTF-8</FONT> (<FONT SIZE="-1">RFC</FONT> 2279) is to check whether
+that the first byte in the sequence is in the range 0xC0 - 0xFD
+<I>and</I> whether the next byte is in the range
+0x80 - 0xBF.  If so, the parser may conclude that this file is in
+<FONT SIZE="-1">UTF-8</FONT>, and all highbit sequences in the file should be assumed to
+be <FONT SIZE="-1">UTF-8</FONT>.  Otherwise the parser should treat the file as being
+in Latin-1.  In the unlikely circumstance that the first highbit
+sequence in a truly non-UTF-8 file happens to appear to be <FONT SIZE="-1">UTF-8</FONT>, one
+can cater to our heuristic (as well as any more intelligent heuristic)
+by prefacing that line with a comment line containing a highbit
+sequence that is clearly <I>not</I> valid as <FONT SIZE="-1">UTF-8</FONT>.  A line consisting
+of simply ``#'', an e-acute, and any non-highbit byte,
+is sufficient to establish this file's encoding.
+<DT>*<DD>
+This document's requirements and suggestions about encodings
+do not apply to Pod processors running on non-ASCII platforms,
+notably <FONT SIZE="-1">EBCDIC</FONT> platforms.
+<DT>*<DD>
+Pod processors must treat a ``=for [label] [content...]'' paragraph as
+meaning the same thing as a ``=begin [label]'' paragraph, content, and
+an ``=end [label]'' paragraph.  (The parser may conflate these two
+constructs, or may leave them distinct, in the expectation that the
+formatter will nevertheless treat them the same.)
+<DT>*<DD>
+When rendering Pod to a format that allows comments (i.e., to nearly
+any format other than plaintext), a Pod formatter must insert comment
+text identifying its name and version number, and the name and
+version numbers of any modules it might be using to process the Pod.
+Minimal examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  %% POD::Pod2PS v3.14159, using POD::Parser v1.92
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;!-- Pod::HTML v3.14159, using POD::Parser v1.92 --&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  {\doccomm generated by Pod::Tree::RTF 3.14159 using Pod::Tree 1.08}
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  .\&quot; Pod::Man version 3.14159, using POD::Parser version 1.92
+
+</PRE>
+
+
+
+
+<P>
+
+
+Formatters may also insert additional comments, including: the
+release date of the Pod formatter program, the contact address for
+the author(s) of the formatter, the current time, the name of input
+file, the formatting options in effect, version of Perl used, etc.
+
+
+<P>
+
+
+Formatters may also choose to note errors/warnings as comments,
+besides or instead of emitting them otherwise (as in messages to
+<FONT SIZE="-1">STDERR</FONT>, or <TT>&quot;die&quot;</TT>ing).
+<DT>*<DD>
+Pod parsers <I>may</I> emit warnings or error messages (&quot;Unknown E code
+E&lt;zslig&gt;!&quot;) to <FONT SIZE="-1">STDERR</FONT> (whether through printing to <FONT SIZE="-1">STDERR</FONT>, or
+<TT>&quot;warn&quot;</TT>ing/<TT>&quot;carp&quot;</TT>ing, or <TT>&quot;die&quot;</TT>ing/<TT>&quot;croak&quot;</TT>ing), but <I>must</I> allow
+suppressing all such <FONT SIZE="-1">STDERR</FONT> output, and instead allow an option for
+reporting errors/warnings
+in some other way, whether by triggering a callback, or noting errors
+in some attribute of the document object, or some similarly unobtrusive
+mechanism --- or even by appending a ``Pod Errors'' section to the end of
+the parsed form of the document.
+<DT>*<DD>
+In cases of exceptionally aberrant documents, Pod parsers may abort the
+parse.  Even then, using <TT>&quot;die&quot;</TT>ing/<TT>&quot;croak&quot;</TT>ing is to be avoided; where
+possible, the parser library may simply close the input file
+and add text like ``*** Formatting Aborted ***'' to the end of the
+(partial) in-memory document.
+<DT>*<DD>
+In paragraphs where formatting codes (like E&lt;...&gt;, B&lt;...&gt;)
+are understood (i.e., <I>not</I> verbatim paragraphs, but <I>including</I>
+ordinary paragraphs, and command paragraphs that produce renderable
+text, like ``=head1''), literal whitespace should generally be considered
+``insignificant'', in that one literal space has the same meaning as any
+(nonzero) number of literal spaces, literal newlines, and literal tabs
+(as long as this produces no blank lines, since those would terminate
+the paragraph).  Pod parsers should compact literal whitespace in each
+processed paragraph, but may provide an option for overriding this
+(since some processing tasks do not require it), or may follow
+additional special rules (for example, specially treating
+period-space-space or period-newline sequences).
+<DT>*<DD>
+Pod parsers should not, by default, try to coerce apostrophe (') and
+quote (``) into smart quotes (little 9's, 66's, 99's, etc), nor try to
+turn backtick (`) into anything else but a single backtick character
+(distinct from an openquote character!), nor ''--&quot; into anything but
+two minus signs.  They <I>must never</I> do any of those things to text
+in C&lt;...&gt; formatting codes, and never <I>ever</I> to text in verbatim
+paragraphs.
+<DT>*<DD>
+When rendering Pod to a format that has two kinds of hyphens (-), one
+that's a non-breaking hyphen, and another that's a breakable hyphen
+(as in ``object-oriented'', which can be split across lines as
+``object-'', newline, ``oriented''), formatters are encouraged to
+generally translate ``-'' to non-breaking hyphen, but may apply
+heuristics to convert some of these to breaking hyphens.
+<DT>*<DD>
+Pod formatters should make reasonable efforts to keep words of Perl
+code from being broken across lines.  For example, ``Foo::Bar'' in some
+formatting systems is seen as eligible for being broken across lines
+as ``Foo::'' newline ``Bar'' or even ``Foo::-'' newline ``Bar''.  This should
+be avoided where possible, either by disabling all line-breaking in
+mid-word, or by wrapping particular words with internal punctuation
+in ``don't break this across lines'' codes (which in some formats may
+not be a single code, but might be a matter of inserting non-breaking
+zero-width spaces between every pair of characters in a word.)
+<DT>*<DD>
+Pod parsers should, by default, expand tabs in verbatim paragraphs as
+they are processed, before passing them to the formatter or other
+processor.  Parsers may also allow an option for overriding this.
+<DT>*<DD>
+Pod parsers should, by default, remove newlines from the end of
+ordinary and verbatim paragraphs before passing them to the
+formatter.  For example, while the paragraph you're reading now
+could be considered, in Pod source, to end with (and contain)
+the newline(s) that end it, it should be processed as ending with
+(and containing) the period character that ends this sentence.
+<DT>*<DD>
+Pod parsers, when reporting errors, should make some effort to report
+an approximate line number (&quot;Nested E&lt;&gt;'s in Paragraph #52, near
+line 633 of Thing/Foo.pm!``), instead of merely noting the paragraph
+number (''Nested E&lt;&gt;'s in Paragraph #52 of Thing/Foo.pm!``).  Where
+this is problematic, the paragraph number should at least be
+accompanied by an excerpt from the paragraph (''Nested E&lt;&gt;'s in
+Paragraph #52 of Thing/Foo.pm, which begins 'Read/write accessor for
+the C&lt;interest rate&gt; attribute...'&quot;).
+<DT>*<DD>
+Pod parsers, when processing a series of verbatim paragraphs one
+after another, should consider them to be one large verbatim
+paragraph that happens to contain blank lines.  I.e., these two
+lines, which have a blank line between them:
+
+
+<P>
+
+
+
+
+<PRE>
+        use Foo;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+        print Foo-&gt;VERSION
+
+</PRE>
+
+
+
+
+<P>
+
+
+should be unified into one paragraph (``\tuse Foo;\n\n\tprint
+Foo-&gt;<FONT SIZE="-1">VERSION</FONT>'') before being passed to the formatter or other
+processor.  Parsers may also allow an option for overriding this.
+
+
+<P>
+
+
+While this might be too cumbersome to implement in event-based Pod
+parsers, it is straightforward for parsers that return parse trees.
+<DT>*<DD>
+Pod formatters, where feasible, are advised to avoid splitting short
+verbatim paragraphs (under twelve lines, say) across pages.
+<DT>*<DD>
+Pod parsers must treat a line with only spaces and/or tabs on it as a
+``blank line'' such as separates paragraphs.  (Some older parsers
+recognized only two adjacent newlines as a ``blank line'' but would not
+recognize a newline, a space, and a newline, as a blank line.  This
+is noncompliant behavior.)
+<DT>*<DD>
+Authors of Pod formatters/processors should make every effort to
+avoid writing their own Pod parser.  There are already several in
+<FONT SIZE="-1">CPAN</FONT>, with a wide range of interface styles --- and one of them,
+Pod::Parser, comes with modern versions of Perl.
+<DT>*<DD>
+Characters in Pod documents may be conveyed either as literals, or by
+number in E&lt;n&gt; codes, or by an equivalent mnemonic, as in
+E&lt;eacute&gt; which is exactly equivalent to E&lt;233&gt;.
+
+
+<P>
+
+
+Characters in the range 32-126 refer to those well known US-ASCII
+characters (also defined there by Unicode, with the same meaning),
+which all Pod formatters must render faithfully.  Characters
+in the ranges 0-31 and 127-159 should not be used (neither as
+literals, nor as E&lt;number&gt; codes), except for the
+literal byte-sequences for newline (13, 13 10, or 10), and tab (9).
+
+
+<P>
+
+
+Characters in the range 160-255 refer to Latin-1 characters (also
+defined there by Unicode, with the same meaning).  Characters above
+255 should be understood to refer to Unicode characters.
+<DT>*<DD>
+Be warned
+that some formatters cannot reliably render characters outside 32-126;
+and many are able to handle 32-126 and 160-255, but nothing above
+255.
+<DT>*<DD>
+Besides the well-known &quot;E&lt;lt&gt;`` and ''E&lt;gt&gt;`` codes for
+less-than and greater-than, Pod parsers must understand ''E&lt;sol&gt;``
+for ''/`` (solidus, slash), and ''E&lt;verbar&gt;`` for ''|`` (vertical bar,
+pipe).  Pod parsers should also understand ''E&lt;lchevron&gt;`` and
+''E&lt;rchevron&gt;`` as legacy codes for characters 171 and 187, i.e.,
+''left-pointing double angle quotation mark`` = ''left pointing
+guillemet`` and ''right-pointing double angle quotation mark`` = ''right
+pointing guillemet``.  (These look like little ''&lt;&lt;`` and ''&gt;&gt;``, and they
+are now preferably expressed with the <FONT SIZE="-1">HTML/XHTML</FONT> codes ''E&lt;laquo&gt;``
+and ''E&lt;raquo&gt;&quot;.)
+<DT>*<DD>
+Pod parsers should understand all &quot;E&lt;html&gt;&quot; codes as defined
+in the entity declarations in the most recent <FONT SIZE="-1">XHTML</FONT> specification at
+<TT>&quot;<A HREF="http://www.W3.org">www.W3.org</A>&quot;</TT>.  Pod parsers must understand at least the entities
+that define characters in the range 160-255 (Latin-1).  Pod parsers,
+when faced with some unknown &quot;E&lt;<I>identifier</I>&gt;&quot; code,
+shouldn't simply replace it with nullstring (by default, at least),
+but may pass it through as a string consisting of the literal characters
+E, less-than, <I>identifier</I>, greater-than.  Or Pod parsers may offer the
+alternative option of processing such unknown
+&quot;E&lt;<I>identifier</I>&gt;`` codes by firing an event especially
+for such codes, or by adding a special node-type to the in-memory
+document tree.  Such ''E&lt;<I>identifier</I>&gt;&quot; may have special meaning
+to some processors, or some processors may choose to add them to
+a special error report.
+<DT>*<DD>
+Pod parsers must also support the <FONT SIZE="-1">XHTML</FONT> codes &quot;E&lt;quot&gt;`` for
+character 34 (doublequote, ''), &quot;E&lt;amp&gt;`` for character 38
+(ampersand, &amp;), and ''E&lt;apos&gt;&quot; for character 39 (apostrophe, ').
+<DT>*<DD>
+Note that in all cases of &quot;E&lt;whatever&gt;&quot;, <I>whatever</I> (whether
+an htmlname, or a number in any base) must consist only of
+alphanumeric characters --- that is, <I>whatever</I> must watch
+<TT>&quot;m/\A\w+\z/&quot;</TT>.  So &quot;E&lt; 0 1 2 3 &gt;&quot; is invalid, because
+it contains spaces, which aren't alphanumeric characters.  This
+presumably does not <I>need</I> special treatment by a Pod processor;
+`` 0 1 2 3 '' doesn't look like a number in any base, so it would
+presumably be looked up in the table of HTML-like names.  Since
+there isn't (and cannot be) an HTML-like entity called `` 0 1 2 3 '',
+this will be treated as an error.  However, Pod processors may
+treat &quot;E&lt; 0 1 2 3 &gt;`` or ''E&lt;e-acute&gt;&quot; as <I>syntactically</I>
+invalid, potentially earning a different error message than the
+error message (or warning, or event) generated by a merely unknown
+(but theoretically valid) htmlname, as in &quot;E&lt;qacute&gt;&quot;
+[sic].  However, Pod parsers are not required to make this
+distinction.
+<DT>*<DD>
+Note that E&lt;number&gt; <I>must not</I> be interpreted as simply
+&quot;codepoint <I>number</I> in the current/native character set``.  It always
+means only ''the character represented by codepoint <I>number</I> in
+Unicode.&quot;  (This is identical to the semantics of &amp;#<I>number</I>; in <FONT SIZE="-1">XML</FONT>.)
+
+
+<P>
+
+
+This will likely require many formatters to have tables mapping from
+treatable Unicode codepoints (such as the ``\xE9'' for the e-acute
+character) to the escape sequences or codes necessary for conveying
+such sequences in the target output format.  A converter to *roff
+would, for example know that ``\xE9'' (whether conveyed literally, or via
+a E&lt;...&gt; sequence) is to be conveyed as ``e\\*'''.
+Similarly, a program rendering Pod in a Mac <FONT SIZE="-1">OS</FONT> application window, would
+presumably need to know that ``\xE9'' maps to codepoint 142 in MacRoman
+encoding that (at time of writing) is native for Mac <FONT SIZE="-1">OS</FONT>.  Such
+Unicode2whatever mappings are presumably already widely available for
+common output formats.  (Such mappings may be incomplete!  Implementers
+are not expected to bend over backwards in an attempt to render
+Cherokee syllabics, Etruscan runes, Byzantine musical symbols, or any
+of the other weird things that Unicode can encode.)  And
+if a Pod document uses a character not found in such a mapping, the
+formatter should consider it an unrenderable character.
+<DT>*<DD>
+If, surprisingly, the implementor of a Pod formatter can't find a
+satisfactory pre-existing table mapping from Unicode characters to
+escapes in the target format (e.g., a decent table of Unicode
+characters to *roff escapes), it will be necessary to build such a
+table.  If you are in this circumstance, you should begin with the
+characters in the range 0x00A0 - 0x00FF, which is mostly the heavily
+used accented characters.  Then proceed (as patience permits and
+fastidiousness compels) through the characters that the (X)HTML
+standards groups judged important enough to merit mnemonics
+for.  These are declared in the (X)HTML specifications at the
+<A HREF="http://www.W3.org">www.W3.org</A> site.  At time of writing (September 2001), the most recent
+entity declaration files are:
+
+
+<P>
+
+
+
+
+<PRE>
+  <A HREF="http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent">http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent</A>
+  <A HREF="http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent">http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent</A>
+  <A HREF="http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent">http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent</A>
+
+</PRE>
+
+
+
+
+<P>
+
+
+Then you can progress through any remaining notable Unicode characters
+in the range 0x2000-0x204D (consult the character tables at
+<A HREF="http://www.unicode.org">www.unicode.org</A>), and whatever else strikes your fancy.  For example,
+in <I>xhtml-symbol.ent</I>, there is the entry:
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;!ENTITY infin    &quot;&amp;#8734;&quot;&gt; &lt;!-- infinity, U+221E ISOtech --&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+While the mapping ``infin'' to the character ``\x{221E}'' will (hopefully)
+have been already handled by the Pod parser, the presence of the
+character in this file means that it's reasonably important enough to
+include in a formatter's table that maps from notable Unicode characters
+to the codes necessary for rendering them.  So for a Unicode-to-*roff
+mapping, for example, this would merit the entry:
+
+
+<P>
+
+
+
+
+<PRE>
+  &quot;\x{221E}&quot; =&gt; '\(in',
+
+</PRE>
+
+
+
+
+<P>
+
+
+It is eagerly hoped that in the future, increasing numbers of formats
+(and formatters) will support Unicode characters directly (as (X)HTML
+does with <TT>&quot;&amp;infin;&quot;</TT>, <TT>&quot;&amp;#8734;&quot;</TT>, or <TT>&quot;&amp;#x221E;&quot;</TT>), reducing the need
+for idiosyncratic mappings of Unicode-to-<I>my_escapes</I>.
+<DT>*<DD>
+It is up to individual Pod formatter to display good judgment when
+confronted with an unrenderable character (which is distinct from an
+unknown E&lt;thing&gt; sequence that the parser couldn't resolve to
+anything, renderable or not).  It is good practice to map Latin letters
+with diacritics (like &quot;E&lt;eacute&gt;``/''E&lt;233&gt;``) to the corresponding
+unaccented US-ASCII letters (like a simple character 101, ''e``), but
+clearly this is often not feasible, and an unrenderable character may
+be represented as ''?&quot;, or the like.  In attempting a sane fallback
+(as from E&lt;233&gt; to ``e''), Pod formatters may use the
+<TT>%Latin1Code_to_fallback</TT> table in Pod::Escapes, or
+Text::Unidecode, if available.
+
+
+<P>
+
+
+For example, this Pod text:
+
+
+<P>
+
+
+
+
+<PRE>
+  magic is enabled if you set C&lt;$Currency&gt; to 'E&lt;euro&gt;'.
+
+</PRE>
+
+
+
+
+<P>
+
+
+may be rendered as:
+&quot;magic is enabled if you set <TT>$Currency</TT> to '<I>?</I>'`` or as
+''magic is enabled if you set <TT>$Currency</TT> to '<B>[euro]</B>'``, or as
+''magic is enabled if you set <TT>$Currency</TT> to '[x20AC]', etc.
+
+
+<P>
+
+
+A Pod formatter may also note, in a comment or warning, a list of what
+unrenderable characters were encountered.
+<DT>*<DD>
+E&lt;...&gt; may freely appear in any formatting code (other than
+in another E&lt;...&gt; or in an Z&lt;&gt;).  That is, &quot;X&lt;The
+E&lt;euro&gt;1,000,000 Solution&gt;`` is valid, as is ''L&lt;The
+E&lt;euro&gt;1,000,000 Solution|Million::Euros&gt;&quot;.
+<DT>*<DD>
+Some Pod formatters output to formats that implement non-breaking
+spaces as an individual character (which I'll call ``<FONT SIZE="-1">NBSP</FONT>''), and
+others output to formats that implement non-breaking spaces just as
+spaces wrapped in a ``don't break this across lines'' code.  Note that
+at the level of Pod, both sorts of codes can occur: Pod can contain a
+<FONT SIZE="-1">NBSP</FONT> character (whether as a literal, or as a &quot;E&lt;160&gt;`` or
+''E&lt;nbsp&gt;`` code); and Pod can contain ''S&lt;foo
+I&lt;bar&gt; baz&gt;`` codes, where ''mere spaces`` (character 32) in
+such codes are taken to represent non-breaking spaces.  Pod
+parsers should consider supporting the optional parsing of ''S&lt;foo
+I&lt;bar&gt; baz&gt;`` as if it were
+''foo<I></I><FONT SIZE="-1"><I>NBSP</I></FONT><I></I>I&lt;bar&gt;<I></I><FONT SIZE="-1"><I>NBSP</I></FONT><I></I>baz&quot;, and, going the other way, the
+optional parsing of groups of words joined by <FONT SIZE="-1">NBSP</FONT>'s as if each group
+were in a S&lt;...&gt; code, so that formatters may use the
+representation that maps best to what the output format demands.
+<DT>*<DD>
+Some processors may find that the <TT>&quot;S&lt;...&gt;&quot;</TT> code is easiest to
+implement by replacing each space in the parse tree under the content
+of the S, with an <FONT SIZE="-1">NBSP</FONT>.  But note: the replacement should apply <I>not</I> to
+spaces in <I>all</I> text, but <I>only</I> to spaces in <I>printable</I> text.  (This
+distinction may or may not be evident in the particular tree/event
+model implemented by the Pod parser.)  For example, consider this
+unusual case:
+
+
+<P>
+
+
+
+
+<PRE>
+   S&lt;L&lt;/Autoloaded Functions&gt;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+This means that the space in the middle of the visible link text must
+not be broken across lines.  In other words, it's the same as this:
+
+
+<P>
+
+
+
+
+<PRE>
+   L&lt;&quot;AutoloadedE&lt;160&gt;Functions&quot;/Autoloaded Functions&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+However, a misapplied space-to-NBSP replacement could (wrongly)
+produce something equivalent to this:
+
+
+<P>
+
+
+
+
+<PRE>
+   L&lt;&quot;AutoloadedE&lt;160&gt;Functions&quot;/AutoloadedE&lt;160&gt;Functions&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+...which is almost definitely not going to work as a hyperlink (assuming
+this formatter outputs a format supporting hypertext).
+
+
+<P>
+
+
+Formatters may choose to just not support the S format code,
+especially in cases where the output format simply has no <FONT SIZE="-1">NBSP</FONT>
+character/code and no code for ``don't break this stuff across lines''.
+<DT>*<DD>
+Besides the <FONT SIZE="-1">NBSP</FONT> character discussed above, implementors are reminded
+of the existence of the other ``special'' character in Latin-1, the
+``soft hyphen'' character, also known as ``discretionary hyphen'',
+i.e. <TT>&quot;E&lt;173&gt;&quot;</TT> = <TT>&quot;E&lt;0xAD&gt;&quot;</TT> =
+<TT>&quot;E&lt;shy&gt;&quot;</TT>).  This character expresses an optional hyphenation
+point.  That is, it normally renders as nothing, but may render as a
+``-'' if a formatter breaks the word at that point.  Pod formatters
+should, as appropriate, do one of the following:  1) render this with
+a code with the same meaning (e.g., ``\-'' in <FONT SIZE="-1">RTF</FONT>), 2) pass it through
+in the expectation that the formatter understands this character as
+such, or 3) delete it.
+
+
+<P>
+
+
+For example:
+
+
+<P>
+
+
+
+
+<PRE>
+  sigE&lt;shy&gt;action
+  manuE&lt;shy&gt;script
+  JarkE&lt;shy&gt;ko HieE&lt;shy&gt;taE&lt;shy&gt;nieE&lt;shy&gt;mi
+
+</PRE>
+
+
+
+
+<P>
+
+
+These signal to a formatter that if it is to hyphenate ``sigaction''
+or ``manuscript'', then it should be done as
+&quot;sig-<I>[linebreak]</I>action`` or ''manu-<I>[linebreak]</I>script&quot;
+(and if it doesn't hyphenate it, then the <TT>&quot;E&lt;shy&gt;&quot;</TT> doesn't
+show up at all).  And if it is
+to hyphenate ``Jarkko'' and/or ``Hietaniemi'', it can do
+so only at the points where there is a <TT>&quot;E&lt;shy&gt;&quot;</TT> code.
+
+
+<P>
+
+
+In practice, it is anticipated that this character will not be used
+often, but formatters should either support it, or delete it.
+<DT>*<DD>
+If you think that you want to add a new command to Pod (like, say, a
+``=biblio'' command), consider whether you could get the same
+effect with a for or begin/end sequence: ``=for biblio ...'' or ``=begin
+biblio'' ... ``=end biblio''.  Pod processors that don't understand
+``=for biblio'', etc, will simply ignore it, whereas they may complain
+loudly if they see ``=biblio''.
+<DT>*<DD>
+Throughout this document, ``Pod'' has been the preferred spelling for
+the name of the documentation format.  One may also use ``<FONT SIZE="-1">POD</FONT>'' or
+``pod''.  For the documentation that is (typically) in the Pod
+format, you may use ``pod'', or ``Pod'', or ``<FONT SIZE="-1">POD</FONT>''.  Understanding these
+distinctions is useful; but obsessing over how to spell them, usually
+is not.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>About L&lt;...&gt; Codes</H2>
+
+<A NAME="ixABA"></A>
+As you can tell from a glance at perlpod, the L&lt;...&gt;
+code is the most complex of the Pod formatting codes.  The points below
+will hopefully clarify what it means and how processors should deal
+with it.
+<DL COMPACT>
+<DT>*<DD>
+In parsing an L&lt;...&gt; code, Pod parsers must distinguish at least
+four attributes:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>First:<DD>
+<A NAME="ixABB"></A>
+The link-text.  If there is none, this must be undef.  (E.g., in
+&quot;L&lt;Perl Functions|perlfunc&gt;``, the link-text is ''Perl Functions``.
+In ''L&lt;Time::HiRes&gt;`` and even ''L&lt;|Time::HiRes&gt;&quot;, there is no
+link text.  Note that link text may contain formatting.)
+<DT>Second:<DD>
+<A NAME="ixABC"></A>
+The possibly inferred link-text --- i.e., if there was no real link
+text, then this is the text that we'll infer in its place.  (E.g., for
+&quot;L&lt;Getopt::Std&gt;``, the inferred link text is ''Getopt::Std&quot;.)
+<DT>Third:<DD>
+<A NAME="ixABD"></A>
+The name or <FONT SIZE="-1">URL</FONT>, or undef if none.  (E.g., in &quot;L&lt;Perl
+Functions|perlfunc&gt;``, the name --- also sometimes called the page ---
+is ''perlfunc``.  In ''L&lt;/CAVEATS&gt;&quot;, the name is undef.)
+<DT>Fourth:<DD>
+<A NAME="ixABE"></A>
+The section (<FONT SIZE="-1">AKA</FONT> ``item'' in older perlpods), or undef if none.  E.g.,
+in ``<FONT SIZE="-1">DESCRIPTION</FONT>'' in Getopt::Std, ``<FONT SIZE="-1">DESCRIPTION</FONT>'' is the section.  (Note
+that this is not the same as a manpage section like the ``5'' in ``man 5
+crontab''.  ``Section Foo'' in the Pod sense means the part of the text
+that's introduced by the heading or item whose text is ``Foo''.)
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+Pod parsers may also note additional attributes including:
+<DL COMPACT>
+<DT>Fifth:<DD>
+<A NAME="ixABF"></A>
+A flag for whether item 3 (if present) is a <FONT SIZE="-1">URL</FONT> (like
+``<A HREF="http://lists.perl.org''">http://lists.perl.org''</A> is), in which case there should be no section
+attribute; a Pod name (like ``perldoc'' and ``Getopt::Std'' are); or
+possibly a man page name (like ``<I><A HREF="../man5/crontab.5.php">crontab</A></I>(5)'' is).
+<DT>Sixth:<DD>
+<A NAME="ixABG"></A>
+The raw original L&lt;...&gt; content, before text is split on
+``|'', ``/'', etc, and before E&lt;...&gt; codes are expanded.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+(The above were numbered only for concise reference below.  It is not
+a requirement that these be passed as an actual list or array.)
+
+
+<P>
+
+
+For example:
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;Foo::Bar&gt;
+    =&gt;  undef,                          # link text
+        &quot;Foo::Bar&quot;,                     # possibly inferred link text
+        &quot;Foo::Bar&quot;,                     # name
+        undef,                          # section
+        'pod',                          # what sort of link
+        &quot;Foo::Bar&quot;                      # original content
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;Perlport's section on NL's|perlport/Newlines&gt;
+    =&gt;  &quot;Perlport's section on NL's&quot;,   # link text
+        &quot;Perlport's section on NL's&quot;,   # possibly inferred link text
+        &quot;perlport&quot;,                     # name
+        &quot;Newlines&quot;,                     # section
+        'pod',                          # what sort of link
+        &quot;Perlport's section on NL's|perlport/Newlines&quot; # orig. content
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;perlport/Newlines&gt;
+    =&gt;  undef,                          # link text
+        '&quot;Newlines&quot; in perlport',       # possibly inferred link text
+        &quot;perlport&quot;,                     # name
+        &quot;Newlines&quot;,                     # section
+        'pod',                          # what sort of link
+        &quot;perlport/Newlines&quot;             # original content
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;<A HREF="../man5/crontab.5.php">crontab</A>(5)/&quot;DESCRIPTION&quot;&gt;
+    =&gt;  undef,                          # link text
+        '&quot;DESCRIPTION&quot; in <A HREF="../man5/crontab.5.php">crontab</A>(5)',  # possibly inferred link text
+        &quot;<A HREF="../man5/crontab.5.php">crontab</A>(5)&quot;,                   # name
+        &quot;DESCRIPTION&quot;,                  # section
+        'man',                          # what sort of link
+        '<A HREF="../man5/crontab.5.php">crontab</A>(5)/&quot;DESCRIPTION&quot;'      # original content
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;/Object Attributes&gt;
+    =&gt;  undef,                          # link text
+        '&quot;Object Attributes&quot;',          # possibly inferred link text
+        undef,                          # name
+        &quot;Object Attributes&quot;,            # section
+        'pod',                          # what sort of link
+        &quot;/Object Attributes&quot;            # original content
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;<A HREF="http://www.perl.org/">http://www.perl.org/</A>&gt;
+    =&gt;  undef,                          # link text
+        &quot;<A HREF="http://www.perl.org/">http://www.perl.org/</A>&quot;,         # possibly inferred link text
+        &quot;<A HREF="http://www.perl.org/">http://www.perl.org/</A>&quot;,         # name
+        undef,                          # section
+        'url',                          # what sort of link
+        &quot;<A HREF="http://www.perl.org/">http://www.perl.org/</A>&quot;          # original content
+
+</PRE>
+
+
+
+
+<P>
+
+
+Note that you can distinguish URL-links from anything else by the
+fact that they match <TT>&quot;m/\A\w+:[^:\s]\S*\z/&quot;</TT>.  So
+<TT>&quot;L&lt;<A HREF="http://www.perl.com">http://www.perl.com</A>&gt;&quot;</TT> is a <FONT SIZE="-1">URL</FONT>, but
+<TT>&quot;L&lt;HTTP::Response&gt;&quot;</TT> isn't.
+</DL>
+
+<DT>*<DD>
+In case of L&lt;...&gt; codes with no ``text|'' part in them,
+older formatters have exhibited great variation in actually displaying
+the link or cross reference.  For example, L&lt;<I><A HREF="../man5/crontab.5.php">crontab</A></I>(5)&gt; would render
+as &quot;the <TT><A HREF="../man5/crontab.5.php">crontab</A>(5)</TT> manpage``, or ''in the <TT><A HREF="../man5/crontab.5.php">crontab</A>(5)</TT> manpage``
+or just ''<TT><A HREF="../man5/crontab.5.php">crontab</A>(5)</TT>&quot;.
+
+
+<P>
+
+
+Pod processors must now treat ``text|''-less links as follows:
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;name&gt;         =&gt;  L&lt;name|name&gt;
+  L&lt;/section&gt;     =&gt;  L&lt;&quot;section&quot;|/section&gt;
+  L&lt;name/section&gt; =&gt;  L&lt;&quot;section&quot; in name|name/section&gt;
+
+</PRE>
+
+
+<DT>*<DD>
+Note that section names might contain markup.  I.e., if a section
+starts with:
+
+
+<P>
+
+
+
+
+<PRE>
+  =head2 About the C&lt;-M&gt; Operator
+
+</PRE>
+
+
+
+
+<P>
+
+
+or with:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item About the C&lt;-M&gt; Operator
+
+</PRE>
+
+
+
+
+<P>
+
+
+then a link to it would look like this:
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;somedoc/About the C&lt;-M&gt; Operator&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Formatters may choose to ignore the markup for purposes of resolving
+the link and use only the renderable characters in the section name,
+as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;h1&gt;&lt;a name=&quot;About_the_-M_Operator&quot;&gt;About the &lt;code&gt;-M&lt;/code&gt;
+  Operator&lt;/h1&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  ...
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;a href=&quot;somedoc#About_the_-M_Operator&quot;&gt;About the &lt;code&gt;-M&lt;/code&gt;
+  Operator&quot; in somedoc&lt;/a&gt;
+
+</PRE>
+
+
+<DT>*<DD>
+Previous versions of perlpod distinguished <TT>&quot;L&lt;name/&quot;section&quot;&gt;&quot;</TT>
+links from <TT>&quot;L&lt;name/item&gt;&quot;</TT> links (and their targets).  These
+have been merged syntactically and semantically in the current
+specification, and <I>section</I> can refer either to a &quot;=head<I>n</I> Heading
+Content`` command or to a ''=item Item Content&quot; command.  This
+specification does not specify what behavior should be in the case
+of a given document having several things all seeming to produce the
+same <I>section</I> identifier (e.g., in <FONT SIZE="-1">HTML</FONT>, several things all producing
+the same <I>anchorname</I> in &lt;a name=&quot;<I>anchorname</I>&quot;&gt;...&lt;/a&gt;
+elements).  Where Pod processors can control this behavior, they should
+use the first such anchor.  That is, <TT>&quot;L&lt;Foo/Bar&gt;&quot;</TT> refers to the
+<I>first</I> ``Bar'' section in Foo.
+
+
+<P>
+
+
+But for some processors/formats this cannot be easily controlled; as
+with the <FONT SIZE="-1">HTML</FONT> example, the behavior of multiple ambiguous
+&lt;a name=&quot;<I>anchorname</I>&quot;&gt;...&lt;/a&gt; is most easily just left up to
+browsers to decide.
+<DT>*<DD>
+Authors wanting to link to a particular (absolute) <FONT SIZE="-1">URL</FONT>, must do so
+only with &quot;L&lt;scheme:...&gt;&quot; codes (like
+L&lt;<A HREF="http://www.perl.org">http://www.perl.org</A>&gt;), and must not attempt &quot;L&lt;Some Site
+Name|scheme:...&gt;&quot; codes.  This restriction avoids many problems
+in parsing and rendering L&lt;...&gt; codes.
+<DT>*<DD>
+In a <TT>&quot;L&lt;text|...&gt;&quot;</TT> code, text may contain formatting codes
+for formatting or for E&lt;...&gt; escapes, as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  L&lt;B&lt;ummE&lt;234&gt;stuff&gt;|...&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+For <TT>&quot;L&lt;...&gt;&quot;</TT> codes without a ``name|'' part, only
+<TT>&quot;E&lt;...&gt;&quot;</TT> and <TT>&quot;Z&lt;&gt;&quot;</TT> codes may occur --- no
+other formatting codes.  That is, authors should not use
+&quot;<TT>&quot;L&lt;B&lt;Foo::Bar&gt;&gt;&quot;</TT>&quot;.
+
+
+<P>
+
+
+Note, however, that formatting codes and Z&lt;&gt;'s can occur in any
+and all parts of an L&lt;...&gt; (i.e., in <I>name</I>, <I>section</I>, <I>text</I>,
+and <I>url</I>).
+
+
+<P>
+
+
+Authors must not nest L&lt;...&gt; codes.  For example, &quot;L&lt;The
+L&lt;Foo::Bar&gt; man page&gt;&quot; should be treated as an error.
+<DT>*<DD>
+Note that Pod authors may use formatting codes inside the ``text''
+part of &quot;L&lt;text|name&gt;&quot; (and so on for L&lt;text|/``sec''&gt;).
+
+
+<P>
+
+
+In other words, this is valid:
+
+
+<P>
+
+
+
+
+<PRE>
+  Go read L&lt;the docs on C&lt;$.&gt;|perlvar/&quot;$.&quot;&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Some output formats that do allow rendering &quot;L&lt;...&gt;&quot; codes as
+hypertext, might not allow the link-text to be formatted; in
+that case, formatters will have to just ignore that formatting.
+<DT>*<DD>
+At time of writing, <TT>&quot;L&lt;name&gt;&quot;</TT> values are of two types:
+either the name of a Pod page like <TT>&quot;L&lt;Foo::Bar&gt;&quot;</TT> (which
+might be a real Perl module or program in an <TT>@INC</TT> / <FONT SIZE="-1">PATH</FONT>
+directory, or a .pod file in those places); or the name of a <FONT SIZE="-1">UNIX</FONT>
+man page, like <TT>&quot;L&lt;<A HREF="../man5/crontab.5.php">crontab</A>(5)&gt;&quot;</TT>.  In theory, <TT>&quot;L&lt;chmod&gt;&quot;</TT>
+in ambiguous between a Pod page called ``chmod'', or the Unix man page
+``chmod'' (in whatever man-section).  However, the presence of a string
+in parens, as in ``<I><A HREF="../man5/crontab.5.php">crontab</A></I>(5)'', is sufficient to signal that what
+is being discussed is not a Pod page, and so is presumably a
+<FONT SIZE="-1">UNIX</FONT> man page.  The distinction is of no importance to many
+Pod processors, but some processors that render to hypertext formats
+may need to distinguish them in order to know how to render a
+given <TT>&quot;L&lt;foo&gt;&quot;</TT> code.
+<DT>*<DD>
+Previous versions of perlpod allowed for a <TT>&quot;L&lt;section&gt;&quot;</TT> syntax
+(as in &quot;<TT>&quot;L&lt;Object Attributes&gt;&quot;</TT>&quot;), which was not easily distinguishable
+from <TT>&quot;L&lt;name&gt;&quot;</TT> syntax.  This syntax is no longer in the
+specification, and has been replaced by the <TT>&quot;L&lt;&quot;section&quot;&gt;&quot;</TT> syntax
+(where the quotes were formerly optional).  Pod parsers should tolerate
+the <TT>&quot;L&lt;section&gt;&quot;</TT> syntax, for a while at least.  The suggested
+heuristic for distinguishing <TT>&quot;L&lt;section&gt;&quot;</TT> from <TT>&quot;L&lt;name&gt;&quot;</TT>
+is that if it contains any whitespace, it's a <I>section</I>.  Pod processors
+may warn about this being deprecated syntax.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>About =over...=back Regions</H2>
+
+<A NAME="ixABH"></A>
+``=over''...``=back'' regions are used for various kinds of list-like
+structures.  (I use the term ``region'' here simply as a collective
+term for everything from the ``=over'' to the matching ``=back''.)
+<DL COMPACT>
+<DT>*<DD>
+The non-zero numeric <I>indentlevel</I> in &quot;=over <I>indentlevel</I>`` ...
+''=back`` is used for giving the formatter a clue as to how many
+''spaces&quot; (ems, or roughly equivalent units) it should tab over,
+although many formatters will have to convert this to an absolute
+measurement that may not exactly match with the size of spaces (or M's)
+in the document's base font.  Other formatters may have to completely
+ignore the number.  The lack of any explicit <I>indentlevel</I> parameter is
+equivalent to an <I>indentlevel</I> value of 4.  Pod processors may
+complain if <I>indentlevel</I> is present but is not a positive number
+matching <TT>&quot;m/\A(\d*\.)?\d+\z/&quot;</TT>.
+<DT>*<DD>
+Authors of Pod formatters are reminded that ``=over'' ... ``=back'' may
+map to several different constructs in your output format.  For
+example, in converting Pod to (X)HTML, it can map to any of
+&lt;ul&gt;...&lt;/ul&gt;, &lt;ol&gt;...&lt;/ol&gt;, &lt;dl&gt;...&lt;/dl&gt;, or
+&lt;blockquote&gt;...&lt;/blockquote&gt;.  Similarly, ``=item'' can map to &lt;li&gt; or
+&lt;dt&gt;.
+<DT>*<DD>
+Each ``=over'' ... ``=back'' region should be one of the following:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+An ``=over'' ... ``=back'' region containing only ``=item *'' commands,
+each followed by some number of ordinary/verbatim paragraphs, other
+nested ``=over'' ... ``=back'' regions, ``=for...'' paragraphs, and
+``=begin''...``=end'' regions.
+
+
+<P>
+
+
+(Pod processors must tolerate a bare ``=item'' as if it were ``=item
+*''.)  Whether ``*'' is rendered as a literal asterisk, an ``o'', or as
+some kind of real bullet character, is left up to the Pod formatter,
+and may depend on the level of nesting.
+<DT>*<DD>
+An ``=over'' ... ``=back'' region containing only
+<TT>&quot;m/\A=item\s+\d+\.?\s*\z/&quot;</TT> paragraphs, each one (or each group of them)
+followed by some number of ordinary/verbatim paragraphs, other nested
+``=over'' ... ``=back'' regions, ``=for...'' paragraphs, and/or
+``=begin''...``=end'' codes.  Note that the numbers must start at 1
+in each section, and must proceed in order and without skipping
+numbers.
+
+
+<P>
+
+
+(Pod processors must tolerate lines like ``=item 1'' as if they were
+``=item 1.'', with the period.)
+<DT>*<DD>
+An ``=over'' ... ``=back'' region containing only ``=item [text]''
+commands, each one (or each group of them) followed by some number of
+ordinary/verbatim paragraphs, other nested ``=over'' ... ``=back''
+regions, or ``=for...'' paragraphs, and ``=begin''...``=end'' regions.
+
+
+<P>
+
+
+The ``=item [text]'' paragraph should not match
+<TT>&quot;m/\A=item\s+\d+\.?\s*\z/&quot;</TT> or <TT>&quot;m/\A=item\s+\*\s*\z/&quot;</TT>, nor should it
+match just <TT>&quot;m/\A=item\s*\z/&quot;</TT>.
+<DT>*<DD>
+An ``=over'' ... ``=back'' region containing no ``=item'' paragraphs at
+all, and containing only some number of 
+ordinary/verbatim paragraphs, and possibly also some nested ``=over''
+... ``=back'' regions, ``=for...'' paragraphs, and ``=begin''...``=end''
+regions.  Such an itemless ``=over'' ... ``=back'' region in Pod is
+equivalent in meaning to a ``&lt;blockquote&gt;...&lt;/blockquote&gt;'' element in
+<FONT SIZE="-1">HTML</FONT>.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+Note that with all the above cases, you can determine which type of
+``=over'' ... ``=back'' you have, by examining the first (non-``=cut'', 
+non-``=pod'') Pod paragraph after the ``=over'' command.
+</DL>
+
+<DT>*<DD>
+Pod formatters <I>must</I> tolerate arbitrarily large amounts of text
+in the &quot;=item <I>text...</I>&quot; paragraph.  In practice, most such
+paragraphs are short, as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item For cutting off our trade with all parts of the world
+
+</PRE>
+
+
+
+
+<P>
+
+
+But they may be arbitrarily long:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item For transporting us beyond seas to be tried for pretended
+  offenses
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item He is at this time transporting large armies of foreign
+  mercenaries to complete the works of death, desolation and
+  tyranny, already begun with circumstances of cruelty and perfidy
+  scarcely paralleled in the most barbarous ages, and totally
+  unworthy the head of a civilized nation.
+
+</PRE>
+
+
+<DT>*<DD>
+Pod processors should tolerate ``=item *'' / &quot;=item <I>number</I>&quot; commands
+with no accompanying paragraph.  The middle item is an example:
+
+
+<P>
+
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item 1
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Pick up dry cleaning.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item 2
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item 3
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Stop by the store.  Get Abba Zabas, Stoli, and cheap lawn chairs.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+<DT>*<DD>
+No ``=over'' ... ``=back'' region can contain headings.  Processors may
+treat such a heading as an error.
+<DT>*<DD>
+Note that an ``=over'' ... ``=back'' region should have some
+content.  That is, authors should not have an empty region like this:
+
+
+<P>
+
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+
+
+<P>
+
+
+Pod processors seeing such a contentless ``=over'' ... ``=back'' region,
+may ignore it, or may report it as an error.
+<DT>*<DD>
+Processors must tolerate an ``=over'' list that goes off the end of the
+document (i.e., which has no matching ``=back''), but they may warn
+about such a list.
+<DT>*<DD>
+Authors of Pod formatters should note that this construct:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item Neque
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item Porro
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item Quisquam Est
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci 
+  velit, sed quia non numquam eius modi tempora incidunt ut
+  labore et dolore magnam aliquam quaerat voluptatem.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =item Ut Enim
+
+</PRE>
+
+
+
+
+<P>
+
+
+is semantically ambiguous, in a way that makes formatting decisions
+a bit difficult.  On the one hand, it could be mention of an item
+``Neque'', mention of another item ``Porro'', and mention of another
+item ``Quisquam Est'', with just the last one requiring the explanatory
+paragraph ``Qui dolorem ipsum quia dolor...''; and then an item
+``Ut Enim''.  In that case, you'd want to format it like so:
+
+
+<P>
+
+
+
+
+<PRE>
+  Neque
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Porro
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Quisquam Est
+    Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
+    velit, sed quia non numquam eius modi tempora incidunt ut
+    labore et dolore magnam aliquam quaerat voluptatem.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Ut Enim
+
+</PRE>
+
+
+
+
+<P>
+
+
+But it could equally well be a discussion of three (related or equivalent)
+items, ``Neque'', ``Porro'', and ``Quisquam Est'', followed by a paragraph
+explaining them all, and then a new item ``Ut Enim''.  In that case, you'd
+probably want to format it like so:
+
+
+<P>
+
+
+
+
+<PRE>
+  Neque
+  Porro
+  Quisquam Est
+    Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
+    velit, sed quia non numquam eius modi tempora incidunt ut
+    labore et dolore magnam aliquam quaerat voluptatem.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Ut Enim
+
+</PRE>
+
+
+
+
+<P>
+
+
+But (for the forseeable future), Pod does not provide any way for Pod
+authors to distinguish which grouping is meant by the above
+``=item''-cluster structure.  So formatters should format it like so:
+
+
+<P>
+
+
+
+
+<PRE>
+  Neque
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Porro
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Quisquam Est
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
+    velit, sed quia non numquam eius modi tempora incidunt ut
+    labore et dolore magnam aliquam quaerat voluptatem.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Ut Enim
+
+</PRE>
+
+
+
+
+<P>
+
+
+That is, there should be (at least roughly) equal spacing between
+items as between paragraphs (although that spacing may well be less
+than the full height of a line of text).  This leaves it to the reader
+to use (con)textual cues to figure out whether the ``Qui dolorem
+ipsum...'' paragraph applies to the ``Quisquam Est'' item or to all three
+items ``Neque'', ``Porro'', and ``Quisquam Est''.  While not an ideal
+situation, this is preferable to providing formatting cues that may
+be actually contrary to the author's intent.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>About Data Paragraphs and =begin/=end Regions</H2>
+
+
+
+<A NAME="ixABI"></A>
+Data paragraphs are typically used for inlining non-Pod data that is
+to be used (typically passed through) when rendering the document to
+a specific format:
+<P>
+
+
+
+<PRE>
+  =begin rtf
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  \par{\pard\qr\sa4500{\i Printed\~\chdate\~\chtime}\par}
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end rtf
+
+</PRE>
+
+
+<P>
+
+The exact same effect could, incidentally, be achieved with a single
+``=for'' paragraph:
+<P>
+
+
+
+<PRE>
+  =for rtf \par{\pard\qr\sa4500{\i Printed\~\chdate\~\chtime}\par}
+
+</PRE>
+
+
+<P>
+
+(Although that is not formally a data paragraph, it has the same
+meaning as one, and Pod parsers may parse it as one.)
+<P>
+
+Another example of a data paragraph:
+<P>
+
+
+
+<PRE>
+  =begin html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  I like &lt;em&gt;PIE&lt;/em&gt;!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  &lt;hr&gt;Especially pecan pie!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end html
+
+</PRE>
+
+
+<P>
+
+If these were ordinary paragraphs, the Pod parser would try to
+expand the &quot;E&lt;/em&gt;`` (in the first paragraph) as a formatting
+code, just like ''E&lt;lt&gt;`` or ''E&lt;eacute&gt;``.  But since this
+is in a ''=begin <I>identifier</I>``...''=end <I>identifier</I>&quot; region <I>and</I>
+the identifier ``html'' doesn't begin have a ``:'' prefix, the contents
+of this region are stored as data paragraphs, instead of being
+processed as ordinary paragraphs (or if they began with a spaces
+and/or tabs, as verbatim paragraphs).
+<P>
+
+As a further example: At time of writing, no ``biblio'' identifier is
+supported, but suppose some processor were written to recognize it as
+a way of (say) denoting a bibliographic reference (necessarily
+containing formatting codes in ordinary paragraphs).  The fact that
+``biblio'' paragraphs were meant for ordinary processing would be
+indicated by prefacing each ``biblio'' identifier with a colon:
+<P>
+
+
+
+<PRE>
+  =begin :biblio
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth, Niklaus.  1976.  I&lt;Algorithms + Data Structures =
+  Programs.&gt;  Prentice-Hall, Englewood Cliffs, NJ.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end :biblio
+
+</PRE>
+
+
+<P>
+
+This would signal to the parser that paragraphs in this begin...end
+region are subject to normal handling as ordinary/verbatim paragraphs
+(while still tagged as meant only for processors that understand the
+``biblio'' identifier).  The same effect could be had with:
+<P>
+
+
+
+<PRE>
+  =for :biblio
+  Wirth, Niklaus.  1976.  I&lt;Algorithms + Data Structures =
+  Programs.&gt;  Prentice-Hall, Englewood Cliffs, NJ.
+
+</PRE>
+
+
+<P>
+
+The ``:'' on these identifiers means simply ``process this stuff
+normally, even though the result will be for some special target''.
+I suggest that parser APIs report ``biblio'' as the target identifier,
+but also report that it had a ``:'' prefix.  (And similarly, with the
+above ``html'', report ``html'' as the target identifier, and note the
+<I>lack</I> of a ``:'' prefix.)
+<P>
+
+Note that a &quot;=begin <I>identifier</I>``...''=end <I>identifier</I>&quot; region where
+<I>identifier</I> begins with a colon, <I>can</I> contain commands.  For example:
+<P>
+
+
+
+<PRE>
+  =begin :biblio
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth's classic is available in several editions, including:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =for comment
+   hm, check abebooks.com for how much used copies cost.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth, Niklaus.  1975.  I&lt;Algorithmen und Datenstrukturen.&gt;
+  Teubner, Stuttgart.  [Yes, it's in German.]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth, Niklaus.  1976.  I&lt;Algorithms + Data Structures =
+  Programs.&gt;  Prentice-Hall, Englewood Cliffs, NJ.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end :biblio
+
+</PRE>
+
+
+<P>
+
+Note, however, a &quot;=begin <I>identifier</I>``...''=end <I>identifier</I>&quot;
+region where <I>identifier</I> does <I>not</I> begin with a colon, should not
+directly contain ``=head1'' ... ``=head4'' commands, nor ``=over'', nor ``=back'',
+nor ``=item''.  For example, this may be considered invalid:
+<P>
+
+
+
+<PRE>
+  =begin somedata
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =head1 Don't do this!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph too.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end somedata
+
+</PRE>
+
+
+<P>
+
+A Pod processor may signal that the above (specifically the ``=head1''
+paragraph) is an error.  Note, however, that the following should
+<I>not</I> be treated as an error:
+<P>
+
+
+
+<PRE>
+  =begin somedata
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =cut
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  # Yup, this isn't Pod anymore.
+  sub excl { (rand() &gt; .5) ? &quot;hoo!&quot; : &quot;hah!&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =pod
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph too.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end somedata
+
+</PRE>
+
+
+<P>
+
+And this too is valid:
+<P>
+
+
+
+<PRE>
+  =begin someformat
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    And this is a data paragraph.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin someotherformat
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is a data paragraph too.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    And this is a data paragraph too.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin :yetanotherformat
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =head2 This is a command paragraph!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  This is an ordinary paragraph!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    And this is a verbatim paragraph!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end :yetanotherformat
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end someotherformat
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Another data paragraph!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end someformat
+
+</PRE>
+
+
+<P>
+
+The contents of the above ``=begin :yetanotherformat'' ...
+``=end :yetanotherformat'' region <I>aren't</I> data paragraphs, because
+the immediately containing region's identifier (``:yetanotherformat'')
+begins with a colon.  In practice, most regions that contain
+data paragraphs will contain <I>only</I> data paragraphs; however, 
+the above nesting is syntactically valid as Pod, even if it is
+rare.  However, the handlers for some formats, like ``html'',
+will accept only data paragraphs, not nested regions; and they may
+complain if they see (targeted for them) nested regions, or commands,
+other than ``=end'', ``=pod'', and ``=cut''.
+<P>
+
+Also consider this valid structure:
+<P>
+
+
+
+<PRE>
+  =begin :biblio
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth's classic is available in several editions, including:
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth, Niklaus.  1975.  I&lt;Algorithmen und Datenstrukturen.&gt;
+  Teubner, Stuttgart.  [Yes, it's in German.]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Wirth, Niklaus.  1976.  I&lt;Algorithms + Data Structures =
+  Programs.&gt;  Prentice-Hall, Englewood Cliffs, NJ.
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Buy buy buy!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  &lt;img src='wirth_spokesmodeling_book.png'&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  &lt;hr&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Now now now!
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end :biblio
+
+</PRE>
+
+
+<P>
+
+There, the ``=begin html''...``=end html'' region is nested inside
+the larger ``=begin :biblio''...``=end :biblio'' region.  Note that the
+content of the ``=begin html''...``=end html'' region is data
+paragraph(s), because the immediately containing region's identifier
+(``html'') <I>doesn't</I> begin with a colon.
+<P>
+
+Pod parsers, when processing a series of data paragraphs one
+after another (within a single region), should consider them to
+be one large data paragraph that happens to contain blank lines.  So
+the content of the above ``=begin html''...``=end html'' <I>may</I> be stored
+as two data paragraphs (one consisting of
+``&lt;img src='wirth_spokesmodeling_book.png'&gt;\n''
+and another consisting of ``&lt;hr&gt;\n''), but <I>should</I> be stored as
+a single data paragraph (consisting of 
+``&lt;img src='wirth_spokesmodeling_book.png'&gt;\n\n&lt;hr&gt;\n'').
+<P>
+
+Pod processors should tolerate empty
+&quot;=begin <I>something</I>``...''=end <I>something</I>`` regions,
+empty ''=begin :<I>something</I>``...''=end :<I>something</I>`` regions, and
+contentless ''=for <I>something</I>`` and ''=for :<I>something</I>&quot;
+paragraphs.  I.e., these should be tolerated:
+<P>
+
+
+
+<PRE>
+  =for html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end html
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin :biblio
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end :biblio
+
+</PRE>
+
+
+<P>
+
+Incidentally, note that there's no easy way to express a data
+paragraph starting with something that looks like a command.  Consider:
+<P>
+
+
+
+<PRE>
+  =begin stuff
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =shazbot
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end stuff
+
+</PRE>
+
+
+<P>
+
+There, ``=shazbot'' will be parsed as a Pod command ``shazbot'', not as a data
+paragraph ``=shazbot\n''.  However, you can express a data paragraph consisting
+of ``=shazbot\n'' using this code:
+<P>
+
+
+
+<PRE>
+  =for stuff =shazbot
+
+</PRE>
+
+
+<P>
+
+The situation where this is necessary, is presumably quite rare.
+<P>
+
+Note that =end commands must match the currently open =begin command.  That
+is, they must properly nest.  For example, this is valid:
+<P>
+
+
+
+<PRE>
+  =begin outer
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  X
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin inner
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Y
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end inner
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Z
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end outer
+
+</PRE>
+
+
+<P>
+
+while this is invalid:
+<P>
+
+
+
+<PRE>
+  =begin outer
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  X
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =begin inner
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Y
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end outer
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Z
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end inner
+
+</PRE>
+
+
+<P>
+
+This latter is improper because when the ``=end outer'' command is seen, the
+currently open region has the formatname ``inner'', not ``outer''.  (It just
+happens that ``outer'' is the format name of a higher-up region.)  This is
+an error.  Processors must by default report this as an error, and may halt
+processing the document containing that error.  A corollary of this is that
+regions cannot ``overlap'' --- i.e., the latter block above does not represent
+a region called ``outer'' which contains X and Y, overlapping a region called
+``inner'' which contains Y and Z.  But because it is invalid (as all
+apparently overlapping regions would be), it doesn't represent that, or
+anything at all.
+<P>
+
+Similarly, this is invalid:
+<P>
+
+
+
+<PRE>
+  =begin thing
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end hting
+
+</PRE>
+
+
+<P>
+
+This is an error because the region is opened by ``thing'', and the ``=end''
+tries to close ``hting'' [sic].
+<P>
+
+This is also invalid:
+<P>
+
+
+
+<PRE>
+  =begin thing
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =end
+
+</PRE>
+
+
+<P>
+
+This is invalid because every ``=end'' command must have a formatname
+parameter.
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABJ"></A>
+perlpod, ``PODs: Embedded Documentation'' in perlsyn,
+podchecker
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABK"></A>
+Sean M. Burke
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Pod Definitions</A><DD>
+<DT><A HREF="#lbAE">Pod Commands</A><DD>
+<DT><A HREF="#lbAF">Pod Formatting Codes</A><DD>
+<DT><A HREF="#lbAG">Notes on Implementing Pod Processors</A><DD>
+<DT><A HREF="#lbAH">About L&lt;...&gt; Codes</A><DD>
+<DT><A HREF="#lbAI">About =over...=back Regions</A><DD>
+<DT><A HREF="#lbAJ">About Data Paragraphs and =begin/=end Regions</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RUNSCRIPT</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RUNSCRIPT</H1>
+Section: User Commands  (1)<BR>Updated: $Date: 2000/02/10 10:28:00 $<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+runscript - script interpreter for minicom
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>runscript</B>
+
+scriptname [logfile [homedir]]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>runscript</B>
+
+is a simple script interpreter that can be called from within the minicom
+communications program to automate tasks like logging in to a unix system
+or your favorite bbs.
+<A NAME="lbAE">&nbsp;</A>
+<H2>INVOCATION</H2>
+
+The program expects a script name and optionally a filename and the 
+user's home directory as arguments, and it expects that it's input and 
+output are connected to the &quot;remote end&quot;, the system you are 
+connecting to. All messages from <B>runscript</B> ment for the local screen 
+are directed to the <B>stderr</B> output. All this is automatically taken 
+care of if you run it from <B>minicom</B>.
+The logfile and home directory parameters are only used to tell the log 
+command the name of the logfile and where to write it. If the homedir is 
+omitted, runscript uses the directory found in the $HOME environment 
+variable. If also the logfile name is omitted, the log commands are ignored.
+<A NAME="lbAF">&nbsp;</A>
+<H2>KEYWORDS</H2>
+
+<DL COMPACT>
+<DT>Runscript recognizes the following commands:<DD>
+<BR>
+
+<DL COMPACT><DT><DD>
+<PRE>
+
+expect   send     goto     gosub    return   !
+exit     print    set      inc      dec      if
+timeout  verbose  sleep    break    call     log
+
+</PRE>
+
+</DL>
+
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>OVERVIEW OF KEYWORDS</H2>
+
+<DL COMPACT>
+<DT><B>send &lt;string&gt;</B>
+
+<DD>
+&lt;string&gt; is sent to the modem. It is followed by a '\r'.
+&lt;string&gt; can be:
+<BR>&nbsp;&nbsp;-&nbsp;regular&nbsp;text,&nbsp;eg&nbsp;'send&nbsp;hello'
+<BR>&nbsp;&nbsp;-&nbsp;text&nbsp;enclosed&nbsp;in&nbsp;quotes,&nbsp;eg&nbsp;'send&nbsp;&quot;hello&nbsp;world&quot;'
+<DT><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Within&nbsp;&lt;string&gt;&nbsp;the&nbsp;following&nbsp;sequences&nbsp;are&nbsp;recognized:<DD>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\n&nbsp;-&nbsp;newline
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\r&nbsp;-&nbsp;carriage&nbsp;return
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\a&nbsp;-&nbsp;bell
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\b&nbsp;-&nbsp;backspace
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\c&nbsp;-&nbsp;don't&nbsp;send&nbsp;the&nbsp;default&nbsp;'\r'.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\f&nbsp;-&nbsp;formfeed
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;\o&nbsp;-&nbsp;send&nbsp;character&nbsp;<B>o</B>&nbsp;(<B>o</B>&nbsp;is&nbsp;an&nbsp;octal&nbsp;number)
+<P>
+<BR>
+
+Also $(environment_variable) can be used, for example $(TERM).
+Minicom passes three special environment variables: $(LOGIN),
+which is the username, $(PASS), which is the password, as
+defined in the proper entry of the dialing directory, and 
+$(TERMLIN) which is the number of actual terminal lines on your
+screen (that is, the statusline excluded).
+<DT><B>print &lt;string&gt;</B>
+
+<DD>
+Prints &lt;string&gt; to the local screen. Default followed by '\r\n'.
+See the description of 'send' above.
+<DT><B>label:</B>
+
+<DD>
+Declares a label (with the name 'label') to use with
+goto or gosub.
+<DT><B>goto &lt;label&gt;</B>
+
+<DD>
+Jump to another place in the program.
+<DT><B>gosub &lt;label&gt;</B>
+
+<DD>
+Jumps to another place in the program. When the statement 'return'
+is encountered, control returns to the statement after the gosub.
+Gosub's can be nested.
+<DT><B>return</B>
+
+<DD>
+Return from a gosub.
+<DT><B>! &lt;command&gt;</B>
+
+<DD>
+Runs a shell for you in which 'command' is executed. On return,
+the variable '$?' is set to the exit status of this command,
+so you can subsequently test it using 'if'.
+<DT><B>exit [value]</B>
+
+<DD>
+Exit from &quot;runscript&quot; with an optional exit status. (default 1)
+<DT><B>set &lt;variable&gt; &lt;value&gt;</B>
+
+<DD>
+Sets the value of &lt;variable&gt; (which is a single letter a-z) to the
+value &lt;value&gt;. If &lt;variable&gt; does not exist, it will be created.
+&lt;value&gt; can be a integer value or another variable.
+<DT><B>inc &lt;variable&gt;</B>
+
+<DD>
+Increments the value of &lt;variable&gt; by one.
+<DT><B>dec &lt;variable&gt;</B>
+
+<DD>
+Decrements the value of &lt;variable&gt; by one.
+<DT><B>if &lt;value&gt; &lt;operator&gt; &lt;value&gt; &lt;statement&gt;</B>
+
+<DD>
+Conditional execution of &lt;statement&gt;. &lt;operator&gt; can be &lt;, &gt;, != or =.
+Eg, 'if a &gt; 3 goto exitlabel'.
+<DT><B>timeout &lt;value&gt;</B>
+
+<DD>
+Sets the global timeout. By default, 'runscript' will exit after
+120 seconds. This can be changed with this command. Warning: this
+command acts differently within an 'expect' statement, but more
+about that later.
+<DT><B>verbose &lt;on|off&gt;</B>
+
+<DD>
+By default, this is 'on'. That means that anything that is being
+read from the modem by 'runscript', gets echoed to the screen.
+This is so that you can see what 'runscript' is doing.
+<DT><B>sleep &lt;value&gt;</B>
+
+<DD>
+Suspend execution for &lt;value&gt; seconds.
+<DT><B>expect</B>
+
+<DD>
+<PRE>
+  expect {
+    pattern  [statement]
+    pattern  [statement]
+    [timeout &lt;value&gt; [statement] ]
+    ....
+  }
+</PRE>
+
+The most important command of all. Expect keeps reading from the
+input until it reads a pattern that matches one of the
+specified ones.  If expect encounters an optional statement
+after that pattern, it will execute it. Otherwise the default is
+to just break out of the expect. 'pattern' is a string, just as
+in 'send' (see above).  Normally, expect will timeout in 60
+seconds and just exit, but this can be changed with the timeout
+command.
+<DT><B>break</B>
+
+<DD>
+Break out of an 'expect' statement. This is normally only useful
+as argument to 'timeout' within an expect, because the default
+action of timeout is to exit immediately.
+<DT><B>call &lt;scriptname&gt;</B>
+
+<DD>
+Transfers control to another scriptfile. When that scriptfile
+finishes without errors, the original script will continue.
+<DT><B>log &lt;text&gt;</B>
+
+<DD>
+Write text to the logfile.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>NOTES</H2>
+
+If you want to make your script to exit minicom (for example when
+you use minicom to dial up your ISP, and then start a ppp or slip 
+session from a script), try the command &quot;! killall -9 minicom&quot; as
+the last script command. The -9 option should prevent minicom from
+hanging up the line and resetting the modem before exiting.
+<BR>
+
+<BR>
+
+Well, I don't think this is enough information to make you an
+experienced 'programmer' in 'runscript', but together with the
+examples it shouldn't be too hard to write some useful script
+files. Things will be easier if you have experience with BASIC.
+The <B>minicom</B> source code comes together with two example
+scripts, <B>scriptdemo</B> and <B>unixlogin</B>. Especially the
+last one is a good base to build on for your own scripts.
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUGS</H2>
+
+Runscript should be built in to minicom.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Miquel van Smoorenburg, &lt;<A HREF="mailto:miquels@drinkel.ow.org">miquels@drinkel.ow.org</A>&gt;
+Jukka Lahtinen, &lt;<A HREF="mailto:walker@clinet.fi">walker@clinet.fi</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">INVOCATION</A><DD>
+<DT><A HREF="#lbAF">KEYWORDS</A><DD>
+<DT><A HREF="#lbAG">OVERVIEW OF KEYWORDS</A><DD>
+<DT><A HREF="#lbAH">NOTES</A><DD>
+<DT><A HREF="#lbAI">BUGS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

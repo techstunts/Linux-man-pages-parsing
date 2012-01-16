@@ -1,0 +1,3705 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLXS</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLXS</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlxs - XS language reference manual
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+<A NAME="lbAD">&nbsp;</A>
+<H2>Introduction</H2>
+
+<A NAME="ixAAD"></A>
+<FONT SIZE="-1">XS</FONT> is an interface description file format used to create an extension
+interface between Perl and C code (or a C library) which one wishes
+to use with Perl.  The <FONT SIZE="-1">XS</FONT> interface is combined with the library to
+create a new library which can then be either dynamically loaded
+or statically linked into perl.  The <FONT SIZE="-1">XS</FONT> interface description is
+written in the <FONT SIZE="-1">XS</FONT> language and is the core component of the Perl
+extension interface.
+<P>
+
+An <B></B><FONT SIZE="-1"><B>XSUB</B></FONT><B></B> forms the basic unit of the <FONT SIZE="-1">XS</FONT> interface.  After compilation
+by the <B>xsubpp</B> compiler, each <FONT SIZE="-1">XSUB</FONT> amounts to a C function definition
+which will provide the glue between Perl calling conventions and C
+calling conventions.
+<P>
+
+The glue code pulls the arguments from the Perl stack, converts these
+Perl values to the formats expected by a C function, call this C function,
+transfers the return values of the C function back to Perl.
+Return values here may be a conventional C return value or any C
+function arguments that may serve as output parameters.  These return
+values may be passed back to Perl either by putting them on the
+Perl stack, or by modifying the arguments supplied from the Perl side.
+<P>
+
+The above is a somewhat simplified view of what really happens.  Since
+Perl allows more flexible calling conventions than C, XSUBs may do much
+more in practice, such as checking input parameters for validity,
+throwing exceptions (or returning undef/empty list) if the return value
+from the C function indicates failure, calling different C functions
+based on numbers and types of the arguments, providing an object-oriented
+interface, etc.
+<P>
+
+Of course, one could write such glue code directly in C.  However, this
+would be a tedious task, especially if one needs to write glue for
+multiple C functions, and/or one is not familiar enough with the Perl
+stack discipline and other such arcana.  <FONT SIZE="-1">XS</FONT> comes to the rescue here:
+instead of writing this glue C code in long-hand, one can write
+a more concise short-hand <I>description</I> of what should be done by
+the glue, and let the <FONT SIZE="-1">XS</FONT> compiler <B>xsubpp</B> handle the rest.
+<P>
+
+The <FONT SIZE="-1">XS</FONT> language allows one to describe the mapping between how the C
+routine is used, and how the corresponding Perl routine is used.  It
+also allows creation of Perl routines which are directly translated to
+C code and which are not related to a pre-existing C function.  In cases
+when the C interface coincides with the Perl interface, the <FONT SIZE="-1">XSUB</FONT>
+declaration is almost identical to a declaration of a C function (in K&amp;R
+style).  In such circumstances, there is another tool called <TT>&quot;h2xs&quot;</TT>
+that is able to translate an entire C header file into a corresponding
+<FONT SIZE="-1">XS</FONT> file that will provide glue to the functions/macros described in
+the header file.
+<P>
+
+The <FONT SIZE="-1">XS</FONT> compiler is called <B>xsubpp</B>.  This compiler creates
+the constructs necessary to let an <FONT SIZE="-1">XSUB</FONT> manipulate Perl values, and
+creates the glue necessary to let Perl call the <FONT SIZE="-1">XSUB</FONT>.  The compiler
+uses <B>typemaps</B> to determine how to map C function parameters
+and output values to Perl values and back.  The default typemap
+(which comes with Perl) handles many common C types.  A supplementary
+typemap may also be needed to handle any special structures and types
+for the library being linked.
+<P>
+
+A file in <FONT SIZE="-1">XS</FONT> format starts with a C language section which goes until the
+first <TT>&quot;MODULE =&quot;</TT> directive.  Other <FONT SIZE="-1">XS</FONT> directives and <FONT SIZE="-1">XSUB</FONT> definitions
+may follow this line.  The ``language'' used in this part of the file
+is usually referred to as the <FONT SIZE="-1">XS</FONT> language.  <B>xsubpp</B> recognizes and
+skips <FONT SIZE="-1">POD</FONT> (see perlpod) in both the C and <FONT SIZE="-1">XS</FONT> language sections, which
+allows the <FONT SIZE="-1">XS</FONT> file to contain embedded documentation. 
+<P>
+
+See perlxstut for a tutorial on the whole extension creation process.
+<P>
+
+Note: For some extensions, Dave Beazley's <FONT SIZE="-1">SWIG</FONT> system may provide a
+significantly more convenient mechanism for creating the extension
+glue code.  See <A HREF="http://www.swig.org/">http://www.swig.org/</A> for more information.
+<A NAME="lbAE">&nbsp;</A>
+<H2>On The Road
+
+</H2>
+
+<A NAME="ixAAE"></A>
+Many of the examples which follow will concentrate on creating an interface
+between Perl and the <FONT SIZE="-1">ONC+</FONT> <FONT SIZE="-1">RPC</FONT> bind library functions.  The <I>rpcb_gettime()</I>
+function is used to demonstrate many features of the <FONT SIZE="-1">XS</FONT> language.  This
+function has two parameters; the first is an input parameter and the second
+is an output parameter.  The function also returns a status value.
+<P>
+
+
+
+<PRE>
+        bool_t rpcb_gettime(const char *host, time_t *timep);
+
+</PRE>
+
+
+<P>
+
+From C this function will be called with the following
+statements.
+<P>
+
+
+
+<PRE>
+     #include &lt;<A HREF="file:/usr/include/rpc/rpc.h">rpc/rpc.h</A>&gt;
+     bool_t status;
+     time_t timep;
+     status = rpcb_gettime( &quot;localhost&quot;, &amp;timep );
+
+</PRE>
+
+
+<P>
+
+If an <FONT SIZE="-1">XSUB</FONT> is created to offer a direct translation between this function
+and Perl, then this <FONT SIZE="-1">XSUB</FONT> will be used from Perl with the following code.
+The <TT>$status</TT> and <TT>$timep</TT> variables will contain the output of the function.
+<P>
+
+
+
+<PRE>
+     use RPC;
+     $status = rpcb_gettime( &quot;localhost&quot;, $timep );
+
+</PRE>
+
+
+<P>
+
+The following <FONT SIZE="-1">XS</FONT> file shows an <FONT SIZE="-1">XS</FONT> subroutine, or <FONT SIZE="-1">XSUB</FONT>, which
+demonstrates one possible interface to the <I>rpcb_gettime()</I>
+function.  This <FONT SIZE="-1">XSUB</FONT> represents a direct translation between
+C and Perl and so preserves the interface even from Perl.
+This <FONT SIZE="-1">XSUB</FONT> will be invoked from Perl with the usage shown
+above.  Note that the first three #include statements, for
+<TT>&quot;EXTERN.h&quot;</TT>, <TT>&quot;perl.h&quot;</TT>, and <TT>&quot;XSUB.h&quot;</TT>, will always be present at the
+beginning of an <FONT SIZE="-1">XS</FONT> file.  This approach and others will be
+expanded later in this document.
+<P>
+
+
+
+<PRE>
+     #include &quot;EXTERN.h&quot;
+     #include &quot;perl.h&quot;
+     #include &quot;XSUB.h&quot;
+     #include &lt;<A HREF="file:/usr/include/rpc/rpc.h">rpc/rpc.h</A>&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+Any extension to Perl, including those containing XSUBs,
+should have a Perl module to serve as the bootstrap which
+pulls the extension into Perl.  This module will export the
+extension's functions and variables to the Perl program and
+will cause the extension's XSUBs to be linked into Perl.
+The following module will be used for most of the examples
+in this document and should be used from Perl with the <TT>&quot;use&quot;</TT>
+command as shown earlier.  Perl modules are explained in
+more detail later in this document.
+<P>
+
+
+
+<PRE>
+     package RPC;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     require Exporter;
+     require DynaLoader;
+     @ISA = qw(Exporter DynaLoader);
+     @EXPORT = qw( rpcb_gettime );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     bootstrap RPC;
+     1;
+
+</PRE>
+
+
+<P>
+
+Throughout this document a variety of interfaces to the <I>rpcb_gettime()</I>
+<FONT SIZE="-1">XSUB</FONT> will be explored.  The XSUBs will take their parameters in different
+orders or will take different numbers of parameters.  In each case the
+<FONT SIZE="-1">XSUB</FONT> is an abstraction between Perl and the real C <I>rpcb_gettime()</I>
+function, and the <FONT SIZE="-1">XSUB</FONT> must always ensure that the real <I>rpcb_gettime()</I>
+function is called with the correct parameters.  This abstraction will
+allow the programmer to create a more Perl-like interface to the C
+function.
+<A NAME="lbAF">&nbsp;</A>
+<H2>The Anatomy of an <FONT SIZE="-1">XSUB</FONT></H2>
+
+<A NAME="ixAAF"></A>
+The simplest XSUBs consist of 3 parts: a description of the return
+value, the name of the <FONT SIZE="-1">XSUB</FONT> routine and the names of its arguments,
+and a description of types or formats of the arguments.
+<P>
+
+The following <FONT SIZE="-1">XSUB</FONT> allows a Perl program to access a C library function
+called <I>sin()</I>.  The <FONT SIZE="-1">XSUB</FONT> will imitate the C function which takes a single
+argument and returns a single value.
+<P>
+
+
+
+<PRE>
+     double
+     sin(x)
+       double x
+
+</PRE>
+
+
+<P>
+
+Optionally, one can merge the description of types and the list of
+argument names, rewriting this as
+<P>
+
+
+
+<PRE>
+     double
+     sin(double x)
+
+</PRE>
+
+
+<P>
+
+This makes this <FONT SIZE="-1">XSUB</FONT> look similar to an <FONT SIZE="-1">ANSI</FONT> C declaration.  An optional
+semicolon is allowed after the argument list, as in
+<P>
+
+
+
+<PRE>
+     double
+     sin(double x);
+
+</PRE>
+
+
+<P>
+
+Parameters with C pointer types can have different semantic: C functions
+with similar declarations
+<P>
+
+
+
+<PRE>
+     bool string_looks_as_a_number(char *s);
+     bool make_char_uppercase(char *c);
+
+</PRE>
+
+
+<P>
+
+are used in absolutely incompatible manner.  Parameters to these functions
+could be described <B>xsubpp</B> like this:
+<P>
+
+
+
+<PRE>
+     char *  s
+     char    &amp;c
+
+</PRE>
+
+
+<P>
+
+Both these <FONT SIZE="-1">XS</FONT> declarations correspond to the <TT>&quot;char*&quot;</TT> C type, but they have
+different semantics, see ``The &amp; Unary Operator''.
+<P>
+
+It is convenient to think that the indirection operator
+<TT>&quot;*&quot;</TT> should be considered as a part of the type and the address operator <TT>&quot;&amp;&quot;</TT>
+should be considered part of the variable.  See ``The Typemap''
+for more info about handling qualifiers and unary operators in C types.
+<P>
+
+The function name and the return type must be placed on
+separate lines and should be flush left-adjusted.
+<P>
+
+
+
+<PRE>
+  INCORRECT                        CORRECT
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  double sin(x)                    double
+    double x                       sin(x)
+                                     double x
+
+</PRE>
+
+
+<P>
+
+The rest of the function description may be indented or left-adjusted. The
+following example shows a function with its body left-adjusted.  Most
+examples in this document will indent the body for better readability.
+<P>
+
+
+
+<PRE>
+  CORRECT
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  double
+  sin(x)
+  double x
+
+</PRE>
+
+
+<P>
+
+More complicated XSUBs may contain many other sections.  Each section of
+an <FONT SIZE="-1">XSUB</FONT> starts with the corresponding keyword, such as <FONT SIZE="-1">INIT:</FONT> or <FONT SIZE="-1">CLEANUP:</FONT>.
+However, the first two lines of an <FONT SIZE="-1">XSUB</FONT> always contain the same data:
+descriptions of the return type and the names of the function and its
+parameters.  Whatever immediately follows these is considered to be
+an <FONT SIZE="-1">INPUT:</FONT> section unless explicitly marked with another keyword.
+(See ``The <FONT SIZE="-1">INPUT:</FONT> Keyword''.)
+<P>
+
+An <FONT SIZE="-1">XSUB</FONT> section continues until another section-start keyword is found.
+<A NAME="lbAG">&nbsp;</A>
+<H2>The Argument Stack</H2>
+
+<A NAME="ixAAG"></A>
+The Perl argument stack is used to store the values which are
+sent as parameters to the <FONT SIZE="-1">XSUB</FONT> and to store the <FONT SIZE="-1">XSUB</FONT>'s
+return value(s).  In reality all Perl functions (including non-XSUB
+ones) keep their values on this stack all the same time, each limited
+to its own range of positions on the stack.  In this document the
+first position on that stack which belongs to the active
+function will be referred to as position 0 for that function.
+<P>
+
+XSUBs refer to their stack arguments with the macro <B></B><FONT SIZE="-1"><B>ST</B></FONT><B>(x)</B>, where <I>x</I>
+refers to a position in this <FONT SIZE="-1">XSUB</FONT>'s part of the stack.  Position 0 for that
+function would be known to the <FONT SIZE="-1">XSUB</FONT> as <FONT SIZE="-1"><I>ST</I></FONT><I></I>(0).  The <FONT SIZE="-1">XSUB</FONT>'s incoming
+parameters and outgoing return values always begin at <FONT SIZE="-1"><I>ST</I></FONT><I></I>(0).  For many
+simple cases the <B>xsubpp</B> compiler will generate the code necessary to
+handle the argument stack by embedding code fragments found in the
+typemaps.  In more complex cases the programmer must supply the code.
+<A NAME="lbAH">&nbsp;</A>
+<H2>The <FONT SIZE="-1">RETVAL</FONT> Variable</H2>
+
+<A NAME="ixAAH"></A>
+The <FONT SIZE="-1">RETVAL</FONT> variable is a special C variable that is declared automatically
+for you.  The C type of <FONT SIZE="-1">RETVAL</FONT> matches the return type of the C library
+function.  The <B>xsubpp</B> compiler will declare this variable in each <FONT SIZE="-1">XSUB</FONT>
+with non-<TT>&quot;void&quot;</TT> return type.  By default the generated C function
+will use <FONT SIZE="-1">RETVAL</FONT> to hold the return value of the C library function being
+called.  In simple cases the value of <FONT SIZE="-1">RETVAL</FONT> will be placed in <FONT SIZE="-1"><I>ST</I></FONT><I></I>(0) of
+the argument stack where it can be received by Perl as the return value
+of the <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+If the <FONT SIZE="-1">XSUB</FONT> has a return type of <TT>&quot;void&quot;</TT> then the compiler will
+not declare a <FONT SIZE="-1">RETVAL</FONT> variable for that function.  When using
+a <FONT SIZE="-1">PPCODE:</FONT> section no manipulation of the <FONT SIZE="-1">RETVAL</FONT> variable is required, the
+section may use direct stack manipulation to place output values on the stack.
+<P>
+
+If <FONT SIZE="-1">PPCODE:</FONT> directive is not used, <TT>&quot;void&quot;</TT> return value should be used
+only for subroutines which do not return a value, <I>even if</I> <FONT SIZE="-1">CODE:</FONT>
+directive is used which sets <FONT SIZE="-1"><I>ST</I></FONT><I></I>(0) explicitly.
+<P>
+
+Older versions of this document recommended to use <TT>&quot;void&quot;</TT> return
+value in such cases. It was discovered that this could lead to
+segfaults in cases when <FONT SIZE="-1">XSUB</FONT> was <I>truly</I> <TT>&quot;void&quot;</TT>. This practice is
+now deprecated, and may be not supported at some future version. Use
+the return value <TT>&quot;SV *&quot;</TT> in such cases. (Currently <TT>&quot;xsubpp&quot;</TT> contains
+some heuristic code which tries to disambiguate between ``truly-void''
+and ``old-practice-declared-as-void'' functions. Hence your code is at
+mercy of this heuristics unless you use <TT>&quot;SV *&quot;</TT> as return value.)
+<A NAME="lbAI">&nbsp;</A>
+<H2>Returning SVs, AVs and HVs through <FONT SIZE="-1">RETVAL</FONT>
+
+
+
+</H2>
+
+<A NAME="ixAAI"></A>
+When you're using <FONT SIZE="-1">RETVAL</FONT> to return an <TT>&quot;SV *&quot;</TT>, there's some magic
+going on behind the scenes that should be mentioned. When you're
+manipulating the argument stack using the <FONT SIZE="-1">ST</FONT>(x) macro, for example,
+you usually have to pay special attention to reference counts. (For
+more about reference counts, see perlguts.) To make your life
+easier, the typemap file automatically makes <TT>&quot;RETVAL&quot;</TT> mortal when
+you're returning an <TT>&quot;SV *&quot;</TT>. Thus, the following two XSUBs are more
+or less equivalent:
+<P>
+
+
+
+<PRE>
+  void
+  alpha()
+      PPCODE:
+          ST(0) = newSVpv(&quot;Hello World&quot;,0);
+          sv_2mortal(ST(0));
+          <A HREF="../man1/XSRETURN.1.php">XSRETURN</A>(1);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  SV *
+  beta()
+      CODE:
+          RETVAL = newSVpv(&quot;Hello World&quot;,0);
+      OUTPUT:
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+This is quite useful as it usually improves readability. While
+this works fine for an <TT>&quot;SV *&quot;</TT>, it's unfortunately not as easy
+to have <TT>&quot;AV *&quot;</TT> or <TT>&quot;HV *&quot;</TT> as a return value. You <I>should</I> be
+able to write:
+<P>
+
+
+
+<PRE>
+  AV *
+  array()
+      CODE:
+          RETVAL = newAV();
+          /* do something with RETVAL */
+      OUTPUT:
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+But due to an unfixable bug (fixing it would break lots of existing
+<FONT SIZE="-1">CPAN</FONT> modules) in the typemap file, the reference count of the <TT>&quot;AV *&quot;</TT>
+is not properly decremented. Thus, the above <FONT SIZE="-1">XSUB</FONT> would leak memory
+whenever it is being called. The same problem exists for <TT>&quot;HV *&quot;</TT>.
+<P>
+
+When you're returning an <TT>&quot;AV *&quot;</TT> or a <TT>&quot;HV *&quot;</TT>, you have make sure
+their reference count is decremented by making the <FONT SIZE="-1">AV</FONT> or <FONT SIZE="-1">HV</FONT> mortal:
+<P>
+
+
+
+<PRE>
+  AV *
+  array()
+      CODE:
+          RETVAL = newAV();
+          sv_2mortal((SV*)RETVAL);
+          /* do something with RETVAL */
+      OUTPUT:
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+And also remember that you don't have to do this for an <TT>&quot;SV *&quot;</TT>.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>The <FONT SIZE="-1">MODULE</FONT> Keyword</H2>
+
+<A NAME="ixAAJ"></A>
+The <FONT SIZE="-1">MODULE</FONT> keyword is used to start the <FONT SIZE="-1">XS</FONT> code and to specify the package
+of the functions which are being defined.  All text preceding the first
+<FONT SIZE="-1">MODULE</FONT> keyword is considered C code and is passed through to the output with
+<FONT SIZE="-1">POD</FONT> stripped, but otherwise untouched.  Every <FONT SIZE="-1">XS</FONT> module will have a
+bootstrap function which is used to hook the XSUBs into Perl.  The package
+name of this bootstrap function will match the value of the last <FONT SIZE="-1">MODULE</FONT>
+statement in the <FONT SIZE="-1">XS</FONT> source files.  The value of <FONT SIZE="-1">MODULE</FONT> should always remain
+constant within the same <FONT SIZE="-1">XS</FONT> file, though this is not required.
+<P>
+
+The following example will start the <FONT SIZE="-1">XS</FONT> code and will place
+all functions in a package named <FONT SIZE="-1">RPC</FONT>.
+<P>
+
+
+
+<PRE>
+     MODULE = RPC
+
+</PRE>
+
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PACKAGE</FONT> Keyword</H2>
+
+<A NAME="ixAAK"></A>
+When functions within an <FONT SIZE="-1">XS</FONT> source file must be separated into packages
+the <FONT SIZE="-1">PACKAGE</FONT> keyword should be used.  This keyword is used with the <FONT SIZE="-1">MODULE</FONT>
+keyword and must follow immediately after it when used.
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     [ XS code in package RPC ]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPCB
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     [ XS code in package RPCB ]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     [ XS code in package RPC ]
+
+</PRE>
+
+
+<P>
+
+The same package name can be used more than once, allowing for
+non-contiguous code. This is useful if you have a stronger ordering
+principle than package names.
+<P>
+
+Although this keyword is optional and in some cases provides redundant
+information it should always be used.  This keyword will ensure that the
+XSUBs appear in the desired package.
+<A NAME="lbAL">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PREFIX</FONT> Keyword</H2>
+
+<A NAME="ixAAL"></A>
+The <FONT SIZE="-1">PREFIX</FONT> keyword designates prefixes which should be
+removed from the Perl function names.  If the C function is
+<TT>&quot;rpcb_gettime()&quot;</TT> and the <FONT SIZE="-1">PREFIX</FONT> value is <TT>&quot;rpcb_&quot;</TT> then Perl will
+see this function as <TT>&quot;gettime()&quot;</TT>.
+<P>
+
+This keyword should follow the <FONT SIZE="-1">PACKAGE</FONT> keyword when used.
+If <FONT SIZE="-1">PACKAGE</FONT> is not used then <FONT SIZE="-1">PREFIX</FONT> should follow the <FONT SIZE="-1">MODULE</FONT>
+keyword.
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PREFIX = rpc_
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPCB  PREFIX = rpcb_
+
+</PRE>
+
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>The <FONT SIZE="-1">OUTPUT:</FONT> Keyword</H2>
+
+<A NAME="ixAAM"></A>
+The <FONT SIZE="-1">OUTPUT:</FONT> keyword indicates that certain function parameters should be
+updated (new values made visible to Perl) when the <FONT SIZE="-1">XSUB</FONT> terminates or that
+certain values should be returned to the calling Perl function.  For
+simple functions which have no <FONT SIZE="-1">CODE:</FONT> or <FONT SIZE="-1">PPCODE:</FONT> section,
+such as the <I>sin()</I> function above, the <FONT SIZE="-1">RETVAL</FONT> variable is
+automatically designated as an output value.  For more complex functions
+the <B>xsubpp</B> compiler will need help to determine which variables are output
+variables.
+<P>
+
+This keyword will normally be used to complement the <FONT SIZE="-1">CODE:</FONT>  keyword.
+The <FONT SIZE="-1">RETVAL</FONT> variable is not recognized as an output variable when the
+<FONT SIZE="-1">CODE:</FONT> keyword is present.  The <FONT SIZE="-1">OUTPUT:</FONT>  keyword is used in this
+situation to tell the compiler that <FONT SIZE="-1">RETVAL</FONT> really is an output
+variable.
+<P>
+
+The <FONT SIZE="-1">OUTPUT:</FONT> keyword can also be used to indicate that function parameters
+are output variables.  This may be necessary when a parameter has been
+modified within the function and the programmer would like the update to
+be seen by Perl.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">OUTPUT:</FONT> keyword will also allow an output parameter to
+be mapped to a matching piece of code rather than to a
+typemap.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        OUTPUT:
+          timep sv_setnv(<A HREF="../man1/ST.1.php">ST</A>(1), (double)timep);
+
+</PRE>
+
+
+<P>
+
+<B>xsubpp</B> emits an automatic <TT>&quot;SvSETMAGIC()&quot;</TT> for all parameters in the
+<FONT SIZE="-1">OUTPUT</FONT> section of the <FONT SIZE="-1">XSUB</FONT>, except <FONT SIZE="-1">RETVAL</FONT>.  This is the usually desired
+behavior, as it takes care of properly invoking 'set' magic on output
+parameters (needed for hash or array element parameters that must be
+created if they didn't exist).  If for some reason, this behavior is
+not desired, the <FONT SIZE="-1">OUTPUT</FONT> section may contain a <TT>&quot;SETMAGIC: DISABLE&quot;</TT> line
+to disable it for the remainder of the parameters in the <FONT SIZE="-1">OUTPUT</FONT> section.
+Likewise,  <TT>&quot;SETMAGIC: ENABLE&quot;</TT> can be used to reenable it for the
+remainder of the <FONT SIZE="-1">OUTPUT</FONT> section.  See perlguts for more details
+about 'set' magic.
+<A NAME="lbAN">&nbsp;</A>
+<H2>The <FONT SIZE="-1">NO_OUTPUT</FONT> Keyword</H2>
+
+<A NAME="ixAAN"></A>
+The <FONT SIZE="-1">NO_OUTPUT</FONT> can be placed as the first token of the <FONT SIZE="-1">XSUB</FONT>.  This keyword
+indicates that while the C subroutine we provide an interface to has
+a non-<TT>&quot;void&quot;</TT> return type, the return value of this C subroutine should not
+be returned from the generated Perl subroutine.
+<P>
+
+With this keyword present ``The <FONT SIZE="-1">RETVAL</FONT> Variable'' is created, and in the
+generated call to the subroutine this variable is assigned to, but the value
+of this variable is not going to be used in the auto-generated code.
+<P>
+
+This keyword makes sense only if <TT>&quot;RETVAL&quot;</TT> is going to be accessed by the
+user-supplied code.  It is especially useful to make a function interface
+more Perl-like, especially when the C return value is just an error condition
+indicator.  For example,
+<P>
+
+
+
+<PRE>
+  NO_OUTPUT int
+  delete_file(char *name)
+    POSTCALL:
+      if (RETVAL != 0)
+          croak(&quot;Error %d while deleting file '%s'&quot;, RETVAL, name);
+
+</PRE>
+
+
+<P>
+
+Here the generated <FONT SIZE="-1">XS</FONT> function returns nothing on success, and will <I>die()</I>
+with a meaningful error message on error.
+<A NAME="lbAO">&nbsp;</A>
+<H2>The <FONT SIZE="-1">CODE:</FONT> Keyword</H2>
+
+<A NAME="ixAAO"></A>
+This keyword is used in more complicated XSUBs which require
+special handling for the C function.  The <FONT SIZE="-1">RETVAL</FONT> variable is
+still declared, but it will not be returned unless it is specified
+in the <FONT SIZE="-1">OUTPUT:</FONT> section.
+<P>
+
+The following <FONT SIZE="-1">XSUB</FONT> is for a C function which requires special handling of
+its parameters.  The Perl usage is given first.
+<P>
+
+
+
+<PRE>
+     $status = rpcb_gettime( &quot;localhost&quot;, $timep );
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">XSUB</FONT> follows.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host
+          time_t timep
+        CODE:
+               RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<A NAME="lbAP">&nbsp;</A>
+<H2>The <FONT SIZE="-1">INIT:</FONT> Keyword</H2>
+
+<A NAME="ixAAP"></A>
+The <FONT SIZE="-1">INIT:</FONT> keyword allows initialization to be inserted into the <FONT SIZE="-1">XSUB</FONT> before
+the compiler generates the call to the C function.  Unlike the <FONT SIZE="-1">CODE:</FONT> keyword
+above, this keyword does not affect the way the compiler handles <FONT SIZE="-1">RETVAL</FONT>.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        INIT:
+          printf(&quot;# Host is %s\n&quot;, host );
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+Another use for the <FONT SIZE="-1">INIT:</FONT> section is to check for preconditions before
+making a call to the C function:
+<P>
+
+
+
+<PRE>
+    long long
+    lldiv(a,b)
+        long long a
+        long long b
+      INIT:
+        if (a == 0 &amp;&amp; b == 0)
+            XSRETURN_UNDEF;
+        if (b == 0)
+            croak(&quot;lldiv: cannot divide by 0&quot;);
+
+</PRE>
+
+
+<A NAME="lbAQ">&nbsp;</A>
+<H2>The <FONT SIZE="-1">NO_INIT</FONT> Keyword</H2>
+
+<A NAME="ixAAQ"></A>
+The <FONT SIZE="-1">NO_INIT</FONT> keyword is used to indicate that a function
+parameter is being used only as an output value.  The <B>xsubpp</B>
+compiler will normally generate code to read the values of
+all function parameters from the argument stack and assign
+them to C variables upon entry to the function.  <FONT SIZE="-1">NO_INIT</FONT>
+will tell the compiler that some parameters will be used for
+output rather than for input and that they will be handled
+before the function terminates.
+<P>
+
+The following example shows a variation of the <I>rpcb_gettime()</I> function.
+This function uses the timep variable only as an output variable and does
+not care about its initial contents.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep = NO_INIT
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>Initializing Function Parameters</H2>
+
+<A NAME="ixAAR"></A>
+C function parameters are normally initialized with their values from
+the argument stack (which in turn contains the parameters that were
+passed to the <FONT SIZE="-1">XSUB</FONT> from Perl).  The typemaps contain the
+code segments which are used to translate the Perl values to
+the C parameters.  The programmer, however, is allowed to
+override the typemaps and supply alternate (or additional)
+initialization code.  Initialization code starts with the first
+<TT>&quot;=&quot;</TT>, <TT>&quot;;&quot;</TT> or <TT>&quot;+&quot;</TT> on a line in the <FONT SIZE="-1">INPUT:</FONT> section.  The only
+exception happens if this <TT>&quot;;&quot;</TT> terminates the line, then this <TT>&quot;;&quot;</TT>
+is quietly ignored.
+<P>
+
+The following code demonstrates how to supply initialization code for
+function parameters.  The initialization code is eval'd within double
+quotes by the compiler before it is added to the output so anything
+which should be interpreted literally [mainly <TT>&quot;$&quot;</TT>, <TT>&quot;@&quot;</TT>, or <TT>&quot;\\&quot;</TT>]
+must be protected with backslashes.  The variables <TT>$var</TT>, <TT>$arg</TT>,
+and <TT>$type</TT> can be used as in typemaps.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          char *host = (char *)SvPV($arg,PL_na);
+          time_t &amp;timep = 0;
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+This should not be used to supply default values for parameters.  One
+would normally use this when a function parameter must be processed by
+another library function before it can be used.  Default parameters are
+covered in the next section.
+<P>
+
+If the initialization begins with <TT>&quot;=&quot;</TT>, then it is output in
+the declaration for the input variable, replacing the initialization
+supplied by the typemap.  If the initialization
+begins with <TT>&quot;;&quot;</TT> or <TT>&quot;+&quot;</TT>, then it is performed after
+all of the input variables have been declared.  In the <TT>&quot;;&quot;</TT>
+case the initialization normally supplied by the typemap is not performed.
+For the <TT>&quot;+&quot;</TT> case, the declaration for the variable will include the
+initialization from the typemap.  A global
+variable, <TT>%v</TT>, is available for the truly rare case where
+information from one initialization is needed in another
+initialization.
+<P>
+
+Here's a truly obscure example:
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(host,timep)
+          time_t &amp;timep ; /* \$v{timep}=@{[$v{timep}=$arg]} */
+          char *host + SvOK($v{timep}) ? SvPV($arg,PL_na) : NULL;
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+The construct <TT>&quot;\$v{timep}=@{[$v{timep}=$arg]}&quot;</TT> used in the above
+example has a two-fold purpose: first, when this line is processed by
+<B>xsubpp</B>, the Perl snippet <TT>&quot;$v{timep}=$arg&quot;</TT> is evaluated.  Second,
+the text of the evaluated snippet is output into the generated C file
+(inside a C comment)!  During the processing of <TT>&quot;char *host&quot;</TT> line,
+<TT>$arg</TT> will evaluate to <TT>ST(0)</TT>, and <TT>$v{timep}</TT> will evaluate to
+<TT><A HREF="../man1/ST.1.php">ST</A>(1)</TT>.
+<A NAME="lbAS">&nbsp;</A>
+<H2>Default Parameter Values</H2>
+
+<A NAME="ixAAS"></A>
+Default values for <FONT SIZE="-1">XSUB</FONT> arguments can be specified by placing an
+assignment statement in the parameter list.  The default value may
+be a number, a string or the special string <TT>&quot;NO_INIT&quot;</TT>.  Defaults should
+always be used on the right-most parameters only.
+<P>
+
+To allow the <FONT SIZE="-1">XSUB</FONT> for <I>rpcb_gettime()</I> to have a default host
+value the parameters to the <FONT SIZE="-1">XSUB</FONT> could be rearranged.  The
+<FONT SIZE="-1">XSUB</FONT> will then call the real <I>rpcb_gettime()</I> function with
+the parameters in the correct order.  This <FONT SIZE="-1">XSUB</FONT> can be called
+from Perl with either of the following statements:
+<P>
+
+
+
+<PRE>
+     $status = rpcb_gettime( $timep, $host );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     $status = rpcb_gettime( $timep );
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">XSUB</FONT> will look like the code  which  follows.   A  <FONT SIZE="-1">CODE:</FONT>
+block  is used to call the real <I>rpcb_gettime()</I> function with
+the parameters in the correct order for that function.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep,host=&quot;localhost&quot;)
+          char *host
+          time_t timep = NO_INIT
+        CODE:
+               RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<A NAME="lbAT">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PREINIT:</FONT> Keyword</H2>
+
+<A NAME="ixAAT"></A>
+The <FONT SIZE="-1">PREINIT:</FONT> keyword allows extra variables to be declared immediately
+before or after the declarations of the parameters from the <FONT SIZE="-1">INPUT:</FONT> section
+are emitted.
+<P>
+
+If a variable is declared inside a <FONT SIZE="-1">CODE:</FONT> section it will follow any typemap
+code that is emitted for the input parameters.  This may result in the
+declaration ending up after C code, which is C syntax error.  Similar
+errors may happen with an explicit <TT>&quot;;&quot;</TT>-type or <TT>&quot;+&quot;</TT>-type initialization of
+parameters is used (see ``Initializing Function Parameters'').  Declaring
+these variables in an <FONT SIZE="-1">INIT:</FONT> section will not help.
+<P>
+
+In such cases, to force an additional variable to be declared together
+with declarations of other variables, place the declaration into a
+<FONT SIZE="-1">PREINIT:</FONT> section.  The <FONT SIZE="-1">PREINIT:</FONT> keyword may be used one or more times
+within an <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+The following examples are equivalent, but if the code is using complex
+typemaps then the first example is safer.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep)
+          time_t timep = NO_INIT
+        PREINIT:
+          char *host = &quot;localhost&quot;;
+        CODE:
+          RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+For this particular case an <FONT SIZE="-1">INIT:</FONT> keyword would generate the
+same C code as the <FONT SIZE="-1">PREINIT:</FONT> keyword.  Another correct, but error-prone example:
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep)
+          time_t timep = NO_INIT
+        CODE:
+          char *host = &quot;localhost&quot;;
+          RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+Another way to declare <TT>&quot;host&quot;</TT> is to use a C block in the <FONT SIZE="-1">CODE:</FONT> section:
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep)
+          time_t timep = NO_INIT
+        CODE:
+          {
+            char *host = &quot;localhost&quot;;
+            RETVAL = rpcb_gettime( host, &amp;timep );
+          }
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+The ability to put additional declarations before the typemap entries are
+processed is very handy in the cases when typemap conversions manipulate
+some global state:
+<P>
+
+
+
+<PRE>
+    MyObject
+    mutate(o)
+        PREINIT:
+            MyState st = global_state;
+        INPUT:
+            MyObject o;
+        CLEANUP:
+            reset_to(global_state, st);
+
+</PRE>
+
+
+<P>
+
+Here we suppose that conversion to <TT>&quot;MyObject&quot;</TT> in the <FONT SIZE="-1">INPUT:</FONT> section and from
+MyObject when processing <FONT SIZE="-1">RETVAL</FONT> will modify a global variable <TT>&quot;global_state&quot;</TT>.
+After these conversions are performed, we restore the old value of
+<TT>&quot;global_state&quot;</TT> (to avoid memory leaks, for example).
+<P>
+
+There is another way to trade clarity for compactness: <FONT SIZE="-1">INPUT</FONT> sections allow
+declaration of C variables which do not appear in the parameter list of
+a subroutine.  Thus the above code for <I>mutate()</I> can be rewritten as
+<P>
+
+
+
+<PRE>
+    MyObject
+    mutate(o)
+          MyState st = global_state;
+          MyObject o;
+        CLEANUP:
+          reset_to(global_state, st);
+
+</PRE>
+
+
+<P>
+
+and the code for <I>rpcb_gettime()</I> can be rewritten as
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep)
+          time_t timep = NO_INIT
+          char *host = &quot;localhost&quot;;
+        C_ARGS:
+          host, &amp;timep
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>The <FONT SIZE="-1">SCOPE:</FONT> Keyword</H2>
+
+<A NAME="ixAAU"></A>
+The <FONT SIZE="-1">SCOPE:</FONT> keyword allows scoping to be enabled for a particular <FONT SIZE="-1">XSUB</FONT>. If
+enabled, the <FONT SIZE="-1">XSUB</FONT> will invoke <FONT SIZE="-1">ENTER</FONT> and <FONT SIZE="-1">LEAVE</FONT> automatically.
+<P>
+
+To support potentially complex type mappings, if a typemap entry used
+by an <FONT SIZE="-1">XSUB</FONT> contains a comment like <TT>&quot;/*scope*/&quot;</TT> then scoping will
+be automatically enabled for that <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+To enable scoping:
+<P>
+
+
+
+<PRE>
+    SCOPE: ENABLE
+
+</PRE>
+
+
+<P>
+
+To disable scoping:
+<P>
+
+
+
+<PRE>
+    SCOPE: DISABLE
+
+</PRE>
+
+
+<A NAME="lbAV">&nbsp;</A>
+<H2>The <FONT SIZE="-1">INPUT:</FONT> Keyword</H2>
+
+<A NAME="ixAAV"></A>
+The <FONT SIZE="-1">XSUB</FONT>'s parameters are usually evaluated immediately after entering the
+<FONT SIZE="-1">XSUB</FONT>.  The <FONT SIZE="-1">INPUT:</FONT> keyword can be used to force those parameters to be
+evaluated a little later.  The <FONT SIZE="-1">INPUT:</FONT> keyword can be used multiple times
+within an <FONT SIZE="-1">XSUB</FONT> and can be used to list one or more input variables.  This
+keyword is used with the <FONT SIZE="-1">PREINIT:</FONT> keyword.
+<P>
+
+The following example shows how the input parameter <TT>&quot;timep&quot;</TT> can be
+evaluated late, after a <FONT SIZE="-1">PREINIT</FONT>.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+        PREINIT:
+          time_t tt;
+        INPUT:
+          time_t timep
+        CODE:
+               RETVAL = rpcb_gettime( host, &amp;tt );
+               timep = tt;
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+The next example shows each input parameter evaluated late.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+        PREINIT:
+          time_t tt;
+        INPUT:
+          char *host
+        PREINIT:
+          char *h;
+        INPUT:
+          time_t timep
+        CODE:
+               h = host;
+               RETVAL = rpcb_gettime( h, &amp;tt );
+               timep = tt;
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+Since <FONT SIZE="-1">INPUT</FONT> sections allow declaration of C variables which do not appear
+in the parameter list of a subroutine, this may be shortened to:
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          time_t tt;
+          char *host;
+          char *h = host;
+          time_t timep;
+        CODE:
+          RETVAL = rpcb_gettime( h, &amp;tt );
+          timep = tt;
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+(We used our knowledge that input conversion for <TT>&quot;char *&quot;</TT> is a ``simple'' one,
+thus <TT>&quot;host&quot;</TT> is initialized on the declaration line, and our assignment
+<TT>&quot;h = host&quot;</TT> is not performed too early.  Otherwise one would need to have the
+assignment <TT>&quot;h = host&quot;</TT> in a <FONT SIZE="-1">CODE:</FONT> or <FONT SIZE="-1">INIT:</FONT> section.)
+<A NAME="lbAW">&nbsp;</A>
+<H2>The <FONT SIZE="-1">IN/OUTLIST/IN_OUTLIST/OUT/IN_OUT</FONT> Keywords</H2>
+
+<A NAME="ixAAW"></A>
+In the list of parameters for an <FONT SIZE="-1">XSUB</FONT>, one can precede parameter names
+by the <TT>&quot;IN&quot;</TT>/<TT>&quot;OUTLIST&quot;</TT>/<TT>&quot;IN_OUTLIST&quot;</TT>/<TT>&quot;OUT&quot;</TT>/<TT>&quot;IN_OUT&quot;</TT> keywords.
+<TT>&quot;IN&quot;</TT> keyword is the default, the other keywords indicate how the Perl
+interface should differ from the C interface.
+<P>
+
+Parameters preceded by <TT>&quot;OUTLIST&quot;</TT>/<TT>&quot;IN_OUTLIST&quot;</TT>/<TT>&quot;OUT&quot;</TT>/<TT>&quot;IN_OUT&quot;</TT>
+keywords are considered to be used by the C subroutine <I>via
+pointers</I>.  <TT>&quot;OUTLIST&quot;</TT>/<TT>&quot;OUT&quot;</TT> keywords indicate that the C subroutine
+does not inspect the memory pointed by this parameter, but will write
+through this pointer to provide additional return values.
+<P>
+
+Parameters preceded by <TT>&quot;OUTLIST&quot;</TT> keyword do not appear in the usage
+signature of the generated Perl function.
+<P>
+
+Parameters preceded by <TT>&quot;IN_OUTLIST&quot;</TT>/<TT>&quot;IN_OUT&quot;</TT>/<TT>&quot;OUT&quot;</TT> <I>do</I> appear as
+parameters to the Perl function.  With the exception of
+<TT>&quot;OUT&quot;</TT>-parameters, these parameters are converted to the corresponding
+C type, then pointers to these data are given as arguments to the C
+function.  It is expected that the C function will write through these
+pointers.
+<P>
+
+The return list of the generated Perl function consists of the C return value
+from the function (unless the <FONT SIZE="-1">XSUB</FONT> is of <TT>&quot;void&quot;</TT> return type or
+<TT>&quot;The NO_OUTPUT Keyword&quot;</TT> was used) followed by all the <TT>&quot;OUTLIST&quot;</TT>
+and <TT>&quot;IN_OUTLIST&quot;</TT> parameters (in the order of appearance).  On the
+return from the <FONT SIZE="-1">XSUB</FONT> the <TT>&quot;IN_OUT&quot;</TT>/<TT>&quot;OUT&quot;</TT> Perl parameter will be
+modified to have the values written by the C function.
+<P>
+
+For example, an <FONT SIZE="-1">XSUB</FONT>
+<P>
+
+
+
+<PRE>
+  void
+  day_month(OUTLIST day, IN unix_time, OUTLIST month)
+    int day
+    int unix_time
+    int month
+
+</PRE>
+
+
+<P>
+
+should be used from Perl as
+<P>
+
+
+
+<PRE>
+  my ($day, $month) = day_month(time);
+
+</PRE>
+
+
+<P>
+
+The C signature of the corresponding function should be
+<P>
+
+
+
+<PRE>
+  void day_month(int *day, int unix_time, int *month);
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;IN&quot;</TT>/<TT>&quot;OUTLIST&quot;</TT>/<TT>&quot;IN_OUTLIST&quot;</TT>/<TT>&quot;IN_OUT&quot;</TT>/<TT>&quot;OUT&quot;</TT> keywords can be
+mixed with ANSI-style declarations, as in
+<P>
+
+
+
+<PRE>
+  void
+  day_month(OUTLIST int day, int unix_time, OUTLIST int month)
+
+</PRE>
+
+
+<P>
+
+(here the optional <TT>&quot;IN&quot;</TT> keyword is omitted).
+<P>
+
+The <TT>&quot;IN_OUT&quot;</TT> parameters are identical with parameters introduced with
+``The &amp; Unary Operator'' and put into the <TT>&quot;OUTPUT:&quot;</TT> section (see
+``The <FONT SIZE="-1">OUTPUT:</FONT> Keyword'').  The <TT>&quot;IN_OUTLIST&quot;</TT> parameters are very similar,
+the only difference being that the value C function writes through the
+pointer would not modify the Perl parameter, but is put in the output
+list.
+<P>
+
+The <TT>&quot;OUTLIST&quot;</TT>/<TT>&quot;OUT&quot;</TT> parameter differ from <TT>&quot;IN_OUTLIST&quot;</TT>/<TT>&quot;IN_OUT&quot;</TT>
+parameters only by the initial value of the Perl parameter not
+being read (and not being given to the C function - which gets some
+garbage instead).  For example, the same C function as above can be
+interfaced with as
+<P>
+
+
+
+<PRE>
+  void day_month(OUT int day, int unix_time, OUT int month);
+
+</PRE>
+
+
+<P>
+
+or
+<P>
+
+
+
+<PRE>
+  void
+  day_month(day, unix_time, month)
+      int &amp;day = NO_INIT
+      int  unix_time
+      int &amp;month = NO_INIT
+    OUTPUT:
+      day
+      month
+
+</PRE>
+
+
+<P>
+
+However, the generated Perl function is called in very C-ish style:
+<P>
+
+
+
+<PRE>
+  my ($day, $month);
+  day_month($day, time, $month);
+
+</PRE>
+
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>The length(NAME) Keyword</H2>
+
+
+
+<A NAME="ixAAX"></A>
+If one of the input arguments to the C function is the length of a string
+argument <TT>&quot;NAME&quot;</TT>, one can substitute the name of the length-argument by
+<TT>&quot;length(NAME)&quot;</TT> in the <FONT SIZE="-1">XSUB</FONT> declaration.  This argument must be omited when
+the generated Perl function is called.  E.g.,
+<P>
+
+
+
+<PRE>
+  void
+  dump_chars(char *s, short l)
+  {
+    short n = 0;
+    while (n &lt; l) {
+        printf(&quot;s[%d] = \&quot;\\%#03o\&quot;\n&quot;, n, (int)s[n]);
+        n++;
+    }
+  }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  MODULE = x            PACKAGE = x
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  void dump_chars(char *s, short length(s))
+
+</PRE>
+
+
+<P>
+
+should be called as <TT>&quot;dump_chars($string)&quot;</TT>.
+<P>
+
+This directive is supported with ANSI-type function declarations only.
+<A NAME="lbAY">&nbsp;</A>
+<H2>Variable-length Parameter Lists</H2>
+
+<A NAME="ixAAY"></A>
+XSUBs can have variable-length parameter lists by specifying an ellipsis
+<TT>&quot;(...)&quot;</TT> in the parameter list.  This use of the ellipsis is similar to that
+found in <FONT SIZE="-1">ANSI</FONT> C.  The programmer is able to determine the number of
+arguments passed to the <FONT SIZE="-1">XSUB</FONT> by examining the <TT>&quot;items&quot;</TT> variable which the
+<B>xsubpp</B> compiler supplies for all XSUBs.  By using this mechanism one can
+create an <FONT SIZE="-1">XSUB</FONT> which accepts a list of parameters of unknown length.
+<P>
+
+The <I>host</I> parameter for the <I>rpcb_gettime()</I> <FONT SIZE="-1">XSUB</FONT> can be
+optional so the ellipsis can be used to indicate that the
+<FONT SIZE="-1">XSUB</FONT> will take a variable number of parameters.  Perl should
+be able to call this <FONT SIZE="-1">XSUB</FONT> with either of the following statements.
+<P>
+
+
+
+<PRE>
+     $status = rpcb_gettime( $timep, $host );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     $status = rpcb_gettime( $timep );
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">XS</FONT> code, with ellipsis, follows.
+<P>
+
+
+
+<PRE>
+     bool_t
+     rpcb_gettime(timep, ...)
+          time_t timep = NO_INIT
+        PREINIT:
+          char *host = &quot;localhost&quot;;
+          STRLEN n_a;
+        CODE:
+          if( items &gt; 1 )
+               host = (char *)SvPV(<A HREF="../man1/ST.1.php">ST</A>(1), n_a);
+          RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<A NAME="lbAZ">&nbsp;</A>
+<H2>The C_ARGS: Keyword</H2>
+
+<A NAME="ixAAZ"></A>
+The C_ARGS: keyword allows creating of <FONT SIZE="-1">XSUBS</FONT> which have different
+calling sequence from Perl than from C, without a need to write
+<FONT SIZE="-1">CODE:</FONT> or <FONT SIZE="-1">PPCODE:</FONT> section.  The contents of the C_ARGS: paragraph is
+put as the argument to the called C function without any change.
+<P>
+
+For example, suppose that a C function is declared as
+<P>
+
+
+
+<PRE>
+    symbolic nth_derivative(int n, symbolic function, int flags);
+
+</PRE>
+
+
+<P>
+
+and that the default flags are kept in a global C variable
+<TT>&quot;default_flags&quot;</TT>.  Suppose that you want to create an interface which
+is called as
+<P>
+
+
+
+<PRE>
+    $second_deriv = $function-&gt;<A HREF="../man2/nth_derivative.2.php">nth_derivative</A>(2);
+
+</PRE>
+
+
+<P>
+
+To do this, declare the <FONT SIZE="-1">XSUB</FONT> as
+<P>
+
+
+
+<PRE>
+    symbolic
+    nth_derivative(function, n)
+        symbolic        function
+        int             n
+      C_ARGS:
+        n, function, default_flags
+
+</PRE>
+
+
+<A NAME="lbBA">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PPCODE:</FONT> Keyword</H2>
+
+<A NAME="ixABA"></A>
+The <FONT SIZE="-1">PPCODE:</FONT> keyword is an alternate form of the <FONT SIZE="-1">CODE:</FONT> keyword and is used
+to tell the <B>xsubpp</B> compiler that the programmer is supplying the code to
+control the argument stack for the XSUBs return values.  Occasionally one
+will want an <FONT SIZE="-1">XSUB</FONT> to return a list of values rather than a single value.
+In these cases one must use <FONT SIZE="-1">PPCODE:</FONT> and then explicitly push the list of
+values on the stack.  The <FONT SIZE="-1">PPCODE:</FONT> and <FONT SIZE="-1">CODE:</FONT>  keywords should not be used
+together within the same <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+The actual difference between <FONT SIZE="-1">PPCODE:</FONT> and <FONT SIZE="-1">CODE:</FONT> sections is in the
+initialization of <TT>&quot;SP&quot;</TT> macro (which stands for the <I>current</I> Perl
+stack pointer), and in the handling of data on the stack when returning
+from an <FONT SIZE="-1">XSUB</FONT>.  In <FONT SIZE="-1">CODE:</FONT> sections <FONT SIZE="-1">SP</FONT> preserves the value which was on
+entry to the <FONT SIZE="-1">XSUB:</FONT> <FONT SIZE="-1">SP</FONT> is on the function pointer (which follows the
+last parameter).  In <FONT SIZE="-1">PPCODE:</FONT> sections <FONT SIZE="-1">SP</FONT> is moved backward to the
+beginning of the parameter list, which allows <TT>&quot;PUSH*()&quot;</TT> macros
+to place output values in the place Perl expects them to be when
+the <FONT SIZE="-1">XSUB</FONT> returns back to Perl.
+<P>
+
+The generated trailer for a <FONT SIZE="-1">CODE:</FONT> section ensures that the number of return
+values Perl will see is either 0 or 1 (depending on the <TT>&quot;void&quot;</TT>ness of the
+return value of the C function, and heuristics mentioned in
+``The <FONT SIZE="-1">RETVAL</FONT> Variable'').  The trailer generated for a <FONT SIZE="-1">PPCODE:</FONT> section
+is based on the number of return values and on the number of times
+<TT>&quot;SP&quot;</TT> was updated by <TT>&quot;[X]PUSH*()&quot;</TT> macros.
+<P>
+
+Note that macros <TT>ST(i)</TT>, <TT>&quot;XST_m*()&quot;</TT> and <TT>&quot;XSRETURN*()&quot;</TT> work equally
+well in <FONT SIZE="-1">CODE:</FONT> sections and <FONT SIZE="-1">PPCODE:</FONT> sections.
+<P>
+
+The following <FONT SIZE="-1">XSUB</FONT> will call the C <I>rpcb_gettime()</I> function
+and will return its two output values, timep and status, to
+Perl as a single list.
+<P>
+
+
+
+<PRE>
+     void
+     rpcb_gettime(host)
+          char *host
+        PREINIT:
+          time_t  timep;
+          bool_t  status;
+        PPCODE:
+          status = rpcb_gettime( host, &amp;timep );
+          EXTEND(SP, 2);
+          PUSHs(sv_2mortal(newSViv(status)));
+          PUSHs(sv_2mortal(newSViv(timep)));
+
+</PRE>
+
+
+<P>
+
+Notice that the programmer must supply the C code necessary
+to have the real <I>rpcb_gettime()</I> function called and to have
+the return values properly placed on the argument stack.
+<P>
+
+The <TT>&quot;void&quot;</TT> return type for this function tells the <B>xsubpp</B> compiler that
+the <FONT SIZE="-1">RETVAL</FONT> variable is not needed or used and that it should not be created.
+In most scenarios the void return type should be used with the <FONT SIZE="-1">PPCODE:</FONT>
+directive.
+<P>
+
+The <FONT SIZE="-1"><I>EXTEND</I></FONT><I>()</I> macro is used to make room on the argument
+stack for 2 return values.  The <FONT SIZE="-1">PPCODE:</FONT> directive causes the
+<B>xsubpp</B> compiler to create a stack pointer available as <TT>&quot;SP&quot;</TT>, and it
+is this pointer which is being used in the <FONT SIZE="-1"><I>EXTEND</I></FONT><I>()</I> macro.
+The values are then pushed onto the stack with the <I>PUSHs()</I>
+macro.
+<P>
+
+Now the <I>rpcb_gettime()</I> function can be used from Perl with
+the following statement.
+<P>
+
+
+
+<PRE>
+     ($status, $timep) = rpcb_gettime(&quot;localhost&quot;);
+
+</PRE>
+
+
+<P>
+
+When handling output parameters with a <FONT SIZE="-1">PPCODE</FONT> section, be sure to handle
+'set' magic properly.  See perlguts for details about 'set' magic.
+<A NAME="lbBB">&nbsp;</A>
+<H2>Returning Undef And Empty Lists</H2>
+
+<A NAME="ixABB"></A>
+Occasionally the programmer will want to return simply
+<TT>&quot;undef&quot;</TT> or an empty list if a function fails rather than a
+separate status value.  The <I>rpcb_gettime()</I> function offers
+just this situation.  If the function succeeds we would like
+to have it return the time and if it fails we would like to
+have undef returned.  In the following Perl code the value
+of <TT>$timep</TT> will either be undef or it will be a valid time.
+<P>
+
+
+
+<PRE>
+     $timep = rpcb_gettime( &quot;localhost&quot; );
+
+</PRE>
+
+
+<P>
+
+The following <FONT SIZE="-1">XSUB</FONT> uses the <TT>&quot;SV *&quot;</TT> return type as a mnemonic only,
+and uses a <FONT SIZE="-1">CODE:</FONT> block to indicate to the compiler
+that the programmer has supplied all the necessary code.  The
+<I>sv_newmortal()</I> call will initialize the return value to undef, making that
+the default return value.
+<P>
+
+
+
+<PRE>
+     SV *
+     rpcb_gettime(host)
+          char *  host
+        PREINIT:
+          time_t  timep;
+          bool_t x;
+        CODE:
+          ST(0) = sv_newmortal();
+          if( rpcb_gettime( host, &amp;timep ) )
+               sv_setnv( ST(0), (double)timep);
+
+</PRE>
+
+
+<P>
+
+The next example demonstrates how one would place an explicit undef in the
+return value, should the need arise.
+<P>
+
+
+
+<PRE>
+     SV *
+     rpcb_gettime(host)
+          char *  host
+        PREINIT:
+          time_t  timep;
+          bool_t x;
+        CODE:
+          ST(0) = sv_newmortal();
+          if( rpcb_gettime( host, &amp;timep ) ){
+               sv_setnv( ST(0), (double)timep);
+          }
+          else{
+               ST(0) = &amp;PL_sv_undef;
+          }
+
+</PRE>
+
+
+<P>
+
+To return an empty list one must use a <FONT SIZE="-1">PPCODE:</FONT> block and
+then not push return values on the stack.
+<P>
+
+
+
+<PRE>
+     void
+     rpcb_gettime(host)
+          char *host
+        PREINIT:
+          time_t  timep;
+        PPCODE:
+          if( rpcb_gettime( host, &amp;timep ) )
+               PUSHs(sv_2mortal(newSViv(timep)));
+          else{
+              /* Nothing pushed on stack, so an empty
+               * list is implicitly returned. */
+          }
+
+</PRE>
+
+
+<P>
+
+Some people may be inclined to include an explicit <TT>&quot;return&quot;</TT> in the above
+<FONT SIZE="-1">XSUB</FONT>, rather than letting control fall through to the end.  In those
+situations <TT>&quot;XSRETURN_EMPTY&quot;</TT> should be used, instead.  This will ensure that
+the <FONT SIZE="-1">XSUB</FONT> stack is properly adjusted.  Consult perlapi for other
+<TT>&quot;XSRETURN&quot;</TT> macros.
+<P>
+
+Since <TT>&quot;XSRETURN_*&quot;</TT> macros can be used with <FONT SIZE="-1">CODE</FONT> blocks as well, one can
+rewrite this example as:
+<P>
+
+
+
+<PRE>
+     int
+     rpcb_gettime(host)
+          char *host
+        PREINIT:
+          time_t  timep;
+        CODE:
+          RETVAL = rpcb_gettime( host, &amp;timep );
+          if (RETVAL == 0)
+                XSRETURN_UNDEF;
+        OUTPUT:
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+In fact, one can put this check into a <FONT SIZE="-1">POSTCALL:</FONT> section as well.  Together
+with <FONT SIZE="-1">PREINIT:</FONT> simplifications, this leads to:
+<P>
+
+
+
+<PRE>
+     int
+     rpcb_gettime(host)
+          char *host
+          time_t  timep;
+        POSTCALL:
+          if (RETVAL == 0)
+                XSRETURN_UNDEF;
+
+</PRE>
+
+
+<A NAME="lbBC">&nbsp;</A>
+<H2>The <FONT SIZE="-1">REQUIRE:</FONT> Keyword</H2>
+
+<A NAME="ixABC"></A>
+The <FONT SIZE="-1">REQUIRE:</FONT> keyword is used to indicate the minimum version of the
+<B>xsubpp</B> compiler needed to compile the <FONT SIZE="-1">XS</FONT> module.  An <FONT SIZE="-1">XS</FONT> module which
+contains the following statement will compile with only <B>xsubpp</B> version
+1.922 or greater:
+<P>
+
+
+
+<PRE>
+        REQUIRE: 1.922
+
+</PRE>
+
+
+<A NAME="lbBD">&nbsp;</A>
+<H2>The <FONT SIZE="-1">CLEANUP:</FONT> Keyword</H2>
+
+<A NAME="ixABD"></A>
+This keyword can be used when an <FONT SIZE="-1">XSUB</FONT> requires special cleanup procedures
+before it terminates.  When the <FONT SIZE="-1">CLEANUP:</FONT>  keyword is used it must follow
+any <FONT SIZE="-1">CODE:</FONT>, <FONT SIZE="-1">PPCODE:</FONT>, or <FONT SIZE="-1">OUTPUT:</FONT> blocks which are present in the <FONT SIZE="-1">XSUB</FONT>.  The
+code specified for the cleanup block will be added as the last statements
+in the <FONT SIZE="-1">XSUB</FONT>.
+<A NAME="lbBE">&nbsp;</A>
+<H2>The <FONT SIZE="-1">POSTCALL:</FONT> Keyword</H2>
+
+<A NAME="ixABE"></A>
+This keyword can be used when an <FONT SIZE="-1">XSUB</FONT> requires special procedures
+executed after the C subroutine call is performed.  When the <FONT SIZE="-1">POSTCALL:</FONT>
+keyword is used it must precede <FONT SIZE="-1">OUTPUT:</FONT> and <FONT SIZE="-1">CLEANUP:</FONT> blocks which are
+present in the <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+See examples in ``The <FONT SIZE="-1">NO_OUTPUT</FONT> Keyword'' and ``Returning Undef And Empty Lists''.
+<P>
+
+The <FONT SIZE="-1">POSTCALL:</FONT> block does not make a lot of sense when the C subroutine
+call is supplied by user by providing either <FONT SIZE="-1">CODE:</FONT> or <FONT SIZE="-1">PPCODE:</FONT> section.
+<A NAME="lbBF">&nbsp;</A>
+<H2>The <FONT SIZE="-1">BOOT:</FONT> Keyword</H2>
+
+<A NAME="ixABF"></A>
+The <FONT SIZE="-1">BOOT:</FONT> keyword is used to add code to the extension's bootstrap
+function.  The bootstrap function is generated by the <B>xsubpp</B> compiler and
+normally holds the statements necessary to register any XSUBs with Perl.
+With the <FONT SIZE="-1">BOOT:</FONT> keyword the programmer can tell the compiler to add extra
+statements to the bootstrap function.
+<P>
+
+This keyword may be used any time after the first <FONT SIZE="-1">MODULE</FONT> keyword and should
+appear on a line by itself.  The first blank line after the keyword will
+terminate the code block.
+<P>
+
+
+
+<PRE>
+     BOOT:
+     # The following message will be printed when the
+     # bootstrap function executes.
+     printf(&quot;Hello from the bootstrap!\n&quot;);
+
+</PRE>
+
+
+<A NAME="lbBG">&nbsp;</A>
+<H2>The <FONT SIZE="-1">VERSIONCHECK:</FONT> Keyword</H2>
+
+<A NAME="ixABG"></A>
+The <FONT SIZE="-1">VERSIONCHECK:</FONT> keyword corresponds to <B>xsubpp</B>'s <TT>&quot;-versioncheck&quot;</TT> and
+<TT>&quot;-noversioncheck&quot;</TT> options.  This keyword overrides the command line
+options.  Version checking is enabled by default.  When version checking is
+enabled the <FONT SIZE="-1">XS</FONT> module will attempt to verify that its version matches the
+version of the <FONT SIZE="-1">PM</FONT> module.
+<P>
+
+To enable version checking:
+<P>
+
+
+
+<PRE>
+    VERSIONCHECK: ENABLE
+
+</PRE>
+
+
+<P>
+
+To disable version checking:
+<P>
+
+
+
+<PRE>
+    VERSIONCHECK: DISABLE
+
+</PRE>
+
+
+<A NAME="lbBH">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PROTOTYPES:</FONT> Keyword</H2>
+
+<A NAME="ixABH"></A>
+The <FONT SIZE="-1">PROTOTYPES:</FONT> keyword corresponds to <B>xsubpp</B>'s <TT>&quot;-prototypes&quot;</TT> and
+<TT>&quot;-noprototypes&quot;</TT> options.  This keyword overrides the command line options.
+Prototypes are enabled by default.  When prototypes are enabled XSUBs will
+be given Perl prototypes.  This keyword may be used multiple times in an <FONT SIZE="-1">XS</FONT>
+module to enable and disable prototypes for different parts of the module.
+<P>
+
+To enable prototypes:
+<P>
+
+
+
+<PRE>
+    PROTOTYPES: ENABLE
+
+</PRE>
+
+
+<P>
+
+To disable prototypes:
+<P>
+
+
+
+<PRE>
+    PROTOTYPES: DISABLE
+
+</PRE>
+
+
+<A NAME="lbBI">&nbsp;</A>
+<H2>The <FONT SIZE="-1">PROTOTYPE:</FONT> Keyword</H2>
+
+<A NAME="ixABI"></A>
+This keyword is similar to the <FONT SIZE="-1">PROTOTYPES:</FONT> keyword above but can be used to
+force <B>xsubpp</B> to use a specific prototype for the <FONT SIZE="-1">XSUB</FONT>.  This keyword
+overrides all other prototype options and keywords but affects only the
+current <FONT SIZE="-1">XSUB</FONT>.  Consult ``Prototypes'' in perlsub for information about Perl
+prototypes.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(timep, ...)
+          time_t timep = NO_INIT
+        PROTOTYPE: $;$
+        PREINIT:
+          char *host = &quot;localhost&quot;;
+          STRLEN n_a;
+        CODE:
+                  if( items &gt; 1 )
+                       host = (char *)SvPV(<A HREF="../man1/ST.1.php">ST</A>(1), n_a);
+                  RETVAL = rpcb_gettime( host, &amp;timep );
+        OUTPUT:
+          timep
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+If the prototypes are enabled, you can disable it locally for a given
+<FONT SIZE="-1">XSUB</FONT> as in the following example:
+<P>
+
+
+
+<PRE>
+    void
+    rpcb_gettime_noproto()
+        PROTOTYPE: DISABLE
+    ...
+
+</PRE>
+
+
+<A NAME="lbBJ">&nbsp;</A>
+<H2>The <FONT SIZE="-1">ALIAS:</FONT> Keyword</H2>
+
+<A NAME="ixABJ"></A>
+The <FONT SIZE="-1">ALIAS:</FONT> keyword allows an <FONT SIZE="-1">XSUB</FONT> to have two or more unique Perl names
+and to know which of those names was used when it was invoked.  The Perl
+names may be fully-qualified with package names.  Each alias is given an
+index.  The compiler will setup a variable called <TT>&quot;ix&quot;</TT> which contain the
+index of the alias which was used.  When the <FONT SIZE="-1">XSUB</FONT> is called with its
+declared name <TT>&quot;ix&quot;</TT> will be 0.
+<P>
+
+The following example will create aliases <TT>&quot;FOO::gettime()&quot;</TT> and
+<TT>&quot;BAR::getit()&quot;</TT> for this function.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        ALIAS:
+            FOO::gettime = 1
+            BAR::getit = 2
+        INIT:
+          printf(&quot;# ix = %d\n&quot;, ix );
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<A NAME="lbBK">&nbsp;</A>
+<H2>The <FONT SIZE="-1">OVERLOAD:</FONT> Keyword</H2>
+
+<A NAME="ixABK"></A>
+Instead of writing an overloaded interface using pure Perl, you
+can also use the <FONT SIZE="-1">OVERLOAD</FONT> keyword to define additional Perl names
+for your functions (like the <FONT SIZE="-1">ALIAS:</FONT> keyword above).  However, the
+overloaded functions must be defined with three parameters (except
+for the <I>nomethod()</I> function which needs four parameters).  If any
+function has the <FONT SIZE="-1">OVERLOAD:</FONT> keyword, several additional lines
+will be defined in the c file generated by xsubpp in order to 
+register with the overload magic.
+<P>
+
+Since blessed objects are actually stored as <FONT SIZE="-1">RV</FONT>'s, it is useful
+to use the typemap features to preprocess parameters and extract
+the actual <FONT SIZE="-1">SV</FONT> stored within the blessed <FONT SIZE="-1">RV</FONT>. See the sample for
+T_PTROBJ_SPECIAL below.
+<P>
+
+To use the <FONT SIZE="-1">OVERLOAD:</FONT> keyword, create an <FONT SIZE="-1">XS</FONT> function which takes
+three input parameters ( or use the c style '...' definition) like
+this:
+<P>
+
+
+
+<PRE>
+    SV *
+    cmp (lobj, robj, swap)
+    My_Module_obj    lobj
+    My_Module_obj    robj
+    IV               swap
+    OVERLOAD: cmp &lt;=&gt;
+    { /* function defined here */}
+
+</PRE>
+
+
+<P>
+
+In this case, the function will overload both of the three way
+comparison operators.  For all overload operations using non-alpha
+characters, you must type the parameter without quoting, seperating
+multiple overloads with whitespace.  Note that &quot;`` (the stringify 
+overload) should be entered as \''\&quot; (i.e. escaped).
+<A NAME="lbBL">&nbsp;</A>
+<H2>The <FONT SIZE="-1">FALLBACK:</FONT> Keyword</H2>
+
+<A NAME="ixABL"></A>
+In addition to the <FONT SIZE="-1">OVERLOAD</FONT> keyword, if you need to control how
+Perl autogenerates missing overloaded operators, you can set the
+<FONT SIZE="-1">FALLBACK</FONT> keyword in the module header section, like this:
+<P>
+
+
+
+<PRE>
+    MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    FALLBACK: TRUE
+    ...
+
+</PRE>
+
+
+<P>
+
+where <FONT SIZE="-1">FALLBACK</FONT> can take any of the three values <FONT SIZE="-1">TRUE</FONT>, <FONT SIZE="-1">FALSE</FONT>, or
+<FONT SIZE="-1">UNDEF</FONT>.  If you do not set any <FONT SIZE="-1">FALLBACK</FONT> value when using <FONT SIZE="-1">OVERLOAD</FONT>,
+it defaults to <FONT SIZE="-1">UNDEF</FONT>.  <FONT SIZE="-1">FALLBACK</FONT> is not used except when one or 
+more functions using <FONT SIZE="-1">OVERLOAD</FONT> have been defined.  Please see
+``Fallback'' in overload for more details.
+<A NAME="lbBM">&nbsp;</A>
+<H2>The <FONT SIZE="-1">INTERFACE:</FONT> Keyword</H2>
+
+<A NAME="ixABM"></A>
+This keyword declares the current <FONT SIZE="-1">XSUB</FONT> as a keeper of the given
+calling signature.  If some text follows this keyword, it is
+considered as a list of functions which have this signature, and
+should be attached to the current <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+For example, if you have 4 C functions <I>multiply()</I>, <I>divide()</I>, <I>add()</I>,
+<I>subtract()</I> all having the signature:
+<P>
+
+
+
+<PRE>
+    symbolic f(symbolic, symbolic);
+
+</PRE>
+
+
+<P>
+
+you can make them all to use the same <FONT SIZE="-1">XSUB</FONT> using this:
+<P>
+
+
+
+<PRE>
+    symbolic
+    interface_s_ss(arg1, arg2)  
+        symbolic        arg1
+        symbolic        arg2
+    INTERFACE:
+        multiply divide 
+        add subtract
+
+</PRE>
+
+
+<P>
+
+(This is the complete <FONT SIZE="-1">XSUB</FONT> code for 4 Perl functions!)  Four generated
+Perl function share names with corresponding C functions.
+<P>
+
+The advantage of this approach comparing to <FONT SIZE="-1">ALIAS:</FONT> keyword is that there
+is no need to code a switch statement, each Perl function (which shares
+the same <FONT SIZE="-1">XSUB</FONT>) knows which C function it should call.  Additionally, one
+can attach an extra function <I>remainder()</I> at runtime by using
+<P>
+
+
+
+<PRE>
+    CV *mycv = newXSproto(&quot;Symbolic::remainder&quot;, 
+                          XS_Symbolic_interface_s_ss, __FILE__, &quot;$$&quot;);
+    XSINTERFACE_FUNC_SET(mycv, remainder);
+
+</PRE>
+
+
+<P>
+
+say, from another <FONT SIZE="-1">XSUB</FONT>.  (This example supposes that there was no
+<FONT SIZE="-1">INTERFACE_MACRO:</FONT> section, otherwise one needs to use something else instead of
+<TT>&quot;XSINTERFACE_FUNC_SET&quot;</TT>, see the next section.)
+<A NAME="lbBN">&nbsp;</A>
+<H2>The <FONT SIZE="-1">INTERFACE_MACRO:</FONT> Keyword</H2>
+
+<A NAME="ixABN"></A>
+This keyword allows one to define an <FONT SIZE="-1">INTERFACE</FONT> using a different way
+to extract a function pointer from an <FONT SIZE="-1">XSUB</FONT>.  The text which follows
+this keyword should give the name of macros which would extract/set a
+function pointer.  The extractor macro is given return type, <TT>&quot;CV*&quot;</TT>,
+and <TT>&quot;XSANY.any_dptr&quot;</TT> for this <TT>&quot;CV*&quot;</TT>.  The setter macro is given cv,
+and the function pointer.
+<P>
+
+The default value is <TT>&quot;XSINTERFACE_FUNC&quot;</TT> and <TT>&quot;XSINTERFACE_FUNC_SET&quot;</TT>.
+An <FONT SIZE="-1">INTERFACE</FONT> keyword with an empty list of functions can be omitted if
+<FONT SIZE="-1">INTERFACE_MACRO</FONT> keyword is used.
+<P>
+
+Suppose that in the previous example functions pointers for 
+<I>multiply()</I>, <I>divide()</I>, <I>add()</I>, <I>subtract()</I> are kept in a global C array
+<TT>&quot;fp[]&quot;</TT> with offsets being <TT>&quot;multiply_off&quot;</TT>, <TT>&quot;divide_off&quot;</TT>, <TT>&quot;add_off&quot;</TT>,
+<TT>&quot;subtract_off&quot;</TT>.  Then one can use 
+<P>
+
+
+
+<PRE>
+    #define XSINTERFACE_FUNC_BYOFFSET(ret,cv,f) \
+        ((XSINTERFACE_CVT(ret,))fp[CvXSUBANY(cv).any_i32])
+    #define XSINTERFACE_FUNC_BYOFFSET_set(cv,f) \
+        CvXSUBANY(cv).any_i32 = CAT2( f, _off )
+
+</PRE>
+
+
+<P>
+
+in C section,
+<P>
+
+
+
+<PRE>
+    symbolic
+    interface_s_ss(arg1, arg2)  
+        symbolic        arg1
+        symbolic        arg2
+      INTERFACE_MACRO: 
+        XSINTERFACE_FUNC_BYOFFSET
+        XSINTERFACE_FUNC_BYOFFSET_set
+      INTERFACE:
+        multiply divide 
+        add subtract
+
+</PRE>
+
+
+<P>
+
+in <FONT SIZE="-1">XSUB</FONT> section.
+<A NAME="lbBO">&nbsp;</A>
+<H2>The <FONT SIZE="-1">INCLUDE:</FONT> Keyword</H2>
+
+<A NAME="ixABO"></A>
+This keyword can be used to pull other files into the <FONT SIZE="-1">XS</FONT> module.  The other
+files may have <FONT SIZE="-1">XS</FONT> code.  <FONT SIZE="-1">INCLUDE:</FONT> can also be used to run a command to
+generate the <FONT SIZE="-1">XS</FONT> code to be pulled into the module.
+<P>
+
+The file <I>Rpcb1.xsh</I> contains our <TT>&quot;rpcb_gettime()&quot;</TT> function:
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">XS</FONT> module can use <FONT SIZE="-1">INCLUDE:</FONT> to pull that file into it.
+<P>
+
+
+
+<PRE>
+    INCLUDE: Rpcb1.xsh
+
+</PRE>
+
+
+<P>
+
+If the parameters to the <FONT SIZE="-1">INCLUDE:</FONT> keyword are followed by a pipe (<TT>&quot;|&quot;</TT>) then
+the compiler will interpret the parameters as a command.
+<P>
+
+
+
+<PRE>
+    INCLUDE: cat Rpcb1.xsh |
+
+</PRE>
+
+
+<A NAME="lbBP">&nbsp;</A>
+<H2>The <FONT SIZE="-1">CASE:</FONT> Keyword</H2>
+
+<A NAME="ixABP"></A>
+The <FONT SIZE="-1">CASE:</FONT> keyword allows an <FONT SIZE="-1">XSUB</FONT> to have multiple distinct parts with each
+part acting as a virtual <FONT SIZE="-1">XSUB</FONT>.  <FONT SIZE="-1">CASE:</FONT> is greedy and if it is used then all
+other <FONT SIZE="-1">XS</FONT> keywords must be contained within a <FONT SIZE="-1">CASE:</FONT>.  This means nothing may
+precede the first <FONT SIZE="-1">CASE:</FONT> in the <FONT SIZE="-1">XSUB</FONT> and anything following the last <FONT SIZE="-1">CASE:</FONT> is
+included in that case.
+<P>
+
+A <FONT SIZE="-1">CASE:</FONT> might switch via a parameter of the <FONT SIZE="-1">XSUB</FONT>, via the <TT>&quot;ix&quot;</TT> <FONT SIZE="-1">ALIAS:</FONT>
+variable (see ``The <FONT SIZE="-1">ALIAS:</FONT> Keyword''), or maybe via the <TT>&quot;items&quot;</TT> variable
+(see ``Variable-length Parameter Lists'').  The last <FONT SIZE="-1">CASE:</FONT> becomes the
+<B>default</B> case if it is not associated with a conditional.  The following
+example shows <FONT SIZE="-1">CASE</FONT> switched via <TT>&quot;ix&quot;</TT> with a function <TT>&quot;rpcb_gettime()&quot;</TT>
+having an alias <TT>&quot;x_gettime()&quot;</TT>.  When the function is called as
+<TT>&quot;rpcb_gettime()&quot;</TT> its parameters are the usual <TT>&quot;(char *host, time_t *timep)&quot;</TT>,
+but when the function is called as <TT>&quot;x_gettime()&quot;</TT> its parameters are
+reversed, <TT>&quot;(time_t *timep, char *host)&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    long
+    rpcb_gettime(a,b)
+      CASE: ix == 1
+        ALIAS:
+          x_gettime = 1
+        INPUT:
+          # 'a' is timep, 'b' is host
+          char *b
+          time_t a = NO_INIT
+        CODE:
+               RETVAL = rpcb_gettime( b, &amp;a );
+        OUTPUT:
+          a
+          RETVAL
+      CASE:
+          # 'a' is host, 'b' is timep
+          char *a
+          time_t &amp;b = NO_INIT
+        OUTPUT:
+          b
+          RETVAL
+
+</PRE>
+
+
+<P>
+
+That function can be called with either of the following statements.  Note
+the different argument lists.
+<P>
+
+
+
+<PRE>
+        $status = rpcb_gettime( $host, $timep );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        $status = x_gettime( $timep, $host );
+
+</PRE>
+
+
+<A NAME="lbBQ">&nbsp;</A>
+<H2>The &amp; Unary Operator</H2>
+
+<A NAME="ixABQ"></A>
+The <TT>&quot;&amp;&quot;</TT> unary operator in the <FONT SIZE="-1">INPUT:</FONT> section is used to tell <B>xsubpp</B>
+that it should convert a Perl value to/from C using the C type to the left
+of <TT>&quot;&amp;&quot;</TT>, but provide a pointer to this value when the C function is called.
+<P>
+
+This is useful to avoid a <FONT SIZE="-1">CODE:</FONT> block for a C function which takes a parameter
+by reference.  Typically, the parameter should be not a pointer type (an
+<TT>&quot;int&quot;</TT> or <TT>&quot;long&quot;</TT> but not an <TT>&quot;int*&quot;</TT> or <TT>&quot;long*&quot;</TT>).
+<P>
+
+The following <FONT SIZE="-1">XSUB</FONT> will generate incorrect C code.  The <B>xsubpp</B> compiler will
+turn this into code which calls <TT>&quot;rpcb_gettime()&quot;</TT> with parameters <TT>&quot;(char
+*host, time_t timep)&quot;</TT>, but the real <TT>&quot;rpcb_gettime()&quot;</TT> wants the <TT>&quot;timep&quot;</TT>
+parameter to be of type <TT>&quot;time_t*&quot;</TT> rather than <TT>&quot;time_t&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+          time_t timep
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<P>
+
+That problem is corrected by using the <TT>&quot;&amp;&quot;</TT> operator.  The <B>xsubpp</B> compiler
+will now turn this into code which calls <TT>&quot;rpcb_gettime()&quot;</TT> correctly with
+parameters <TT>&quot;(char *host, time_t *timep)&quot;</TT>.  It does this by carrying the
+<TT>&quot;&amp;&quot;</TT> through, so the function call looks like <TT>&quot;rpcb_gettime(host, &amp;timep)&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    bool_t
+    rpcb_gettime(host,timep)
+          char *host
+          time_t &amp;timep
+        OUTPUT:
+          timep
+
+</PRE>
+
+
+<A NAME="lbBR">&nbsp;</A>
+<H2>Inserting <FONT SIZE="-1">POD</FONT>, Comments and C Preprocessor Directives</H2>
+
+<A NAME="ixABR"></A>
+C preprocessor directives are allowed within <FONT SIZE="-1">BOOT:</FONT>, <FONT SIZE="-1">PREINIT:</FONT> <FONT SIZE="-1">INIT:</FONT>, <FONT SIZE="-1">CODE:</FONT>,
+<FONT SIZE="-1">PPCODE:</FONT>, <FONT SIZE="-1">POSTCALL:</FONT>, and <FONT SIZE="-1">CLEANUP:</FONT> blocks, as well as outside the functions.
+Comments are allowed anywhere after the <FONT SIZE="-1">MODULE</FONT> keyword.  The compiler will
+pass the preprocessor directives through untouched and will remove the
+commented lines. <FONT SIZE="-1">POD</FONT> documentation is allowed at any point, both in the
+C and <FONT SIZE="-1">XS</FONT> language sections. <FONT SIZE="-1">POD</FONT> must be terminated with a <TT>&quot;=cut&quot;</TT> command;
+<TT>&quot;xsubpp&quot;</TT> will exit with an error if it does not. It is very unlikely that
+human generated C code will be mistaken for <FONT SIZE="-1">POD</FONT>, as most indenting styles
+result in whitespace in front of any line starting with <TT>&quot;=&quot;</TT>. Machine
+generated <FONT SIZE="-1">XS</FONT> files may fall into this trap unless care is taken to
+ensure that a space breaks the sequence ``\n=''.
+<P>
+
+Comments can be added to XSUBs by placing a <TT>&quot;#&quot;</TT> as the first
+non-whitespace of a line.  Care should be taken to avoid making the
+comment look like a C preprocessor directive, lest it be interpreted as
+such.  The simplest way to prevent this is to put whitespace in front of
+the <TT>&quot;#&quot;</TT>.
+<P>
+
+If you use preprocessor directives to choose one of two
+versions of a function, use
+<P>
+
+
+
+<PRE>
+    #if ... version1
+    #else /* ... version2  */
+    #endif
+
+</PRE>
+
+
+<P>
+
+and not
+<P>
+
+
+
+<PRE>
+    #if ... version1
+    #endif
+    #if ... version2
+    #endif
+
+</PRE>
+
+
+<P>
+
+because otherwise <B>xsubpp</B> will believe that you made a duplicate
+definition of the function.  Also, put a blank line before the
+#else/#endif so it will not be seen as part of the function body.
+<A NAME="lbBS">&nbsp;</A>
+<H2>Using <FONT SIZE="-1">XS</FONT> With C<FONT SIZE="-2">++</FONT></H2>
+
+<A NAME="ixABS"></A>
+If an <FONT SIZE="-1">XSUB</FONT> name contains <TT>&quot;::&quot;</TT>, it is considered to be a C<FONT SIZE="-2">++</FONT> method.
+The generated Perl function will assume that
+its first argument is an object pointer.  The object pointer
+will be stored in a variable called <FONT SIZE="-1">THIS</FONT>.  The object should
+have been created by C<FONT SIZE="-2">++</FONT> with the <I>new()</I> function and should
+be blessed by Perl with the <I>sv_setref_pv()</I> macro.  The
+blessing of the object by Perl can be handled by a typemap.  An example
+typemap is shown at the end of this section.
+<P>
+
+If the return type of the <FONT SIZE="-1">XSUB</FONT> includes <TT>&quot;static&quot;</TT>, the method is considered
+to be a static method.  It will call the C<FONT SIZE="-2">++</FONT>
+function using the <I>class::method()</I> syntax.  If the method is not static
+the function will be called using the <FONT SIZE="-1">THIS-</FONT>&gt;<I>method()</I> syntax.
+<P>
+
+The next examples will use the following C<FONT SIZE="-2">++</FONT> class.
+<P>
+
+
+
+<PRE>
+     class color {
+          public:
+          color();
+          ~color();
+          int blue();
+          void set_blue( int );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+          private:
+          int c_blue;
+     };
+
+</PRE>
+
+
+<P>
+
+The XSUBs for the <I>blue()</I> and <I>set_blue()</I> methods are defined with the class
+name but the parameter for the object (<FONT SIZE="-1">THIS</FONT>, or ``self'') is implicit and is
+not listed.
+<P>
+
+
+
+<PRE>
+     int
+     color::blue()
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     void
+     color::set_blue( val )
+          int val
+
+</PRE>
+
+
+<P>
+
+Both Perl functions will expect an object as the first parameter.  In the 
+generated C<FONT SIZE="-2">++</FONT> code the object is called <TT>&quot;THIS&quot;</TT>, and the method call will
+be performed on this object.  So in the C<FONT SIZE="-2">++</FONT> code the <I>blue()</I> and <I>set_blue()</I>
+methods will be called as this:
+<P>
+
+
+
+<PRE>
+     RETVAL = THIS-&gt;blue();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     THIS-&gt;set_blue( val );
+
+</PRE>
+
+
+<P>
+
+You could also write a single get/set method using an optional argument:
+<P>
+
+
+
+<PRE>
+     int
+     color::blue( val = NO_INIT )
+         int val
+         PROTOTYPE $;$
+         CODE:
+             if (items &gt; 1)
+                 THIS-&gt;set_blue( val );
+             RETVAL = THIS-&gt;blue();
+         OUTPUT:
+             RETVAL
+
+</PRE>
+
+
+<P>
+
+If the function's name is <B></B><FONT SIZE="-1"><B>DESTROY</B></FONT><B></B> then the C<FONT SIZE="-2">++</FONT> <TT>&quot;delete&quot;</TT> function will be
+called and <TT>&quot;THIS&quot;</TT> will be given as its parameter.  The generated C<FONT SIZE="-2">++</FONT> code for
+<P>
+
+
+
+<PRE>
+     void
+     color::DESTROY()
+
+</PRE>
+
+
+<P>
+
+will look like this:
+<P>
+
+
+
+<PRE>
+     color *THIS = ...; // Initialized as in typemap
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     delete THIS;
+
+</PRE>
+
+
+<P>
+
+If the function's name is <B>new</B> then the C<FONT SIZE="-2">++</FONT> <TT>&quot;new&quot;</TT> function will be called
+to create a dynamic C<FONT SIZE="-2">++</FONT> object.  The <FONT SIZE="-1">XSUB</FONT> will expect the class name, which
+will be kept in a variable called <TT>&quot;CLASS&quot;</TT>, to be given as the first
+argument.
+<P>
+
+
+
+<PRE>
+     color *
+     color::new()
+
+</PRE>
+
+
+<P>
+
+The generated C<FONT SIZE="-2">++</FONT> code will call <TT>&quot;new&quot;</TT>.
+<P>
+
+
+
+<PRE>
+     RETVAL = new color();
+
+</PRE>
+
+
+<P>
+
+The following is an example of a typemap that could be used for this C<FONT SIZE="-2">++</FONT>
+example.
+<P>
+
+
+
+<PRE>
+    TYPEMAP
+    color *             O_OBJECT
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    OUTPUT
+    # The Perl object is blessed into 'CLASS', which should be a
+    # char* having the name of the package for the blessing.
+    O_OBJECT
+        sv_setref_pv( $arg, CLASS, (void*)$var );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    INPUT
+    O_OBJECT
+        if( sv_isobject($arg) &amp;&amp; (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+                $var = ($type)SvIV((SV*)SvRV( $arg ));
+        else{
+                warn( \&quot;${Package}::$func_name() -- $var is not a blessed SV reference\&quot; );
+                XSRETURN_UNDEF;
+        }
+
+</PRE>
+
+
+<A NAME="lbBT">&nbsp;</A>
+<H2>Interface Strategy</H2>
+
+<A NAME="ixABT"></A>
+When designing an interface between Perl and a C library a straight
+translation from C to <FONT SIZE="-1">XS</FONT> (such as created by <TT>&quot;h2xs -x&quot;</TT>) is often sufficient.
+However, sometimes the interface will look
+very C-like and occasionally nonintuitive, especially when the C function
+modifies one of its parameters, or returns failure inband (as in ``negative
+return values mean failure'').  In cases where the programmer wishes to
+create a more Perl-like interface the following strategy may help to
+identify the more critical parts of the interface.
+<P>
+
+Identify the C functions with input/output or output parameters.  The XSUBs for
+these functions may be able to return lists to Perl.
+<P>
+
+Identify the C functions which use some inband info as an indication
+of failure.  They may be
+candidates to return undef or an empty list in case of failure.  If the
+failure may be detected without a call to the C function, you may want to use
+an <FONT SIZE="-1">INIT:</FONT> section to report the failure.  For failures detectable after the C
+function returns one may want to use a <FONT SIZE="-1">POSTCALL:</FONT> section to process the
+failure.  In more complicated cases use <FONT SIZE="-1">CODE:</FONT> or <FONT SIZE="-1">PPCODE:</FONT> sections.
+<P>
+
+If many functions use the same failure indication based on the return value,
+you may want to create a special typedef to handle this situation.  Put
+<P>
+
+
+
+<PRE>
+  typedef int negative_is_failure;
+
+</PRE>
+
+
+<P>
+
+near the beginning of <FONT SIZE="-1">XS</FONT> file, and create an <FONT SIZE="-1">OUTPUT</FONT> typemap entry
+for <TT>&quot;negative_is_failure&quot;</TT> which converts negative values to <TT>&quot;undef&quot;</TT>, or
+maybe <I>croak()</I>s.  After this the return value of type <TT>&quot;negative_is_failure&quot;</TT>
+will create more Perl-like interface.
+<P>
+
+Identify which values are used by only the C and <FONT SIZE="-1">XSUB</FONT> functions
+themselves, say, when a parameter to a function should be a contents of a
+global variable.  If Perl does not need to access the contents of the value
+then it may not be necessary to provide a translation for that value
+from C to Perl.
+<P>
+
+Identify the pointers in the C function parameter lists and return
+values.  Some pointers may be used to implement input/output or
+output parameters, they can be handled in <FONT SIZE="-1">XS</FONT> with the <TT>&quot;&amp;&quot;</TT> unary operator,
+and, possibly, using the <FONT SIZE="-1">NO_INIT</FONT> keyword.
+Some others will require handling of types like <TT>&quot;int *&quot;</TT>, and one needs
+to decide what a useful Perl translation will do in such a case.  When
+the semantic is clear, it is advisable to put the translation into a typemap
+file.
+<P>
+
+Identify the structures used by the C functions.  In many
+cases it may be helpful to use the T_PTROBJ typemap for
+these structures so they can be manipulated by Perl as
+blessed objects.  (This is handled automatically by <TT>&quot;h2xs -x&quot;</TT>.)
+<P>
+
+If the same C type is used in several different contexts which require
+different translations, <TT>&quot;typedef&quot;</TT> several new types mapped to this C type,
+and create separate <I>typemap</I> entries for these new types.  Use these
+types in declarations of return type and parameters to XSUBs.
+<A NAME="lbBU">&nbsp;</A>
+<H2>Perl Objects And C Structures</H2>
+
+<A NAME="ixABU"></A>
+When dealing with C structures one should select either
+<B>T_PTROBJ</B> or <B>T_PTRREF</B> for the <FONT SIZE="-1">XS</FONT> type.  Both types are
+designed to handle pointers to complex objects.  The
+T_PTRREF type will allow the Perl object to be unblessed
+while the T_PTROBJ type requires that the object be blessed.
+By using T_PTROBJ one can achieve a form of type-checking
+because the <FONT SIZE="-1">XSUB</FONT> will attempt to verify that the Perl object
+is of the expected type.
+<P>
+
+The following <FONT SIZE="-1">XS</FONT> code shows the <I>getnetconfigent()</I> function which is used
+with <FONT SIZE="-1">ONC+</FONT> <FONT SIZE="-1">TIRPC</FONT>.  The <I>getnetconfigent()</I> function will return a pointer to a
+C structure and has the C prototype shown below.  The example will
+demonstrate how the C pointer will become a Perl reference.  Perl will
+consider this reference to be a pointer to a blessed object and will
+attempt to call a destructor for the object.  A destructor will be
+provided in the <FONT SIZE="-1">XS</FONT> source to free the memory used by <I>getnetconfigent()</I>.
+Destructors in <FONT SIZE="-1">XS</FONT> can be created by specifying an <FONT SIZE="-1">XSUB</FONT> function whose name
+ends with the word <B></B><FONT SIZE="-1"><B>DESTROY</B></FONT><B></B>.  <FONT SIZE="-1">XS</FONT> destructors can be used to free memory
+which may have been malloc'd by another <FONT SIZE="-1">XSUB</FONT>.
+<P>
+
+
+
+<PRE>
+     struct netconfig *getnetconfigent(const char *netid);
+
+</PRE>
+
+
+<P>
+
+A <TT>&quot;typedef&quot;</TT> will be created for <TT>&quot;struct netconfig&quot;</TT>.  The Perl
+object will be blessed in a class matching the name of the C
+type, with the tag <TT>&quot;Ptr&quot;</TT> appended, and the name should not
+have embedded spaces if it will be a Perl package name.  The
+destructor will be placed in a class corresponding to the
+class of the object and the <FONT SIZE="-1">PREFIX</FONT> keyword will be used to
+trim the name to the word <FONT SIZE="-1">DESTROY</FONT> as Perl will expect.
+<P>
+
+
+
+<PRE>
+     typedef struct netconfig Netconfig;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     Netconfig *
+     getnetconfigent(netid)
+          char *netid
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = NetconfigPtr  PREFIX = rpcb_
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     void
+     rpcb_DESTROY(netconf)
+          Netconfig *netconf
+        CODE:
+          printf(&quot;Now in NetconfigPtr::DESTROY\n&quot;);
+          free( netconf );
+
+</PRE>
+
+
+<P>
+
+This example requires the following typemap entry.  Consult the typemap
+section for more information about adding new typemaps for an extension.
+<P>
+
+
+
+<PRE>
+     TYPEMAP
+     Netconfig *  T_PTROBJ
+
+</PRE>
+
+
+<P>
+
+This example will be used with the following Perl statements.
+<P>
+
+
+
+<PRE>
+     use RPC;
+     $netconf = getnetconfigent(&quot;udp&quot;);
+
+</PRE>
+
+
+<P>
+
+When Perl destroys the object referenced by <TT>$netconf</TT> it will send the
+object to the supplied <FONT SIZE="-1">XSUB</FONT> <FONT SIZE="-1">DESTROY</FONT> function.  Perl cannot determine, and
+does not care, that this object is a C struct and not a Perl object.  In
+this sense, there is no difference between the object created by the
+<I>getnetconfigent()</I> <FONT SIZE="-1">XSUB</FONT> and an object created by a normal Perl subroutine.
+<A NAME="lbBV">&nbsp;</A>
+<H2>The Typemap</H2>
+
+<A NAME="ixABV"></A>
+The typemap is a collection of code fragments which are used by the <B>xsubpp</B>
+compiler to map C function parameters and values to Perl values.  The
+typemap file may consist of three sections labelled <TT>&quot;TYPEMAP&quot;</TT>, <TT>&quot;INPUT&quot;</TT>, and
+<TT>&quot;OUTPUT&quot;</TT>.  An unlabelled initial section is assumed to be a <TT>&quot;TYPEMAP&quot;</TT>
+section.  The <FONT SIZE="-1">INPUT</FONT> section tells
+the compiler how to translate Perl values
+into variables of certain C types.  The <FONT SIZE="-1">OUTPUT</FONT> section tells the compiler
+how to translate the values from certain C types into values Perl can
+understand.  The <FONT SIZE="-1">TYPEMAP</FONT> section tells the compiler which of the <FONT SIZE="-1">INPUT</FONT> and
+<FONT SIZE="-1">OUTPUT</FONT> code fragments should be used to map a given C type to a Perl value.
+The section labels <TT>&quot;TYPEMAP&quot;</TT>, <TT>&quot;INPUT&quot;</TT>, or <TT>&quot;OUTPUT&quot;</TT> must begin
+in the first column on a line by themselves, and must be in uppercase.
+<P>
+
+The default typemap in the <TT>&quot;lib/ExtUtils&quot;</TT> directory of the Perl source
+contains many useful types which can be used by Perl extensions.  Some
+extensions define additional typemaps which they keep in their own directory.
+These additional typemaps may reference <FONT SIZE="-1">INPUT</FONT> and <FONT SIZE="-1">OUTPUT</FONT> maps in the main
+typemap.  The <B>xsubpp</B> compiler will allow the extension's own typemap to
+override any mappings which are in the default typemap.
+<P>
+
+Most extensions which require a custom typemap will need only the <FONT SIZE="-1">TYPEMAP</FONT>
+section of the typemap file.  The custom typemap used in the
+<I>getnetconfigent()</I> example shown earlier demonstrates what may be the typical
+use of extension typemaps.  That typemap is used to equate a C structure
+with the T_PTROBJ typemap.  The typemap used by <I>getnetconfigent()</I> is shown
+here.  Note that the C type is separated from the <FONT SIZE="-1">XS</FONT> type with a tab and
+that the C unary operator <TT>&quot;*&quot;</TT> is considered to be a part of the C type name.
+<P>
+
+
+
+<PRE>
+        TYPEMAP
+        Netconfig *&lt;tab&gt;T_PTROBJ
+
+</PRE>
+
+
+<P>
+
+Here's a more complicated example: suppose that you wanted <TT>&quot;struct
+netconfig&quot;</TT> to be blessed into the class <TT>&quot;Net::Config&quot;</TT>.  One way to do
+this is to use underscores (_) to separate package names, as follows:
+<P>
+
+
+
+<PRE>
+        typedef struct netconfig * Net_Config;
+
+</PRE>
+
+
+<P>
+
+And then provide a typemap entry <TT>&quot;T_PTROBJ_SPECIAL&quot;</TT> that maps underscores to
+double-colons (::), and declare <TT>&quot;Net_Config&quot;</TT> to be of that type:
+<P>
+
+
+
+<PRE>
+        TYPEMAP
+        Net_Config      T_PTROBJ_SPECIAL
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        INPUT
+        T_PTROBJ_SPECIAL
+                if (sv_derived_from($arg, \&quot;${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\&quot;)) {
+                        IV tmp = SvIV((SV*)SvRV($arg));
+                $var = ($type) tmp;
+                }
+                else
+                        croak(\&quot;$var is not of type ${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\&quot;)
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        OUTPUT
+        T_PTROBJ_SPECIAL
+                sv_setref_pv($arg, \&quot;${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\&quot;,
+                (void*)$var);
+
+</PRE>
+
+
+<P>
+
+The <FONT SIZE="-1">INPUT</FONT> and <FONT SIZE="-1">OUTPUT</FONT> sections substitute underscores for double-colons
+on the fly, giving the desired effect.  This example demonstrates some
+of the power and versatility of the typemap facility.
+<A NAME="lbBW">&nbsp;</A>
+<H2>Safely Storing Static Data in <FONT SIZE="-1">XS</FONT></H2>
+
+<A NAME="ixABW"></A>
+Starting with Perl 5.8, a macro framework has been defined to allow
+static data to be safely stored in <FONT SIZE="-1">XS</FONT> modules that will be accessed from
+a multi-threaded Perl.
+<P>
+
+Although primarily designed for use with multi-threaded Perl, the macros
+have been designed so that they will work with non-threaded Perl as well.
+<P>
+
+It is therefore strongly recommended that these macros be used by all
+<FONT SIZE="-1">XS</FONT> modules that make use of static data.
+<P>
+
+The easiest way to get a template set of macros to use is by specifying
+the <TT>&quot;-g&quot;</TT> (<TT>&quot;--global&quot;</TT>) option with h2xs (see h2xs).
+<P>
+
+Below is an example module that makes use of the macros.
+<P>
+
+
+
+<PRE>
+    #include &quot;EXTERN.h&quot;
+    #include &quot;perl.h&quot;
+    #include &quot;XSUB.h&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    /* Global Data */
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    #define MY_CXT_KEY &quot;BlindMice::_guts&quot; XS_VERSION
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    typedef struct {
+        int count;
+        char name[3][100];
+    } my_cxt_t;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    START_MY_CXT
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    MODULE = BlindMice           PACKAGE = BlindMice
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    BOOT:
+    {
+        MY_CXT_INIT;
+        MY_CXT.count = 0;
+        strcpy(MY_CXT.name[0], &quot;None&quot;);
+        strcpy(MY_CXT.name[1], &quot;None&quot;);
+        strcpy(MY_CXT.name[2], &quot;None&quot;);
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    int
+    newMouse(char * name)
+        char * name;
+        PREINIT:
+          dMY_CXT;
+        CODE:
+          if (MY_CXT.count &gt;= 3) {
+              warn(&quot;Already have 3 blind mice&quot;) ;
+              RETVAL = 0;
+          }
+          else {
+              RETVAL = ++ MY_CXT.count;
+              strcpy(MY_CXT.name[MY_CXT.count - 1], name);
+          }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    char *
+    get_mouse_name(index)
+      int index
+      CODE:
+        dMY_CXT;
+        RETVAL = MY_CXT.lives ++;
+        if (index &gt; MY_CXT.count)
+          croak(&quot;There are only 3 blind mice.&quot;);
+        else
+          RETVAL = newSVpv(MY_CXT.name[index - 1]);
+
+</PRE>
+
+
+<P>
+
+<B></B><FONT SIZE="-1"><B>REFERENCE</B></FONT><B></B>
+<DL COMPACT>
+<DT><FONT SIZE="-1">MY_CXT_KEY</FONT><DD>
+<A NAME="ixABX"></A>
+This macro is used to define a unique key to refer to the static data
+for an <FONT SIZE="-1">XS</FONT> module. The suggested naming scheme, as used by h2xs, is to
+use a string that consists of the module name, the string ``::_guts''
+and the module version number.
+
+
+<P>
+
+
+
+
+<PRE>
+    #define MY_CXT_KEY &quot;MyModule::_guts&quot; XS_VERSION
+
+</PRE>
+
+
+<DT>typedef my_cxt_t<DD>
+<A NAME="ixABY"></A>
+This struct typedef <I>must</I> always be called <TT>&quot;my_cxt_t&quot;</TT> --- the other
+<TT>&quot;CXT*&quot;</TT> macros assume the existence of the <TT>&quot;my_cxt_t&quot;</TT> typedef name.
+
+
+<P>
+
+
+Declare a typedef named <TT>&quot;my_cxt_t&quot;</TT> that is a structure that contains
+all the data that needs to be interpreter-local.
+
+
+<P>
+
+
+
+
+<PRE>
+    typedef struct {
+        int some_value;
+    } my_cxt_t;
+
+</PRE>
+
+
+<DT><FONT SIZE="-1">START_MY_CXT</FONT><DD>
+<A NAME="ixABZ"></A>
+Always place the <FONT SIZE="-1">START_MY_CXT</FONT> macro directly after the declaration
+of <TT>&quot;my_cxt_t&quot;</TT>.
+<DT><FONT SIZE="-1">MY_CXT_INIT</FONT><DD>
+<A NAME="ixACA"></A>
+The <FONT SIZE="-1">MY_CXT_INIT</FONT> macro initialises storage for the <TT>&quot;my_cxt_t&quot;</TT> struct.
+
+
+<P>
+
+
+It <I>must</I> be called exactly once --- typically in a <FONT SIZE="-1">BOOT:</FONT> section.
+<DT>dMY_CXT<DD>
+<A NAME="ixACB"></A>
+Use the dMY_CXT macro (a declaration) in all the functions that access
+<FONT SIZE="-1">MY_CXT</FONT>.
+<DT><FONT SIZE="-1">MY_CXT</FONT><DD>
+<A NAME="ixACC"></A>
+Use the <FONT SIZE="-1">MY_CXT</FONT> macro to access members of the <TT>&quot;my_cxt_t&quot;</TT> struct. For
+example, if <TT>&quot;my_cxt_t&quot;</TT> is 
+
+
+<P>
+
+
+
+
+<PRE>
+    typedef struct {
+        int index;
+    } my_cxt_t;
+
+</PRE>
+
+
+
+
+<P>
+
+
+then use this to access the <TT>&quot;index&quot;</TT> member
+
+
+<P>
+
+
+
+
+<PRE>
+    dMY_CXT;
+    MY_CXT.index = 2;
+
+</PRE>
+
+
+</DL>
+<A NAME="lbBX">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixACD"></A>
+File <TT>&quot;RPC.xs&quot;</TT>: Interface to some <FONT SIZE="-1">ONC+</FONT> <FONT SIZE="-1">RPC</FONT> bind library functions.
+<P>
+
+
+
+<PRE>
+     #include &quot;EXTERN.h&quot;
+     #include &quot;perl.h&quot;
+     #include &quot;XSUB.h&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     #include &lt;<A HREF="file:/usr/include/rpc/rpc.h">rpc/rpc.h</A>&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     typedef struct netconfig Netconfig;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = RPC
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     SV *
+     rpcb_gettime(host=&quot;localhost&quot;)
+          char *host
+        PREINIT:
+          time_t  timep;
+        CODE:
+          ST(0) = sv_newmortal();
+          if( rpcb_gettime( host, &amp;timep ) )
+               sv_setnv( ST(0), (double)timep );
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     Netconfig *
+     getnetconfigent(netid=&quot;udp&quot;)
+          char *netid
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     MODULE = RPC  PACKAGE = NetconfigPtr  PREFIX = rpcb_
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     void
+     rpcb_DESTROY(netconf)
+          Netconfig *netconf
+        CODE:
+          printf(&quot;NetconfigPtr::DESTROY\n&quot;);
+          free( netconf );
+
+</PRE>
+
+
+<P>
+
+File <TT>&quot;typemap&quot;</TT>: Custom typemap for <FONT SIZE="-1">RPC</FONT>.xs.
+<P>
+
+
+
+<PRE>
+     TYPEMAP
+     Netconfig *  T_PTROBJ
+
+</PRE>
+
+
+<P>
+
+File <TT>&quot;RPC.pm&quot;</TT>: Perl module for the <FONT SIZE="-1">RPC</FONT> extension.
+<P>
+
+
+
+<PRE>
+     package RPC;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     require Exporter;
+     require DynaLoader;
+     @ISA = qw(Exporter DynaLoader);
+     @EXPORT = qw(rpcb_gettime getnetconfigent);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     bootstrap RPC;
+     1;
+
+</PRE>
+
+
+<P>
+
+File <TT>&quot;rpctest.pl&quot;</TT>: Perl test program for the <FONT SIZE="-1">RPC</FONT> extension.
+<P>
+
+
+
+<PRE>
+     use RPC;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     $netconf = getnetconfigent();
+     $a = rpcb_gettime();
+     print &quot;time = $a\n&quot;;
+     print &quot;netconf = $netconf\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+     $netconf = getnetconfigent(&quot;tcp&quot;);
+     $a = rpcb_gettime(&quot;poplar&quot;);
+     print &quot;time = $a\n&quot;;
+     print &quot;netconf = $netconf\n&quot;;
+
+</PRE>
+
+
+<A NAME="lbBY">&nbsp;</A>
+<H2>XS VERSION</H2>
+
+<A NAME="ixACE"></A>
+This document covers features supported by <TT>&quot;xsubpp&quot;</TT> 1.935.
+<A NAME="lbBZ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixACF"></A>
+Originally written by Dean Roehrich &lt;<I><A HREF="mailto:roehrich@cray.com">roehrich@cray.com</A></I>&gt;.
+<P>
+
+Maintained since 1996 by The Perl Porters &lt;<I><A HREF="mailto:perlbug@perl.org">perlbug@perl.org</A></I>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Introduction</A><DD>
+<DT><A HREF="#lbAE">On The Road</A><DD>
+<DT><A HREF="#lbAF">The Anatomy of an <FONT SIZE="-1">XSUB</FONT></A><DD>
+<DT><A HREF="#lbAG">The Argument Stack</A><DD>
+<DT><A HREF="#lbAH">The <FONT SIZE="-1">RETVAL</FONT> Variable</A><DD>
+<DT><A HREF="#lbAI">Returning SVs, AVs and HVs through <FONT SIZE="-1">RETVAL</FONT></A><DD>
+<DT><A HREF="#lbAJ">The <FONT SIZE="-1">MODULE</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAK">The <FONT SIZE="-1">PACKAGE</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAL">The <FONT SIZE="-1">PREFIX</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAM">The <FONT SIZE="-1">OUTPUT:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAN">The <FONT SIZE="-1">NO_OUTPUT</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAO">The <FONT SIZE="-1">CODE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAP">The <FONT SIZE="-1">INIT:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAQ">The <FONT SIZE="-1">NO_INIT</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAR">Initializing Function Parameters</A><DD>
+<DT><A HREF="#lbAS">Default Parameter Values</A><DD>
+<DT><A HREF="#lbAT">The <FONT SIZE="-1">PREINIT:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAU">The <FONT SIZE="-1">SCOPE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAV">The <FONT SIZE="-1">INPUT:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbAW">The <FONT SIZE="-1">IN/OUTLIST/IN_OUTLIST/OUT/IN_OUT</FONT> Keywords</A><DD>
+<DT><A HREF="#lbAX">The length(NAME) Keyword</A><DD>
+<DT><A HREF="#lbAY">Variable-length Parameter Lists</A><DD>
+<DT><A HREF="#lbAZ">The C_ARGS: Keyword</A><DD>
+<DT><A HREF="#lbBA">The <FONT SIZE="-1">PPCODE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBB">Returning Undef And Empty Lists</A><DD>
+<DT><A HREF="#lbBC">The <FONT SIZE="-1">REQUIRE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBD">The <FONT SIZE="-1">CLEANUP:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBE">The <FONT SIZE="-1">POSTCALL:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBF">The <FONT SIZE="-1">BOOT:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBG">The <FONT SIZE="-1">VERSIONCHECK:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBH">The <FONT SIZE="-1">PROTOTYPES:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBI">The <FONT SIZE="-1">PROTOTYPE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBJ">The <FONT SIZE="-1">ALIAS:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBK">The <FONT SIZE="-1">OVERLOAD:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBL">The <FONT SIZE="-1">FALLBACK:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBM">The <FONT SIZE="-1">INTERFACE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBN">The <FONT SIZE="-1">INTERFACE_MACRO:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBO">The <FONT SIZE="-1">INCLUDE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBP">The <FONT SIZE="-1">CASE:</FONT> Keyword</A><DD>
+<DT><A HREF="#lbBQ">The &amp; Unary Operator</A><DD>
+<DT><A HREF="#lbBR">Inserting <FONT SIZE="-1">POD</FONT>, Comments and C Preprocessor Directives</A><DD>
+<DT><A HREF="#lbBS">Using <FONT SIZE="-1">XS</FONT> With C<FONT SIZE="-2">++</FONT></A><DD>
+<DT><A HREF="#lbBT">Interface Strategy</A><DD>
+<DT><A HREF="#lbBU">Perl Objects And C Structures</A><DD>
+<DT><A HREF="#lbBV">The Typemap</A><DD>
+<DT><A HREF="#lbBW">Safely Storing Static Data in <FONT SIZE="-1">XS</FONT></A><DD>
+<DT><A HREF="#lbBX">EXAMPLES</A><DD>
+<DT><A HREF="#lbBY">XS VERSION</A><DD>
+<DT><A HREF="#lbBZ">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

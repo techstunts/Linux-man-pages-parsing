@@ -1,0 +1,298 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FILTERDIFF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>FILTERDIFF</H1>
+Section:  (1)<BR>Updated: 7 May 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+filterdiff - extract or exclude diffs from a diff file
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+
+
+<DL COMPACT>
+<DT>
+<B>filterdiff</B> [-i&nbsp;<I>PATTERN</I>] [-p&nbsp;<I>n</I>] [--strip=<I>n</I>] [--addprefix=<I>PREFIX</I>] [-x&nbsp;<I>PATTERN</I>] [--verbose] [-v] [-z] [<B>-#&nbsp;</B><I>RANGE</I> | <B>--hunks=</B><I>RANGE</I>] [--lines=<I>RANGE</I>] [--files=<I>RANGE</I>] [--annotate] [--format=<I>FORMAT</I>] [--as-numbered-lines=<I>WHEN</I>] [--remove-timestamps] [<I>file</I>...]
+
+
+
+
+<DT>
+<B>filterdiff</B> {<B>--help</B> | <B>--version</B> | <B>--list</B> | <B>--grep&nbsp;...</B>}
+
+
+<P>
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<P>
+
+<DD>You can use filterdiff to obtain a patch that applies to files matching the shell wildcard <I>PATTERN</I> from a larger collection of patches. For example, to see the patches in <I>patch-2.4.3.gz</I> that apply to all files called <I>lp.c</I>:
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -z -i '*/lp.c' patch-2.4.3.gz
+<P>
+</DL>
+<P>
+
+If neither <B>-i</B> nor <B>-x</B> options are given, <B>-i '*'</B> is assumed. This way <B>filterdiff</B> can be used to clean up an existing diff file, removing redundant lines from the beginning (eg. the text from the mail body) or between the chunks (eg. in CVS diffs). To extract pure patch data, use a command like this:
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff message-with-diff-in-the-body &gt; patch
+<P>
+</DL>
+<P>
+
+Note that the interpretation of the shell wildcard pattern does not count slash characters or periods as special (in other words, no flags are given to <B>fnmatch</B>). This is so that ``*/basename''-type patterns can be given without limiting the number of pathname components.
+<P>
+<P>
+
+You can use both unified and context format diffs with this program.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>-i</B> <I>PATTERN</I><DD>
+Include only files matching <I>PATTERN</I>. All other lines in the input are suppressed.
+<P>
+<DT><B>-x</B> <I>PATTERN</I><DD>
+Exclude files matching <I>PATTERN</I>. All other lines in the input are displayed.
+<P>
+<DT><B>-p</B> <I>n</I><DD>
+When matching, ignore the first <I>n</I> components of the pathname.
+<P>
+<DT><B>-#</B> <I>RANGE</I> | <B>--hunks</B>=<I>RANGE</I><DD>
+Only include hunks within the specified <I>RANGE</I>. Hunks are numbered from 1, and the range is a comma-separated list of numbers or ``first-last'' spans; either the first or the last in the span may be omitted to indicate no limit in that direction.
+<P>
+<DT><B>--lines</B>=<I>RANGE</I><DD>
+Only include hunks that contain lines from the original file that lie within the specified <I>RANGE</I>. Lines are numbered from 1, and the range is a comma-separated list of numbers or ``first-last'' spans; either the first or the last in the span may be omitted to indicate no limit in that direction.
+<P>
+<DT><B>--files</B>=<I>RANGE</I><DD>
+Only include files indicated by the specified <I>RANGE</I>. Files are numbered from 1 in the order they appear in the patch input, and the range is a comma-separated list of numbers or ``first-last'' spans; either the first or the last in the span may be omitted to indicate no limit in that direction.
+<P>
+<DT><B>--annotate</B><DD>
+Annotate each hunk with the filename and hunk number.
+<P>
+<DT><B>--format</B>=unified|context<DD>
+Use specified output format.
+<P>
+<DT><B>--strip</B>=<I>n</I><DD>
+Remove the first <I>n</I> components of pathnames in the output.
+<P>
+<DT><B>--addprefix</B>=<I>PREFIX</I><DD>
+Prefix pathnames in the output by <I>PREFIX</I>.
+<P>
+<DT><B>--as-numbered-lines</B>=before|after<DD>
+Instead of a patch fragment, display the lines of the selected hunks with the line number of the file before (or after) the patch is applied, followed by a TAB character and a colon, at the beginning of each line. Each hunk except the first will have a line consisting of ``...'' before it.
+<P>
+<DT><B>--remove-timestamps</B><DD>
+Do not include file timestamps in the output.
+<P>
+<DT><B>-v</B>, <B>--verbose</B><DD>
+Always show non-diff lines in the output. By default, non-diff lines are only shown when excluding a filename pattern.
+<P>
+<DT><B>-z</B><DD>
+Decompress files with extensions .gz and .bz2.
+<P>
+<DT><B>--help</B><DD>
+Display a short usage message.
+<P>
+<DT><B>--version</B><DD>
+Display the version number of filterdiff.
+<P>
+<DT><B>--list</B><DD>
+Behave like <B><A HREF="../man1/lsdiff.1.php">lsdiff</A></B>(1) instead.
+<P>
+<DT><B>--grep</B><DD>
+Behave like <B><A HREF="../man1/grepdiff.1.php">grepdiff</A></B>(1) instead.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<P>
+<P>
+
+To see all patch hunks that affect the first five lines of a C file: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -i '*.c' --lines=-5 &lt; patch
+<P>
+</DL>
+<P>
+
+To see the first hunk of each file patch, use: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -#1 patchfile
+<P>
+</DL>
+<P>
+
+To see patches modifying a ChangeLog file in a subdirectory, use: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -p1 Changelog
+<P>
+</DL>
+<P>
+
+To see the complete patches for each patch that modifies line 1 of the original file, use: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff --lines=1 patchfile | lsdiff | \
+<BR>&nbsp;&nbsp;xargs&nbsp;-rn1&nbsp;filterdiff&nbsp;patchfile&nbsp;-i
+<P>
+</DL>
+<P>
+
+To see all but the first hunk of a particular patch, you might use: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -p1 -i file.c -#2- foo-patch
+<P>
+</DL>
+<P>
+
+If you have a very specific list of hunks in a patch that you want to see, list them: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -#1,2,5-8,10,12,27-
+<P>
+</DL>
+<P>
+
+To see the lines of the files that would be patched as they will appear after the patch is applied, use: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff --as-numbered-lines=after patch.file
+<P>
+</DL>
+<P>
+
+You can see the same context before the patch is applied with: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff --as-numbered-lines=before
+patch.file
+<P>
+</DL>
+<P>
+
+Filterdiff can also be used to convert between unified and context format diffs: 
+<P>
+<DL COMPACT>
+<DT><DD>
+filterdiff -v --format=unified context.diff
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<P>
+
+<B><A HREF="../man1/lsdiff.1.php">lsdiff</A></B>(1), <B><A HREF="../man1/grepdiff.1.php">grepdiff</A></B>(1)
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Tim Waugh &lt;<A HREF="mailto:twaugh@redhat.com">twaugh@redhat.com</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

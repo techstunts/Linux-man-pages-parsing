@@ -1,0 +1,3456 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>c3270</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>c3270</H1>
+Section: User Commands  (1)<BR>Updated: 29 November 2003<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+c3270 -
+curses-based 
+<FONT SIZE="-1">IBM</FONT> host access tool
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>c3270</B>
+[<I>options</I>]
+[<I>host</I>]
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>c3270</B> opens
+a telnet connection to an <FONT SIZE="-1">IBM</FONT>
+host in a console window.
+It implements RFCs 2355 (TN3270E), 1576 (TN3270) and 1646 (LU name selection),
+and supports IND$FILE file transfer.
+If the console is capable of displaying colors, then <B>c3270</B> emulates an
+<FONT SIZE="-1">IBM</FONT> 3279.  Otherwise, it emulates a 3278.
+<P>
+
+The full syntax for <I>host</I> is:
+<DL COMPACT><DT><DD>
+[<I>prefix</I>:]...[<I>LUname</I>@]<I>hostname</I>[:<I>port</I>]
+</DL>
+
+<P>
+
+Prepending a <B>P:</B> onto <I>hostname</I> causes the connection to go
+through the <I>telnet-passthru</I> service rather than directly to the host.
+See <FONT SIZE="-1">PASSTHRU</FONT> below.
+<P>
+
+Prepending an <B>S:</B> onto <I>hostname</I> removes the &quot;extended data
+stream&quot; option reported to the host.
+See <B>-tn</B> below for further information.
+<P>
+
+Prepending an <B>N:</B> onto <I>hostname</I>
+turns off TN3270E support for the session.
+<P>
+
+Prepending an <B>L:</B> onto <I>hostname</I>
+causes <B>c3270</B> to first create an SSL tunnel to the host, and then
+create a TN3270 session inside the tunnel.  (This function is supported only if
+<B>c3270</B> was built with SSL/TLS support).
+Note that TLS-encrypted sessions using the TELNET START-TLS option are
+negotiated with the host automatically; for these sessions the <B>L:</B> prefix
+should not be used.
+<P>
+
+A specific LU name to use may be specified by prepending it to the
+<I>hostname</I> with an `<B>@</B>'.
+Multiple LU names to try can be separated by commas.
+An empty LU can be placed in the list with an extra comma.
+<P>
+
+On systems that support the <I>forkpty</I> library call, the
+<I>hostname</I> may be replaced with <B>-e</B> and a command string.
+This will cause <B>c3270</B> to connect to a local child process, such as
+a shell.
+<P>
+
+The port to connect to defaults to
+<B>telnet</B>.
+This can be overridden with the <B>-port</B> option, or by appending
+a <I>port</I> to the <I>hostname</I> with a colon
+`<B>:</B>'.
+(For compatability with previous versions of <B>c3270</B>
+and with <I><A HREF="../man1/tn3270.1.php">tn3270</A></I>(1), the <I>port</I>
+may also be specified as a second, separate argument.)
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<BR>&nbsp;<B>c3270</B>&nbsp;understands
+the following options:
+<DL COMPACT>
+<DT><B>-allbold</B><DD>
+Forces all characters to be displayed in bold.
+This helps with PC consoles which display non-bold characters in unreadably
+dim colors.
+<DT><B>-altscreen </B><I>rows</I><B>x</B><I>cols</I><B>=</B><I>init_string</I><DD>
+Defines the dimensions and escape sequence for the alternate (132-column)
+screen mode.
+See <FONT SIZE="-1">SCREEN SIZE SWITCHING</FONT>, below.
+<DT><B>-cbreak</B><DD>
+Causes <B>c3270</B> to operate in <I>cbreak</I> mode, instead of <I>raw</I>
+mode.
+In <I>cbreak</I> mode, the TTY driver will properly process XOFF and XON
+characters, which are required by some terminals for proper operation.
+However, those characters (usually ^S and ^Q), as well as the characters for
+<B>interrupt</B>, <B>quit</B>, and <B>lnext</B> (usually ^C, ^\
+and ^V respectively) will be seen by <B>c3270</B> only if preceded by
+the <B>lnext</B> character.
+The <B>susp</B> character (usually ^Z) cannot be seen by <B>c3270</B> at all.
+<DT><B>-charset</B> <I>name</I><DD>
+Specifies an <FONT SIZE="-1">EBCDIC</FONT> host character set.
+See <FONT SIZE="-1">CHARACTER SETS</FONT> below.
+<DT><B>-clear</B> <I>toggle</I><DD>
+Sets the initial value of <I>toggle</I> to <B>false</B>.
+The list of toggle names is under <FONT SIZE="-1">TOGGLES</FONT>
+below.
+<DT><B>-defscreen </B><I>rows</I><B>x</B><I>cols</I><B>=</B><I>init_string</I><DD>
+Defines the dimensions and escape sequence for the default (80-column)
+screen mode.
+See <FONT SIZE="-1">SCREEN SIZE SWITCHING</FONT>, below.
+<DT><B>-hostsfile</B> <I>file</I><DD>
+Uses <I>file</I> as the hosts file, which allows aliases for host names and
+scripts to be executed at login.
+See <I><A HREF="../man1/ibm_hosts.1.php">ibm_hosts</A></I>(1) for details.
+<DT><B>-im</B> <I>method</I><DD>
+Specifies the name of the input method to use for multi-byte input.
+(Supported only when c3270 is compiled with DBCS support.)
+<DT><B>-keymap</B> <I>name</I><DD>
+Specifies a keyboard map to be found in the resource
+<B>c3270.keymap.</B><I>name</I> or the file <I>name</I>.
+See <FONT SIZE="-1">KEYMAPS</FONT> below for details.
+<DT><B>-km</B> <I>name</I><DD>
+Specifies the local encoding method for multi-byte text.
+<I>name</I> is an encoding name recognized by the ICU library.
+(Supported only when c3270 is compiled with DBCS support, and necessary
+only when c3270 cannot figure it out from the locale.)
+<DT><B>-model</B> <I>name</I><DD>
+The model of 3270 display to be emulated.
+The model name is in two parts, either of which may be omitted:
+<DT><DD>
+The first part is the
+<B>base model</B>,
+which is either <B>3278</B> or <B>3279</B>.
+<B>3278</B> specifies a monochrome 3270 display;
+<B>3279</B> specifies a color 3270 display.
+<DT><DD>
+The second part is the
+<B>model number</B>,
+which specifies the number of rows and columns.
+Model 4 is the default.
+</DL>
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+Model Number
+</TD><TD ALIGN=center>
+
+
+Columns
+</TD><TD ALIGN=center>
+
+
+Rows
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+2
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+24
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+3
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+30
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+4
+</TD><TD ALIGN=center>
+
+
+80
+</TD><TD ALIGN=center>
+
+
+43
+<BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+5
+</TD><TD ALIGN=center>
+
+
+132
+</TD><TD ALIGN=center>
+
+
+27
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<DL COMPACT>
+<DT><DD>
+Note: Technically, there is no such 3270 display as a 3279-4 or 3279-5, but
+most hosts seem to work with them anyway.
+<DT><DD>
+The default model
+for a color display is <B>3279-4</B>.
+For a monochrome display, it is <B>3278-4</B>.
+<DT><B>-mono</B><DD>
+Forces 3278 emulation.
+<DT><B>-oversize</B> <I>cols</I><B>x</B><I>rows</I><DD>
+Makes the screen larger than the default for the chosen model number.
+This option has effect only in combination with extended data stream support
+(controlled by the &quot;c3270.extended&quot; resource), and only if the host
+supports the Query Reply structured field.
+The number of columns multiplied by the number of rows must not exceed
+16383 (3fff hex), the limit of 14-bit 3270 buffer addressing.
+<DT><B>-port</B> <I>n</I><DD>
+Specifies a different <FONT SIZE="-1">TCP</FONT> port to connect to.
+<I>n</I> can be a name from <B>/etc/services</B> like <B>telnet</B>, or a
+number.
+This option changes the default port number used for all connections.
+(The positional parameter affects only the initial connection.)
+<DT><B>-printerlu </B><I>luname</I><DD>
+Causes <B>c3270</B> to automatically start a <I>pr3287</I> printer
+session.
+If <I>luname</I> is &quot;.&quot;, then the printer session will be associated with the
+interactive terminal session (this requires that the host support TN3270E).
+Otherwise, the value is used as the explicit LU name to associate with the
+printer session.
+<DT><B>-secure</B><DD>
+Disables the interactive <B>c3270&gt;</B> prompt.
+When used, a hostname must be provided on the command line.
+<DT><B>-set</B> <I>toggle</I><DD>
+Sets the initial value of <I>toggle</I> to <B>true</B>.
+The list of toggle names is under <FONT SIZE="-1">TOGGLES</FONT>
+below.
+<DT><B>-tn</B> <I>name</I><DD>
+Specifies the terminal name to be transmitted over the telnet connection.
+The default name is
+<B>IBM-</B><I>model_name</I><B>-E</B>,
+for example,
+<B>IBM-3279-4-E</B> 
+for a color display, or
+<B>IBM-3278-4-E</B>
+for a monochrome display.
+<DT><DD>
+Some hosts are confused by the <B>-E</B>
+suffix on the terminal name, and will ignore the extra screen area on
+models 3, 4 and 5.
+Prepending an <B>s:</B> on the hostname, or setting the &quot;c3270.extended&quot;
+resource to &quot;false&quot;, removes the <B>-E</B>
+from the terminal name when connecting to such hosts.
+<DT><DD>
+The name can also be specified with the &quot;c3270.termName&quot; resource.
+<DT><B>-trace</B><DD>
+Turns on data stream and event tracing at startup.
+The default trace file name is
+<B>/tmp/x3trc.</B><I>process_id</I>.
+<DT><B>-tracefile</B> <I>file</I><DD>
+Specifies a file to save data stream and event traces into, overriding the
+default of
+<B>/tmp/x3trc.</B><I>process_id</I>.
+<DT><B>-tracefilesize</B> <I>size</I><DD>
+Places a limit on the size of a trace file.
+If this option is not specified, or is specified as <B>0</B> or <B>none</B>,
+the trace file will be unlimited.
+If specified, the trace file cannot already exist, and the (silently enforced)
+minimum size is 64 Kbytes.
+The value of <I>size</I> can have a <B>K</B> or <B>M</B> suffix, indicating
+kilobytes or megabytes respectively.
+<DT><B>-xrm</B> &quot;c3270.<I>resource</I>: <I>value</I>&quot;<DD>
+Sets the value of the named <I>resource</I> to <I>value</I>.
+Resources control less common <B>c3270</B>
+options, and are defined under <FONT SIZE="-1">RESOURCES</FONT> below.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>CHARACTER SETS</H2>
+
+The <B>-charset</B>
+option or the &quot;c3270.charset&quot; resource controls the <FONT SIZE="-1">EBCDIC</FONT>
+host character set used by <B>c3270</B>.
+Available sets include:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Charset Name
+</TD><TD>
+
+
+Code Page
+</TD><TD>
+
+
+Display Character Sets
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+apl
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+belgian
+</B></TD><TD>
+
+
+500
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+bracket
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+brazilian
+</B></TD><TD>
+
+
+275
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+finnish
+</B></TD><TD>
+
+
+278
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+french
+</B></TD><TD>
+
+
+297
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+german
+</B></TD><TD>
+
+
+273
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+icelandic
+</B></TD><TD>
+
+
+871
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+iso-hebrew
+</B></TD><TD>
+
+
+424
+</TD><TD>
+
+
+iso8859-8
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+iso-turkish
+</B></TD><TD>
+
+
+1026
+</TD><TD>
+
+
+iso8859-9
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+italian
+</B></TD><TD>
+
+
+280
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+japanese
+</B></TD><TD>
+
+
+1027+300
+</TD><TD>
+
+
+jisx0201.1976-0 + jisx0208.1983-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+norwegian
+</B></TD><TD>
+
+
+277
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+russian
+</B></TD><TD>
+
+
+880
+</TD><TD>
+
+
+koi8-r
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+simplified-chinese
+</B></TD><TD>
+
+
+836+837
+</TD><TD>
+
+
+3270cg-1a iso8859-1 + gb2312.1980-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+slovenian
+</B></TD><TD>
+
+
+870
+</TD><TD>
+
+
+iso8859-2
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+thai
+</B></TD><TD>
+
+
+838
+</TD><TD>
+
+
+iso8859-11 tis620.2529-0
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+uk
+</B></TD><TD>
+
+
+285
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+<TR VALIGN=top><TD><B>
+
+
+us-intl
+</B></TD><TD>
+
+
+37
+</TD><TD>
+
+
+3270cg-1a 3270-cg1 iso8859-1
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+The default character set is
+<B>bracket</B>,
+which is useful for common <FONT SIZE="-1">IBM</FONT> hosts which use <FONT SIZE="-1">EBCDIC</FONT>
+codes 0xAD and 0xBD for the `[' and `]' characters,
+respectively.
+<A NAME="lbAG">&nbsp;</A>
+<H2>HOSTS DATABASE</H2>
+
+<B>c3270</B> uses the <I>ibm_hosts</I> database to
+define aliases for host names, and to specify
+macros to be executed when a connection is first made.
+See <I><A HREF="../man5/ibm_hosts.5.php">ibm_hosts</A></I>(5) for details.
+<P>
+
+You may specify a different <I>ibm_hosts</I>
+database with the &quot;c3270.hostsFile&quot; resource.
+<A NAME="lbAH">&nbsp;</A>
+<H2>NVT (ANSI) MODE</H2>
+
+Some hosts use an <FONT SIZE="-1">ASCII</FONT> front-end to do initial login negotiation,
+then later switch to 3270 mode.
+<B>c3270</B> will emulate an <FONT SIZE="-1">ANSI</FONT> X.64 terminal until the host
+places it in 3270 mode (telnet <FONT SIZE="-1">BINARY</FONT> and <FONT SIZE="-1">SEND EOR</FONT> modes, or
+<FONT SIZE="-1">TN3270E</FONT> mode negotiation).
+<P>
+
+If the host later negotiates to stop functioning in 3270 mode,
+<B>c3270</B> will return to <FONT SIZE="-1">ANSI</FONT> emulation.
+<P>
+
+In <FONT SIZE="-1">NVT</FONT> mode, <B>c3270</B>
+supports both character-at-a-time mode and line mode operation.
+You may select the mode with a menu option.
+When in line mode, the special characters and operational characteristics are
+defined by resources:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Mode/Character
+</TD><TD ALIGN=center>
+
+
+Resource
+</TD><TD ALIGN=center>
+
+
+Default
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=3><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Translate CR to NL
+</TD><TD ALIGN=center>
+
+
+c3270.icrnl
+</TD><TD ALIGN=center>
+
+
+true
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Translate NL to CR
+</TD><TD ALIGN=center>
+
+
+c3270.inlcr
+</TD><TD ALIGN=center>
+
+
+false
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase previous character
+</TD><TD ALIGN=center>
+
+
+c3270.erase
+</TD><TD ALIGN=center>
+
+
+^?
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase entire line
+</TD><TD ALIGN=center>
+
+
+c3270.kill
+</TD><TD ALIGN=center>
+
+
+^U
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Erase previous word
+</TD><TD ALIGN=center>
+
+
+c3270.werase
+</TD><TD ALIGN=center>
+
+
+^W
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Redisplay line
+</TD><TD ALIGN=center>
+
+
+c3270.rprnt
+</TD><TD ALIGN=center>
+
+
+^R
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ignore special meaning of next character
+</TD><TD ALIGN=center>
+
+
+c3270.lnext
+</TD><TD ALIGN=center>
+
+
+^V
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Interrupt
+</TD><TD ALIGN=center>
+
+
+c3270.intr
+</TD><TD ALIGN=center>
+
+
+^C
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Quit
+</TD><TD ALIGN=center>
+
+
+c3270.quit
+</TD><TD ALIGN=center>
+
+
+^\
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+End of file
+</TD><TD ALIGN=center>
+
+
+c3270.eof
+</TD><TD ALIGN=center>
+
+
+^D
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+Separate keymaps can be defined for use only when <B>c3270</B> is in
+3270 mode or <FONT SIZE="-1">NVT</FONT> mode.
+See <FONT SIZE="-1">KEYMAPS</FONT> for details.
+<A NAME="lbAI">&nbsp;</A>
+<H2>TOGGLES</H2>
+
+<B>c3270</B> has a number of configurable modes which may be selected by
+the <B>-set</B> and <B>-clear</B> options.
+<DL COMPACT>
+<DT><B>monoCase</B><DD>
+If set, <B>c3270</B> operates in uppercase-only mode.
+<DT><B>blankFill</B><DD>
+If set, <B>c3270</B> behaves in some un-3270-like ways.
+First, when a character is typed into a field, all nulls in the field to the
+left of that character are changed to blanks.
+This eliminates a common 3270 data-entry surprise.
+Second, in insert mode, trailing blanks in a field are treated like nulls,
+eliminating the annoying `lock-up' that often occurs when inserting
+into an field with (apparent) space at the end.
+<DT><B>lineWrap</B><DD>
+If set, the <FONT SIZE="-1">ANSI</FONT> terminal emulator automatically assumes
+a <FONT SIZE="-1">NEWLINE</FONT> character when it reaches the end of a line.
+</DL>
+<P>
+
+The names of the toggles for use with the <B>-set</B>
+and <B>-clear</B>
+options are as follows:
+<P>
+
+<CENTER><TABLE>
+<TR VALIGN=top><TD>
+
+
+Option
+</TD><TD>
+
+
+Name
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Monocase
+</TD><TD>
+
+
+monoCase
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Blank Fill
+</TD><TD>
+
+
+blankFill
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Track Cursor
+</TD><TD>
+
+
+cursorPos
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Trace Data Stream
+</TD><TD>
+
+
+dsTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Trace Events
+</TD><TD>
+
+
+eventTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Save Screen(s) in File
+</TD><TD>
+
+
+screenTrace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Wraparound
+</TD><TD>
+
+
+lineWrap
+<BR></TD></TR>
+</TABLE></CENTER>
+
+<P>
+
+These names are also used as the first parameter to the <B>Toggle</B>
+action.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>STATUS LINE</H2>
+
+If the terminal that <B>c3270</B> is running on
+has at least one more row that the 3270 model requires (e.g., 25 rows for a
+model 2), <B>c3270</B> will display a status line.
+The <B>c3270</B> status line contains a variety of information.
+From left to right, the fields are:
+<DL COMPACT>
+<DT><B>comm status</B><DD>
+Three symbols indicate the state of the connection to the host.
+If connected, the right-hand symbol is a solid box; if not, it is a
+question mark.
+<DT><B>keyboard lock</B><DD>
+If the keyboard is locked, an &quot;X&quot; symbol and a message field indicate the
+reason for the keyboard lock.
+<DT><B>typeahead</B><DD>
+The letter &quot;T&quot; indicates that one or more keystrokes are in the typeahead
+buffer.
+<DT><B>temporary keymap</B><DD>
+The letter &quot;K&quot; indicates that a temporary keymap is in effect.
+<DT><B>reverse</B><DD>
+The letter &quot;R&quot; indicates that the keyboard is in reverse field entry mode.
+<DT><B>insert mode</B><DD>
+The 
+letter &quot;I&quot; indicates that the keyboard is in insert mode.
+<DT><B>printer session</B><DD>
+The letter &quot;P&quot; indicates that a <I>pr3287</I> session is active.
+<DT><B>LU name</B><DD>
+The LU name associated with the session, if there is one.
+<DT><B>cursor position</B><DD>
+The cursor row and column are optionally displayed, separated by a &quot;/&quot;.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>ACTIONS</H2>
+
+Here is a complete list of basic c3270 actions.
+Script-specific actions are described on the
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1) manual page.
+<P>
+
+Actions marked with an asterisk (*) may block, sending data to the host and
+possibly waiting for a response.
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Attn
+</TD><TD ALIGN=right>
+
+
+attention key
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+BackSpace
+</TD><TD ALIGN=right>
+
+
+move cursor left (or send <FONT SIZE="-1">ASCII BS</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+BackTab
+</TD><TD ALIGN=right>
+
+
+tab to start of previous input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+CircumNot
+</TD><TD ALIGN=right>
+
+
+input &quot;^&quot; in <FONT SIZE="-1">NVT</FONT> mode, or &quot;notsign&quot; in 3270 mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Clear
+</TD><TD ALIGN=right>
+
+
+clear screen
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Compose
+</TD><TD ALIGN=right>
+
+
+next two keys form a special symbol
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Connect(<I>host</I>)
+</TD><TD ALIGN=right>
+
+
+connect to <I>host</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*CursorSelect
+</TD><TD ALIGN=right>
+
+
+Cursor Select <FONT SIZE="-1">AID</FONT>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Delete
+</TD><TD ALIGN=right>
+
+
+delete character under cursor (or send <FONT SIZE="-1">ASCII DEL</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+DeleteField
+</TD><TD ALIGN=right>
+
+
+delete the entire field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+DeleteWord
+</TD><TD ALIGN=right>
+
+
+delete the current or previous word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Disconnect
+</TD><TD ALIGN=right>
+
+
+disconnect from host
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Down
+</TD><TD ALIGN=right>
+
+
+move cursor down
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Dup
+</TD><TD ALIGN=right>
+
+
+duplicate field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Enter
+</TD><TD ALIGN=right>
+
+
+Enter <FONT SIZE="-1">AID</FONT> (or send <FONT SIZE="-1">ASCII CR</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Erase
+</TD><TD ALIGN=right>
+
+
+erase previous character (or send <FONT SIZE="-1">ASCII BS</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+EraseEOF
+</TD><TD ALIGN=right>
+
+
+erase to end of current field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+EraseInput
+</TD><TD ALIGN=right>
+
+
+erase all input fields
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Escape
+</TD><TD ALIGN=right>
+
+
+escape to <B>c3270&gt;</B> prompt
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Execute(<I>cmd</I>)
+</TD><TD ALIGN=right>
+
+
+execute a command in a shell
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldEnd
+</TD><TD ALIGN=right>
+
+
+move cursor to end of field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldExit
+</TD><TD ALIGN=right>
+
+
+clear to end of field and skip to next (5250 emulation)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+FieldMark
+</TD><TD ALIGN=right>
+
+
+mark field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+HexString(<I>hex_digits</I>)
+</TD><TD ALIGN=right>
+
+
+insert control-character string
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Home
+</TD><TD ALIGN=right>
+
+
+move cursor to first input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Insert
+</TD><TD ALIGN=right>
+
+
+set insert mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Interrupt
+</TD><TD ALIGN=right>
+
+
+send <FONT SIZE="-1">TELNET IP</FONT> to host
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Key(<I>keysym</I>)
+</TD><TD ALIGN=right>
+
+
+insert key <I>keysym</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Key(0x<I>xx</I>)
+</TD><TD ALIGN=right>
+
+
+insert key with <FONT SIZE="-1">ASCII</FONT> code <I>xx</I>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Left
+</TD><TD ALIGN=right>
+
+
+move cursor left
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Left2
+</TD><TD ALIGN=right>
+
+
+move cursor left 2 positions
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+MonoCase
+</TD><TD ALIGN=right>
+
+
+toggle uppercase-only mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+MoveCursor(<I>row</I>, <I>col</I>)
+</TD><TD ALIGN=right>
+
+
+move cursor to (<I>row</I>,<I>col</I>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Newline
+</TD><TD ALIGN=right>
+
+
+move cursor to first field on next line (or send <FONT SIZE="-1">ASCII LF</FONT>)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+NextWord
+</TD><TD ALIGN=right>
+
+
+move cursor to next word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*PA(<I>n</I>)
+</TD><TD ALIGN=right>
+
+
+Program Attention <FONT SIZE="-1">AID</FONT> (<I>n</I> from 1 to 3)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*PF(<I>n</I>)
+</TD><TD ALIGN=right>
+
+
+Program Function <FONT SIZE="-1">AID</FONT> (<I>n</I> from 1 to 24)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+PreviousWord
+</TD><TD ALIGN=right>
+
+
+move cursor to previous word
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Printer(Start[,<I>lu</I>]|Stop)
+</TD><TD ALIGN=right>
+
+
+Start or stop printer session
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+PrintText(<I>command</I>)
+</TD><TD ALIGN=right>
+
+
+print screen text on printer
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Quit
+</TD><TD ALIGN=right>
+
+
+exit <B>c3270</B>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Redraw
+</TD><TD ALIGN=right>
+
+
+redraw window
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Reset
+</TD><TD ALIGN=right>
+
+
+reset locked keyboard
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Right
+</TD><TD ALIGN=right>
+
+
+move cursor right
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Right2
+</TD><TD ALIGN=right>
+
+
+move cursor right 2 positions
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Script(<I>command</I>[,<I>arg</I>...])
+</TD><TD ALIGN=right>
+
+
+run a script
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*String(<I>string</I>)
+</TD><TD ALIGN=right>
+
+
+insert string (simple macro facility)
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*SysReq
+</TD><TD ALIGN=right>
+
+
+System Request <FONT SIZE="-1">AID</FONT>
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Tab
+</TD><TD ALIGN=right>
+
+
+move cursor to next input field
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Toggle(<I>option</I>[,<I>set|clear</I>])
+</TD><TD ALIGN=right>
+
+
+toggle an option
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ToggleInsert
+</TD><TD ALIGN=right>
+
+
+toggle insert mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ToggleReverse
+</TD><TD ALIGN=right>
+
+
+toggle reverse-input mode
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+*Transfer(<I>option</I>=<I>value</I>...)
+</TD><TD ALIGN=right>
+
+
+file transfer
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+Up
+</TD><TD ALIGN=right>
+
+
+move cursor up
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+<TR VALIGN=top><TD ALIGN=center>
+
+
+
+<BR>
+
+ignore
+</TD><TD ALIGN=right>
+
+
+do nothing
+&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD ALIGN=right></TD><TD></TD><TD><BR></TD></TR>
+</TABLE>
+
+<P>
+
+Any of the above actions may be entered at the <B>c3270&gt;</B> prompt;
+these commands are also available for use in keymaps
+(see <FONT SIZE="-1">KEYMAPS</FONT>).
+Command names are case-insensitive.
+Parameters can be specified with parentheses and commas, e.g.:
+<DL COMPACT><DT><DD>
+<A HREF="../man1/PF.1.php">PF</A>(1)
+</DL>
+
+or with spaces, e.g.:
+<DL COMPACT><DT><DD>
+PF 1
+</DL>
+
+Parameters can be quoted with double-quote characters, to allow spaces,
+commas, and parentheses to be used.
+<P>
+
+<B>c3270</B> also supports the following interactive commands:
+<DL COMPACT>
+<DT><B>Help</B><DD>
+Displays a list of available commands.
+<DT><B>Show</B><DD>
+Displays statistics and settings.
+<DT><B>Trace</B><DD>
+Turns tracing on or off.
+The command <B>trace on</B> enables data stream and keyboard event tracing;
+the command <B>trace off</B> disables it.
+The qualifier <B>data</B> or <B>keyboard</B> can be specified
+before <B>on</B> or <B>off</B> to enable or disable a particular trace.
+After <B>on</B>, a filename may be specified to override the default
+trace file name of <B>/tmp/x3trc.</B><I>pid</I>.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>KEYMAPS</H2>
+
+The <B>-keymap</B> option allows a <B>keymap</B> to be specified.
+If the option <B>-keymap</B> <I>xxx</I> is given, then <B>c3270</B>
+will first look for a resource named <B>c3270.keymap.</B><I>xxx</I>;
+if that is not found, then it will look for a file named <I>xxx</I>.
+<P>
+
+Multiple keymaps may be specified be separating their names with commas.
+Definitions in later keymaps supercede those in earlier keymaps.
+<P>
+
+In addition, separate keymaps may be defined that apply only in 3270 mode or
+only in <FONT SIZE="-1">NVT</FONT> mode.
+For example, the resource definition
+<B>c3270.keymap.</B><I>xxx</I><B>.nvt</B> will augment the definition
+of <B>c3270.keymap.</B><I>xxx</I>, when <B>c3270</B> is in <FONT SIZE="-1">NVT</FONT>
+mode.
+Similarly, the resource definition
+<B>c3270.keymap.</B><I>xxx</I><B>.3270</B> will augment the definition
+of <B>c3270.keymap.</B><I>xxx</I>, when <B>c3270</B> is in 3270
+mode.
+<P>
+
+Keymaps specify actions to perform when a particular sequence of keys is
+pressed.
+Each line in a keymap has the following syntax:
+<P>
+
+<DL COMPACT><DT><DD>
+[<B>Meta</B>][<B>Ctrl</B>]<B>&lt;Key&gt;</B><I>key</I>...: <I>Action</I>[(<I>param</I>[,...])] ...
+</DL>
+
+<P>
+
+For example:
+<P>
+
+<DL COMPACT><DT><DD>
+Meta&lt;Key&gt;c: Clear()
+<BR>
+
+&lt;Key&gt;PPAGE: <A HREF="../man7/PF.7.php">PF</A>(7)
+<BR>
+
+Ctrl&lt;Key&gt;A &lt;Key&gt;F1: PF(13)
+</DL>
+
+<BR>
+
+<P>
+
+The optional <B>Meta</B> or <B>Ctrl</B> qualifiers specify that
+the <B>Meta</B> and <B>Ctrl</B> keys are pressed along with the
+specified <I>key</I>, respectively.
+The <I>key</I> is either a valid X11 keysym (these are
+the <FONT SIZE="-1">ISO</FONT> 8859-1 symbol names, such as <B>equal</B> for `='
+and <B>a</B> for `a') or a valid symbolic <B>ncurses</B> key name,
+such as <B>UP</B>.
+The <I>Action</I> is an action from the <FONT SIZE="-1">ACTIONS</FONT> list, above.
+More than one action may be specified.
+(Note that symbolic <B>ncurses</B> key names can be used only if the
+<B>c3270.cursesKeymap</B> resource is set to <B>True</B>, which enables
+ncurses keymap mode.)
+<P>
+
+Keymap entries are case-sensitive and modifier-specific.
+This means that a keymap for the <B>b</B> key will match only a
+lowercase <B>b</B>.
+Actions for uppercase <B>B</B>, or for <B>Meta-b</B> or <B>Control-B</B>,
+must be specified separately.
+<P>
+
+The base keymap is:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Key
+</TD><TD>
+
+
+Action
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;]
+</TD><TD>
+
+
+Escape
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a Ctrl&lt;Key&gt;a
+</TD><TD>
+
+
+Key(0x01)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a Ctrl&lt;Key&gt;]
+</TD><TD>
+
+
+Key(0x1d)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;Tab
+</TD><TD>
+
+
+BackTab
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;c
+</TD><TD>
+
+
+Clear
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;e
+</TD><TD>
+
+
+Escape
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;r
+</TD><TD>
+
+
+Reset
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;l
+</TD><TD>
+
+
+Redraw
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;m
+</TD><TD>
+
+
+Compose
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;^
+</TD><TD>
+
+
+Key(notsign)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;UP
+</TD><TD>
+
+
+Up
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;DOWN
+</TD><TD>
+
+
+Down
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;LEFT
+</TD><TD>
+
+
+Left
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;RIGHT
+</TD><TD>
+
+
+Right
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;F(<I>n</I>)
+</TD><TD>
+
+
+PF(<I>n</I>)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;F(<I>n</I>)
+</TD><TD>
+
+
+PF(<I>n</I>+12)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;1
+</TD><TD>
+
+
+<A HREF="../man1/PA.1.php">PA</A>(1)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;2
+</TD><TD>
+
+
+<A HREF="../man2/PA.2.php">PA</A>(2)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;a &lt;Key&gt;3
+</TD><TD>
+
+
+<A HREF="../man3/PA.3.php">PA</A>(3)
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+The base 3270-mode keymap adds:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Key
+</TD><TD>
+
+
+Action
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=2><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;c
+</TD><TD>
+
+
+Clear
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;r
+</TD><TD>
+
+
+Reset
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Ctrl&lt;Key&gt;l
+</TD><TD>
+
+
+Redraw
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Tab
+</TD><TD>
+
+
+Tab
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;DC
+</TD><TD>
+
+
+Delete
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;BACKSPACE
+</TD><TD>
+
+
+BackSpace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;BackSpace
+</TD><TD>
+
+
+BackSpace
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Return
+</TD><TD>
+
+
+Enter
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+&lt;Key&gt;Linefeed
+</TD><TD>
+
+
+Newline
+<BR></TD></TR>
+</TABLE>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>THE META OR ALT KEY</H2>
+
+Some keyboards do not have a <B>Meta</B> key.
+Instead, they have an <B>Alt</B> key.
+Sometimes this key acts as a proper
+<B>Meta</B> key, that is, it is a modifier key that sets the high-order bit
+(0x80) in the code that is transmitted for each key.
+Other keyboards send a two-character sequence when
+the <B>Alt</B> key is pressed with another key: the Escape character (0x1b),
+followed by the code for the other key.
+<P>
+
+The resource <B>c3270.metaEscape</B> and the termcap <B>km</B> attribute
+control how <B>c3270</B> will interpret these sequences.
+When <B>c3270.metaEscape</B> is set to <B>true</B>, or when
+<B>c3270.metaEscape</B> is set to <B>auto</B> and the termcap <B>km</B>
+attribute is set, the keyboard is assumed to have a separate <B>Meta</B> key.
+The Escape key can be used as an ordinary data key and has no special meaning.
+<P>
+
+When <B>c3270.metaEscape</B> is set to <B>true</B>, or when
+<B>c3270.metaEscape</B> is set to <B>auto</B> and the termcap <B>km</B>
+attribute is not set, the keyboard is assumed to use the Escape character
+as a prefix to indicate that the following character is supposed to have the
+high-order bit set.
+When <B>c3270</B> sees an Escape character from the keyboard, it sets a short
+timeout.
+If another character arrives before the timeout expires, then <B>c3270</B>
+will combine the two characters, setting the high-order bit of the second.
+In an event trace file, the combined character is listed as <I>derived</I>.
+In a keymap, only the combined character or the <B>Meta</B> prefix may be used.
+The Escape key can still be used by itself, but only if there is a short pause
+before pressing another key.
+<P>
+
+The default value for <B>c3270.metaEscape</B> is <B>auto</B>.
+<A NAME="lbAN">&nbsp;</A>
+<H2>FILE TRANSFER</H2>
+
+The <B>Transfer</B> action implements <B>IND$FILE</B> file transfer.
+This action requires that the <B>IND$FILE</B>
+program be installed on the <FONT SIZE="-1">IBM</FONT> host, and that the 3270 cursor
+be located in a field that will accept a <FONT SIZE="-1">TSO</FONT> or <FONT SIZE="-1">VM/CMS</FONT> command.
+<P>
+
+Because of the complexity and number of options for file transfer, the
+parameters to the <B>Transfer</B> action take the unique form
+of <I>option</I>=<I>value</I>, and can appear in any order.
+The options are:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Option
+</TD><TD ALIGN=center>
+
+
+Required?
+</TD><TD>
+
+
+Default
+</TD><TD>
+
+
+Other Values
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=4><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Direction
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+send
+</TD><TD>
+
+
+receive
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+HostFile
+</TD><TD ALIGN=center>
+
+
+Yes
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+LocalFile
+</TD><TD ALIGN=center>
+
+
+Yes
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Host
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+tso
+</TD><TD>
+
+
+vm
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Mode
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+ascii
+</TD><TD>
+
+
+binary
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Cr
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+remove
+</TD><TD>
+
+
+add, keep
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Exist
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+keep
+</TD><TD>
+
+
+replace, append
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Recfm
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+fixed, variable, undefined
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Lrecl
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Blksize
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+Allocation
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+tracks, cylinders, avblock
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+PrimarySpace
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+SecondarySpace
+</TD><TD ALIGN=center>
+
+
+No
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+The option details are as follows.
+<DL COMPACT>
+<DT><B>Direction</B><DD>
+<B>send</B> (the default) to send a file to the host,
+<B>receive</B> to receive a file from the host.
+<DT><B>HostFile</B><DD>
+The name of the file on the host.
+<DT><B>LocalFile</B><DD>
+The name of the file on the local workstation.
+<DT><B>Host</B><DD>
+The type of host (which dictates the form of the <B>IND$FILE</B> command):
+<B>tso</B> (the default) or <B>vm</B>.
+<DT><B>Mode</B><DD>
+Use <B>ascii</B> (the default) for a text file, which will be translated
+between <FONT SIZE="-1">EBCDIC</FONT> and <FONT SIZE="-1">ASCII</FONT> as necessary.
+Use <B>binary</B> for non-text files.
+<DT><B>Cr</B><DD>
+Controls how <B>Newline</B> characters are handled when transferring
+<B>Mode=ascii</B> files.
+<B>remove</B> (the default) strips <B>Newline</B> characters in local files
+before transferring them to the host.
+<B>add</B> adds <B>Newline</B> characters to each host file record before
+transferring it to the local workstation.
+<B>keep</B> preserves <B>Newline</B> characters when transferring a local file
+to the host.
+<DT><B>Exist</B><DD>
+Controls what happens when the destination file already exists.
+<B>keep</B> (the default) preserves the file, causing the
+<B>Transfer</B> action to fail.
+<B>replace</B> overwrites the destination file with the source file.
+<B>append</B> appends the source file to the destination file.
+<DT><B>Recfm</B><DD>
+Controls the record  of files created on the host.
+<B>fixed</B> creates a file with fixed-length records.
+<B>variable</B> creates a file with variable-length records.
+<B>undefined</B> creates a file with undefined-length records (<FONT SIZE="-1">TSO</FONT> hosts only).
+The <B>Lrecl</B> option controls the record length or maximum record length for
+<B>Recfm=fixed</B> and <B>Recfm=variable</B> files, respectively.
+<DT><B>Lrecl</B><DD>
+Specifies the record length (or maximum record length) for files created on
+the host.
+<DT><B>Blksize</B><DD>
+Specifies the block size for files created on the host.  (<FONT SIZE="-1">TSO</FONT> hosts only.)
+<DT><B>Allocation</B><DD>
+Specifies the units for the <FONT SIZE="-1">TSO</FONT> host <B>PrimarySpace</B> and
+<B>SecondarySpace</B> options: <B>tracks</B>, <B>cylinders</B> or
+<B>avblock</B>.
+<DT><B>PrimarySpace</B><DD>
+Primary allocation for a file created on a <FONT SIZE="-1">TSO</FONT> host.
+The units are given by the <B>Allocation</B> option.
+<DT><B>SecondarySpace</B><DD>
+Secondary allocation for a file created on a <FONT SIZE="-1">TSO</FONT> host.
+The units are given by the <B>Allocation</B> option.
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>SCRIPTS</H2>
+
+There are several types of
+script functions available.
+<DL COMPACT>
+<DT><B>The String Action</B><DD>
+The simplest method for
+scripting is provided via the <B>String</B>
+action.
+The arguments to <B>String</B> are one or more double-quoted strings which are
+inserted directly as if typed.
+The C backslash conventions are honored as follows.
+(Entries marked * mean that after sending the <FONT SIZE="-1">AID</FONT> code to the host,
+<B>c3270</B> will wait for the host to unlock the keyboard before further
+processing the string.)
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+\b
+</TD><TD>
+
+
+Left
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\f
+</TD><TD>
+
+
+Clear*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\n
+</TD><TD>
+
+
+Enter*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\pa<I>n</I>
+</TD><TD>
+
+
+PA(<I>n</I>)*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\pf<I>nn</I>
+</TD><TD>
+
+
+PF(<I>nn</I>)*
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\r
+</TD><TD>
+
+
+Newline
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\t
+</TD><TD>
+
+
+Tab
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+\T
+</TD><TD>
+
+
+BackTab
+<BR></TD></TR>
+</TABLE>
+
+<DT><DD>
+An example keymap entry would be:
+<DL COMPACT><DT><DD>
+Meta&lt;Key&gt;p: String(&quot;probs clearrdr\n&quot;)
+</DL>
+
+<DT><DD>
+<B>Note:</B>
+The strings are in <FONT SIZE="-1">ASCII</FONT> and converted to <FONT SIZE="-1">EBCDIC</FONT>,
+so beware of inserting
+control codes.
+<DT><DD>
+There is also an alternate form of the <B>String</B> action, <B>HexString</B>,
+which is used to enter non-printing data.
+The argument to <B>HexString</B> is a string of hexadecimal digits, two per
+character.  A leading 0x or 0X is optional.
+In 3270 mode, the hexadecimal data represent <FONT SIZE="-1">EBCDIC</FONT> characters, which
+are entered into the current field.
+In <FONT SIZE="-1">NVT</FONT> mode, the hexadecimal data represent <FONT SIZE="-1">ASCII</FONT> characters,
+which are sent directly to the host.
+<DT><B>The Script Action</B><DD>
+This action causes <B>c3270</B> to start a child process which can
+execute <B>c3270</B> actions.
+Standard input and output from the child process are piped back to
+<B>c3270</B>.
+The <B>Script</B> action is fully documented in
+<I><A HREF="../man1/x3270-script.1.php">x3270-script</A></I>(1).
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>COMPOSITE CHARACTERS</H2>
+
+<B>c3270</B>
+allows the direct entry of accented letters and special symbols.
+Pressing and releasing the &quot;Compose&quot; key, followed by two other keys, causes
+entry of the symbol combining those two keys.
+For example, &quot;Compose&quot; followed by the &quot;C&quot; key and the &quot;,&quot; (comma) key, enters
+the &quot;C-cedilla&quot; symbol.
+A C on the status line indicates a pending composite character.
+<P>
+
+The mappings between these pairs of ordinary keys and the symbols they
+represent is controlled by the &quot;c3270.composeMap&quot; resource; it gives the
+name of the map to use.
+The maps themselves are named &quot;c3270.composeMap.<I>name</I>&quot;.
+The default is &quot;latin1&quot;, which gives mappings for most of the symbols in
+the <FONT SIZE="-1">ISO</FONT> 8859-1 Latin-1 character set that are not in the
+7-bit <FONT SIZE="-1">ASCII</FONT>
+character set.
+<P>
+
+<B>Note:</B>
+The default keymap defines
+Meta&lt;Key&gt;m
+as the &quot;Compose&quot; key.
+You
+may set up your own &quot;Compose&quot; key with
+a keymap that maps some other keysym onto the <B>Compose</B> action.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>PRINTER SUPPORT</H2>
+
+c3270 supports associated printer sessions via the <I><A HREF="../man1/pr3287.1.php">pr3287</A></I>(1)
+program.
+The <B>Printer</B> action is used to start or stop a <I>pr3287</I> session.
+<P>
+
+The action <B>Printer Start</B> starts a printer session, associated with the
+current LU.  (This works only if the host supports TN3270E.)
+<P>
+
+The action <B>Printer Start</B> <I>lu</I> starts a printer session, associated
+with a specific <I>lu</I>.
+<P>
+
+The action <B>Printer Stop</B> stops a printer session.
+<P>
+
+The resource <B>c3270.printer.command</B> specifies the command used to print
+each job; it defaults to <B>lpr</B>.
+The resource <B>c3270.printer.assocCommandLine</B> specifies the command
+used to start an associated printer session.  It defaults to:
+<P>
+
+<DL COMPACT><DT><DD>
+pr3287 -assoc %L% -command &quot;%C%&quot; %H%
+</DL>
+
+<P>
+
+The resource <B>c3270.printer.luCommandLine</B> specifies the command used
+to start a specific-LU printer session.  It defaults to:
+<P>
+
+<DL COMPACT><DT><DD>
+pr3287 -command &quot;%C%&quot; %L%@%H%
+</DL>
+
+<P>
+
+When the printer session command is run, the following substitutions are made:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Token
+</TD><TD>
+
+
+Substitition
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+%C%
+</TD><TD>
+
+
+Command (value of <B>c3270.printer.command</B>)
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+%H%
+</TD><TD>
+
+
+Host IP address
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+%L%
+</TD><TD>
+
+
+Current or specified LU
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+See <I><A HREF="../man1/pr3287.1.php">pr3287</A></I>(1) for further details.
+<A NAME="lbAR">&nbsp;</A>
+<H2>PASSTHRU</H2>
+
+<B>c3270</B> supports the Sun <I>telnet-passthru</I>
+service provided by the <I>in.telnet-gw</I> server.
+This allows outbound telnet connections through a firewall machine.
+When a <B>p:</B> is prepended to a hostname, <B>c3270</B>
+acts much like the <I><A HREF="../man1/itelnet.1.php">itelnet</A></I>(1) command.
+It contacts the machine named <B>internet-gateway</B> at the port defined in
+<B>/etc/services</B> as <B>telnet-passthru</B>
+(which defaults to 3514).
+It then passes the requested hostname and port to the
+<B>in.telnet-gw</B> server.
+<A NAME="lbAS">&nbsp;</A>
+<H2>SCREEN SIZE SWITCHING</H2>
+
+When running as a 3270 Model 5, <B>c3270</B> can take advantage of terminals
+that can switch between 80 and 132 column modes.
+<P>
+
+Because the curses library does not support mode switching, the escape
+sequences and resulting screen dimensions must be specified explicitly to
+<B>c3270</B>.
+These are specified with the <B>-altscreen</B> and
+<B>-defscreen</B> command-line options, or the
+<B>altScreen</B> and <B>defScreen</B> resources.
+<B>-altscreen</B> or <B>altScreen</B> defines the alternate
+(132-column) mode; <B>-defscreen</B> or <B>defScreen</B> defines the
+default (80-column) mode.
+<P>
+
+The syntax for the options and resources is
+<I>rows</I><B>x</B><I>cols</I><B>=</B><I>init_string</I>,
+where <I>rows</I> and <I>cols</I> give the screen dimensions, and
+<I>init_string</I> is the escape sequence to transmit to the terminal to
+enter that mode.
+For <B>defscreen</B>, the minimum dimensions are 24 rows and 80 columns.
+For <B>altscreen</B>, the minimum dimensions are 27 rows and 132 columns.
+Within <I>init_string</I>, the usual escape sequences are supported
+(\E for escape, \r, \b, etc.).
+For example, the init string for a 132-column xterm is:
+<DL COMPACT>
+<DT><DD>
+\E[?40h\E[?3h
+</DL>
+<P>
+
+Note: When <B>defscreen</B> and <B>altscreen</B> are specified, the model
+number is always set to 5.
+<A NAME="lbAT">&nbsp;</A>
+<H2>RESOURCES</H2>
+
+Certain <B>c3270</B>
+options can be configured via resources.
+Resources are defined
+in the file <B>.c3270pro</B> in the user's
+home directory, and
+by <B>-xrm</B> options.
+The definitions are similar to X11 resources, and use a similar syntax.
+The resources available in <B>c3270</B> are:
+<P>
+
+<TABLE>
+<TR VALIGN=top><TD>
+
+
+Resource
+</TD><TD>
+
+
+Default
+</TD><TD>
+
+
+Option
+</TD><TD>
+
+
+Purpose
+<BR></TD></TR>
+<TR VALIGN=top><TD COLSPAN=4><HR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+allBold
+</TD><TD>
+
+
+Auto
+</TD><TD>
+
+
+-allbold
+</TD><TD>
+
+
+Display all characters bold
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+altScreen
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+-altscreen
+</TD><TD>
+
+
+132-col screen definition
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+blankFill
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+-set blankFill
+</TD><TD>
+
+
+Blank Fill mode
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+charset
+</TD><TD>
+
+
+bracket
+</TD><TD>
+
+
+-charset
+</TD><TD>
+
+
+<FONT SIZE="-1">EBCDIC</FONT> character set
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+charset.<I>foo</I>
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Definition of character set <I>foo</I>
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+composeMap
+</TD><TD>
+
+
+latin1
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Name of composed-character map
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+cursesKeymap
+</TD><TD>
+
+
+True
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Set curses keymap option
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+defScreen
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+-defscreen
+</TD><TD>
+
+
+80-col screen definition
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+dsTrace
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+-trace
+</TD><TD>
+
+
+Data stream tracing
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+eof
+</TD><TD>
+
+
+^D
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode <FONT SIZE="-1">EOF</FONT> character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+erase
+</TD><TD>
+
+
+^H
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode erase character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+extended
+</TD><TD>
+
+
+True
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Use 3270 extended data stream
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+eventTrace
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+-trace
+</TD><TD>
+
+
+Event tracing
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+ftCommand
+</TD><TD>
+
+
+ind$file
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Host file transfer command
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+hostsFile
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+-hostsfile
+</TD><TD>
+
+
+Host alias/macro file
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+icrnl
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Map <FONT SIZE="-1">CR</FONT> to <FONT SIZE="-1">NL</FONT> on <FONT SIZE="-1">NVT</FONT>-mode input
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+inlcr
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Map <FONT SIZE="-1">NL</FONT> to <FONT SIZE="-1">CR</FONT> in <FONT SIZE="-1">NVT</FONT>-mode input
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+intr
+</TD><TD>
+
+
+^C
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode interrupt character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+keymap
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+-keymap
+</TD><TD>
+
+
+Keyboard map name
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+keymap.<I>foo</I>
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Definition of keymap <I>foo</I>
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+kill
+</TD><TD>
+
+
+^U
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode kill character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+lineWrap
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+-set lineWrap
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT> line wrap mode
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+lnext
+</TD><TD>
+
+
+^V
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode lnext character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+m3279
+</TD><TD>
+
+
+(note 1)
+</TD><TD>
+
+
+-mono
+</TD><TD>
+
+
+3279 (color) emulation
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+metaEscape
+</TD><TD>
+
+
+Auto
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Interpret ESC-x as Meta-x
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+monoCase
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+-set monoCase
+</TD><TD>
+
+
+Mono-case mode
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+numericLock
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Lock keyboard for numeric field error
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+oerrLock
+</TD><TD>
+
+
+True
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Lock keyboard for input error
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+oversize
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+-oversize
+</TD><TD>
+
+
+Oversize screen dimensions
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+port
+</TD><TD>
+
+
+telnet
+</TD><TD>
+
+
+-port
+</TD><TD>
+
+
+Non-default TCP port
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+printer.*
+</TD><TD>
+
+
+(note 4)
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Printer session config
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+quit
+</TD><TD>
+
+
+^\
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode quit character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+rprnt
+</TD><TD>
+
+
+^R
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode reprint character
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+secure
+</TD><TD>
+
+
+False
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Disable &quot;dangerous&quot; options
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+termName
+</TD><TD>
+
+
+(note 2)
+</TD><TD>
+
+
+-tn
+</TD><TD>
+
+
+<FONT SIZE="-1">TELNET</FONT> terminal type string
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+traceDir
+</TD><TD>
+
+
+/tmp
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Directory for trace files
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+traceFile
+</TD><TD>
+
+
+(note 3)
+</TD><TD>
+
+
+-tracefile
+</TD><TD>
+
+
+File for trace output
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+typeahead
+</TD><TD>
+
+
+True
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+Allow typeahead
+<BR></TD></TR>
+<TR VALIGN=top><TD>
+
+
+werase
+</TD><TD>
+
+
+^W
+</TD><TD>
+
+
+&nbsp;
+</TD><TD>
+
+
+<FONT SIZE="-1">NVT</FONT>-mode word-erase character
+<BR></TD></TR>
+</TABLE>
+
+<P>
+
+<DL COMPACT><DT><DD>
+<I>Note 1</I>: <B>m3279</B> defaults to
+<B>True</B> if the terminal supports color,
+<B>False</B> otherwise.
+It can be forced to <B>False</B> with the <B>-mono</B> option.
+<P>
+
+<I>Note 2</I>:
+The default terminal type string is constructed from the model number, color
+emulation, and extended data stream modes.
+E.g., a model 2 with color emulation and the extended data stream option
+would be sent as <B>IBM-3279-2-E</B>.
+Note also that when <FONT SIZE="-1">TN3270E</FONT>
+mode is used, the terminal type is always sent as some type of 3278.
+<P>
+
+<I>Note 3</I>: The default trace file is <B>x3trc.</B><I>pid</I>
+in the directory specified by the <B>traceDir</B> resource.
+<P>
+
+<I>Note 4</I>: See <FONT SIZE="-1">PRINTER SUPPORT</FONT> for details.
+</DL>
+
+<P>
+
+In <B>.c3270pro</B>, lines are continued with a
+backslash character.
+<P>
+
+<B>-xrm</B> options override definitions found in <B>.c3270pro</B>.
+If more than one <B>-xrm</B> option is given for the same resource,
+the last one on the command line is used.
+<A NAME="lbAU">&nbsp;</A>
+<H2>FILES</H2>
+
+/usr/local/lib/x3270/ibm_hosts
+<BR>
+
+$HOME/.c3270pro
+<P>
+<A NAME="lbAV">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/x3270.1.php">x3270</A>(1), <A HREF="../man1/s3270.1.php">s3270</A>(1), <A HREF="../man1/tcl3270.1.php">tcl3270</A>(1), <A HREF="../man5/ibm_hosts.5.php">ibm_hosts</A>(5), <A HREF="../man1/x3270-script.1.php">x3270-script</A>(1), <A HREF="../man1/pr3287.1.php">pr3287</A>(1), <A HREF="../man1/telnet.1.php">telnet</A>(1), <A HREF="../man1/tn3270.1.php">tn3270</A>(1)
+<BR>
+
+Data Stream Programmer's Reference, IBM GA23-0059
+<BR>
+
+Character Set Reference, IBM GA27-3831
+<BR>
+
+RFC 1576, TN3270 Current Practices
+<BR>
+
+RFC 1646, TN3270 Extensions for LUname and Printer Selection
+<BR>
+
+RFC 2355, TN3270 Enhancements
+<A NAME="lbAW">&nbsp;</A>
+<H2>COPYRIGHTS</H2>
+
+<P>
+
+Modifications Copyright 1993, 1994, 1995, 1996, 1997, 1999, 2000, 2001, 2002 by Paul Mattes.
+<BR>
+
+Original X11 Port Copyright 1990 by Jeff Sparkes.
+<DL COMPACT><DT><DD>
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.
+</DL>
+
+Copyright 1989 by Georgia Tech Research Corporation, Atlanta, GA 30332.
+<DL COMPACT><DT><DD>
+All Rights Reserved.  GTRC hereby grants public use of this software.
+Derivative works based on this software must incorporate this copyright
+notice.
+</DL>
+
+5250 Emulation Code Copyright Minolta (Schweiz) AG, Beat Rubischon.
+<BR>
+
+c3270 is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the file LICENSE for more details.
+<A NAME="lbAX">&nbsp;</A>
+<H2>VERSION</H2>
+
+c3270 3.3.2
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">CHARACTER SETS</A><DD>
+<DT><A HREF="#lbAG">HOSTS DATABASE</A><DD>
+<DT><A HREF="#lbAH">NVT (ANSI) MODE</A><DD>
+<DT><A HREF="#lbAI">TOGGLES</A><DD>
+<DT><A HREF="#lbAJ">STATUS LINE</A><DD>
+<DT><A HREF="#lbAK">ACTIONS</A><DD>
+<DT><A HREF="#lbAL">KEYMAPS</A><DD>
+<DT><A HREF="#lbAM">THE META OR ALT KEY</A><DD>
+<DT><A HREF="#lbAN">FILE TRANSFER</A><DD>
+<DT><A HREF="#lbAO">SCRIPTS</A><DD>
+<DT><A HREF="#lbAP">COMPOSITE CHARACTERS</A><DD>
+<DT><A HREF="#lbAQ">PRINTER SUPPORT</A><DD>
+<DT><A HREF="#lbAR">PASSTHRU</A><DD>
+<DT><A HREF="#lbAS">SCREEN SIZE SWITCHING</A><DD>
+<DT><A HREF="#lbAT">RESOURCES</A><DD>
+<DT><A HREF="#lbAU">FILES</A><DD>
+<DT><A HREF="#lbAV">SEE ALSO</A><DD>
+<DT><A HREF="#lbAW">COPYRIGHTS</A><DD>
+<DT><A HREF="#lbAX">VERSION</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

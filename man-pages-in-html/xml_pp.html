@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XML_PP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XML_PP</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2003-10-02<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xml_pp
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSYS</H2>
+
+<A NAME="ixAAC"></A>
+xml_pp [options] [&lt;files&gt;]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+<FONT SIZE="-1">XML</FONT> pretty printer using XML::Twig
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT>-i[&lt;extension&gt;]<DD>
+<A NAME="ixAAF"></A>
+edits the file(s) in place, if an extension is provided (no space between 
+-i and the extension) then the original file is backed-up with that extension
+
+
+<P>
+
+
+The rules for the extension are the same as Perl's (see perldoc perlrun): if
+the extension includes no ``*'' then it is appended to the original file name,
+If the extension does contain one or more ``*'' characters, then each ``*'' is 
+replaced with the current filename.
+<DT>-s &lt;style&gt;<DD>
+<A NAME="ixAAG"></A>
+the style to use for pretty printing: none, nsgmls, nice, indented, record, or
+record_c (see XML::Twig docs for the exact description of those styles), 
+'indented' by default
+<DT>-p &lt;tag(s)&gt;<DD>
+<A NAME="ixAAH"></A>
+preserves white spaces in tags. You can use several -p options or quote the 
+tags if you need more than one
+<DT>-e &lt;encoding&gt;<DD>
+<A NAME="ixAAI"></A>
+use XML::Twig output_encoding (based on Text::Iconv or Unicode::Map8 and 
+Unicode::String) to set the output encoding. By default the original encoding
+is preserved. 
+
+
+<P>
+
+
+If this option is used the <FONT SIZE="-1">XML</FONT> declaration is updated (and created if there was
+none).
+
+
+<P>
+
+
+Make sure that the encoding is supported by the parser you use if you want to
+be able to process the pretty_printed file (XML::Parser does not support 
+'latin1' for example, you have to use 'iso-8859-1')
+<DT>-l<DD>
+<A NAME="ixAAJ"></A>
+loads the documents in memory instead of outputing them as they are being
+parsed.
+
+
+<P>
+
+
+This prevents a bug (see <FONT SIZE="-1">BUGS</FONT>) but uses more memory
+<DT>-f &lt;file&gt;<DD>
+<A NAME="ixAAK"></A>
+read the list of files to process from &lt;file&gt;, one per line
+<DT>-v<DD>
+<A NAME="ixAAL"></A>
+verbose (list the current file being processed)
+<DT>--<DD>
+stop argument processing (to process files that start with -)
+<DT>-h<DD>
+<A NAME="ixAAM"></A>
+display help
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAN"></A>
+
+
+<PRE>
+  xml_pp foo.xml &gt; foo_pp.xml           # pretty print foo.xml 
+  xml_pp &lt; foo.xml &gt; foo_pp.xml         # pretty print from standard input
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -v -i.bak *.xml                # pretty print .xml files, with backups
+  xml_pp -v -i'orig_*' *.xml            # backups are named orig_&lt;filename&gt;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -i -p pre foo.xhtml            # preserve spaces in pre tags
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -i.bak -p 'pre code' foo.xml   # preserve spaces in pre and code tags
+  xml_pp -i.bak -p pre -p code foo.xml  # same
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -i -s record mydb_export.xml   # pretty print using the record style
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -e utf8 -i foo.xml             # output will be in utf8
+  xml_pp -e iso-8859-1 -i foo.xml       # output will be in iso-8859-1
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -v -i.bak -f lof               # pretty print in place files from lof
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -- -i.xml                      # pretty print the -i.xml file
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -l foo.xml                     # loads the entire file in memory 
+                                        # before pretty printing it
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  xml_pp -h                             # display help
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixAAO"></A>
+Elements with mixed content that start with an embedded element get an extra \n 
+<P>
+
+
+
+<PRE>
+  &lt;elt&gt;&lt;b&gt;b&lt;/b&gt;toto&lt;b&gt;bold&lt;/b&gt;&lt;/elt&gt;
+
+</PRE>
+
+
+<P>
+
+will be output as 
+<P>
+
+
+
+<PRE>
+  &lt;elt&gt;
+    &lt;b&gt;b&lt;/b&gt;toto&lt;b&gt;bold&lt;/b&gt;&lt;/elt&gt;
+
+</PRE>
+
+
+<P>
+
+Using the -l option solves this bug (but uses more memory)
+<A NAME="lbAH">&nbsp;</A>
+<H2>TODO</H2>
+
+<A NAME="ixAAP"></A>
+update XML::Twig to use Encode with perl 5.8.0
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAQ"></A>
+Michel Rodriguez &lt;<A HREF="mailto:mirod@xmltwig.com">mirod@xmltwig.com</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSYS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">TODO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

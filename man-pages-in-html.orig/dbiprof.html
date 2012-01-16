@@ -1,0 +1,343 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>DBIPROF</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>DBIPROF</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-06-15<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+dbiprof - command-line client for DBI::ProfileData
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+See a report of the ten queries with the longest total runtime in the
+profile dump file <I>prof1.out</I>:
+<P>
+
+
+
+<PRE>
+ dbiprof prof1.out
+
+</PRE>
+
+
+<P>
+
+See the top 10 most frequently run queries in the profile file
+<I>dbi.prof</I> (the default):
+<P>
+
+
+
+<PRE>
+  dbiprof --sort count
+
+</PRE>
+
+
+<P>
+
+See the same report with 15 entries:
+<P>
+
+
+
+<PRE>
+  dbiprof --sort count --number 15
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+This tool is a command-line client for the DBI::ProfileData.  It
+allows you to analyze the profile data file produced by
+DBI::ProfileDumper and produce various useful reports.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+This program accepts the following options:
+<DL COMPACT>
+<DT>--number N<DD>
+<A NAME="ixAAF"></A>
+Produce this many items in the report.  Defaults to 10.  If set to
+``all'' then all results are shown.
+<DT>--sort field<DD>
+<A NAME="ixAAG"></A>
+Sort results by the given field.  The available sort fields are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>total<DD>
+<A NAME="ixAAH"></A>
+Sorts by total time run time across all runs.  This is the default
+sort.
+<DT>longest<DD>
+<A NAME="ixAAI"></A>
+Sorts by the longest single run.
+<DT>count<DD>
+<A NAME="ixAAJ"></A>
+Sorts by total number of runs.
+<DT>first<DD>
+<A NAME="ixAAK"></A>
+Sorts by the time taken in the first run.
+<DT>shortest<DD>
+<A NAME="ixAAL"></A>
+Sorts by the shortest single run.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>--reverse<DD>
+<A NAME="ixAAM"></A>
+Reverses the selected sort.  For example, to see a report of the
+shortest overall time:
+
+
+<P>
+
+
+
+
+<PRE>
+  dbiprof --sort total --reverse
+
+</PRE>
+
+
+<DT>--match keyN=value<DD>
+<A NAME="ixAAN"></A>
+Consider only items where the specified key matches the given value.
+Keys are numbered from 1.  For example, let's say you used a
+DBI::Profile Path of:
+
+
+<P>
+
+
+
+
+<PRE>
+  [ DBIprofile_Statement, DBIprofile_Methodname ]
+
+</PRE>
+
+
+
+
+<P>
+
+
+And called dbiprof as in:
+
+
+<P>
+
+
+
+
+<PRE>
+  dbiprof --match key2=execute
+
+</PRE>
+
+
+
+
+<P>
+
+
+Your report would only show execute queries, leaving out prepares,
+fetches, etc.
+
+
+<P>
+
+
+If the value given starts and ends with slashes (<TT>&quot;/&quot;</TT>) then it will be
+treated as a regular expression.  For example, to only include <FONT SIZE="-1">SELECT</FONT>
+queries where key1 is the statement:
+
+
+<P>
+
+
+
+
+<PRE>
+  dbiprof --match key1=/^SELECT/
+
+</PRE>
+
+
+
+
+<P>
+
+
+By default the match expression is matched case-insensitively, but
+this can be changed with the --case-sensitive option.
+<DT>--exclude keyN=value<DD>
+<A NAME="ixAAO"></A>
+Remove items for where the specified key matches the given value.  For
+example, to exclude all prepare entries where key2 is the method name:
+
+
+<P>
+
+
+
+
+<PRE>
+  dbiprof --exclude key2=prepare
+
+</PRE>
+
+
+
+
+<P>
+
+
+Like <TT>&quot;--match&quot;</TT>, If the value given starts and ends with slashes
+(<TT>&quot;/&quot;</TT>) then it will be treated as a regular expression.  For example,
+to exclude <FONT SIZE="-1">UPDATE</FONT> queries where key1 is the statement:
+
+
+<P>
+
+
+
+
+<PRE>
+  dbiprof --match key1=/^UPDATE/
+
+</PRE>
+
+
+
+
+<P>
+
+
+By default the exclude expression is matched case-insensitively, but
+this can be changed with the --case-sensitive option.
+<DT>--case-sensitive<DD>
+<A NAME="ixAAP"></A>
+Using this option causes --match and --exclude to work
+case-sensitively.  Defaults to off.
+<DT>--version<DD>
+<A NAME="ixAAQ"></A>
+Print the dbiprof version number and exit.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixAAR"></A>
+Sam Tregar &lt;<A HREF="mailto:sam@tregar.com">sam@tregar.com</A>&gt;
+<A NAME="lbAG">&nbsp;</A>
+<H2>COPYRIGHT AND LICENSE</H2>
+
+<A NAME="ixAAS"></A>
+Copyright (C) 2002 Sam Tregar
+
+
+<P>
+
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl 5 itself.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixAAT"></A>
+DBI::ProfileDumper,
+DBI::Profile, <FONT SIZE="-1">DBI</FONT>.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">AUTHOR</A><DD>
+<DT><A HREF="#lbAG">COPYRIGHT AND LICENSE</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

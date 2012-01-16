@@ -1,0 +1,440 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>texutil</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>texutil</H1>
+Section: CONTEXT (1)<BR>Updated: October 2000<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<P>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME </H2>
+
+texutil - ConTeXt auxiliary program
+<P>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS </H2>
+
+<B>texutil</B> [ <I>OPTION</I>... ] <I>FILENAME</I>[...]
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION </H2>
+
+<P>
+
+When processing a source file, <B>ConTeXt</B> (via <B><A HREF="../man1/texexec.1.php">texexec</A></B>(1))
+saves information (including table of contents, tables of figures and
+tables, index entries, cross-references) in a ``utility file'' called
+<I>FILENAME</I><I>.tui</I>.  After each successful run, this
+utility file is postprocessed by <B>texutil</B> to organize the
+information for the next run.
+<P>
+
+<B>texutil</B> performs a number of useful functions:
+<P>
+
+<DL COMPACT>
+<DT><DD>
+<DT>o<DD>
+Postprocessing references, including sorting index and list
+entries (with <B>--references</B>)
+<DT><DD>
+<DT>o<DD>
+Extracting documentation and other types of information from
+<B>ConTeXt</B> source files (with
+<B>--documents</B>)
+<DT><DD>
+<DT>o<DD>
+Logfile analysis (with <B>--logfile</B>)
+<DT><DD>
+<DT>o<DD>
+Collecting information about graphic files to help with
+typesetting (with <B>--figures</B>)
+<DT><DD>
+<DT>o<DD>
+Converting EPS files to a PDF format suitable for inclusion in
+PDF files generated with <B><A HREF="../man1/pdftex.1.php">pdftex</A></B>(1) (with
+--<B>--epspage</B> and
+<B>--epstopdf</B>)
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS </H2>
+
+<P>
+
+All switches are specified here in full, but can be abbreviated to the
+shortest unique string.  Thus, <B>--ver</B> works the same as
+<B>--verbose</B> provided that there is no other flag beginning with
+``<TT>ver</TT>''.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>General Options </H2>
+
+<P>
+
+<DL COMPACT>
+<DT><DD>
+<DT><B>--help</B><DD>
+Print a usage summary to stdout.
+<DT><DD>
+<DT><B>--interface=</B><I>LANGUAGECODE</I><DD>
+Specify the language for
+messages.  One of <B>en</B> (English), <B>de</B> (German), or
+<B>nl</B> (Dutch).  The default language is English.
+<DT><DD>
+<DT><B>--outputfile=</B><I>FILENAME</I><DD>
+Specify the name of the
+output file.
+<DT><DD>
+<DT><B>--purge</B> [ <I>BASENAME</I> ]<DD>
+Delete temporary files.
+Specifying an optional <I>BASENAME</I> will only
+affect the temporary files that begin with that
+<I>BASENAME</I>.
+<DT><DD>
+<DT><B>--silent</B><DD>
+Redirects stdout to the <I>log</I> file
+(<I>texutil.log</I>, by default).  When used with
+<B>--verbose</B>, a summary is printed to stdout, while
+any other output is written to the <I>log</I> file.
+<DT><DD>
+For example,
+<DT><DD>
+<DL COMPACT><DT><DD>
+<TT>texutil --figures --silent --verbose somefile.png</TT>
+</DL>
+
+<DT><DD>
+will output something like
+<DT><DD>
+<DL COMPACT><DT><DD>
+<TT>n=somefile.png t=png x=0bp y=0bp w=443bp h=591bp</TT>
+</DL>
+
+<DT><DD>
+to stdout, placing other output into
+<I>texutil.log</I>.  This information can be piped
+into another program for further processing.
+<DT><DD>
+<DT><B>--type=</B><I>SUFFIX</I><DD>
+Specify the <I>SUFFIX</I> of the
+file you want <B>texutil</B> to process.
+<DT><DD>
+<DT><B>--verbose</B><DD>
+Print diagnostic messages to the screen.
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Postprocessing References </H2>
+
+<P>
+
+The <B>--references</B> flag instructs <B>texutil</B> to process
+information about cross-references, index entries, and other data
+requiring more than one pass to process in the <B>ConTeXt</B> utility
+file.
+<P>
+
+Index and sorted list entries are sorted before being written out;
+redundant index entries are removed.
+<P>
+
+<B>texutil</B> is called automatically by <B><A HREF="../man1/texexec.1.php">texexec</A></B>(1) during its
+processing runs unless you specify otherwise.  <B>texutil</B> can also
+be run by hand, using the form
+<P>
+
+<DL COMPACT><DT><DD>
+<TT>texutil --references</TT> <I>FILENAME</I>
+</DL>
+
+<P>
+
+This command would cause <B>texutil</B> to load the utility file
+<I>FILENAME</I><I>.tui</I>, sort and convert the contents of that
+file, and write the results to <I>FILENAME</I><I>.tuo</I>.
+<P>
+
+Options specific to this mode are: 
+<DL COMPACT>
+<DT><DD>
+<DT><B>--ij</B><DD>
+Sort ``<TT>IJ</TT>'' as ``<TT>Y</TT>''.  Often used when
+processing files written in Dutch.
+<DT><DD>
+<DT><B>--high</B><DD>
+Convert ``high'' ASCII values into equivalent TeX
+commands.  This switch is provided for backward
+compatibility.
+<DT><DD>
+<DT><B>--quotes</B><DD>
+Take <B><A HREF="../man1/tex.1.php">tex</A></B>(1) accent commands into
+consideration when sorting.  (Otherwise, quotes are
+considered to be boundary characters for strings.)
+<DT><DD>
+<DT><B>--tcxpath=</B><I>PATH</I><DD>
+Specify path to <I>tcx</I>
+filter files for translating
+between encodings.
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>Extracting Information from ConTeXt Source Files </H2>
+
+<P>
+
+<B>ConTeXt</B> source files often contain documentation (see
+USAGE for more information about the format) or other
+information that can be extracted by <B>texutil</B> when called with the
+<B>--documents</B> flag:
+<P>
+
+<DL COMPACT><DT><DD>
+<TT>texutil --documents</TT> <I>FILENAME</I>
+</DL>
+
+<P>
+
+This command produces a file called <I>FILENAME</I><I>.ted</I>
+from a ConTeXt file called <I>FILENAME</I><I>.tex</I>.
+<P>
+
+The <B>--sources</B> flag does the opposite: Documentation lines are
+stripped out of the output, which is written to a file called
+<I>FILENAME</I><I>.tes</I>.
+<P>
+
+Historically, <B>ConTeXt</B> source files included other forms of
+information -- such as syntax definitions, macro definitions, and
+editor templates -- that can be extracted with the following flags:
+<P>
+
+<DL COMPACT>
+<DT><DD>
+<DT><B>--infos</B><DD>
+Extract TeXEdit macro information
+(<I>tex</I>-&gt;<I>tud</I> -- see
+USAGE)
+<DT><DD>
+<DT><B>--setups</B><DD>
+Extract <B>ConTeXt</B> syntax definitions
+(<I>tex</I>-&gt;<I>texutil.tus</I>)
+<DT><DD>
+<DT><B>--templates</B><DD>
+Extract TeXEdit editor templates
+(<I>tex</I>-&gt;<I>tud</I>)
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>Analyzing Log Files </H2>
+
+<P>
+
+Calling <B>texutil</B> with the <B>--logfile</B> option allows you to
+extract information about problems with your <B>ConTeXt</B> source file
+from the log file produced during a <B><A HREF="../man1/texexec.1.php">texexec</A></B>(1) run.
+<P>
+
+You can specify what information <B>texutil</B> should report with the
+following options:
+<DL COMPACT>
+<DT><DD>
+<DT><B>--box</B><DD>
+Extract information about overfull boxes.  By
+default, this flag will cause <B>texedit</B> to report both
+horizontal and vertical overfull boxes.  If you're only
+interested in one kind, you can specify <B>--hbox</B> or
+<B>--vbox</B> instead.
+<DT><DD>
+<DT><B>--criterium=</B><I>SIZE</I><DD>
+Exclude reports about boxes that
+are less than <I>SIZE</I> points too large.
+<DT><DD>
+<DT><B>--unknown</B><DD>
+Extract messages about missing references or
+figures.
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Gathering Information about Figures </H2>
+
+<P>
+
+The <B>--figures</B> flag tells <B>texutil</B> to generate information
+about one or more (non-EPS) graphics files for use in typesetting.
+Called as, for example,
+<P>
+
+<DL COMPACT><DT><DD>
+<TT>texutil --figures *.png *.tif</TT>
+</DL>
+
+<P>
+
+<B>texutil</B> will scan the current directory for PNG and TIFF files
+and extract some useful information about their sizes and types.  By
+default, this information is stored in a file called
+<I>texutil.tuf</I>, which is consulted by <B>ConTeXt</B> when
+typesetting a page with a non-EPS image file -- see the example given
+for the <B>--silent</B> flag for an alternative.
+<P>
+
+This flag is especially useful when you plan to typeset a file of
+previews of graphic files -- see the discussion of the
+<B>--figures</B> flag in the <B><A HREF="../man1/texexec.1.php">texexec</A></B>(1) manpage.
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>Converting EPS Files for PDF Inclusion </H2>
+
+<P>
+
+<B>texutil</B> can also convert EPS files to PDF format for inclusion in
+PDF files generated with <B><A HREF="../man1/pdftex.1.php">pdftex</A></B>(1) or <B><A HREF="../man1/pdfetex.1.php">pdfetex</A></B>(1).
+<P>
+
+<DL COMPACT>
+<DT><DD>
+<DT><B>--epspage</B><DD>
+Adjust the bounding box of an EPS file to the
+dimensions of the output page.  This option also removes some
+redundant information and marks files as converted so that they
+will not be affected by subsequent runs.
+<DT><DD>
+<DT><B>--epstopdf</B><DD>
+Calls <B><A HREF="../man1/gs.1.php">gs</A></B>(1) to convert the specified
+EPS graphic files into PDF format.
+<DT><DD>
+</DL>
+<P>
+
+<A NAME="lbAL">&nbsp;</A>
+<H2>USAGE </H2>
+
+<P>
+
+<A NAME="lbAM">&nbsp;</A>
+<H2>Embedded Documentation Format </H2>
+
+<P>
+
+Documentation lines included in <B>ConTeXt</B> source files can be
+specified by beginning lines with the following strings:
+<DL COMPACT>
+<DT><DD>
+<DT><TT>%C</TT><DD>
+Copyright information
+<DT><DD>
+<DT><TT>%D</TT><DD>
+Documentation lines
+<DT><DD>
+<DT><TT>%I</TT><DD>
+TeXEdit information lines (mostly in Dutch)
+<DT><DD>
+<DT><TT>%M</TT><DD>
+Macro code needed to processs the documentation
+<DT><DD>
+<DT><TT>%S</TT><DD>
+``Suppressed'' lines
+<DT><DD>
+</DL>
+<P>
+
+The same forms can be used for Perl scripts, except that the
+``<TT>%</TT>'' characters are replaced by ``<TT>#</TT>'' characters.  See
+the source for <B>texutil</B> for an example.
+<P>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>SEE ALSO </H2>
+
+<P>
+
+<B><A HREF="../man1/gs.1.php">gs</A></B>(1), <B><A HREF="../man1/pdfetex.1.php">pdfetex</A></B>(1), <B><A HREF="../man1/pdftex.1.php">pdftex</A></B>(1),
+<B><A HREF="../man1/texexec.1.php">texexec</A></B>(1), <B><A HREF="../man1/texshow.1.php">texshow</A></B>(1).
+<P>
+
+Web page: &lt;<A HREF="http://www.pragma-ade.com/">http://www.pragma-ade.com/</A>&gt;
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>AUTHOR </H2>
+
+<P>
+
+This manpage was written by C.M. Connelly
+&lt;c@eskimo.com&gt; and Tobias Burnus
+&lt;<A HREF="mailto:burnus@gmx.de">burnus@gmx.de</A>&gt;.  It is based on
+the <B>texutil</B> manual written by Hans Hagen 
+&lt;<A HREF="mailto:pragma@wxs.nl">pragma@wxs.nl</A>&gt;.
+<P>
+
+The PDF manual and <B>texutil</B> itself can be obtained at
+&lt;<A HREF="http://www.pragma-ade.com/pragma-ade/texutil.htm">http://www.pragma-ade.com/pragma-ade/texutil.htm</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME </A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS </A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION </A><DD>
+<DT><A HREF="#lbAE">OPTIONS </A><DD>
+<DT><A HREF="#lbAF">General Options </A><DD>
+<DT><A HREF="#lbAG">Postprocessing References </A><DD>
+<DT><A HREF="#lbAH">Extracting Information from ConTeXt Source Files </A><DD>
+<DT><A HREF="#lbAI">Analyzing Log Files </A><DD>
+<DT><A HREF="#lbAJ">Gathering Information about Figures </A><DD>
+<DT><A HREF="#lbAK">Converting EPS Files for PDF Inclusion </A><DD>
+<DT><A HREF="#lbAL">USAGE </A><DD>
+<DT><A HREF="#lbAM">Embedded Documentation Format </A><DD>
+<DT><A HREF="#lbAN">SEE ALSO </A><DD>
+<DT><A HREF="#lbAO">AUTHOR </A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

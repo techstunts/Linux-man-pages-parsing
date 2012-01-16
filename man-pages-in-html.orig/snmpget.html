@@ -1,0 +1,185 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>SNMPGET</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>SNMPGET</H1>
+Section: Net-SNMP (1)<BR>Updated: 08 Feb 2002<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+snmpget - communicates with a network entity using SNMP GET Requests.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>snmpget</B>
+
+[COMMON OPTIONS] [-Cf] OID [OID]...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>snmpget</B>
+
+is an SNMP application that uses the SNMP GET request to query for
+information on a network entity.  One or more object identifiers
+(OIDs) may be given as arguments on the command line.  Each variable
+name is given in the format specified in
+<I><A HREF="../man5/variables.5.php">variables</A>(5)</I>.
+
+<P>
+
+For example:
+<P>
+
+snmpget -c public zeus system.sysDescr.0
+<P>
+
+will retrieve the variable system.sysDescr.0:
+<P>
+
+system.sysDescr.0 = &quot;SunOS zeus.net.cmu.edu 4.1.3_U1 1 sun4m&quot;
+<P>
+
+If the network entity has an error processing the request packet, an
+error packet will be returned and a message will be shown, helping to
+pinpoint in what way the request was malformed.  If there were other
+variables in the request, the request will be resent without the bad
+variable.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-Cf</B>
+
+<DD>
+If
+<B>-Cf</B>
+
+is
+<I>not</I>
+
+specified, some applications
+(<B>snmpdelta</B>, <B>snmpget</B>, <B>snmpgetnext</B> and <B>snmpstatus</B>)
+
+will try to fix errors returned by the agent that you were talking to
+and resend the request.  The only time this is really useful is if you
+specified a OID that didn't exist in your request and you're using
+SNMPv1 which requires &quot;all or nothing&quot; kinds of requests. Here is an
+example (note that system.sysUpTime is an incomplete OID as it needs
+the .0 index appended to it):
+</DL>
+<P>
+
+<PRE>
+snmpget -v1 -Cf -c public localhost system.sysUpTime system.sysContact.0
+<B>Error</B>in<B>packet</B>
+Reason: (noSuchName) There is no such variable name in this MIB.
+This name doesn't exist: system.sysUpTime
+
+snmpget -v1 -c public localhost system.sysUpTime system.sysContact.0
+Error in packet
+Reason: (noSuchName) There is no such variable name in this MIB.
+This name doesn't exist: system.sysUpTime
+
+system.sysContact.0 = STRING: <A HREF="mailto:root@localhost">root@localhost</A>
+</PRE>
+
+<DL COMPACT>
+<DT><DD>
+With the
+<B>-Cf</B>
+
+specified the application will not try to fix the PDU for you.
+</DL>
+<P>
+
+In addition to this option,
+<B>snmpget</B>
+
+takes the common options described in the 
+<I><A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1)</I>
+
+manual page.
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/snmpcmd.1.php">snmpcmd</A>(1), <A HREF="../man5/variables.5.php">variables</A>(5).
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

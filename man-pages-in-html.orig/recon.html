@@ -1,0 +1,356 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>RECON</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>RECON</H1>
+Section: LAM TOOLS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+recon - Check if LAM can be started.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+recon [-abdhv] [-ssi &lt;key&gt; &lt;value&gt;] [&lt;bhost&gt;]
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+Report all host errors.
+<DT><B>-b</B>
+
+<DD>
+Assume local and remote shell are the same.  This means that only one
+remote shell invocation is used to each node.  If
+<B>-b</B>
+
+is not used, two remote shell invocations are used to each node.
+<DT><B>-d</B>
+
+<DD>
+Turn on debugging.
+<DT><B>-h</B>
+
+<DD>
+Print the command help menu.
+<DT><B>-ssi &lt;key&gt; &lt;value&gt;</B>
+
+<DD>
+Send arguments to various SSI modules.  See the &quot;SSI&quot; section, below.
+<DT><B>-v</B>
+
+<DD>
+Be verbose.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+In order for LAM to be started on a remote UNIX machine, several
+requirements have to be fulfilled:
+<DL COMPACT>
+<DT>1)<DD>
+The machine must be reachable via the network.
+<DT>2)<DD>
+The user must be able to remotely execute on the machine with the
+default remote shell program that was chosen when LAM was configured.
+This is usually <A HREF="../man1/rsh.1.php">rsh</A>(1), but any remote shell program is acceptable
+(such as <A HREF="../man1/ssh.1.php">ssh</A>(1), etc.).  Note that remote host permission must be
+configured such that the remote shell program will not ask for a
+password when a command is invoked on remote host.
+<DT>3)<DD>
+The remote user's shell must have a search path that will locate
+LAM executables.
+<DT>4)<DD>
+The remote shell's startup file must not print anything to standard
+error when invoked non-interactively.
+</DL>
+<P>
+
+If any of these requirements is not met for any machine declared in
+<I>&lt;bhost&gt;</I>,
+
+LAM will not be able to start.
+By running
+<I>recon</I>
+
+first, the user will be able to quickly identify and correct problems
+in the setup that would inhibit LAM from starting.
+<P>
+
+The local machine where
+<I>recon</I>
+
+is invoked must be one of the machines specified in
+<I>&lt;bhost&gt;</I>.
+
+<P>
+
+The
+<I>&lt;bhost&gt; </I>
+
+file is a LAM boot schema written in the host file syntax.
+See <A HREF="../man5/bhost.5.php">bhost</A>(5).
+Instead of the command line, a boot schema can be specified in
+the LAMBHOST environment variable.
+Otherwise a default file, bhost.def, is used.
+LAM seaches for
+<I>&lt;bhost&gt;</I>
+
+first in the local directory and then in the installation directory
+under etc/.
+<P>
+
+<I>recon</I>
+
+tests each machine defined in
+<I>&lt;bhost&gt;</I>
+
+by attempting to execute on it the <A HREF="../man1/tkill.1.php">tkill</A>(1) command using its
+&quot;pretend&quot; option (no action is taken).  This test, if successful,
+indicates that all the requirements listed above are met, and thus LAM
+can be started on the machine.  If the attempt is successful, the next
+machine is checked.  In case the attempt fails, a descriptive error
+message is displayed and
+<I>recon</I>
+
+stops unless the
+<I>-a</I>
+
+option is used, in which case
+<I>recon</I>
+
+continues checking the remaining machines.
+<P>
+
+If
+<I>recon</I>
+
+takes a long time to finish successfully, this will be a good
+indication to the user that the LAM system to be started has slow
+communication links or heavily loaded machines, and it might be
+preferable to exclude or replace some of the machines in the system.
+<A NAME="lbAF">&nbsp;</A>
+<H3>SSI (System Services Interface)</H3>
+
+The
+<I>-ssi</I>
+
+switch allows the passing of parameters to various SSI modules.  LAM's
+SSI modules are described in detail in <A HREF="../man7/lamssi.7.php">lamssi</A>(7).  SSI modules have
+direct impact on MPI programs because they allow tunable parameters to
+be set at run time (such as which boot device driver to use, what
+parameters to pass to that driver, etc.).
+<P>
+
+The 
+<I>-ssi</I>
+
+switch takes two arguments:
+<I>&lt;key&gt;</I>
+
+and 
+<I>&lt;value&gt;</I>.
+
+The
+<I>&lt;key&gt;</I>
+
+argument generally specifies which SSI module will receive the value.
+For example, the
+<I>&lt;key&gt;</I>
+
+&quot;boot&quot; is used to select which RPI to be used for starting processes
+on remote nodes.  The
+<I>&lt;value&gt; </I>
+
+argument is the value that is passed.  For example:
+<DL COMPACT>
+<DT>recon -ssi boot tm<DD>
+Tells LAM to use the &quot;tm&quot; boot module for native launching in PBSPro /
+OpenPBS environments (the tm boot module does not require a boot
+schema).
+<DT>recon -ssi boot rsh -ssi rsh_agent &quot;ssh -x&quot; boot_file<DD>
+Tells LAM to use the &quot;rsh&quot; boot module, and tells the rsh module to
+use &quot;ssh -x&quot; as the specific agent to launch executables on remote
+nodes.
+</DL>
+<P>
+
+And so on.  LAM's boot SSI modules are described in <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7).
+This page should be consulted for specific actions that are taken by,
+and how to tweak the run-time behavior of each boot module.
+<P>
+
+The 
+<I>-ssi</I>
+
+switch can be used multiple times to specify different
+<I>&lt;key&gt;</I>
+
+and/or
+<I>&lt;value&gt;</I>
+
+arguments.  If the same
+<I>&lt;key&gt;</I>
+
+is specified more than once, the
+<I>&lt;value&gt;</I>s
+
+are concatenated with a comma (&quot;,&quot;) separating them.
+<P>
+
+Note that the 
+<I>-ssi</I>
+
+switch is simply a shortcut for setting environment variables.  The
+same effect may be accomplished by setting corresponding environment
+variables before running
+<I>lamboot</I>.
+
+The form of the environment variables that LAM sets are:
+<I>LAM_MPI_SSI_&lt;key&gt;=&lt;value&gt;</I>.
+
+<P>
+
+Note that the
+<I>-ssi</I>
+
+switch overrides any previously set environment variables.  Also note
+that unknown
+<I>&lt;key&gt;</I>
+
+arguments are still set as environment variable -- they are not
+checked (by
+<I>wipe</I>)
+
+for correctness.  Illegal or incorrect 
+<I>&lt;value&gt;</I>
+
+arguments may or may not be reported -- it depends on the specific SSI
+module.
+<A NAME="lbAG">&nbsp;</A>
+<H3>Remote Executable Invocation</H3>
+
+<P>
+
+All tweakable aspects of launching executables on remote nodes during 
+<I>recon</I>
+
+are discussed in <A HREF="../man7/lamssi.7.php">lamssi</A>(7) and <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7).  Topics include (but
+are not limited to): discovery of remote shell, run-time overrides of
+the agent use to launch remote executables (e.g., rsh and ssh), etc.
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>laminstalldir/etc/lam-bhost.def <DD>
+default boot schema file, where &quot;laminstalldir&quot; is the directory where
+LAM/MPI was installed.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>recon -v mynodes<DD>
+Check if LAM can be started on all the UNIX machines described
+in the boot schema
+<I>mynodes</I>.
+
+Report about important steps as they are done.
+<DT>recon -v -a<DD>
+Check if LAM can be started on all the UNIX machines described in the
+default boot schema.  Report about important steps as they are done.
+Check all the machines; do not stop after the first error message.
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/rsh.1.php">rsh</A>(1), <A HREF="../man1/tkill.1.php">tkill</A>(1), <A HREF="../man5/bhost.5.php">bhost</A>(5), <A HREF="../man1/lamboot.1.php">lamboot</A>(1), <A HREF="../man1/wipe.1.php">wipe</A>(1), <A HREF="../man5/lam-helpfile.5.php">lam-helpfile</A>(5),
+<A HREF="../man7/lamssi.7.php">lamssi</A>(7), <A HREF="../man7/lamssi_boot.7.php">lamssi_boot</A>(7)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">SSI (System Services Interface)</A><DD>
+<DT><A HREF="#lbAG">Remote Executable Invocation</A><DD>
+</DL>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

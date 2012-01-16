@@ -1,0 +1,842 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLDL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLDL</H1>
+Section: User Contributed Perl Documentation (1)<BR>Updated: 2004-06-15<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perldl - Simple shell for PDL
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+        %&gt; perldl
+        perldl&gt; $a=sequence(10) # or any other PDL command
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+The program <B>perldl</B> is a simple shell (written in perl) for
+interactive use of <FONT SIZE="-1">PDL</FONT>.  perl/PDL commands can simply be typed in - and
+edited if you have appropriate version of the ReadLines and ReadKeys
+modules installed. In that case <B>perldl</B> also supports a history
+mechanism where the last 50 commands are always stored in the file
+<I>.perldl_hist</I> in your home directory between sessions. The command
+<TT>&quot;l [number]&quot;</TT> shows you the last <TT>&quot;number&quot;</TT> commands you typed where
+<TT>&quot;number&quot;</TT> defaults to 20.
+<P>
+
+e.g.:
+<P>
+
+
+
+<PRE>
+   % perldl
+   ReadLines enabled
+   perldl&gt; $a = rfits &quot;foo.fits&quot;
+   BITPIX =  -32  size = 88504 pixels
+   Reading  354016 bytes
+   BSCALE =  &amp;&amp;  BZERO =
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   perldl&gt; imag log($a+400)
+   Displaying 299 x 296 image from 4.6939525604248 to 9.67116928100586 ...
+
+</PRE>
+
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>Command-line options</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT>-tk<DD>
+<A NAME="ixAAF"></A>
+Load Tk when starting the shell (the perl Tk module, which is
+available from <FONT SIZE="-1">CPAN</FONT> must be installed). This enables readline
+event loop processing.
+<DT>-f file<DD>
+<A NAME="ixAAG"></A>
+Loads the file before processing any user input. Any errors
+during the execution of the file are fatal.
+<DT>-w<DD>
+<A NAME="ixAAH"></A>
+Runs with warning messages (i.e. the normal perl <TT>&quot;-w&quot;</TT> warnings)
+turned-on.
+<DT>-M module<DD>
+<A NAME="ixAAI"></A>
+Loads the module before processing any user input.
+Compare corresponding <TT>&quot;perl&quot;</TT> switch.
+<DT>-m module<DD>
+<A NAME="ixAAJ"></A>
+Unloads the module before processing any user input.
+<DT>-I directory<DD>
+<A NAME="ixAAK"></A>
+Adds directory to the include path. (i.e. the <TT>@INC</TT> array)
+Compare corresponding <TT>&quot;perl&quot;</TT> switch.
+<DT>-V<DD>
+<A NAME="ixAAL"></A>
+Prints a summary of <FONT SIZE="-1">PDL</FONT> config. This information should
+be included with any <FONT SIZE="-1">PDL</FONT> bug report. Compare corresponding
+<TT>&quot;perl&quot;</TT> switch.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>Terminating perldl</H2>
+
+
+
+<A NAME="ixAAM"></A>
+A <TT>&quot;perldl&quot;</TT> session can be terminated with any of the commands
+<TT>&quot;quit&quot;</TT>, <TT>&quot;exit&quot;</TT> or the shorthands <TT>&quot;x&quot;</TT> or <TT>&quot;q&quot;</TT>.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Terminating commands (Ctrl-C handling)</H2>
+
+<A NAME="ixAAN"></A>
+Commands executed within <TT>&quot;perldl&quot;</TT> can be terminated prematurely
+using <TT>&quot;Ctrl-C&quot;</TT> (or whichever key sequence sends an <FONT SIZE="-1">INT</FONT> signal
+to the process on your terminal). Provided your <FONT SIZE="-1">PDL</FONT> code does not
+ignore <TT>&quot;sigint&quot;</TT>s this should throw you back at the <TT>&quot;perldl&quot;</TT>
+command prompt:
+<P>
+
+
+
+<PRE>
+  perldl&gt; $result = start_lengthy_computation()
+   &lt;Ctrl-C&gt;
+ Ctrl-C detected
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  perldl&gt;
+
+</PRE>
+
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>Shortcuts and aliases</H2>
+
+<A NAME="ixAAO"></A>
+<DL COMPACT>
+<DT>*<DD>
+The shell aliases <TT>&quot;p&quot;</TT> to be a convenient short form of <TT>&quot;print&quot;</TT>, e.g.
+
+
+<P>
+
+
+
+
+<PRE>
+   perldl&gt; p ones 5,3
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+   [
+    [1 1 1 1 1]
+    [1 1 1 1 1]
+    [1 1 1 1 1]
+   ]
+
+</PRE>
+
+
+<DT>*<DD>
+<TT>&quot;q&quot;</TT> and <TT>&quot;x&quot;</TT> are short-hand for <TT>&quot;quit&quot;</TT>.
+<DT>*<DD>
+<TT>&quot;l&quot;</TT> lists the history buffer
+
+
+<P>
+
+
+
+
+<PRE>
+  perldl&gt; l # list last 20 commands
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  perldl&gt; l 40 # list last 40 commands
+
+</PRE>
+
+
+<DT>*<DD>
+<TT>&quot;?&quot;</TT> is an alias for help
+
+
+<P>
+
+
+
+
+<PRE>
+  perldl&gt; ? wpic
+
+</PRE>
+
+
+<DT>*<DD>
+<TT>&quot;??&quot;</TT> is an alias for apropos
+
+
+<P>
+
+
+
+
+<PRE>
+  perldl&gt; ?? PDL::Doc
+
+</PRE>
+
+
+<DT>*<DD>
+help, apropos,
+usage and sig:
+all words after these commands are used verbatim and not evaluated
+by perl. So you can write, e.g.,
+
+
+<P>
+
+
+
+
+<PRE>
+    help help
+
+</PRE>
+
+
+
+
+<P>
+
+
+instead of
+
+
+<P>
+
+
+
+
+<PRE>
+    help 'help'
+
+</PRE>
+
+
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>The startup file <I>~/.perldlrc</I></H2>
+
+<A NAME="ixAAP"></A>
+If the file <I>~/.perldlrc</I> is found it is sourced at start-up to load default
+modules, set shell variables, etc. If it is <FONT SIZE="-1">NOT</FONT> found the distribution file
+<I>PDL/default.perldlrc</I> is read instead. This loads various modules
+considered useful by default, and which ensure compatibility with
+v1.11. If you don't like this and want a more streamlined set of your
+own favourite modules simple create your own <I>~/.perldlrc</I>
+<P>
+
+To set even more local defaults the file  <I>local.perldlrc</I> (in the current
+directory) is sourced if found. This lets you load modules and define
+subroutines for the project in the current directory.
+<P>
+
+The name is chosen specfically because it was found hidden files were
+<FONT SIZE="-1">NOT</FONT> wanted in these circumstances.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Shell variables</H2>
+
+<A NAME="ixAAQ"></A>
+Shell variables: (<I>Note</I>: if you don't like the defaults change
+them in <I>~/.perldlrc</I>)
+<DL COMPACT>
+<DT>*<DD>
+$PERLDL::ESCAPE  - default value '#'
+
+
+<P>
+
+
+Any line starting with this character is treated as a shell
+escape. The default value is chosen because it escapes the
+code from the standard perl interpreter.
+<DT>*<DD>
+$PERLDL::PAGER - default value <TT>&quot;more&quot;</TT>
+
+
+<P>
+
+
+External program to filter the output of commands.  Using <TT>&quot;more&quot;</TT>
+prints output one screenful at a time.  On Unix, setting <TT><A HREF="../man1/page.1.php">page</A>(1)</TT>
+and <TT>$PERLDL::PAGER</TT> to <TT>&quot;tee -a outfile&quot;</TT> will keep a record of the
+output generated by subsequent perldl commands (without paging).
+<DT>*<DD>
+$PERLDL::PROMPT - default value 'perldl&gt; '
+
+
+<P>
+
+
+Enough said  But can also be set to a subroutine reference, e.g.
+<TT>$PERLDL::PROMPT</TT> = sub {join(':',(gmtime)[2,1,0]).'&gt; '} puts the
+current time into the prompt.
+<DT>*<DD>
+$PERLDL::MULTI - default value 1
+
+
+<P>
+
+
+If this is set to a true value, then perldl will parse multi-line 
+perl blocks: your input will not be executed until you finish a line
+with no outstanding group operators (such as quotes, blocks, parenthesis, or 
+brackets) still active.  Continuation lines have a different prompt that
+shows you what delimiters are still active.
+
+
+<P>
+
+
+Note that this is not (yet!) a complete perl parser.  In particular,
+Text::Balanced appears to be able to ignore quoting operatores 
+like <TT>&quot;q/ ... /&quot;</TT> within a line, but not to be able to extend them across
+lines.  Likewise, there is no support for the '&lt;&lt;' operator.
+
+
+<P>
+
+
+Multiline conventional strings and {}, [], and () groupings are well
+supported.
+<DT>*<DD>
+$PERLDL::NO_EOF - default value 0
+
+
+<P>
+
+
+Protects against accidental use of ``^D'' from the terminal.  If this is
+set to a true value, then you can't accidentally exit perldl by typing
+``^D''.  If you set it to a value larger than 1 (and <FONT SIZE="-1">PERLDL::MULTI</FONT> is
+set), then you can't use ``^D'' to exit multiline commands either.  If
+you're piping commands in from a file or pipe, this variable has no
+effect.
+<DT>*<DD>
+$HOME
+
+
+<P>
+
+
+The user's home directory
+<DT>*<DD>
+$PERLDL::TERM
+
+
+<P>
+
+
+This is the Term::ReadLine object associated with the perldl
+shell. It can be used by routines called from perldl if your
+command is interactive.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>Executing scripts from the perldl prompt</H2>
+
+
+
+<A NAME="ixAAR"></A>
+A useful idiom for developing perldl scripts or editing functions
+on-line is
+<P>
+
+
+
+<PRE>
+      perldl&gt; # emacs script &amp;
+                      -- add perldl code to script and save the file
+      perldl&gt; do 'script'
+
+</PRE>
+
+
+<P>
+
+-- substitute your favourite window-based editor for 'emacs' (you may
+also need to change the '&amp;' on non-Unix systems).
+<P>
+
+Running ``do 'script''' again updates any variables and function
+definitions from the current version of 'script'.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Automatically execute your own hooks</H2>
+
+<A NAME="ixAAS"></A>
+The variable <TT>@PERLDL::AUTO</TT> is a simple list of perl code strings
+and/or code reference. It is used to define code to be
+executed automatically every time the user enters a new line.
+<P>
+
+A simple example would be to print the time of each command:
+<P>
+
+
+
+<PRE>
+ perldl&gt; push @PERLDL::AUTO,'print scalar(gmtime),&quot;\n&quot;'
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ perldl&gt; print zeroes(3,3)
+ Sun May  3 04:49:05 1998
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ [
+  [0 0 0]
+  [0 0 0]
+  [0 0 0]
+ ]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ perldl&gt; print &quot;Boo&quot;
+ Sun May  3 04:49:18 1998
+ Boo
+ perldl&gt;
+
+</PRE>
+
+
+<P>
+
+Or to make sure any changes in the file 'local.perldlrc' are
+always picked up :-
+<P>
+
+
+
+<PRE>
+ perldl&gt; push @PERLDL::AUTO,&quot;do 'local.perldlrc'&quot;
+
+</PRE>
+
+
+<P>
+
+This code can of course be put *in* 'local.perldlrc', but
+be careful :-) [Hint: add <TT>&quot;unless ($started++)&quot;</TT> to above
+to ensure it only gets done once!]
+<P>
+
+Another example application is as a hook for Autoloaders
+(e.g. PDL::AutoLoader) to add code too which allows them to
+automatically re-scan their files for changes. This is
+extremely convenient at the interactive command line. Since
+this hook is only in the shell it imposes no inefficiency on
+<FONT SIZE="-1">PDL</FONT> scripts.
+<P>
+
+Finally note this is a very powerful facility - which means
+it should be used with caution!
+<A NAME="lbAM">&nbsp;</A>
+<H2>Command preprocessing</H2>
+
+<A NAME="ixAAT"></A>
+<FONT SIZE="-1">NOTE:</FONT> This feature is used by default by PDL::NiceSlice.
+See below for more about slicing at the <TT>&quot;perldl&quot;</TT> prompt
+<P>
+
+In some cases, it is convenient to process commands before they are
+sent to perl for execution. For example, this is the case where the
+shell is being presented to people unfamiliar with perl but who wish
+to take advantage of commands added locally (eg by automatically 
+quoting arguments to certain commands).
+<P>
+
+*<I></I><FONT SIZE="-1"><I>NOTE</I></FONT><I></I>*: The preprocessing interface has changed from earlier
+versions! The old way using <TT>$PERLDL::PREPROCESS</TT> will still
+work but is strongly deprecated and might go away in the future.
+<P>
+
+You can enable preprocessing by registering a filter with the
+<TT>&quot;preproc_add&quot;</TT> function. <TT>&quot;preproc_add&quot;</TT> takes one argument which
+is the filter to be installed. A filter is a Perl code reference (usually
+set in a local configuration file) that will be called, with the
+current command string as argument, just prior to the string being
+executed by the shell. The modified string should be returned. Note
+that you can make <TT>&quot;perldl&quot;</TT> completely unusable if you fail to
+return the modified string; quitting is then your only option.
+<P>
+
+Filters can be removed from the preprocessing pipeline by calling
+<TT>&quot;preproc_del&quot;</TT> with the filter to be removed as argument.  To find out
+if a filter is currently installed in the preprocessing pipeline use
+<TT>&quot;preproc_registered&quot;</TT>:
+<P>
+
+
+
+<PRE>
+  perldl&gt; preproc_add $myfilter unless preproc_registered $myfilter;
+
+</PRE>
+
+
+<P>
+
+Previous versions of <TT>&quot;perldl&quot;</TT> used the variable <TT>$PERLDL::PREPROCESS</TT>.
+This will still work but should be avoided. Please change your scripts
+to use the <TT>&quot;preproc_add&quot;</TT> etc functions.
+<P>
+
+The following code would check for a call to function 'mysub'
+and bracket arguments with qw.
+<P>
+
+
+
+<PRE>
+ $filter = preproc_add sub {
+   my $str = shift;
+   $str =~ s/^\s+//;  # Strip leading space
+   if ($str =~ /^mysub/) {
+     my ($command, $arguments) = split(/\s+/,$str, 2);
+     $str = &quot;$command qw( $arguments )&quot; 
+       if (defined $arguments &amp;&amp; $arguments !~ /^qw/);
+   };
+   # Return the input string, modified as required
+   return $str;
+ };
+
+</PRE>
+
+
+<P>
+
+This would convert:
+<P>
+
+
+
+<PRE>
+  perldl&gt; mysub arg1 arg2
+
+</PRE>
+
+
+<P>
+
+to
+<P>
+
+
+
+<PRE>
+  perldl&gt; mysub qw( arg1 arg2 )
+
+</PRE>
+
+
+<P>
+
+which Perl will understand as a list.  Obviously, a little more effort
+is required to check for cases where the caller has supplied a normal
+list (and so does not require automatic quoting) or variable
+interpolation is required.
+<P>
+
+You can remove this preprocessor using the <TT>&quot;preproc_del&quot;</TT> function
+which takes one argument (the filter to be removed, it must be the
+same coderef that was returned from a previous <TT>&quot;preproc_add&quot;</TT> call):
+<P>
+
+
+
+<PRE>
+  perldl&gt; preproc_del $filter;
+
+</PRE>
+
+
+<P>
+
+An example of actual usage can be found in the <TT>&quot;perldl&quot;</TT> script. Look
+at the function <TT>&quot;trans&quot;</TT> to see how the niceslicing preprocessor is
+enabled/disabled.
+<A NAME="lbAN">&nbsp;</A>
+<H2>perldl and PDL::NiceSlice</H2>
+
+
+
+<A NAME="ixAAU"></A>
+PDL::NiceSlice introduces a more convenient
+slicing syntax for piddles. In current versions of <TT>&quot;perldl&quot;</TT>
+niceslicing is enabled by default (if the required <FONT SIZE="-1">CPAN</FONT> modules
+are installed on your machine).
+<P>
+
+At startup <TT>&quot;perldl&quot;</TT> will let you
+know if niceslicing is enabled. The startup message will contain
+info to this end, something like this:
+<P>
+
+
+
+<PRE>
+   perlDL shell v1.XX
+    PDL comes with ABSOLUTELY NO WARRANTY. For details, see the file
+    'COPYING' in the PDL distribution. This is free software and you
+    are welcome to redistribute it under certain conditions, see
+    the same file for details.
+   ReadLines, NiceSlice  enabled
+   Reading /home/csoelle/.perldlrc...
+   Type 'demo' for online demos
+   Loaded PDL v2.XX
+
+</PRE>
+
+
+<P>
+
+When you get such a message that indicates <TT>&quot;NiceSlice&quot;</TT> is enabled
+you can use the enhanced slicing syntax:
+<P>
+
+
+
+<PRE>
+  perldl&gt; $a = sequence 10;
+  perldl&gt; p $a(3:8:2)
+
+</PRE>
+
+
+<P>
+
+For details consult PDL::NiceSlice.
+<P>
+
+PDL::NiceSlice installs a filter in the
+preprocessing pipeline (see above) to enable the enhanced slicing
+syntax. You can use a few commands in the <TT>&quot;perldl&quot;</TT> shell to
+switch this preprocessing on or off and also explicitly check
+the substitutions that the NiceSlice filter makes.
+<P>
+
+You can switch the PDL::NiceSlice filter on and off
+by typing
+<P>
+
+
+
+<PRE>
+  perldl&gt; trans # switch niceslicing on
+
+</PRE>
+
+
+<P>
+
+and
+<P>
+
+
+
+<PRE>
+  perldl&gt; notrans # switch niceslicing off
+
+</PRE>
+
+
+<P>
+
+respectively. The filter is on by default.
+<P>
+
+To see how your commands are translated
+switch reporting on:
+<P>
+
+
+
+<PRE>
+  perldl&gt; report 1;
+  perldl&gt; p $a(3:8:2)
+ processed p $a-&gt;nslice([3,8,2])
+ [3 5 7]
+
+</PRE>
+
+
+<P>
+
+Similarly, switch reporting off as needed
+<P>
+
+
+
+<PRE>
+  perldl&gt; report 0;
+  perldl&gt;  p $a(3:8:2)
+ [3 5 7]
+
+</PRE>
+
+
+<P>
+
+Reporting is off by default.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">Command-line options</A><DD>
+<DT><A HREF="#lbAF">Terminating perldl</A><DD>
+<DT><A HREF="#lbAG">Terminating commands (Ctrl-C handling)</A><DD>
+<DT><A HREF="#lbAH">Shortcuts and aliases</A><DD>
+<DT><A HREF="#lbAI">The startup file <I>~/.perldlrc</I></A><DD>
+<DT><A HREF="#lbAJ">Shell variables</A><DD>
+<DT><A HREF="#lbAK">Executing scripts from the perldl prompt</A><DD>
+<DT><A HREF="#lbAL">Automatically execute your own hooks</A><DD>
+<DT><A HREF="#lbAM">Command preprocessing</A><DD>
+<DT><A HREF="#lbAN">perldl and PDL::NiceSlice</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

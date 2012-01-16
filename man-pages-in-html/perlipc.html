@@ -1,0 +1,3162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLIPC</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLIPC</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlipc - Perl interprocess communication (signals, fifos, pipes, safe subprocesses, sockets, and semaphores)
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+The basic <FONT SIZE="-1">IPC</FONT> facilities of Perl are built out of the good old Unix
+signals, named pipes, pipe opens, the Berkeley socket routines, and SysV
+<FONT SIZE="-1">IPC</FONT> calls.  Each is used in slightly different situations.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Signals</H2>
+
+<A NAME="ixAAD"></A>
+Perl uses a simple signal handling model: the <TT>%SIG</TT> hash contains names
+or references of user-installed signal handlers.  These handlers will
+be called with an argument which is the name of the signal that
+triggered it.  A signal may be generated intentionally from a
+particular keyboard sequence like control-C or control-Z, sent to you
+from another process, or triggered automatically by the kernel when
+special events transpire, like a child process exiting, your process
+running out of stack space, or hitting file size limit.
+<P>
+
+For example, to trap an interrupt signal, set up a handler like this:
+<P>
+
+
+
+<PRE>
+    sub catch_zap {
+        my $signame = shift;
+        $shucks++;
+        die &quot;Somebody sent me a SIG$signame&quot;;
+    }
+    $SIG{INT} = 'catch_zap';  # could fail in modules
+    $SIG{INT} = \&amp;catch_zap;  # best strategy
+
+</PRE>
+
+
+<P>
+
+Prior to Perl 5.7.3 it was necessary to do as little as you possibly
+could in your handler; notice how all we do is set a global variable
+and then raise an exception.  That's because on most systems,
+libraries are not re-entrant; particularly, memory allocation and I/O
+routines are not.  That meant that doing nearly <I>anything</I> in your
+handler could in theory trigger a memory fault and subsequent core
+dump - see ``Deferred Signals (Safe Signals)'' below.
+<P>
+
+The names of the signals are the ones listed out by <TT>&quot;kill -l&quot;</TT> on your
+system, or you can retrieve them from the Config module.  Set up an
+<TT>@signame</TT> list indexed by number to get the name and a <TT>%signo</TT> table
+indexed by name to get the number:
+<P>
+
+
+
+<PRE>
+    use Config;
+    defined $Config{sig_name} || die &quot;No sigs?&quot;;
+    foreach $name (split(' ', $Config{sig_name})) {
+        $signo{$name} = $i;
+        $signame[$i] = $name;
+        $i++;
+    }
+
+</PRE>
+
+
+<P>
+
+So to check whether signal 17 and <FONT SIZE="-1">SIGALRM</FONT> were the same, do just this:
+<P>
+
+
+
+<PRE>
+    print &quot;signal #17 = $signame[17]\n&quot;;
+    if ($signo{ALRM}) {
+        print &quot;SIGALRM is $signo{ALRM}\n&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+You may also choose to assign the strings <TT>'IGNORE'</TT> or <TT>'DEFAULT'</TT> as
+the handler, in which case Perl will try to discard the signal or do the
+default thing.
+<P>
+
+On most Unix platforms, the <TT>&quot;CHLD&quot;</TT> (sometimes also known as <TT>&quot;CLD&quot;</TT>) signal
+has special behavior with respect to a value of <TT>'IGNORE'</TT>.
+Setting <TT>$SIG{CHLD}</TT> to <TT>'IGNORE'</TT> on such a platform has the effect of
+not creating zombie processes when the parent process fails to <TT>&quot;wait()&quot;</TT>
+on its child processes (i.e. child processes are automatically reaped).
+Calling <TT>&quot;wait()&quot;</TT> with <TT>$SIG{CHLD}</TT> set to <TT>'IGNORE'</TT> usually returns
+<TT>&quot;-1&quot;</TT> on such platforms.
+<P>
+
+Some signals can be neither trapped nor ignored, such as
+the <FONT SIZE="-1">KILL</FONT> and <FONT SIZE="-1">STOP</FONT> (but not the <FONT SIZE="-1">TSTP</FONT>) signals.  One strategy for
+temporarily ignoring signals is to use a <I>local()</I> statement, which will be
+automatically restored once your block is exited.  (Remember that <I>local()</I>
+values are ``inherited'' by functions called from within that block.)
+<P>
+
+
+
+<PRE>
+    sub precious {
+        local $SIG{INT} = 'IGNORE';
+        &amp;more_functions;
+    }
+    sub more_functions {
+        # interrupts still ignored, for now...
+    }
+
+</PRE>
+
+
+<P>
+
+Sending a signal to a negative process <FONT SIZE="-1">ID</FONT> means that you send the signal
+to the entire Unix process-group.  This code sends a hang-up signal to all
+processes in the current process group (and sets <TT>$SIG</TT>{<FONT SIZE="-1">HUP</FONT>} to <FONT SIZE="-1">IGNORE</FONT> so
+it doesn't kill itself):
+<P>
+
+
+
+<PRE>
+    {
+        local $SIG{HUP} = 'IGNORE';
+        kill HUP =&gt; -$$;
+        # snazzy writing of: kill('HUP', -$$)
+    }
+
+</PRE>
+
+
+<P>
+
+Another interesting signal to send is signal number zero.  This doesn't
+actually affect a child process, but instead checks whether it's alive
+or has changed its <FONT SIZE="-1">UID</FONT>.
+<P>
+
+
+
+<PRE>
+    unless (kill 0 =&gt; $kid_pid) {
+        warn &quot;something wicked happened to $kid_pid&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+When directed at a process whose <FONT SIZE="-1">UID</FONT> is not identical to that
+of the sending process, signal number zero may fail because
+you lack permission to send the signal, even though the process is alive.
+You may be able to determine the cause of failure using <TT>&quot;%!&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    unless (kill 0 =&gt; $pid or $!{EPERM}) {
+        warn &quot;$pid looks dead&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+You might also want to employ anonymous functions for simple signal
+handlers:
+<P>
+
+
+
+<PRE>
+    $SIG{INT} = sub { die &quot;\nOutta here!\n&quot; };
+
+</PRE>
+
+
+<P>
+
+But that will be problematic for the more complicated handlers that need
+to reinstall themselves.  Because Perl's signal mechanism is currently
+based on the <I><A HREF="../man3/signal.3.php">signal</A></I>(3) function from the C library, you may sometimes be so
+misfortunate as to run on systems where that function is ``broken'', that
+is, it behaves in the old unreliable SysV way rather than the newer, more
+reasonable <FONT SIZE="-1">BSD</FONT> and <FONT SIZE="-1">POSIX</FONT> fashion.  So you'll see defensive people writing
+signal handlers like this:
+<P>
+
+
+
+<PRE>
+    sub REAPER {
+        $waitedpid = wait;
+        # loathe sysV: it makes us not only reinstate
+        # the handler, but place it after the wait
+        $SIG{CHLD} = \&amp;REAPER;
+    }
+    $SIG{CHLD} = \&amp;REAPER;
+    # now do something that forks...
+
+</PRE>
+
+
+<P>
+
+or better still:
+<P>
+
+
+
+<PRE>
+    use POSIX &quot;:sys_wait_h&quot;;
+    sub REAPER {
+        my $child;
+        # If a second child dies while in the signal handler caused by the
+        # first death, we won't get another signal. So must loop here else
+        # we will leave the unreaped child as a zombie. And the next time
+        # two children die we get another zombie. And so on.
+        while (($child = waitpid(-1,WNOHANG)) &gt; 0) {
+            $Kid_Status{$child} = $?;
+        }
+        $SIG{CHLD} = \&amp;REAPER;  # still loathe sysV
+    }
+    $SIG{CHLD} = \&amp;REAPER;
+    # do something that forks...
+
+</PRE>
+
+
+<P>
+
+Signal handling is also used for timeouts in Unix,   While safely
+protected within an <TT>&quot;eval{}&quot;</TT> block, you set a signal handler to trap
+alarm signals and then schedule to have one delivered to you in some
+number of seconds.  Then try your blocking operation, clearing the alarm
+when it's done but not before you've exited your <TT>&quot;eval{}&quot;</TT> block.  If it
+goes off, you'll use <I>die()</I> to jump out of the block, much as you might
+using <I>longjmp()</I> or <I>throw()</I> in other languages.
+<P>
+
+Here's an example:
+<P>
+
+
+
+<PRE>
+    eval {
+        local $SIG{ALRM} = sub { die &quot;alarm clock restart&quot; };
+        alarm 10;
+        flock(FH, 2);   # blocking write lock
+        alarm 0;
+    };
+    if ($@ and $@ !~ /alarm clock restart/) { die }
+
+</PRE>
+
+
+<P>
+
+If the operation being timed out is <I>system()</I> or <I>qx()</I>, this technique
+is liable to generate zombies.    If this matters to you, you'll
+need to do your own <I>fork()</I> and <I>exec()</I>, and kill the errant child process.
+<P>
+
+For more complex signal handling, you might see the standard <FONT SIZE="-1">POSIX</FONT>
+module.  Lamentably, this is almost entirely undocumented, but
+the <I>t/lib/posix.t</I> file from the Perl source distribution has some
+examples in it.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Handling the <FONT SIZE="-1">SIGHUP</FONT> Signal in Daemons</H2>
+
+<A NAME="ixAAE"></A>
+A process that usually starts when the system boots and shuts down
+when the system is shut down is called a daemon (Disk And Execution
+MONitor). If a daemon process has a configuration file which is
+modified after the process has been started, there should be a way to
+tell that process to re-read its configuration file, without stopping
+the process. Many daemons provide this mechanism using the <TT>&quot;SIGHUP&quot;</TT>
+signal handler. When you want to tell the daemon to re-read the file
+you simply send it the <TT>&quot;SIGHUP&quot;</TT> signal.
+<P>
+
+Not all platforms automatically reinstall their (native) signal
+handlers after a signal delivery.  This means that the handler works
+only the first time the signal is sent. The solution to this problem
+is to use <TT>&quot;POSIX&quot;</TT> signal handlers if available, their behaviour
+is well-defined.
+<P>
+
+The following example implements a simple daemon, which restarts
+itself every time the <TT>&quot;SIGHUP&quot;</TT> signal is received. The actual code is
+located in the subroutine <TT>&quot;code()&quot;</TT>, which simply prints some debug
+info to show that it works and should be replaced with the real code.
+<P>
+
+
+
+<PRE>
+  #!/usr/bin/perl -w
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  use POSIX ();
+  use FindBin ();
+  use File::Basename ();
+  use File::Spec::Functions;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  $|=1;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  # make the daemon cross-platform, so exec always calls the script
+  # itself with the right path, no matter how the script was invoked.
+  my $script = File::Basename::basename($0);
+  my $SELF = catfile $FindBin::Bin, $script;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  # POSIX unmasks the sigprocmask properly
+  my $sigset = POSIX::SigSet-&gt;new();
+  my $action = POSIX::SigAction-&gt;new('sigHUP_handler',
+                                     $sigset,
+                                     &amp;POSIX::SA_NODEFER);
+  POSIX::sigaction(&amp;POSIX::SIGHUP, $action);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  sub sigHUP_handler {
+      print &quot;got SIGHUP\n&quot;;
+      exec($SELF, @ARGV) or die &quot;Couldn't restart: $!\n&quot;;
+  }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  code();
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  sub code {
+      print &quot;PID: $$\n&quot;;
+      print &quot;ARGV: @ARGV\n&quot;;
+      my $c = 0;
+      while (++$c) {
+          sleep 2;
+          print &quot;$c\n&quot;;
+      }
+  }
+  __END__
+
+</PRE>
+
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>Named Pipes</H2>
+
+<A NAME="ixAAF"></A>
+A named pipe (often referred to as a <FONT SIZE="-1">FIFO</FONT>) is an old Unix <FONT SIZE="-1">IPC</FONT>
+mechanism for processes communicating on the same machine.  It works
+just like a regular, connected anonymous pipes, except that the
+processes rendezvous using a filename and don't have to be related.
+<P>
+
+To create a named pipe, use the Unix command <I><A HREF="../man1/mknod.1.php">mknod</A></I>(1) or on some
+systems, <I><A HREF="../man1/mkfifo.1.php">mkfifo</A></I>(1).  These may not be in your normal path.
+<P>
+
+
+
+<PRE>
+    # system return val is backwards, so &amp;&amp; not ||
+    #
+    $ENV{PATH} .= &quot;:/etc:/usr/etc&quot;;
+    if  (      system('mknod',  $path, 'p')
+            &amp;&amp; system('mkfifo', $path) )
+    {
+        die &quot;mk{nod,fifo} $path failed&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+A fifo is convenient when you want to connect a process to an unrelated
+one.  When you open a fifo, the program will block until there's something
+on the other end.
+<P>
+
+For example, let's say you'd like to have your <I>.signature</I> file be a
+named pipe that has a Perl program on the other end.  Now every time any
+program (like a mailer, news reader, finger program, etc.) tries to read
+from that file, the reading program will block and your program will
+supply the new signature.  We'll use the pipe-checking file test <B>-p</B>
+to find out whether anyone (or anything) has accidentally removed our fifo.
+<P>
+
+
+
+<PRE>
+    chdir; # go home
+    $FIFO = '.signature';
+    $ENV{PATH} .= &quot;:/etc:/usr/games&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    while (1) {
+        unless (-p $FIFO) {
+            unlink $FIFO;
+            system('mknod', $FIFO, 'p')
+                &amp;&amp; die &quot;can't mknod $FIFO: $!&quot;;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        # next line blocks until there's a reader
+        open (FIFO, &quot;&gt; $FIFO&quot;) || die &quot;can't write $FIFO: $!&quot;;
+        print FIFO &quot;John Smith (smith\@host.org)\n&quot;, `fortune -s`;
+        close FIFO;
+        sleep 2;    # to avoid dup signals
+    }
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Deferred Signals (Safe Signals)</H2>
+
+<A NAME="ixAAG"></A>
+In Perls before Perl 5.7.3 by installing Perl code to deal with
+signals, you were exposing yourself to danger from two things.  First,
+few system library functions are re-entrant.  If the signal interrupts
+while Perl is executing one function (like <I><A HREF="../man3/malloc.3.php">malloc</A></I>(3) or <I><A HREF="../man3/printf.3.php">printf</A></I>(3)),
+and your signal handler then calls the same function again, you could
+get unpredictable behavior---often, a core dump.  Second, Perl isn't
+itself re-entrant at the lowest levels.  If the signal interrupts Perl
+while Perl is changing its own internal data structures, similarly
+unpredictable behaviour may result.
+<P>
+
+There were two things you could do, knowing this: be paranoid or be
+pragmatic.  The paranoid approach was to do as little as possible in your
+signal handler.  Set an existing integer variable that already has a
+value, and return.  This doesn't help you if you're in a slow system call,
+which will just restart.  That means you have to <TT>&quot;die&quot;</TT> to <I><A HREF="../man3/longjump.3.php">longjump</A></I>(3) out
+of the handler.  Even this is a little cavalier for the true paranoiac,
+who avoids <TT>&quot;die&quot;</TT> in a handler because the system <I>is</I> out to get you.
+The pragmatic approach was to say ``I know the risks, but prefer the
+convenience'', and to do anything you wanted in your signal handler,
+and be prepared to clean up core dumps now and again.
+<P>
+
+In Perl 5.7.3 and later to avoid these problems signals are
+``deferred''-- that is when the signal is delivered to the process by
+the system (to the C code that implements Perl) a flag is set, and the
+handler returns immediately. Then at strategic ``safe'' points in the
+Perl interpreter (e.g. when it is about to execute a new opcode) the
+flags are checked and the Perl level handler from <TT>%SIG</TT> is
+executed. The ``deferred'' scheme allows much more flexibility in the
+coding of signal handler as we know Perl interpreter is in a safe
+state, and that we are not in a system library function when the
+handler is called.  However the implementation does differ from
+previous Perls in the following ways:
+<DL COMPACT>
+<DT>Long running opcodes<DD>
+<A NAME="ixAAH"></A>
+As Perl interpreter only looks at the signal flags when it about to
+execute a new opcode if a signal arrives during a long running opcode
+(e.g. a regular expression operation on a very large string) then
+signal will not be seen until operation completes.
+<DT>Interrupting <FONT SIZE="-1">IO</FONT><DD>
+<A NAME="ixAAI"></A>
+When a signal is delivered (e.g. <FONT SIZE="-1">INT</FONT> control-C) the operating system
+breaks into <FONT SIZE="-1">IO</FONT> operations like <TT>&quot;read&quot;</TT> (used to implement Perls
+&lt;&gt; operator). On older Perls the handler was called
+immediately (and as <TT>&quot;read&quot;</TT> is not ``unsafe'' this worked well). With
+the ``deferred'' scheme the handler is not called immediately, and if
+Perl is using system's <TT>&quot;stdio&quot;</TT> library that library may re-start the
+<TT>&quot;read&quot;</TT> without returning to Perl and giving it a chance to call the
+<TT>%SIG</TT> handler. If this happens on your system the solution is to use
+<TT>&quot;:perlio&quot;</TT> layer to do <FONT SIZE="-1">IO</FONT> - at least on those handles which you want
+to be able to break into with signals. (The <TT>&quot;:perlio&quot;</TT> layer checks
+the signal flags and calls <TT>%SIG</TT> handlers before resuming <FONT SIZE="-1">IO</FONT> operation.)
+
+
+<P>
+
+
+Note that the default in Perl 5.7.3 and later is to automatically use
+the <TT>&quot;:perlio&quot;</TT> layer.
+
+
+<P>
+
+
+Note that some networking library functions like <I>gethostbyname()</I> are
+known to have their own implementations of timeouts which may conflict
+with your timeouts.  If you are having problems with such functions,
+you can try using the <FONT SIZE="-1">POSIX</FONT> <I>sigaction()</I> function, which bypasses the
+Perl safe signals (note that this means subjecting yourself to
+possible memory corruption, as described above).  Instead of setting
+<TT>$SIG{ALRM}</TT> try something like the following:
+
+
+<P>
+
+
+
+
+<PRE>
+    use POSIX;
+    sigaction SIGALRM, new POSIX::SigAction sub { die &quot;alarm\n&quot; }
+        or die &quot;Error setting SIGALRM handler: $!\n&quot;;
+
+</PRE>
+
+
+<DT>Restartable system calls<DD>
+<A NAME="ixAAJ"></A>
+On systems that supported it, older versions of Perl used the
+<FONT SIZE="-1">SA_RESTART</FONT> flag when installing <TT>%SIG</TT> handlers.  This meant that
+restartable system calls would continue rather than returning when
+a signal arrived.  In order to deliver deferred signals promptly,
+Perl 5.7.3 and later do <I>not</I> use <FONT SIZE="-1">SA_RESTART</FONT>.  Consequently, 
+restartable system calls can fail (with $! set to <TT>&quot;EINTR&quot;</TT>) in places
+where they previously would have succeeded.
+
+
+<P>
+
+
+Note that the default <TT>&quot;:perlio&quot;</TT> layer will retry <TT>&quot;read&quot;</TT>, <TT>&quot;write&quot;</TT>
+and <TT>&quot;close&quot;</TT> as described above and that interrupted <TT>&quot;wait&quot;</TT> and 
+<TT>&quot;waitpid&quot;</TT> calls will always be retried.
+<DT>Signals as faults<DD>
+
+
+<A NAME="ixAAK"></A>
+Certain signals e.g. <FONT SIZE="-1">SEGV</FONT>, <FONT SIZE="-1">ILL</FONT>, <FONT SIZE="-1">BUS</FONT> are generated as a result of
+virtual memory or other ``faults''. These are normally fatal and there
+is little a Perl-level handler can do with them. (In particular the
+old signal scheme was particularly unsafe in such cases.)  However if
+a <TT>%SIG</TT> handler is set the new scheme simply sets a flag and returns as
+described above. This may cause the operating system to try the
+offending machine instruction again and - as nothing has changed - it
+will generate the signal again. The result of this is a rather odd
+``loop''. In future Perl's signal mechanism may be changed to avoid this
+- perhaps by simply disallowing <TT>%SIG</TT> handlers on signals of that
+type. Until then the work-round is not to set a <TT>%SIG</TT> handler on those
+signals. (Which signals they are is operating system dependant.)
+<DT>Signals triggered by operating system state<DD>
+<A NAME="ixAAL"></A>
+On some operating systems certain signal handlers are supposed to ``do
+something'' before returning. One example can be <FONT SIZE="-1">CHLD</FONT> or <FONT SIZE="-1">CLD</FONT> which
+indicates a child process has completed. On some operating systems the
+signal handler is expected to <TT>&quot;wait&quot;</TT> for the completed child
+process. On such systems the deferred signal scheme will not work for
+those signals (it does not do the <TT>&quot;wait&quot;</TT>). Again the failure will
+look like a loop as the operating system will re-issue the signal as
+there are un-waited-for completed child processes.
+</DL>
+<P>
+
+If you want the old signal behaviour back regardless of possible
+memory corruption, set the environment variable <TT>&quot;PERL_SIGNALS&quot;</TT> to
+<TT>&quot;unsafe&quot;</TT> (a new feature since Perl 5.8.1).
+<A NAME="lbAH">&nbsp;</A>
+<H2>Using <I>open()</I> for IPC</H2>
+
+<A NAME="ixAAM"></A>
+Perl's basic <I>open()</I> statement can also be used for unidirectional
+interprocess communication by either appending or prepending a pipe
+symbol to the second argument to <I>open()</I>.  Here's how to start
+something up in a child process you intend to write to:
+<P>
+
+
+
+<PRE>
+    open(SPOOLER, &quot;| cat -v | lpr -h 2&gt;/dev/null&quot;)
+                    || die &quot;can't fork: $!&quot;;
+    local $SIG{PIPE} = sub { die &quot;spooler pipe broke&quot; };
+    print SPOOLER &quot;stuff\n&quot;;
+    close SPOOLER || die &quot;bad spool: $! $?&quot;;
+
+</PRE>
+
+
+<P>
+
+And here's how to start up a child process you intend to read from:
+<P>
+
+
+
+<PRE>
+    open(STATUS, &quot;netstat -an 2&gt;&amp;1 |&quot;)
+                    || die &quot;can't fork: $!&quot;;
+    while (&lt;STATUS&gt;) {
+        next if /^(tcp|udp)/;
+        print;
+    }
+    close STATUS || die &quot;bad netstat: $! $?&quot;;
+
+</PRE>
+
+
+<P>
+
+If one can be sure that a particular program is a Perl script that is
+expecting filenames in <TT>@ARGV</TT>, the clever programmer can write something
+like this:
+<P>
+
+
+
+<PRE>
+    % program f1 &quot;cmd1|&quot; - f2 &quot;cmd2|&quot; f3 &lt; tmpfile
+
+</PRE>
+
+
+<P>
+
+and irrespective of which shell it's called from, the Perl program will
+read from the file <I>f1</I>, the process <I>cmd1</I>, standard input (<I>tmpfile</I>
+in this case), the <I>f2</I> file, the <I>cmd2</I> command, and finally the <I>f3</I>
+file.  Pretty nifty, eh?
+<P>
+
+You might notice that you could use backticks for much the
+same effect as opening a pipe for reading:
+<P>
+
+
+
+<PRE>
+    print grep { !/^(tcp|udp)/ } `netstat -an 2&gt;&amp;1`;
+    die &quot;bad netstat&quot; if $?;
+
+</PRE>
+
+
+<P>
+
+While this is true on the surface, it's much more efficient to process the
+file one line or record at a time because then you don't have to read the
+whole thing into memory at once.  It also gives you finer control of the
+whole process, letting you to kill off the child process early if you'd
+like.
+<P>
+
+Be careful to check both the <I>open()</I> and the <I>close()</I> return values.  If
+you're <I>writing</I> to a pipe, you should also trap <FONT SIZE="-1">SIGPIPE</FONT>.  Otherwise,
+think of what happens when you start up a pipe to a command that doesn't
+exist: the <I>open()</I> will in all likelihood succeed (it only reflects the
+<I>fork()</I>'s success), but then your output will fail---spectacularly.  Perl
+can't know whether the command worked because your command is actually
+running in a separate process whose <I>exec()</I> might have failed.  Therefore,
+while readers of bogus commands return just a quick end of file, writers
+to bogus command will trigger a signal they'd better be prepared to
+handle.  Consider:
+<P>
+
+
+
+<PRE>
+    open(FH, &quot;|bogus&quot;)  or die &quot;can't fork: $!&quot;;
+    print FH &quot;bang\n&quot;   or die &quot;can't write: $!&quot;;
+    close FH            or die &quot;can't close: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+That won't blow up until the close, and it will blow up with a <FONT SIZE="-1">SIGPIPE</FONT>.
+To catch it, you could use this:
+<P>
+
+
+
+<PRE>
+    $SIG{PIPE} = 'IGNORE';
+    open(FH, &quot;|bogus&quot;)  or die &quot;can't fork: $!&quot;;
+    print FH &quot;bang\n&quot;   or die &quot;can't write: $!&quot;;
+    close FH            or die &quot;can't close: status=$?&quot;;
+
+</PRE>
+
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>Filehandles</H2>
+
+<A NAME="ixAAN"></A>
+Both the main process and any child processes it forks share the same
+<FONT SIZE="-1">STDIN</FONT>, <FONT SIZE="-1">STDOUT</FONT>, and <FONT SIZE="-1">STDERR</FONT> filehandles.  If both processes try to access
+them at once, strange things can happen.  You may also want to close
+or reopen the filehandles for the child.  You can get around this by
+opening your pipe with <I>open()</I>, but on some systems this means that the
+child process cannot outlive the parent.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Background Processes</H2>
+
+<A NAME="ixAAO"></A>
+You can run a command in the background with:
+<P>
+
+
+
+<PRE>
+    system(&quot;cmd &amp;&quot;);
+
+</PRE>
+
+
+<P>
+
+The command's <FONT SIZE="-1">STDOUT</FONT> and <FONT SIZE="-1">STDERR</FONT> (and possibly <FONT SIZE="-1">STDIN</FONT>, depending on your
+shell) will be the same as the parent's.  You won't need to catch
+<FONT SIZE="-1">SIGCHLD</FONT> because of the double-fork taking place (see below for more
+details).
+<A NAME="lbAK">&nbsp;</A>
+<H2>Complete Dissociation of Child from Parent</H2>
+
+<A NAME="ixAAP"></A>
+In some cases (starting server processes, for instance) you'll want to
+completely dissociate the child process from the parent.  This is
+often called daemonization.  A well behaved daemon will also <I>chdir()</I>
+to the root directory (so it doesn't prevent unmounting the filesystem
+containing the directory from which it was launched) and redirect its
+standard file descriptors from and to <I>/dev/null</I> (so that random
+output doesn't wind up on the user's terminal).
+<P>
+
+
+
+<PRE>
+    use POSIX 'setsid';
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub daemonize {
+        chdir '/'               or die &quot;Can't chdir to /: $!&quot;;
+        open STDIN, '/dev/null' or die &quot;Can't read /dev/null: $!&quot;;
+        open STDOUT, '&gt;/dev/null'
+                                or die &quot;Can't write to /dev/null: $!&quot;;
+        defined(my $pid = fork) or die &quot;Can't fork: $!&quot;;
+        exit if $pid;
+        setsid                  or die &quot;Can't start a new session: $!&quot;;
+        open STDERR, '&gt;&amp;STDOUT' or die &quot;Can't dup stdout: $!&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+The <I>fork()</I> has to come before the <I>setsid()</I> to ensure that you aren't a
+process group leader (the <I>setsid()</I> will fail if you are).  If your
+system doesn't have the <I>setsid()</I> function, open <I>/dev/tty</I> and use the
+<TT>&quot;TIOCNOTTY&quot;</TT> <I>ioctl()</I> on it instead.  See <I><A HREF="../man4/tty.4.php">tty</A></I>(4) for details.
+<P>
+
+Non-Unix users should check their Your_OS::Process module for other
+solutions.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Safe Pipe Opens</H2>
+
+<A NAME="ixAAQ"></A>
+Another interesting approach to <FONT SIZE="-1">IPC</FONT> is making your single program go
+multiprocess and communicate between (or even amongst) yourselves.  The
+<I>open()</I> function will accept a file argument of either <TT>&quot;-|&quot;</TT> or <TT>&quot;|-&quot;</TT>
+to do a very interesting thing: it forks a child connected to the
+filehandle you've opened.  The child is running the same program as the
+parent.  This is useful for safely opening a file when running under an
+assumed <FONT SIZE="-1">UID</FONT> or <FONT SIZE="-1">GID</FONT>, for example.  If you open a pipe <I>to</I> minus, you can
+write to the filehandle you opened and your kid will find it in his
+<FONT SIZE="-1">STDIN</FONT>.  If you open a pipe <I>from</I> minus, you can read from the filehandle
+you opened whatever your kid writes to his <FONT SIZE="-1">STDOUT</FONT>.
+<P>
+
+
+
+<PRE>
+    use English '-no_match_vars';
+    my $sleep_count = 0;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    do {
+        $pid = open(KID_TO_WRITE, &quot;|-&quot;);
+        unless (defined $pid) {
+            warn &quot;cannot fork: $!&quot;;
+            die &quot;bailing out&quot; if $sleep_count++ &gt; 6;
+            sleep 10;
+        }
+    } until defined $pid;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if ($pid) {  # parent
+        print KID_TO_WRITE @some_data;
+        close(KID_TO_WRITE) || warn &quot;kid exited $?&quot;;
+    } else {     # child
+        ($EUID, $EGID) = ($UID, $GID); # suid progs only
+        open (FILE, &quot;&gt; /safe/file&quot;)
+            || die &quot;can't open /safe/file: $!&quot;;
+        while (&lt;STDIN&gt;) {
+            print FILE; # child's STDIN is parent's KID
+        }
+        exit;  # don't forget this
+    }
+
+</PRE>
+
+
+<P>
+
+Another common use for this construct is when you need to execute
+something without the shell's interference.  With <I>system()</I>, it's
+straightforward, but you can't use a pipe open or backticks safely.
+That's because there's no way to stop the shell from getting its hands on
+your arguments.   Instead, use lower-level control to call <I>exec()</I> directly.
+<P>
+
+Here's a safe backtick or pipe open for read:
+<P>
+
+
+
+<PRE>
+    # add error processing as above
+    $pid = open(KID_TO_READ, &quot;-|&quot;);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if ($pid) {   # parent
+        while (&lt;KID_TO_READ&gt;) {
+            # do something interesting
+        }
+        close(KID_TO_READ) || warn &quot;kid exited $?&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    } else {      # child
+        ($EUID, $EGID) = ($UID, $GID); # suid only
+        exec($program, @options, @args)
+            || die &quot;can't exec program: $!&quot;;
+        # NOTREACHED
+    }
+
+</PRE>
+
+
+<P>
+
+And here's a safe pipe open for writing:
+<P>
+
+
+
+<PRE>
+    # add error processing as above
+    $pid = open(KID_TO_WRITE, &quot;|-&quot;);
+    $SIG{PIPE} = sub { die &quot;whoops, $program pipe broke&quot; };
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if ($pid) {  # parent
+        for (@data) {
+            print KID_TO_WRITE;
+        }
+        close(KID_TO_WRITE) || warn &quot;kid exited $?&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    } else {     # child
+        ($EUID, $EGID) = ($UID, $GID);
+        exec($program, @options, @args)
+            || die &quot;can't exec program: $!&quot;;
+        # NOTREACHED
+    }
+
+</PRE>
+
+
+<P>
+
+Since Perl 5.8.0, you can also use the list form of <TT>&quot;open&quot;</TT> for pipes :
+the syntax
+<P>
+
+
+
+<PRE>
+    open KID_PS, &quot;-|&quot;, &quot;ps&quot;, &quot;aux&quot; or die $!;
+
+</PRE>
+
+
+<P>
+
+forks the <I><A HREF="../man1/ps.1.php">ps</A></I>(1) command (without spawning a shell, as there are more than
+three arguments to <I>open()</I>), and reads its standard output via the
+<TT>&quot;KID_PS&quot;</TT> filehandle.  The corresponding syntax to read from command
+pipes (with <TT>&quot;|-&quot;</TT> in place of <TT>&quot;-|&quot;</TT>) is also implemented.
+<P>
+
+Note that these operations are full Unix forks, which means they may not be
+correctly implemented on alien systems.  Additionally, these are not true
+multithreading.  If you'd like to learn more about threading, see the
+<I>modules</I> file mentioned below in the <FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT> section.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Bidirectional Communication with Another Process</H2>
+
+<A NAME="ixAAR"></A>
+While this works reasonably well for unidirectional communication, what
+about bidirectional communication?  The obvious thing you'd like to do
+doesn't actually work:
+<P>
+
+
+
+<PRE>
+    open(PROG_FOR_READING_AND_WRITING, &quot;| some program |&quot;)
+
+</PRE>
+
+
+<P>
+
+and if you forget to use the <TT>&quot;use warnings&quot;</TT> pragma or the <B>-w</B> flag,
+then you'll miss out entirely on the diagnostic message:
+<P>
+
+
+
+<PRE>
+    Can't do bidirectional pipe at -e line 1.
+
+</PRE>
+
+
+<P>
+
+If you really want to, you can use the standard <I>open2()</I> library function
+to catch both ends.  There's also an <I>open3()</I> for tridirectional I/O so you
+can also catch your child's <FONT SIZE="-1">STDERR</FONT>, but doing so would then require an
+awkward <I>select()</I> loop and wouldn't allow you to use normal Perl input
+operations.
+<P>
+
+If you look at its source, you'll see that <I>open2()</I> uses low-level
+primitives like Unix <I>pipe()</I> and <I>exec()</I> calls to create all the connections.
+While it might have been slightly more efficient by using <I>socketpair()</I>, it
+would have then been even less portable than it already is.  The <I>open2()</I>
+and <I>open3()</I> functions are  unlikely to work anywhere except on a Unix
+system or some other one purporting to be <FONT SIZE="-1">POSIX</FONT> compliant.
+<P>
+
+Here's an example of using <I>open2()</I>:
+<P>
+
+
+
+<PRE>
+    use FileHandle;
+    use IPC::Open2;
+    $pid = open2(*Reader, *Writer, &quot;cat -u -n&quot; );
+    print Writer &quot;stuff\n&quot;;
+    $got = &lt;Reader&gt;;
+
+</PRE>
+
+
+<P>
+
+The problem with this is that Unix buffering is really going to
+ruin your day.  Even though your <TT>&quot;Writer&quot;</TT> filehandle is auto-flushed,
+and the process on the other end will get your data in a timely manner,
+you can't usually do anything to force it to give it back to you
+in a similarly quick fashion.  In this case, we could, because we
+gave <I>cat</I> a <B>-u</B> flag to make it unbuffered.  But very few Unix
+commands are designed to operate over pipes, so this seldom works
+unless you yourself wrote the program on the other end of the
+double-ended pipe.
+<P>
+
+A solution to this is the nonstandard <I>Comm.pl</I> library.  It uses
+pseudo-ttys to make your program behave more reasonably:
+<P>
+
+
+
+<PRE>
+    require 'Comm.pl';
+    $ph = open_proc('cat -n');
+    for (1..10) {
+        print $ph &quot;a line\n&quot;;
+        print &quot;got back &quot;, scalar &lt;$ph&gt;;
+    }
+
+</PRE>
+
+
+<P>
+
+This way you don't have to have control over the source code of the
+program you're using.  The <I>Comm</I> library also has <I>expect()</I>
+and <I>interact()</I> functions.  Find the library (and we hope its
+successor <I>IPC::Chat</I>) at your nearest <FONT SIZE="-1">CPAN</FONT> archive as detailed
+in the <FONT SIZE="-1">SEE</FONT> <FONT SIZE="-1">ALSO</FONT> section below.
+<P>
+
+The newer Expect.pm module from <FONT SIZE="-1">CPAN</FONT> also addresses this kind of thing.
+This module requires two other modules from <FONT SIZE="-1">CPAN:</FONT> IO::Pty and IO::Stty.
+It sets up a pseudo-terminal to interact with programs that insist on
+using talking to the terminal device driver.  If your system is
+amongst those supported, this may be your best bet.
+<A NAME="lbAN">&nbsp;</A>
+<H2>Bidirectional Communication with Yourself</H2>
+
+<A NAME="ixAAS"></A>
+If you want, you may make low-level <I>pipe()</I> and <I>fork()</I>
+to stitch this together by hand.  This example only
+talks to itself, but you could reopen the appropriate
+handles to <FONT SIZE="-1">STDIN</FONT> and <FONT SIZE="-1">STDOUT</FONT> and call other processes.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    # pipe1 - bidirectional communication using two pipe pairs
+    #         designed for the socketpair-challenged
+    use IO::Handle;     # thousands of lines just for autoflush :-(
+    pipe(PARENT_RDR, CHILD_WTR);                # XXX: failure?
+    pipe(CHILD_RDR,  PARENT_WTR);               # XXX: failure?
+    CHILD_WTR-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+    PARENT_WTR-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if ($pid = fork) {
+        close PARENT_RDR; close PARENT_WTR;
+        print CHILD_WTR &quot;Parent Pid $$ is sending this\n&quot;;
+        chomp($line = &lt;CHILD_RDR&gt;);
+        print &quot;Parent Pid $$ just read this: `$line'\n&quot;;
+        close CHILD_RDR; close CHILD_WTR;
+        waitpid($pid,0);
+    } else {
+        die &quot;cannot fork: $!&quot; unless defined $pid;
+        close CHILD_RDR; close CHILD_WTR;
+        chomp($line = &lt;PARENT_RDR&gt;);
+        print &quot;Child Pid $$ just read this: `$line'\n&quot;;
+        print PARENT_WTR &quot;Child Pid $$ is sending this\n&quot;;
+        close PARENT_RDR; close PARENT_WTR;
+        exit;
+    }
+
+</PRE>
+
+
+<P>
+
+But you don't actually have to make two pipe calls.  If you
+have the <I>socketpair()</I> system call, it will do this all for you.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    # pipe2 - bidirectional communication using socketpair
+    #   &quot;the best ones always go both ways&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use Socket;
+    use IO::Handle;     # thousands of lines just for autoflush :-(
+    # We say AF_UNIX because although *_LOCAL is the
+    # POSIX 1003.1g form of the constant, many machines
+    # still don't have it.
+    socketpair(CHILD, PARENT, AF_UNIX, SOCK_STREAM, PF_UNSPEC)
+                                or  die &quot;socketpair: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    CHILD-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+    PARENT-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if ($pid = fork) {
+        close PARENT;
+        print CHILD &quot;Parent Pid $$ is sending this\n&quot;;
+        chomp($line = &lt;CHILD&gt;);
+        print &quot;Parent Pid $$ just read this: `$line'\n&quot;;
+        close CHILD;
+        waitpid($pid,0);
+    } else {
+        die &quot;cannot fork: $!&quot; unless defined $pid;
+        close CHILD;
+        chomp($line = &lt;PARENT&gt;);
+        print &quot;Child Pid $$ just read this: `$line'\n&quot;;
+        print PARENT &quot;Child Pid $$ is sending this\n&quot;;
+        close PARENT;
+        exit;
+    }
+
+</PRE>
+
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>Sockets: Client/Server Communication</H2>
+
+<A NAME="ixAAT"></A>
+While not limited to Unix-derived operating systems (e.g., WinSock on PCs
+provides socket support, as do some <FONT SIZE="-1">VMS</FONT> libraries), you may not have
+sockets on your system, in which case this section probably isn't going to do
+you much good.  With sockets, you can do both virtual circuits (i.e., <FONT SIZE="-1">TCP</FONT>
+streams) and datagrams (i.e., <FONT SIZE="-1">UDP</FONT> packets).  You may be able to do even more
+depending on your system.
+<P>
+
+The Perl function calls for dealing with sockets have the same names as
+the corresponding system calls in C, but their arguments tend to differ
+for two reasons: first, Perl filehandles work differently than C file
+descriptors.  Second, Perl already knows the length of its strings, so you
+don't need to pass that information.
+<P>
+
+One of the major problems with old socket code in Perl was that it used
+hard-coded values for some of the constants, which severely hurt
+portability.  If you ever see code that does anything like explicitly
+setting <TT>&quot;$AF_INET = 2&quot;</TT>, you know you're in for big trouble:  An
+immeasurably superior approach is to use the <TT>&quot;Socket&quot;</TT> module, which more
+reliably grants access to various constants and functions you'll need.
+<P>
+
+If you're not writing a server/client for an existing protocol like
+<FONT SIZE="-1">NNTP</FONT> or <FONT SIZE="-1">SMTP</FONT>, you should give some thought to how your server will
+know when the client has finished talking, and vice-versa.  Most
+protocols are based on one-line messages and responses (so one party
+knows the other has finished when a ``\n'' is received) or multi-line
+messages and responses that end with a period on an empty line
+(``\n.\n'' terminates a message/response).
+<A NAME="lbAP">&nbsp;</A>
+<H2>Internet Line Terminators</H2>
+
+<A NAME="ixAAU"></A>
+The Internet line terminator is ``\015\012''.  Under <FONT SIZE="-1">ASCII</FONT> variants of
+Unix, that could usually be written as ``\r\n'', but under other systems,
+``\r\n'' might at times be ``\015\015\012'', ``\012\012\015'', or something
+completely different.  The standards specify writing ``\015\012'' to be
+conformant (be strict in what you provide), but they also recommend
+accepting a lone ``\012'' on input (but be lenient in what you require).
+We haven't always been very good about that in the code in this manpage,
+but unless you're on a Mac, you'll probably be ok.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Internet <FONT SIZE="-1">TCP</FONT> Clients and Servers</H2>
+
+<A NAME="ixAAV"></A>
+Use Internet-domain sockets when you want to do client-server
+communication that might extend to machines outside of your own system.
+<P>
+
+Here's a sample <FONT SIZE="-1">TCP</FONT> client using Internet-domain sockets:
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use strict;
+    use Socket;
+    my ($remote,$port, $iaddr, $paddr, $proto, $line);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $remote  = shift || 'localhost';
+    $port    = shift || 2345;  # random port
+    if ($port =~ /\D/) { $port = getservbyname($port, 'tcp') }
+    die &quot;No port&quot; unless $port;
+    $iaddr   = inet_aton($remote)               || die &quot;no host: $remote&quot;;
+    $paddr   = sockaddr_in($port, $iaddr);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $proto   = getprotobyname('tcp');
+    socket(SOCK, PF_INET, SOCK_STREAM, $proto)  || die &quot;socket: $!&quot;;
+    connect(SOCK, $paddr)    || die &quot;connect: $!&quot;;
+    while (defined($line = &lt;SOCK&gt;)) {
+        print $line;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    close (SOCK)            || die &quot;close: $!&quot;;
+    exit;
+
+</PRE>
+
+
+<P>
+
+And here's a corresponding server to go along with it.  We'll
+leave the address as <FONT SIZE="-1">INADDR_ANY</FONT> so that the kernel can choose
+the appropriate interface on multihomed hosts.  If you want sit
+on a particular interface (like the external side of a gateway
+or firewall machine), you should fill this in with your real address
+instead.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -Tw
+    use strict;
+    BEGIN { $ENV{PATH} = '/usr/ucb:/bin' }
+    use Socket;
+    use Carp;
+    my $EOL = &quot;\015\012&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub logmsg { print &quot;$0 $$: @_ at &quot;, scalar localtime, &quot;\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $port = shift || 2345;
+    my $proto = getprotobyname('tcp');
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ($port) = $port =~ /^(\d+)$/                        or die &quot;invalid port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    socket(Server, PF_INET, SOCK_STREAM, $proto)        || die &quot;socket: $!&quot;;
+    setsockopt(Server, SOL_SOCKET, SO_REUSEADDR,
+                                        pack(&quot;l&quot;, 1))   || die &quot;setsockopt: $!&quot;;
+    bind(Server, sockaddr_in($port, INADDR_ANY))        || die &quot;bind: $!&quot;;
+    listen(Server,SOMAXCONN)                            || die &quot;listen: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    logmsg &quot;server started on port $port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $paddr;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $SIG{CHLD} = \&amp;REAPER;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for ( ; $paddr = accept(Client,Server); close Client) {
+        my($port,$iaddr) = sockaddr_in($paddr);
+        my $name = gethostbyaddr($iaddr,AF_INET);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        logmsg &quot;connection from $name [&quot;,
+                inet_ntoa($iaddr), &quot;]
+                at port $port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        print Client &quot;Hello there, $name, it's now &quot;,
+                        scalar localtime, $EOL;
+    }
+
+</PRE>
+
+
+<P>
+
+And here's a multithreaded version.  It's multithreaded in that
+like most typical servers, it spawns (forks) a slave server to
+handle the client request so that the master server can quickly
+go back to service a new client.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -Tw
+    use strict;
+    BEGIN { $ENV{PATH} = '/usr/ucb:/bin' }
+    use Socket;
+    use Carp;
+    my $EOL = &quot;\015\012&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub spawn;  # forward declaration
+    sub logmsg { print &quot;$0 $$: @_ at &quot;, scalar localtime, &quot;\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $port = shift || 2345;
+    my $proto = getprotobyname('tcp');
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    ($port) = $port =~ /^(\d+)$/                        or die &quot;invalid port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    socket(Server, PF_INET, SOCK_STREAM, $proto)        || die &quot;socket: $!&quot;;
+    setsockopt(Server, SOL_SOCKET, SO_REUSEADDR,
+                                        pack(&quot;l&quot;, 1))   || die &quot;setsockopt: $!&quot;;
+    bind(Server, sockaddr_in($port, INADDR_ANY))        || die &quot;bind: $!&quot;;
+    listen(Server,SOMAXCONN)                            || die &quot;listen: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    logmsg &quot;server started on port $port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $waitedpid = 0;
+    my $paddr;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use POSIX &quot;:sys_wait_h&quot;;
+    sub REAPER {
+        my $child;
+        while (($waitedpid = waitpid(-1,WNOHANG)) &gt; 0) {
+            logmsg &quot;reaped $waitedpid&quot; . ($? ? &quot; with exit $?&quot; : '');
+        }
+        $SIG{CHLD} = \&amp;REAPER;  # loathe sysV
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $SIG{CHLD} = \&amp;REAPER;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for ( $waitedpid = 0;
+          ($paddr = accept(Client,Server)) || $waitedpid;
+          $waitedpid = 0, close Client)
+    {
+        next if $waitedpid and not $paddr;
+        my($port,$iaddr) = sockaddr_in($paddr);
+        my $name = gethostbyaddr($iaddr,AF_INET);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        logmsg &quot;connection from $name [&quot;,
+                inet_ntoa($iaddr), &quot;]
+                at port $port&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        spawn sub {
+            $|=1;
+            print &quot;Hello there, $name, it's now &quot;, scalar localtime, $EOL;
+            exec '/usr/games/fortune'           # XXX: `wrong' line terminators
+                or confess &quot;can't exec fortune: $!&quot;;
+        };
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub spawn {
+        my $coderef = shift;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        unless (@_ == 0 &amp;&amp; $coderef &amp;&amp; ref($coderef) eq 'CODE') {
+            confess &quot;usage: spawn CODEREF&quot;;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my $pid;
+        if (!defined($pid = fork)) {
+            logmsg &quot;cannot fork: $!&quot;;
+            return;
+        } elsif ($pid) {
+            logmsg &quot;begat $pid&quot;;
+            return; # I'm the parent
+        }
+        # else I'm the child -- go spawn
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        open(STDIN,  &quot;&lt;&amp;Client&quot;)   || die &quot;can't dup client to stdin&quot;;
+        open(STDOUT, &quot;&gt;&amp;Client&quot;)   || die &quot;can't dup client to stdout&quot;;
+        ## open(STDERR, &quot;&gt;&amp;STDOUT&quot;) || die &quot;can't dup stdout to stderr&quot;;
+        exit &amp;$coderef();
+    }
+
+</PRE>
+
+
+<P>
+
+This server takes the trouble to clone off a child version via <I>fork()</I> for
+each incoming request.  That way it can handle many requests at once,
+which you might not always want.  Even if you don't <I>fork()</I>, the <I>listen()</I>
+will allow that many pending connections.  Forking servers have to be
+particularly careful about cleaning up their dead children (called
+``zombies'' in Unix parlance), because otherwise you'll quickly fill up your
+process table.
+<P>
+
+We suggest that you use the <B>-T</B> flag to use taint checking (see perlsec)
+even if we aren't running setuid or setgid.  This is always a good idea
+for servers and other programs run on behalf of someone else (like <FONT SIZE="-1">CGI</FONT>
+scripts), because it lessens the chances that people from the outside will
+be able to compromise your system.
+<P>
+
+Let's look at another <FONT SIZE="-1">TCP</FONT> client.  This one connects to the <FONT SIZE="-1">TCP</FONT> ``time''
+service on a number of different machines and shows how far their clocks
+differ from the system on which it's being run:
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl  -w
+    use strict;
+    use Socket;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $SECS_of_70_YEARS = 2208988800;
+    sub ctime { scalar localtime(shift) }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $iaddr = gethostbyname('localhost');
+    my $proto = getprotobyname('tcp');
+    my $port = getservbyname('time', 'tcp');
+    my $paddr = sockaddr_in(0, $iaddr);
+    my($host);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $| = 1;
+    printf &quot;%-24s %8s %s\n&quot;,  &quot;localhost&quot;, 0, ctime(time());
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    foreach $host (@ARGV) {
+        printf &quot;%-24s &quot;, $host;
+        my $hisiaddr = inet_aton($host)     || die &quot;unknown host&quot;;
+        my $hispaddr = sockaddr_in($port, $hisiaddr);
+        socket(SOCKET, PF_INET, SOCK_STREAM, $proto)   || die &quot;socket: $!&quot;;
+        connect(SOCKET, $hispaddr)          || die &quot;bind: $!&quot;;
+        my $rtime = '    ';
+        read(SOCKET, $rtime, 4);
+        close(SOCKET);
+        my $histime = unpack(&quot;N&quot;, $rtime) - $SECS_of_70_YEARS ;
+        printf &quot;%8d %s\n&quot;, $histime - time, ctime($histime);
+    }
+
+</PRE>
+
+
+<A NAME="lbAR">&nbsp;</A>
+<H2>Unix-Domain <FONT SIZE="-1">TCP</FONT> Clients and Servers</H2>
+
+<A NAME="ixAAW"></A>
+That's fine for Internet-domain clients and servers, but what about local
+communications?  While you can use the same setup, sometimes you don't
+want to.  Unix-domain sockets are local to the current host, and are often
+used internally to implement pipes.  Unlike Internet domain sockets, Unix
+domain sockets can show up in the file system with an <I><A HREF="../man1/ls.1.php">ls</A></I>(1) listing.
+<P>
+
+
+
+<PRE>
+    % ls -l /dev/log
+    srw-rw-rw-  1 root            0 Oct 31 07:23 /dev/log
+
+</PRE>
+
+
+<P>
+
+You can test for these with Perl's <B>-S</B> file test:
+<P>
+
+
+
+<PRE>
+    unless ( -S '/dev/log' ) {
+        die &quot;something's wicked with the log system&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+Here's a sample Unix-domain client:
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use Socket;
+    use strict;
+    my ($rendezvous, $line);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $rendezvous = shift || 'catsock';
+    socket(SOCK, PF_UNIX, SOCK_STREAM, 0)       || die &quot;socket: $!&quot;;
+    connect(SOCK, sockaddr_un($rendezvous))     || die &quot;connect: $!&quot;;
+    while (defined($line = &lt;SOCK&gt;)) {
+        print $line;
+    }
+    exit;
+
+</PRE>
+
+
+<P>
+
+And here's a corresponding server.  You don't have to worry about silly
+network terminators here because Unix domain sockets are guaranteed
+to be on the localhost, and thus everything works right.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -Tw
+    use strict;
+    use Socket;
+    use Carp;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    BEGIN { $ENV{PATH} = '/usr/ucb:/bin' }
+    sub spawn;  # forward declaration
+    sub logmsg { print &quot;$0 $$: @_ at &quot;, scalar localtime, &quot;\n&quot; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $NAME = 'catsock';
+    my $uaddr = sockaddr_un($NAME);
+    my $proto = getprotobyname('tcp');
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    socket(Server,PF_UNIX,SOCK_STREAM,0)        || die &quot;socket: $!&quot;;
+    unlink($NAME);
+    bind  (Server, $uaddr)                      || die &quot;bind: $!&quot;;
+    listen(Server,SOMAXCONN)                    || die &quot;listen: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    logmsg &quot;server started on $NAME&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $waitedpid;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    use POSIX &quot;:sys_wait_h&quot;;
+    sub REAPER {
+        my $child;
+        while (($waitedpid = waitpid(-1,WNOHANG)) &gt; 0) {
+            logmsg &quot;reaped $waitedpid&quot; . ($? ? &quot; with exit $?&quot; : '');
+        }
+        $SIG{CHLD} = \&amp;REAPER;  # loathe sysV
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $SIG{CHLD} = \&amp;REAPER;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    for ( $waitedpid = 0;
+          accept(Client,Server) || $waitedpid;
+          $waitedpid = 0, close Client)
+    {
+        next if $waitedpid;
+        logmsg &quot;connection on $NAME&quot;;
+        spawn sub {
+            print &quot;Hello there, it's now &quot;, scalar localtime, &quot;\n&quot;;
+            exec '/usr/games/fortune' or die &quot;can't exec fortune: $!&quot;;
+        };
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub spawn {
+        my $coderef = shift;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        unless (@_ == 0 &amp;&amp; $coderef &amp;&amp; ref($coderef) eq 'CODE') {
+            confess &quot;usage: spawn CODEREF&quot;;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        my $pid;
+        if (!defined($pid = fork)) {
+            logmsg &quot;cannot fork: $!&quot;;
+            return;
+        } elsif ($pid) {
+            logmsg &quot;begat $pid&quot;;
+            return; # I'm the parent
+        }
+        # else I'm the child -- go spawn
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        open(STDIN,  &quot;&lt;&amp;Client&quot;)   || die &quot;can't dup client to stdin&quot;;
+        open(STDOUT, &quot;&gt;&amp;Client&quot;)   || die &quot;can't dup client to stdout&quot;;
+        ## open(STDERR, &quot;&gt;&amp;STDOUT&quot;) || die &quot;can't dup stdout to stderr&quot;;
+        exit &amp;$coderef();
+    }
+
+</PRE>
+
+
+<P>
+
+As you see, it's remarkably similar to the Internet domain <FONT SIZE="-1">TCP</FONT> server, so
+much so, in fact, that we've omitted several duplicate functions---<I>spawn()</I>,
+<I>logmsg()</I>, <I>ctime()</I>, and <FONT SIZE="-1"><I>REAPER</I></FONT><I>()</I>--which are exactly the same as in the
+other server.
+<P>
+
+So why would you ever want to use a Unix domain socket instead of a
+simpler named pipe?  Because a named pipe doesn't give you sessions.  You
+can't tell one process's data from another's.  With socket programming,
+you get a separate session for each client: that's why <I>accept()</I> takes two
+arguments.
+<P>
+
+For example, let's say that you have a long running database server daemon
+that you want folks from the World Wide Web to be able to access, but only
+if they go through a <FONT SIZE="-1">CGI</FONT> interface.  You'd have a small, simple <FONT SIZE="-1">CGI</FONT>
+program that does whatever checks and logging you feel like, and then acts
+as a Unix-domain client and connects to your private server.
+<A NAME="lbAS">&nbsp;</A>
+<H2>TCP Clients with IO::Socket</H2>
+
+<A NAME="ixAAX"></A>
+For those preferring a higher-level interface to socket programming, the
+IO::Socket module provides an object-oriented approach.  IO::Socket is
+included as part of the standard Perl distribution as of the 5.004
+release.  If you're running an earlier version of Perl, just fetch
+IO::Socket from <FONT SIZE="-1">CPAN</FONT>, where you'll also find modules providing easy
+interfaces to the following systems: <FONT SIZE="-1">DNS</FONT>, <FONT SIZE="-1">FTP</FONT>, Ident (<FONT SIZE="-1">RFC</FONT> 931), <FONT SIZE="-1">NIS</FONT> and
+NISPlus, <FONT SIZE="-1">NNTP</FONT>, Ping, <FONT SIZE="-1">POP3</FONT>, <FONT SIZE="-1">SMTP</FONT>, <FONT SIZE="-1">SNMP</FONT>, SSLeay, Telnet, and Time---just
+to name a few.
+<A NAME="lbAT">&nbsp;</A>
+<H2>A Simple Client</H2>
+
+<A NAME="ixAAY"></A>
+Here's a client that creates a <FONT SIZE="-1">TCP</FONT> connection to the ``daytime''
+service at port 13 of the host name ``localhost'' and prints out everything
+that the server there cares to provide.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use IO::Socket;
+    $remote = IO::Socket::INET-&gt;new(
+                        Proto    =&gt; &quot;tcp&quot;,
+                        PeerAddr =&gt; &quot;localhost&quot;,
+                        PeerPort =&gt; &quot;daytime(13)&quot;,
+                    )
+                  or die &quot;cannot connect to daytime port at localhost&quot;;
+    while ( &lt;$remote&gt; ) { print }
+
+</PRE>
+
+
+<P>
+
+When you run this program, you should get something back that
+looks like this:
+<P>
+
+
+
+<PRE>
+    Wed May 14 08:40:46 MDT 1997
+
+</PRE>
+
+
+<P>
+
+Here are what those parameters to the <TT>&quot;new&quot;</TT> constructor mean:
+<DL COMPACT>
+<DT>Proto<DD>
+
+
+<A NAME="ixAAZ"></A>
+This is which protocol to use.  In this case, the socket handle returned
+will be connected to a <FONT SIZE="-1">TCP</FONT> socket, because we want a stream-oriented
+connection, that is, one that acts pretty much like a plain old file.
+Not all sockets are this of this type.  For example, the <FONT SIZE="-1">UDP</FONT> protocol
+can be used to make a datagram socket, used for message-passing.
+<DT>PeerAddr<DD>
+
+
+<A NAME="ixABA"></A>
+This is the name or Internet address of the remote host the server is
+running on.  We could have specified a longer name like <TT>&quot;<A HREF="http://www.perl.com">www.perl.com</A>&quot;</TT>,
+or an address like <TT>&quot;204.148.40.9&quot;</TT>.  For demonstration purposes, we've
+used the special hostname <TT>&quot;localhost&quot;</TT>, which should always mean the
+current machine you're running on.  The corresponding Internet address
+for localhost is <TT>&quot;127.1&quot;</TT>, if you'd rather use that.
+<DT>PeerPort<DD>
+
+
+<A NAME="ixABB"></A>
+This is the service name or port number we'd like to connect to.
+We could have gotten away with using just <TT>&quot;daytime&quot;</TT> on systems with a
+well-configured system services file,[<FONT SIZE="-1">FOOTNOTE:</FONT> The system services file
+is in <I>/etc/services</I> under Unix] but just in case, we've specified the
+port number (13) in parentheses.  Using just the number would also have
+worked, but constant numbers make careful programmers nervous.
+</DL>
+<P>
+
+Notice how the return value from the <TT>&quot;new&quot;</TT> constructor is used as
+a filehandle in the <TT>&quot;while&quot;</TT> loop?  That's what's called an indirect
+filehandle, a scalar variable containing a filehandle.  You can use
+it the same way you would a normal filehandle.  For example, you
+can read one line from it this way:
+<P>
+
+
+
+<PRE>
+    $line = &lt;$handle&gt;;
+
+</PRE>
+
+
+<P>
+
+all remaining lines from is this way:
+<P>
+
+
+
+<PRE>
+    @lines = &lt;$handle&gt;;
+
+</PRE>
+
+
+<P>
+
+and send a line of data to it this way:
+<P>
+
+
+
+<PRE>
+    print $handle &quot;some data\n&quot;;
+
+</PRE>
+
+
+<A NAME="lbAU">&nbsp;</A>
+<H2>A Webget Client</H2>
+
+<A NAME="ixABC"></A>
+Here's a simple client that takes a remote host to fetch a document
+from, and then a list of documents to get from that host.  This is a
+more interesting client than the previous one because it first sends
+something to the server before fetching the server's response.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use IO::Socket;
+    unless (@ARGV &gt; 1) { die &quot;usage: $0 host document ...&quot; }
+    $host = shift(@ARGV);
+    $EOL = &quot;\015\012&quot;;
+    $BLANK = $EOL x 2;
+    foreach $document ( @ARGV ) {
+        $remote = IO::Socket::INET-&gt;new( Proto     =&gt; &quot;tcp&quot;,
+                                         PeerAddr  =&gt; $host,
+                                         PeerPort  =&gt; &quot;http(80)&quot;,
+                                        );
+        unless ($remote) { die &quot;cannot connect to http daemon on $host&quot; }
+        $remote-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+        print $remote &quot;GET $document HTTP/1.0&quot; . $BLANK;
+        while ( &lt;$remote&gt; ) { print }
+        close $remote;
+    }
+
+</PRE>
+
+
+<P>
+
+The web server handing the ``http'' service, which is assumed to be at
+its standard port, number 80.  If the web server you're trying to
+connect to is at a different port (like 1080 or 8080), you should specify
+as the named-parameter pair, <TT>&quot;PeerPort =&gt; 8080&quot;</TT>.  The <TT>&quot;autoflush&quot;</TT>
+method is used on the socket because otherwise the system would buffer
+up the output we sent it.  (If you're on a Mac, you'll also need to
+change every <TT>&quot;\n&quot;</TT> in your code that sends data over the network to
+be a <TT>&quot;\015\012&quot;</TT> instead.)
+<P>
+
+Connecting to the server is only the first part of the process: once you
+have the connection, you have to use the server's language.  Each server
+on the network has its own little command language that it expects as
+input.  The string that we send to the server starting with ``<FONT SIZE="-1">GET</FONT>'' is in
+<FONT SIZE="-1">HTTP</FONT> syntax.  In this case, we simply request each specified document.
+Yes, we really are making a new connection for each document, even though
+it's the same host.  That's the way you always used to have to speak <FONT SIZE="-1">HTTP</FONT>.
+Recent versions of web browsers may request that the remote server leave
+the connection open a little while, but the server doesn't have to honor
+such a request.
+<P>
+
+Here's an example of running that program, which we'll call <I>webget</I>:
+<P>
+
+
+
+<PRE>
+    % webget <A HREF="http://www.perl.com">www.perl.com</A> /guanaco.html
+    HTTP/1.1 404 File Not Found
+    Date: Thu, 08 May 1997 18:02:32 GMT
+    Server: Apache/1.2b6
+    Connection: close
+</div>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title></PRE></title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+
+<P>
+
+
+
+<PRE>
+    &lt;HEAD&gt;&lt;TITLE&gt;404 File Not Found&lt;/TITLE&gt;&lt;/HEAD&gt;
+    &lt;BODY&gt;&lt;H1&gt;File Not Found&lt;/H1&gt;
+    The requested URL /guanaco.html was not found on this server.&lt;P&gt;
+    &lt;/BODY&gt;
+
+</PRE>
+
+
+<P>
+
+Ok, so that's not very interesting, because it didn't find that
+particular document.  But a long response wouldn't have fit on this page.
+<P>
+
+For a more fully-featured version of this program, you should look to
+the <I>lwp-request</I> program included with the <FONT SIZE="-1">LWP</FONT> modules from <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Interactive Client with IO::Socket</H2>
+
+<A NAME="ixABD"></A>
+Well, that's all fine if you want to send one command and get one answer,
+but what about setting up something fully interactive, somewhat like
+the way <I>telnet</I> works?  That way you can type a line, get the answer,
+type a line, get the answer, etc.
+<P>
+
+This client is more complicated than the two we've done so far, but if
+you're on a system that supports the powerful <TT>&quot;fork&quot;</TT> call, the solution
+isn't that rough.  Once you've made the connection to whatever service
+you'd like to chat with, call <TT>&quot;fork&quot;</TT> to clone your process.  Each of
+these two identical process has a very simple job to do: the parent
+copies everything from the socket to standard output, while the child
+simultaneously copies everything from standard input to the socket.
+To accomplish the same thing using just one process would be <I>much</I>
+harder, because it's easier to code two processes to do one thing than it
+is to code one process to do two things.  (This keep-it-simple principle
+a cornerstones of the Unix philosophy, and good software engineering as
+well, which is probably why it's spread to other systems.)
+<P>
+
+Here's the code:
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use strict;
+    use IO::Socket;
+    my ($host, $port, $kidpid, $handle, $line);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    unless (@ARGV == 2) { die &quot;usage: $0 host port&quot; }
+    ($host, $port) = @ARGV;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # create a tcp connection to the specified host and port
+    $handle = IO::Socket::INET-&gt;new(Proto     =&gt; &quot;tcp&quot;,
+                                    PeerAddr  =&gt; $host,
+                                    PeerPort  =&gt; $port)
+           or die &quot;can't connect to port $port on $host: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $handle-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);              # so output gets there right away
+    print STDERR &quot;[Connected to $host:$port]\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # split the program into two processes, identical twins
+    die &quot;can't fork: $!&quot; unless defined($kidpid = fork());
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # the if{} block runs only in the parent process
+    if ($kidpid) {
+        # copy the socket to standard output
+        while (defined ($line = &lt;$handle&gt;)) {
+            print STDOUT $line;
+        }
+        kill(&quot;TERM&quot;, $kidpid);                  # send SIGTERM to child
+    }
+    # the else{} block runs only in the child process
+    else {
+        # copy standard input to the socket
+        while (defined ($line = &lt;STDIN&gt;)) {
+            print $handle $line;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+The <TT>&quot;kill&quot;</TT> function in the parent's <TT>&quot;if&quot;</TT> block is there to send a
+signal to our child process (current running in the <TT>&quot;else&quot;</TT> block)
+as soon as the remote server has closed its end of the connection.
+<P>
+
+If the remote server sends data a byte at time, and you need that
+data immediately without waiting for a newline (which might not happen),
+you may wish to replace the <TT>&quot;while&quot;</TT> loop in the parent with the
+following:
+<P>
+
+
+
+<PRE>
+    my $byte;
+    while (sysread($handle, $byte, 1) == 1) {
+        print STDOUT $byte;
+    }
+
+</PRE>
+
+
+<P>
+
+Making a system call for each byte you want to read is not very efficient
+(to put it mildly) but is the simplest to explain and works reasonably
+well.
+<A NAME="lbAW">&nbsp;</A>
+<H2>TCP Servers with IO::Socket</H2>
+
+<A NAME="ixABE"></A>
+As always, setting up a server is little bit more involved than running a client.
+The model is that the server creates a special kind of socket that
+does nothing but listen on a particular port for incoming connections.
+It does this by calling the <TT>&quot;IO::Socket::INET-&gt;new()&quot;</TT> method with
+slightly different arguments than the client did.
+<DL COMPACT>
+<DT>Proto<DD>
+<A NAME="ixABF"></A>
+This is which protocol to use.  Like our clients, we'll
+still specify <TT>&quot;tcp&quot;</TT> here.
+<DT>LocalPort<DD>
+<A NAME="ixABG"></A>
+We specify a local
+port in the <TT>&quot;LocalPort&quot;</TT> argument, which we didn't do for the client.
+This is service name or port number for which you want to be the
+server. (Under Unix, ports under 1024 are restricted to the
+superuser.)  In our sample, we'll use port 9000, but you can use
+any port that's not currently in use on your system.  If you try
+to use one already in used, you'll get an ``Address already in use''
+message.  Under Unix, the <TT>&quot;netstat -a&quot;</TT> command will show
+which services current have servers.
+<DT>Listen<DD>
+<A NAME="ixABH"></A>
+The <TT>&quot;Listen&quot;</TT> parameter is set to the maximum number of
+pending connections we can accept until we turn away incoming clients.
+Think of it as a call-waiting queue for your telephone.
+The low-level Socket module has a special symbol for the system maximum, which
+is <FONT SIZE="-1">SOMAXCONN</FONT>.
+<DT>Reuse<DD>
+<A NAME="ixABI"></A>
+The <TT>&quot;Reuse&quot;</TT> parameter is needed so that we restart our server
+manually without waiting a few minutes to allow system buffers to
+clear out.
+</DL>
+<P>
+
+Once the generic server socket has been created using the parameters
+listed above, the server then waits for a new client to connect
+to it.  The server blocks in the <TT>&quot;accept&quot;</TT> method, which eventually accepts a
+bidirectional connection from the remote client.  (Make sure to autoflush
+this handle to circumvent buffering.)
+<P>
+
+To add to user-friendliness, our server prompts the user for commands.
+Most servers don't do this.  Because of the prompt without a newline,
+you'll have to use the <TT>&quot;sysread&quot;</TT> variant of the interactive client above.
+<P>
+
+This server accepts one of five different commands, sending output
+back to the client.  Note that unlike most network servers, this one
+only handles one incoming client at a time.  Multithreaded servers are
+covered in Chapter 6 of the Camel.
+<P>
+
+Here's the code.  We'll
+<P>
+
+
+
+<PRE>
+ #!/usr/bin/perl -w
+ use IO::Socket;
+ use Net::hostent;              # for OO version of gethostbyaddr
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ $PORT = 9000;                  # pick something not in use
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ $server = IO::Socket::INET-&gt;new( Proto     =&gt; 'tcp',
+                                  LocalPort =&gt; $PORT,
+                                  Listen    =&gt; SOMAXCONN,
+                                  Reuse     =&gt; 1);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ die &quot;can't setup server&quot; unless $server;
+ print &quot;[Server $0 accepting clients]\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ while ($client = $server-&gt;accept()) {
+   $client-&gt;<A HREF="../man1/autoflush.1.php">autoflush</A>(1);
+   print $client &quot;Welcome to $0; type help for command list.\n&quot;;
+   $hostinfo = gethostbyaddr($client-&gt;peeraddr);
+   printf &quot;[Connect from %s]\n&quot;, $hostinfo ? $hostinfo-&gt;name : $client-&gt;peerhost;
+   print $client &quot;Command? &quot;;
+   while ( &lt;$client&gt;) {
+     next unless /\S/;       # blank line
+     if    (/quit|exit/i)    { last;                                     }
+     elsif (/date|time/i)    { printf $client &quot;%s\n&quot;, scalar localtime;  }
+     elsif (/who/i )         { print  $client `who 2&gt;&amp;1`;                }
+     elsif (/cookie/i )      { print  $client `/usr/games/fortune 2&gt;&amp;1`; }
+     elsif (/motd/i )        { print  $client `cat /etc/motd 2&gt;&amp;1`;      }
+     else {
+       print $client &quot;Commands: quit date who cookie motd\n&quot;;
+     }
+   } continue {
+      print $client &quot;Command? &quot;;
+   }
+   close $client;
+ }
+
+</PRE>
+
+
+<A NAME="lbAX">&nbsp;</A>
+<H2>UDP: Message Passing</H2>
+
+<A NAME="ixABJ"></A>
+Another kind of client-server setup is one that uses not connections, but
+messages.  <FONT SIZE="-1">UDP</FONT> communications involve much lower overhead but also provide
+less reliability, as there are no promises that messages will arrive at
+all, let alone in order and unmangled.  Still, <FONT SIZE="-1">UDP</FONT> offers some advantages
+over <FONT SIZE="-1">TCP</FONT>, including being able to ``broadcast'' or ``multicast'' to a whole
+bunch of destination hosts at once (usually on your local subnet).  If you
+find yourself overly concerned about reliability and start building checks
+into your message system, then you probably should use just <FONT SIZE="-1">TCP</FONT> to start
+with.
+<P>
+
+Note that <FONT SIZE="-1">UDP</FONT> datagrams are <I>not</I> a bytestream and should not be treated
+as such. This makes using I/O mechanisms with internal buffering
+like stdio (i.e. <I>print()</I> and friends) especially cumbersome. Use <I>syswrite()</I>,
+or better <I>send()</I>, like in the example below.
+<P>
+
+Here's a <FONT SIZE="-1">UDP</FONT> program similar to the sample Internet <FONT SIZE="-1">TCP</FONT> client given
+earlier.  However, instead of checking one host at a time, the <FONT SIZE="-1">UDP</FONT> version
+will check many of them asynchronously by simulating a multicast and then
+using <I>select()</I> to do a timed-out wait for I/O.  To do something similar
+with <FONT SIZE="-1">TCP</FONT>, you'd have to use a different socket handle for each host.
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -w
+    use strict;
+    use Socket;
+    use Sys::Hostname;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my ( $count, $hisiaddr, $hispaddr, $histime,
+         $host, $iaddr, $paddr, $port, $proto,
+         $rin, $rout, $rtime, $SECS_of_70_YEARS);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $SECS_of_70_YEARS      = 2208988800;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $iaddr = gethostbyname(hostname());
+    $proto = getprotobyname('udp');
+    $port = getservbyname('time', 'udp');
+    $paddr = sockaddr_in(0, $iaddr); # 0 means let kernel pick
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    socket(SOCKET, PF_INET, SOCK_DGRAM, $proto)   || die &quot;socket: $!&quot;;
+    bind(SOCKET, $paddr)                          || die &quot;bind: $!&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $| = 1;
+    printf &quot;%-12s %8s %s\n&quot;,  &quot;localhost&quot;, 0, scalar localtime time;
+    $count = 0;
+    for $host (@ARGV) {
+        $count++;
+        $hisiaddr = inet_aton($host)    || die &quot;unknown host&quot;;
+        $hispaddr = sockaddr_in($port, $hisiaddr);
+        defined(send(SOCKET, 0, 0, $hispaddr))    || die &quot;send $host: $!&quot;;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $rin = '';
+    vec($rin, fileno(SOCKET), 1) = 1;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # timeout after 10.0 seconds
+    while ($count &amp;&amp; select($rout = $rin, undef, undef, 10.0)) {
+        $rtime = '';
+        ($hispaddr = recv(SOCKET, $rtime, 4, 0))        || die &quot;recv: $!&quot;;
+        ($port, $hisiaddr) = sockaddr_in($hispaddr);
+        $host = gethostbyaddr($hisiaddr, AF_INET);
+        $histime = unpack(&quot;N&quot;, $rtime) - $SECS_of_70_YEARS ;
+        printf &quot;%-12s &quot;, $host;
+        printf &quot;%8d %s\n&quot;, $histime - time, scalar localtime($histime);
+        $count--;
+    }
+
+</PRE>
+
+
+<P>
+
+Note that this example does not include any retries and may consequently
+fail to contact a reachable host. The most prominent reason for this
+is congestion of the queues on the sending host if the number of
+list of hosts to contact is sufficiently large.
+<A NAME="lbAY">&nbsp;</A>
+<H2>SysV IPC</H2>
+
+<A NAME="ixABK"></A>
+While System V <FONT SIZE="-1">IPC</FONT> isn't so widely used as sockets, it still has some
+interesting uses.  You can't, however, effectively use SysV <FONT SIZE="-1">IPC</FONT> or
+Berkeley <I>mmap()</I> to have shared memory so as to share a variable amongst
+several processes.  That's because Perl would reallocate your string when
+you weren't wanting it to.
+<P>
+
+Here's a small example showing shared memory usage.
+<P>
+
+
+
+<PRE>
+    use IPC::SysV qw(IPC_PRIVATE IPC_RMID S_IRWXU);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $size = 2000;
+    $id = shmget(IPC_PRIVATE, $size, S_IRWXU) || die &quot;$!&quot;;
+    print &quot;shm key $id\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $message = &quot;Message #1&quot;;
+    shmwrite($id, $message, 0, 60) || die &quot;$!&quot;;
+    print &quot;wrote: '$message'\n&quot;;
+    shmread($id, $buff, 0, 60) || die &quot;$!&quot;;
+    print &quot;read : '$buff'\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # the buffer of shmread is zero-character end-padded.
+    substr($buff, index($buff, &quot;\0&quot;)) = '';
+    print &quot;un&quot; unless $buff eq $message;
+    print &quot;swell\n&quot;;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    print &quot;deleting shm $id\n&quot;;
+    shmctl($id, IPC_RMID, 0) || die &quot;$!&quot;;
+
+</PRE>
+
+
+<P>
+
+Here's an example of a semaphore:
+<P>
+
+
+
+<PRE>
+    use IPC::SysV qw(IPC_CREAT);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $IPC_KEY = 1234;
+    $id = semget($IPC_KEY, 10, 0666 | IPC_CREAT ) || die &quot;$!&quot;;
+    print &quot;shm key $id\n&quot;;
+
+</PRE>
+
+
+<P>
+
+Put this code in a separate file to be run in more than one process.
+Call the file <I>take</I>:
+<P>
+
+
+
+<PRE>
+    # create a semaphore
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $IPC_KEY = 1234;
+    $id = semget($IPC_KEY,  0 , 0 );
+    die if !defined($id);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $semnum = 0;
+    $semflag = 0;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # 'take' semaphore
+    # wait for semaphore to be zero
+    $semop = 0;
+    $opstring1 = pack(&quot;s!s!s!&quot;, $semnum, $semop, $semflag);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Increment the semaphore count
+    $semop = 1;
+    $opstring2 = pack(&quot;s!s!s!&quot;, $semnum, $semop,  $semflag);
+    $opstring = $opstring1 . $opstring2;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    semop($id,$opstring) || die &quot;$!&quot;;
+
+</PRE>
+
+
+<P>
+
+Put this code in a separate file to be run in more than one process.
+Call this file <I>give</I>:
+<P>
+
+
+
+<PRE>
+    # 'give' the semaphore
+    # run this in the original process and you will see
+    # that the second process continues
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $IPC_KEY = 1234;
+    $id = semget($IPC_KEY, 0, 0);
+    die if !defined($id);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    $semnum = 0;
+    $semflag = 0;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Decrement the semaphore count
+    $semop = -1;
+    $opstring = pack(&quot;s!s!s!&quot;, $semnum, $semop, $semflag);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    semop($id,$opstring) || die &quot;$!&quot;;
+
+</PRE>
+
+
+<P>
+
+The SysV <FONT SIZE="-1">IPC</FONT> code above was written long ago, and it's definitely
+clunky looking.  For a more modern look, see the IPC::SysV module
+which is included with Perl starting from Perl 5.005.
+<P>
+
+A small example demonstrating SysV message queues:
+<P>
+
+
+
+<PRE>
+    use IPC::SysV qw(IPC_PRIVATE IPC_RMID IPC_CREAT S_IRWXU);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $id = msgget(IPC_PRIVATE, IPC_CREAT | S_IRWXU);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    my $sent = &quot;message&quot;;
+    my $type_sent = 1234;
+    my $rcvd;
+    my $type_rcvd;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    if (defined $id) {
+        if (msgsnd($id, pack(&quot;l! a*&quot;, $type_sent, $sent), 0)) {
+            if (msgrcv($id, $rcvd, 60, 0, 0)) {
+                ($type_rcvd, $rcvd) = unpack(&quot;l! a*&quot;, $rcvd);
+                if ($rcvd eq $sent) {
+                    print &quot;okay\n&quot;;
+                } else {
+                    print &quot;not okay\n&quot;;
+                }
+            } else {
+                die &quot;# msgrcv failed\n&quot;;
+            }
+        } else {
+            die &quot;# msgsnd failed\n&quot;;
+        }
+        msgctl($id, IPC_RMID, 0) || die &quot;# msgctl failed: $!\n&quot;;
+    } else {
+        die &quot;# msgget failed\n&quot;;
+    }
+
+</PRE>
+
+
+<A NAME="lbAZ">&nbsp;</A>
+<H2>NOTES</H2>
+
+<A NAME="ixABL"></A>
+Most of these routines quietly but politely return <TT>&quot;undef&quot;</TT> when they
+fail instead of causing your program to die right then and there due to
+an uncaught exception.  (Actually, some of the new <I>Socket</I> conversion
+functions  <I>croak()</I> on bad arguments.)  It is therefore essential to
+check return values from these functions.  Always begin your socket
+programs this way for optimal success, and don't forget to add <B>-T</B>
+taint checking flag to the #! line for servers:
+<P>
+
+
+
+<PRE>
+    #!/usr/bin/perl -Tw
+    use strict;
+    use sigtrap;
+    use Socket;
+
+</PRE>
+
+
+<A NAME="lbBA">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixABM"></A>
+All these routines create system-specific portability problems.  As noted
+elsewhere, Perl is at the mercy of your C libraries for much of its system
+behaviour.  It's probably safest to assume broken SysV semantics for
+signals and to stick with simple <FONT SIZE="-1">TCP</FONT> and <FONT SIZE="-1">UDP</FONT> socket operations; e.g., don't
+try to pass open file descriptors over a local <FONT SIZE="-1">UDP</FONT> datagram socket if you
+want your code to stand a chance of being portable.
+<A NAME="lbBB">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABN"></A>
+Tom Christiansen, with occasional vestiges of Larry Wall's original
+version and suggestions from the Perl Porters.
+<A NAME="lbBC">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABO"></A>
+There's a lot more to networking than this, but this should get you
+started.
+<P>
+
+For intrepid programmers, the indispensable textbook is <I>Unix
+Network Programming, 2nd Edition, Volume 1</I> by W. Richard Stevens
+(published by Prentice-Hall).  Note that most books on networking
+address the subject from the perspective of a C programmer; translation
+to Perl is left as an exercise for the reader.
+<P>
+
+The <I>IO::<A HREF="../man3/Socket.3.php">Socket</A></I>(3) manpage describes the object library, and the <I><A HREF="../man3/Socket.3.php">Socket</A></I>(3)
+manpage describes the low-level interface to sockets.  Besides the obvious
+functions in perlfunc, you should also check out the <I>modules</I> file
+at your nearest <FONT SIZE="-1">CPAN</FONT> site.  (See perlmodlib or best yet, the <I>Perl
+</I><FONT SIZE="-1"><I>FAQ</I></FONT><I></I> for a description of what <FONT SIZE="-1">CPAN</FONT> is and where to get it.)
+<P>
+
+Section 5 of the <I>modules</I> file is devoted to ``Networking, Device Control
+(modems), and Interprocess Communication'', and contains numerous unbundled
+modules numerous networking modules, Chat and Expect operations, <FONT SIZE="-1">CGI</FONT>
+programming, <FONT SIZE="-1">DCE</FONT>, <FONT SIZE="-1">FTP</FONT>, <FONT SIZE="-1">IPC</FONT>, <FONT SIZE="-1">NNTP</FONT>, Proxy, Ptty, <FONT SIZE="-1">RPC</FONT>, <FONT SIZE="-1">SNMP</FONT>, <FONT SIZE="-1">SMTP</FONT>, Telnet,
+Threads, and ToolTalk---just to name a few.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Signals</A><DD>
+<DT><A HREF="#lbAE">Handling the <FONT SIZE="-1">SIGHUP</FONT> Signal in Daemons</A><DD>
+<DT><A HREF="#lbAF">Named Pipes</A><DD>
+<DT><A HREF="#lbAG">Deferred Signals (Safe Signals)</A><DD>
+<DT><A HREF="#lbAH">Using <I>open()</I> for IPC</A><DD>
+<DT><A HREF="#lbAI">Filehandles</A><DD>
+<DT><A HREF="#lbAJ">Background Processes</A><DD>
+<DT><A HREF="#lbAK">Complete Dissociation of Child from Parent</A><DD>
+<DT><A HREF="#lbAL">Safe Pipe Opens</A><DD>
+<DT><A HREF="#lbAM">Bidirectional Communication with Another Process</A><DD>
+<DT><A HREF="#lbAN">Bidirectional Communication with Yourself</A><DD>
+<DT><A HREF="#lbAO">Sockets: Client/Server Communication</A><DD>
+<DT><A HREF="#lbAP">Internet Line Terminators</A><DD>
+<DT><A HREF="#lbAQ">Internet <FONT SIZE="-1">TCP</FONT> Clients and Servers</A><DD>
+<DT><A HREF="#lbAR">Unix-Domain <FONT SIZE="-1">TCP</FONT> Clients and Servers</A><DD>
+<DT><A HREF="#lbAS">TCP Clients with IO::Socket</A><DD>
+<DT><A HREF="#lbAT">A Simple Client</A><DD>
+<DT><A HREF="#lbAU">A Webget Client</A><DD>
+<DT><A HREF="#lbAV">Interactive Client with IO::Socket</A><DD>
+<DT><A HREF="#lbAW">TCP Servers with IO::Socket</A><DD>
+<DT><A HREF="#lbAX">UDP: Message Passing</A><DD>
+<DT><A HREF="#lbAY">SysV IPC</A><DD>
+<DT><A HREF="#lbAZ">NOTES</A><DD>
+<DT><A HREF="#lbBA">BUGS</A><DD>
+<DT><A HREF="#lbBB">AUTHOR</A><DD>
+<DT><A HREF="#lbBC">SEE ALSO</A><DD>
+</DL>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

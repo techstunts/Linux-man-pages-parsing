@@ -1,0 +1,1439 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLPOD</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLPOD</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlpod - the Plain Old Documentation format
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+Pod is a simple-to-use markup language used for writing documentation
+for Perl, Perl programs, and Perl modules.
+<P>
+
+Translators are available for converting Pod to various formats
+like plain text, <FONT SIZE="-1">HTML</FONT>, man pages, and more.
+<P>
+
+Pod markup consists of three basic kinds of paragraphs:
+ordinary,
+verbatim, and 
+command.
+<A NAME="lbAD">&nbsp;</A>
+<H2>Ordinary Paragraph</H2>
+
+<A NAME="ixAAD"></A>
+Most paragraphs in your documentation will be ordinary blocks
+of text, like this one.  You can simply type in your text without
+any markup whatsoever, and with just a blank line before and
+after.  When it gets formatted, it will undergo minimal formatting, 
+like being rewrapped, probably put into a proportionally spaced
+font, and maybe even justified.
+<P>
+
+You can use formatting codes in ordinary paragraphs, for <B>bold</B>,
+<I>italic</I>, <TT>&quot;code-style&quot;</TT>, hyperlinks, and more.  Such
+codes are explained in the &quot;Formatting Codes&quot;
+section, below.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Verbatim Paragraph</H2>
+
+<A NAME="ixAAE"></A>
+Verbatim paragraphs are usually used for presenting a codeblock or
+other text which does not require any special parsing or formatting,
+and which shouldn't be wrapped.
+<P>
+
+A verbatim paragraph is distinguished by having its first character
+be a space or a tab.  (And commonly, all its lines begin with spaces
+and/or tabs.)  It should be reproduced exactly, with tabs assumed to
+be on 8-column boundaries.  There are no special formatting codes,
+so you can't italicize or anything like that.  A \ means \, and
+nothing else.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Command Paragraph</H2>
+
+<A NAME="ixAAF"></A>
+A command paragraph is used for special treatment of whole chunks
+of text, usually as headings or parts of lists.
+<P>
+
+All command paragraphs (which are typically only one line long) start
+with ``='', followed by an identifier, followed by arbitrary text that
+the command can use however it pleases.  Currently recognized commands
+are
+<P>
+
+
+
+<PRE>
+    =head1 Heading Text
+    =head2 Heading Text
+    =head3 Heading Text
+    =head4 Heading Text
+    =over indentlevel
+    =item stuff
+    =back
+    =cut
+    =pod
+    =begin format
+    =end format
+    =for format text...
+
+</PRE>
+
+
+<P>
+
+To explain them each in detail:
+<DL COMPACT>
+<DT>=head1 Heading Text<TT><DD>
+
+
+<A NAME="ixAAG"></A>
+
+<DT>=head2 </TT>Heading Text<TT><DD>
+
+
+<A NAME="ixAAH"></A>
+<DT>=head3 </TT>Heading Text<TT><DD>
+
+
+<A NAME="ixAAI"></A>
+<DT>=head4 </TT>Heading Text<TT><DD>
+
+
+<A NAME="ixAAJ"></A>
+
+Head1 through head4 produce headings, head1 being the highest
+level.  The text in the rest of this paragraph is the content of the
+heading.  For example:
+
+
+<P>
+
+
+
+</TT>
+<PRE>
+  =head2 Object Attributes
+
+</PRE>
+
+
+
+
+<P>
+
+
+The text ``Object Attributes'' comprises the heading there.  (Note that
+head3 and head4 are recent additions, not supported in older Pod
+translators.)  The text in these heading commands can use
+formatting codes, as seen here:
+
+
+<P>
+
+
+
+
+<PRE>
+  =head2 Possible Values for C&lt;$/&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+Such commands are explained in the
+&quot;Formatting Codes&quot; section, below.
+<DT>=over indentlevel<TT><DD>
+
+
+<A NAME="ixAAK"></A>
+
+<DT>=item </TT>stuff...<TT><DD>
+
+
+<A NAME="ixAAL"></A>
+<DT>=back<DD>
+
+
+<A NAME="ixAAM"></A>
+
+Item, over, and back require a little more explanation:  ``=over'' starts
+a region specifically for the generation of a list using ``=item''
+commands, or for indenting (groups of) normal paragraphs.  At the end
+of your list, use ``=back'' to end it.  The </TT><I>indentlevel</I> option to
+``=over'' indicates how far over to indent, generally in ems (where
+one em is the width of an ``M'' in the document's base font) or roughly
+comparable units; if there is no <I>indentlevel</I> option, it defaults
+to four.  (And some formatters may just ignore whatever <I>indentlevel</I>
+you provide.)  In the <I>stuff</I> in <TT>&quot;=item </TT>stuff...<TT>&quot;</TT>, you may
+use formatting codes, as seen here:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item Using C&lt;$|&gt; to Control Buffering
+
+</PRE>
+
+
+
+
+<P>
+
+
+Such commands are explained in the
+&quot;Formatting Codes&quot; section, below.
+
+
+<P>
+
+
+Note also that there are some basic rules to using ``=over'' ...
+``=back'' regions:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+Don't use ``=item''s outside of an ``=over'' ... ``=back'' region.
+<DT>*<DD>
+The first thing after the ``=over'' command should be an ``=item'', unless
+there aren't going to be any items at all in this ``=over'' ... ``=back''
+region.
+<DT>*<DD>
+Don't put &quot;=head<I>n</I>`` commands inside an ''=over`` ... ''=back&quot; region.
+<DT>*<DD>
+And perhaps most importantly, keep the items consistent: either use
+``=item *'' for all of them, to produce bullets; or use ``=item 1.'',
+``=item 2.'', etc., to produce numbered lists; or use ``=item foo'',
+``=item bar'', etc. --- namely, things that look nothing like bullets or
+numbers.
+
+
+<P>
+
+
+If you start with bullets or numbers, stick with them, as
+formatters use the first ``=item'' type to decide how to format the
+list.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>=cut<DD>
+
+
+<A NAME="ixAAN"></A>
+To end a Pod block, use a blank line,
+then a line beginning with ``=cut'', and a blank
+line after it.  This lets Perl (and the Pod formatter) know that
+this is where Perl code is resuming.  (The blank line before the ``=cut''
+is not technically necessary, but many older Pod processors require it.)
+<DT>=pod<DD>
+
+
+<A NAME="ixAAO"></A>
+The ``=pod'' command by itself doesn't do much of anything, but it
+signals to Perl (and Pod formatters) that a Pod block starts here.  A
+Pod block starts with <I>any</I> command paragraph, so a ``=pod'' command is
+usually used just when you want to start a Pod block with an ordinary
+paragraph or a verbatim paragraph.  For example:
+
+
+<P>
+
+
+
+
+<PRE>
+  =item stuff()
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  This function does stuff.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =cut
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  sub stuff {
+    ...
+  }
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =pod
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  Remember to check its return value, as in:
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    stuff() || die &quot;Couldn't do stuff!&quot;;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =cut
+
+</PRE>
+
+
+<DT>=begin formatname<TT><DD>
+
+
+<A NAME="ixAAP"></A>
+
+<DT>=end </TT>formatname<TT><DD>
+
+
+<A NAME="ixAAQ"></A>
+<DT>=for </TT>formatname<TT> </TT>text...<TT><DD>
+
+
+<A NAME="ixAAR"></A>
+
+For, begin, and end will let you have regions of text/code/data that
+are not generally interpreted as normal Pod text, but are passed
+directly to particular formatters, or are otherwise special.  A
+formatter that can use that format will use the region, otherwise it
+will be completely ignored.
+
+
+<P>
+
+
+A command &quot;=begin </TT><I>formatname</I>``, some paragraphs, and a
+command ''=end <I>formatname</I>&quot;, mean that the text/data inbetween
+is meant for formatters that understand the special format
+called <I>formatname</I>.  For example,
+
+
+<P>
+
+
+
+
+<PRE>
+  =begin html
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;hr&gt; &lt;img src=&quot;thang.png&quot;&gt;
+  &lt;p&gt; This is a raw HTML paragraph &lt;/p&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =end html
+
+</PRE>
+
+
+
+
+<P>
+
+
+The command &quot;=for <I>formatname</I> <I>text...</I>&quot;
+specifies that the remainder of just this paragraph (starting
+right after <I>formatname</I>) is in that special format.  
+
+
+<P>
+
+
+
+
+<PRE>
+  =for html &lt;hr&gt; &lt;img src=&quot;thang.png&quot;&gt;
+  &lt;p&gt; This is a raw HTML paragraph &lt;/p&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+This means the same thing as the above ``=begin html'' ... ``=end html''
+region.
+
+
+<P>
+
+
+That is, with ``=for'', you can have only one paragraph's worth
+of text (i.e., the text in ``=foo targetname text...''), but with
+``=begin targetname'' ... ``=end targetname'', you can have any amount
+of stuff inbetween.  (Note that there still must be a blank line
+after the ``=begin'' command and a blank line before the ``=end''
+command.
+
+
+<P>
+
+
+Here are some examples of how to use these:
+
+
+<P>
+
+
+
+
+<PRE>
+  =begin html
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  &lt;br&gt;Figure 1.&lt;br&gt;&lt;IMG SRC=&quot;figure1.png&quot;&gt;&lt;br&gt;
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =end html
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =begin text
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+    ---------------
+    |  foo        |
+    |        bar  |
+    ---------------
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  ^^^^ Figure 1. ^^^^
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =end text
+
+</PRE>
+
+
+
+
+<P>
+
+
+Some format names that formatters currently are known to accept
+include ``roff'', ``man'', ``latex'', ``tex'', ``text'', and ``html''.  (Some
+formatters will treat some of these as synonyms.)
+
+
+<P>
+
+
+A format name of ``comment'' is common for just making notes (presumably
+to yourself) that won't appear in any formatted version of the Pod
+document:
+
+
+<P>
+
+
+
+
+<PRE>
+  =for comment
+  Make sure that all the available options are documented!
+
+</PRE>
+
+
+
+
+<P>
+
+
+Some <I>formatnames</I> will require a leading colon (as in
+<TT>&quot;=for :formatname&quot;</TT>, or
+<TT>&quot;=begin :formatname&quot; ... &quot;=end :formatname&quot;</TT>),
+to signal that the text is not raw data, but instead <I>is</I> Pod text
+(i.e., possibly containing formatting codes) that's just not for
+normal formatting (e.g., may not be a normal-use paragraph, but might
+be for formatting as a footnote).
+<DT>=encoding encodingname<TT><DD>
+
+
+<A NAME="ixAAS"></A>
+This command is used for declaring the encoding of a document.  Most
+users won't need this; but if your encoding isn't US-ASCII or Latin-1,
+then put a &quot;=encoding </TT>encodingname<TT>&quot;</TT> command early in the document so
+that pod formatters will know how to decode the document.  For
+<I>encodingname</I>, use a name recognized by the Encode::Supported
+module.  Examples:
+
+
+<P>
+
+
+
+
+<PRE>
+  =encoding utf8
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =encoding koi8-r
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =encoding ShiftJIS
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+  =encoding big5
+
+</PRE>
+
+
+</DL>
+<P>
+
+And don't forget, when using any command, that the command lasts up
+until the end of its <I>paragraph</I>, not its line.  So in the
+examples below, you can see that every command needs the blank
+line after it, to end its paragraph.
+<P>
+
+Some examples of lists include:
+<P>
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item *
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  First item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item *
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Second item
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =over
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item Foo()
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Description of Foo function
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =item Bar()
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Description of Bar function
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =back
+
+</PRE>
+
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>Formatting Codes</H2>
+
+<A NAME="ixAAT"></A>
+In ordinary paragraphs and in some command paragraphs, various
+formatting codes (a.k.a. ``interior sequences'') can be used:
+<DL COMPACT>
+<DT>I&lt;text&gt; --- italic text<DD>
+
+
+<A NAME="ixAAU"></A>
+Used for emphasis (&quot;<TT>&quot;be I&lt;careful!&gt;&quot;</TT>``) and parameters
+(''<TT>&quot;redo I&lt;LABEL&gt;&quot;</TT>&quot;)
+<DT>B&lt;text&gt; --- bold text<DD>
+
+
+<A NAME="ixAAV"></A>
+Used for switches (&quot;<TT>&quot;perl's B&lt;-n&gt; switch&quot;</TT>``), programs
+(''<TT>&quot;some systems provide a B&lt;chfn&gt; for that&quot;</TT>``),
+emphasis (''<TT>&quot;be B&lt;careful!&gt;&quot;</TT>``), and so on
+(''<TT>&quot;and that feature is known as B&lt;autovivification&gt;&quot;</TT>&quot;).
+<DT>C&lt;code&gt; --- code text<DD>
+
+
+<A NAME="ixAAW"></A>
+Renders code in a typewriter font, or gives some other indication that
+this represents program text (&quot;<TT>&quot;C&lt;gmtime($^T)&gt;&quot;</TT>``) or some other
+form of computerese (''<TT>&quot;C&lt;drwxr-xr-x&gt;&quot;</TT>&quot;).
+<DT>L&lt;name&gt; --- a hyperlink<DD>
+
+
+<A NAME="ixAAX"></A>
+There are various syntaxes, listed below.  In the syntaxes given,
+<TT>&quot;text&quot;</TT>, <TT>&quot;name&quot;</TT>, and <TT>&quot;section&quot;</TT> cannot contain the characters
+'/' and '|'; and any '&lt;' or '&gt;' should be matched.
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;L&lt;name&gt;&quot;</TT>
+
+
+<P>
+
+
+Link to a Perl manual page (e.g., <TT>&quot;L&lt;Net::Ping&gt;&quot;</TT>).  Note
+that <TT>&quot;name&quot;</TT> should not contain spaces.  This syntax
+is also occasionally used for references to <FONT SIZE="-1">UNIX</FONT> man pages, as in
+<TT>&quot;L&lt;<A HREF="../man5/crontab.5.php">crontab</A>(5)&gt;&quot;</TT>.
+<DT>*<DD>
+<TT>&quot;L&lt;name/&quot;sec&quot;&gt;&quot;</TT> or <TT>&quot;L&lt;name/sec&gt;&quot;</TT>
+
+
+<P>
+
+
+Link to a section in other manual page.  E.g.,
+<TT>&quot;L&lt;perlsyn/&quot;For Loops&quot;&gt;&quot;</TT>
+<DT>*<DD>
+<TT>&quot;L&lt;/&quot;sec&quot;&gt;&quot;</TT> or <TT>&quot;L&lt;/sec&gt;&quot;</TT> or <TT>&quot;L&lt;&quot;sec&quot;&gt;&quot;</TT>
+
+
+<P>
+
+
+Link to a section in this manual page.  E.g.,
+<TT>&quot;L&lt;/&quot;Object Methods&quot;&gt;&quot;</TT>
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+A section is started by the named heading or item.  For
+example, <TT>&quot;L&lt;perlvar/$.&gt;&quot;</TT> or <TT>&quot;L&lt;perlvar/&quot;$.&quot;&gt;&quot;</TT> both
+link to the section started by &quot;<TT>&quot;=item $.&quot;</TT>&quot; in perlvar.  And
+<TT>&quot;L&lt;perlsyn/For Loops&gt;&quot;</TT> or <TT>&quot;L&lt;perlsyn/&quot;For Loops&quot;&gt;&quot;</TT>
+both link to the section started by &quot;<TT>&quot;=head2 For Loops&quot;</TT>&quot;
+in perlsyn.
+
+
+<P>
+
+
+To control what text is used for display, you
+use &quot;<TT>&quot;L&lt;text|...&gt;&quot;</TT>&quot;, as in:
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;L&lt;text|name&gt;&quot;</TT>
+
+
+<P>
+
+
+Link this text to that manual page.  E.g.,
+<TT>&quot;L&lt;Perl Error Messages|perldiag&gt;&quot;</TT>
+<DT>*<DD>
+<TT>&quot;L&lt;text|name/&quot;sec&quot;&gt;&quot;</TT> or <TT>&quot;L&lt;text|name/sec&gt;&quot;</TT>
+
+
+<P>
+
+
+Link this text to that section in that manual page.  E.g.,
+<TT>&quot;L&lt;SWITCH statements|perlsyn/&quot;Basic BLOCKs and Switch
+Statements&quot;&gt;&quot;</TT>
+<DT>*<DD>
+<TT>&quot;L&lt;text|/&quot;sec&quot;&gt;&quot;</TT> or <TT>&quot;L&lt;text|/sec&gt;&quot;</TT>
+or <TT>&quot;L&lt;text|&quot;sec&quot;&gt;&quot;</TT>
+
+
+<P>
+
+
+Link this text to that section in this manual page.  E.g.,
+<TT>&quot;L&lt;the various attributes|/&quot;Member Data&quot;&gt;&quot;</TT>
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+Or you can link to a web page:
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;L&lt;scheme:...&gt;&quot;</TT>
+
+
+<P>
+
+
+Links to an absolute <FONT SIZE="-1">URL</FONT>.  For example,
+<TT>&quot;L&lt;<A HREF="http://www.perl.org/">http://www.perl.org/</A>&gt;&quot;</TT>.  But note
+that there is no corresponding <TT>&quot;L&lt;text|scheme:...&gt;&quot;</TT> syntax, for
+various reasons.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>E&lt;escape&gt; --- a character escape<DD>
+
+
+<A NAME="ixAAY"></A>
+Very similar to <FONT SIZE="-1">HTML/XML</FONT> <TT>&quot;&amp;</TT>foo<TT>;&quot;</TT> ``entity references'':
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>*<DD>
+<TT>&quot;E&lt;lt&gt;&quot;</TT> --- a literal &lt; (less than)
+<DT>*<DD>
+<TT>&quot;E&lt;gt&gt;&quot;</TT> --- a literal &gt; (greater than)
+<DT>*<DD>
+<TT>&quot;E&lt;verbar&gt;&quot;</TT> --- a literal | (<I>ver</I>tical <I>bar</I>)
+<DT>*<DD>
+<TT>&quot;E&lt;sol&gt;&quot;</TT> = a literal / (<I>sol</I>idus)
+
+
+<P>
+
+
+The above four are optional except in other formatting codes,
+notably <TT>&quot;L&lt;...&gt;&quot;</TT>, and when preceded by a
+capital letter.
+<DT>*<DD>
+<TT>&quot;E&lt;htmlname&gt;&quot;</TT>
+
+
+<P>
+
+
+Some non-numeric <FONT SIZE="-1">HTML</FONT> entity name, such as <TT>&quot;E&lt;eacute&gt;&quot;</TT>,
+meaning the same thing as <TT>&quot;&amp;eacute;&quot;</TT> in <FONT SIZE="-1">HTML</FONT> --- i.e., a lowercase
+e with an acute (/-shaped) accent.
+<DT>*<DD>
+<TT>&quot;E&lt;number&gt;&quot;</TT>
+
+
+<P>
+
+
+The ASCII/Latin-1/Unicode character with that number.  A
+leading ``0x'' means that <I>number</I> is hex, as in
+<TT>&quot;E&lt;0x201E&gt;&quot;</TT>.  A leading ``0'' means that <I>number</I> is octal,
+as in <TT>&quot;E&lt;075&gt;&quot;</TT>.  Otherwise <I>number</I> is interpreted as being
+in decimal, as in <TT>&quot;E&lt;181&gt;&quot;</TT>.
+
+
+<P>
+
+
+Note that older Pod formatters might not recognize octal or
+hex numeric escapes, and that many formatters cannot reliably
+render characters above 255.  (Some formatters may even have
+to use compromised renderings of Latin-1 characters, like
+rendering <TT>&quot;E&lt;eacute&gt;&quot;</TT> as just a plain ``e''.)
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>F&lt;filename&gt; --- used for filenames<DD>
+
+
+<A NAME="ixAAZ"></A>
+Typically displayed in italics.  Example: &quot;<TT>&quot;F&lt;.cshrc&gt;&quot;</TT>&quot;
+<DT>S&lt;text&gt; --- text contains non-breaking spaces<DD>
+
+
+<A NAME="ixABA"></A>
+This means that the words in <I>text</I> should not be broken
+across lines.  Example: <TT>&quot;S&lt;$x&nbsp;?&nbsp;$y&nbsp;:&nbsp;$z&gt;&quot;</TT>.
+<DT>X&lt;topic name&gt; --- an index entry<DD>
+
+
+<A NAME="ixABB"></A>
+This is ignored by most formatters, but some may use it for building
+indexes.  It always renders as empty-string.
+Example: <TT>&quot;X&lt;absolutizing relative URLs&gt;&quot;</TT>
+<DT>Z&lt;&gt; --- a null (zero-effect) formatting code<DD>
+
+
+<A NAME="ixABC"></A>
+This is rarely used.  It's one way to get around using an
+E&lt;...&gt; code sometimes.  For example, instead of
+&quot;<TT>&quot;NE&lt;lt&gt;3&quot;</TT>`` (for ''N&lt;3``) you could write
+''<TT>&quot;NZ&lt;&gt;&lt;3&quot;</TT>`` (the ''Z&lt;&gt;`` breaks up the ''N`` and
+the ''&lt;`` so they can't be considered
+the part of a (fictitious) ''N&lt;...&gt;&quot; code.
+</DL>
+<P>
+
+Most of the time, you will need only a single set of angle brackets to
+delimit the beginning and end of formatting codes.  However,
+sometimes you will want to put a real right angle bracket (a
+greater-than sign, '&gt;') inside of a formatting code.  This is particularly
+common when using a formatting code to provide a different font-type for a
+snippet of code.  As with all things in Perl, there is more than
+one way to do it.  One way is to simply escape the closing bracket
+using an <TT>&quot;E&quot;</TT> code:
+<P>
+
+
+
+<PRE>
+    C&lt;$a E&lt;lt&gt;=E&lt;gt&gt; $b&gt;
+
+</PRE>
+
+
+<P>
+
+This will produce: &quot;<TT>&quot;$a &lt;=&gt; $b&quot;</TT>&quot;
+<P>
+
+A more readable, and perhaps more ``plain'' way is to use an alternate
+set of delimiters that doesn't require a single ``&gt;'' to be escaped.  With
+the Pod formatters that are standard starting with perl5.5.660, doubled
+angle brackets (``&lt;&lt;'' and ``&gt;&gt;'') may be used <I>if and only if there is
+whitespace right after the opening delimiter and whitespace right
+before the closing delimiter!</I>  For example, the following will
+do the trick:
+<P>
+
+
+
+<PRE>
+    C&lt;&lt; $a &lt;=&gt; $b &gt;&gt;
+
+</PRE>
+
+
+<P>
+
+In fact, you can use as many repeated angle-brackets as you like so
+long as you have the same number of them in the opening and closing
+delimiters, and make sure that whitespace immediately follows the last
+'&lt;' of the opening delimiter, and immediately precedes the first '&gt;'
+of the closing delimiter.  (The whitespace is ignored.)  So the
+following will also work:
+<P>
+
+
+
+<PRE>
+    C&lt;&lt;&lt; $a &lt;=&gt; $b &gt;&gt;&gt;
+    C&lt;&lt;&lt;&lt;  $a &lt;=&gt; $b     &gt;&gt;&gt;&gt;
+
+</PRE>
+
+
+<P>
+
+And they all mean exactly the same as this:
+<P>
+
+
+
+<PRE>
+    C&lt;$a E&lt;lt&gt;=E&lt;gt&gt; $b&gt;
+
+</PRE>
+
+
+<P>
+
+As a further example, this means that if you wanted to put these bits of
+code in <TT>&quot;C&quot;</TT> (code) style:
+<P>
+
+
+
+<PRE>
+    open(X, &quot;&gt;&gt;thing.dat&quot;) || die $!
+    $foo-&gt;bar();
+
+</PRE>
+
+
+<P>
+
+you could do it like so:
+<P>
+
+
+
+<PRE>
+    C&lt;&lt;&lt; open(X, &quot;&gt;&gt;thing.dat&quot;) || die $! &gt;&gt;&gt;
+    C&lt;&lt; $foo-&gt;bar(); &gt;&gt;
+
+</PRE>
+
+
+<P>
+
+which is presumably easier to read than the old way:
+<P>
+
+
+
+<PRE>
+    C&lt;open(X, &quot;E&lt;gt&gt;E&lt;gt&gt;thing.dat&quot;) || die $!&gt;
+    C&lt;$foo-E&lt;gt&gt;bar();&gt;
+
+</PRE>
+
+
+<P>
+
+This is currently supported by pod2text (Pod::Text), pod2man (Pod::Man),
+and any other pod2xxx or Pod::Xxxx translators that use
+Pod::Parser 1.093 or later, or Pod::Tree 1.02 or later.
+<A NAME="lbAH">&nbsp;</A>
+<H2>The Intent</H2>
+
+<A NAME="ixABD"></A>
+The intent is simplicity of use, not power of expression.  Paragraphs
+look like paragraphs (block format), so that they stand out
+visually, and so that I could run them through <TT>&quot;fmt&quot;</TT> easily to reformat
+them (that's F7 in my version of <B>vi</B>, or Esc Q in my version of
+<B>emacs</B>).  I wanted the translator to always leave the <TT>&quot;'&quot;</TT> and <TT>&quot;`&quot;</TT> and
+<TT>&quot;&quot;&quot;</TT> quotes alone, in verbatim mode, so I could slurp in a
+working program, shift it over four spaces, and have it print out, er,
+verbatim.  And presumably in a monospace font.
+<P>
+
+The Pod format is not necessarily sufficient for writing a book.  Pod
+is just meant to be an idiot-proof common source for nroff, <FONT SIZE="-1">HTML</FONT>,
+TeX, and other markup languages, as used for online
+documentation.  Translators exist for <B>pod2text</B>, <B>pod2html</B>,
+<B>pod2man</B> (that's for <I><A HREF="../man1/nroff.1.php">nroff</A></I>(1) and <I><A HREF="../man1/troff.1.php">troff</A></I>(1)), <B>pod2latex</B>, and
+<B>pod2fm</B>.  Various others are available in <FONT SIZE="-1">CPAN</FONT>.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Embedding Pods in Perl Modules</H2>
+
+<A NAME="ixABE"></A>
+You can embed Pod documentation in your Perl modules and scripts.
+Start your documentation with an empty line, a ``=head1'' command at the
+beginning, and end it with a ``=cut'' command and an empty line.  Perl
+will ignore the Pod text.  See any of the supplied library modules for
+examples.  If you're going to put your Pod at the end of the file, and
+you're using an __END__ or __DATA__ cut mark, make sure to put an
+empty line there before the first Pod command.
+<P>
+
+
+
+<PRE>
+  __END__
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  =head1 NAME
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+  Time::Local - efficiently compute time from local and GMT time
+
+</PRE>
+
+
+<P>
+
+Without that empty line before the ``=head1'', many translators wouldn't
+have recognized the ``=head1'' as starting a Pod block.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Hints for Writing Pod</H2>
+
+<A NAME="ixABF"></A>
+<DL COMPACT>
+<DT>*<DD>
+The <B>podchecker</B> command is provided for checking Pod syntax for errors
+and warnings.  For example, it checks for completely blank lines in
+Pod blocks and for unknown commands and formatting codes.  You should
+still also pass your document through one or more translators and proofread
+the result, or print out the result and proofread that.  Some of the
+problems found may be bugs in the translators, which you may or may not
+wish to work around.
+<DT>*<DD>
+If you're more familiar with writing in <FONT SIZE="-1">HTML</FONT> than with writing in Pod, you
+can try your hand at writing documentation in simple <FONT SIZE="-1">HTML</FONT>, and converting
+it to Pod with the experimental Pod::HTML2Pod module,
+(available in <FONT SIZE="-1">CPAN</FONT>), and looking at the resulting code.  The experimental
+Pod::PXML module in <FONT SIZE="-1">CPAN</FONT> might also be useful.
+<DT>*<DD>
+Many older Pod translators require the lines before every Pod
+command and after every Pod command (including ``=cut''!) to be a blank
+line.  Having something like this:
+
+
+<P>
+
+
+
+
+<PRE>
+ # - - - - - - - - - - - -
+ =item $firecracker-&gt;boom()
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+ This noisily detonates the firecracker object.
+ =cut
+ sub boom {
+ ...
+
+</PRE>
+
+
+
+
+<P>
+
+
+...will make such Pod translators completely fail to see the Pod block
+at all.
+
+
+<P>
+
+
+Instead, have it like this:
+
+
+<P>
+
+
+
+
+<PRE>
+ # - - - - - - - - - - - -
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+ =item $firecracker-&gt;boom()
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+ This noisily detonates the firecracker object.
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+ =cut
+
+</PRE>
+
+
+
+
+<P>
+
+
+
+
+<PRE>
+ sub boom {
+ ...
+
+</PRE>
+
+
+<DT>*<DD>
+Some older Pod translators require paragraphs (including command
+paragraphs like ``=head2 Functions'') to be separated by <I>completely</I>
+empty lines.  If you have an apparently empty line with some spaces
+on it, this might not count as a separator for those translators, and
+that could cause odd formatting.
+<DT>*<DD>
+Older translators might add wording around an L&lt;&gt; link, so that
+<TT>&quot;L&lt;Foo::Bar&gt;&quot;</TT> may become ``the Foo::Bar manpage'', for example.
+So you shouldn't write things like <TT>&quot;the L&lt;foo&gt;
+documentation&quot;</TT>, if you want the translated document to read sensibly
+--- instead write <TT>&quot;the L&lt;Foo::Bar|Foo::Bar&gt; documentation&quot;</TT> or
+<TT>&quot;L&lt;the Foo::Bar documentation|Foo::Bar&gt;&quot;</TT>, to control how the
+link comes out.
+<DT>*<DD>
+Going past the 70th column in a verbatim block might be ungracefully
+wrapped by some formatters.
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABG"></A>
+perlpodspec, ``PODs: Embedded Documentation'' in perlsyn,
+perlnewmod, perldoc, pod2html, pod2man, podchecker.
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABH"></A>
+Larry Wall, Sean M. Burke
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">Ordinary Paragraph</A><DD>
+<DT><A HREF="#lbAE">Verbatim Paragraph</A><DD>
+<DT><A HREF="#lbAF">Command Paragraph</A><DD>
+<DT><A HREF="#lbAG">Formatting Codes</A><DD>
+<DT><A HREF="#lbAH">The Intent</A><DD>
+<DT><A HREF="#lbAI">Embedding Pods in Perl Modules</A><DD>
+<DT><A HREF="#lbAJ">Hints for Writing Pod</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>LAMTRACE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>LAMTRACE</H1>
+Section: LAM COMMANDS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lamtrace - Unload LAM trace data.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+
+<DL COMPACT>
+<DT>
+<DD>lamtrace [-hkvR] [-mpi] [-l &lt;listno&gt;] [-f &lt;#secs&gt;] [&lt;filename&gt;] 
+[&lt;nodes&gt;] [&lt;processes&gt;]
+
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+Print useful information on this command.
+<DT><B>-k</B>
+
+<DD>
+Copy and do not remove trace data.
+<DT><B>-v</B>
+
+<DD>
+Be verbose.
+<DT><B>-R</B>
+
+<DD>
+Delete all trace data from the specified nodes.
+<DT><B>-l</B>
+
+<DD>
+Unload only from the given list number.
+<DT><B>-mpi</B>
+
+<DD>
+Unload trace data for an MPI application.
+<DT><B>-f &lt;#secs&gt;</B>
+
+<DD>
+Signal target processes to flush trace data to the daemon.
+Then wait &lt;#secs&gt; before unloading.
+<DT><B>&lt;filename&gt;</B>
+
+<DD>
+Place trace data into this file (default: def.lamtr).
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The -t option of <A HREF="../man1/mpirun.1.php">mpirun</A>(1) and <A HREF="../man1/loadgo.1.php">loadgo</A>(1) allows the application
+to generate execution traces.
+These traces are first stored in a buffer within each application
+process.
+When the buffer is full and when the application terminates, the runtime
+buffer is flushed to the trace daemon (a structural component within the
+LAM daemon).
+The trace daemon will also collect data up to a pre-compiled limit.
+Beyond this limit, the oldest traces in will be forgotten in favor of
+the newer traces.
+<P>
+
+After an application has finished, the record of its execution is
+stored in the trace daemons of each node that was running the application.
+The
+<I>lamtrace</I>
+
+command can be used to retrieve these traces and store them in one
+file for display by a performance visualization tool, such as <A HREF="../man1/xmpi.1.php">xmpi</A>(1).
+If the application was started by <A HREF="../man1/xmpi.1.php">xmpi</A>(1),
+<I>lamtrace</I>
+
+is not normally needed as the equivalent functionality is invoked with
+a button.
+<P>
+
+Incomplete trace data can be unloaded while the application is running.
+The output file must not exist prior to invoking
+<I>lamtrace</I>.
+
+This is a good situation to use the -k option, which preserves the
+trace daemon's contents after unloading.
+Each reload will then get the entire run's trace data up to the
+present time.
+<P>
+
+A running process is likely to be holding the most recent trace data in an
+internal buffer.
+A standard LAM signal, LAM_SIGTRACE (see <A HREF="../man1/doom.1.php">doom</A>(1)), causes trace enabled
+processes to flush the internal trace buffer to the daemon.
+The -f option tells
+<I>lamtrace</I>
+
+to send this signal to all target processes before unloading trace data.
+A race condition develops between the target process storing trace data
+to the daemon and the unloading procedure.
+The problem is foisted upon the user who gives a delay parameter
+after -f.
+<P>
+
+Trace data are organized by node, process identifier and list number.
+A process can store traces on any node, although the local node is
+the obvious, least intrusive choice.
+The process can identify itself in any meaningful way (<A HREF="../man2/getpid.2.php">getpid</A>(2) is
+a good idea)
+The list number is also chosen by the process.
+These values may be set by an instrumented library, such as <A HREF="../man3/libmpi.3.php">libmpi</A>(3),
+or directly by the application with <A HREF="../man2/lam_rtrstore.2.php">lam_rtrstore</A>(2).
+Unloading flexibility follows that of storing with the -l option
+selecting the list number, and standard LAM command line mnemonics 
+selecting nodes and processes.
+<P>
+
+Dropping old traces when a pre-compiled volume limit is reached only
+happens for positive list numbers.
+Traces in negatively numbered lists will be collected until the
+underlying system runs out of memory.
+Do not use negative list numbers for high volume trace data.
+<P>
+
+If no process selection is given on the command line, trace data will
+be unloaded for all processes on each specified node.
+<P>
+
+LAM, its trace daemon and
+<I>lamtrace</I>
+
+are all unaware of the format and meaning of traces.
+<P>
+
+The -R option does not unload trace data.
+It causes the target trace daemons to free the memory occupied
+by trace data in the given list.
+If all lists are specified (no -l option), the trace daemon is
+effectively reset to its state after initiating LAM.
+<A NAME="lbAF">&nbsp;</A>
+<H3>Unloading MPI Trace Data</H3>
+
+A special capability, selected by the -mpi option, exists to search for
+and unload only the trace data generated by an MPI application.
+For this purpose,
+<I>lamtrace</I>
+
+is aware of the particular reserved list numbers that
+<A HREF="../man3/libmpi.3.php">libmpi</A>(3) uses to store traces.
+It begins by searching all specified nodes and processes (the whole
+LAM multicomputer, if nothing is specified) for a special trace generated
+by process rank 0 in MPI_COMM_WORLD of an MPI application.
+This special trace contains the node and process identifiers of all
+processes in that MPI_COMM_WORLD communicator.
+<I>lamtrace</I>
+
+then uses the node / process information to collect all trace data
+generated by <A HREF="../man3/libmpi.3.php">libmpi</A>(3).
+<P>
+
+If multiple world communicators exist within LAM's trace daemons, the
+first one found is used.
+Multiple worlds may be present due to multiple concurrent applications,
+trace data from a previous run not removed (either with
+<I>lamtrace</I>
+
+or <A HREF="../man1/lamclean.1.php">lamclean</A>(1)),
+or an application that spawns processes.
+A particular world communicator can be located by providing precise
+node and process location to
+<I>lamtrace</I>.
+
+<P>
+
+The -mpi option is not compatible with the -l option.
+<A NAME="lbAG">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT>lamtrace -v -mpi mytraces<DD>
+Unload trace data into the file &quot;mytraces&quot; from the first MPI application
+found in a search of the entire LAM multicomputer.
+Report on important steps as they are done.
+<DT>lamtrace n30 -l 5 p21367<DD>
+Unload trace data from list 5 of process ID 21367 on node 30.
+Operate silently.
+<DT>lamtrace -mpi n30 p21367<DD>
+Unload trace data from the MPI application world group whose process
+rank 0 has PID 21367 and is/was running on node 30.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+Since trace data can be unloaded during an application's execution,
+there should be a way to incrementally append to an output file.
+This is a bit tricky with -mpi, but it can be done.
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT>def.lamtr<DD>
+default output file
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/mpirun.1.php">mpirun</A>(1), <A HREF="../man1/loadgo.1.php">loadgo</A>(1), <A HREF="../man1/lam_rtrstore.1.php">lam_rtrstore</A>(1), <A HREF="../man1/lamclean.1.php">lamclean</A>(1), <A HREF="../man3/libmpi.3.php">libmpi</A>(3), <A HREF="../man1/xmpi.1.php">xmpi</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAF">Unloading MPI Trace Data</A><DD>
+</DL>
+<DT><A HREF="#lbAG">EXAMPLES</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

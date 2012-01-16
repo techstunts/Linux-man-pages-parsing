@@ -1,0 +1,1229 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>ZSHPARAM</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>ZSHPARAM</H1>
+Section: Misc. Reference Manual Pages (1)<BR>Updated: March 19, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+zshparam - zsh parameters
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+A parameter has a name, a value, and a number of attributes.
+A name may be any sequence of alphanumeric
+characters and underscores, or the single characters
+`<B>*</B>', `<B>@</B>', `<B>#</B>', `<B>?</B>', `<B>-</B>', `<B>$</B>', or `<B>!</B>'.
+The value may be a <I>scalar</I> (a string),
+an integer, an array (indexed numerically), or an <I>associative</I>
+array (an unordered set of name-value pairs, indexed by name).  To declare
+the type of a parameter, or to assign a scalar or integer value to a
+parameter, use the <B>typeset</B> builtin.
+<P>
+
+The value of a scalar or integer parameter may also be assigned by
+writing:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I>name</I><B>=</B><I>value</I>
+</PRE>
+
+</DL>
+
+<P>
+
+If the integer attribute, <B>-i</B>, is set for <I>name</I>, the <I>value</I>
+is subject to arithmetic evaluation.  Furthermore, by replacing `<B>=</B>'
+with `<B>+=</B>', a parameter can be added or appended to.  See
+the section `Array Parameters' for additional forms of assignment.
+<P>
+
+To refer to the value of a parameter, write `<B>$</B><I>name</I>' or
+`<B>${</B><I>name</I><B>}</B>'.  See
+<I>Parameter Expansion</I> in <I><A HREF="../man1/zshexpn.1.php">zshexpn</A></I>(1)
+for complete details.
+<P>
+
+In the parameter lists that follow, the mark `&lt;S&gt;' indicates that the
+parameter is special.
+Special parameters cannot have their type changed or their
+readonly attribute turned off, and if a special parameter is unset, then
+later recreated, the special properties will be retained.  `&lt;Z&gt;' indicates
+that the parameter does not exist when the shell initializes in <B>sh</B> or
+<B>ksh</B> emulation mode.
+<A NAME="lbAD">&nbsp;</A>
+<H2>ARRAY PARAMETERS</H2>
+
+To assign an array value, write one of:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>set -A</B> <I>name</I> <I>value</I> ...
+</PRE>
+
+</DL>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I>name</I><B>=(</B><I>value</I> ...<B>)</B>
+</PRE>
+
+</DL>
+
+<P>
+
+If no parameter <I>name</I> exists, an ordinary array parameter is created.
+If the parameter <I>name</I> exists and is a scalar, it is replaced by a new
+array.  Ordinary array parameters may also be explicitly declared with:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset -a</B> <I>name</I>
+</PRE>
+
+</DL>
+
+<P>
+
+Associative arrays <I>must</I> be declared before assignment, by using:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset -A</B> <I>name</I>
+</PRE>
+
+</DL>
+
+<P>
+
+When <I>name</I> refers to an associative array, the list in an assignment
+is interpreted as alternating keys and values:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+set -A <I>name</I> <I>key</I> <I>value</I> ...
+</PRE>
+
+</DL>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I>name</I><B>=(</B><I>key</I> <I>value</I> ...<B>)</B>
+</PRE>
+
+</DL>
+
+<P>
+
+Every <I>key</I> must have a <I>value</I> in this case.  Note that this
+assigns to the entire array, deleting any elements that do not appear
+in the list.
+<P>
+
+To create an empty array (including associative arrays), use one of:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>set -A</B> <I>name</I>
+</PRE>
+
+</DL>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I>name</I><B>=()</B>
+</PRE>
+
+</DL>
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Array Subscripts</H3>
+
+<P>
+
+Individual elements of an array may be selected using a subscript.  A
+subscript of the form `<B>[</B><I>exp</I><B>]</B>' selects the single element
+<I>exp</I>, where <I>exp</I> is an arithmetic expression which will be subject
+to arithmetic expansion as if it were surrounded by
+`<B>$((</B>...<B>))</B>'.  The elements are numbered
+beginning with 1, unless the <B>KSH_ARRAYS</B> option is set in which case
+they are numbered from zero.
+<P>
+
+Subscripts may be used inside braces used to delimit a parameter name, thus
+`<B>${foo[2]}</B>' is equivalent to `<B>$foo[2]</B>'.  If the <B>KSH_ARRAYS</B>
+option is set, the braced form is the only one that works, as bracketed
+expressions otherwise are not treated as subscripts.
+<P>
+
+The same subscripting syntax is used for associative arrays, except that
+no arithmetic expansion is applied to <I>exp</I>.  However, the parsing
+rules for arithmetic expressions still apply, which affects the way that
+certain special characters must be protected from interpretation.  See
+<I>Subscript Parsing</I> below for details.
+<P>
+
+A subscript of the form `<B>[*]</B>' or `<B>[@]</B>' evaluates to all elements
+of an array; there is no difference between the two except when they
+appear within double quotes.
+`<B>&quot;$foo[*]&quot;</B>' evaluates to `<B>&quot;$foo[1] $foo[2] </B>...<B>&quot;</B>', whereas
+`<B>&quot;$foo[@]&quot;</B>' evaluates to `<B>&quot;$foo[1]&quot; &quot;$foo[2]&quot; </B>...'.  For
+associative arrays, `<B>[*]</B>' or `<B>[@]</B>' evaluate to all the values,
+in no particular order.  Note that this does not substitute
+the keys; see the documentation for the `<B>k</B>' flag under
+<I>Parameter Expansion Flags</I> in <I><A HREF="../man1/zshexpn.1.php">zshexpn</A></I>(1)
+for complete details.
+When an array parameter is referenced as `<B>$</B><I>name</I>' (with no
+subscript) it evaluates to `<B>$</B><I>name</I><B>[*]</B>', unless the <B>KSH_ARRAYS</B>
+option is set in which case it evaluates to `<B>${</B><I>name</I><B>[0]}</B>' (for
+an associative array, this means the value of the key `<B>0</B>', which may
+not exist even if there are values for other keys).
+<P>
+
+A subscript of the form `<B>[</B><I>exp1</I><B>,</B><I>exp2</I><B>]</B>'
+selects all elements in the range <I>exp1</I> to <I>exp2</I>,
+inclusive. (Associative arrays are unordered, and so do not support
+ranges.) If one of the subscripts evaluates to a negative number,
+say <B>-</B><I>n</I>, then the <I>n</I>th element from the end
+of the array is used.  Thus `<B>$foo[-3]</B>' is the third element
+from the end of the array <B>foo</B>, and
+`<B>$foo[1,-1]</B>' is the same as `<B>$foo[*]</B>'.
+<P>
+
+Subscripting may also be performed on non-array values, in which
+case the subscripts specify a substring to be extracted.
+For example, if <B>FOO</B> is set to `<B>foobar</B>', then
+`<B>echo $FOO[2,5]</B>' prints `<B>ooba</B>'.
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Array Element Assignment</H3>
+
+<P>
+
+A subscript may be used on the left side of an assignment like so:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<I>name</I><B>[</B><I>exp</I><B>]=</B><I>value</I>
+</PRE>
+
+</DL>
+
+<P>
+
+In this form of assignment the element or range specified by <I>exp</I>
+is replaced by the expression on the right side.  An array (but not an
+associative array) may be created by assignment to a range or element.
+Arrays do not nest, so assigning a parenthesized list of values to an
+element or range changes the number of elements in the array, shifting the
+other elements to accommodate the new values.  (This is not supported for
+associative arrays.)
+<P>
+
+This syntax also works as an argument to the <B>typeset</B> command:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset</B> <B>&quot;</B><I>name</I><B>[</B><I>exp</I><B>]&quot;=</B><I>value</I>
+</PRE>
+
+</DL>
+
+<P>
+
+The <I>value</I> may <I>not</I> be a parenthesized list in this case; only
+single-element assignments may be made with <B>typeset</B>.  Note that quotes
+are necessary in this case to prevent the brackets from being interpreted
+as filename generation operators.  The <B>noglob</B> precommand modifier
+could be used instead.
+<P>
+
+To delete an element of an ordinary array, assign `<B>()</B>' to
+that element.  To delete an element of an associative array, use the
+<B>unset</B> command:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>unset</B> <B>&quot;</B><I>name</I><B>[</B><I>exp</I><B>]&quot;</B>
+</PRE>
+
+</DL>
+
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Subscript Flags</H3>
+
+<P>
+
+If the opening bracket, or the comma in a range, in any subscript
+expression is directly followed by an opening parenthesis, the string up
+to the matching closing one is considered to be a list of flags, as in
+`<I>name</I><B>[(</B><I>flags</I><B>)</B><I>exp</I><B>]</B>'.  The flags
+currently understood are:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>w</B>
+If the parameter subscripted is a scalar than this flag makes
+subscripting work on words instead of characters.  The default word
+separator is whitespace.
+<DT><B>s:</B><I>string</I><B>:</B><DD>
+This gives the <I>string</I> that separates words (for use with the
+<B>w</B> flag).
+<DT><B>p</B><DD>
+Recognize the same escape sequences as the <B>print</B> builtin in
+the string argument of a subsequent `<B>s</B>' flag.
+<DT><B>f</B><DD>
+If the parameter subscripted is a scalar than this flag makes
+subscripting work on lines instead of characters, i.e. with elements
+separated by newlines.  This is a shorthand for `<B>pws:\n:</B>'.
+<DT><B>r</B><DD>
+Reverse subscripting: if this flag is given, the <I>exp</I> is taken as a
+pattern and the result is the first matching array element, substring or
+word (if the parameter is an array, if it is a scalar, or if it is a
+scalar and the `<B>w</B>' flag is given, respectively).  The subscript used
+is the number of the matching element, so that pairs of subscripts such as
+`<B>$foo[(r)</B><I>??</I><B>,3]</B>' and `<B>$foo[(r)</B><I>??</I><B>,(r)f*]</B>' are
+possible.  If the parameter is an associative array, only the value part
+of each pair is compared to the pattern, and the result is that value.
+Reverse subscripts may be used for assigning to ordinary array elements,
+but not for assigning to associative arrays.
+<DT><B>R</B><DD>
+Like `<B>r</B>', but gives the last match.  For associative arrays, gives
+all possible matches.
+<DT><B>i</B><DD>
+Like `<B>r</B>', but gives the index of the match instead; this may not be
+combined with a second argument.  On the left side of an assignment,
+behaves like `<B>r</B>'.  For associative arrays, the key part of each pair
+is compared to the pattern, and the first matching key found is the
+result.
+<DT><B>I</B><DD>
+Like `<B>i</B>', but gives the index of the last match, or all possible
+matching keys in an associative array.
+<DT><B>k</B><DD>
+If used in a subscript on an associative array, this flag causes the keys
+to be interpreted as patterns, and returns the value for the first key
+found where <I>exp</I> is matched by the key.  This flag does not work on
+the left side of an assignment to an associative array element.  If used
+on another type of parameter, this behaves like `<B>r</B>'.
+<DT><B>K</B><DD>
+On an associative array this is like `<B>k</B>' but returns all values where
+<I>exp</I> is matched by the keys.  On other types of parameters this has
+the same effect as `<B>R</B>'.
+<DT><B>n:</B><I>expr</I><B>:</B><DD>
+If combined with `<B>r</B>', `<B>R</B>', `<B>i</B>' or `<B>I</B>', makes them give
+the <I>n</I>th or <I>n</I>th last match (if <I>expr</I> evaluates to
+<I>n</I>).  This flag is ignored when the array is associative.
+<DT><B>b:</B><I>expr</I><B>:</B><DD>
+If combined with `<B>r</B>', `<B>R</B>', `<B>i</B>' or `<B>I</B>', makes them begin
+at the <I>n</I>th or <I>n</I>th last element, word, or character (if <I>expr</I>
+evaluates to <I>n</I>).  This flag is ignored when the array is associative.
+<DT><B>e</B><DD>
+This flag has no effect and for ordinary arrays is retained for backward
+compatibility only.  For associative arrays, this flag can be used to
+force <B>*</B> or <B>@</B> to be interpreted as a single key rather than as a
+reference to all values.  This flag may be used on the left side of an
+assignment.
+</DL>
+<P>
+
+See <I>Parameter Expansion Flags</I> (<I><A HREF="../man1/zshexpn.1.php">zshexpn</A></I>(1)) for additional ways to manipulate the results of array subscripting.
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Subscript Parsing</H3>
+
+<P>
+
+This discussion applies mainly to associative array key strings and to
+patterns used for reverse subscripting (the `<B>r</B>', `<B>R</B>', `<B>i</B>',
+etc. flags), but it may also affect parameter substitutions that appear
+as part of an arithmetic expression in an ordinary subscript.
+<P>
+
+It is possible to avoid the use of subscripts in assignments to associative
+array elements by using the syntax:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>
+   aa+=('key with &quot;*strange*&quot; characters' 'value string')
+</B>
+</PRE>
+
+</DL>
+
+<P>
+
+This adds a new key/value pair if the key is not already present, and
+replaces the value for the existing key if it is.
+<P>
+
+The basic rule to remember when writing a subscript expression is that all
+text between the opening `<B>[</B>' and the closing `<B>]</B>' is interpreted
+<I>as if</I> it were in double quotes (see <I><A HREF="../man1/zshmisc.1.php">zshmisc</A></I>(1)).  However, unlike double quotes which normally cannot nest, subscript
+expressions may appear inside double-quoted strings or inside other
+subscript expressions (or both!), so the rules have two important
+differences.
+<P>
+
+The first difference is that brackets (`<B>[</B>' and `<B>]</B>') must appear as
+balanced pairs in a subscript expression unless they are preceded by a
+backslash (`<B>\</B>').  Therefore, within a subscript expression (and unlike
+true double-quoting) the sequence `<B>\[</B>' becomes `<B>[</B>', and similarly
+`<B>\]</B>' becomes `<B>]</B>'.  This applies even in cases where a backslash is
+not normally required; for example, the pattern `<B>[^[]</B>' (to match any
+character other than an open bracket) should be written `<B>[^\[]</B>' in a
+reverse-subscript pattern.  However, note that `<B>\[^\[\]</B>' and even
+`<B>\[^[]</B>' mean the <I>same</I> thing, because backslashes are always
+stripped when they appear before brackets!
+<P>
+
+The same rule applies to parentheses (`<B>(</B>' and `<B>)</B>') and
+braces (`<B>{</B>' and `<B>}</B>'): they must appear either in balanced pairs or
+preceded by a backslash, and backslashes that protect parentheses or
+braces are removed during parsing.  This is because parameter expansions
+may be surrounded balanced braces, and subscript flags are introduced by
+balanced parenthesis.
+<P>
+
+The second difference is that a double-quote (`<B>&quot;</B>') may appear as part
+of a subscript expression without being preceded by a backslash, and
+therefore that the two characters `<B>\&quot;</B>' remain as two characters in the
+subscript (in true double-quoting, `<B>\&quot;</B>' becomes `<B>&quot;</B>').  However,
+because of the standard shell quoting rules, any double-quotes that appear
+must occur in balanced pairs unless preceded by a backslash.  This makes
+it more difficult to write a subscript expression that contains an odd
+number of double-quote characters, but the reason for this difference is
+so that when a subscript expression appears inside true double-quotes, one
+can still write `<B>\&quot;</B>' (rather than `<B>\\\&quot;</B>') for `<B>&quot;</B>'.
+<P>
+
+To use an odd number of double quotes as a key in an assignment, use the
+<B>typeset</B> builtin and an enclosing pair of double quotes; to refer to
+the value of that key, again use double quotes:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset -A aa
+typeset &quot;aa[one\&quot;two\&quot;three\&quot;quotes]&quot;=QQQ
+print &quot;$aa[one\&quot;two\&quot;three\&quot;quotes]&quot;</B>
+</PRE>
+
+</DL>
+
+<P>
+
+It is important to note that the quoting rules do not change when a
+parameter expansion with a subscript is nested inside another subscript
+expression.  That is, it is not necessary to use additional backslashes
+within the inner subscript expression; they are removed only once, from
+the innermost subscript outwards.  Parameters are also expanded from the
+innermost subscript first, as each expansion is encountered left to right
+in the outer expression.
+<P>
+
+A further complication arises from a way in which subscript parsing is
+<I>not</I> different from double quote parsing.  As in true double-quoting,
+the sequences `<B>\*</B>', and `<B>\@</B>' remain as two characters when they
+appear in a subscript expression.  To use a literal `<B>*</B>' or `<B>@</B>' as
+an associative array key, the `<B>e</B>' flag must be used:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset -A aa
+aa[(e)*]=star
+print $aa[(e)*]</B>
+</PRE>
+
+</DL>
+
+<P>
+
+A last detail must be considered when reverse subscripting is performed.
+Parameters appearing in the subscript expression are first expanded and
+then the complete expression is interpreted as a pattern.  This has two
+effects: first, parameters behave as if <B>GLOB_SUBST</B> were on (and it
+cannot be turned off); second, backslashes are interpreted twice, once
+when parsing the array subscript and again when parsing the pattern.  In a
+reverse subscript, it's necessary to use <I>four</I> backslashes to cause a
+single backslash to match literally in the pattern.  For complex patterns,
+it is often easiest to assign the desired pattern to a parameter and then
+refer to that parameter in the subscript, because then the backslashes,
+brackets, parentheses, etc., are seen only when the complete expression is
+converted to a pattern.  To match the value of a parameter literally in a
+reverse subscript, rather than as a pattern,
+use `<B>${(q</B><B>)</B><I>name</I><B>}</B>' (see <I><A HREF="../man1/zshexpn.1.php">zshexpn</A></I>(1)) to quote the expanded value.
+<P>
+
+Note that the `<B>k</B>' and `<B>K</B>' flags are reverse subscripting for an
+ordinary array, but are <I>not</I> reverse subscripting for an associative
+array!  (For an associative array, the keys in the array itself are
+interpreted as patterns by those flags; the subscript is a plain string
+in that case.)
+<P>
+
+One final note, not directly related to subscripting: the numeric names
+of positional parameters (described below) are parsed specially, so for example `<B>$2foo</B>' is equivalent to
+`<B>${2}foo</B>'.  Therefore, to use subscript syntax to extract a substring
+from a positional parameter, the expansion must be surrounded by braces;
+for example, `<B>${2[3,5]}</B>' evaluates to the third through fifth
+characters of the second positional parameter, but `<B>$2[3,5]</B>' is the
+entire second parameter concatenated with the filename generation pattern
+`<B>[3,5]</B>'.
+<P>
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>POSITIONAL PARAMETERS</H2>
+
+The positional parameters provide access to the command-line arguments
+of a shell function, shell script, or the shell itself; see
+the section `Invocation', and also the section `Functions'.
+The parameter <I>n</I>, where <I>n</I> is a number,
+is the <I>n</I>th positional parameter.
+The parameters <B>*</B>, <B>@</B> and <B>argv</B> are
+arrays containing all the positional parameters;
+thus `<B>$argv[</B><I>n</I><B>]</B>', etc., is equivalent to simply `<B>$</B><I>n</I>'.
+<P>
+
+Positional parameters may be changed after the shell or function starts by
+using the <B>set</B> builtin, by assigning to the <B>argv</B> array, or by direct
+assignment of the form `<I>n</I><B>=</B><I>value</I>' where <I>n</I> is the number of
+the positional parameter to be changed.  This also creates (with empty
+values) any of the positions from 1 to <I>n</I> that do not already have
+values.  Note that, because the positional parameters form an array, an
+array assignment of the form `<I>n</I><B>=(</B><I>value</I> ...<B>)</B>' is
+allowed, and has the effect of shifting all the values at positions greater
+than <I>n</I> by as many positions as necessary to accommodate the new values.
+<P>
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>LOCAL PARAMETERS</H2>
+
+Shell function executions delimit scopes for shell parameters.
+(Parameters are dynamically scoped.)  The <B>typeset</B> builtin, and its
+alternative forms <B>declare</B>, <B>integer</B>, <B>local</B> and <B>readonly</B>
+(but not <B>export</B>), can be used to declare a parameter as being local
+to the innermost scope.
+<P>
+
+When a parameter is read or assigned to, the
+innermost existing parameter of that name is used.  (That is, the
+local parameter hides any less-local parameter.)  However, assigning
+to a non-existent parameter, or declaring a new parameter with <B>export</B>,
+causes it to be created in the <I>outer</I>most scope.
+<P>
+
+Local parameters disappear when their scope ends.
+<B>unset</B> can be used to delete a parameter while it is still in scope;
+any outer parameter of the same name remains hidden.
+<P>
+
+Special parameters may also be made local; they retain their special
+attributes unless either the existing or the newly-created parameter
+has the <B>-h</B> (hide) attribute.  This may have unexpected effects:
+there is no default value, so if there is no assignment at the
+point the variable is made local, it will be set to an empty value (or zero
+in the case of integers).  
+The following:
+<P>
+
+<DL COMPACT><DT><DD>
+<PRE>
+<B>typeset PATH=/new/directory:$PATH</B>
+</PRE>
+
+</DL>
+
+<P>
+
+is valid for temporarily allowing the shell or programmes called from it to
+find the programs in <B>/new/directory</B> inside a function.
+<P>
+
+Note that the restriction in older versions of zsh that local parameters
+were never exported has been removed.
+<P>
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>PARAMETERS SET BY THE SHELL</H2>
+
+The following parameters are automatically set by the shell:
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>!</B> &lt;S&gt;
+The process ID of the last background command invoked.
+<DT><B>#</B> &lt;S&gt;<DD>
+The number of positional parameters in decimal.  Note that some confusion
+may occur with the syntax <B>$#</B><I>param</I> which substitutes the length of
+<I>param</I>.  Use <B>${#}</B> to resolve ambiguities.  In particular, the
+sequence `<B>$#-</B><I>...</I>' in an arithmetic expression is interpreted as
+the length of the parameter <B>-</B>, q.v.
+<DT><B>ARGC</B> &lt;S&gt; &lt;Z&gt;<DD>
+Same as <B>#</B>.
+<DT><B>$</B> &lt;S&gt;<DD>
+The process ID of this shell.
+<DT><B>-</B> &lt;S&gt;<DD>
+Flags supplied to the shell on invocation or by the <B>set</B>
+or <B>setopt</B> commands.
+<DT><B>*</B> &lt;S&gt;<DD>
+An array containing the positional parameters.
+<DT><B>argv</B> &lt;S&gt; &lt;Z&gt;<DD>
+Same as <B>*</B>.  Assigning to <B>argv</B> changes the local positional
+parameters, but <B>argv</B> is <I>not</I> itself a local parameter.
+Deleting <B>argv</B> with <B>unset</B> in any function deletes it everywhere,
+although only the innermost positional parameter array is deleted (so
+<B>*</B> and <B>@</B> in other scopes are not affected).
+<DT><B>@</B> &lt;S&gt;<DD>
+Same as <B>argv[@]</B>, even when <B>argv</B> is not set.
+<DT><B>?</B> &lt;S&gt;<DD>
+The exit value returned by the last command.
+<DT><B>0</B> &lt;S&gt;<DD>
+The name used to invoke the current shell.  If the <B>FUNCTION_ARGZERO</B> option
+is set, this is set temporarily within a shell function to the name of the
+function, and within a sourced script to the name of the script.
+<DT><B>status</B> &lt;S&gt; &lt;Z&gt;<DD>
+Same as <B>?</B>.
+<DT><B>pipestatus</B> &lt;S&gt; &lt;Z&gt;<DD>
+An array containing the exit values returned by all commands in the
+last pipeline.
+<DT><B>_</B> &lt;S&gt;<DD>
+The last argument of the previous command.
+Also, this parameter is set in the environment of every command
+executed to the full pathname of the command.
+<DT><B>CPUTYPE</B><DD>
+The machine type (microprocessor class or machine model),
+as determined at run time.
+<DT><B>EGID</B> &lt;S&gt;<DD>
+The effective group ID of the shell process.  If you have sufficient
+privileges, you may change the effective group ID of the shell
+process by assigning to this parameter.  Also (assuming sufficient
+privileges), you may start a single command with a different
+effective group ID by `<B>(EGID=</B><I>gid</I><B>; command)</B>'
+<DT><B>EUID</B> &lt;S&gt;<DD>
+The effective user ID of the shell process.  If you have sufficient
+privileges, you may change the effective user ID of the shell process
+by assigning to this parameter.  Also (assuming sufficient privileges),
+you may start a single command with a different
+effective user ID by `<B>(EUID=</B><I>uid</I><B>; command)</B>'
+<DT><B>ERRNO</B> &lt;S&gt;<DD>
+The value of errno (see <I><A HREF="../man3/errno.3.php">errno</A></I>(3))
+as set by the most recently failed system call.
+This value is system dependent and is intended for debugging
+purposes.  It is also useful with the <B>zsh/system</B> module which
+allows the number to be turned into a name or message.
+<DT><B>GID</B> &lt;S&gt;<DD>
+The real group ID of the shell process.  If you have sufficient privileges,
+you may change the group ID of the shell process by assigning to this
+parameter.  Also (assuming sufficient privileges), you may start a single
+command under a different
+group ID by `<B>(GID=</B><I>gid</I><B>; command)</B>'
+<DT><B>HOST</B><DD>
+The current hostname.
+<DT><B>LINENO</B> &lt;S&gt;<DD>
+The line number of the current line within the current script, sourced
+file, or shell function being executed, whichever was started most
+recently.  Note that in the case of shell functions the line
+number refers to the function as it appeared in the original definition,
+not necessarily as displayed by the <B>functions</B> builtin.
+<DT><B>LOGNAME</B><DD>
+If the corresponding variable is not set in the environment of the
+shell, it is initialized to the login name corresponding to the
+current login session. This parameter is exported by default but
+this can be disabled using the <B>typeset</B> builtin.
+<DT><B>MACHTYPE</B><DD>
+The machine type (microprocessor class or machine model),
+as determined at compile time.
+<DT><B>OLDPWD</B><DD>
+The previous working directory.  This is set when the shell initializes
+and whenever the directory changes.
+<DT><B>OPTARG</B> &lt;S&gt;<DD>
+The value of the last option argument processed by the <B>getopts</B>
+command.
+<DT><B>OPTIND</B> &lt;S&gt;<DD>
+The index of the last option argument processed by the <B>getopts</B>
+command.
+<DT><B>OSTYPE</B><DD>
+The operating system, as determined at compile time.
+<DT><B>PPID</B> &lt;S&gt;<DD>
+The process ID of the parent of the shell.
+<DT><B>PWD</B><DD>
+The present working directory.  This is set when the shell initializes
+and whenever the directory changes.
+<DT><B>RANDOM</B> &lt;S&gt;<DD>
+A pseudo-random integer from 0 to 32767, newly generated each time
+this parameter is referenced.  The random number generator
+can be seeded by assigning a numeric value to <B>RANDOM</B>.
+<DL COMPACT><DT><DD>
+<P>
+
+The values of <B>RANDOM</B> form an intentionally-repeatable pseudo-random
+sequence; subshells that reference <B>RANDOM</B> will result
+in identical pseudo-random values unless the value of <B>RANDOM</B> is
+referenced or seeded in the parent shell in between subshell invocations.
+</DL>
+
+<DT><B>SECONDS</B> &lt;S&gt;<DD>
+The number of seconds since shell invocation.  If this parameter
+is assigned a value, then the value returned upon reference
+will be the value that was assigned plus the number of seconds
+since the assignment.
+<DL COMPACT><DT><DD>
+<P>
+
+Unlike other special parameters, the type of the <B>SECONDS</B> parameter can
+be changed using the <B>typeset</B> command.  Only integer and one of the
+floating point types are allowed.  For example, `<B>typeset -F SECONDS</B>'
+causes the value to be reported as a floating point number.  The precision
+is six decimal places, although not all places may be useful.
+</DL>
+
+<DT><B>SHLVL</B> &lt;S&gt;<DD>
+Incremented by one each time a new shell is started.
+<DT><B>signals</B><DD>
+An array containing the names of the signals.
+<DT><B>TTY</B><DD>
+The name of the tty associated with the shell, if any.
+<DT><B>TTYIDLE</B> &lt;S&gt;<DD>
+The idle time of the tty associated with the shell in seconds or -1 if there
+is no such tty.
+<DT><B>UID</B> &lt;S&gt;<DD>
+The real user ID of the shell process.  If you have sufficient privileges,
+you may change the user ID of the shell by assigning to this parameter.
+Also (assuming sufficient privileges), you may start a single command
+under a different
+user ID by `<B>(UID=</B><I>uid</I><B>; command)</B>'
+<DT><B>USERNAME</B> &lt;S&gt;<DD>
+The username corresponding to the real user ID of the shell process.  If you
+have sufficient privileges, you may change the username (and also the
+user ID and group ID) of the shell by assigning to this parameter.
+Also (assuming sufficient privileges), you may start a single command
+under a different username (and user ID and group ID)
+by `<B>(USERNAME=</B><I>username</I><B>; command)</B>'
+<DT><B>VENDOR</B><DD>
+The vendor, as determined at compile time.
+<DT><B>ZSH_NAME</B><DD>
+Expands to the basename of the command used to invoke this instance
+of zsh.
+<DT><B>ZSH_VERSION</B><DD>
+The version number of this zsh.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>PARAMETERS USED BY THE SHELL</H2>
+
+The following parameters are used by the shell.
+<P>
+
+In cases where there are two parameters with an upper- and lowercase
+form of the same name, such as <B>path</B> and <B>PATH</B>, the lowercase form
+is an array and the uppercase form is a scalar with the elements of the
+array joined together by colons.  These are similar to tied parameters
+created via `<B>typeset -T</B>'.  The normal use for the colon-separated
+form is for exporting to the environment, while the array form is easier
+to manipulate within the shell.  Note that unsetting either of the pair
+will unset the other; they retain their special properties when
+recreated, and recreating one of the pair will recreate the other.
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>ARGV0</B>
+If exported, its value is used as the <B>argv[0]</B> of external commands.
+Usually used in constructs like `<B>ARGV0=emacs nethack</B>'.
+<DT><B>BAUD</B><DD>
+The baud rate of the current connection.  Used by the line editor
+update mechanism to compensate for a slow terminal by delaying
+updates until necessary.  This may be profitably set to a lower value
+in some circumstances, e.g.
+for slow modems dialing into a communications server which is connected
+to a host via a fast link; in this case, this variable
+would be set by default to the speed of the fast link, and not
+the modem.
+This parameter should be set to the baud
+rate of the slowest part of the link for best performance. The compensation
+mechanism can be turned off by setting the variable to zero.
+<DT><B>cdpath</B> &lt;S&gt; &lt;Z&gt; (<B>CDPATH</B> &lt;S&gt;)<DD>
+An array (colon-separated list)
+of directories specifying the search path for the <B>cd</B> command.
+<DT><B>COLUMNS</B> &lt;S&gt;<DD>
+The number of columns for this terminal session.
+Used for printing select lists and for the line editor.
+<DT><B>DIRSTACKSIZE</B><DD>
+The maximum size of the directory stack.  If the
+stack gets larger than this, it will be truncated automatically.
+This is useful with the <B>AUTO_PUSHD</B> option.
+<DT><B>ENV</B><DD>
+If the <B>ENV</B> environment variable is set when zsh is invoked as <B>sh</B>
+or <B>ksh</B>, <B>$ENV</B> is sourced after the profile scripts.  The value of
+<B>ENV</B> is subjected to parameter expansion, command substitution, and
+arithmetic expansion before being interpreted as a pathname.  Note that
+<B>ENV</B> is <I>not</I> used unless zsh is emulating <B>sh</B> or <B>ksh</B>.
+<DT><B>FCEDIT</B><DD>
+The default editor for the <B>fc</B> builtin.
+<DT><B>fignore</B> &lt;S&gt; &lt;Z&gt; (<B>FIGNORE</B> &lt;S&gt;)<DD>
+An array (colon separated list)
+containing the suffixes of files to be ignored
+during filename completion.  However, if completion only generates files
+with suffixes in this list, then these files are completed anyway.
+<DT><B>fpath</B> &lt;S&gt; &lt;Z&gt; (<B>FPATH</B> &lt;S&gt;)<DD>
+An array (colon separated list)
+of directories specifying the search path for
+function definitions.  This path is searched when a function
+with the <B>-u</B> attribute is referenced.  If an executable
+file is found, then it is read and executed in the current environment.
+<DT><B>histchars</B> &lt;S&gt;<DD>
+Three characters used by the shell's history and lexical analysis
+mechanism.  The first character signals the start of a history
+expansion (default `<B>!</B>').  The second character signals the
+start of a quick history substitution (default `<B>^</B>').  The third
+character is the comment character (default `<B>#</B>').
+<DT><B>HISTCHARS</B> &lt;S&gt; &lt;Z&gt;<DD>
+Same as <B>histchars</B>.  (Deprecated.)
+<DT><B>HISTFILE</B><DD>
+The file to save the history in when an interactive shell exits.
+If unset, the history is not saved.
+<DT><B>HISTSIZE</B> &lt;S&gt;<DD>
+The maximum number of events stored in the internal history list.
+If you use the <B>HIST_EXPIRE_DUPS_FIRST</B> option, setting this value
+larger than the <B>SAVEHIST</B> size will give you the difference as a
+cushion for saving duplicated history events.
+<DT><B>HOME</B> &lt;S&gt;<DD>
+The default argument for the <B>cd</B> command.
+<DT><B>IFS</B> &lt;S&gt;<DD>
+Internal field separators (by default space, tab, newline and NUL), that
+are used to separate words which result from
+command or parameter expansion and words read by
+the <B>read</B> builtin.  Any characters from the set space, tab and
+newline that appear in the IFS are called <I>IFS white space</I>.
+One or more IFS white space characters or one non-IFS white space
+character together with any adjacent IFS white space character delimit
+a field.  If an IFS white space character appears twice consecutively
+in the IFS, this character is treated as if it were not an IFS white
+space character.
+<DT><B>KEYTIMEOUT</B><DD>
+The time the shell waits, in hundredths of seconds, for another key to
+be pressed when reading bound multi-character sequences.
+<DT><B>LANG</B> &lt;S&gt;<DD>
+This variable determines the locale category for any category not
+specifically selected via a variable starting with `<B>LC_</B>'.
+<DT><B>LC_ALL</B> &lt;S&gt;<DD>
+This variable overrides the value of the `<B>LANG</B>' variable and the value
+of any of the other variables starting with `<B>LC_</B>'.
+<DT><B>LC_COLLATE</B> &lt;S&gt;<DD>
+This variable determines the locale category for character collation
+information within ranges in glob brackets and for sorting.
+<DT><B>LC_CTYPE</B> &lt;S&gt;<DD>
+This variable determines the locale category for character handling
+functions.
+<DT><B>LC_MESSAGES</B> &lt;S&gt;<DD>
+This variable determines the language in which messages should be
+written.  Note that zsh does not use message catalogs.
+<DT><B>LC_NUMERIC</B> &lt;S&gt;<DD>
+This variable affects the decimal point character and thousands
+separator character for the formatted input/output functions
+and string conversion functions.  Note that zsh ignores this
+setting when parsing floating point mathematical expressions.
+<DT><B>LC_TIME</B> &lt;S&gt;<DD>
+This variable determines the locale category for date and time
+formatting in prompt escape sequences.
+<DT><B>LINES</B> &lt;S&gt;<DD>
+The number of lines for this terminal session.
+Used for printing select lists and for the line editor.
+<DT><B>LISTMAX</B><DD>
+In the line editor, the number of matches to list without asking
+first. If the value is negative, the list will be shown if it spans at 
+most as many lines as given by the absolute value.
+If set to zero, the shell asks only if the top of the listing would scroll
+off the screen.
+<DT><B>LOGCHECK</B><DD>
+The interval in seconds between checks for login/logout activity
+using the <B>watch</B> parameter.
+<DT><B>MAIL</B><DD>
+If this parameter is set and <B>mailpath</B> is not set,
+the shell looks for mail in the specified file.
+<DT><B>MAILCHECK</B><DD>
+The interval in seconds between checks for new mail.
+<DT><B>mailpath</B> &lt;S&gt; &lt;Z&gt; (<B>MAILPATH</B> &lt;S&gt;)<DD>
+An array (colon-separated list) of filenames to check for
+new mail.  Each filename can be followed by a `<B>?</B>' and a
+message that will be printed.  The message will undergo
+parameter expansion, command substitution and arithmetic
+expansion with the variable <B>$_</B> defined as the name
+of the file that has changed.  The default message is
+`<B>You have new mail</B>'.  If an element is a directory
+instead of a file the shell will recursively check every
+file in every subdirectory of the element.
+<DT><B>manpath</B> &lt;S&gt; &lt;Z&gt; (<B>MANPATH</B> &lt;S&gt; &lt;Z&gt;)<DD>
+An array (colon-separated list)
+whose value is not used by the shell.  The <B>manpath</B>
+array can be useful, however, since setting it also sets
+<B>MANPATH</B>, and vice versa.
+<DT><B>module_path</B> &lt;S&gt; &lt;Z&gt; (<B>MODULE_PATH</B> &lt;S&gt;)<DD>
+An array (colon-separated list)
+of directories that <B>zmodload</B>
+searches for dynamically loadable modules.
+This is initialized to a standard pathname,
+usually `<B>/usr/local/lib/zsh/$ZSH_VERSION</B>'.
+(The `<B>/usr/local/lib</B>' part varies from installation to installation.)
+For security reasons, any value set in the environment when the shell
+is started will be ignored.
+<DL COMPACT><DT><DD>
+<P>
+
+These parameters only exist if the installation supports dynamic
+module loading.
+</DL>
+
+<DT><B>NULLCMD</B> &lt;S&gt;<DD>
+The command name to assume if a redirection is specified
+with no command.  Defaults to <B>cat</B>.  For <B>sh</B>/<B>ksh</B>
+behavior, change this to <B>:</B>.  For <B>csh</B>-like
+behavior, unset this parameter; the shell will print an
+error message if null commands are entered.
+<DT><B>path</B> &lt;S&gt; &lt;Z&gt; (<B>PATH</B> &lt;S&gt;)<DD>
+An array (colon-separated list)
+of directories to search for commands.
+When this parameter is set, each directory is scanned
+and all files found are put in a hash table.
+<DT><B>POSTEDIT</B> &lt;S&gt;<DD>
+This string is output whenever the line editor exits.
+It usually contains termcap strings to reset the terminal.
+<DT>
+<DD>
+<B>PROMPT</B> &lt;S&gt; &lt;Z&gt;
+<DT>
+<DD>
+<B>PROMPT2</B> &lt;S&gt; &lt;Z&gt;
+<DT>
+<DD>
+<B>PROMPT3</B> &lt;S&gt; &lt;Z&gt;
+<DT>
+<DD>
+<B>PROMPT4</B> &lt;S&gt; &lt;Z&gt;
+Same as <B>PS1</B>, <B>PS2</B>, <B>PS3</B> and <B>PS4</B>,
+respectively.
+<DT><B>prompt</B> &lt;S&gt; &lt;Z&gt;<DD>
+Same as <B>PS1</B>.
+<DT><B>PS1</B> &lt;S&gt;<DD>
+The primary prompt string, printed before a command is read.
+the default is `<B>%m%# </B>'.  It undergoes a special form of expansion
+before being displayed; see the section `Prompt Expansion'.
+<DT><B>PS2</B> &lt;S&gt;<DD>
+The secondary prompt, printed when the shell needs more information
+to complete a command.
+It is expanded in the same way as <B>PS1</B>.
+The default is `<B>%_&gt; </B>', which displays any shell constructs or quotation
+marks which are currently being processed.
+<DT><B>PS3</B> &lt;S&gt;<DD>
+Selection prompt used within a <B>select</B> loop.
+It is expanded in the same way as <B>PS1</B>.
+The default is `<B>?# </B>'.
+<DT><B>PS4</B> &lt;S&gt;<DD>
+The execution trace prompt.  Default is `<B>+%N:%i&gt; </B>', which displays
+the name of the current shell structure and the line number within it.
+In sh or ksh emulation, the default is `<B>+ </B>'.
+<DT><B>psvar</B> &lt;S&gt; &lt;Z&gt; (<B>PSVAR</B> &lt;S&gt;)<DD>
+An array (colon-separated list) whose first nine values can be used in
+<B>PROMPT</B> strings.  Setting <B>psvar</B> also sets <B>PSVAR</B>, and
+vice versa.
+<DT><B>READNULLCMD</B> &lt;S&gt;<DD>
+The command name to assume if a single input redirection
+is specified with no command.  Defaults to <B>more</B>.
+<DT><B>REPORTTIME</B><DD>
+If nonnegative, commands whose combined user and system execution times
+(measured in seconds) are greater than this value have timing
+statistics printed for them.
+<DT><B>REPLY</B><DD>
+This parameter is reserved by convention to pass string values between
+shell scripts and shell builtins in situations where a function call or
+redirection are impossible or undesirable.  The <B>read</B> builtin and the
+<B>select</B> complex command may set <B>REPLY</B>, and filename generation both
+sets and examines its value when evaluating certain expressions.  Some
+modules also employ <B>REPLY</B> for similar purposes.
+<DT><B>reply</B><DD>
+As <B>REPLY</B>, but for array values rather than strings.
+<DT>
+<DD>
+<B>RPROMPT</B> &lt;S&gt;
+<DT>
+<DD>
+<B>RPS1</B> &lt;S&gt;
+This prompt is displayed on the right-hand side of the screen
+when the primary prompt is being displayed on the left.
+This does not work if the <B>SINGLELINEZLE</B> option is set.
+It is expanded in the same way as <B>PS1</B>.
+<DT>
+<DD>
+<B>RPROMPT2</B> &lt;S&gt;
+<DT>
+<DD>
+<B>RPS2</B> &lt;S&gt;
+This prompt is displayed on the right-hand side of the screen
+when the secondary prompt is being displayed on the left.
+This does not work if the <B>SINGLELINEZLE</B> option is set.
+It is expanded in the same way as <B>PS2</B>.
+<DT><B>SAVEHIST</B><DD>
+The maximum number of history events to save in the history file.
+<DT><B>SPROMPT</B> &lt;S&gt;<DD>
+The prompt used for spelling correction.  The sequence
+`<B>%R</B>' expands to the string which presumably needs spelling
+correction, and `<B>%r</B>' expands to the proposed correction.
+All other prompt escapes are also allowed.
+<DT><B>STTY</B><DD>
+If this parameter is set in a command's environment, the shell runs the
+<B>stty</B> command with the value of this parameter as arguments in order to
+set up the terminal before executing the command. The modes apply only to the
+command, and are reset when it finishes or is suspended. If the command is
+suspended and continued later with the <B>fg</B> or <B>wait</B> builtins it will
+see the modes specified by <B>STTY</B>, as if it were not suspended.  This
+(intentionally) does not apply if the command is continued via `<B>kill
+-CONT</B>'.  <B>STTY</B> is ignored if the command is run in the background, or
+if it is in the environment of the shell but not explicitly assigned to in
+the input line. This avoids running stty at every external command by
+accidentally exporting it. Also note that <B>STTY</B> should not be used for
+window size specifications; these will not be local to the command.
+<DT><B>TERM</B> &lt;S&gt;<DD>
+The type of terminal in use.  This is used when looking up termcap
+sequences.  An assignment to <B>TERM</B> causes zsh to re-initialize the
+terminal, even if the value does not change (e.g., `<B>TERM=$TERM</B>').  It
+is necessary to make such an assignment upon any change to the terminal
+definition database or terminal type in order for the new settings to
+take effect.
+<DT><B>TIMEFMT</B><DD>
+The format of process time reports with the <B>time</B> keyword.
+The default is `<B>%E real  %U user  %S system  %P %J</B>'.
+Recognizes the following escape sequences:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT><B>%%</B><DD>
+A `<B>%</B>'.
+<DT><B>%U</B><DD>
+CPU seconds spent in user mode.
+<DT><B>%S</B><DD>
+CPU seconds spent in kernel mode.
+<DT><B>%E</B><DD>
+Elapsed time in seconds.
+<DT><B>%P</B><DD>
+The CPU percentage, computed as (<B>%U</B>+<B>%S</B>)/<B>%E</B>.
+<DT><B>%J</B><DD>
+The name of this job.
+
+</DL>
+<P>
+
+A star may be inserted between the percent sign and flags printing time.
+This cause the time to be printed in
+`<I>hh</I><B>:</B><I>mm</I><B>:</B><I>ss</I><B>.</B><I>ttt</I>'
+format (hours and minutes are only printed if they are not zero).
+</DL>
+
+<DT><B>TMOUT</B><DD>
+If this parameter is nonzero, the shell will receive an <B>ALRM</B>
+signal if a command is not entered within the specified number of
+seconds after issuing a prompt. If there is a trap on <B>SIGALRM</B>, it
+will be executed and a new alarm is scheduled using the value of the
+<B>TMOUT</B> parameter after executing the trap.  If no trap is set, and
+the idle time of the terminal is not less than the value of the
+<B>TMOUT</B> parameter, zsh terminates.  Otherwise a new alarm is
+scheduled to <B>TMOUT</B> seconds after the last keypress.
+<DT><B>TMPPREFIX</B><DD>
+A pathname prefix which the shell will use for all temporary files.
+Note that this should include an initial part for the file name as
+well as any directory names.  The default is `<B>/tmp/zsh</B>'.
+<DT><B>watch</B> &lt;S&gt; &lt;Z&gt; (<B>WATCH</B> &lt;S&gt;)<DD>
+An array (colon-separated list) of login/logout events to report.
+If it contains the single word `<B>all</B>', then all login/logout events
+are reported.  If it contains the single word `<B>notme</B>', then all
+events are reported as with `<B>all</B>' except <B>$USERNAME</B>.
+An entry in this list may consist of a username,
+an `<B>@</B>' followed by a remote hostname,
+and a `<B>%</B>' followed by a line (tty).
+Any or all of these components may be present in an entry;
+if a login/logout event matches all of them,
+it is reported.
+<DT><B>WATCHFMT</B><DD>
+The format of login/logout reports if the <B>watch</B> parameter is set.
+Default is `<B>%n has %a %l from %m</B>'.
+Recognizes the following escape sequences:
+<DL COMPACT><DT><DD>
+<P>
+
+
+<DL COMPACT>
+<DT>
+<DD>
+<B>%n</B>
+The name of the user that logged in/out.
+<DT><B>%a</B><DD>
+The observed action, i.e. &quot;logged on&quot; or &quot;logged off&quot;.
+<DT><B>%l</B><DD>
+The line (tty) the user is logged in on.
+<DT><B>%M</B><DD>
+The full hostname of the remote host.
+<DT><B>%m</B><DD>
+The hostname up to the first `<B>.</B>'.  If only the
+IP address is available or the utmp field contains
+the name of an X-windows display, the whole name is printed.
+<DL COMPACT><DT><DD>
+<P>
+
+<I>NOTE:</I>
+The `<B>%m</B>' and `<B>%M</B>' escapes will work only if there is a host name
+field in the utmp on your machine.  Otherwise they are
+treated as ordinary strings.
+</DL>
+
+<DT><B>%S</B> (<B>%s</B>)<DD>
+Start (stop) standout mode.
+<DT><B>%U</B> (<B>%u</B>)<DD>
+Start (stop) underline mode.
+<DT><B>%B</B> (<B>%b</B>)<DD>
+Start (stop) boldface mode.
+<DT>
+<DD>
+<B>%t</B>
+<DT>
+<DD>
+<B>%@</B>
+The time, in 12-hour, am/pm format.
+<DT><B>%T</B><DD>
+The time, in 24-hour format.
+<DT><B>%w</B><DD>
+The date in `<I>day</I><B>-</B><I>dd</I>' format.
+<DT><B>%W</B><DD>
+The date in `<I>mm</I><B>/</B><I>dd</I><B>/</B><I>yy</I>' format.
+<DT><B>%D</B><DD>
+The date in `<I>yy</I><B>-</B><I>mm</I><B>-</B><I>dd</I>' format.
+<DT><B>%(</B><I>x</I><B>:</B><I>true-text</I><B>:</B><I>false-text</I><B>)</B><DD>
+Specifies a ternary expression.
+The character following the <I>x</I> is
+arbitrary; the same character is used to separate the text
+for the &quot;true&quot; result from that for the &quot;false&quot; result.
+Both the separator and the right parenthesis may be escaped
+with a backslash.
+Ternary expressions may be nested.
+<DL COMPACT><DT><DD>
+<P>
+
+The test character <I>x</I> may be any one of `<B>l</B>', `<B>n</B>', `<B>m</B>'
+or `<B>M</B>', which indicate a `true' result if the corresponding
+escape sequence would return a non-empty value; or it may be `<B>a</B>',
+which indicates a `true' result if the watched user has logged in,
+or `false' if he has logged out.
+Other characters evaluate to neither true nor false; the entire
+expression is omitted in this case.
+<P>
+
+If the result is `true', then the <I>true-text</I>
+is formatted according to the rules above and printed,
+and the <I>false-text</I> is skipped.
+If `false', the <I>true-text</I> is skipped and the <I>false-text</I>
+is formatted and printed.
+Either or both of the branches may be empty, but
+both separators must be present in any case.
+</DL>
+
+</DL>
+</DL>
+
+
+<DT><B>WORDCHARS</B> &lt;S&gt;<DD>
+A list of non-alphanumeric characters considered part of a word
+by the line editor.
+<DT><B>ZBEEP</B><DD>
+If set, this gives a string of characters, which can use all the same codes
+as the <B>bindkey</B> command as described in
+the zsh/zle module entry in <I><A HREF="../man1/zshmodules.1.php">zshmodules</A></I>(1), that will be output to the terminal
+instead of beeping.  This may have a visible instead of an audible effect;
+for example, the string `<B>\e[?5h\e[?5l</B>' on a vt100 or xterm will have
+the effect of flashing reverse video on and off (if you usually use reverse
+video, you should use the string `<B>\e[?5l\e[?5h</B>' instead).  This takes
+precedence over the <B>NOBEEP</B> option.
+<DT><B>ZDOTDIR</B><DD>
+The directory to search for shell startup files (.zshrc, etc),
+if not <B>$HOME</B>.
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">ARRAY PARAMETERS</A><DD>
+<DL>
+<DT><A HREF="#lbAE">Array Subscripts</A><DD>
+<DT><A HREF="#lbAF">Array Element Assignment</A><DD>
+<DT><A HREF="#lbAG">Subscript Flags</A><DD>
+<DT><A HREF="#lbAH">Subscript Parsing</A><DD>
+</DL>
+<DT><A HREF="#lbAI">POSITIONAL PARAMETERS</A><DD>
+<DT><A HREF="#lbAJ">LOCAL PARAMETERS</A><DD>
+<DT><A HREF="#lbAK">PARAMETERS SET BY THE SHELL</A><DD>
+<DT><A HREF="#lbAL">PARAMETERS USED BY THE SHELL</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

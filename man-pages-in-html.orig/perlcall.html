@@ -1,0 +1,3670 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLCALL</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLCALL</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlcall - Perl calling conventions from C
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+The purpose of this document is to show you how to call Perl subroutines
+directly from C, i.e., how to write <I>callbacks</I>.
+<P>
+
+Apart from discussing the C interface provided by Perl for writing
+callbacks the document uses a series of examples to show how the
+interface actually works in practice.  In addition some techniques for
+coding callbacks are covered.
+<P>
+
+Examples where callbacks are necessary include
+<DL COMPACT>
+<DT>* An Error Handler<DD>
+<A NAME="ixAAD"></A>
+You have created an <FONT SIZE="-1">XSUB</FONT> interface to an application's C <FONT SIZE="-1">API</FONT>.
+
+
+<P>
+
+
+A fairly common feature in applications is to allow you to define a C
+function that will be called whenever something nasty occurs. What we
+would like is to be able to specify a Perl subroutine that will be
+called instead.
+<DT>* An Event Driven Program<DD>
+<A NAME="ixAAE"></A>
+The classic example of where callbacks are used is when writing an
+event driven program like for an X windows application.  In this case
+you register functions to be called whenever specific events occur,
+e.g., a mouse button is pressed, the cursor moves into a window or a
+menu item is selected.
+</DL>
+<P>
+
+Although the techniques described here are applicable when embedding
+Perl in a C program, this is not the primary goal of this document.
+There are other details that must be considered and are specific to
+embedding Perl. For details on embedding Perl in C refer to
+perlembed.
+<P>
+
+Before you launch yourself head first into the rest of this document,
+it would be a good idea to have read the following two documents -
+perlxs and perlguts.
+<A NAME="lbAD">&nbsp;</A>
+<H2>THE CALL_ FUNCTIONS</H2>
+
+<A NAME="ixAAF"></A>
+Although this stuff is easier to explain using examples, you first need
+be aware of a few important definitions.
+<P>
+
+Perl has a number of C functions that allow you to call Perl
+subroutines.  They are
+<P>
+
+
+
+<PRE>
+    I32 call_sv(SV* sv, I32 flags) ;
+    I32 call_pv(char *subname, I32 flags) ;
+    I32 call_method(char *methname, I32 flags) ;
+    I32 call_argv(char *subname, I32 flags, register char **argv) ;
+
+</PRE>
+
+
+<P>
+
+The key function is <I>call_sv</I>.  All the other functions are
+fairly simple wrappers which make it easier to call Perl subroutines in
+special cases. At the end of the day they will all call <I>call_sv</I>
+to invoke the Perl subroutine.
+<P>
+
+All the <I>call_*</I> functions have a <TT>&quot;flags&quot;</TT> parameter which is
+used to pass a bit mask of options to Perl.  This bit mask operates
+identically for each of the functions.  The settings available in the
+bit mask are discussed in ``<FONT SIZE="-1">FLAG</FONT> <FONT SIZE="-1">VALUES</FONT>''.
+<P>
+
+Each of the functions will now be discussed in turn.
+<DL COMPACT>
+<DT>call_sv<DD>
+<A NAME="ixAAG"></A>
+<I>call_sv</I> takes two parameters, the first, <TT>&quot;sv&quot;</TT>, is an SV*.
+This allows you to specify the Perl subroutine to be called either as a
+C string (which has first been converted to an <FONT SIZE="-1">SV</FONT>) or a reference to a
+subroutine. The section, <I>Using call_sv</I>, shows how you can make
+use of <I>call_sv</I>.
+<DT>call_pv<DD>
+<A NAME="ixAAH"></A>
+The function, <I>call_pv</I>, is similar to <I>call_sv</I> except it
+expects its first parameter to be a C char* which identifies the Perl
+subroutine you want to call, e.g., <TT>&quot;call_pv(&quot;fred&quot;, 0)&quot;</TT>.  If the
+subroutine you want to call is in another package, just include the
+package name in the string, e.g., <TT>&quot;pkg::fred&quot;</TT>.
+<DT>call_method<DD>
+<A NAME="ixAAI"></A>
+The function <I>call_method</I> is used to call a method from a Perl
+class.  The parameter <TT>&quot;methname&quot;</TT> corresponds to the name of the method
+to be called.  Note that the class that the method belongs to is passed
+on the Perl stack rather than in the parameter list. This class can be
+either the name of the class (for a static method) or a reference to an
+object (for a virtual method).  See perlobj for more information on
+static and virtual methods and ``Using call_method'' for an example
+of using <I>call_method</I>.
+<DT>call_argv<DD>
+<A NAME="ixAAJ"></A>
+<I>call_argv</I> calls the Perl subroutine specified by the C string
+stored in the <TT>&quot;subname&quot;</TT> parameter. It also takes the usual <TT>&quot;flags&quot;</TT>
+parameter.  The final parameter, <TT>&quot;argv&quot;</TT>, consists of a <FONT SIZE="-1">NULL</FONT> terminated
+list of C strings to be passed as parameters to the Perl subroutine.
+See <I>Using call_argv</I>.
+</DL>
+<P>
+
+All the functions return an integer. This is a count of the number of
+items returned by the Perl subroutine. The actual items returned by the
+subroutine are stored on the Perl stack.
+<P>
+
+As a general rule you should <I>always</I> check the return value from
+these functions.  Even if you are expecting only a particular number of
+values to be returned from the Perl subroutine, there is nothing to
+stop someone from doing something unexpected---don't say you haven't
+been warned.
+<A NAME="lbAE">&nbsp;</A>
+<H2>FLAG VALUES</H2>
+
+<A NAME="ixAAK"></A>
+The <TT>&quot;flags&quot;</TT> parameter in all the <I>call_*</I> functions is a bit mask
+which can consist of any combination of the symbols defined below,
+<FONT SIZE="-1">OR</FONT>'ed together.
+<A NAME="lbAF">&nbsp;</A>
+<H2>G_VOID</H2>
+
+<A NAME="ixAAL"></A>
+Calls the Perl subroutine in a void context.
+<P>
+
+This flag has 2 effects:
+<DL COMPACT>
+<DT>1.<DD>
+It indicates to the subroutine being called that it is executing in
+a void context (if it executes <I>wantarray</I> the result will be the
+undefined value).
+<DT>2.<DD>
+It ensures that nothing is actually returned from the subroutine.
+</DL>
+<P>
+
+The value returned by the <I>call_*</I> function indicates how many
+items have been returned by the Perl subroutine - in this case it will
+be 0.
+<A NAME="lbAG">&nbsp;</A>
+<H2>G_SCALAR</H2>
+
+<A NAME="ixAAM"></A>
+Calls the Perl subroutine in a scalar context.  This is the default
+context flag setting for all the <I>call_*</I> functions.
+<P>
+
+This flag has 2 effects:
+<DL COMPACT>
+<DT>1.<DD>
+It indicates to the subroutine being called that it is executing in a
+scalar context (if it executes <I>wantarray</I> the result will be false).
+<DT>2.<DD>
+It ensures that only a scalar is actually returned from the subroutine.
+The subroutine can, of course,  ignore the <I>wantarray</I> and return a
+list anyway. If so, then only the last element of the list will be
+returned.
+</DL>
+<P>
+
+The value returned by the <I>call_*</I> function indicates how many
+items have been returned by the Perl subroutine - in this case it will
+be either 0 or 1.
+<P>
+
+If 0, then you have specified the G_DISCARD flag.
+<P>
+
+If 1, then the item actually returned by the Perl subroutine will be
+stored on the Perl stack - the section <I>Returning a Scalar</I> shows how
+to access this value on the stack.  Remember that regardless of how
+many items the Perl subroutine returns, only the last one will be
+accessible from the stack - think of the case where only one value is
+returned as being a list with only one element.  Any other items that
+were returned will not exist by the time control returns from the
+<I>call_*</I> function.  The section <I>Returning a list in a scalar
+context</I> shows an example of this behavior.
+<A NAME="lbAH">&nbsp;</A>
+<H2>G_ARRAY</H2>
+
+<A NAME="ixAAN"></A>
+Calls the Perl subroutine in a list context.
+<P>
+
+As with G_SCALAR, this flag has 2 effects:
+<DL COMPACT>
+<DT>1.<DD>
+It indicates to the subroutine being called that it is executing in a
+list context (if it executes <I>wantarray</I> the result will be true).
+<DT>2.<DD>
+It ensures that all items returned from the subroutine will be
+accessible when control returns from the <I>call_*</I> function.
+</DL>
+<P>
+
+The value returned by the <I>call_*</I> function indicates how many
+items have been returned by the Perl subroutine.
+<P>
+
+If 0, then you have specified the G_DISCARD flag.
+<P>
+
+If not 0, then it will be a count of the number of items returned by
+the subroutine. These items will be stored on the Perl stack.  The
+section <I>Returning a list of values</I> gives an example of using the
+G_ARRAY flag and the mechanics of accessing the returned items from the
+Perl stack.
+<A NAME="lbAI">&nbsp;</A>
+<H2>G_DISCARD</H2>
+
+<A NAME="ixAAO"></A>
+By default, the <I>call_*</I> functions place the items returned from
+by the Perl subroutine on the stack.  If you are not interested in
+these items, then setting this flag will make Perl get rid of them
+automatically for you.  Note that it is still possible to indicate a
+context to the Perl subroutine by using either G_SCALAR or G_ARRAY.
+<P>
+
+If you do not set this flag then it is <I>very</I> important that you make
+sure that any temporaries (i.e., parameters passed to the Perl
+subroutine and values returned from the subroutine) are disposed of
+yourself.  The section <I>Returning a Scalar</I> gives details of how to
+dispose of these temporaries explicitly and the section <I>Using Perl to
+dispose of temporaries</I> discusses the specific circumstances where you
+can ignore the problem and let Perl deal with it for you.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>G_NOARGS</H2>
+
+<A NAME="ixAAP"></A>
+Whenever a Perl subroutine is called using one of the <I>call_*</I>
+functions, it is assumed by default that parameters are to be passed to
+the subroutine.  If you are not passing any parameters to the Perl
+subroutine, you can save a bit of time by setting this flag.  It has
+the effect of not creating the <TT>@_</TT> array for the Perl subroutine.
+<P>
+
+Although the functionality provided by this flag may seem
+straightforward, it should be used only if there is a good reason to do
+so.  The reason for being cautious is that even if you have specified
+the G_NOARGS flag, it is still possible for the Perl subroutine that
+has been called to think that you have passed it parameters.
+<P>
+
+In fact, what can happen is that the Perl subroutine you have called
+can access the <TT>@_</TT> array from a previous Perl subroutine.  This will
+occur when the code that is executing the <I>call_*</I> function has
+itself been called from another Perl subroutine. The code below
+illustrates this
+<P>
+
+
+
+<PRE>
+    sub fred
+      { print &quot;@_\n&quot;  }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub joe
+      { &amp;fred }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    &amp;joe(1,2,3) ;
+
+</PRE>
+
+
+<P>
+
+This will print
+<P>
+
+
+
+<PRE>
+    1 2 3
+
+</PRE>
+
+
+<P>
+
+What has happened is that <TT>&quot;fred&quot;</TT> accesses the <TT>@_</TT> array which
+belongs to <TT>&quot;joe&quot;</TT>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>G_EVAL</H2>
+
+<A NAME="ixAAQ"></A>
+It is possible for the Perl subroutine you are calling to terminate
+abnormally, e.g., by calling <I>die</I> explicitly or by not actually
+existing.  By default, when either of these events occurs, the
+process will terminate immediately.  If you want to trap this
+type of event, specify the G_EVAL flag.  It will put an <I>eval { }</I>
+around the subroutine call.
+<P>
+
+Whenever control returns from the <I>call_*</I> function you need to
+check the <TT>$@</TT> variable as you would in a normal Perl script.
+<P>
+
+The value returned from the <I>call_*</I> function is dependent on
+what other flags have been specified and whether an error has
+occurred.  Here are all the different cases that can occur:
+<DL COMPACT>
+<DT>*<DD>
+If the <I>call_*</I> function returns normally, then the value
+returned is as specified in the previous sections.
+<DT>*<DD>
+If G_DISCARD is specified, the return value will always be 0.
+<DT>*<DD>
+If G_ARRAY is specified <I>and</I> an error has occurred, the return value
+will always be 0.
+<DT>*<DD>
+If G_SCALAR is specified <I>and</I> an error has occurred, the return value
+will be 1 and the value on the top of the stack will be <I>undef</I>. This
+means that if you have already detected the error by checking <TT>$@</TT> and
+you want the program to continue, you must remember to pop the <I>undef</I>
+from the stack.
+</DL>
+<P>
+
+See <I>Using G_EVAL</I> for details on using G_EVAL.
+<A NAME="lbAL">&nbsp;</A>
+<H2>G_KEEPERR</H2>
+
+<A NAME="ixAAR"></A>
+You may have noticed that using the G_EVAL flag described above will
+<B>always</B> clear the <TT>$@</TT> variable and set it to a string describing
+the error iff there was an error in the called code.  This unqualified
+resetting of <TT>$@</TT> can be problematic in the reliable identification of
+errors using the <TT>&quot;eval {}&quot;</TT> mechanism, because the possibility exists
+that perl will call other code (end of block processing code, for
+example) between the time the error causes <TT>$@</TT> to be set within
+<TT>&quot;eval {}&quot;</TT>, and the subsequent statement which checks for the value of
+<TT>$@</TT> gets executed in the user's script.
+<P>
+
+This scenario will mostly be applicable to code that is meant to be
+called from within destructors, asynchronous callbacks, signal
+handlers, <TT>&quot;__DIE__&quot;</TT> or <TT>&quot;__WARN__&quot;</TT> hooks, and <TT>&quot;tie&quot;</TT> functions.  In
+such situations, you will not want to clear <TT>$@</TT> at all, but simply to
+append any new errors to any existing value of <TT>$@</TT>.
+<P>
+
+The G_KEEPERR flag is meant to be used in conjunction with G_EVAL in
+<I>call_*</I> functions that are used to implement such code.  This flag
+has no effect when G_EVAL is not used.
+<P>
+
+When G_KEEPERR is used, any errors in the called code will be prefixed
+with the string ``\t(in cleanup)'', and appended to the current value
+of <TT>$@</TT>.
+<P>
+
+The G_KEEPERR flag was introduced in Perl version 5.002.
+<P>
+
+See <I>Using G_KEEPERR</I> for an example of a situation that warrants the
+use of this flag.
+<A NAME="lbAM">&nbsp;</A>
+<H2>Determining the Context</H2>
+
+<A NAME="ixAAS"></A>
+As mentioned above, you can determine the context of the currently
+executing subroutine in Perl with <I>wantarray</I>.  The equivalent test
+can be made in C by using the <TT>&quot;GIMME_V&quot;</TT> macro, which returns
+<TT>&quot;G_ARRAY&quot;</TT> if you have been called in a list context, <TT>&quot;G_SCALAR&quot;</TT> if
+in a scalar context, or <TT>&quot;G_VOID&quot;</TT> if in a void context (i.e. the
+return value will not be used).  An older version of this macro is
+called <TT>&quot;GIMME&quot;</TT>; in a void context it returns <TT>&quot;G_SCALAR&quot;</TT> instead of
+<TT>&quot;G_VOID&quot;</TT>.  An example of using the <TT>&quot;GIMME_V&quot;</TT> macro is shown in
+section <I>Using </I><FONT SIZE="-1"><I>GIMME_V</I></FONT><I></I>.
+<A NAME="lbAN">&nbsp;</A>
+<H2>KNOWN PROBLEMS</H2>
+
+<A NAME="ixAAT"></A>
+This section outlines all known problems that exist in the
+<I>call_*</I> functions.
+<DL COMPACT>
+<DT>1.<DD>
+If you are intending to make use of both the G_EVAL and G_SCALAR flags
+in your code, use a version of Perl greater than 5.000.  There is a bug
+in version 5.000 of Perl which means that the combination of these two
+flags will not work as described in the section <I></I><FONT SIZE="-1"><I>FLAG</I></FONT><I> </I><FONT SIZE="-1"><I>VALUES</I></FONT><I></I>.
+
+
+<P>
+
+
+Specifically, if the two flags are used when calling a subroutine and
+that subroutine does not call <I>die</I>, the value returned by
+<I>call_*</I> will be wrong.
+<DT>2.<DD>
+In Perl 5.000 and 5.001 there is a problem with using <I>call_*</I> if
+the Perl sub you are calling attempts to trap a <I>die</I>.
+
+
+<P>
+
+
+The symptom of this problem is that the called Perl sub will continue
+to completion, but whenever it attempts to pass control back to the
+<FONT SIZE="-1">XSUB</FONT>, the program will immediately terminate.
+
+
+<P>
+
+
+For example, say you want to call this Perl sub
+
+
+<P>
+
+
+
+
+<PRE>
+    sub fred
+    {
+        eval { die &quot;Fatal Error&quot; ; }
+        print &quot;Trapped error: $@\n&quot;
+            if $@ ;
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+via this <FONT SIZE="-1">XSUB</FONT>
+
+
+<P>
+
+
+
+
+<PRE>
+    void
+    Call_fred()
+        CODE:
+        PUSHMARK(SP) ;
+        call_pv(&quot;fred&quot;, G_DISCARD|G_NOARGS) ;
+        fprintf(stderr, &quot;back in Call_fred\n&quot;) ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+When <TT>&quot;Call_fred&quot;</TT> is executed it will print
+
+
+<P>
+
+
+
+
+<PRE>
+    Trapped error: Fatal Error
+
+</PRE>
+
+
+
+
+<P>
+
+
+As control never returns to <TT>&quot;Call_fred&quot;</TT>, the <TT>&quot;back in Call_fred&quot;</TT>
+string will not get printed.
+
+
+<P>
+
+
+To work around this problem, you can either upgrade to Perl 5.002 or
+higher, or use the G_EVAL flag with <I>call_*</I> as shown below
+
+
+<P>
+
+
+
+
+<PRE>
+    void
+    Call_fred()
+        CODE:
+        PUSHMARK(SP) ;
+        call_pv(&quot;fred&quot;, G_EVAL|G_DISCARD|G_NOARGS) ;
+        fprintf(stderr, &quot;back in Call_fred\n&quot;) ;
+
+</PRE>
+
+
+</DL>
+<A NAME="lbAO">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<A NAME="ixAAU"></A>
+Enough of the definition talk, let's have a few examples.
+<P>
+
+Perl provides many macros to assist in accessing the Perl stack.
+Wherever possible, these macros should always be used when interfacing
+to Perl internals.  We hope this should make the code less vulnerable
+to any changes made to Perl in the future.
+<P>
+
+Another point worth noting is that in the first series of examples I
+have made use of only the <I>call_pv</I> function.  This has been done
+to keep the code simpler and ease you into the topic.  Wherever
+possible, if the choice is between using <I>call_pv</I> and
+<I>call_sv</I>, you should always try to use <I>call_sv</I>.  See
+<I>Using call_sv</I> for details.
+<A NAME="lbAP">&nbsp;</A>
+<H2><B>Parameters, Nothing returned</B>
+
+</H2>
+
+<A NAME="ixAAV"></A>
+This first trivial example will call a Perl subroutine, <I>PrintUID</I>, to
+print out the <FONT SIZE="-1">UID</FONT> of the process.
+<P>
+
+
+
+<PRE>
+    sub PrintUID
+    {
+        print &quot;UID is $&lt;\n&quot; ;
+    }
+
+</PRE>
+
+
+<P>
+
+and here is a C function to call it
+<P>
+
+
+
+<PRE>
+    static void
+    call_PrintUID()
+    {
+        dSP ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        call_pv(&quot;PrintUID&quot;, G_DISCARD|G_NOARGS) ;
+    }
+
+</PRE>
+
+
+<P>
+
+Simple, eh.
+<P>
+
+A few points to note about this example.
+<DL COMPACT>
+<DT>1.<DD>
+Ignore <TT>&quot;dSP&quot;</TT> and <TT>&quot;PUSHMARK(SP)&quot;</TT> for now. They will be discussed in
+the next example.
+<DT>2.<DD>
+We aren't passing any parameters to <I>PrintUID</I> so G_NOARGS can be
+specified.
+<DT>3.<DD>
+We aren't interested in anything returned from <I>PrintUID</I>, so
+G_DISCARD is specified. Even if <I>PrintUID</I> was changed to
+return some value(s), having specified G_DISCARD will mean that they
+will be wiped by the time control returns from <I>call_pv</I>.
+<DT>4.<DD>
+As <I>call_pv</I> is being used, the Perl subroutine is specified as a
+C string. In this case the subroutine name has been 'hard-wired' into the
+code.
+<DT>5.<DD>
+Because we specified G_DISCARD, it is not necessary to check the value
+returned from <I>call_pv</I>. It will always be 0.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>Passing Parameters</H2>
+
+<A NAME="ixAAW"></A>
+Now let's make a slightly more complex example. This time we want to
+call a Perl subroutine, <TT>&quot;LeftString&quot;</TT>, which will take 2 parameters---a
+string ($s) and an integer ($n).  The subroutine will simply
+print the first <TT>$n</TT> characters of the string.
+<P>
+
+So the Perl subroutine would look like this
+<P>
+
+
+
+<PRE>
+    sub LeftString
+    {
+        my($s, $n) = @_ ;
+        print substr($s, 0, $n), &quot;\n&quot; ;
+    }
+
+</PRE>
+
+
+<P>
+
+The C function required to call <I>LeftString</I> would look like this.
+<P>
+
+
+
+<PRE>
+    static void
+    call_LeftString(a, b)
+    char * a ;
+    int b ;
+    {
+        dSP ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSVpv(a, 0)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        call_pv(&quot;LeftString&quot;, G_DISCARD);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+Here are a few notes on the C function <I>call_LeftString</I>.
+<DL COMPACT>
+<DT>1.<DD>
+Parameters are passed to the Perl subroutine using the Perl stack.
+This is the purpose of the code beginning with the line <TT>&quot;dSP&quot;</TT> and
+ending with the line <TT>&quot;PUTBACK&quot;</TT>.  The <TT>&quot;dSP&quot;</TT> declares a local copy
+of the stack pointer.  This local copy should <B>always</B> be accessed
+as <TT>&quot;SP&quot;</TT>.
+<DT>2.<DD>
+If you are going to put something onto the Perl stack, you need to know
+where to put it. This is the purpose of the macro <TT>&quot;dSP&quot;</TT>--it declares
+and initializes a <I>local</I> copy of the Perl stack pointer.
+
+
+<P>
+
+
+All the other macros which will be used in this example require you to
+have used this macro.
+
+
+<P>
+
+
+The exception to this rule is if you are calling a Perl subroutine
+directly from an <FONT SIZE="-1">XSUB</FONT> function. In this case it is not necessary to
+use the <TT>&quot;dSP&quot;</TT> macro explicitly---it will be declared for you
+automatically.
+<DT>3.<DD>
+Any parameters to be pushed onto the stack should be bracketed by the
+<TT>&quot;PUSHMARK&quot;</TT> and <TT>&quot;PUTBACK&quot;</TT> macros.  The purpose of these two macros, in
+this context, is to count the number of parameters you are
+pushing automatically.  Then whenever Perl is creating the <TT>@_</TT> array for the
+subroutine, it knows how big to make it.
+
+
+<P>
+
+
+The <TT>&quot;PUSHMARK&quot;</TT> macro tells Perl to make a mental note of the current
+stack pointer. Even if you aren't passing any parameters (like the
+example shown in the section <I>No Parameters, Nothing returned</I>) you
+must still call the <TT>&quot;PUSHMARK&quot;</TT> macro before you can call any of the
+<I>call_*</I> functions---Perl still needs to know that there are no
+parameters.
+
+
+<P>
+
+
+The <TT>&quot;PUTBACK&quot;</TT> macro sets the global copy of the stack pointer to be
+the same as our local copy. If we didn't do this <I>call_pv</I>
+wouldn't know where the two parameters we pushed were---remember that
+up to now all the stack pointer manipulation we have done is with our
+local copy, <I>not</I> the global copy.
+<DT>4.<DD>
+Next, we come to XPUSHs. This is where the parameters actually get
+pushed onto the stack. In this case we are pushing a string and an
+integer.
+
+
+<P>
+
+
+See ``XSUBs and the Argument Stack'' in perlguts for details
+on how the <FONT SIZE="-1">XPUSH</FONT> macros work.
+<DT>5.<DD>
+Because we created temporary values (by means of <I>sv_2mortal()</I> calls)
+we will have to tidy up the Perl stack and dispose of mortal SVs.
+
+
+<P>
+
+
+This is the purpose of
+
+
+<P>
+
+
+
+
+<PRE>
+    ENTER ;
+    SAVETMPS ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+at the start of the function, and
+
+
+<P>
+
+
+
+
+<PRE>
+    FREETMPS ;
+    LEAVE ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+at the end. The <TT>&quot;ENTER&quot;</TT>/<TT>&quot;SAVETMPS&quot;</TT> pair creates a boundary for any
+temporaries we create.  This means that the temporaries we get rid of
+will be limited to those which were created after these calls.
+
+
+<P>
+
+
+The <TT>&quot;FREETMPS&quot;</TT>/<TT>&quot;LEAVE&quot;</TT> pair will get rid of any values returned by
+the Perl subroutine (see next example), plus it will also dump the
+mortal SVs we have created.  Having <TT>&quot;ENTER&quot;</TT>/<TT>&quot;SAVETMPS&quot;</TT> at the
+beginning of the code makes sure that no other mortals are destroyed.
+
+
+<P>
+
+
+Think of these macros as working a bit like using <TT>&quot;{&quot;</TT> and <TT>&quot;}&quot;</TT> in Perl
+to limit the scope of local variables.
+
+
+<P>
+
+
+See the section <I>Using Perl to dispose of temporaries</I> for details of
+an alternative to using these macros.
+<DT>6.<DD>
+Finally, <I>LeftString</I> can now be called via the <I>call_pv</I> function.
+The only flag specified this time is G_DISCARD. Because we are passing
+2 parameters to the Perl subroutine this time, we have not specified
+G_NOARGS.
+</DL>
+<A NAME="lbAR">&nbsp;</A>
+<H2>Returning a Scalar</H2>
+
+<A NAME="ixAAX"></A>
+Now for an example of dealing with the items returned from a Perl
+subroutine.
+<P>
+
+Here is a Perl subroutine, <I>Adder</I>, that takes 2 integer parameters
+and simply returns their sum.
+<P>
+
+
+
+<PRE>
+    sub Adder
+    {
+        my($a, $b) = @_ ;
+        $a + $b ;
+    }
+
+</PRE>
+
+
+<P>
+
+Because we are now concerned with the return value from <I>Adder</I>, the C
+function required to call it is now a bit more complex.
+<P>
+
+
+
+<PRE>
+    static void
+    call_Adder(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        int count ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(a)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;Adder&quot;, G_SCALAR);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        SPAGAIN ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (count != 1)
+            croak(&quot;Big trouble\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        printf (&quot;The sum of %d and %d is %d\n&quot;, a, b, POPi) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUTBACK ;
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+Points to note this time are
+<DL COMPACT>
+<DT>1.<DD>
+The only flag specified this time was G_SCALAR. That means the <TT>@_</TT>
+array will be created and that the value returned by <I>Adder</I> will
+still exist after the call to <I>call_pv</I>.
+<DT>2.<DD>
+The purpose of the macro <TT>&quot;SPAGAIN&quot;</TT> is to refresh the local copy of the
+stack pointer. This is necessary because it is possible that the memory
+allocated to the Perl stack has been reallocated whilst in the
+<I>call_pv</I> call.
+
+
+<P>
+
+
+If you are making use of the Perl stack pointer in your code you must
+always refresh the local copy using <FONT SIZE="-1">SPAGAIN</FONT> whenever you make use
+of the <I>call_*</I> functions or any other Perl internal function.
+<DT>3.<DD>
+Although only a single value was expected to be returned from <I>Adder</I>,
+it is still good practice to check the return code from <I>call_pv</I>
+anyway.
+
+
+<P>
+
+
+Expecting a single value is not quite the same as knowing that there
+will be one. If someone modified <I>Adder</I> to return a list and we
+didn't check for that possibility and take appropriate action the Perl
+stack would end up in an inconsistent state. That is something you
+<I>really</I> don't want to happen ever.
+<DT>4.<DD>
+The <TT>&quot;POPi&quot;</TT> macro is used here to pop the return value from the stack.
+In this case we wanted an integer, so <TT>&quot;POPi&quot;</TT> was used.
+
+
+<P>
+
+
+Here is the complete list of <FONT SIZE="-1">POP</FONT> macros available, along with the types
+they return.
+
+
+<P>
+
+
+
+
+<PRE>
+    POPs        SV
+    POPp        pointer
+    POPn        double
+    POPi        integer
+    POPl        long
+
+</PRE>
+
+
+<DT>5.<DD>
+The final <TT>&quot;PUTBACK&quot;</TT> is used to leave the Perl stack in a consistent
+state before exiting the function.  This is necessary because when we
+popped the return value from the stack with <TT>&quot;POPi&quot;</TT> it updated only our
+local copy of the stack pointer.  Remember, <TT>&quot;PUTBACK&quot;</TT> sets the global
+stack pointer to be the same as our local copy.
+</DL>
+<A NAME="lbAS">&nbsp;</A>
+<H2>Returning a list of values</H2>
+
+<A NAME="ixAAY"></A>
+Now, let's extend the previous example to return both the sum of the
+parameters and the difference.
+<P>
+
+Here is the Perl subroutine
+<P>
+
+
+
+<PRE>
+    sub AddSubtract
+    {
+       my($a, $b) = @_ ;
+       ($a+$b, $a-$b) ;
+    }
+
+</PRE>
+
+
+<P>
+
+and this is the C function
+<P>
+
+
+
+<PRE>
+    static void
+    call_AddSubtract(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        int count ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(a)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;AddSubtract&quot;, G_ARRAY);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        SPAGAIN ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (count != 2)
+            croak(&quot;Big trouble\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        printf (&quot;%d - %d = %d\n&quot;, a, b, POPi) ;
+        printf (&quot;%d + %d = %d\n&quot;, a, b, POPi) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUTBACK ;
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+If <I>call_AddSubtract</I> is called like this
+<P>
+
+
+
+<PRE>
+    call_AddSubtract(7, 4) ;
+
+</PRE>
+
+
+<P>
+
+then here is the output
+<P>
+
+
+
+<PRE>
+    7 - 4 = 3
+    7 + 4 = 11
+
+</PRE>
+
+
+<P>
+
+Notes
+<DL COMPACT>
+<DT>1.<DD>
+We wanted list context, so G_ARRAY was used.
+<DT>2.<DD>
+Not surprisingly <TT>&quot;POPi&quot;</TT> is used twice this time because we were
+retrieving 2 values from the stack. The important thing to note is that
+when using the <TT>&quot;POP*&quot;</TT> macros they come off the stack in <I>reverse</I>
+order.
+</DL>
+<A NAME="lbAT">&nbsp;</A>
+<H2>Returning a list in a scalar context</H2>
+
+<A NAME="ixAAZ"></A>
+Say the Perl subroutine in the previous section was called in a scalar
+context, like this
+<P>
+
+
+
+<PRE>
+    static void
+    call_AddSubScalar(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        int count ;
+        int i ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(a)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;AddSubtract&quot;, G_SCALAR);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        SPAGAIN ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        printf (&quot;Items Returned = %d\n&quot;, count) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        for (i = 1 ; i &lt;= count ; ++i)
+            printf (&quot;Value %d = %d\n&quot;, i, POPi) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUTBACK ;
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+The other modification made is that <I>call_AddSubScalar</I> will print the
+number of items returned from the Perl subroutine and their value (for
+simplicity it assumes that they are integer).  So if
+<I>call_AddSubScalar</I> is called
+<P>
+
+
+
+<PRE>
+    call_AddSubScalar(7, 4) ;
+
+</PRE>
+
+
+<P>
+
+then the output will be
+<P>
+
+
+
+<PRE>
+    Items Returned = 1
+    Value 1 = 3
+
+</PRE>
+
+
+<P>
+
+In this case the main point to note is that only the last item in the
+list is returned from the subroutine, <I>AddSubtract</I> actually made it back to
+<I>call_AddSubScalar</I>.
+<A NAME="lbAU">&nbsp;</A>
+<H2>Returning Data from Perl via the parameter list</H2>
+
+<A NAME="ixABA"></A>
+It is also possible to return values directly via the parameter list -
+whether it is actually desirable to do it is another matter entirely.
+<P>
+
+The Perl subroutine, <I>Inc</I>, below takes 2 parameters and increments
+each directly.
+<P>
+
+
+
+<PRE>
+    sub Inc
+    {
+        ++ $_[0] ;
+        ++ $_[1] ;
+    }
+
+</PRE>
+
+
+<P>
+
+and here is a C function to call it.
+<P>
+
+
+
+<PRE>
+    static void
+    call_Inc(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        int count ;
+        SV * sva ;
+        SV * svb ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        sva = sv_2mortal(newSViv(a)) ;
+        svb = sv_2mortal(newSViv(b)) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sva);
+        XPUSHs(svb);
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;Inc&quot;, G_DISCARD);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (count != 0)
+            croak (&quot;call_Inc: expected 0 values from 'Inc', got %d\n&quot;,
+                   count) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        printf (&quot;%d + 1 = %d\n&quot;, a, SvIV(sva)) ;
+        printf (&quot;%d + 1 = %d\n&quot;, b, SvIV(svb)) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+To be able to access the two parameters that were pushed onto the stack
+after they return from <I>call_pv</I> it is necessary to make a note
+of their addresses---thus the two variables <TT>&quot;sva&quot;</TT> and <TT>&quot;svb&quot;</TT>.
+<P>
+
+The reason this is necessary is that the area of the Perl stack which
+held them will very likely have been overwritten by something else by
+the time control returns from <I>call_pv</I>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>Using G_EVAL</H2>
+
+<A NAME="ixABB"></A>
+Now an example using G_EVAL. Below is a Perl subroutine which computes
+the difference of its 2 parameters. If this would result in a negative
+result, the subroutine calls <I>die</I>.
+<P>
+
+
+
+<PRE>
+    sub Subtract
+    {
+        my ($a, $b) = @_ ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        die &quot;death can be fatal\n&quot; if $a &lt; $b ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        $a - $b ;
+    }
+
+</PRE>
+
+
+<P>
+
+and some C to call it
+<P>
+
+
+
+<PRE>
+    static void
+    call_Subtract(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        int count ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(a)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;Subtract&quot;, G_EVAL|G_SCALAR);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        SPAGAIN ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Check the eval first */
+        if (SvTRUE(ERRSV))
+        {
+            STRLEN n_a;
+            printf (&quot;Uh oh - %s\n&quot;, SvPV(ERRSV, n_a)) ;
+            POPs ;
+        }
+        else
+        {
+            if (count != 1)
+               croak(&quot;call_Subtract: wanted 1 value from 'Subtract', got %d\n&quot;,
+                        count) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+            printf (&quot;%d - %d = %d\n&quot;, a, b, POPi) ;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUTBACK ;
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+If <I>call_Subtract</I> is called thus
+<P>
+
+
+
+<PRE>
+    call_Subtract(4, 5)
+
+</PRE>
+
+
+<P>
+
+the following will be printed
+<P>
+
+
+
+<PRE>
+    Uh oh - death can be fatal
+
+</PRE>
+
+
+<P>
+
+Notes
+<DL COMPACT>
+<DT>1.<DD>
+We want to be able to catch the <I>die</I> so we have used the G_EVAL
+flag.  Not specifying this flag would mean that the program would
+terminate immediately at the <I>die</I> statement in the subroutine
+<I>Subtract</I>.
+<DT>2.<DD>
+The code
+
+
+<P>
+
+
+
+
+<PRE>
+    if (SvTRUE(ERRSV))
+    {
+        STRLEN n_a;
+        printf (&quot;Uh oh - %s\n&quot;, SvPV(ERRSV, n_a)) ;
+        POPs ;
+    }
+
+</PRE>
+
+
+
+
+<P>
+
+
+is the direct equivalent of this bit of Perl
+
+
+<P>
+
+
+
+
+<PRE>
+    print &quot;Uh oh - $@\n&quot; if $@ ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+<TT>&quot;PL_errgv&quot;</TT> is a perl global of type <TT>&quot;GV *&quot;</TT> that points to the
+symbol table entry containing the error.  <TT>&quot;ERRSV&quot;</TT> therefore
+refers to the C equivalent of <TT>$@</TT>.
+<DT>3.<DD>
+Note that the stack is popped using <TT>&quot;POPs&quot;</TT> in the block where
+<TT>&quot;SvTRUE(ERRSV)&quot;</TT> is true.  This is necessary because whenever a
+<I>call_*</I> function invoked with G_EVAL|G_SCALAR returns an error,
+the top of the stack holds the value <I>undef</I>. Because we want the
+program to continue after detecting this error, it is essential that
+the stack is tidied up by removing the <I>undef</I>.
+</DL>
+<A NAME="lbAW">&nbsp;</A>
+<H2>Using G_KEEPERR</H2>
+
+<A NAME="ixABC"></A>
+Consider this rather facetious example, where we have used an <FONT SIZE="-1">XS</FONT>
+version of the call_Subtract example above inside a destructor:
+<P>
+
+
+
+<PRE>
+    package Foo;
+    sub new { bless {}, $_[0] }
+    sub Subtract {
+        my($a,$b) = @_;
+        die &quot;death can be fatal&quot; if $a &lt; $b ;
+        $a - $b;
+    }
+    sub DESTROY { call_Subtract(5, 4); }
+    sub foo { die &quot;foo dies&quot;; }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    package main;
+    eval { Foo-&gt;new-&gt;foo };
+    print &quot;Saw: $@&quot; if $@;             # should be, but isn't
+
+</PRE>
+
+
+<P>
+
+This example will fail to recognize that an error occurred inside the
+<TT>&quot;eval {}&quot;</TT>.  Here's why: the call_Subtract code got executed while perl
+was cleaning up temporaries when exiting the eval block, and because
+call_Subtract is implemented with <I>call_pv</I> using the G_EVAL
+flag, it promptly reset <TT>$@</TT>.  This results in the failure of the
+outermost test for <TT>$@</TT>, and thereby the failure of the error trap.
+<P>
+
+Appending the G_KEEPERR flag, so that the <I>call_pv</I> call in
+call_Subtract reads:
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;Subtract&quot;, G_EVAL|G_SCALAR|G_KEEPERR);
+
+</PRE>
+
+
+<P>
+
+will preserve the error and restore reliable error handling.
+<A NAME="lbAX">&nbsp;</A>
+<H2>Using call_sv</H2>
+
+<A NAME="ixABD"></A>
+In all the previous examples I have 'hard-wired' the name of the Perl
+subroutine to be called from C.  Most of the time though, it is more
+convenient to be able to specify the name of the Perl subroutine from
+within the Perl script.
+<P>
+
+Consider the Perl code below
+<P>
+
+
+
+<PRE>
+    sub fred
+    {
+        print &quot;Hello there\n&quot; ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    CallSubPV(&quot;fred&quot;) ;
+
+</PRE>
+
+
+<P>
+
+Here is a snippet of <FONT SIZE="-1">XSUB</FONT> which defines <I>CallSubPV</I>.
+<P>
+
+
+
+<PRE>
+    void
+    CallSubPV(name)
+        char *  name
+        CODE:
+        PUSHMARK(SP) ;
+        call_pv(name, G_DISCARD|G_NOARGS) ;
+
+</PRE>
+
+
+<P>
+
+That is fine as far as it goes. The thing is, the Perl subroutine
+can be specified as only a string.  For Perl 4 this was adequate,
+but Perl 5 allows references to subroutines and anonymous subroutines.
+This is where <I>call_sv</I> is useful.
+<P>
+
+The code below for <I>CallSubSV</I> is identical to <I>CallSubPV</I> except
+that the <TT>&quot;name&quot;</TT> parameter is now defined as an SV* and we use
+<I>call_sv</I> instead of <I>call_pv</I>.
+<P>
+
+
+
+<PRE>
+    void
+    CallSubSV(name)
+        SV *    name
+        CODE:
+        PUSHMARK(SP) ;
+        call_sv(name, G_DISCARD|G_NOARGS) ;
+
+</PRE>
+
+
+<P>
+
+Because we are using an <FONT SIZE="-1">SV</FONT> to call <I>fred</I> the following can all be used
+<P>
+
+
+
+<PRE>
+    CallSubSV(&quot;fred&quot;) ;
+    CallSubSV(\&amp;fred) ;
+    $ref = \&amp;fred ;
+    CallSubSV($ref) ;
+    CallSubSV( sub { print &quot;Hello there\n&quot; } ) ;
+
+</PRE>
+
+
+<P>
+
+As you can see, <I>call_sv</I> gives you much greater flexibility in
+how you can specify the Perl subroutine.
+<P>
+
+You should note that if it is necessary to store the <FONT SIZE="-1">SV</FONT> (<TT>&quot;name&quot;</TT> in the
+example above) which corresponds to the Perl subroutine so that it can
+be used later in the program, it not enough just to store a copy of the
+pointer to the <FONT SIZE="-1">SV</FONT>. Say the code above had been like this
+<P>
+
+
+
+<PRE>
+    static SV * rememberSub ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    SaveSub1(name)
+        SV *    name
+        CODE:
+        rememberSub = name ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    CallSavedSub1()
+        CODE:
+        PUSHMARK(SP) ;
+        call_sv(rememberSub, G_DISCARD|G_NOARGS) ;
+
+</PRE>
+
+
+<P>
+
+The reason this is wrong is that by the time you come to use the
+pointer <TT>&quot;rememberSub&quot;</TT> in <TT>&quot;CallSavedSub1&quot;</TT>, it may or may not still refer
+to the Perl subroutine that was recorded in <TT>&quot;SaveSub1&quot;</TT>.  This is
+particularly true for these cases
+<P>
+
+
+
+<PRE>
+    SaveSub1(\&amp;fred) ;
+    CallSavedSub1() ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    SaveSub1( sub { print &quot;Hello there\n&quot; } ) ;
+    CallSavedSub1() ;
+
+</PRE>
+
+
+<P>
+
+By the time each of the <TT>&quot;SaveSub1&quot;</TT> statements above have been executed,
+the SV*s which corresponded to the parameters will no longer exist.
+Expect an error message from Perl of the form
+<P>
+
+
+
+<PRE>
+    Can't use an undefined value as a subroutine reference at ...
+
+</PRE>
+
+
+<P>
+
+for each of the <TT>&quot;CallSavedSub1&quot;</TT> lines.
+<P>
+
+Similarly, with this code
+<P>
+
+
+
+<PRE>
+    $ref = \&amp;fred ;
+    SaveSub1($ref) ;
+    $ref = 47 ;
+    CallSavedSub1() ;
+
+</PRE>
+
+
+<P>
+
+you can expect one of these messages (which you actually get is dependent on
+the version of Perl you are using)
+<P>
+
+
+
+<PRE>
+    Not a CODE reference at ...
+    Undefined subroutine &amp;main::47 called ...
+
+</PRE>
+
+
+<P>
+
+The variable <TT>$ref</TT> may have referred to the subroutine <TT>&quot;fred&quot;</TT>
+whenever the call to <TT>&quot;SaveSub1&quot;</TT> was made but by the time
+<TT>&quot;CallSavedSub1&quot;</TT> gets called it now holds the number <TT>47</TT>. Because we
+saved only a pointer to the original <FONT SIZE="-1">SV</FONT> in <TT>&quot;SaveSub1&quot;</TT>, any changes to
+<TT>$ref</TT> will be tracked by the pointer <TT>&quot;rememberSub&quot;</TT>. This means that
+whenever <TT>&quot;CallSavedSub1&quot;</TT> gets called, it will attempt to execute the
+code which is referenced by the SV* <TT>&quot;rememberSub&quot;</TT>.  In this case
+though, it now refers to the integer <TT>47</TT>, so expect Perl to complain
+loudly.
+<P>
+
+A similar but more subtle problem is illustrated with this code
+<P>
+
+
+
+<PRE>
+    $ref = \&amp;fred ;
+    SaveSub1($ref) ;
+    $ref = \&amp;joe ;
+    CallSavedSub1() ;
+
+</PRE>
+
+
+<P>
+
+This time whenever <TT>&quot;CallSavedSub1&quot;</TT> get called it will execute the Perl
+subroutine <TT>&quot;joe&quot;</TT> (assuming it exists) rather than <TT>&quot;fred&quot;</TT> as was
+originally requested in the call to <TT>&quot;SaveSub1&quot;</TT>.
+<P>
+
+To get around these problems it is necessary to take a full copy of the
+<FONT SIZE="-1">SV</FONT>.  The code below shows <TT>&quot;SaveSub2&quot;</TT> modified to do that
+<P>
+
+
+
+<PRE>
+    static SV * keepSub = (SV*)NULL ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    SaveSub2(name)
+        SV *    name
+        CODE:
+        /* Take a copy of the callback */
+        if (keepSub == (SV*)NULL)
+            /* First time, so create a new SV */
+            keepSub = newSVsv(name) ;
+        else
+            /* Been here before, so overwrite */
+            SvSetSV(keepSub, name) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    CallSavedSub2()
+        CODE:
+        PUSHMARK(SP) ;
+        call_sv(keepSub, G_DISCARD|G_NOARGS) ;
+
+</PRE>
+
+
+<P>
+
+To avoid creating a new <FONT SIZE="-1">SV</FONT> every time <TT>&quot;SaveSub2&quot;</TT> is called,
+the function first checks to see if it has been called before.  If not,
+then space for a new <FONT SIZE="-1">SV</FONT> is allocated and the reference to the Perl
+subroutine, <TT>&quot;name&quot;</TT> is copied to the variable <TT>&quot;keepSub&quot;</TT> in one
+operation using <TT>&quot;newSVsv&quot;</TT>.  Thereafter, whenever <TT>&quot;SaveSub2&quot;</TT> is called
+the existing <FONT SIZE="-1">SV</FONT>, <TT>&quot;keepSub&quot;</TT>, is overwritten with the new value using
+<TT>&quot;SvSetSV&quot;</TT>.
+<A NAME="lbAY">&nbsp;</A>
+<H2>Using call_argv</H2>
+
+<A NAME="ixABE"></A>
+Here is a Perl subroutine which prints whatever parameters are passed
+to it.
+<P>
+
+
+
+<PRE>
+    sub PrintList
+    {
+        my(@list) = @_ ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        foreach (@list) { print &quot;$_\n&quot; }
+    }
+
+</PRE>
+
+
+<P>
+
+and here is an example of <I>call_argv</I> which will call
+<I>PrintList</I>.
+<P>
+
+
+
+<PRE>
+    static char * words[] = {&quot;alpha&quot;, &quot;beta&quot;, &quot;gamma&quot;, &quot;delta&quot;, NULL} ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    call_PrintList()
+    {
+        dSP ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        call_argv(&quot;PrintList&quot;, G_DISCARD, words) ;
+    }
+
+</PRE>
+
+
+<P>
+
+Note that it is not necessary to call <TT>&quot;PUSHMARK&quot;</TT> in this instance.
+This is because <I>call_argv</I> will do it for you.
+<A NAME="lbAZ">&nbsp;</A>
+<H2>Using call_method</H2>
+
+<A NAME="ixABF"></A>
+Consider the following Perl code
+<P>
+
+
+
+<PRE>
+    {
+        package Mine ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        sub new
+        {
+            my($type) = shift ;
+            bless [@_]
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        sub Display
+        {
+            my ($self, $index) = @_ ;
+            print &quot;$index: $$self[$index]\n&quot; ;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        sub PrintID
+        {
+            my($class) = @_ ;
+            print &quot;This is Class $class version 1.0\n&quot; ;
+        }
+    }
+
+</PRE>
+
+
+<P>
+
+It implements just a very simple class to manage an array.  Apart from
+the constructor, <TT>&quot;new&quot;</TT>, it declares methods, one static and one
+virtual. The static method, <TT>&quot;PrintID&quot;</TT>, prints out simply the class
+name and a version number. The virtual method, <TT>&quot;Display&quot;</TT>, prints out a
+single element of the array.  Here is an all Perl example of using it.
+<P>
+
+
+
+<PRE>
+    $a = new Mine ('red', 'green', 'blue') ;
+    $a-&gt;<A HREF="../man1/Display.1.php">Display</A>(1) ;
+    PrintID Mine;
+
+</PRE>
+
+
+<P>
+
+will print
+<P>
+
+
+
+<PRE>
+    1: green
+    This is Class Mine version 1.0
+
+</PRE>
+
+
+<P>
+
+Calling a Perl method from C is fairly straightforward. The following
+things are required
+<DL COMPACT>
+<DT>*<DD>
+a reference to the object for a virtual method or the name of the class
+for a static method.
+<DT>*<DD>
+the name of the method.
+<DT>*<DD>
+any other parameters specific to the method.
+</DL>
+<P>
+
+Here is a simple <FONT SIZE="-1">XSUB</FONT> which illustrates the mechanics of calling both
+the <TT>&quot;PrintID&quot;</TT> and <TT>&quot;Display&quot;</TT> methods from C.
+<P>
+
+
+
+<PRE>
+    void
+    call_Method(ref, method, index)
+        SV *    ref
+        char *  method
+        int             index
+        CODE:
+        PUSHMARK(SP);
+        XPUSHs(ref);
+        XPUSHs(sv_2mortal(newSViv(index))) ;
+        PUTBACK;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        call_method(method, G_DISCARD) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    call_PrintID(class, method)
+        char *  class
+        char *  method
+        CODE:
+        PUSHMARK(SP);
+        XPUSHs(sv_2mortal(newSVpv(class, 0))) ;
+        PUTBACK;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        call_method(method, G_DISCARD) ;
+
+</PRE>
+
+
+<P>
+
+So the methods <TT>&quot;PrintID&quot;</TT> and <TT>&quot;Display&quot;</TT> can be invoked like this
+<P>
+
+
+
+<PRE>
+    $a = new Mine ('red', 'green', 'blue') ;
+    call_Method($a, 'Display', 1) ;
+    call_PrintID('Mine', 'PrintID') ;
+
+</PRE>
+
+
+<P>
+
+The only thing to note is that in both the static and virtual methods,
+the method name is not passed via the stack---it is used as the first
+parameter to <I>call_method</I>.
+<A NAME="lbBA">&nbsp;</A>
+<H2>Using <FONT SIZE="-1">GIMME_V</FONT></H2>
+
+<A NAME="ixABG"></A>
+Here is a trivial <FONT SIZE="-1">XSUB</FONT> which prints the context in which it is
+currently executing.
+<P>
+
+
+
+<PRE>
+    void
+    PrintContext()
+        CODE:
+        I32 gimme = GIMME_V;
+        if (gimme == G_VOID)
+            printf (&quot;Context is Void\n&quot;) ;
+        else if (gimme == G_SCALAR)
+            printf (&quot;Context is Scalar\n&quot;) ;
+        else
+            printf (&quot;Context is Array\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+and here is some Perl to test it
+<P>
+
+
+
+<PRE>
+    PrintContext ;
+    $a = PrintContext ;
+    @a = PrintContext ;
+
+</PRE>
+
+
+<P>
+
+The output from that will be
+<P>
+
+
+
+<PRE>
+    Context is Void
+    Context is Scalar
+    Context is Array
+
+</PRE>
+
+
+<A NAME="lbBB">&nbsp;</A>
+<H2>Using Perl to dispose of temporaries</H2>
+
+<A NAME="ixABH"></A>
+In the examples given to date, any temporaries created in the callback
+(i.e., parameters passed on the stack to the <I>call_*</I> function or
+values returned via the stack) have been freed by one of these methods
+<DL COMPACT>
+<DT>*<DD>
+specifying the G_DISCARD flag with <I>call_*</I>.
+<DT>*<DD>
+explicitly disposed of using the <TT>&quot;ENTER&quot;</TT>/<TT>&quot;SAVETMPS&quot;</TT> -
+<TT>&quot;FREETMPS&quot;</TT>/<TT>&quot;LEAVE&quot;</TT> pairing.
+</DL>
+<P>
+
+There is another method which can be used, namely letting Perl do it
+for you automatically whenever it regains control after the callback
+has terminated.  This is done by simply not using the
+<P>
+
+
+
+<PRE>
+    ENTER ;
+    SAVETMPS ;
+    ...
+    FREETMPS ;
+    LEAVE ;
+
+</PRE>
+
+
+<P>
+
+sequence in the callback (and not, of course, specifying the G_DISCARD
+flag).
+<P>
+
+If you are going to use this method you have to be aware of a possible
+memory leak which can arise under very specific circumstances.  To
+explain these circumstances you need to know a bit about the flow of
+control between Perl and the callback routine.
+<P>
+
+The examples given at the start of the document (an error handler and
+an event driven program) are typical of the two main sorts of flow
+control that you are likely to encounter with callbacks.  There is a
+very important distinction between them, so pay attention.
+<P>
+
+In the first example, an error handler, the flow of control could be as
+follows.  You have created an interface to an external library.
+Control can reach the external library like this
+<P>
+
+
+
+<PRE>
+    perl --&gt; XSUB --&gt; external library
+
+</PRE>
+
+
+<P>
+
+Whilst control is in the library, an error condition occurs. You have
+previously set up a Perl callback to handle this situation, so it will
+get executed. Once the callback has finished, control will drop back to
+Perl again.  Here is what the flow of control will be like in that
+situation
+<P>
+
+
+
+<PRE>
+    perl --&gt; XSUB --&gt; external library
+                      ...
+                      error occurs
+                      ...
+                      external library --&gt; call_* --&gt; perl
+                                                          |
+    perl &lt;-- XSUB &lt;-- external library &lt;-- call_* &lt;----+
+
+</PRE>
+
+
+<P>
+
+After processing of the error using <I>call_*</I> is completed,
+control reverts back to Perl more or less immediately.
+<P>
+
+In the diagram, the further right you go the more deeply nested the
+scope is.  It is only when control is back with perl on the extreme
+left of the diagram that you will have dropped back to the enclosing
+scope and any temporaries you have left hanging around will be freed.
+<P>
+
+In the second example, an event driven program, the flow of control
+will be more like this
+<P>
+
+
+
+<PRE>
+    perl --&gt; XSUB --&gt; event handler
+                      ...
+                      event handler --&gt; call_* --&gt; perl
+                                                       |
+                      event handler &lt;-- call_* &lt;----+
+                      ...
+                      event handler --&gt; call_* --&gt; perl
+                                                       |
+                      event handler &lt;-- call_* &lt;----+
+                      ...
+                      event handler --&gt; call_* --&gt; perl
+                                                       |
+                      event handler &lt;-- call_* &lt;----+
+
+</PRE>
+
+
+<P>
+
+In this case the flow of control can consist of only the repeated
+sequence
+<P>
+
+
+
+<PRE>
+    event handler --&gt; call_* --&gt; perl
+
+</PRE>
+
+
+<P>
+
+for practically the complete duration of the program.  This means that
+control may <I>never</I> drop back to the surrounding scope in Perl at the
+extreme left.
+<P>
+
+So what is the big problem? Well, if you are expecting Perl to tidy up
+those temporaries for you, you might be in for a long wait.  For Perl
+to dispose of your temporaries, control must drop back to the
+enclosing scope at some stage.  In the event driven scenario that may
+never happen.  This means that as time goes on, your program will
+create more and more temporaries, none of which will ever be freed. As
+each of these temporaries consumes some memory your program will
+eventually consume all the available memory in your system---kapow!
+<P>
+
+So here is the bottom line---if you are sure that control will revert
+back to the enclosing Perl scope fairly quickly after the end of your
+callback, then it isn't absolutely necessary to dispose explicitly of
+any temporaries you may have created. Mind you, if you are at all
+uncertain about what to do, it doesn't do any harm to tidy up anyway.
+<A NAME="lbBC">&nbsp;</A>
+<H2>Strategies for storing Callback Context Information</H2>
+
+<A NAME="ixABI"></A>
+Potentially one of the trickiest problems to overcome when designing a
+callback interface can be figuring out how to store the mapping between
+the C callback function and the Perl equivalent.
+<P>
+
+To help understand why this can be a real problem first consider how a
+callback is set up in an all C environment.  Typically a C <FONT SIZE="-1">API</FONT> will
+provide a function to register a callback.  This will expect a pointer
+to a function as one of its parameters.  Below is a call to a
+hypothetical function <TT>&quot;register_fatal&quot;</TT> which registers the C function
+to get called when a fatal error occurs.
+<P>
+
+
+
+<PRE>
+    register_fatal(cb1) ;
+
+</PRE>
+
+
+<P>
+
+The single parameter <TT>&quot;cb1&quot;</TT> is a pointer to a function, so you must
+have defined <TT>&quot;cb1&quot;</TT> in your code, say something like this
+<P>
+
+
+
+<PRE>
+    static void
+    cb1()
+    {
+        printf (&quot;Fatal Error\n&quot;) ;
+        <A HREF="../man1/exit.1.php">exit</A>(1) ;
+    }
+
+</PRE>
+
+
+<P>
+
+Now change that to call a Perl subroutine instead
+<P>
+
+
+
+<PRE>
+    static SV * callback = (SV*)NULL;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    cb1()
+    {
+        dSP ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Call the Perl sub to process the callback */
+        call_sv(callback, G_DISCARD) ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    register_fatal(fn)
+        SV *    fn
+        CODE:
+        /* Remember the Perl sub */
+        if (callback == (SV*)NULL)
+            callback = newSVsv(fn) ;
+        else
+            SvSetSV(callback, fn) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* register the callback with the external library */
+        register_fatal(cb1) ;
+
+</PRE>
+
+
+<P>
+
+where the Perl equivalent of <TT>&quot;register_fatal&quot;</TT> and the callback it
+registers, <TT>&quot;pcb1&quot;</TT>, might look like this
+<P>
+
+
+
+<PRE>
+    # Register the sub pcb1
+    register_fatal(\&amp;pcb1) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    sub pcb1
+    {
+        die &quot;I'm dying...\n&quot; ;
+    }
+
+</PRE>
+
+
+<P>
+
+The mapping between the C callback and the Perl equivalent is stored in
+the global variable <TT>&quot;callback&quot;</TT>.
+<P>
+
+This will be adequate if you ever need to have only one callback
+registered at any time. An example could be an error handler like the
+code sketched out above. Remember though, repeated calls to
+<TT>&quot;register_fatal&quot;</TT> will replace the previously registered callback
+function with the new one.
+<P>
+
+Say for example you want to interface to a library which allows asynchronous
+file i/o.  In this case you may be able to register a callback whenever
+a read operation has completed. To be of any use we want to be able to
+call separate Perl subroutines for each file that is opened.  As it
+stands, the error handler example above would not be adequate as it
+allows only a single callback to be defined at any time. What we
+require is a means of storing the mapping between the opened file and
+the Perl subroutine we want to be called for that file.
+<P>
+
+Say the i/o library has a function <TT>&quot;asynch_read&quot;</TT> which associates a C
+function <TT>&quot;ProcessRead&quot;</TT> with a file handle <TT>&quot;fh&quot;</TT>--this assumes that it
+has also provided some routine to open the file and so obtain the file
+handle.
+<P>
+
+
+
+<PRE>
+    asynch_read(fh, ProcessRead)
+
+</PRE>
+
+
+<P>
+
+This may expect the C <I>ProcessRead</I> function of this form
+<P>
+
+
+
+<PRE>
+    void
+    ProcessRead(fh, buffer)
+    int fh ;
+    char *      buffer ;
+    {
+         ...
+    }
+
+</PRE>
+
+
+<P>
+
+To provide a Perl interface to this library we need to be able to map
+between the <TT>&quot;fh&quot;</TT> parameter and the Perl subroutine we want called.  A
+hash is a convenient mechanism for storing this mapping.  The code
+below shows a possible implementation
+<P>
+
+
+
+<PRE>
+    static HV * Mapping = (HV*)NULL ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    asynch_read(fh, callback)
+        int     fh
+        SV *    callback
+        CODE:
+        /* If the hash doesn't already exist, create it */
+        if (Mapping == (HV*)NULL)
+            Mapping = newHV() ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Save the fh -&gt; callback mapping */
+        hv_store(Mapping, (char*)&amp;fh, sizeof(fh), newSVsv(callback), 0) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Register with the C Library */
+        asynch_read(fh, asynch_read_if) ;
+
+</PRE>
+
+
+<P>
+
+and <TT>&quot;asynch_read_if&quot;</TT> could look like this
+<P>
+
+
+
+<PRE>
+    static void
+    asynch_read_if(fh, buffer)
+    int fh ;
+    char *      buffer ;
+    {
+        dSP ;
+        SV ** sv ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Get the callback associated with fh */
+        sv =  hv_fetch(Mapping, (char*)&amp;fh , sizeof(fh), FALSE) ;
+        if (sv == (SV**)NULL)
+            croak(&quot;Internal error...\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(fh))) ;
+        XPUSHs(sv_2mortal(newSVpv(buffer, 0))) ;
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Call the Perl sub */
+        call_sv(*sv, G_DISCARD) ;
+    }
+
+</PRE>
+
+
+<P>
+
+For completeness, here is <TT>&quot;asynch_close&quot;</TT>.  This shows how to remove
+the entry from the hash <TT>&quot;Mapping&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    void
+    asynch_close(fh)
+        int     fh
+        CODE:
+        /* Remove the entry from the hash */
+        (void) hv_delete(Mapping, (char*)&amp;fh, sizeof(fh), G_DISCARD) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Now call the real asynch_close */
+        asynch_close(fh) ;
+
+</PRE>
+
+
+<P>
+
+So the Perl interface would look like this
+<P>
+
+
+
+<PRE>
+    sub callback1
+    {
+        my($handle, $buffer) = @_ ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    # Register the Perl callback
+    asynch_read($fh, \&amp;callback1) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    asynch_close($fh) ;
+
+</PRE>
+
+
+<P>
+
+The mapping between the C callback and Perl is stored in the global
+hash <TT>&quot;Mapping&quot;</TT> this time. Using a hash has the distinct advantage that
+it allows an unlimited number of callbacks to be registered.
+<P>
+
+What if the interface provided by the C callback doesn't contain a
+parameter which allows the file handle to Perl subroutine mapping?  Say
+in the asynchronous i/o package, the callback function gets passed only
+the <TT>&quot;buffer&quot;</TT> parameter like this
+<P>
+
+
+
+<PRE>
+    void
+    ProcessRead(buffer)
+    char *      buffer ;
+    {
+        ...
+    }
+
+</PRE>
+
+
+<P>
+
+Without the file handle there is no straightforward way to map from the
+C callback to the Perl subroutine.
+<P>
+
+In this case a possible way around this problem is to predefine a
+series of C functions to act as the interface to Perl, thus
+<P>
+
+
+
+<PRE>
+    #define MAX_CB              3
+    #define NULL_HANDLE -1
+    typedef void (*FnMap)() ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    struct MapStruct {
+        FnMap    Function ;
+        SV *     PerlSub ;
+        int      Handle ;
+      } ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void  fn1() ;
+    static void  fn2() ;
+    static void  fn3() ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static struct MapStruct Map [MAX_CB] =
+        {
+            { fn1, NULL, NULL_HANDLE },
+            { fn2, NULL, NULL_HANDLE },
+            { fn3, NULL, NULL_HANDLE }
+        } ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    Pcb(index, buffer)
+    int index ;
+    char * buffer ;
+    {
+        dSP ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSVpv(buffer, 0))) ;
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Call the Perl sub */
+        call_sv(Map[index].PerlSub, G_DISCARD) ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    fn1(buffer)
+    char * buffer ;
+    {
+        Pcb(0, buffer) ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    fn2(buffer)
+    char * buffer ;
+    {
+        Pcb(1, buffer) ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    static void
+    fn3(buffer)
+    char * buffer ;
+    {
+        Pcb(2, buffer) ;
+    }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    array_asynch_read(fh, callback)
+        int             fh
+        SV *    callback
+        CODE:
+        int index ;
+        int null_index = MAX_CB ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Find the same handle or an empty entry */
+        for (index = 0 ; index &lt; MAX_CB ; ++index)
+        {
+            if (Map[index].Handle == fh)
+                break ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+            if (Map[index].Handle == NULL_HANDLE)
+                null_index = index ;
+        }
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (index == MAX_CB &amp;&amp; null_index == MAX_CB)
+            croak (&quot;Too many callback functions registered\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (index == MAX_CB)
+            index = null_index ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Save the file handle */
+        Map[index].Handle = fh ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Remember the Perl sub */
+        if (Map[index].PerlSub == (SV*)NULL)
+            Map[index].PerlSub = newSVsv(callback) ;
+        else
+            SvSetSV(Map[index].PerlSub, callback) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        asynch_read(fh, Map[index].Function) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+    void
+    array_asynch_close(fh)
+        int     fh
+        CODE:
+        int index ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        /* Find the file handle */
+        for (index = 0; index &lt; MAX_CB ; ++ index)
+            if (Map[index].Handle == fh)
+                break ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (index == MAX_CB)
+            croak (&quot;could not close fh %d\n&quot;, fh) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        Map[index].Handle = NULL_HANDLE ;
+        SvREFCNT_dec(Map[index].PerlSub) ;
+        Map[index].PerlSub = (SV*)NULL ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        asynch_close(fh) ;
+
+</PRE>
+
+
+<P>
+
+In this case the functions <TT>&quot;fn1&quot;</TT>, <TT>&quot;fn2&quot;</TT>, and <TT>&quot;fn3&quot;</TT> are used to
+remember the Perl subroutine to be called. Each of the functions holds
+a separate hard-wired index which is used in the function <TT>&quot;Pcb&quot;</TT> to
+access the <TT>&quot;Map&quot;</TT> array and actually call the Perl subroutine.
+<P>
+
+There are some obvious disadvantages with this technique.
+<P>
+
+Firstly, the code is considerably more complex than with the previous
+example.
+<P>
+
+Secondly, there is a hard-wired limit (in this case 3) to the number of
+callbacks that can exist simultaneously. The only way to increase the
+limit is by modifying the code to add more functions and then
+recompiling.  None the less, as long as the number of functions is
+chosen with some care, it is still a workable solution and in some
+cases is the only one available.
+<P>
+
+To summarize, here are a number of possible methods for you to consider
+for storing the mapping between C and the Perl callback
+<DL COMPACT>
+<DT>1. Ignore the problem - Allow only 1 callback<DD>
+<A NAME="ixABJ"></A>
+For a lot of situations, like interfacing to an error handler, this may
+be a perfectly adequate solution.
+<DT>2. Create a sequence of callbacks - hard wired limit<DD>
+<A NAME="ixABK"></A>
+If it is impossible to tell from the parameters passed back from the C
+callback what the context is, then you may need to create a sequence of C
+callback interface functions, and store pointers to each in an array.
+<DT>3. Use a parameter to map to the Perl callback<DD>
+<A NAME="ixABL"></A>
+A hash is an ideal mechanism to store the mapping between C and Perl.
+</DL>
+<A NAME="lbBD">&nbsp;</A>
+<H2>Alternate Stack Manipulation</H2>
+
+<A NAME="ixABM"></A>
+Although I have made use of only the <TT>&quot;POP*&quot;</TT> macros to access values
+returned from Perl subroutines, it is also possible to bypass these
+macros and read the stack using the <TT>&quot;ST&quot;</TT> macro (See perlxs for a
+full description of the <TT>&quot;ST&quot;</TT> macro).
+<P>
+
+Most of the time the <TT>&quot;POP*&quot;</TT> macros should be adequate, the main
+problem with them is that they force you to process the returned values
+in sequence. This may not be the most suitable way to process the
+values in some cases. What we want is to be able to access the stack in
+a random order. The <TT>&quot;ST&quot;</TT> macro as used when coding an <FONT SIZE="-1">XSUB</FONT> is ideal
+for this purpose.
+<P>
+
+The code below is the example given in the section <I>Returning a list
+of values</I> recoded to use <TT>&quot;ST&quot;</TT> instead of <TT>&quot;POP*&quot;</TT>.
+<P>
+
+
+
+<PRE>
+    static void
+    call_AddSubtract2(a, b)
+    int a ;
+    int b ;
+    {
+        dSP ;
+        I32 ax ;
+        int count ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        ENTER ;
+        SAVETMPS;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUSHMARK(SP) ;
+        XPUSHs(sv_2mortal(newSViv(a)));
+        XPUSHs(sv_2mortal(newSViv(b)));
+        PUTBACK ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        count = call_pv(&quot;AddSubtract&quot;, G_ARRAY);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        SPAGAIN ;
+        SP -= count ;
+        ax = (SP - PL_stack_base) + 1 ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        if (count != 2)
+            croak(&quot;Big trouble\n&quot;) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        printf (&quot;%d + %d = %d\n&quot;, a, b, SvIV(ST(0))) ;
+        printf (&quot;%d - %d = %d\n&quot;, a, b, SvIV(<A HREF="../man1/ST.1.php">ST</A>(1))) ;
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+        PUTBACK ;
+        FREETMPS ;
+        LEAVE ;
+    }
+
+</PRE>
+
+
+<P>
+
+Notes
+<DL COMPACT>
+<DT>1.<DD>
+Notice that it was necessary to define the variable <TT>&quot;ax&quot;</TT>.  This is
+because the <TT>&quot;ST&quot;</TT> macro expects it to exist.  If we were in an <FONT SIZE="-1">XSUB</FONT> it
+would not be necessary to define <TT>&quot;ax&quot;</TT> as it is already defined for
+you.
+<DT>2.<DD>
+The code
+
+
+<P>
+
+
+
+
+<PRE>
+        SPAGAIN ;
+        SP -= count ;
+        ax = (SP - PL_stack_base) + 1 ;
+
+</PRE>
+
+
+
+
+<P>
+
+
+sets the stack up so that we can use the <TT>&quot;ST&quot;</TT> macro.
+<DT>3.<DD>
+Unlike the original coding of this example, the returned
+values are not accessed in reverse order.  So <TT>ST(0)</TT> refers to the
+first value returned by the Perl subroutine and <TT>&quot;ST(count-1)&quot;</TT>
+refers to the last.
+</DL>
+<A NAME="lbBE">&nbsp;</A>
+<H2>Creating and calling an anonymous subroutine in C</H2>
+
+<A NAME="ixABN"></A>
+As we've already shown, <TT>&quot;call_sv&quot;</TT> can be used to invoke an
+anonymous subroutine.  However, our example showed a Perl script
+invoking an <FONT SIZE="-1">XSUB</FONT> to perform this operation.  Let's see how it can be
+done inside our C code:
+<P>
+
+
+
+<PRE>
+ ...
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ SV *cvrv = eval_pv(&quot;sub { print 'You will not find me cluttering any namespace!' }&quot;, TRUE);
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ ...
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+ call_sv(cvrv, G_VOID|G_NOARGS);
+
+</PRE>
+
+
+<P>
+
+<TT>&quot;eval_pv&quot;</TT> is used to compile the anonymous subroutine, which
+will be the return value as well (read more about <TT>&quot;eval_pv&quot;</TT> in
+``eval_pv'' in perlapi).  Once this code reference is in hand, it
+can be mixed in with all the previous examples we've shown.
+<A NAME="lbBF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixABO"></A>
+perlxs, perlguts, perlembed
+<A NAME="lbBG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixABP"></A>
+Paul Marquess 
+<P>
+
+Special thanks to the following people who assisted in the creation of
+the document.
+<P>
+
+Jeff Okamoto, Tim Bunce, Nick Gianniotis, Steve Kelem, Gurusamy Sarathy
+and Larry Wall.
+<A NAME="lbBH">&nbsp;</A>
+<H2>DATE</H2>
+
+<A NAME="ixABQ"></A>
+Version 1.3, 14th Apr 1997
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">THE CALL_ FUNCTIONS</A><DD>
+<DT><A HREF="#lbAE">FLAG VALUES</A><DD>
+<DT><A HREF="#lbAF">G_VOID</A><DD>
+<DT><A HREF="#lbAG">G_SCALAR</A><DD>
+<DT><A HREF="#lbAH">G_ARRAY</A><DD>
+<DT><A HREF="#lbAI">G_DISCARD</A><DD>
+<DT><A HREF="#lbAJ">G_NOARGS</A><DD>
+<DT><A HREF="#lbAK">G_EVAL</A><DD>
+<DT><A HREF="#lbAL">G_KEEPERR</A><DD>
+<DT><A HREF="#lbAM">Determining the Context</A><DD>
+<DT><A HREF="#lbAN">KNOWN PROBLEMS</A><DD>
+<DT><A HREF="#lbAO">EXAMPLES</A><DD>
+<DT><A HREF="#lbAP">No Parameters, Nothing returned</A><DD>
+<DT><A HREF="#lbAQ">Passing Parameters</A><DD>
+<DT><A HREF="#lbAR">Returning a Scalar</A><DD>
+<DT><A HREF="#lbAS">Returning a list of values</A><DD>
+<DT><A HREF="#lbAT">Returning a list in a scalar context</A><DD>
+<DT><A HREF="#lbAU">Returning Data from Perl via the parameter list</A><DD>
+<DT><A HREF="#lbAV">Using G_EVAL</A><DD>
+<DT><A HREF="#lbAW">Using G_KEEPERR</A><DD>
+<DT><A HREF="#lbAX">Using call_sv</A><DD>
+<DT><A HREF="#lbAY">Using call_argv</A><DD>
+<DT><A HREF="#lbAZ">Using call_method</A><DD>
+<DT><A HREF="#lbBA">Using <FONT SIZE="-1">GIMME_V</FONT></A><DD>
+<DT><A HREF="#lbBB">Using Perl to dispose of temporaries</A><DD>
+<DT><A HREF="#lbBC">Strategies for storing Callback Context Information</A><DD>
+<DT><A HREF="#lbBD">Alternate Stack Manipulation</A><DD>
+<DT><A HREF="#lbBE">Creating and calling an anonymous subroutine in C</A><DD>
+<DT><A HREF="#lbBF">SEE ALSO</A><DD>
+<DT><A HREF="#lbBG">AUTHOR</A><DD>
+<DT><A HREF="#lbBH">DATE</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

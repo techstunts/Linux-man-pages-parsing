@@ -1,0 +1,237 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>APMSLEEP</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>APMSLEEP</H1>
+Section: User Commands  (1)<BR>Updated: sleep in APM suspend/standby mode<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+apmsleep - go into suspend or standby mode and wake-up later
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>apmsleep</B>
+
+[-sSnwhVd] [--suspend] [--standby] [--noapm]
+[--wait] [--precise] [--help]  [--version] [--debug]
+[+]hh:mm
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Some computers, especially laptops, can wake-up from a low-power suspend
+to DRAM mode using the Real-time-clock (RTC) chip. 
+<B>Apmsleep</B>
+
+can be used to set the alarm time in the RTC and to go into suspend or
+standby mode. An interrupt from the RTC causes the computer to wake-up.
+The program detects this event, by waiting for a leap in the kernel time
+and terminates successfully. If no time leap occurs within one minute, or 
+something goes wrong, the exit value will be non-zero. 
+<P>
+
+The wake-up time can be specified in two formats:
+<P>
+
+<B>+hh:mm</B>
+
+specifies a relative offset to the current time. The computer
+will suspend for exactly hh hours and mm minutes plus a few seconds
+to wake up.  On some laptops, the timing is not completely accurate so it
+may be a few minutes (or more?) late.
+<P>
+
+<B>hh:mm</B>
+
+specifies absolute 
+<B>local </B>
+
+time in 24-hour format. The time stored in the RTC is not important.
+You may change the time zone used, with
+the TZ environment variable as usual. Daylight saving time is
+not obeyed in this version, but might be in a future release.
+<B>WARNING:</B>
+
+Do not close cover of laptop after suspending the laptop with apmsleep.
+Most laptops overheat when running with closed cover.
+<P>
+
+Energy conservation with APM is little for a desktop. Turning of the
+screen will save 1/2, going into standby with drives turned off will 
+save another 1/6th of the current.
+<DL COMPACT>
+<DT><B>-V, --version</B>
+
+<DD>
+Print the
+<B>apmsleep</B>
+
+program version and exit immediately.
+<DT><B>-s, --suspend</B>
+
+<DD>
+Put the machine into suspend mode if possible (default). On my laptop,
+suspend mode turns off everything except the memory. 
+<DT><B>-S, --standby</B>
+
+<DD>
+Put the machine into standby mode if possible. On my laptop, standby mode
+turns off screen, hard disk, and CPU.
+<DT><B>-w, --wait</B>
+
+<DD>
+Wait indefinitely for the time leap.
+<DT><B>-p, --precise</B>
+
+<DD>
+Wait for alarm time to match actual time. Do not wait for time leap.
+This might be useful even without APM.
+<DT><B>-n, --noapm</B>
+
+<DD>
+Do not call apm bios to suspend computer, just set the alarm clock
+and wait for time leap indefinitely.
+<DT><B>-d, --debug</B>
+
+<DD>
+Print some information about what is going on.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>REQUIRED SYSTEM CONFIGURATION</H2>
+
+<DL COMPACT>
+<DT><B>Kernel</B>
+
+<DD>
+The special character device /dev/rtc must exist and the Linux kernel needs
+to be compiled with APM and RTC support (CONFIG_RTC, and 
+relevant CONFIG_APM* options). 
+<DT><B>BIOS</B>
+
+<DD>
+The computer must have the 'suspend to RAM'
+feature enabled in the BIOS; 'suspend to Disk' will not work, because the
+computer is turned off completely. You do not need to enable the ALARM
+timer, it will be activated by apmsleep. On some boards, you can configure
+which interrupts can be used to awake from suspend mode. If you have such
+a board, you might want to make sure that keyboard (IRQ 1) and RTC (IRQ 8) 
+are among those interrupts. If your computer does not wake up, try to
+enable 'modem ring' in the BIOS, even if you do not have a modem.
+<DT><B>Privileges</B>
+
+<DD>
+The program must be run as root or have the SUID attribute set 
+(see <A HREF="../man1/chmod.1.php">chmod</A>(1)).
+</DL>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>BUGS</H2>
+
+Apmsleep cannot detect which event terminated the suspension. Possible
+events are: keyboard or mouse activity, modem ring, alarm from RTC, any
+other interrupt. Sometimes, the time leap is not detected properly 
+(causing a wrong exit value).
+<P>
+Should use APM BIOS calls to set alarm clock (not yet supported by
+kernel).
+<P>
+This program was tested on a Winbook XL laptop (Pentium) only. 
+It may not function on your hardware.
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Written by Peter Englmaier (<A HREF="mailto:ppe@mpe.mpg.de">ppe@mpe.mpg.de</A>) and may be freely
+distributed under the terms of the GNU General Public License.  The
+code is based on Paul Gortmacher's RTC test/example program.  There is
+ABSOLUTELY NO WARRANTY for this program.  The current maintainer is
+Peter Englmaier.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/xapm.1.php">xapm</A></B>(1), <A HREF="../man8/apmd.8.php">apmd</A><B>(8),</B>rtc.txt<B>(Linux Kernel Documentation)</B>
+
+<P>
+<P>
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">REQUIRED SYSTEM CONFIGURATION</A><DD>
+<DT><A HREF="#lbAF">BUGS</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

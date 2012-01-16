@@ -1,0 +1,379 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>MAKEPSRES</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>MAKEPSRES</H1>
+Section: User Commands  (1)<BR>Updated: 13 May 1993<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+makepsres - Build PostScript resource database file.
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>makepsres</B>
+
+[
+<I>options</I>
+
+]
+<I>directory ...</I>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>makepsres</B>
+
+creates PostScript language resource database files.
+Resource database files can be used to 
+specify the location of resources that are used by the font selection 
+panel and other Adobe software.
+For a complete description of the 
+resource location facilities in the Display PostScript system,
+see Appendix A and Appendix B of &quot;Display PostScript Toolkit
+for X&quot; in <I>Programming the Display PostScript System with X.</I>
+<P>
+
+<B>makepsres</B>
+
+creates a resource database file named 
+<I>PSres.upr</I>
+
+that contains all the resources in all the
+<I>directory</I>
+
+path names specified on the command line.
+<DL COMPACT><DT><DD>
+<P>
+
+If the list of directories contains 
+<B>- , </B>
+
+<B>makepsres </B>
+
+reads from 
+<I>stdin</I>
+
+and expects a list of directories separated by space, tab, or newline.
+<P>
+
+If the list of directories is empty, it is taken to be the current directory. 
+<P>
+
+If all specified directories have a common initial prefix, 
+<B>makepsres </B>
+
+extracts it as a directory prefix in the new resource database file.
+</DL>
+
+<P>
+
+<B>makepsres</B>
+
+normally acts recursively; it looks for resource files in subdirectories of 
+any specified directory. This behavior can be overridden with the command 
+line option 
+<B>-nr.</B>
+
+<P>
+
+<B>makepsres </B>
+
+uses existing resource database files to assist in identifying files. By 
+default, 
+<B>makepsres </B>
+
+creates a new resource database file containing all of the 
+following that apply:
+<DL COMPACT><DT><DD>
+<P>
+
+Resource files found in the directories on the command line.
+<P>
+
+Resource files pointed to by the resource database files in the directories on 
+the command line.
+<P>
+
+Resource entries found in the input resource database files. These entries are 
+copied if the files they specify still exist and are located in directories not 
+specified on the command line.
+</DL>
+
+<P>
+
+If you run 
+<B>makepsres </B>
+
+in discard mode (with the 
+<B>-d </B>
+
+option), it 
+does not copy resource entries from the input resource database files. In that case, 
+the output file consists only of entries from the directories on the command line. 
+The input resource database files are only used to assist in identifying files. 
+<P>
+
+If you run 
+<B>makepsres </B>
+
+in keep mode (with the 
+<B>-k </B>
+
+option), it 
+includes in the output file all resource entries in the input resource database files, 
+even entries for files that no longer exist or are located in directories specified on 
+the command line.
+<P>
+
+<B>makepsres</B>
+
+uses various heuristics to identify files. A file that is of a private 
+resource type or that does not conform to the standard format for a resource file 
+must be specified in one of the following ways:
+<DL COMPACT><DT><DD>
+<P>
+
+By running 
+<B>makepsres </B>
+
+in interactive mode
+<P>
+
+By preloading the file into a resource database
+file used for input
+<P>
+
+By beginning the file with the following line:
+<P>
+
+<DL COMPACT><DT><DD>
+%!PS-Adobe-3.0 Resource-&lt;resource-type&gt;
+</DL>
+
+</DL>
+
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-o</B><I> filename</I>
+
+<DD>
+Writes the output to the specified filename.
+The construction &quot;<B>-o -</B>&quot;
+writes to stdout. If the 
+<B>-o </B>
+
+option is not specified, 
+<B>makepsres </B>
+
+creates a 
+<I>PSres.upr</I>
+
+file in the current directory 
+and writes the output to that file.
+<DT><B>-f</B><I> filename</I>
+
+<DD>
+Uses information from the specified file to assist in resource typing. 
+The file must be in resource database file format.
+Multiple
+<B>-f</B>
+
+options may be specified. The construction &quot;<B>-f -</B>&quot;
+uses 
+<I>stdin</I>
+
+as an input file and may not be used if &quot;<B>-</B>&quot;
+is specified as a directory on the command line.
+<DT><B>-dir</B><I> dirname</I>
+
+<DD>
+Specifies that 
+<I>dirname</I>
+
+is a directory. Needed only in rare cases when
+<I>dirname</I>
+
+is the same as a command-line option such as 
+<B>-nb.</B>
+
+<DT><B>-d</B>
+
+<DD>
+Specifies discard mode. The resulting output file consists solely 
+of entries from the directories on the command line.
+<DT><B>-e</B>
+
+<DD>
+Marks the resulting 
+<I>PSres.upr</I>
+
+file as exclusive.  This option 
+makes the resource location library run more quickly since it does not have to 
+look for other resource database files. It becomes necessary, however, to run 
+<B>makepsres </B>
+
+whenever new resources are added to the directory, even if the 
+resources come with their own resource database file.
+<DT><B>-i</B>
+
+<DD>
+Specifies interactive mode. In interactive mode, you
+will be queried for the resource type of any encountered
+file that
+<B>makepsres</B>
+
+cannot identify.  If
+<B>-i</B>
+
+is not specified,
+<B>makepsres</B>
+
+assumes an unidentifiable file is not a resource file.
+<DT><B>-k</B>
+
+<DD>
+Specifies keep mode.
+<DT><B>-nb</B>
+
+<DD>
+If the output file already exists, do not back it up.
+<DT><B>-nr</B>
+
+<DD>
+Specifies nonrecursive mode. 
+<B>makepsres</B>
+
+normally acts recursively: it looks for 
+resource files in subdirectories of any specified directory. If 
+<B>-nr</B>
+
+is used, 
+<B>makepsres </B>
+
+does not look in subdirectories for resource files.
+<DT><B>-p</B>
+
+<DD>
+Specifies no directory prefix.  If
+<B>-p</B>
+
+is used,
+<B>makepsres</B>
+
+does not try to find a common directory prefix among the specified directories.
+<DT><B>-q</B>
+
+<DD>
+Quiet mode: ignores unidentifiable files instead of warning about them.
+<DT><B>-s</B>
+
+<DD>
+Specifies strict mode.  If
+<B>-s</B>
+
+is used,
+<B>makepsres</B>
+
+terminates with an error if it encounters a file it cannot identify.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT><B>makepsres .</B>
+
+<DD>
+Creates a resource database file that contains all the
+resources in the current directory.
+<DT><B>makepsres -i -o local.upr /usr/local/lib/ps/fonts</B>
+
+<DD>
+Runs 
+<B>makepsres</B>
+
+in interactive mode and creates a resource database file named
+<I>local.upr,</I>
+
+which contains all the resources in the directory
+<I>/usr/local/lib/ps/fonts.</I>
+
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<I>Programming the Display PostScript System with X</I>
+(Addison-Wesley Publishing Company, Inc., 1993).
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Adobe Systems Incorporated
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>NOTES</H2>
+
+PostScript and Display PostScript are trademarks
+of Adobe Systems Incorporated which may be registered
+in certain jurisdictions.
+<P>
+
+Copyright (c) 1989-1994 Adobe Systems Incorporated.  All rights reserved.
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+<DT><A HREF="#lbAI">NOTES</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

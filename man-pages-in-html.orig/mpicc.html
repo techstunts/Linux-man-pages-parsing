@@ -1,0 +1,324 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>mpicc</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>mpicc</H1>
+Section: LAM TOOLS (1)<BR>Updated: May, 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mpicc, mpiCC - Compile LAM/MPI C/C++ programs.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNTAX</H2>
+
+mpicc [-showme] ...
+<P>
+
+mpiCC [-showme] ...
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT>-showme<DD>
+Does not invoke the underlying C/C++ compiler.  Instead, it shows the
+command line that would be executed to compile the C/C++ program.
+</DL>
+<P>
+
+See <A HREF="../man1/cc.1.php">cc</A>(1) and <A HREF="../man1/CC.1.php">CC</A>(1) (or whatever your underlying C/C++ compilers are)
+for all other options.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<I>mpicc</I>
+
+and
+<I>mpiCC</I>
+
+are convenience wrappers for the local native C and C++ compilers.
+Translation of a LAM program requires the linkage of the LAM specific
+libraries which may not reside in one of the standard search
+directories of <A HREF="../man1/ld.1.php">ld</A>(1).  It also often requires the inclusion of header
+files what may also not be found in a standard location.
+<I>mpicc</I>
+
+passes its arguments to the local native C compiler along with the -I,
+-L and -l options required by LAM programs.  This includes all
+necessary options for ROMIO and/or C++ bindings support (if ROMIO/C++
+support was included when LAM was compiled).
+<P>
+
+<I>mpiCC</I>
+
+is similar, but invokes the native C++ compiler instead.
+<P>
+
+The LAM Team
+<I>strongly</I>
+
+encourages using
+<I>mpicc</I>
+
+and
+<I>mpiCC</I>
+
+instead of attempting to link to the LAM libraries manually.  This
+allows the specific implementation of LAM to change without forcing
+changes to linker directives in users' Makefiles (the specific set of
+underlying LAM libraries has already changed multiple times, and will
+likely change again in future versions).
+<P>
+
+Indeed, since
+<I>mpicc</I>/<I>mpiCC</I>
+
+are very thin wrappers on top of an underlying compiler, there are no
+compelling reasons
+<I>not</I>
+
+to use
+<I>mpicc</I>/<I>mpiCC</I>.
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ENVIRONMENT VARIABLES</H2>
+
+<P>
+
+By default,
+<I>mpicc</I>
+
+uses the C compiler that was selected when LAM was configured (with
+the --with-cc flag to ./configure, or by setting the environment
+variable CC before ./configure was invoked) as the local native C
+compiler, but this can be overridden by the LAMHCC environment
+variable.  
+<P>
+
+Likewise,
+<I>mpiCC</I>
+
+uses the C++ compiler that was selected when LAM was configured (with
+the --with-cpp flag to ./configure, or by setting the environment
+variable CXX before invoking ./configure) by default, but this can be
+overridden by the LAMHCP environment variable.
+<P>
+
+If the environment variable
+<I>LAMHOME</I>
+
+is set, 
+<I>mpicc</I>
+
+and
+<I>mpiCC</I>
+
+will use its value as the location of the LAM installation directory
+instead of the value that was compiled into 
+<I>mpicc</I>/<I>mpiCC</I>.
+
+This means that
+<I>mpicc</I>/<I>mpiCC</I>
+
+will use the value of
+<I>LAMHOME</I>
+
+as the base to create the -I and -L arguments that are passed to the
+lower-level compiler, not the installation directory that was supplied
+when 
+<I>mpicc</I>/<I>mpiCC</I>
+
+were created.  This is almost always a Bad Idea.
+<P>
+
+The use of
+<I>LAMHOME</I>
+
+is discouraged except for some rare configuration cases in oddly
+networked sites (in which case your system administrator should
+probably set this up), and for advanced users with multiple LAM/MPI
+installations who really know what they are doing; if the
+<I>LAMHOME</I>
+
+environment variable is unintentionally left set, it can lead to 
+tremendous user confusion.  For example, if 
+<I>LAMHOME </I>
+
+points to LAM installation A, but the user's 
+<I>PATH</I>
+
+points to LAM installation B, then even though B's
+<I>mpicc</I>
+
+will be used, the user program will be compiled and linked against LAM
+installation A.  
+<P>
+
+The 
+<I>LAMHOME</I>
+
+environment variable is mainly only left in place for backwards
+compatibility; it is not required for normal functioning of LAM/MPI.
+The LAM Team discourages the use of the
+<I>LAMHOME</I>
+
+environment variable, and instead advocates simply setting the
+<I>PATH</I>
+
+properly to switch between multiple LAM/MPI implementations.
+<A NAME="lbAG">&nbsp;</A>
+<H2>NOTES</H2>
+
+Previous versions of 
+<I>hcc</I>
+
+and 
+<I>hcp</I>
+
+did not automatically link in the MPI library.  Starting with LAM
+version 6.3, since
+<I>hcc</I>
+
+and
+<I>hcp</I>
+
+have become the de facto LAM C and C++ compilers, the
+<I>-lmpi</I>
+
+option is now automatically passed to the underlying compiler when
+linking LAM/MPI programs.  As such, the names
+<I>hcc</I>
+
+and
+<I>hcp</I>
+
+are deprecated; the use of the names
+<I>mpicc</I>
+
+and
+<I>mpiCC </I>
+
+are now encouraged.
+<P>
+
+Previous versions of LAM included the 
+<I>mpicc</I>
+
+and
+<I>mpiCC</I>
+
+wrapper scripts to automatically pass
+<I>-lmpi</I>
+
+to 
+<I>hcc</I>
+
+and/or
+<I>hcp.</I>
+
+These scripts are now obsolete since 
+<I>hcc</I>
+
+and
+<I>hcp</I>
+
+now include
+<I>-lmpi </I>
+
+automatically.  
+<I>mpicc</I>
+
+and
+<I>mpiCC</I>
+
+are now symbolic links to
+<I>hcc</I>
+
+and 
+<I>hcp,</I>
+
+respectively, to ensure backward compatibility.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="../man1/cc.1.php">cc</A>(1), <A HREF="../man1/CC.1.php">CC</A>(1), <A HREF="../man1/ld.1.php">ld</A>(1), <A HREF="../man5/lam-helpfile.5.php">lam-helpfile</A>(5), <A HREF="../man1/mpif77.1.php">mpif77</A>(1)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNTAX</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">ENVIRONMENT VARIABLES</A><DD>
+<DT><A HREF="#lbAG">NOTES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

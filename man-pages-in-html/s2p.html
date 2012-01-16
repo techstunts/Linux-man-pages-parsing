@@ -1,0 +1,717 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>S2P</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>S2P</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-10-12<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+psed - a stream editor
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<A NAME="ixAAC"></A>
+
+
+<PRE>
+   psed [-an] script [file ...]
+   psed [-an] [-e script] [-f script-file] [file ...]
+
+</PRE>
+
+
+<P>
+
+
+
+<PRE>
+   s2p  [-an] [-e script] [-f script-file]
+
+</PRE>
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAD"></A>
+A stream editor reads the input stream consisting of the specified files
+(or standard input, if none are given), processes is line by line by
+applying a script consisting of edit commands, and writes resulting lines
+to standard output. The filename `<TT>&quot;-&quot;</TT>' may be used to read standard input.
+<P>
+
+The edit script is composed from arguments of <B>-e</B> options and
+script-files, in the given order. A single script argument may be specified
+as the first parameter.
+<P>
+
+If this program is invoked with the name <I>s2p</I>, it will act as a
+sed-to-Perl translator. See ``sed Script Translation''.
+<P>
+
+<B>sed</B> returns an exit code of 0 on success or &gt;0 if an error occurred.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<A NAME="ixAAE"></A>
+<DL COMPACT>
+<DT><B>-a</B><DD>
+<A NAME="ixAAF"></A>
+A file specified as argument to the <B>w</B> edit command is by default
+opened before input processing starts. Using <B>-a</B>, opening of such
+files is delayed until the first line is actually written to the file.
+<DT><B>-e</B> <I>script</I><DD>
+<A NAME="ixAAG"></A>
+The editing commands defined by <I>script</I> are appended to the script.
+Multiple commands must be separated by newlines.
+<DT><B>-f</B> <I>script-file</I><DD>
+<A NAME="ixAAH"></A>
+Editing commands from the specified <I>script-file</I> are read and appended
+to the script.
+<DT><B>-n</B><DD>
+<A NAME="ixAAI"></A>
+By default, a line is written to standard output after the editing script
+has been applied to it. The <B>-n</B> option suppresses automatic printing.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>COMMANDS</H2>
+
+<A NAME="ixAAJ"></A>
+<B>sed</B> command syntax is defined as
+<P>
+
+   [<I>address</I>[<B>,</B><I>address</I>]][<B>!</B>]<I>function</I>[<I>argument</I>]
+<P>
+
+with whitespace being permitted before or after addresses, and between
+the function character and the argument. The <I>address</I>es and the
+address inverter (<TT>&quot;!&quot;</TT>) are used to restrict the application of a
+command to the selected line(s) of input.
+<P>
+
+Each command must be on a line of its own, except where noted in
+the synopses below.
+<P>
+
+The edit cycle performed on each input line consist of reading the line
+(without its trailing newline character) into the <I>pattern space</I>,
+applying the applicable commands of the edit script, writing the final
+contents of the pattern space and a newline to the standard output.
+A <I>hold space</I> is provided for saving the contents of the
+pattern space for later use.
+<A NAME="lbAG">&nbsp;</A>
+<H2>Addresses</H2>
+
+<A NAME="ixAAK"></A>
+A sed address is either a line number or a pattern, which may be combined
+arbitrarily to construct ranges. Lines are numbered across all input files.
+<P>
+
+Any address may be followed by an exclamation mark (`<TT>&quot;!&quot;</TT>'), selecting
+all lines not matching that address.
+<DL COMPACT>
+<DT><I>number</I><DD>
+<A NAME="ixAAL"></A>
+The line with the given number is selected.
+<DT><B>$</B><DD>
+<A NAME="ixAAM"></A>
+A dollar sign (<TT>&quot;$&quot;</TT>) is the line number of the last line of the input stream.
+<DT><B>/</B><I>regular expression</I><B>/</B><DD>
+<A NAME="ixAAN"></A>
+A pattern address is a basic regular expression (see 
+``Basic Regular Expressions''), between the delimiting character <TT>&quot;/&quot;</TT>.
+Any other character except <TT>&quot;\&quot;</TT> or newline may be used to delimit a
+pattern address when the initial delimiter is prefixed with a
+backslash (`<TT>&quot;\&quot;</TT>').
+</DL>
+<P>
+
+If no address is given, the command selects every line.
+<P>
+
+If one address is given, it selects the line (or lines) matching the
+address.
+<P>
+
+Two addresses select a range that begins whenever the first address
+matches, and ends (including that line) when the second address matches.
+If the first (second) address is a matching pattern, the second 
+address is not applied to the very same line to determine the end of
+the range. Likewise, if the second address is a matching pattern, the
+first address is not applied to the very same line to determine the
+begin of another range. If both addresses are line numbers,
+and the second line number is less than the first line number, then
+only the first line is selected.
+<A NAME="lbAH">&nbsp;</A>
+<H2>Functions</H2>
+
+<A NAME="ixAAO"></A>
+The maximum permitted number of addresses is indicated with each
+function synopsis below.
+<P>
+
+The argument <I>text</I> consists of one or more lines following the command.
+Embedded newlines in <I>text</I> must be preceded with a backslash.  Other
+backslashes in <I>text</I> are deleted and the following character is taken
+literally.
+<DL COMPACT>
+<DT>[1addr]<B>a\</B> <I>text</I><DD>
+<A NAME="ixAAP"></A>
+Write <I>text</I> (which must start on the line following the command)
+to standard output immediately before reading the next line
+of input, either by executing the <B>N</B> function or by beginning a new cycle.
+<DT>[2addr]<B>b</B> [<I>label</I>]<DD>
+<A NAME="ixAAQ"></A>
+Branch to the <B>:</B> function with the specified <I>label</I>. If no label
+is given, branch to the end of the script.
+<DT>[2addr]<B>c\</B> <I>text</I><DD>
+<A NAME="ixAAR"></A>
+The line, or range of lines, selected by the address is deleted. 
+The <I>text</I> (which must start on the line following the command)
+is written to standard output. With an address range, this occurs at
+the end of the range.
+<DT>[2addr]<B>d</B><DD>
+<A NAME="ixAAS"></A>
+Deletes the pattern space and starts the next cycle.
+<DT>[2addr]<B>D</B><DD>
+<A NAME="ixAAT"></A>
+Deletes the pattern space through the first embedded newline or to the end.
+If the pattern space becomes empty, a new cycle is started, otherwise
+execution of the script is restarted.
+<DT>[2addr]<B>g</B><DD>
+<A NAME="ixAAU"></A>
+Replace the contents of the pattern space with the hold space.
+<DT>[2addr]<B>G</B><DD>
+<A NAME="ixAAV"></A>
+Append a newline and the contents of the hold space to the pattern space.
+<DT>[2addr]<B>h</B><DD>
+<A NAME="ixAAW"></A>
+Replace the contents of the hold space with the pattern space.
+<DT>[2addr]<B>H</B><DD>
+<A NAME="ixAAX"></A>
+Append a newline and the contents of the pattern space to the hold space.
+<DT>[1addr]<B>i\</B> <I>text</I><DD>
+<A NAME="ixAAY"></A>
+Write the <I>text</I> (which must start on the line following the command)
+to standard output.
+<DT>[2addr]<B>l</B><DD>
+<A NAME="ixAAZ"></A>
+Print the contents of the pattern space: non-printable characters are
+shown in C-style escaped form; long lines are split and have a trailing
+`<TT>&quot;\&quot;</TT>' at the point of the split; the true end of a line is marked with
+a `<TT>&quot;$&quot;</TT>'. Escapes are: `\a', `\t', `\n', `\f', `\r', `\e' for
+<FONT SIZE="-1">BEL</FONT>, <FONT SIZE="-1">HT</FONT>, <FONT SIZE="-1">LF</FONT>, <FONT SIZE="-1">FF</FONT>, <FONT SIZE="-1">CR</FONT>, <FONT SIZE="-1">ESC</FONT>, respectively, and `\' followed by a three-digit
+octal number for all other non-printable characters.
+<DT>[2addr]<B>n</B><DD>
+<A NAME="ixABA"></A>
+If automatic printing is enabled, write the pattern space to the standard
+output. Replace the pattern space with the next line of input. If
+there is no more input, processing is terminated.
+<DT>[2addr]<B>N</B><DD>
+<A NAME="ixABB"></A>
+Append a newline and the next line of input to the pattern space. If
+there is no more input, processing is terminated.
+<DT>[2addr]<B>p</B><DD>
+<A NAME="ixABC"></A>
+Print the pattern space to the standard output. (Use the <B>-n</B> option
+to suppress automatic printing at the end of a cycle if you want to
+avoid double printing of lines.)
+<DT>[2addr]<B>P</B><DD>
+<A NAME="ixABD"></A>
+Prints the pattern space through the first embedded newline or to the end.
+<DT>[1addr]<B>q</B><DD>
+<A NAME="ixABE"></A>
+Branch to the end of the script and quit without starting a new cycle.
+<DT>[1addr]<B>r</B> <I>file</I><DD>
+<A NAME="ixABF"></A>
+Copy the contents of the <I>file</I> to standard output immediately before
+the next attempt to read a line of input. Any error encountered while
+reading <I>file</I> is silently ignored.
+<DT>[2addr]<B>s/</B><I>regular expression</I><B>/</B><I>replacement</I><B>/</B><I>flags</I><DD>
+<A NAME="ixABG"></A>
+Substitute the <I>replacement</I> string for the first substring in
+the pattern space that matches the <I>regular expression</I>.
+Any character other than backslash or newline can be used instead of a 
+slash to delimit the regular expression and the replacement.
+To use the delimiter as a literal character within the regular expression
+and the replacement, precede the character by a backslash (`<TT>&quot;\&quot;</TT>').
+
+
+<P>
+
+
+Literal newlines may be embedded in the replacement string by
+preceding a newline with a backslash.
+
+
+<P>
+
+
+Within the replacement, an ampersand (`<TT>&quot;&amp;&quot;</TT>') is replaced by the string
+matching the regular expression. The strings `<TT>&quot;\1&quot;</TT>' through `<TT>&quot;\9&quot;</TT>' are
+replaced by the corresponding subpattern (see ``Basic Regular Expressions'').
+To get a literal `<TT>&quot;&amp;&quot;</TT>' or `<TT>&quot;\&quot;</TT>' in the replacement text, precede it
+by a backslash.
+
+
+<P>
+
+
+The following <I>flags</I> modify the behaviour of the <B>s</B> command:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>g</B><DD>
+<A NAME="ixABH"></A>
+The replacement is performed for all matching, non-overlapping substrings
+of the pattern space.
+<DT><B>1</B>..<B>9</B><DD>
+<A NAME="ixABI"></A>
+Replace only the n-th matching substring of the pattern space.
+<DT><B>p</B><DD>
+<A NAME="ixABJ"></A>
+If the substitution was made, print the new value of the pattern space.
+<DT><B>w</B> <I>file</I><DD>
+<A NAME="ixABK"></A>
+If the substitution was made, write the new value of the pattern space
+to the specified file.
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+</DL>
+
+<DT>[2addr]<B>t</B> [<I>label</I>]<DD>
+<A NAME="ixABL"></A>
+Branch to the <B>:</B> function with the specified <I>label</I> if any <B>s</B>
+substitutions have been made since the most recent reading of an input line
+or execution of a <B>t</B> function. If no label is given, branch to the end of
+the script. 
+<DT>[2addr]<B>w</B> <I>file</I><DD>
+<A NAME="ixABM"></A>
+The contents of the pattern space are written to the <I>file</I>.
+<DT>[2addr]<B>x</B><DD>
+<A NAME="ixABN"></A>
+Swap the contents of the pattern space and the hold space.
+<DT>[1addr]<B>=</B><DD>
+<A NAME="ixABO"></A>
+Prints the current line number on the standard output.
+<DT>[0addr]<B>:</B> [<I>label</I>]<DD>
+<A NAME="ixABP"></A>
+The command specifies the position of the <I>label</I>. It has no other effect.
+<DT>[2addr]<B>{</B> [<I>command</I>]<DD>
+<A NAME="ixABQ"></A>
+
+<DT>[0addr]<B>}</B><DD>
+<A NAME="ixABR"></A>
+
+These two commands begin and end a command list. The first command may
+be given on the same line as the opening <B>{</B> command. The commands
+within the list are jointly selected by the address(es) given on the
+<B>{</B> command (but may still have individual addresses).
+<DT>[0addr]<B>#</B> [<I>comment</I>]<DD>
+<A NAME="ixABS"></A>
+The entire line is ignored (treated as a comment). If, however, the first
+two characters in the script are `<TT>&quot;#n&quot;</TT>', automatic printing of output is
+suppressed, as if the <B>-n</B> option were given on the command line.
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>BASIC REGULAR EXPRESSIONS</H2>
+
+<A NAME="ixABT"></A>
+A <I>Basic Regular Expression</I> (<FONT SIZE="-1">BRE</FONT>), as defined in <FONT SIZE="-1">POSIX</FONT> 1003.2, consists
+of <I>atoms</I>, for matching parts of a string, and <I>bounds</I>, specifying
+repetitions of a preceding atom.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>Atoms</H2>
+
+<A NAME="ixABU"></A>
+The possible atoms of a <FONT SIZE="-1">BRE</FONT> are: <B>.</B>, matching any single character;
+<B>^</B> and <B>$</B>, matching the null string at the beginning or end
+of a string, respectively; a <I>bracket expressions</I>, enclosed
+in <B>[</B> and <B>]</B> (see below); and any single character with no
+other significance (matching that character). A <B>\</B> before one
+of: <B>.</B>, <B>^</B>, <B>$</B>, <B>[</B>, <B>*</B>, <B>\</B>, matching the character
+after the backslash. A sequence of atoms enclosed in <B>\(</B> and <B>\)</B>
+becomes an atom and establishes the target for a <I>backreference</I>,
+consisting of the substring that actually matches the enclosed atoms.
+Finally, <B>\</B> followed by one of the digits <B>0</B> through <B>9</B> is a
+backreference.
+<P>
+
+A <B>^</B> that is not first, or a <B>$</B> that is not last does not have
+a special significance and need not be preceded by a backslash to
+become literal. The same is true for a <B>]</B>, that does not terminate
+a bracket expression.
+<P>
+
+An unescaped backslash cannot be last in a <FONT SIZE="-1">BRE</FONT>.
+<A NAME="lbAK">&nbsp;</A>
+<H2>Bounds</H2>
+
+<A NAME="ixABV"></A>
+The <FONT SIZE="-1">BRE</FONT> bounds are: <B>*</B>, specifying 0 or more matches of the preceding
+atom; <B>\{</B><I>count</I><B>\}</B>, specifying that many repetitions;
+<B>\{</B><I>minimum</I><B>,\}</B>, giving a lower limit; and
+<B>\{</B><I>minimum</I><B>,</B><I>maximum</I><B>\}</B> finally defines a lower and upper
+bound. 
+<P>
+
+A bound appearing as the first item in a <FONT SIZE="-1">BRE</FONT> is taken literally.
+<A NAME="lbAL">&nbsp;</A>
+<H2>Bracket Expressions</H2>
+
+<A NAME="ixABW"></A>
+A <I>bracket expression</I> is a list of characters, character ranges
+and character classes enclosed in <B>[</B> and <B>]</B> and matches any
+single character from the represented set of characters.
+<P>
+
+A character range is written as two characters separated by <B>-</B> and
+represents all characters (according to the character collating sequence)
+that are not less than the first and not greater than the second.
+(Ranges are very collating-sequence-dependent, and portable programs
+should avoid relying on them.)
+<P>
+
+A character class is one of the class names
+<P>
+
+
+
+<PRE>
+   alnum     digit     punct
+   alpha     graph     space
+   blank     lower     upper
+   cntrl     print     xdigit
+
+</PRE>
+
+
+<P>
+
+enclosed in <B>[:</B> and <B>:]</B> and represents the set of characters
+as defined in <I><A HREF="../man3/ctype.3.php">ctype</A></I>(3).
+<P>
+
+If the first character after <B>[</B> is <B>^</B>, the sense of matching is
+inverted.
+<P>
+
+To include a literal `<TT>&quot;^&quot;</TT>', place it anywhere else but first. To
+include a literal '<TT>&quot;]&quot;</TT>' place it first or immediately after an
+initial <B>^</B>. To include a literal `<TT>&quot;-&quot;</TT>' make it the first (or
+second after <B>^</B>) or last character, or the second endpoint of
+a range.
+<P>
+
+The special bracket expression constructs <TT>&quot;[[:&lt;:]]&quot;</TT> and <TT>&quot;[[:&gt;:]]&quot;</TT> 
+match the null string at the beginning and end of a word respectively.
+(Note that neither is identical to Perl's `\b' atom.)
+<A NAME="lbAM">&nbsp;</A>
+<H2>Additional Atoms</H2>
+
+<A NAME="ixABX"></A>
+Since some sed implementations provide additional regular expression
+atoms (not defined in <FONT SIZE="-1">POSIX</FONT> 1003.2), <B>psed</B> is capable of translating
+the following backslash escapes:
+<DL COMPACT>
+<DT><B>\&lt;</B> This is the same as [[:&gt;:]].<DD>
+
+
+<A NAME="ixABY"></A>
+
+<DT><B>\&gt;</B> This is the same as [[:&lt;:]].<DD>
+
+
+<A NAME="ixABZ"></A>
+<DT><B>\w</B> This is an abbreviation for [[:alnum:]_].<DD>
+
+
+<A NAME="ixACA"></A>
+<DT><B>\W</B> This is an abbreviation for [^[:alnum:]_].<DD>
+
+
+<A NAME="ixACB"></A>
+<DT><B>\y</B> Match the empty string at a word boundary.<DD>
+<A NAME="ixACC"></A>
+<DT><B>\B</B> Match the empty string between any two either word or non-word characters.<DD>
+<A NAME="ixACD"></A>
+
+</DL>
+<P>
+
+To enable this feature, the environment variable <FONT SIZE="-1">PSEDEXTBRE</FONT> must be set
+to a string containing the requested characters, e.g.:
+<TT>&quot;PSEDEXTBRE='&lt;&gt;wW'&quot;</TT>.
+<A NAME="lbAN">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<A NAME="ixACE"></A>
+The environment variable <TT>&quot;PSEDEXTBRE&quot;</TT> may be set to extend BREs.
+See ``Additional Atoms''.
+<A NAME="lbAO">&nbsp;</A>
+<H2>DIAGNOSTICS</H2>
+
+<A NAME="ixACF"></A>
+<DL COMPACT>
+<DT>ambiguous translation for character `%s' in `y' command<DD>
+<A NAME="ixACG"></A>
+The indicated character appears twice, with different translations.
+<DT>`[' cannot be last in pattern<DD>
+<A NAME="ixACH"></A>
+A `[' in a <FONT SIZE="-1">BRE</FONT> indicates the beginning of a <I>bracket expression</I>.
+<DT>`\' cannot be last in pattern<DD>
+<A NAME="ixACI"></A>
+A `\' in a <FONT SIZE="-1">BRE</FONT> is used to make the subsequent character literal.
+<DT>`\' cannot be last in substitution<DD>
+<A NAME="ixACJ"></A>
+A `\' in a subsitution string is used to make the subsequent character literal.
+<DT>conflicting flags `%s'<DD>
+<A NAME="ixACK"></A>
+In an <B>s</B> command, either the `g' flag and an n-th occurrence flag, or
+multiple n-th occurrence flags are specified. Note that only the digits
+`1' through `9' are permitted.
+<DT>duplicate label %s (first defined at <TT>%s)<DD>
+
+
+<A NAME="ixACL"></A>
+
+<DT>excess address(es)<DD>
+<A NAME="ixACM"></A>
+
+The command has more than the permitted number of addresses.
+<DT>extra characters after command (%s)<DD>
+<A NAME="ixACN"></A>
+
+<DT>illegal option `%s'<DD>
+<A NAME="ixACO"></A>
+<DT>improper delimiter in s command<DD>
+<A NAME="ixACP"></A>
+
+The </TT><FONT SIZE="-1"><TT>BRE</TT></FONT><TT> and substitution may not be delimited with `\' or newline.
+<DT>invalid address after `,'<DD>
+<A NAME="ixACQ"></A>
+
+<DT>invalid backreference (%s)<DD>
+<A NAME="ixACR"></A>
+
+The specified backreference number exceeds the number of backreferences
+in the </TT><FONT SIZE="-1"><TT>BRE</TT></FONT><TT>.
+<DT>invalid repeat clause `\{%s\}'<DD>
+<A NAME="ixACS"></A>
+The repeat clause does not contain a valid integer value, or pair of
+values.
+<DT>malformed regex, 1st address<DD>
+<A NAME="ixACT"></A>
+
+<DT>malformed regex, 2nd address<DD>
+<A NAME="ixACU"></A>
+<DT>malformed regular expression<DD>
+<A NAME="ixACV"></A>
+<DT>malformed substitution expression<DD>
+<A NAME="ixACW"></A>
+<DT>malformed `y' command argument<DD>
+<A NAME="ixACX"></A>
+
+The first or second string of a </TT><B>y</B> command  is syntactically incorrect.
+<DT>maximum less than minimum in `\{%s\}'<DD>
+<A NAME="ixACY"></A>
+
+<DT>no script command given<DD>
+<A NAME="ixACZ"></A>
+
+There must be at least one <B>-e</B> or one <B>-f</B> option specifying a
+script or script file.
+<DT>`\' not valid as delimiter in `y' command<DD>
+<A NAME="ixADA"></A>
+
+<DT>option -e requires an argument<DD>
+<A NAME="ixADB"></A>
+<DT>option -f requires an argument<DD>
+<A NAME="ixADC"></A>
+<DT>`s' command requires argument<DD>
+<A NAME="ixADD"></A>
+<DT>start of unterminated `{'<DD>
+<A NAME="ixADE"></A>
+<DT>string lengths in `y' command differ<DD>
+<A NAME="ixADF"></A>
+
+The translation table strings in a <B>y</B> commanf must have equal lengths.
+<DT>undefined label `%s'<DD>
+<A NAME="ixADG"></A>
+
+<DT>unexpected `}'<DD>
+<A NAME="ixADH"></A>
+
+A <B>}</B> command without a preceding <B>{</B> command was encountered.
+<DT>unexpected end of script<DD>
+<A NAME="ixADI"></A>
+The end of the script was reached although a text line after a
+<B>a</B>, <B>c</B> or <B>i</B> command indicated another line.
+<DT>unknown command `%s'<DD>
+<A NAME="ixADJ"></A>
+
+<DT>unterminated `['<DD>
+<A NAME="ixADK"></A>
+
+A <FONT SIZE="-1">BRE</FONT> contains an unterminated bracket expression.
+<DT>unterminated `\('<DD>
+<A NAME="ixADL"></A>
+A <FONT SIZE="-1">BRE</FONT> contains an unterminated backreference.
+<DT>`\{' without closing `\}'<DD>
+<A NAME="ixADM"></A>
+A <FONT SIZE="-1">BRE</FONT> contains an unterminated bounds specification.
+<DT>`\)' without preceding `\('<DD>
+<A NAME="ixADN"></A>
+
+<DT>`y' command requires argument<DD>
+<A NAME="ixADO"></A>
+
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<A NAME="ixADP"></A>
+The basic material for the preceding section was generated by running
+the sed script
+<P>
+
+
+
+<PRE>
+   #no autoprint
+   s/^.*Warn( *&quot;\([^&quot;]*\)&quot;.*$/\1/
+   t process
+   b
+   :process
+   s/$!/%s/g
+   s/$[_[:alnum:]]\{1,\}/%s/g
+   s/\\\\/\\/g
+   s/^/=item /
+   p
+
+</PRE>
+
+
+<P>
+
+on the program's own text, and piping the output into <TT>&quot;sort -u&quot;</TT>.
+<A NAME="lbAQ">&nbsp;</A>
+<H2>SED SCRIPT TRANSLATION</H2>
+
+<A NAME="ixADQ"></A>
+If this program is invoked with the name <I>s2p</I> it will act as a
+sed-to-Perl translator. After option processing (all other
+arguments are ignored), a Perl program is printed on standard
+output, which will process the input stream (as read from all
+arguments) in the way defined by the sed script and the option setting
+used for the translation.
+<A NAME="lbAR">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A NAME="ixADR"></A>
+<I><A HREF="../man1/perl.1.php">perl</A></I>(1), <I><A HREF="../man7/re_format.7.php">re_format</A></I>(7)
+<A NAME="lbAS">&nbsp;</A>
+<H2>BUGS</H2>
+
+<A NAME="ixADS"></A>
+The <B>l</B> command will show escape characters (<FONT SIZE="-1">ESC</FONT>) as `<TT>&quot;\e&quot;</TT>', but
+a vertical tab (<FONT SIZE="-1">VT</FONT>) in octal.
+<P>
+
+Trailing spaces are truncated from labels in <B>:</B>, <B>t</B> and <B>b</B> commands.
+<P>
+
+The meaning of an empty regular expression (`<TT>&quot;//&quot;</TT>'), as defined by <B>sed</B>,
+is ``the last pattern used, at run time''. This deviates from the Perl
+interpretation, which will re-use the ``last last successfully executed
+regular expression''. Since keeping track of pattern usage would create
+terribly cluttered code, and differences would only appear in obscure
+context (where other <B>sed</B> implementations appear to deviate, too),
+the Perl semantics was adopted. Note that common usage of this feature,
+such as in <TT>&quot;/abc/s//xyz/&quot;</TT>, will work as expected.
+<P>
+
+Collating elements (of bracket expressions in BREs) are not implemented.
+<A NAME="lbAT">&nbsp;</A>
+<H2>STANDARDS</H2>
+
+<A NAME="ixADT"></A>
+This <B>sed</B> implementation conforms to the <FONT SIZE="-1">IEEE</FONT> Std1003.2-1992 (``<FONT SIZE="-1">POSIX</FONT>.2'')
+definition of <B>sed</B>, and is compatible with the <I>OpenBSD</I>
+implementation, except where otherwise noted (see ``<FONT SIZE="-1">BUGS</FONT>'').
+<A NAME="lbAU">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<A NAME="ixADU"></A>
+This Perl implementation of <I>sed</I> was written by Wolfgang Laun,
+<I><A HREF="mailto:Wolfgang.Laun@alcatel.at">Wolfgang.Laun@alcatel.at</A></I>.
+<A NAME="lbAV">&nbsp;</A>
+<H2>COPYRIGHT and LICENSE</H2>
+
+<A NAME="ixADV"></A>
+This program is free and open software. You may use, modify,
+distribute, and sell this program (and any modified variants) in any
+way you wish, provided you do not restrict others from doing the same.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">COMMANDS</A><DD>
+<DT><A HREF="#lbAG">Addresses</A><DD>
+<DT><A HREF="#lbAH">Functions</A><DD>
+<DT><A HREF="#lbAI">BASIC REGULAR EXPRESSIONS</A><DD>
+<DT><A HREF="#lbAJ">Atoms</A><DD>
+<DT><A HREF="#lbAK">Bounds</A><DD>
+<DT><A HREF="#lbAL">Bracket Expressions</A><DD>
+<DT><A HREF="#lbAM">Additional Atoms</A><DD>
+<DT><A HREF="#lbAN">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAO">DIAGNOSTICS</A><DD>
+<DT><A HREF="#lbAP">EXAMPLE</A><DD>
+<DT><A HREF="#lbAQ">SED SCRIPT TRANSLATION</A><DD>
+<DT><A HREF="#lbAR">SEE ALSO</A><DD>
+<DT><A HREF="#lbAS">BUGS</A><DD>
+<DT><A HREF="#lbAT">STANDARDS</A><DD>
+<DT><A HREF="#lbAU">AUTHOR</A><DD>
+<DT><A HREF="#lbAV">COPYRIGHT and LICENSE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>

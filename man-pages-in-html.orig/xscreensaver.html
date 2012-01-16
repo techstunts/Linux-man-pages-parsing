@@ -1,0 +1,2045 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>XScreenSaver</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>XScreenSaver</H1>
+Section: User Commands  (1)<BR>Updated: 14-Aug-2004 (4.18)<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xscreensaver - extensible screen saver framework, plus locking
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xscreensaver</B>
+
+[-display <I>host:display.screen</I>] [-verbose] [-no-capture-stderr] [-no-splash]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The <I>xscreensaver</I> program waits until the keyboard and mouse have been 
+idle for a period, and then runs a graphics demo chosen at random.  It 
+turns off as soon as there is any mouse or keyboard activity.
+<P>
+This program can lock your terminal in order to prevent others from using it,
+though its default mode of operation is merely to display pretty pictures on
+your screen when it is not in use.
+<P>
+It also provides configuration and control of your monitor's power-saving
+features.
+<A NAME="lbAE">&nbsp;</A>
+<H2>GETTING STARTED</H2>
+
+For the impatient, try this:
+
+
+<P>
+
+
+<PRE>
+xscreensaver &amp;
+xscreensaver-demo
+
+</PRE>
+
+
+<P>
+
+
+
+The
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+program pops up a dialog box that lets you configure the screen saver,
+and experiment with the various display modes.
+<P>
+<B>Note:</B>
+
+unlike
+<B><A HREF="../man1/xlock.1.php">xlock</A></B>(1),
+
+xscreensaver has a client-server model: the <I>xscreensaver</I> program is a
+daemon that runs in the background; it is controlled by the foreground
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+and
+<B><A HREF="../man1/xscreensaver-command.1.php">xscreensaver-command</A></B>(1)
+
+programs.
+<A NAME="lbAF">&nbsp;</A>
+<H2>CONFIGURATION</H2>
+
+The easiest way to configure <I>xscreensaver</I> is to simply run the
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+program, and change the settings through the GUI.  The rest of this
+manual page describes lower level ways of changing settings.
+<P>
+I'll repeat that because it's important:
+<P>
+<DL COMPACT><DT><DD>
+The easy way to configure xscreensaver is to run the 
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+program.  You shouldn't need to know any of the stuff described 
+in <I>this</I> manual unless you are trying to do something tricky,
+like customize xscreensaver for site-wide use or something.
+</DL>
+
+<P>
+Options to <I>xscreensaver</I> are stored in one of two places: in 
+a <I>.xscreensaver</I> file in your home directory; or in the X resource
+database.  If the <I>.xscreensaver</I> file exists, it overrides any settings
+in the resource database.  
+<P>
+The syntax of the <I>.xscreensaver</I> file is similar to that of
+the <I>.Xdefaults</I> file; for example, to set the <I>timeout</I> paramter
+in the <I>.xscreensaver</I> file, you would write the following:
+
+
+<P>
+
+
+<PRE>
+timeout: 5
+
+</PRE>
+
+
+<P>
+
+
+
+whereas, in the <I>.Xdefaults</I> file, you would write
+
+
+<P>
+
+
+<PRE>
+xscreensaver.timeout: 5
+
+</PRE>
+
+
+<P>
+
+
+
+If you change a setting in the <I>.xscreensaver</I> file while xscreensaver
+is already running, it will notice this, and reload the file.  (The file will
+be reloaded the next time the screen saver needs to take some action, such as
+blanking or unblanking the screen, or picking a new graphics mode.)
+<P>
+If you change a setting in your X resource database, or if you want
+xscreensaver to notice your changes immediately instead of the next time
+it wakes up, then you will need to reload your <I>.Xdefaults</I> file,
+and then tell the running xscreensaver process to restart itself, like so:
+
+
+<P>
+
+
+<PRE>
+xrdb &lt; ~/.Xdefaults
+xscreensaver-command -restart
+
+</PRE>
+
+
+<P>
+
+
+
+If you want to set the system-wide defaults, then make your edits to
+the xscreensaver app-defaults file, which should have been installed
+when xscreensaver itself was installed.  The app-defaults file will
+usually be named /usr/lib/X11/app-defaults/XScreenSaver, but different
+systems might keep it in a different place (for example,
+/usr/openwin/lib/app-defaults/XScreenSaver on Solaris.)
+<P>
+When settings are changed in the Preferences dialog box (see above)
+the current settings will be written to the <I>.xscreensaver</I> file.
+(The <I>.Xdefaults</I> file and the app-defaults file will never be
+written by xscreensaver itself.)
+<P>
+
+<DL COMPACT>
+<DT><B>timeout</B> (class <B>Time</B>)
+
+<DD>
+The screensaver will activate (blank the screen) after the keyboard and
+mouse have been idle for this many minutes.  Default 10 minutes.
+<DT><B>cycle</B> (class <B>Time</B>)
+
+<DD>
+After the screensaver has been running for this many minutes, the currently
+running graphics-hack sub-process will be killed (with <B>SIGTERM</B>), and a
+new one started.  If this is 0, then the graphics hack will never be changed:
+only one demo will run until the screensaver is deactivated by user activity.
+Default 10 minutes.
+<DT><B>lock</B> (class <B>Boolean</B>)
+
+<DD>
+Enable locking: before the screensaver will turn off, it will require you 
+to type the password of the logged-in user (really, the person who ran
+xscreensaver), or the root password.  (<B>Note:</B> this doesn't work if the
+screensaver is launched by
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1)
+
+because it can't know the user-id of the logged-in user.  See 
+the ``<I>Using <A HREF="../man1/XDM.1.php">XDM</A>(1)</I>'' section, below.
+<DT><B>lockTimeout</B> (class <B>Time</B>)
+
+<DD>
+If locking is enabled, this controls the length of the ``grace period''
+between when the screensaver activates, and when the screen becomes locked.
+For example, if this is 5, and <I>-timeout</I> is 10, then after 10 minutes,
+the screen would blank.  If there was user activity at 12 minutes, no password
+would be required to un-blank the screen.  But, if there was user activity
+at 15 minutes or later (that is, <I>-lock-timeout</I> minutes after 
+activation) then a password would be required.  The default is 0, meaning
+that if locking is enabled, then a password will be required as soon as the 
+screen blanks.
+<DT><B>passwdTimeout</B> (class <B>Time</B>)
+
+<DD>
+If the screen is locked, then this is how many seconds the password dialog box
+should be left on the screen before giving up (default 30 seconds.)  This
+should not be too large: the X server is grabbed for the duration that the
+password dialog box is up (for security purposes) and leaving the server 
+grabbed for too long can cause problems.
+<DT><B>dpmsEnabled</B> (class <B>Boolean</B>)
+
+<DD>
+Whether power management is enabled.
+<DT><B>dpmsStandby</B> (class <B>Time</B>)
+
+<DD>
+If power management is enabled, how long until the monitor goes solid black.
+<DT><B>dpmsSuspend</B> (class <B>Time</B>)
+
+<DD>
+If power management is enabled, how long until the monitor goes into
+power-saving mode.
+<DT><B>dpmsOff</B> (class <B>Time</B>)
+
+<DD>
+If power management is enabled, how long until the monitor powers down
+completely.  Note that these settings will have no effect unless both
+the X server and the display hardware support power management; not 
+all do.  See the <I>Power Management</I> section, below, for more 
+information.
+<DT><B>visualID</B> (class <B>VisualID</B>)
+
+<DD>
+Specify which X visual to use by default.  (Note carefully that this resource
+is called <B>visualID</B>, not merely <B>visual</B>; if you set the <B>visual</B>
+resource instead, things will malfunction in obscure ways for obscure reasons.)
+<P>
+Legal values for the <B>VisualID</B> resource are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>default</B>
+
+<DD>
+Use the screen's default visual (the visual of the root window.)  
+This is the default.
+<DT><B>best</B>
+
+<DD>
+Use the visual which supports the most colors.  Note, however, that the
+visual with the most colors might be a TrueColor visual, which does not
+support colormap animation.  Some programs have more interesting behavior
+when run on PseudoColor visuals than on TrueColor.
+<DT><B>mono</B>
+
+<DD>
+Use a monochrome visual, if there is one.
+<DT><B>gray</B>
+
+<DD>
+Use a grayscale or staticgray visual, if there is one and it has more than
+one plane (that is, it's not monochrome.)
+<DT><B>color</B>
+
+<DD>
+Use the best of the color visuals, if there are any.
+<DT><B>GL</B>
+
+<DD>
+Use the visual that is best for OpenGL programs.  (OpenGL programs have
+somewhat different requirements than other X programs.)
+<DT><I>class</I>
+
+<DD>
+where <I>class</I> is one of <B>StaticGray</B>, <B>StaticColor</B>, 
+<B>TrueColor</B>, <B>GrayScale</B>, <B>PseudoColor</B>, or <B>DirectColor</B>.
+Selects the deepest visual of the given class.
+<DT><I>number</I>
+
+<DD>
+where <I>number</I> (decimal or hex) is interpreted as a visual id number, 
+as reported by the
+<B><A HREF="../man1/xdpyinfo.1.php">xdpyinfo</A></B>(1)
+
+program; in this way you can have finer control over exactly which visual
+gets used, for example, to select a shallower one than would otherwise
+have been chosen.
+<P>
+</DL>
+</DL>
+
+<DL COMPACT><DT><DD>
+Note that this option specifies only the <I>default</I> visual that will
+be used: the visual used may be overridden on a program-by-program basis.
+See the description of the <B>programs</B> resource, below.
+</DL>
+
+<DT><B>installColormap</B> (class <B>Boolean</B>)
+
+<DD>
+On PseudoColor (8-bit) displays, install a private colormap while the
+screensaver is active, so that the graphics hacks can get as many
+colors as possible.  This is the default.  (This only applies when the
+screen's default visual is being used, since non-default visuals get
+their own colormaps automatically.)  This can also be overridden on a
+per-hack basis: see the discussion of the <B>default-n</B> name in the
+section about the <B>programs</B> resource.
+<P>
+This does nothing if you have a TrueColor (16-bit or deeper) display.
+<DT><B>verbose</B> (class <B>Boolean</B>)
+
+<DD>
+Whether to print diagnostics.  Default false.
+<DT><B>timestamp</B> (class <B>Boolean</B>)
+
+<DD>
+Whether to print the time of day along with any other diagnostic messages.
+Default true.
+<DT><B>splash</B> (class <B>Boolean</B>)
+
+<DD>
+Whether to display a splash screen at startup.  Default true.
+<DT><B>splashDuration</B> (class <B>Time</B>)
+
+<DD>
+How long the splash screen should remain visible; default 5 seconds.
+<DT><B>quad</B> (class <B>Boolean</B>)
+
+<DD>
+If true, then <I>four</I> screensavers will be run on each monitor.
+Use at your own risk!
+<DT><B>helpURL</B> (class <B>URL</B>)
+
+<DD>
+The splash screen has a <I>Help</I> button on it.  When you press it, it will
+display the web page indicated here in your web browser.
+<DT><B>loadURL</B> (class <B>LoadURL</B>)
+
+<DD>
+This is the shell command used to load a URL into your web browser.
+The default setting will load it into Mozilla/Netscape if it is already
+running, otherwise, will launch a new browser looking at the <I>helpURL</I>.
+<DT><B>demoCommand</B> (class <B>DemoCommand</B>)
+
+<DD>
+This is the shell command run when the <I>Demo</I> button on the splash window
+is pressed.  It defaults to
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1).
+
+<DT><B>prefsCommand</B> (class <B>PrefsCommand</B>)
+
+<DD>
+This is the shell command run when the <I>Prefs</I> button on the splash window
+is pressed.  It defaults to <I>xscreensaver-demo&nbsp;-prefs</I>.
+<DT><B>nice</B> (class <B>Nice</B>)
+
+<DD>
+The sub-processes created by <I>xscreensaver</I> will be ``niced'' to this
+level, so that they are given lower priority than other processes on the
+system, and don't increase the load unnecessarily.  The default is 10.  
+<P>
+(Higher numbers mean lower priority; see 
+<B><A HREF="../man1/nice.1.php">nice</A></B>(1)
+
+for details.)
+<DT><B>fade</B> (class <B>Boolean</B>)
+
+<DD>
+If this is true, then when the screensaver activates, the current contents
+of the screen will fade to black instead of simply winking out.  This only
+works on certain systems.  A fade will also be done when switching graphics
+hacks (when the <I>cycle</I> timer expires.)  Default: true.  
+<DT><B>unfade</B> (class <B>Boolean</B>)
+
+<DD>
+If this is true, then when the screensaver deactivates, the original contents
+of the screen will fade in from black instead of appearing immediately.  This
+only works on certain systems, and if <I>fade</I> is true as well.
+Default false.
+<DT><B>fadeSeconds</B> (class <B>Time</B>)
+
+<DD>
+If <I>fade</I> is true, this is how long the fade will be in 
+seconds (default 3 seconds.)
+<DT><B>fadeTicks</B> (class <B>Integer</B>)
+
+<DD>
+If <I>fade</I> is true, this is how many times a second the colormap will
+be changed to effect a fade.  Higher numbers yield smoother fades, but
+may make the fades take longer than the specified <I>fadeSeconds</I> if
+your server isn't fast enough to keep up.  Default 20.
+<DT><B>captureStderr</B> (class <B>Boolean</B>)
+
+<DD>
+Whether <I>xscreensaver</I> should redirect its stdout and stderr streams to
+the window itself.  Since its nature is to take over the screen, you would not
+normally see error messages generated by xscreensaver or the sub-programs it
+runs; this resource will cause the output of all relevant programs to be
+drawn on the screensaver window itself, as well as being written to the
+controlling terminal of the screensaver driver process.  Default true.
+<DT><B>ignoreUninstalledPrograms</B> (class <B>Boolean</B>)
+
+<DD>
+There may be programs in the list that are not installed on the system,
+yet are marked as &quot;enabled.&quot;  If this preference is true, then such 
+programs will simply be ignored.  If false, then a warning will be printed
+if an attempt is made to run the nonexistent program.  Also, the
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+program will suppress the non-existent programs from the list if this
+is true.  Default: false.
+<DT><B>font</B> (class <B>Font</B>)
+
+<DD>
+The font used for the stdout/stderr text, if <B>captureStderr</B> is true.
+Default <B>*-medium-r-*-140-*-m-*</B> (a 14 point fixed-width font.)
+<DT><B>mode</B> (class <B>Mode</B>)
+
+<DD>
+Controls the behavior of xscreensaver.  Legal values are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>random</B>
+
+<DD>
+When blanking the screen, select a random display mode from among those
+that are enabled and applicable.  This is the default.
+<DT><B>one</B>
+
+<DD>
+When blanking the screen, only ever use one particular display mode (the
+one indicated by the <I>selected</I> setting.)
+<DT><B>blank</B>
+
+<DD>
+When blanking the screen, just go black: don't run any graphics hacks.
+<DT><B>off</B>
+
+<DD>
+Don't ever blank the screen, and don't ever allow the monitor to power down.
+<P>
+</DL>
+</DL>
+
+<DT><B>selected</B> (class <B>Integer</B>)
+
+<DD>
+When <I>mode</I> is set to <I>one</I>, this is the one, indicated by its
+index in the <I>programs</I> list.  You're crazy if you count them and
+set this number by hand: let
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+do it for you!
+<DT><B>programs</B> (class <B>Programs</B>)
+
+<DD>
+The graphics hacks which <I>xscreensaver</I> runs when the user is idle.
+The value of this resource is a multi-line string, one <I>sh</I>-syntax
+command per line.  Each line must contain exactly one command: no
+semicolons, no ampersands.
+<P>
+When the screensaver starts up, one of these is selected (according to
+the <B>mode</B> setting), and run.  After the <I>cycle</I> period
+expires, it is killed, and another is selected and run.
+<P>
+If a line begins with a dash (-) then that particular program is
+disabled: it won't be selected at random (though you can still select
+it explicitly using the
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+program.)
+<P>
+If all programs are disabled, then the screen will just be made blank,
+as when <I>mode</I> is set to <I>blank</I>.
+<P>
+To disable a program, you must mark it as disabled with a dash instead
+of removing it from the list.  This is because the system-wide (app-defaults)
+and per-user (.xscreensaver) settings are merged together, and if a user
+just <I>deletes</I> an entry from their programs list, but that entry still
+exists in the system-wide list, then it will come back.  However, if the
+user <I>disables</I> it, then their setting takes precedence.
+<P>
+If the display has multiple screens, then a different program will be run
+for each screen.  (All screens are blanked and unblanked simultaniously.)
+<P>
+Note that you must escape the newlines; here is an example of how you
+might set this in your <I>~/.xscreensaver</I> file:
+<P>
+<DL COMPACT><DT><DD>
+
+
+<P>
+
+
+<PRE>
+programs:  \
+       qix -root                          \n\
+       ico -r -faces -sleep 1 -obj ico    \n\
+       xdaliclock -builtin2 -root         \n\
+       xv -root -rmode 5 image.gif -quit  \n
+
+</PRE>
+
+
+<P>
+
+
+
+</DL>
+
+<DL COMPACT><DT><DD>
+Make sure your <B>$PATH</B> environment variable is set up correctly
+<I>before</I> xscreensaver is launched, or it won't be able to find the
+programs listed in the <I>programs</I> resource.
+<P>
+To use a program as a screensaver, two things are required: that that
+program draw on the root window (or be able to be configured to draw on
+the root window); and that that program understand ``virtual root''
+windows, as used by virtual window managers such as
+<B><A HREF="../man1/tvtwm.1.php">tvtwm</A></B>(1).
+
+(Generally, this is accomplished by just including the <I>&quot;vroot.h&quot;</I> 
+header file in the program's source.)
+<P>
+If there are some programs that you want to run only when using a color
+display, and others that you want to run only when using a monochrome
+display, you can specify that like this:
+
+
+<P>
+
+
+<PRE>
+       mono:   mono-program  -root        \n\
+       color:  color-program -root        \n\
+
+</PRE>
+
+
+<P>
+
+
+
+</DL>
+
+<DL COMPACT><DT><DD>
+More generally, you can specify the kind of visual that should be used for
+the window on which the program will be drawing.  For example, if one 
+program works best if it has a colormap, but another works best if it has
+a 24-bit visual, both can be accommodated:
+
+
+<P>
+
+
+<PRE>
+       PseudoColor: cmap-program  -root   \n\
+       TrueColor:   24bit-program -root   \n\
+
+</PRE>
+
+
+<P>
+
+
+
+</DL>
+
+<DL COMPACT><DT><DD>
+In addition to the symbolic visual names described above (in the discussion
+of the <I>visualID</I> resource) one other visual name is supported in
+the <I>programs</I> list:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>default-n</B>
+
+<DD>
+This is like <B>default</B>, but also requests the use of the default colormap,
+instead of a private colormap.  (That is, it behaves as if 
+the <I>-no-install</I> command-line option was specified, but only for
+this particular hack.)  This is provided because some third-party programs
+that draw on the root window (notably: 
+<B><A HREF="../man1/xv.1.php">xv</A></B>(1),
+
+and
+<B><A HREF="../man1/xearth.1.php">xearth</A></B>(1))
+
+make assumptions about the visual and colormap of the root window: 
+assumptions which xscreensaver can violate.
+<P>
+</DL>
+</DL>
+
+If you specify a particular visual for a program, and that visual does not
+exist on the screen, then that program will not be chosen to run.  This
+means that on displays with multiple screens of different depths, you can
+arrange for appropriate hacks to be run on each.  For example, if one screen
+is color and the other is monochrome, hacks that look good in mono can be 
+run on one, and hacks that only look good in color will show up on the other.
+</DL>
+
+</DL>
+<P>
+
+<P>
+
+You shouldn't ever need to change the following resources:
+<P>
+
+<DL COMPACT>
+<DT><B>pointerPollTime</B> (class <B>Time</B>)
+
+<DD>
+When server extensions are not in use, this controls how 
+frequently <I>xscreensaver</I> checks to see if the mouse position or buttons
+have changed.  Default 5 seconds.
+<DT><B>windowCreationTimeout</B> (class <B>Time</B>)
+
+<DD>
+When server extensions are not in use, this controls the delay between when 
+windows are created and when <I>xscreensaver</I> selects events on them.
+Default 30 seconds.
+<DT><B>initialDelay</B> (class <B>Time</B>)
+
+<DD>
+When server extensions are not in use, <I>xscreensaver</I> will wait this many
+seconds before selecting events on existing windows, under the assumption that 
+<I>xscreensaver</I> is started during your login procedure, and the window 
+state may be in flux.  Default 0.  (This used to default to 30, but that was
+back in the days when slow machines and X terminals were more common...)
+
+</DL>
+<P>
+
+There are a number of different X server extensions which can make
+xscreensaver's job easier.  The next few resources specify whether these
+extensions should be utilized if they are available.
+<DL COMPACT>
+<DT><B>sgiSaverExtension</B> (class <B>Boolean</B>)
+
+<DD>
+This resource controls whether the SGI <B>SCREEN_SAVER</B> server extension
+will be used to decide whether the user is idle.  This is the default 
+if <I>xscreensaver</I> has been compiled with support for this 
+extension (which is the default on SGI systems.).  If it is available, 
+the <B>SCREEN_SAVER</B> method is faster and more reliable than what will
+be done otherwise, so use it if you can.  (This extension is only available
+on Silicon Graphics systems, unfortunately.)
+<DT><B>mitSaverExtension</B> (class <B>Boolean</B>)
+
+<DD>
+This resource controls whether the <B>MIT-SCREEN-SAVER</B> server extension
+will be used to decide whether the user is idle.  However, the default for
+this resource is <I>false</I>, because even if this extension is available,
+it is flaky (and it also makes the <B>fade</B> option not work properly.)
+Use of this extension is not recommended.
+<DT><B>xidleExtension</B> (class <B>Boolean</B>)
+
+<DD>
+This resource controls whether the <B>XIDLE</B> server extension will be
+used to decide whether the user is idle.  This is the default 
+if <I>xscreensaver</I> has been compiled with support for this extension.
+(This extension is only available for X11R4 and X11R5 systems, unfortunately.)
+<DT><B>procInterrupts</B> (class <B>Boolean</B>)
+
+<DD>
+This resource controls whether the <B>/proc/interrupts</B> file should be
+consulted to decide whether the user is idle.  This is the default
+if <I>xscreensaver</I> has been compiled on a system which supports this
+mechanism (i.e., Linux systems.)  
+<P>
+The benefit to doing this is that <I>xscreensaver</I> can note that the user
+is active even when the X console is not the active one: if the user is 
+typing in another virtual console, xscreensaver will notice that and will
+fail to activate.  For example, if you're playing Quake in VGA-mode, 
+xscreensaver won't wake up in the middle of your game and start competing 
+for CPU.
+<P>
+The drawback to doing this is that perhaps you <I>really do</I> want idleness
+on the X console to cause the X display to lock, even if there is activity
+on other virtual consoles.  If you want that, then set this option to False.
+(Or just lock the X console manually.)
+<P>
+The default value for this resource is True, on systems where it works.
+<DT><B>overlayStderr</B> (class <B>Boolean</B>)
+
+<DD>
+If <B>captureStderr</B> is True, and your server supports ``overlay'' visuals,
+then the text will be written into one of the higher layers instead of into
+the same layer as the running screenhack.  Set this to False to disable 
+that (though you shouldn't need to.)
+<DT><B>overlayTextForeground</B> (class <B>Foreground</B>)
+
+<DD>
+The foreground color used for the stdout/stderr text, if <B>captureStderr</B>
+is true.  Default: Yellow.
+<DT><B>overlayTextBackground</B> (class <B>Background</B>)
+
+<DD>
+The background color used for the stdout/stderr text, if <B>captureStderr</B>
+is true.  Default: Black.
+<DT><B>bourneShell</B> (class <B>BourneShell</B>)
+
+<DD>
+The pathname of the shell that <I>xscreensaver</I> uses to start subprocesses.
+This must be whatever your local variant of <B>/bin/sh</B> is: in particular,
+it must not be <B>csh</B>.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>COMMAND-LINE OPTIONS</H2>
+
+<I>xscreensaver</I>
+
+also accepts a few command-line options, mostly for use when debugging:
+for normal operation, you should configure things via the <I>~/.xscreensaver</I>
+file.
+<DL COMPACT>
+<DT><B>-display </B><I>host:display.screen</I>
+
+<DD>
+The X display to use.  For displays with multiple screens, XScreenSaver
+will manage all screens on the display simultaniously.
+<DT><B>-verbose</B>
+
+<DD>
+Same as setting the <I>verbose</I> resource to <I>true</I>: print diagnostics
+on stderr and on the xscreensaver window.
+<DT><B>-no-capture-stderr</B>
+
+<DD>
+Same as setting the <I>captureStderr</I> resource to <I>false</I>: do not
+redirect the stdout and stderr streams to the xscreensaver window itself.
+If xscreensaver is crashing, you might need to do this in order to see
+the error message.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>HOW IT WORKS</H2>
+
+When it is time to activate the screensaver, a full-screen black window is
+created on each screen of the display.  Each window is created in such a way
+that, to any subsequently-created programs, it will appear to be a ``virtual
+root'' window.  Because of this, any program which draws on the root 
+window (and which understands virtual roots) can be used as a screensaver.
+<P>
+When the user becomes active again, the screensaver windows are unmapped, and
+the running subprocesses are killed by sending them <B>SIGTERM</B>.  This is 
+also how the subprocesses are killed when the screensaver decides that it's
+time to run a different demo: the old one is killed and a new one is launched.
+<P>
+Before launching a subprocess, <I>xscreensaver</I> stores an appropriate value
+for <B>$DISPLAY</B> in the environment that the child will receive.  (This is
+so that if you start <I>xscreensaver</I> with a <I>-display</I> argument, the
+programs which <I>xscreensaver</I> launches will draw on the same display;
+and so that the child will end up drawing on the appropriate screen of a
+multi-headed display.)
+<P>
+When the screensaver turns off, or is killed, care is taken to restore 
+the ``real'' virtual root window if there is one.  Because of this, it is
+important that you not kill the screensaver process with <I>kill -9</I> if
+you are running a virtual-root window manager.  If you kill it with -9,
+you may need to restart your window manager to repair the damage.  This
+isn't an issue if you aren't running a virtual-root window manager.
+<P>
+For all the gory details, see the commentary at the top of xscreensaver.c.
+<P>
+You can control a running screensaver process by using the
+<B><A HREF="../man1/xscreensaver-command.1.php">xscreensaver-command</A></B>(1)
+
+program (which see.)
+<A NAME="lbAI">&nbsp;</A>
+<H2>POWER MANAGEMENT</H2>
+
+Modern X servers contain support to power down the monitor after an idle
+period.  If the monitor has powered down, then <I>xscreensaver</I> will
+notice this (after a few minutes), and will not waste CPU by drawing 
+graphics demos on a black screen.  An attempt will also be made to
+explicitly power the monitor back up as soon as user activity is detected.
+<P>
+As of version 3.28 (Feb 2001), the <I>~/.xscreensaver</I> file controls the
+configuration of your display's power management settings: if you have
+used
+<B><A HREF="../man1/xset.1.php">xset</A></B>(1)
+
+to change your power management settings, then xscreensaver will
+override those changes with the values specified 
+in <I>~/.xscreensaver</I> (or with its built-in defaults, if there
+is no <I>~/.xscreensaver</I> file yet.)
+<P>
+To change your power management settings, run
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+and change the various timeouts through the user interface.
+Alternately, you can edit the <I>~/.xscreensaver</I> file directly.
+<P>
+If the power management section is grayed out in the
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+window,  then that means that your X server does not support
+the XDPMS extension, and so control over the monitor's power state
+is not available.
+<P>
+If you're using a laptop, don't be surprised if changing the DPMS
+settings has no effect: many laptops have monitor power-saving behavior
+built in at a very low level that is invisible to Unix and X.  On such
+systems, you can typically adjust the power-saving delays only by
+changing settings in the BIOS in some hardware-specific way.
+<P>
+If DPMS seems not to be working with XFree86, make sure the &quot;DPMS&quot;
+option is set in your <I>/etc/X11/XF86Config</I> file.  See the
+<B><A HREF="../man5/XF86Config.5.php">XF86Config</A></B>(5)
+
+manual for details.
+<A NAME="lbAJ">&nbsp;</A>
+<H2>USING <A HREF="../man1/XDM.1.php">XDM</A>(1)</H2>
+
+You can run <I>xscreensaver</I> from your 
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1)
+
+session, so that the screensaver will run even when nobody is logged 
+in on the console.
+<P>
+The trick to using xscreensaver with <I>xdm</I> is this: keep in mind the 
+two very different states in which xscreensaver will be running:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1: Nobody logged in.</B>
+
+<DD>
+<P>
+If you're thinking of running xscreensaver from XDM at all, then it's 
+probably because you want graphics demos to be running on the console
+when nobody is logged in there.  In this case, xscreensaver will function
+only as a screen saver, not a screen locker: it doesn't make sense
+for xscreensaver to lock the screen, since nobody is logged in yet!
+The only thing on the screen is the XDM login prompt.
+<DT><B>2: Somebody logged in.</B>
+
+<DD>
+<P>
+Once someone has logged in through the XDM login window, the situation is
+very different.  For example: now it makes sense to lock the screen (and
+prompt for the logged in user's password); and now xscreensaver should
+consult that user's <I>~/.xscreensaver</I> file; and so on.
+</DL>
+</DL>
+
+<P>
+The difference between these two states comes down to a question of,
+which user is the <I>xscreensaver</I> process running as?  For the first
+state, it doesn't matter.  If you start <I>xscreensaver</I> in the usual
+XDM way, then xscreensaver will probably end up running as root, which 
+is fine for the first case (the ``nobody logged in'' case.)
+<P>
+However, once someone is logged in, running as root is no longer fine:
+because xscreensaver will be consulting root's <I>.xscreensaver</I> file
+instead of that of the logged in user, and won't be prompting for the
+logged in user's password, and so on.  (This is not a security problem,
+it's just not what you want.)
+<P>
+So, once someone has logged in, you want xscreensaver to be running as that
+user.  The way to accomplish this is to kill the old xscreensaver process
+and start a new one (as the new user.)
+<P>
+The simplest way to accomplish all of this is as follows:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1: Launch xscreensaver before anyone logs in.</B>
+
+<DD>
+<P>
+To the file <I>/usr/lib/X11/xdm/Xsetup</I>, add the lines
+
+
+<P>
+
+
+<PRE>
+xhost +localhost
+xscreensaver-command -exit
+xscreensaver &amp;
+
+</PRE>
+
+
+<P>
+
+
+
+This will run xscreensaver as root, over the XDM login window.
+Moving the mouse will cause the screen to un-blank, and allow the user
+to type their password at XDM to log in.
+<DT><B>2: Restart xscreensaver when someone logs in.</B>
+
+<DD>
+<P>
+Near the top of the file <I>/usr/lib/X11/xdm/Xsession</I>, add those same lines:
+
+
+<P>
+
+
+<PRE>
+xscreensaver-command -exit
+xscreensaver &amp;
+
+</PRE>
+
+
+<P>
+
+
+
+When someone logs in, this will kill off the existing (root) xscreensaver
+process, and start a new one, running as the user who has just logged in.
+If the user's .xscreensaver file requests locking, they'll get it.  They
+will also get their own choice of timeouts, and graphics demos, and so on.
+<P>
+Alternately, each user could just put those lines in their 
+personal <I>~/.xsession</I> files.
+</DL>
+</DL>
+
+<P>
+Make sure you have <B>$PATH</B> set up correctly in the <I>Xsetup</I> 
+and <I>Xsession</I> scripts, or <I>xdm</I> won't be able to 
+find <I>xscreensaver</I>, and/or <I>xscreensaver</I> won't be able to 
+find its graphics demos.
+<P>
+(If your system does not seem to be executing the <I>Xsetup</I> file, you
+may need to configure it to do so: the traditional way to do this is
+to make that file the value of the <I>DisplayManager*setup</I> resource
+in the <I>/usr/lib/X11/xdm/xdm-config</I> file.  See the man page for
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1)
+
+for more details.)
+<P>
+It is safe to run <I>xscreensaver</I> as root (as <I>xdm</I> is likely to do.)  
+If run as root, <I>xscreensaver</I> changes its effective user and group ids 
+to something safe (like <I>&quot;nobody&quot;</I>) before connecting to the X server
+or launching user-specified programs.
+<P>
+An unfortunate side effect of this (important) security precaution is that
+it may conflict with cookie-based authentication.
+<P>
+If you get &quot;connection refused&quot; errors when running <I>xscreensaver</I>
+from <I>xdm</I>, then this probably means that you have
+<B><A HREF="../man1/xauth.1.php">xauth</A></B>(1)
+
+or some other security mechanism turned on.  One way around this is to
+add <B>&quot;xhost&nbsp;+localhost&quot;</B> to <I>Xsetup</I>, just before <I>xscreensaver</I>
+is launched.  
+<P>
+Note that this will give access to the X server to anyone capable of logging
+in to the local machine, so in some environments, this might not be 
+appropriate.  If turning off file-system-based access control is not
+acceptable, then running <I>xscreensaver</I> from the <I>Xsetup</I> file
+might not be possible, and xscreensaver will only work when running as
+a normal, unprivileged user.
+<P>
+For more information on the X server's access control mechanisms, see the
+man pages for
+<B><A HREF="../man1/X.1.php">X</A></B>(1),
+
+<B><A HREF="../man1/Xsecurity.1.php">Xsecurity</A></B>(1),
+
+<B><A HREF="../man1/xauth.1.php">xauth</A></B>(1),
+
+and
+<B><A HREF="../man1/xhost.1.php">xhost</A></B>(1).
+
+<A NAME="lbAK">&nbsp;</A>
+<H2>USING <A HREF="../man1/GDM.1.php">GDM</A>(1)</H2>
+
+Using xscreensaver with
+<B><A HREF="../man1/gdm.1.php">gdm</A></B>(1)
+
+is easy, because gdm has a configuration tool.  Just fire up
+<B><A HREF="../man1/gdmconfig.1.php">gdmconfig</A></B>(1)
+
+and on the <I>Background</I> page, type <B>&quot;xscreensaver -nosplash&quot;</B> into
+the <I>Background Program</I> field.  That will cause gdm to run xscreensaver
+while nobody is logged in, and kill it as soon as someone does log in.
+(The user will then be responsible for starting xscreensaver on their
+own, if they want.)
+<P>
+Another way to accomplish the same thing is to edit the
+file <I>/etc/X11/gdm/gdm.conf</I> to include:
+
+
+<P>
+
+
+<PRE>
+BackgroundProgram=xscreensaver -nosplash
+RunBackgroundProgramAlways=true
+
+</PRE>
+
+
+<P>
+
+
+
+In this situation, the <I>xscreensaver</I> process will probably be running
+as user <I>gdm</I> instead of <I>root</I>.  You can configure the settings
+for this nobody-logged-in state (timeouts, DPMS, etc.) by editing
+the <I>~gdm/.xscreensaver</I> file.
+<A NAME="lbAL">&nbsp;</A>
+<H2>USING KDE (K DESKTOP ENVIRONMENT)</H2>
+
+I understand that KDE has invented their own wrapper around xscreensaver,
+that is inferior to 
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+in any number of ways.  I've never actually seen it, but I'm told that
+this is the way you disable it:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1: Switch off KDE's screen saver.</B><DD>
+Open the ``<I>Control Center</I>'' and
+select the ``<I>Look and Feel / Screensaver</I>'' page.
+Turn off the ``<I>Enable Screensaver</I>'' checkbox.
+<DT><B>2: Find your Autostart directory.</B><DD>
+Open the ``<I>Look and Feel / Desktop / Paths</I>'' page,
+and see what your ``Autostart'' directory is set to: it will
+probably be <I>~/.kde3/Autostart/</I> or something similar.
+<DT><B>3: Make xscreensaver be an Autostart program.</B><DD>
+Create a file in your autostart directory 
+called <I>xscreensaver.desktop</I> that contains the following five lines:
+
+
+<P>
+
+
+<PRE>
+[Desktop Entry]
+Exec=xscreensaver
+Name=XScreensaver
+Type=Application
+X-KDE-StartupNotify=false
+
+</PRE>
+
+
+<P>
+
+
+
+</DL>
+</DL>
+
+<P>
+
+Now use xscreensaver normally, controlling it via the usual
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1)
+
+and
+<B><A HREF="../man1/xscreensaver-command.1.php">xscreensaver-command</A></B>(1)
+
+mechanisms.
+<A NAME="lbAM">&nbsp;</A>
+<H2>USING CDE (COMMON DESKTOP ENVIRONMENT)</H2>
+
+The easiest way to use <I>xscreensaver</I> on a system with CDE is to simply
+switch off the built-in CDE screensaver, and use <I>xscreensaver</I> instead;
+and second, to tell the front panel to run 
+<B><A HREF="../man1/xscreensaver-command.1.php">xscreensaver-command</A></B>(1)
+
+with the <I>-lock</I> option when the <I>Lock</I> icon is clicked.
+<P>
+To accomplish this involves five steps:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1: Switch off CDE's locker</B><DD>
+Do this by turning off ``<I>Screen Saver and Screen Lock</I>'' in the
+Screen section of the Style Manager.
+<DT><B>2: Edit sessionetc</B><DD>
+Edit the file <I>~/.dt/sessions/sessionetc</I> and add to it the line
+
+
+<P>
+
+
+<PRE>
+xscreensaver &amp;
+
+</PRE>
+
+
+<P>
+
+
+
+And make sure the sessionetc file is executable.
+This will cause <I>xscreensaver</I> to be launched when you log in.
+(As always, make sure that xscreensaver and the graphics demos are on
+your <B>$PATH</B>; the path needs to be set in <I>.cshrc</I> 
+and/or <I>.dtprofile</I>, not <I>.login</I>.)
+<DT><B>3: Create XScreenSaver.dt</B><DD>
+Create a file called <I>~/.dt/types/XScreenSaver.dt</I> with the following
+contents:
+
+
+<P>
+
+
+<PRE>
+ACTION XScreenSaver
+{
+  LABEL         XScreenSaver
+  TYPE          COMMAND
+  EXEC_STRING   xscreensaver-command -lock
+  ICON          Dtkey
+  WINDOW_TYPE   NO_STDIO
+}
+
+</PRE>
+
+
+<P>
+
+
+
+This defines a ``lock'' command for the CDE front panel, that knows how
+to talk to <I>xscreensaver</I>.
+<DT><B>4: Create Lock.fp</B><DD>
+Create a file called <I>~/.dt/types/Lock.fp</I> with the following
+contents:
+
+
+<P>
+
+
+<PRE>
+CONTROL Lock
+{
+  TYPE             icon
+  CONTAINER_NAME   Switch
+  CONTAINER_TYPE   SWITCH
+  POSITION_HINTS   1
+  ICON             Fplock
+  LABEL            Lock
+  PUSH_ACTION      XScreenSaver
+  HELP_TOPIC       FPOnItemLock
+  HELP_VOLUME      FPanel
+}
+
+</PRE>
+
+
+<P>
+
+
+
+This associates the CDE front panel ``Lock'' icon with the lock command
+we just defined in step 3.
+<DT><B>5: Restart</B><DD>
+Select ``<I>Restart Workspace Manager</I>'' from the popup menu to make
+your changes take effect.  If things seem not to be working, check the
+file <I>~/.dt/errorlog</I> for error messages.
+</DL>
+</DL>
+
+<A NAME="lbAN">&nbsp;</A>
+<H2>USING HP VUE (VISUAL USER ENVIRONMENT)</H2>
+
+Since CDE is a descendant of VUE, the instructions for using xscreensaver
+under VUE are similar to the above:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>1: Switch off VUE's locker</B><DD>
+Open the ``<I>Style Manager</I>'' and select ``<I>Screen</I>.''
+Turn off ``<I>Screen Saver and Screen Lock</I>'' option.
+<DT><B>2: Make sure you have a Session</B><DD>
+Next, go to the Style Manager's, ``<I>Startup</I>'' page.
+Click on ``<I>Set Home Session</I>'' to create a session, then 
+on ``<I>Return to Home Session</I>'' to select this session each
+time you log in.
+<DT><B>3: Edit vue.session</B><DD>
+Edit the file <I>~/.vue/sessions/home/vue.session</I> and add to it
+the line
+
+
+<P>
+
+
+<PRE>
+vuesmcmd -screen 0 -cmd &quot;xscreensaver&quot;
+
+</PRE>
+
+
+<P>
+
+
+
+This will cause <I>xscreensaver</I> to be launched when you log in.
+(As always, make sure that xscreensaver and the graphics demos are on
+your <B>$PATH</B>; the path needs to be set in <I>.cshrc</I>
+and/or <I>.profile</I>, not <I>.login</I>.)
+<DT><B>3: Edit vuewmrc</B><DD>
+Edit the file <I>~/.vue/vuewmrc</I> and add (or change) the Lock control:
+
+
+<P>
+
+
+<PRE>
+CONTROL Lock
+{
+  TYPE         button
+  IMAGE        lock
+  PUSH_ACTION  f.exec &quot;xscreensaver-command -lock&quot;
+  HELP_TOPIC   FPLock
+}
+
+</PRE>
+
+
+<P>
+
+
+
+This associates the VUE front panel ``Lock'' icon with the xscreensaver 
+lock command.
+</DL>
+</DL>
+
+<P>
+
+<A NAME="lbAO">&nbsp;</A>
+<H2>BUGS</H2>
+
+Bugs?  There are no bugs.  Ok, well, maybe.  If you find one, please let
+me know.  <A HREF="http://www.jwz.org/xscreensaver/bugs.php">http://www.jwz.org/xscreensaver/bugs.html</A> explains how to
+construct the most useful bug reports.
+<DL COMPACT>
+<DT><B>Locking and XDM</B>
+
+<DD>
+If xscreensaver has been launched from 
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1)
+
+before anyone has logged in, you will need to kill and then restart the
+xscreensaver daemon after you have logged in, or you will be confused by
+the results.  (For example, locking won't work, and your <I>~/.xscreensaver</I>
+file will be ignored.)
+<P>
+When you are logged in, you want the <I>xscreensaver</I> daemon to be 
+running under <I>your</I> user id, not as root or some other user.
+<P>
+If it has already been started by <I>xdm</I>, you can kill it by sending
+it the <B>exit</B> command, and then re-launching it as you, by putting
+something like the following in your personal X startup script:
+
+
+<P>
+
+
+<PRE>
+xscreensaver-command -exit
+xscreensaver &amp;
+
+</PRE>
+
+
+<P>
+
+
+
+The ``<I>Using <A HREF="../man1/XDM.1.php">XDM</A>(1)</I>'' section, above, goes into more detail, and explains
+how to configure the system to do this for all users automatically.
+<DT><B>Locking and root logins</B>
+
+<DD>
+In order for it to be safe for xscreensaver to be launched by <I>xdm</I>,
+certain precautions had to be taken, among them that xscreensaver never
+runs as <I>root</I>.  In particular, if it is launched as root (as <I>xdm</I>
+is likely to do), xscreensaver will disavow its privileges, and switch 
+itself to a safe user id (such as <I>nobody</I>.)
+<P>
+An implication of this is that if you log in as <I>root</I> on the console, 
+xscreensaver will refuse to lock the screen (because it can't tell
+the difference between <I>root</I> being logged in on the console, and a
+normal user being logged in on the console but xscreensaver having been 
+launched by the
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1)
+
+<I>Xsetup</I>
+
+file.)
+<P>
+The solution to this is simple: you shouldn't be logging in on the console
+as <I>root</I> in the first place!  (What, are you crazy or something?)  
+<P>
+Proper Unix hygiene dictates that you should log in as yourself, and
+<B><A HREF="../man1/su.1.php">su</A></B>(1)
+
+to <I>root</I> as necessary.  People who spend their day logged in
+as <I>root</I> are just begging for disaster.
+<DT><B>XAUTH and XDM</B>
+
+<DD>
+For xscreensaver to work when launched by
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1),
+
+programs running on the local machine as user <I>&quot;nobody&quot;</I> must be
+able to connect to the X server.  This means that if you want to run
+xscreensaver on the console while nobody is logged in, you may need
+to disable cookie-based access control (and allow all users who can log
+in to the local machine to connect to the display.)  
+<P>
+You should be sure that this is an acceptable thing to do in your
+environment before doing it.  See the ``<I>Using <A HREF="../man1/XDM.1.php">XDM</A>(1)</I>'' section, 
+above, for more details.
+<DT><B>Passwords</B>
+
+<DD>
+If you get an error message at startup like ``couldn't get password
+of <I>user</I>'' then this probably means that you're on a system in which 
+the
+<B><A HREF="../man3/getpwent.3.php">getpwent</A></B>(3)
+
+library routine can only be effectively used by root.  If this is the case, 
+then <I>xscreensaver</I> must be installed as setuid to root in order for
+locking to work.  Care has been taken to make this a safe thing to do.  
+<P>
+It also may mean that your system uses shadow passwords instead of the standard
+<B><A HREF="../man3/getpwent.3.php">getpwent</A></B>(3)
+
+interface; in that case, you may need to change some options 
+with <I>configure</I> and recompile.
+<P>
+If you change your password after xscreensaver has been launched, it will
+continue using your old password to unlock the screen until xscreensaver
+is restarted.  On some systems, it may accept <I>both</I> your old and new
+passwords.  So, after you change your password, you'll have to do
+
+
+<P>
+
+
+<PRE>
+xscreensaver-command -restart
+
+</PRE>
+
+
+<P>
+
+
+
+to make <I>xscreensaver</I> notice.
+<DT><B>PAM Passwords</B>
+
+<DD>
+If your system uses PAM (Pluggable Authentication Modules), then in order
+for xscreensaver to use PAM properly, PAM must be told about xscreensaver.
+The xscreensaver installation process should update the PAM data (on Linux,
+by creating the file <I>/etc/pam.d/xscreensaver</I> for you, and on Solaris, 
+by telling you what lines to add to the <I>/etc/pam.conf</I> file.)  
+<P>
+If the PAM configuration files do not know about xscreensaver, then 
+you <I>might</I> be in a situation where xscreensaver will refuse to ever
+unlock the screen.
+<P>
+This is a design flaw in PAM (there is no way for a client to tell the
+difference between PAM responding ``I have never heard of your module,''
+and responding, ``you typed the wrong password.'')  As far as I can tell,
+there is no way for xscreensaver to automatically work around this, or
+detect the problem in advance, so if you have PAM, make sure it is
+configured correctly!
+<DT><B>Colormap lossage: TWM</B>
+
+<DD>
+The <B>installColormap</B> option doesn't work very well with the
+<B><A HREF="../man1/twm.1.php">twm</A></B>(1)
+
+window manager and its descendants, on 8-bit screens.
+<P>
+There is a race condition between the screensaver and this window manager,
+which can result in the screensaver's colormap not getting installed
+properly, meaning the graphics hacks will appear in essentially random
+colors.  (If the screen goes white instead of black, this is probably why.)
+<P>
+The
+<B><A HREF="../man1/mwm.1.php">mwm</A></B>(1)
+
+and
+<B><A HREF="../man1/olwm.1.php">olwm</A></B>(1)
+
+window managers don't have this problem.  The race condition exists
+because X (really, ICCCM) does not provide a way for an OverrideRedirect 
+window to have its own colormap, short of grabbing the server (which is 
+neither a good idea, nor really possible with the current design.)  What 
+happens is that, as soon as xscreensaver installs its colormap, <B>twm</B> 
+responds to the resultant <B>ColormapNotify</B> event by re-instaling the 
+default colormap.  Apparently, <B>twm</B> doesn't <I>always</I> do this; it 
+seems to do it regularly if the screensaver is activated from a menu item, 
+but seems to not do it if the screensaver comes on of its own volition, or 
+is activated from another console.  
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>Attention, window manager authors!</B>
+
+<DD>
+You should only call
+<B><A HREF="../man3/XInstallColormap.3.php">XInstallColormap</A></B>(3)
+
+in response to user events.  That is, it is appropriate to install a colormap
+in response to <B>FocusIn</B>, <B>FocusOut</B>, <B>EnterNotify</B>, 
+and <B>LeaveNotify</B> events; but it is not appropriate to call it in
+response to <B>ColormapNotify</B> events.  If you install colormaps in
+response to <I>application</I> actions as well as in response to <I>user</I>
+actions, then you create the situation where it is impossible for 
+override-redirect applications (such as xscreensaver) to display their
+windows in the proper colors.
+</DL>
+</DL>
+
+<DT><B>Colormap lossage: XV, XAnim, XEarth</B>
+
+<DD>
+Some programs don't operate properly on visuals other than the default one,
+or with colormaps other than the default one.  See the discussion of the
+magic &quot;default-n&quot; visual name in the description of the <B>programs</B> 
+resource in the <I>Configuration</I> section.  When programs only work with
+the default colormap, you need to use a syntax like this:
+
+
+<P>
+
+
+<PRE>
+   default-n: xv -root image-1.gif -quit  \n\
+   default-n: xearth -nostars -wait 0     \n\
+
+</PRE>
+
+
+<P>
+
+
+
+It would also work to turn off the <B>installColormap</B> option altogether,
+but that would deny extra colors to those programs that <I>can</I> take
+advantage of them.
+<DT><B>Machine Load</B>
+
+<DD>
+Although this program ``nices'' the subprocesses that it starts, 
+graphics-intensive subprograms can still overload the machine by causing
+the X server process itself (which is not ``niced'') to consume many
+cycles.  Care has been taken in all the modules shipped with xscreensaver
+to sleep periodically, and not run full tilt, so as not to cause
+appreciable load.
+<P>
+However, if you are running the OpenGL-based screen savers on a machine
+that does not have a video card with 3D acceleration, they <I>will</I>
+make your machine slow, despite
+<B><A HREF="../man1/nice.1.php">nice</A></B>(1).
+
+<P>
+Your options are: don't use the OpenGL display modes; or, collect the
+spare change hidden under the cushions of your couch, and use it to
+buy a video card manufactured after 1998.  (It doesn't even need to be
+<I>fast</I> 3D hardware: the problem will be fixed if there is any
+3D hardware <I>at all.</I>)
+<DT><B>XFree86's Magic Keystrokes</B>
+
+<DD>
+The XFree86 X server traps certain magic keystrokes before client programs ever
+see them.  Two that are of note are Ctrl+Alt+Backspace, which causes 
+the X server to exit; and Ctrl+Alt+F<I>n</I>, which switches virtual consoles.
+The X server will respond to these keystrokes even if xscreensaver has the
+screen locked.  Depending on your setup, you might consider this a problem.
+<P>
+Unfortunately, there is no way for xscreensaver itself to override the
+interpretation of these keys.  If you want to disable Ctrl+Alt+Backspace
+globally, you need to set the <I>DontZap</I> flag in 
+your <I>/etc/X11/XF86Config</I> file.  To globally disable VT switching,
+you can set the <I>DontVTSwitch</I> flag.  See the
+<B><A HREF="../man5/XF86Config.5.php">XF86Config</A></B>(5)
+
+manual for details.
+<DT><B>MIT Extension and Fading</B>
+
+<DD>
+The <B>MIT-SCREEN-SAVER</B> extension is junk.  Don't use it.
+<P>
+When using the <B>MIT-SCREEN-SAVER</B> extension in conjunction with 
+the <B>fade</B> option, you'll notice an unattractive flicker just before 
+the fade begins.  This is because the server maps a black window just before 
+it tells the <I>xscreensaver</I> process to activate.  The <I>xscreensaver</I> 
+process immediately unmaps that window, but this results in a flicker.  I 
+haven't figured a way  to get around this; it seems to be a fundamental
+property of the (mis-) design of this server extension.
+<P>
+It sure would be nice if someone would implement the <B>SGI SCREEN_SAVER</B>
+extension in XFree86; it's dead simple, and works far better than the
+overengineered and broken <B>MIT-SCREEN-SAVER</B> extension.
+<DT><B>Keyboard LEDs</B>
+
+<DD>
+If <I>procInterrupts</I> is on (which is the default on Linux systems) and
+you're using some program that toggles the state of your keyboard LEDs,
+xscreensaver won't work right: turning those LEDs on or off causes a 
+keyboard interrupt, which xscreensaver will interpret as user activity.
+So if you're using such a program, set the <I>procInterrupts</I> resource
+to False.
+<DT><B>Extensions</B>
+
+<DD>
+If you are not making use of one of the server extensions (<B>XIDLE</B>,
+<B>SGI SCREEN_SAVER</B>, or <B>MIT-SCREEN-SAVER</B>), then it is possible, in 
+rare situations, for <I>xscreensaver</I> to interfere with event propagation 
+and make another X program malfunction.  For this to occur, that other
+application would need to <I>not</I> select <B>KeyPress</B> events on its 
+non-leaf windows within the first 30 seconds of their existence, but then 
+select for them later.  In this case, that client <I>might</I> fail to receive 
+those events.  This isn't very likely, since programs generally select a
+constant set of events immediately after creating their windows and then 
+don't change them, but this is the reason that it's a good idea to install 
+and use one of the server extensions instead, to work around this shortcoming
+in the X protocol.
+<P>
+In all these years, I've not heard of even a single case of this happening,
+but it is theoretically possible, so I'm mentioning it for completeness...
+</DL>
+<A NAME="lbAP">&nbsp;</A>
+<H2>ENVIRONMENT</H2>
+
+<P>
+
+<DL COMPACT>
+<DT><B>DISPLAY</B>
+
+<DD>
+to get the default host and display number, and to inform the sub-programs
+of the screen on which to draw.
+<DT><B>PATH</B>
+
+<DD>
+to find the sub-programs to run.
+<DT><B>HOME</B>
+
+<DD>
+for the directory in which to read the <I>.xscreensaver</I> file.
+<DT><B>XENVIRONMENT</B>
+
+<DD>
+to get the name of a resource file that overrides the global resources
+stored in the RESOURCE_MANAGER property.
+</DL>
+<A NAME="lbAQ">&nbsp;</A>
+<H2>UPGRADES</H2>
+
+The latest version of xscreensaver, an online version of this manual,
+and a FAQ can always be found at <A HREF="http://www.jwz.org/xscreensaver/">http://www.jwz.org/xscreensaver/</A>
+<A NAME="lbAR">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/X.1.php">X</A></B>(1),
+
+<B><A HREF="../man1/Xsecurity.1.php">Xsecurity</A></B>(1),
+
+<B><A HREF="../man1/xauth.1.php">xauth</A></B>(1),
+
+<B><A HREF="../man1/xscreensaver-demo.1.php">xscreensaver-demo</A></B>(1),
+
+<B><A HREF="../man1/xscreensaver-command.1.php">xscreensaver-command</A></B>(1),
+
+<B><A HREF="../man1/xscreensaver-gl-helper.1.php">xscreensaver-gl-helper</A></B>(1),
+
+<B><A HREF="../man1/xscreensaver-getimage.1.php">xscreensaver-getimage</A></B>(1),
+
+<B><A HREF="../man1/xdm.1.php">xdm</A></B>(1),
+
+<B><A HREF="../man1/gdm.1.php">gdm</A></B>(1),
+
+<B><A HREF="../man1/xset.1.php">xset</A></B>(1),
+
+<B><A HREF="../man1/xhost.1.php">xhost</A></B>(1).
+
+<B><A HREF="../man1/anemone.1.php">anemone</A></B>(1),
+
+<B><A HREF="../man1/ant.1.php">ant</A></B>(1),
+
+<B><A HREF="../man1/apollonian.1.php">apollonian</A></B>(1),
+
+<B><A HREF="../man1/atlantis.1.php">atlantis</A></B>(1),
+
+<B><A HREF="../man1/attraction.1.php">attraction</A></B>(1),
+
+<B><A HREF="../man1/barcode.1.php">barcode</A></B>(1),
+
+<B><A HREF="../man1/blaster.1.php">blaster</A></B>(1),
+
+<B><A HREF="../man1/blitspin.1.php">blitspin</A></B>(1),
+
+<B><A HREF="../man1/bouboule.1.php">bouboule</A></B>(1),
+
+<B><A HREF="../man1/boxed.1.php">boxed</A></B>(1),
+
+<B><A HREF="../man1/braid.1.php">braid</A></B>(1),
+
+<B><A HREF="../man1/bsod.1.php">bsod</A></B>(1),
+
+<B><A HREF="../man1/bubble3d.1.php">bubble3d</A></B>(1),
+
+<B><A HREF="../man1/bubbles.1.php">bubbles</A></B>(1),
+
+<B><A HREF="../man1/bumps.1.php">bumps</A></B>(1),
+
+<B><A HREF="../man1/cage.1.php">cage</A></B>(1),
+
+<B><A HREF="../man1/ccurve.1.php">ccurve</A></B>(1),
+
+<B><A HREF="../man1/circuit.1.php">circuit</A></B>(1),
+
+<B><A HREF="../man1/compass.1.php">compass</A></B>(1),
+
+<B><A HREF="../man1/coral.1.php">coral</A></B>(1),
+
+<B><A HREF="../man1/cosmos.1.php">cosmos</A></B>(1),
+
+<B><A HREF="../man1/critical.1.php">critical</A></B>(1),
+
+<B><A HREF="../man1/crystal.1.php">crystal</A></B>(1),
+
+<B><A HREF="../man1/cubenetic.1.php">cubenetic</A></B>(1),
+
+<B><A HREF="../man1/cynosure.1.php">cynosure</A></B>(1),
+
+<B><A HREF="../man1/dangerball.1.php">dangerball</A></B>(1),
+
+<B><A HREF="../man1/decayscreen.1.php">decayscreen</A></B>(1),
+
+<B><A HREF="../man1/deco.1.php">deco</A></B>(1),
+
+<B><A HREF="../man1/deluxe.1.php">deluxe</A></B>(1),
+
+<B><A HREF="../man1/demon.1.php">demon</A></B>(1),
+
+<B><A HREF="../man1/discrete.1.php">discrete</A></B>(1),
+
+<B><A HREF="../man1/distort.1.php">distort</A></B>(1),
+
+<B><A HREF="../man1/drift.1.php">drift</A></B>(1),
+
+<B><A HREF="../man1/electricsheep.1.php">electricsheep</A></B>(1),
+
+<B><A HREF="../man1/endgame.1.php">endgame</A></B>(1),
+
+<B><A HREF="../man1/engine.1.php">engine</A></B>(1),
+
+<B><A HREF="../man1/epicycle.1.php">epicycle</A></B>(1),
+
+<B><A HREF="../man1/eruption.1.php">eruption</A></B>(1),*
+
+<B><A HREF="../man1/euler2d.1.php">euler2d</A></B>(1),
+
+<B><A HREF="../man1/extrusion.1.php">extrusion</A></B>(1),
+
+<B><A HREF="../man1/fadeplot.1.php">fadeplot</A></B>(1),
+
+<B><A HREF="../man1/flag.1.php">flag</A></B>(1),
+
+<B><A HREF="../man1/flame.1.php">flame</A></B>(1),
+
+<B><A HREF="../man1/flipscreen3d.1.php">flipscreen3d</A></B>(1),
+
+<B><A HREF="../man1/flow.1.php">flow</A></B>(1),
+
+<B><A HREF="../man1/fluidballs.1.php">fluidballs</A></B>(1),
+
+<B><A HREF="../man1/flurry.1.php">flurry</A></B>(1),
+
+<B><A HREF="../man1/forest.1.php">forest</A></B>(1),
+
+<B><A HREF="../man1/galaxy.1.php">galaxy</A></B>(1),
+
+<B><A HREF="../man1/gears.1.php">gears</A></B>(1),
+
+<B><A HREF="../man1/gflux.1.php">gflux</A></B>(1),
+
+<B><A HREF="../man1/glblur.1.php">glblur</A></B>(1),
+
+<B><A HREF="../man1/glforestfire.1.php">glforestfire</A></B>(1),
+
+<B><A HREF="../man1/glplanet.1.php">glplanet</A></B>(1),
+
+<B><A HREF="../man1/glsnake.1.php">glsnake</A></B>(1),
+
+<B><A HREF="../man1/gltext.1.php">gltext</A></B>(1),
+
+<B><A HREF="../man1/goban.1.php">goban</A></B>(1),
+
+<B><A HREF="../man1/goop.1.php">goop</A></B>(1),
+
+<B><A HREF="../man1/grav.1.php">grav</A></B>(1),
+
+<B><A HREF="../man1/greynetic.1.php">greynetic</A></B>(1),
+
+<B><A HREF="../man1/halftone.1.php">halftone</A></B>(1),
+
+<B><A HREF="../man1/halo.1.php">halo</A></B>(1),
+
+<B><A HREF="../man1/helix.1.php">helix</A></B>(1),
+
+<B><A HREF="../man1/hopalong.1.php">hopalong</A></B>(1),
+
+<B><A HREF="../man1/hyperball.1.php">hyperball</A></B>(1),
+
+<B><A HREF="../man1/hypercube.1.php">hypercube</A></B>(1),
+
+<B><A HREF="../man1/ifs.1.php">ifs</A></B>(1),
+
+<B><A HREF="../man1/imsmap.1.php">imsmap</A></B>(1),
+
+<B><A HREF="../man1/interference.1.php">interference</A></B>(1),
+
+<B><A HREF="../man1/jigsaw.1.php">jigsaw</A></B>(1),
+
+<B><A HREF="../man1/juggle.1.php">juggle</A></B>(1),
+
+<B><A HREF="../man1/julia.1.php">julia</A></B>(1),
+
+<B><A HREF="../man1/kaleidescope.1.php">kaleidescope</A></B>(1),
+
+<B><A HREF="../man1/kumppa.1.php">kumppa</A></B>(1),
+
+<B><A HREF="../man1/lament.1.php">lament</A></B>(1),
+
+<B><A HREF="../man1/laser.1.php">laser</A></B>(1),
+
+<B><A HREF="../man1/lavalite.1.php">lavalite</A></B>(1),
+
+<B><A HREF="../man1/lightning.1.php">lightning</A></B>(1),
+
+<B><A HREF="../man1/lisa.1.php">lisa</A></B>(1),
+
+<B><A HREF="../man1/lissie.1.php">lissie</A></B>(1),
+
+<B><A HREF="../man1/lmorph.1.php">lmorph</A></B>(1),
+
+<B><A HREF="../man1/loop.1.php">loop</A></B>(1),
+
+<B><A HREF="../man1/maze.1.php">maze</A></B>(1),
+
+<B><A HREF="../man1/menger.1.php">menger</A></B>(1),
+
+<B><A HREF="../man1/metaballs.1.php">metaballs</A></B>(1),
+
+<B><A HREF="../man1/moebius.1.php">moebius</A></B>(1),
+
+<B><A HREF="../man1/moire.1.php">moire</A></B>(1),
+
+<B><A HREF="../man1/moire2.1.php">moire2</A></B>(1),
+
+<B><A HREF="../man1/molecule.1.php">molecule</A></B>(1),
+
+<B><A HREF="../man1/morph3d.1.php">morph3d</A></B>(1),
+
+<B><A HREF="../man1/mountain.1.php">mountain</A></B>(1),
+
+<B><A HREF="../man1/munch.1.php">munch</A></B>(1),
+
+<B><A HREF="../man1/nerverot.1.php">nerverot</A></B>(1),
+
+<B><A HREF="../man1/noseguy.1.php">noseguy</A></B>(1),
+
+<B><A HREF="../man1/pedal.1.php">pedal</A></B>(1),
+
+<B><A HREF="../man1/penetrate.1.php">penetrate</A></B>(1),
+
+<B><A HREF="../man1/penrose.1.php">penrose</A></B>(1),
+
+<B><A HREF="../man1/petri.1.php">petri</A></B>(1),
+
+<B><A HREF="../man1/phosphor.1.php">phosphor</A></B>(1),
+
+<B><A HREF="../man1/pipes.1.php">pipes</A></B>(1),
+
+<B><A HREF="../man1/polyominoes.1.php">polyominoes</A></B>(1),
+
+<B><A HREF="../man1/popsquares.1.php">popsquares</A></B>(1),
+
+<B><A HREF="../man1/pulsar.1.php">pulsar</A></B>(1),
+
+<B><A HREF="../man1/pyro.1.php">pyro</A></B>(1),
+
+<B><A HREF="../man1/qix.1.php">qix</A></B>(1),
+
+<B><A HREF="../man1/queens.1.php">queens</A></B>(1),
+
+<B><A HREF="../man1/rd-bomb.1.php">rd-bomb</A></B>(1),
+
+<B><A HREF="../man1/ripples.1.php">ripples</A></B>(1),
+
+<B><A HREF="../man1/rocks.1.php">rocks</A></B>(1),
+
+<B><A HREF="../man1/rorschach.1.php">rorschach</A></B>(1),
+
+<B><A HREF="../man1/rotor.1.php">rotor</A></B>(1),
+
+<B><A HREF="../man1/rotzoomer.1.php">rotzoomer</A></B>(1),
+
+<B><A HREF="../man1/rubik.1.php">rubik</A></B>(1),
+
+<B><A HREF="../man1/sballs.1.php">sballs</A></B>(1),
+
+<B><A HREF="../man1/shadebobs.1.php">shadebobs</A></B>(1),
+
+<B><A HREF="../man1/sierpinski.1.php">sierpinski</A></B>(1),
+
+<B><A HREF="../man1/sierpinski3d.1.php">sierpinski3d</A></B>(1),
+
+<B><A HREF="../man1/slidescreen.1.php">slidescreen</A></B>(1),
+
+<B><A HREF="../man1/slip.1.php">slip</A></B>(1),
+
+<B><A HREF="../man1/sonar.1.php">sonar</A></B>(1),
+
+<B><A HREF="../man1/speedmine.1.php">speedmine</A></B>(1),
+
+<B><A HREF="../man1/sphere.1.php">sphere</A></B>(1),
+
+<B><A HREF="../man1/sphereEversion.1.php">sphereEversion</A></B>(1),
+
+<B><A HREF="../man1/spheremonics.1.php">spheremonics</A></B>(1),
+
+<B><A HREF="../man1/spiral.1.php">spiral</A></B>(1),
+
+<B><A HREF="../man1/spotlight.1.php">spotlight</A></B>(1),
+
+<B><A HREF="../man1/sproingies.1.php">sproingies</A></B>(1),
+
+<B><A HREF="../man1/squiral.1.php">squiral</A></B>(1),
+
+<B><A HREF="../man1/ssystem.1.php">ssystem</A></B>(1),
+
+<B><A HREF="../man1/stairs.1.php">stairs</A></B>(1),
+
+<B><A HREF="../man1/starfish.1.php">starfish</A></B>(1),
+
+<B><A HREF="../man1/starwars.1.php">starwars</A></B>(1),
+
+<B><A HREF="../man1/stonerview.1.php">stonerview</A></B>(1),
+
+<B><A HREF="../man1/strange.1.php">strange</A></B>(1),
+
+<B><A HREF="../man1/superquadrics.1.php">superquadrics</A></B>(1),
+
+<B><A HREF="../man1/swirl.1.php">swirl</A></B>(1),
+
+<B><A HREF="../man1/t3d.1.php">t3d</A></B>(1),
+
+<B><A HREF="../man1/thornbird.1.php">thornbird</A></B>(1),
+
+<B><A HREF="../man1/triangle.1.php">triangle</A></B>(1),
+
+<B><A HREF="../man1/truchet.1.php">truchet</A></B>(1),
+
+<B><A HREF="../man1/twang.1.php">twang</A></B>(1),
+
+<B><A HREF="../man1/vermiculate.1.php">vermiculate</A></B>(1),
+
+<B><A HREF="../man1/vidwhacker.1.php">vidwhacker</A></B>(1),
+
+<B><A HREF="../man1/vines.1.php">vines</A></B>(1),
+
+<B><A HREF="../man1/wander.1.php">wander</A></B>(1),
+
+<B><A HREF="../man1/webcollage.1.php">webcollage</A></B>(1),
+
+<B><A HREF="../man1/whirlwindwarp.1.php">whirlwindwarp</A></B>(1),
+
+<B><A HREF="../man1/whirlygig.1.php">whirlygig</A></B>(1),
+
+<B><A HREF="../man1/worm.1.php">worm</A></B>(1),
+
+<B><A HREF="../man1/xaos.1.php">xaos</A></B>(1),
+
+<B><A HREF="../man1/xdaliclock.1.php">xdaliclock</A></B>(1),
+
+<B><A HREF="../man1/xearth.1.php">xearth</A></B>(1),
+
+<B><A HREF="../man1/xfishtank.1.php">xfishtank</A></B>(1),
+
+<B><A HREF="../man1/xflame.1.php">xflame</A></B>(1),
+
+<B><A HREF="../man1/xjack.1.php">xjack</A></B>(1),
+
+<B><A HREF="../man1/xlyap.1.php">xlyap</A></B>(1),
+
+<B><A HREF="../man1/xmatrix.1.php">xmatrix</A></B>(1),
+
+<B><A HREF="../man1/xmountains.1.php">xmountains</A></B>(1),
+
+<B><A HREF="../man1/xrayswarm.1.php">xrayswarm</A></B>(1),
+
+<B><A HREF="../man1/xsnow.1.php">xsnow</A></B>(1),
+
+<B><A HREF="../man1/xspirograph.1.php">xspirograph</A></B>(1),
+
+<B><A HREF="../man1/xteevee.1.php">xteevee</A></B>(1),
+
+<B><A HREF="../man1/zoom.1.php">zoom</A></B>(1)
+
+<A NAME="lbAS">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Copyright &#169; 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+2000, 2001, 2002, 2003, 2004 by Jamie Zawinski.  Permission to use, copy,
+modify, distribute, and sell this software and its documentation for
+any purpose is hereby granted without fee, provided that the above
+copyright notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting documentation.
+No representations are made about the suitability of this software for
+any purpose.  It is provided &quot;as is&quot; without express or implied
+warranty.
+<A NAME="lbAT">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Jamie Zawinski &lt;<A HREF="mailto:jwz@jwz.org">jwz@jwz.org</A>&gt;.  Written in late 1991; version 1.0 posted
+to comp.sources.x on 17-Aug-1992.
+<P>
+Please let me know if you find any bugs or make any improvements.
+<A NAME="lbAU">&nbsp;</A>
+<H2>ACKNOWLEDGEMENTS</H2>
+
+Thanks to Angela Goodman for the XScreenSaver logo.
+<P>
+Thanks to the many people who have contributed graphics demos to the package.
+<P>
+Thanks to David Wojtowicz for implementing <I>lockTimeout</I>.
+<P>
+Thanks to Martin Kraemer for adding support for shadow passwords and
+locking-disabled diagnostics.
+<P>
+Thanks to Patrick Moreau for the VMS port.
+<P>
+Thanks to Nat Lanza for the Kerberos support.
+<P>
+Thanks to Bill Nottingham for the initial PAM support.
+<P>
+And thanks to Jon A. Christopher for implementing the Athena dialog
+support, back in the days before Lesstif or Gtk were viable alternatives
+to Motif.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">GETTING STARTED</A><DD>
+<DT><A HREF="#lbAF">CONFIGURATION</A><DD>
+<DT><A HREF="#lbAG">COMMAND-LINE OPTIONS</A><DD>
+<DT><A HREF="#lbAH">HOW IT WORKS</A><DD>
+<DT><A HREF="#lbAI">POWER MANAGEMENT</A><DD>
+<DT><A HREF="#lbAJ">USING XDM(1)</A><DD>
+<DT><A HREF="#lbAK">USING GDM(1)</A><DD>
+<DT><A HREF="#lbAL">USING KDE (K DESKTOP ENVIRONMENT)</A><DD>
+<DT><A HREF="#lbAM">USING CDE (COMMON DESKTOP ENVIRONMENT)</A><DD>
+<DT><A HREF="#lbAN">USING HP VUE (VISUAL USER ENVIRONMENT)</A><DD>
+<DT><A HREF="#lbAO">BUGS</A><DD>
+<DT><A HREF="#lbAP">ENVIRONMENT</A><DD>
+<DT><A HREF="#lbAQ">UPGRADES</A><DD>
+<DT><A HREF="#lbAR">SEE ALSO</A><DD>
+<DT><A HREF="#lbAS">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAT">AUTHOR</A><DD>
+<DT><A HREF="#lbAU">ACKNOWLEDGEMENTS</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

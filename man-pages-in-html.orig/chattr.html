@@ -1,0 +1,294 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>CHATTR</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+<div id="banner">
+<a href='/'><img src='/include/images/linuxmanpages_logo.png' alt='Linux Man Pages' border='0'></a>
+</div>
+<div id="formLinks">
+<table id="searchTable">
+<tr>
+<form action='/search.php' method='post'>
+<td>Search For :</td>
+<td><input type="text" size="20" name="term"></td>
+<td>in: </td>
+
+<td>
+<select name="section">
+<option value="-1">All Sections</option>
+<option value="1">1. General Commands</option>
+<option value="2">2. System Calls</option>
+<option value="3">3. Subroutines</option>
+<option value="4">4. Special Files</option>
+<option value="5">5. File Formats</option>
+<option value="6">6. Games and Demos</option>
+<option value="7">7. Macros and Conventions</option>
+<option value="8">8. Maintenence Commands</option>
+</select> 
+</td>
+<td>
+<input type='hidden' name='submitted' value='1'>
+<input type="submit" value="Get Man Page">
+</td>
+</form>
+</tr>
+</table>
+</div>
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>CHATTR</H1>
+Section: User Commands  (1)<BR>Updated: February 2004<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+chattr - change file attributes on a Linux second extended file system
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>chattr</B>
+
+[
+<B>-RV</B>
+
+]
+[
+<B>-v</B>
+
+<I>version</I>
+
+]
+[
+<I>mode</I>
+
+]
+<I>files...</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>chattr</B>
+
+changes the file attributes on a Linux second extended file system.
+<P>
+
+The format of a symbolic mode is +-=[ASacDdIijsTtu].
+<P>
+
+The operator `+' causes the selected attributes to be added to the
+existing attributes of the files; `-' causes them to be removed; and
+`=' causes them to be the only attributes that the files have.
+<P>
+
+The letters `acdijsuADST' select the new attributes for the files: 
+append only (a), compressed (c), no dump (d), immutable (i),
+data journalling (j), secure deletion (s), no tail-merging (t), 
+undeletable (u), no atime updates (A), synchronous directory updates (D), 
+synchronous updates (S), and top of directory hierarchy (T).
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-R</B>
+
+<DD>
+Recursively change attributes of directories and their contents.
+Symbolic links encountered during recursive directory traversals are
+ignored.
+<DT><B>-V</B>
+
+<DD>
+Be verbose with chattr's output and print the program version.
+<DT><B>-v</B><I> version</I>
+
+<DD>
+Set the file's version/generation number.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>ATTRIBUTES</H2>
+
+When a file with the 'A' attribute set is accessed, its atime record is
+not modified.  This avoids a certain amount of disk I/O for laptop
+systems.
+<P>
+
+A file with the `a' attribute set can only be open in append mode for writing.
+Only the superuser or a process possessing the CAP_LINUX_IMMUTABLE 
+capability can set or clear this attribute.
+<P>
+
+A file with the `c' attribute set is automatically compressed on the disk
+by the kernel.  A read from this file returns uncompressed data.  A write to
+this file compresses data before storing them on the disk.
+<P>
+
+When a directory with the `D' attribute set is modified,
+the changes are written synchronously on the disk; this is equivalent to
+the `dirsync' mount option applied to a subset of the files.
+<P>
+
+A file with the `d' attribute set is not candidate for backup when the
+<B><A HREF="../man8/dump.8.php">dump</A></B>(8)
+
+program is run.
+<P>
+
+The 'E' attribute is used by the experimental compression patches to 
+indicate that a compressed file has a compression error.  It may not be
+set or reset using 
+<B><A HREF="../man1/chattr.1.php">chattr</A></B>(1),
+
+although it can be displayed by
+<B><A HREF="../man1/lsattr.1.php">lsattr</A></B>(1).
+
+<P>
+
+The 'I' attribute is used by the htree code to indicate that a directory
+is behind indexed using hashed trees.  It may not be set or reset using 
+<B><A HREF="../man1/chattr.1.php">chattr</A></B>(1),
+
+although it can be displayed by
+<B><A HREF="../man1/lsattr.1.php">lsattr</A></B>(1).
+
+<P>
+
+A file with the `i' attribute cannot be modified: it cannot be deleted or
+renamed, no link can be created to this file and no data can be written
+to the file.  Only the superuser or a process possessing the
+CAP_LINUX_IMMUTABLE capability can set or clear this attribute.
+<P>
+
+A file with the `j' attribute has all of its data written to the ext3
+journal before being written to the file itself, if the filesystem is
+mounted with the &quot;data=ordered&quot; or &quot;data=writeback&quot; options.  When the
+filesystem is mounted with the &quot;data=journal&quot; option all file data
+is already journalled and this attribute has no effect.  
+Only the superuser or a process possessing the CAP_SYS_RESOURCE
+capability can set or clear this attribute.
+<P>
+
+When a file with the `s' attribute set is deleted, its blocks are zeroed and
+written back to the disk.
+<P>
+
+When a file with the `S' attribute set is modified,
+the changes are written synchronously on the disk; this is equivalent to
+the `sync' mount option applied to a subset of the files.
+<P>
+
+A directory with the 'T' attribute will be deemed to be the top of 
+directory hierarchies for the purposes of the Orlov block allocator
+(which is used in on systems with Linux 2.5.46 or later).
+<P>
+
+A file with the 't' attribute will not have a partial block fragment at
+the end of the file merged with other files (for those filesystems which
+support tail-merging).  This is necessary for applications such as LILO 
+which read the filesystem directly, and which don't understand tail-merged
+files.  Note: As of this writing, the ext2 or ext3 filesystems do not
+(yet, except in very experimental patches) support tail-merging.
+<P>
+
+When a file with the `u' attribute set is deleted, its contents are saved.
+This allows the user to ask for its undeletion.
+<P>
+
+The 'X' attribute is used by the experimental compression patches to 
+indicate that a raw contents of a compressed file can be accessed
+directly.  It currently may not be set or reset using 
+<B><A HREF="../man1/chattr.1.php">chattr</A></B>(1),
+
+although it can be displayed by
+<B><A HREF="../man1/lsattr.1.php">lsattr</A></B>(1).
+
+<P>
+
+The 'Z' attribute is used by the experimental compression patches to 
+indicate a compressed file is dirty.  It may not be set or reset using 
+<B><A HREF="../man1/chattr.1.php">chattr</A></B>(1),
+
+although it can be displayed by
+<B><A HREF="../man1/lsattr.1.php">lsattr</A></B>(1).
+
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<B>chattr</B>
+
+was written by Remy Card &lt;<A HREF="mailto:Remy.Card@linux.org">Remy.Card@linux.org</A>&gt;.  It is currently being
+maintained by Theodore Ts'o &lt;<A HREF="mailto:tytso@alum.mit.edu">tytso@alum.mit.edu</A>&gt;.
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS AND LIMITATIONS</H2>
+
+The `c', 's',  and `u' attributes are not honored 
+by the ext2 and ext3 filesystems as implemented in the current mainline
+Linux kernels.    These attributes may be implemented
+in future versions ext2 and ext3.
+<P>
+
+The `j' option is only useful if the filesystem is mounted as ext3.
+<P>
+
+The `D' option is only useful on Linux kernel 2.5.19 and later.
+<A NAME="lbAI">&nbsp;</A>
+<H2>AVAILABILITY</H2>
+
+<B>chattr</B>
+
+is part of the e2fsprogs package and is available from
+<A HREF="http://e2fsprogs.sourceforge.net.">http://e2fsprogs.sourceforge.net.</A>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="../man1/lsattr.1.php">lsattr</A></B>(1)
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">ATTRIBUTES</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+<DT><A HREF="#lbAH">BUGS AND LIMITATIONS</A><DD>
+<DT><A HREF="#lbAI">AVAILABILITY</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+
+</div>
+
+<div id="disqus_thread"></div>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=linuxmanpages">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="footer"><div class="littletext"> LinuxManPages.com &copy; <a class="white"  href="http://www.name.com">Name.com</a>&nbsp;&nbsp;&nbsp;Links: <!--<a class='white' href='http://www.earthsearch.net'>geographic information</a> |-->
+<a class='white' href='http://www.who.is'>who.is search</a> |
+<a class='white' href='http://www.bluerider.com'>dictionary</a> |
+<a class='white' href='http://www.tld.io' class='small'>ccTLD information</a> 
+</div></div>
+</div>
+
+
+
+
+</body>
+</html>

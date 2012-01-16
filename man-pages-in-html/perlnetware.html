@@ -1,0 +1,326 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>PERLNETWARE</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/global/main.css" title="default">
+</head>
+
+<body>
+
+
+
+<div id="container">
+
+
+<div id="content">
+
+<div id='catHeader'><table width='100%'><tr><td>
+<H1>PERLNETWARE</H1>
+Section: Perl Programmers Reference Guide (1)<BR>Updated: 2004-04-23<BR>
+</td><td align='right' valign='bottom'><div class='ad_header_right'></div></td></tr></table></div></div>
+<div id='categories'>
+<div class='ad_man_right'>
+</div>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+perlnetware - Perl for NetWare
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<A NAME="ixAAC"></A>
+This file gives instructions for building Perl 5.7 and above, and also 
+Perl modules for NetWare. Before you start, you may want to read the
+<FONT SIZE="-1">README</FONT> file found in the top level directory into which the Perl source
+code distribution was extracted. Make sure you read and understand
+the terms under which the software is being distributed.
+<A NAME="lbAD">&nbsp;</A>
+<H2>BUILD</H2>
+
+<A NAME="ixAAD"></A>
+This section describes the steps to be performed to build a Perl <FONT SIZE="-1">NLM</FONT>
+and other associated NLMs.
+<A NAME="lbAE">&nbsp;</A>
+<H2>Tools &amp; <FONT SIZE="-1">SDK</FONT></H2>
+
+<A NAME="ixAAE"></A>
+The build requires CodeWarrior compiler and linker.  In addition,
+the ``NetWare <FONT SIZE="-1">SDK</FONT>'', ``<FONT SIZE="-1">NLM</FONT> &amp; NetWare Libraries for C'' and
+``NetWare Server Protocol Libraries for C'', all available at
+&lt;<A HREF="http://developer.novell.com/ndk/">http://developer.novell.com/ndk/</A>&gt;, are also required.
+Microsoft Visual C<FONT SIZE="-2">++</FONT> version 4.2 or later is also required.
+<A NAME="lbAF">&nbsp;</A>
+<H2>Setup</H2>
+
+<A NAME="ixAAF"></A>
+The build process is dependent on the location of the NetWare <FONT SIZE="-1">SDK</FONT>.
+Once the Tools &amp; <FONT SIZE="-1">SDK</FONT> are installed, the build environment has to
+be setup.  The following batch files setup the environment.
+<DL COMPACT>
+<DT>SetNWBld.bat<DD>
+<A NAME="ixAAG"></A>
+The Execution of this file takes 2 parameters as input. The first
+being the NetWare <FONT SIZE="-1">SDK</FONT> path, second being the path for CodeWarrior
+Compiler &amp; tools. Execution of this file sets these paths and also
+sets the build type to Release by default.
+<DT>Buildtype.bat<DD>
+<A NAME="ixAAH"></A>
+This is used to set the build type to debug or release. Change the
+build type only after executing SetNWBld.bat
+<DT>*<DD>
+Example:
+<BR>&nbsp;&nbsp;1.&nbsp;Typing&nbsp;``buildtype&nbsp;d&nbsp;on''&nbsp;at&nbsp;the&nbsp;command&nbsp;prompt&nbsp;causes&nbsp;the&nbsp;buildtype
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;be&nbsp;set&nbsp;to&nbsp;Debug&nbsp;type&nbsp;with&nbsp;D2&nbsp;flag&nbsp;set.&nbsp;
+<BR>&nbsp;&nbsp;2.&nbsp;Typing&nbsp;``buildtype&nbsp;d&nbsp;off''&nbsp;or&nbsp;``buildtype&nbsp;d''&nbsp;at&nbsp;the&nbsp;command&nbsp;prompt&nbsp;causes
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;buildtype&nbsp;to&nbsp;be&nbsp;set&nbsp;to&nbsp;Debug&nbsp;type&nbsp;with&nbsp;D1&nbsp;flag&nbsp;set.&nbsp;
+<BR>&nbsp;&nbsp;2.&nbsp;Typing&nbsp;``buildtype&nbsp;r''&nbsp;at&nbsp;the&nbsp;command&nbsp;prompt&nbsp;sets&nbsp;it&nbsp;to&nbsp;Release&nbsp;Build&nbsp;type.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>Make</H2>
+
+<A NAME="ixAAI"></A>
+The make process runs only under WinNT shell.  The NetWare makefile is
+located under the NetWare folder.  This makes use of miniperl.exe to
+run some of the Perl scripts. To create miniperl.exe, first set the
+required paths for Visual c++ compilier (specify vcvars32 location) at
+the command prompt.  Then run nmake from win32 folder through WinNT
+command prompt.  The build process can be stopped after miniperl.exe
+is created. Then run nmake from NetWare folder through WinNT command
+prompt.
+<P>
+
+Currently the following two build types are tested on NetWare:
+<DL COMPACT>
+<DT>*<DD>
+<FONT SIZE="-1">USE_MULTI</FONT>, <FONT SIZE="-1">USE_ITHREADS</FONT> &amp; <FONT SIZE="-1">USE_IMP_SYS</FONT> defined
+<DT>*<DD>
+<FONT SIZE="-1">USE_MULTI</FONT> &amp; <FONT SIZE="-1">USE_IMP_SYS</FONT> defined and <FONT SIZE="-1">USE_ITHREADS</FONT> not defined
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>Interpreter</H2>
+
+<A NAME="ixAAJ"></A>
+Once miniperl.exe creation is over, run nmake from the NetWare folder.
+This will build the Perl interpreter for NetWare as <I>perl.nlm</I>.
+This is copied under the <I>Release</I> folder if you are doing
+a release build, else will be copied under <I>Debug</I> folder for debug builds.
+<A NAME="lbAI">&nbsp;</A>
+<H2>Extensions</H2>
+
+<A NAME="ixAAK"></A>
+The make process also creates the Perl extensions as <I>&lt;Extension</I>.nlm&gt;
+<A NAME="lbAJ">&nbsp;</A>
+<H2>INSTALL</H2>
+
+<A NAME="ixAAL"></A>
+To install NetWare Perl onto a NetWare server, first map the Sys
+volume of a NetWare server to <I>i:</I>. This is because the makefile by
+default sets the drive letter to <I>i:</I>.  Type <I>nmake nwinstall</I> from
+NetWare folder on a WinNT command prompt.  This will copy the binaries
+and module files onto the NetWare server under <I>sys:\Perl</I>
+folder. The Perl interpreter, <I>perl.nlm</I>, is copied under
+<I>sys:\perl\system</I> folder.  Copy this to <I>sys:\system</I> folder.
+<P>
+
+Example: At the command prompt Type ``nmake nwinstall''.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;will&nbsp;install&nbsp;NetWare&nbsp;Perl&nbsp;on&nbsp;the&nbsp;NetWare&nbsp;Server.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Similiarly&nbsp;if&nbsp;you&nbsp;type&nbsp;``nmake&nbsp;install'',
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;will&nbsp;cause&nbsp;the&nbsp;binaries&nbsp;to&nbsp;be&nbsp;installed&nbsp;on&nbsp;the&nbsp;local&nbsp;machine.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Typically&nbsp;under&nbsp;the&nbsp;c:\perl&nbsp;folder)
+<A NAME="lbAK">&nbsp;</A>
+<H2>BUILD NEW EXTENSIONS</H2>
+
+<A NAME="ixAAM"></A>
+To build extensions other than standard extensions, NetWare Perl has
+to be installed on Windows along with Windows Perl. The Perl for
+Windows can be either downloaded from the <FONT SIZE="-1">CPAN</FONT> site and built using
+the sources, or the binaries can be directly downloaded from the
+ActiveState site.  Installation can be done by invoking <I>nmake
+install</I> from the NetWare folder on a WinNT command prompt after
+building NetWare Perl by following steps given above.  This will copy
+all the *.pm files and other required files.  Documentation files are
+not copied.  Thus one must first install Windows Perl, Then install
+NetWare Perl.
+<P>
+
+Once this is done, do the following to build any extension:
+<DL COMPACT>
+<DT>*<DD>
+Change to the extension directory where its source files are present.
+<DT>*<DD>
+Run the following command at the command prompt:
+
+
+<P>
+
+
+
+
+<PRE>
+    perl -II&lt;path to NetWare lib dir&gt; -II&lt;path to lib&gt; Makefile.pl
+
+</PRE>
+
+
+
+
+<P>
+
+
+Example:
+
+
+<P>
+
+
+
+
+<PRE>
+    perl -Ic:/perl/5.6.1/lib/NetWare-x86-multi-thread -Ic:\perl\5.6.1\lib MakeFile.pl
+
+</PRE>
+
+
+
+
+<P>
+
+
+or
+
+
+<P>
+
+
+
+
+<PRE>
+    perl -Ic:/perl/5.8.0/lib/NetWare-x86-multi-thread -Ic:\perl\5.8.0\lib MakeFile.pl
+
+</PRE>
+
+
+<DT>*<DD>
+nmake
+<DT>*<DD>
+nmake install
+
+
+<P>
+
+
+Install will copy the files into the Windows machine where NetWare
+Perl is installed and these files may have to be copied to the NetWare
+server manually. Alternatively, pass <I>INSTALLSITELIB=i:\perl\lib</I> as
+an input to makefile.pl above. Here <I>i:</I> is the mapped drive to the
+sys: volume of the server where Perl on NetWare is installed. Now
+typing <I>nmake install</I>, will copy the files onto the NetWare server.
+
+
+<P>
+
+
+Example: You can execute the following on the command prompt.
+
+
+<P>
+
+
+
+
+<PRE>
+          perl -Ic:/perl/5.6.1/lib/NetWare-x86-multi-thread -Ic:\perl\5.6.1\lib MakeFile.pl
+          INSTALLSITELIB=i:\perl\lib
+
+</PRE>
+
+
+
+
+<P>
+
+
+or
+
+
+<P>
+
+
+
+
+<PRE>
+          perl -Ic:/perl/5.8.0/lib/NetWare-x86-multi-thread -Ic:\perl\5.8.0\lib MakeFile.pl
+          INSTALLSITELIB=i:\perl\lib
+
+</PRE>
+
+
+<DT>*<DD>
+Note: Some modules downloaded from <FONT SIZE="-1">CPAN</FONT> may require NetWare related
+<FONT SIZE="-1">API</FONT> in order to build on NetWare.  Other modules may however build
+smoothly with or without minor changes depending on the type of
+module.
+</DL>
+<A NAME="lbAL">&nbsp;</A>
+<H2>ACKNOWLEDGEMENTS</H2>
+
+<A NAME="ixAAN"></A>
+The makefile for Win32 is used as a reference to create the makefile
+for NetWare.  Also, the make process for NetWare port uses
+miniperl.exe to run scripts during the make and installation process.
+<A NAME="lbAM">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+<A NAME="ixAAO"></A>
+Anantha Kesari H Y (<A HREF="mailto:hyanantha@novell.com">hyanantha@novell.com</A>)
+Aditya C (<A HREF="mailto:caditya@novell.com">caditya@novell.com</A>)
+<A NAME="lbAN">&nbsp;</A>
+<H2>DATE</H2>
+
+<A NAME="ixAAP"></A>
+<DL COMPACT>
+<DT>*<DD>
+Created - 18 Jan 2001
+<DT>*<DD>
+Modified - 25 June 2001
+<DT>*<DD>
+Modified - 13 July 2001
+<DT>*<DD>
+Modified - 28 May 2002
+<P>
+</DL>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">BUILD</A><DD>
+<DT><A HREF="#lbAE">Tools &amp; <FONT SIZE="-1">SDK</FONT></A><DD>
+<DT><A HREF="#lbAF">Setup</A><DD>
+<DT><A HREF="#lbAG">Make</A><DD>
+<DT><A HREF="#lbAH">Interpreter</A><DD>
+<DT><A HREF="#lbAI">Extensions</A><DD>
+<DT><A HREF="#lbAJ">INSTALL</A><DD>
+<DT><A HREF="#lbAK">BUILD NEW EXTENSIONS</A><DD>
+<DT><A HREF="#lbAL">ACKNOWLEDGEMENTS</A><DD>
+<DT><A HREF="#lbAM">AUTHORS</A><DD>
+<DT><A HREF="#lbAN">DATE</A><DD>
+</DL>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+</html>
