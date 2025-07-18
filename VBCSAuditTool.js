@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const htmlparser2 = require('htmlparser2');
+//const fs = require('fs');
+//const path = require('path');
+//const htmlparser2 = require('htmlparser2');
 
 /**
  * The core auditing engine for VBCS components.
