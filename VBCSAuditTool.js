@@ -136,7 +136,11 @@ class VBCSAuditTool {
     
     // Stubs for all audit methods. The engine developer will implement these.
     auditModelStructure(modelData) { if(!modelData.title) { this.addIssue('warning', `Page is missing a title in its settings.`, 0, 0); }}
-    auditVariables(modelData) { /* Implement logic */ }
+    
+    auditVariables(modelData) { 
+        this.addIssue('warning', `AuditVariables error`, 0, 0); 
+    }
+
     auditTypes(modelData) { /* Implement logic */ }
     auditActionChains(modelData) { /* Implement logic */ }
     auditEventListeners(modelData) { /* Implement logic */ }
