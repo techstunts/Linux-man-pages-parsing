@@ -57,18 +57,26 @@ class VBCSAuditTool {
 
             // Perform comprehensive audits
             console.log('VBCS Audit: Running custom audit methods...');
-            this.auditModelStructure(modelData);
-            this.auditVariables(modelData);
-            this.auditTypes(modelData);
-            this.auditActionChains(modelData);
-            this.auditEventListeners(modelData);
-            this.auditBindings(componentTree, modelData);
-            this.auditComponentStructure(componentTree);
-            this.auditImports(modelData, componentTree);
-            this.auditSecurity(modelData);
-            this.auditTranslations(modelData, componentTree);
-            this.auditFragments(componentTree);
-            this.auditPerformance(modelData, componentTree);
+            const safeAudit = (fn, ...args) => {
+                try {
+                    fn.apply(this, args);
+                } catch (error) {
+                    this.addIssue('error', `Failed to audit file: ${error.message}`, 0, 0);
+                }
+            };
+
+            safeAudit(this.auditModelStructure, modelData);
+            safeAudit(this.auditVariables, modelData);
+            safeAudit(this.auditTypes, modelData);
+            safeAudit(this.auditActionChains, modelData);
+            safeAudit(this.auditEventListeners, modelData);
+            safeAudit(this.auditBindings, componentTree, modelData);
+            safeAudit(this.auditComponentStructure, componentTree);
+            safeAudit(this.auditImports, modelData, componentTree);
+            safeAudit(this.auditSecurity, modelData);
+            safeAudit(this.auditTranslations, modelData, componentTree);
+            safeAudit(this.auditFragments, componentTree, modelData);
+            safeAudit(this.auditPerformance, modelData, componentTree);
             console.log('VBCS Audit: Completed all audit methods. Total issues found:', this.issues.length);
 
             return {
