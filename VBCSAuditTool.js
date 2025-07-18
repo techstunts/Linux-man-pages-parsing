@@ -7,10 +7,19 @@ const htmlparser2 = require('htmlparser2');
  * This class is self-contained and has no dependency on the VS Code API.
  */
 class VBCSAuditTool {
-    constructor() {
+    constructor(dependencies) {
+        if (!dependencies || !dependencies.fs || !dependencies.path || !dependencies.htmlparser2) {
+            throw new Error("VBCSAuditTool is missing required dependencies (fs, path, htmlparser2).");
+        }
+        // 3. STORE the dependencies on the instance.
+        this.fs = dependencies.fs;
+        this.path = dependencies.path;
+        this.htmlparser2 = dependencies.htmlparser2;
+
         this.issues = [];
         this.componentTree = {};
     }
+
 
     // Main audit function
     async auditVBCSComponent(htmlFilePath) {
@@ -19,25 +28,26 @@ class VBCSAuditTool {
 
         try {
             // Read HTML file
-            if (!fs.existsSync(htmlFilePath)) {
+            if (!this.fs.existsSync(htmlFilePath)) {
                  this.addIssue('error', `HTML file not found: ${htmlFilePath}`, 0, 0);
                  return { tree: {}, issues: this.issues, summary: this.generateSummary() };
             }
-            const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+            const htmlContent = this.fs.readFileSync(htmlFilePath, 'utf8');
 
             // Find corresponding JSON model file
             const jsonFilePath = this.getModelFilePath(htmlFilePath);
             let modelData = {};
 
-            if (fs.existsSync(jsonFilePath)) {
+            if (this.fs.existsSync(jsonFilePath)) {
                 try {
-                    const jsonContent = fs.readFileSync(jsonFilePath, 'utf8');
+                    const jsonContent = this.fs.readFileSync(jsonFilePath, 'utf8');
                     modelData = JSON.parse(jsonContent);
                 } catch (e) {
-                    this.addIssue('error', `Failed to parse model file ${path.basename(jsonFilePath)}: ${e.message}`, 0, 0);
+                    this.addIssue('warning', `Model file not found: ${this.path.basename(jsonFilePath)}`, 0, 0);
+                    this.addIssue('error', `Failed to parse model file ${this.path.basename(jsonFilePath)}: ${e.message}`, 0, 0);
                 }
             } else {
-                this.addIssue('warning', `Model file not found: ${path.basename(jsonFilePath)}`, 0, 0);
+                this.addIssue('warning', `Model file not found: ${this.path.basename(jsonFilePath)}`, 0, 0);
             }
 
             // Parse HTML and build component tree
@@ -74,9 +84,9 @@ class VBCSAuditTool {
 
     // Get model file path from HTML file path
     getModelFilePath(htmlFilePath) {
-        const dir = path.dirname(htmlFilePath);
-        const basename = path.basename(htmlFilePath, '.html');
-        return path.join(dir, `${basename}.json`);
+        const dir = this.path.dirname(htmlFilePath);
+        const basename = this.path.basename(htmlFilePath, '.html');
+        return this.path.join(dir, `${basename}.json`);
     }
 
     // Parse HTML to AST-like structure
@@ -86,7 +96,7 @@ class VBCSAuditTool {
             const stack = [ast];
             let currentLine = 1;
 
-            const parser = new htmlparser2.Parser({
+            const parser = new this.htmlparser2.Parser({
                 onopentag: (name, attributes) => {
                     const node = { type: 'element', tagName: name, attributes, children: [], bindings: [], line: parser.startIndex, column: 0, variables: new Set(), events: [] };
                     if (name.startsWith('oj-')) { node.isOracleJET = true; ast.components.push({ name, line: currentLine, attributes }); }
